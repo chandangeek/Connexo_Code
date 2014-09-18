@@ -1,5 +1,5 @@
 Ext.define('Dsh.controller.Connections', {
-    extend: 'Ext.app.Controller',
+    extend: 'Dsh.controller.BaseController',
 
     models: [
         'Dsh.model.ConnectionTask',
@@ -46,11 +46,11 @@ Ext.define('Dsh.controller.Connections', {
         },
         {
             ref: 'filterPanel',
-            selector: '#dshconnectionsfilterpanel'
+            selector: 'filter-top-panel'
         },
         {
             ref: 'sideFilterForm',
-            selector: '#dshconnectionssidefilter nested-form'
+            selector: 'dsh-side-filter nested-form'
         }
     ],
 
@@ -61,56 +61,19 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#communicationsdetails': {
                 selectionchange: this.onCommunicationSelectionChange
-            },
-            '#dshconnectionssidefilter button[action=applyfilter]': {
-                click: this.applyFilter
-            },
-            '#dshconnectionsfilterpanel': {
-                removeFilter: this.removeFilter,
-                clearAllFilters: this.clearFilter
-            },
-            '#dshconnectionssidefilter nested-form side-filter-combo': {
-                change: this.onFilterChange
             }
         });
-        this.callParent(arguments);
-    },
 
-    onFilterChange: function (combo) {
-        this.getFilterPanel().setFilter(combo.getName(), combo.getFieldLabel(), combo.getRawValue());
+        this.callParent(arguments);
     },
 
     showOverview: function () {
         var widget = Ext.widget('connections-details'),
-            router = this.getController('Uni.controller.history.Router');
+            router = this.getController('Uni.controller.history.Router'),
+            store = this.getStore('Dsh.store.ConnectionTasks');
 
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.getSideFilterForm().loadRecord(router.filter);
-
-        var value = '';
-        if (router.filter.startedBetween) {
-            if (router.filter.startedBetween.get('from') && (router.filter.startedBetween.get('from') || router.filter.startedBetween.get('to'))) {
-                value += ' from ' + Ext.util.Format.date(router.filter.startedBetween.get('from'), 'd/m/Y H:i');
-            }
-            if (router.filter.startedBetween.get('to')) {
-                value += ' to ' + Ext.util.Format.date(router.filter.startedBetween.get('to'), 'd/m/Y H:i');
-            }
-
-            this.getFilterPanel().setFilter('startedBetween', 'Started between', value);
-        }
-
-        if (router.filter.finishedBetween && (router.filter.finishedBetween.get('from') || router.filter.finishedBetween.get('to'))) {
-            value = '';
-            if (router.filter.finishedBetween.get('from')) {
-                value += ' from ' + Ext.util.Format.date(router.filter.finishedBetween.get('from'), 'd/m/Y H:i');
-            }
-            if (router.filter.finishedBetween.get('to')) {
-                value += ' to ' + Ext.util.Format.date(router.filter.finishedBetween.get('to'), 'd/m/Y H:i');
-            }
-            this.getFilterPanel().setFilter('finishedBetween', 'Finished between', value);
-        }
-
-        var store = this.getStore('Dsh.store.ConnectionTasks');
+        this.initFilter();
         store.setFilterModel(router.filter);
         store.load();
     },
@@ -161,32 +124,5 @@ Ext.define('Dsh.controller.Connections', {
             me.getCommTasksTitle().setTitle(Uni.I18n.translate('communication.widget.details.commTasksOf', 'DSH', 'Communication tasks of') + ' ' + record.get('title'));
             me.getCommunicationList().getSelectionModel().select(0);
         }
-    },
-
-    applyFilter: function () {
-        this.getSideFilterForm().updateRecord();
-        this.getSideFilterForm().getRecord().save();
-    },
-
-    removeFilter: function (key) {
-        var router = this.getController('Uni.controller.history.Router'),
-            record = router.filter;
-
-        switch (key) {
-            case 'startedBetween':
-                delete record.startedBetween;
-                break;
-            case 'finishedBetween':
-                delete record.finishedBetween;
-                break;
-            default:
-                record.set(key, null);
-        }
-
-        record.save();
-    },
-
-    clearFilter: function () {
-        this.getSideFilterForm().getRecord().getProxy().destroy();
     }
 });

@@ -1,5 +1,5 @@
 Ext.define('Dsh.controller.Communications', {
-    extend: 'Ext.app.Controller',
+    extend: 'Dsh.controller.BaseController',
 
     views: [
         'Dsh.view.Communications',
@@ -18,6 +18,14 @@ Ext.define('Dsh.controller.Communications', {
         {
             ref: 'connectionPreview',
             selector: '#connectiondetails'
+        },
+        {
+            ref: 'filterPanel',
+            selector: 'filter-top-panel'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: 'dsh-side-filter nested-form'
         }
     ],
 
@@ -27,13 +35,22 @@ Ext.define('Dsh.controller.Communications', {
                 selectionchange: this.onSelectionChange
             }
         });
-        this.getStore('Dsh.store.CommunicationTasks').load();
+
         this.callParent(arguments);
     },
+
     showOverview: function () {
-        var widget = Ext.widget('communications-details');
+        var widget = Ext.widget('communications-details'),
+            router = this.getController('Uni.controller.history.Router'),
+            store = this.getStore('Dsh.store.CommunicationTasks');
+
         this.getApplication().fireEvent('changecontentevent', widget);
+        debugger;
+        this.initFilter();
+        store.setFilterModel(router.filter);
+        store.load();
     },
+
     onSelectionChange: function (grid, selected) {
         var me = this,
             record = selected[0],

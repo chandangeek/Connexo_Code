@@ -10,6 +10,9 @@ Ext.define('Dsh.view.Communications', {
     ],
     content: [
         {
+            xtype: 'filter-top-panel'
+        },
+        {
             xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate('workspace.dataCommunication.communication.title', 'DSH', 'Communications'),

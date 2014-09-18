@@ -25,7 +25,8 @@ Ext.define('Dsh.controller.history.Workspace', {
                             title: 'Communications',
                             route: 'communications',
                             controller: 'Dsh.controller.Communications',
-                            action: 'showOverview'
+                            action: 'showOverview',
+                            filter: 'Dsh.model.Filter'
                         },
                         connection: {
                             title: 'Connection overview',
