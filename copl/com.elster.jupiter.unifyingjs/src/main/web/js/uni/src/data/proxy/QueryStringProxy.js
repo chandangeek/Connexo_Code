@@ -7,6 +7,11 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         'Uni.util.History'
     ],
 
+    writer: {
+        type: 'json',
+        writeRecordId: false
+    },
+
     constructor: function (config) {
         config = config || {};
         this.callParent(arguments);
@@ -27,13 +32,12 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
     read: function (operation, callback, scope) {
         var me = this,
             router = me.router,
-            Model = me.model,
-            id = operation.id;
+            Model = me.model;
 
         operation.setStarted();
 
         if (!_.isUndefined(router.queryParams[me.root])) {
-            var data = Ext.JSON.decode(router.queryParams[me.root]);
+            var data = Ext.decode(router.queryParams[me.root], true);
 
             if (this.hydrator) {
                 var record = Ext.create(Model);
@@ -74,24 +78,21 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
 
     setQueryParams: function (operation, callback, model) {
         var router = this.router,
-            queryParams = {},
-            filter = []
-            ;
+            queryParams = {};
 
         operation.setStarted();
 
         var data = this.hydrator
             ? this.hydrator.extract(model)
-            : model.getData(true);
+            : this.writer.getRecordData(model);
 
-        //todo: clean data!
-
+        //todo: clean empty data!
         model.commit();
 
         operation.setCompleted();
         operation.setSuccessful();
 
-        queryParams[this.root] = Ext.JSON.encode(data);
+        queryParams[this.root] = Ext.encode(data);
         router.getRoute().forward(null, queryParams);
     }
 });
