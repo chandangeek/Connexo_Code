@@ -27,9 +27,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                 '</tr>' +
                                 '<tpl for="counters">' +
                                     '<tr class="child">' +
-                                        '<td class="label">' +
-                                            '<a href="#{alias}">{displayName}</a>' +
-                                        '</td>' +
+                                        '<td class="label">{displayName}</td>' +
                                         '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{alias}"></td>' +
                                     '</tr>' +
                                 '</tpl>' +
@@ -51,12 +49,6 @@ Ext.define('Dsh.view.widget.Summary', {
                                         label: !record.get('count') ? 0 : Math.round(!view.total ? 0 : data.get('count') * 100 / record.get('count')) + '% (' + data.get('count') + ')'
                                     });
                                     bar.render(view.getEl().down('#bar-' + pos + '-' + (idx + 1)));
-
-                                    var filter = {};
-                                    filter[view.record.get('alias')] = data.get('id') || record.get('id');
-                                    filter[view.record.get('alias')].split(',');
-                                    var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
-                                    view.getEl().down('.item-' + pos + '  tr.child > td > a').set({ href: href });
                                 });
                             }
 

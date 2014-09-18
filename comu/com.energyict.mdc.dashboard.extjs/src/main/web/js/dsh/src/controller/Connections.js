@@ -99,7 +99,6 @@ Ext.define('Dsh.controller.Connections', {
 
         var store = this.getStore('Dsh.store.ConnectionTasks');
         store.setFilterModel(router.filter);
-        store.load();
     },
 
     onCommunicationSelectionChange: function (grid, selected) {

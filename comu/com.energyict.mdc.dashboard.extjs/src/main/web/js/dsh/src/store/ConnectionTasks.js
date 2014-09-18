@@ -25,10 +25,7 @@ Ext.define('Dsh.store.ConnectionTasks', {
     setFilterModel: function(filterModel) {
         var me = this,
             data = filterModel.getData(),
-            start = filterModel.getStartedBetween(),
-            end = filterModel.getFinishedBetween();
-
-        var filters = [];
+            filters = [];
 
         _.map(data, function (item, key) {
             if (item) {
@@ -36,20 +33,27 @@ Ext.define('Dsh.store.ConnectionTasks', {
             }
         });
 
-        if (start.get('from')) {
-            filters.push({property: 'startIntervalFrom', value: start.get('from').getTime()});
+        if (filterModel.startedBetween) {
+            var start =  filterModel.getStartedBetween();
+
+            if (start.get('from')) {
+                filters.push({property: 'startIntervalFrom', value: start.get('from').getTime()});
+            }
+
+            if (start.get('to')) {
+                filters.push({property: 'startIntervalTo', value: start.get('to').getTime()});
+            }
         }
 
-        if (start.get('to')) {
-            filters.push({property: 'startIntervalTo', value: start.get('to').getTime()});
-        }
+        if (filterModel.finishedBetween) {
+            var end = filterModel.getFinishedBetween();
+            if (end.get('from')) {
+                filters.push({property: 'finishIntervalFrom', value: end.get('from').getTime()});
+            }
 
-        if (end.get('from')) {
-            filters.push({property: 'finishIntervalFrom', value: end.get('from').getTime()});
-        }
-
-        if (end.get('to')) {
-            filters.push({property: 'finishIntervalTo', value: end.get('to').getTime()});
+            if (end.get('to')) {
+                filters.push({property: 'finishIntervalTo', value: end.get('to').getTime()});
+            }
         }
 
         me.addFilter(filters);

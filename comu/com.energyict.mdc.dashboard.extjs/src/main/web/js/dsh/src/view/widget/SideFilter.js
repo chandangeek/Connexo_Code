@@ -43,7 +43,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 },
                 {
                     itemId: 'latest-result',
-                    name: 'latestResult',
+                    name: 'latestResults',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
                     displayField: 'localizedValue',
                     valueField: 'successIndicator',
@@ -51,7 +51,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 },
                 {
                     itemId: 'comport-pool',
-                    name: 'comPortPool',
+                    name: 'comPortPools',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.comPortPool', 'DSH', 'Communication port pool'),
                     displayField: 'name',
                     valueField: 'id',
@@ -59,7 +59,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 },
                 {
                     itemId: 'connection-type',
-                    name: 'connectionType',
+                    name: 'connectionTypes',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
                     displayField: 'name',
                     valueField: 'id',
@@ -67,7 +67,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 },
                 {
                     itemId: 'device-type',
-                    name: 'deviceType',
+                    name: 'deviceTypes',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
                     displayField: 'name',
                     valueField: 'id',

@@ -138,11 +138,13 @@ Ext.define('Dsh.view.widget.Breakdown', {
                                     label: record.get('total')
                                 });
                                 bar.render(view.getEl().down('#bar-' + pos));
-                                var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
-                                    { property: item.get('alias'), value: record.get('id') }
-                                ]});
+
+                                var filter = {};
+                                filter[item.get('alias')] = record.get('id');
+                                var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
                                 view.getEl().down('.item-' + pos + ' a').set({ href: href });
                             });
+
                             view.collapsed = item.counters().count() > me.itemsInCollapsedMode;
                             view.expandedHeight = view.getHeight();
                             view.collapsedHeight = view.expandedHeight / item.counters().count() * me.itemsInCollapsedMode;

@@ -8,10 +8,10 @@ Ext.define('Dsh.model.Filter', {
     fields: [
         { name: 'currentStates', type: 'auto' },
         { name: 'latestStatus', type: 'auto' },
-        { name: 'latestResult', type: 'auto' },
-        { name: 'comPortPool', type: 'auto' },
-        { name: 'connectionType', type: 'auto' },
-        { name: 'deviceType', type: 'auto' }
+        { name: 'latestResults', type: 'auto' },
+        { name: 'comPortPools', type: 'auto' },
+        { name: 'connectionTypes', type: 'auto' },
+        { name: 'deviceTypes', type: 'auto' }
     ],
     associations: [
         {
@@ -19,7 +19,6 @@ Ext.define('Dsh.model.Filter', {
             model: 'Dsh.model.DateRange',
             name: 'startedBetween',
             instanceName: 'startedBetween',
-            associatedName: 'startedBetween',
             associationKey: 'startedBetween',
             getterName: 'getStartedBetween',
             setterName: 'setStartedBetween'
@@ -29,7 +28,6 @@ Ext.define('Dsh.model.Filter', {
             model: 'Dsh.model.DateRange',
             name: 'finishedBetween',
             instanceName: 'finishedBetween',
-            associatedName: 'finishedBetween',
             associationKey: 'finishedBetween',
             getterName: 'getFinishedBetween',
             setterName: 'setFinishedBetween'

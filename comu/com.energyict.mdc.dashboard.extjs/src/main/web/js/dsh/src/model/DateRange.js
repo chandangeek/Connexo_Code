@@ -3,5 +3,6 @@ Ext.define('Dsh.model.DateRange', {
     fields: [
         { name: 'from', type: 'date' },
         { name: 'to', type: 'date' }
-    ]
+    ],
+    proxy: 'memory'
 });
