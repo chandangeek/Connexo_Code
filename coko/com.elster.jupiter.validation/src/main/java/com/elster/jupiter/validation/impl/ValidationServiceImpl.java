@@ -7,8 +7,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,7 +15,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Upcast;
-import com.elster.jupiter.util.comparators.NullSafeOrdering;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
@@ -59,6 +56,8 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.isNull;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsFirst;
 
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
 public final class ValidationServiceImpl implements ValidationService, InstallService {
@@ -259,7 +258,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         if (dates.stream().anyMatch(isNull())) {
             return Optional.<Date>absent();
         }
-        return Optional.fromNullable(dates.stream().reduce(min(NullSafeOrdering.NULL_IS_SMALLEST.get())).orElse(null));
+        return Optional.fromNullable(dates.stream().min(naturalOrder()).orElse(null));
     }
 
     private <T> BinaryOperator<T> min(final Comparator<? super T> comparator) {
@@ -403,7 +402,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     private Date getMinLastChecked(Iterable<Date> dates) {
-        Comparator<Date> comparator = NullSafeOrdering.NULL_IS_SMALLEST.get();
+        Comparator<Date> comparator = nullsFirst(naturalOrder());
         return dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null;
     }
 

@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.comparators.NullSafeOrdering;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -28,18 +27,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.elster.jupiter.util.streams.Predicates.notNull;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
+
 class MeterActivationValidationImpl implements IMeterActivationValidation {
 
-    private static final Ordering<ChannelValidation> ORDER_BY_LASTCHECKED_NULL_IS_GREATEST_WITH_ACTIVE_RULES = new Ordering<ChannelValidation>() {
-        @Override
-        public int compare(ChannelValidation left, ChannelValidation right) {
-            return NullSafeOrdering.NULL_IS_GREATEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
-        }
-
-        private Date getLastChecked(ChannelValidation validation) {
-            return validation == null || !validation.hasActiveRules() ? null : validation.getLastChecked();
-        }
-    };
+//    private static final Ordering<ChannelValidation> ORDER_BY_LASTCHECKED_NULL_IS_GREATEST_WITH_ACTIVE_RULES = new Ordering<ChannelValidation>() {
+//        @Override
+//        public int compare(ChannelValidation left, ChannelValidation right) {
+//            return NullSafeOrdering.NULL_IS_GREATEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
+//        }
+//
+//        private Date getLastChecked(ChannelValidation validation) {
+//            return validation == null || !validation.hasActiveRules() ? null : validation.getLastChecked();
+//        }
+//    };
 
     private long id;
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
@@ -250,11 +253,11 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
             if (lastRun == null) {
                 return false;
             }
-            Comparator<Date> dateComparator = NullSafeOrdering.NULL_IS_GREATEST.get();
+            Comparator<? super Date> comparator = nullsLast(naturalOrder());
             for (ChannelValidation channelValidation : getChannelValidations()) {
                 Date lastDateTime = channelValidation.getChannel().getTimeSeries().getLastDateTime();
                 Date lastChecked = channelValidation.getLastChecked();
-                if (channelValidation.hasActiveRules() && dateComparator.compare(lastChecked, lastDateTime) < 0) {
+                if (channelValidation.hasActiveRules() && comparator.compare(lastChecked, lastDateTime) < 0) {
                     return false;
                 }
             }
@@ -265,7 +268,12 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     @Override
     public Date getMinLastChecked() {
         if (!getChannelValidations().isEmpty()) {
-            return ORDER_BY_LASTCHECKED_NULL_IS_GREATEST_WITH_ACTIVE_RULES.min(getChannelValidations()).getLastChecked();
+            return getChannelValidations().stream()
+                    .filter(notNull())
+                    .map(ChannelValidation::getLastChecked)
+                    .filter(notNull())
+                    .min(naturalOrder())
+                    .orElse(null);
         } else if (lastRun != null) {
             return lastRun.toDate();
         } else {

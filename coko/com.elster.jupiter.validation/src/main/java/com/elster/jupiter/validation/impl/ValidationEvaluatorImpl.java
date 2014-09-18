@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.util.comparators.NullSafeOrdering;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
@@ -30,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.Comparator.*;
 
 /**
 * Created by tgr on 5/09/2014.
@@ -139,7 +140,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
 
 
     private Date getMinLastChecked(Iterable<Date> dates) {
-        Comparator<Date> comparator = NullSafeOrdering.NULL_IS_SMALLEST.get();
+        Comparator<Date> comparator = nullsFirst(naturalOrder());
         return dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null;
     }
 
