@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.comparators.NullSafeOrdering;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -42,6 +41,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.isNull;
+import static java.util.Comparator.*;
 
 /**
  * Created by bvn on 7/28/14.
@@ -122,7 +122,8 @@ public class LoadProfileResource {
     }
 
     private Date min(Date d1, Date d2) {
-        return NullSafeOrdering.NULL_IS_SMALLEST.<Date>get().compare(d1 , d2) <= 0 ? d1 : d2;
+        Comparator<Date> comparator = nullsFirst(naturalOrder());
+        return comparator.compare(d1, d2) <= 0 ? d1 : d2;
     }
 
     private Predicate<Channel> isValidationActive() {
@@ -138,10 +139,10 @@ public class LoadProfileResource {
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
-            List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
-            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus, clock, evaluator);
+            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(loadProfileData, thesaurus, clock, evaluator);
             infos = filter(infos, uriInfo.getQueryParameters());
-            PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
+            List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();
+            PagedInfoList pagedInfoList = PagedInfoList.asJson("data", paginatedLoadProfileData, queryParameters);
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();

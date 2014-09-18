@@ -209,7 +209,7 @@ public class DeviceValidationResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
         for (MeterActivation meterActivation : getMeterActivationsMostCurrentFirst(meter)) {
-            if (!validationService.isAllDataValidated(meterActivation)) {
+            if (!validationService.getEvaluator().isAllDataValidated(meterActivation)) {
                 Date date = validationService.getLastChecked(meterActivation).or(meterActivation.getStart());
                 validationService.validate(meterActivation, Interval.startAt(date));
             }

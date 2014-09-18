@@ -71,7 +71,7 @@ public class ValidationInfoHelper {
         if (validationStatusForRegister) {
             List<Reading> readings = getReadingsForOneYear(register);
             List<ReadingRecord> readingRecords = getReadingRecords(readings);
-            dataValidationStatuses = validationService.getValidationStatus(channelRef.get(), readingRecords);
+            dataValidationStatuses = validationService.getEvaluator().getValidationStatus(channelRef.get(), readingRecords);
             MeterActivation activation = getMeterActivationFor(channelRef.get(), meter);
             lastChecked = validationService.getLastChecked(activation);
         }
@@ -94,12 +94,9 @@ public class ValidationInfoHelper {
     }
 
     private boolean isThereChannelValidationForChannel(MeterActivationValidation validation, Channel channel) {
-        for(ChannelValidation channelValidation : validation.getChannelValidations()) {
-            if (channelValidation.getChannel().equals(channel) && channelValidation.hasActiveRules()) {
-                return true;
-            }
-        }
-        return false;
+        Optional<ChannelValidation> channelValidation = validation.getChannelValidation(channel);
+        return channelValidation.isPresent() && channelValidation.get().hasActiveRules();
+
     }
 
     private Optional<Channel> getRegisterChannel(Register register, Meter meter) {
