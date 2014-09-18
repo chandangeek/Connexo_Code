@@ -68,11 +68,11 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_SCHEDULE)
     public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
-        String mrid = queryFilter.getProperty("mrid");
-        String available = queryFilter.getProperty("available");
+        String mrid = queryFilter.getFilterProperties().get("mrid")!=null?queryFilter.<String>getProperty("mrid"):null;
+        boolean available = queryFilter.getFilterProperties().get("available")!=null?queryFilter.<Boolean>getProperty("available"):false;
         List<ComSchedule> comSchedules = new ArrayList<>();
         Calendar calendar = Calendar.getInstance(clock.getTimeZone());
-        if(mrid!= null && "true".equalsIgnoreCase(available)){
+        if(mrid!= null && available){
             Device device = deviceDataService.findByUniqueMrid(mrid);
             List<ComSchedule> possibleComSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
             List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
