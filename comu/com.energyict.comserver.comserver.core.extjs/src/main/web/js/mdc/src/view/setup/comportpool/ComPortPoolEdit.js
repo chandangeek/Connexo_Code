@@ -35,9 +35,8 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     xtype: 'textfield',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
-                    allowBlank: false,
-                    required: true,
-                    width: 600
+                    width: 600,
+                    required: true
                 },
                 {
                     xtype: 'displayfield',
@@ -56,7 +55,6 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     editable: false,
                     displayField: 'comPortType',
                     valueField: 'comPortType',
-                    allowBlank: false,
                     required: true,
                     width: 600
                 },
@@ -70,7 +68,6 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     editable: false,
                     displayField: 'name',
                     valueField: 'id',
-                    allowBlank: false,
                     required: true,
                     width: 600
                 },
