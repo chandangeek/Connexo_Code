@@ -61,7 +61,7 @@ Ext.define('Dsh.view.widget.Summary', {
                             bar.render(view.getEl().down('#bar-' + pos));
 
                             var filter = {};
-                            filter[view.record.get('alias')] = record.get('id').split(',');
+                            filter[view.record.get('alias')] = record.get('id');
                             var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
                             view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
                         });
