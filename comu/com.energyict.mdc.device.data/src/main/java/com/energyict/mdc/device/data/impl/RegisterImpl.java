@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
@@ -144,4 +145,8 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
         return getRegisterSpec().getId();
     }
 
+    @Override
+    public ReadingType getReadingType() {
+        return getRegisterSpec().getReadingType();
+    }
 }
