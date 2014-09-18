@@ -136,6 +136,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
 
                                                     return Uni.I18n.translate('deviceregisterconfiguration.multiplier.notspecified', 'MDC', 'Not specified')
                                                 }
+                                            },
+                                            {
+                                                xtype: 'deviceregisterdetailspreview-validation',
+                                                inputLabelWidth: 250,
+                                                router: me.router
                                             }
                                         ]
                                     }

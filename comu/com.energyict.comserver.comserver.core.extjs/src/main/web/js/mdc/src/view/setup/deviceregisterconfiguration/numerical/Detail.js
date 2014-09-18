@@ -128,6 +128,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                xtype: 'deviceregisterdetailspreview-validation',
+                                inputLabelWidth: 250,
+                                router: me.router
                             }
                         ]
                     }

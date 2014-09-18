@@ -11,7 +11,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         'setup.deviceregisterconfiguration.billing.Preview',
         'setup.deviceregisterconfiguration.billing.Detail',
         'setup.deviceregisterconfiguration.Setup',
-        'setup.deviceregisterconfiguration.Grid'
+        'setup.deviceregisterconfiguration.Grid',
+        'setup.deviceregisterconfiguration.ValidationPreview'
     ],
 
     stores: [
@@ -43,8 +44,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     showDeviceRegisterConfigurationsView: function (mRID) {
         var me = this;
-        var widget = Ext.widget('deviceRegisterConfigurationSetup', {mRID: mRID});
-
+        var widget = Ext.widget('deviceRegisterConfigurationSetup', {mRID: mRID, router: me.getController('Uni.controller.history.Router')});
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
@@ -63,7 +63,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     previewRegisterConfiguration: function (record) {
         var me = this,
             type = record.get('type'),
-            widget = Ext.widget('deviceRegisterConfigurationPreview-' + type),
+            widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {router: me.getController('Uni.controller.history.Router')}),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
             previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer');
 
@@ -87,7 +87,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
-                        var widget = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID:mRID, registerId:registerId});
+                        var widget = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID:mRID, registerId:registerId, router: me.getController('Uni.controller.history.Router')});
                         var form = widget.down('#deviceRegisterConfigurationDetailForm');
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
