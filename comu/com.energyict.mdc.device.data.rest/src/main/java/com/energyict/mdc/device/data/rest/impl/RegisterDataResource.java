@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RegisterDataResource {
 
@@ -55,41 +56,23 @@ public class RegisterDataResource {
     public PagedInfoList getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        Meter meter = validationInfoHelper.getMeterFor(device);
+        Meter meter = resourceHelper.getMeterFor(device);
         List<Reading> readings = ListPager.of(register.getReadings(Interval.sinceEpoch()), new Comparator<Reading>() {
             @Override
             public int compare(Reading o1, Reading o2) {
                 return o2.getTimeStamp().compareTo(o1.getTimeStamp());
             }
         }).from(queryParameters).find();
-        List<ReadingRecord> readingRecords = getReadingRecords(readings);
-        Optional<Channel> channelRef = getRegisterChannel(register, meter);
+        List<ReadingRecord> readingRecords = readings.stream().map(r -> r.getActualReading()).collect(Collectors.toList());
+        Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
         List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
         Boolean validationStatusForRegister = false;
         if(channelRef.isPresent()) {
-            validationStatusForRegister = validationInfoHelper.getValidationStatus(channelRef.get(), meter);
+            validationStatusForRegister = validationInfoHelper.getValidationStatus(channelRef, meter);
             dataValidationStatuses = validationService.getValidationStatus(channelRef.get(), readingRecords);
         }
         List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register.getRegisterSpec(),
                 validationStatusForRegister, dataValidationStatuses, validationService.getEvaluator());
         return PagedInfoList.asJson("data", readingInfos, queryParameters);
-    }
-
-    private List<ReadingRecord> getReadingRecords(List<Reading> readings) {
-        List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
-        for(Reading reading : readings) {
-            readingRecords.add(reading.getActualReading());
-        }
-        return readingRecords;
-    }
-
-    private Optional<Channel> getRegisterChannel(Register register, Meter meter) {
-        for (MeterActivation meterActivation : validationInfoHelper.getMeterActivationsMostCurrentFirst(meter)) {
-            Optional<Channel> channelRef = validationInfoHelper.getChannel(meterActivation, register.getRegisterSpec().getRegisterType().getReadingType());
-            if(channelRef.isPresent()) {
-                return channelRef;
-            }
-        }
-        return Optional.absent();
     }
 }

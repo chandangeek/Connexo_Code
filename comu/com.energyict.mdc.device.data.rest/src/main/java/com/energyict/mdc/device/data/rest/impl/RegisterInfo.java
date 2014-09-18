@@ -54,9 +54,6 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
     public MultiplierMode multiplierMode;
     @JsonProperty("lastReading")
     public ReadingInfo lastReading;
-    @JsonProperty("validationStatus")
-    public Boolean validationStatus;
-
 
     public RegisterInfo() {}
 
@@ -76,8 +73,5 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
         if(lastReading.isPresent()) {
             this.lastReading = ReadingInfoFactory.asInfo(lastReading.get(), registerSpec, evaluator);
         }
-        this.validationStatus = Boolean.TRUE;
-        // TODO Uncomment when it was done in device.data bundle
-        // this.validationStatus = register.isValidated();
     }
 }

@@ -22,18 +22,11 @@ public class NumericalRegisterInfo extends RegisterInfo<NumericalRegister, Numer
     public BigDecimal multiplier;
     @JsonProperty("overflow")
     public BigDecimal overflow;
-    @JsonProperty("validationStatus")
-    public Boolean validationStatus;
-    @JsonProperty("dataValidated")
-    public Boolean dataValidated;
-    @JsonProperty("suspectReason")
-    public Set<Map.Entry<ValidationRuleInfo, Long>> suspectReason;
-    @JsonProperty("lastChecked")
-    public Date lastChecked;
+    public DetailedValidationInfo detailedValidationInfo;
 
     public NumericalRegisterInfo() {}
 
-    public NumericalRegisterInfo(NumericalRegister register, RegisterValidationInfo registerValidationInfo, ValidationEvaluator evaluator) {
+    public NumericalRegisterInfo(NumericalRegister register, DetailedValidationInfo registerValidationInfo, ValidationEvaluator evaluator) {
         super(register, evaluator);
         NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)register.getRegisterSpec();
         this.numberOfDigits = registerSpec.getNumberOfDigits();
@@ -41,11 +34,6 @@ public class NumericalRegisterInfo extends RegisterInfo<NumericalRegister, Numer
         this.multiplier = registerSpec.getMultiplier();
         this.overflow = registerSpec.getOverflowValue();
         this.multiplierMode = registerSpec.getMultiplierMode();
-        this.validationStatus = registerValidationInfo.validationStatus;
-        if(this.validationStatus) {
-            this.dataValidated = registerValidationInfo.dataValidated;
-            this.suspectReason = registerValidationInfo.suspectReason != null ?  registerValidationInfo.suspectReason.entrySet() : null;
-            this.lastChecked = registerValidationInfo.lastChecked;
-        }
+        this.detailedValidationInfo = registerValidationInfo;
     }
 }
