@@ -16,7 +16,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-25 (15:09)
  */
-public class CommunicationTaskHeatMapRowImpl<T> implements CommunicationTaskHeatMapRow {
+public class CommunicationTaskHeatMapRowImpl implements CommunicationTaskHeatMapRow {
 
     private final DeviceType target;
     private final List<ComCommandCompletionCodeOverview> overviews = new ArrayList<>();
