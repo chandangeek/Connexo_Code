@@ -9,14 +9,7 @@ Ext.define('Dsh.controller.Connections', {
     ],
 
     stores: [
-        'Dsh.store.ConnectionTasks',
-        'Dsh.store.CommunicationTasks',
-        'Dsh.store.filter.CurrentState',
-        'Dsh.store.filter.LatestStatus',
-        'Dsh.store.filter.LatestResult',
-        'Dsh.store.filter.CommPortPool',
-        'Dsh.store.filter.ConnectionType',
-        'Dsh.store.filter.DeviceType'
+        'Dsh.store.ConnectionTasks'
     ],
 
     views: [

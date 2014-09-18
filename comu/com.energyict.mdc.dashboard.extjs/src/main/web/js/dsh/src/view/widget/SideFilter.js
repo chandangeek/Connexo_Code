@@ -5,7 +5,12 @@ Ext.define('Dsh.view.widget.SideFilter', {
         'Uni.component.filter.view.Filter',
         'Dsh.view.widget.common.SideFilterCombo',
         'Dsh.view.widget.common.SideFilterDateTime',
-        'Dsh.util.FilterHydrator'
+        'Dsh.store.filter.CurrentState',
+        'Dsh.store.filter.LatestStatus',
+        'Dsh.store.filter.LatestResult',
+        'Dsh.store.filter.CommPortPool',
+        'Dsh.store.filter.ConnectionType',
+        'Dsh.store.filter.DeviceType'
     ],
     cls: 'filter-form',
     width: 250,

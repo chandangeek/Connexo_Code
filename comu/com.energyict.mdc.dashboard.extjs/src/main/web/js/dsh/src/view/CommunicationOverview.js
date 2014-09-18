@@ -52,7 +52,9 @@ Ext.define('Dsh.view.CommunicationOverview', {
                         wTitle: Uni.I18n.translate('communication.widget.summary.title', 'DSH', 'Communication summary'),
                         style: {
                             paddingRight: '150px'
-                        }
+                        },
+                        parent: 'communications',
+                        router: me.router
                     },
                     {
                         xtype: 'communication-servers',
@@ -88,7 +90,9 @@ Ext.define('Dsh.view.CommunicationOverview', {
 //            },
             {
                 xtype: 'overview',
-                category: 'Communication'
+                category: 'Communication',
+                parent: 'communications',
+                router: me.router
             },
             {
                 xtype: 'breakdown',

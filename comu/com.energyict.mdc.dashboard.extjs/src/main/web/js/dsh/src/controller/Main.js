@@ -15,13 +15,27 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.controller.history.Workspace',
         'Dsh.controller.CommunicationOverview',
         'Dsh.controller.ConnectionOverview',
-        'Dsh.controller.Connections'
+        'Dsh.controller.Connections',
+        'Dsh.controller.Communications'
     ],
 
     config: {
         navigationController: null,
         configurationController: null
     },
+
+    stores: [
+        'Dsh.store.ConnectionTasks',
+        'Dsh.store.CommunicationTasks',
+        'Dsh.store.filter.CurrentState',
+        'Dsh.store.filter.LatestStatus',
+        'Dsh.store.filter.LatestResult',
+        'Dsh.store.filter.CommPortPool',
+        'Dsh.store.filter.ConnectionType',
+        'Dsh.store.filter.DeviceType',
+        'Dsh.store.ConnectionResultsStore',
+        'Dsh.store.CombineStore'
+    ],
 
     init: function () {
         this.initNavigation();
