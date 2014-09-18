@@ -4,7 +4,10 @@ Ext.define('Dsh.model.Filter', {
         'Uni.data.proxy.QueryStringProxy',
         'Dsh.model.DateRange'
     ],
-    proxy: Ext.create('Uni.data.proxy.QueryStringProxy', { root: 'filter' }),
+    proxy: {
+        type: 'querystring',
+        root: 'filter'
+    },
     fields: [
         { name: 'currentStates', type: 'auto' },
         { name: 'latestStatus', type: 'auto' },

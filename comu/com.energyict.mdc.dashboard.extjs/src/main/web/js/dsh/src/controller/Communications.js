@@ -45,9 +45,9 @@ Ext.define('Dsh.controller.Communications', {
             store = this.getStore('Dsh.store.CommunicationTasks');
 
         this.getApplication().fireEvent('changecontentevent', widget);
-        debugger;
         this.initFilter();
-        store.setFilterModel(router.filter);
+
+//        store.setFilterModel(router.filter);
         store.load();
     },
 
