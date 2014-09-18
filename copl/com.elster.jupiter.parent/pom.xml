@@ -647,9 +647,12 @@
                                         </resource>
                                         <resource>
                                             <directory>src/main/web</directory>
-                                            <includes>
-                                                <include>**/*</include>
-                                            </includes>
+                                            <excludes>
+                                                <exclude>${js.dir}/*.html</exclude>
+                                                <exclude>${js.dir}/*.js</exclude>
+                                                <exclude>${js.dir}/resources/**/*</exclude>
+                                            </excludes>
+
                                         </resource>
                                     </resources>
                                 </configuration>
