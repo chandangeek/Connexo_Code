@@ -12,12 +12,12 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskAction
             action: 'runDeviceComTask'
 
         },
-        {
-            text: Uni.I18n.translate('deviceCommunicationTask.changeFrequency', 'MDC', 'Change frequency'),
-            itemId: 'changeFrequencyOfDeviceComTask',
-            action: 'changeFrequencyOfDeviceComTask'
-
-        },
+//        {
+//            text: Uni.I18n.translate('deviceCommunicationTask.changeFrequency', 'MDC', 'Change frequency'),
+//            itemId: 'changeFrequencyOfDeviceComTask',
+//            action: 'changeFrequencyOfDeviceComTask'
+//
+//        },
         {
             text: Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethod', 'MDC', 'Change connection method'),
             itemId: 'changeConnectionMethodOfDeviceComTask',

@@ -8,6 +8,7 @@ Ext.define('Mdc.model.DeviceSchedule', {
         {name: 'status', useNull: true},
         {name: 'schedule', useNull: true},
         {name: 'plannedDate', dateFormat: 'time', type: 'date'},
+        {name: 'nextCommunication', dateFormat: 'time', type: 'date'},
         {name: 'comTaskInfos'},
         {name: 'type', type: 'string'}
     ],

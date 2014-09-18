@@ -28,9 +28,9 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('deviceCommunicationSchedule.empty.title', 'MDC', 'No communication schedules found'),
+                        title: Uni.I18n.translate('deviceCommunicationSchedule.empty.title', 'MDC', 'No shared communication schedules found'),
                         reasons: [
-                            Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item1', 'MDC', 'No communication schedules have been created yet.')
+                            Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item1', 'MDC', 'No shared communication schedules have been added yet.')
                         ]
                     },
                     previewComponent: {

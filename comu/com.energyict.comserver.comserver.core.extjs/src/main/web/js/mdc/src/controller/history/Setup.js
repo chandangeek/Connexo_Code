@@ -883,7 +883,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         },
                         communicationschedules: {
                             title: 'Communication planning',
-                            route: 'communicationschedules',
+                            route: 'communicationplanning',
                             controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
                             action: 'showDeviceCommunicationScheduleView',
                             items: {

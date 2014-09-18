@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
 
     requires: [
         'Mdc.view.setup.property.PropertyView',
-        'Mdc.util.ScheduleToStringConverter'
+        'Mdc.util.ScheduleToStringConverter',
+        'Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskActionMenu'
     ],
 
     layout: {
@@ -15,6 +16,17 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
     },
 
     title: 'Details',
+
+    tools: [
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'device-communication-task-action-menu'
+            }
+        }
+    ],
 
     items: [
         {

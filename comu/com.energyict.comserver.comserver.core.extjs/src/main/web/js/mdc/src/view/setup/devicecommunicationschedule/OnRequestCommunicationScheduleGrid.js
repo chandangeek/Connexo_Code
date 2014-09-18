@@ -25,9 +25,9 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationSch
                     }
                 },
                 {
-                    header: Uni.I18n.translate('deviceCommunicationSchedules.plannedDate', 'MDC', 'Planned date'),
+                    header: Uni.I18n.translate('deviceCommunicationSchedules.nextCommunication', 'MDC', 'Next communication'),
                     flex: 1,
-                    dataIndex: 'plannedDate',
+                    dataIndex: 'nextCommunication',
                     renderer: function (value) {
                         if (value !== null) {
                             return new Date(value).toLocaleString();

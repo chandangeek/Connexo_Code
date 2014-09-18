@@ -25,11 +25,24 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
                     }
                 },
                 {
-                    header: Uni.I18n.translate('deviceCommunicationSchedules.schedule', 'MDC', 'Schedule'),
+                    header: Uni.I18n.translate('deviceCommunicationSchedules.frequency', 'MDC', 'Frequency'),
                     flex: 1,
                     dataIndex: 'schedule',
-                    renderer: function(value){
-                        return Mdc.util.ScheduleToStringConverter.convert(value);
+                    renderer: function (value, metadata) {
+                        metadata.tdAttr = 'data-qtip="' + Mdc.util.ScheduleToStringConverter.convert(value) + '"';
+                        switch (value.every.timeUnit) {
+                            case 'months':
+                                return Uni.I18n.translate('general.monthly', 'MDC', 'Monthly');
+                            case 'weeks':
+                                return Uni.I18n.translate('general.weekly', 'MDC', 'Weekly');
+                            case 'days':
+                                return Uni.I18n.translate('general.daily', 'MDC', 'Daily');
+                            case 'hours':
+                                return Uni.I18n.translate('general.hourly', 'MDC', 'Hourly');
+                            case 'minutes':
+                                return Uni.I18n.translate('general.everyFewMinutes', 'MDC', 'Every few minutes');
+                        }
+                        return value.every.timeUnit;
                     }
                 },
                 {
