@@ -2,9 +2,7 @@ Ext.onReady(function () {
     var loader = Ext.create('Uni.Loader'),
         translationsQueue = [
             'USR',
-            'USM',
-            'SAM',
-            'BPM'
+            'SAM'
         ];
 
     loader.initI18n(translationsQueue);
@@ -19,10 +17,6 @@ Ext.onReady(function () {
         {
             name: 'Sam',
             path: '../../apps/sam/src'
-        },
-        {
-            name: 'Bpm',
-            path: '../../apps/bpm/src'
         }
     ];
 
