@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (17:27)
  */
-public class ComServerStatusResourceTest extends DashboardRESTJerseyTest {
+public class ComServerStatusResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testServerNotRunning () {

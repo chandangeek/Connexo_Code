@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CommunicationTaskHeatMapResourceTest extends DashboardRESTJerseyTest {
+public class CommunicationTaskHeatMapResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testConnectionHeatMapJsonBinding() throws Exception {

@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (17:27)
  */
-public class CommunicationResourceTest extends DashboardRESTJerseyTest {
+public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testDeviceTypesAddedToFilter() throws Exception {

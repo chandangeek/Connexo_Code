@@ -37,7 +37,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -49,7 +48,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (17:27)
  */
-public class ConnectionResourceTest extends DashboardRESTJerseyTest {
+public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testDeviceTypesAddedToFilter() throws Exception {

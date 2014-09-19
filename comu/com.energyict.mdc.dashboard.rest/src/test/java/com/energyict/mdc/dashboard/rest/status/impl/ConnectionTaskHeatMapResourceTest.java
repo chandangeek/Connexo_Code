@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ConnectionTaskHeatMapResourceTest extends DashboardRESTJerseyTest {
+public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testBadRequestWhenFilterIsMissing() throws Exception {

@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 9/18/14.
  */
-public class CommunicationOverviewResourceTest extends DashboardRESTJerseyTest {
+public class CommunicationOverviewResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testGetCommunicationOverview() throws Exception {

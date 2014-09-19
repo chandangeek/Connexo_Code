@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (17:27)
  */
-public class ConnectionOverviewResourceTest extends DashboardRESTJerseyTest {
+public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTest {
 
     private ComSessionSuccessIndicatorOverview createComTaskCompletionOverview() {
         ComSessionSuccessIndicatorOverview overview = mock(ComSessionSuccessIndicatorOverview.class);

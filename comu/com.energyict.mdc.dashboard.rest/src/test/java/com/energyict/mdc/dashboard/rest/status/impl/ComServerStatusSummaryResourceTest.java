@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-23 (08:47)
  */
-public class ComServerStatusSummaryResourceTest extends DashboardRESTJerseyTest {
+public class ComServerStatusSummaryResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testNoServersConfigured() {

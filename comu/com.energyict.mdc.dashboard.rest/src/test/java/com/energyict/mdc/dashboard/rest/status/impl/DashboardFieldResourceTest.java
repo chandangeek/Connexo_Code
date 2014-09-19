@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (17:27)
  */
-public class DashboardFieldResourceTest extends DashboardRESTJerseyTest {
+public class DashboardFieldResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testJava8Construct() throws Exception {
