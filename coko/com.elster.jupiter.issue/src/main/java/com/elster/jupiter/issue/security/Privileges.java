@@ -8,11 +8,9 @@ public interface Privileges {
     String ASSIGN_ISSUE = "privilege.assign.issue";
     String ACTION_ISSUE = "privilege.action.issue";
 
-    String CREATE_CREATION_RULE = "privilege.create.creationRule";
-    String UPDATE_CREATION_RULE= "privilege.update.creationRule";
-    String DELETE_CREATION_RULE = "privilege.delete.creationRule";
-    String VIEW_CREATION_RULE = "privilege.view.creationRule";
+    String VIEW_CREATION_RULE= "privilege.view.creationRule";
+    String ADMINISTRATE_CREATION_RULE= "privilege.administrate.creationRule";
 
-    String VIEW_ASSIGNMENT_RULE = "privilege.view.assignmentRule";
+    String VIEW_ASSIGNMENT_RULE= "privilege.view.assignmentRule";
 
 }
