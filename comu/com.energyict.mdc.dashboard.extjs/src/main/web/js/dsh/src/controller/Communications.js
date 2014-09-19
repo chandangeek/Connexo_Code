@@ -26,7 +26,7 @@ Ext.define('Dsh.controller.Communications', {
     refs: [
         {
             ref: 'communicationPreview',
-            selector: '#communicationsdetails'
+            selector: '#communicationsdetails #communicationdetails'
         },
         {
             ref: 'connectionPreview',
