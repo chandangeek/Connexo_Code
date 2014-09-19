@@ -26,11 +26,11 @@ Ext.define('Dsh.controller.Communications', {
     refs: [
         {
             ref: 'communicationPreview',
-            selector: '#communicationdetails'
+            selector: '#communicationsdetails'
         },
         {
             ref: 'connectionPreview',
-            selector: '#communicationdetails #connectiondetails'
+            selector: '#communicationsdetails #connectiondetails'
         },
         {
             ref: 'filterPanel',
@@ -46,7 +46,7 @@ Ext.define('Dsh.controller.Communications', {
 
     init: function () {
         this.control({
-            '#communicationdetails #communicationslist': {
+            '#communicationsdetails #communicationslist': {
                 selectionchange: this.onSelectionChange
             }
         });
