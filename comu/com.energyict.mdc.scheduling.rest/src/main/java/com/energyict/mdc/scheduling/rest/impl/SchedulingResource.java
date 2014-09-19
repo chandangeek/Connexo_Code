@@ -210,7 +210,7 @@ public class SchedulingResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.CREATE_SCHEDULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_SCHEDULE)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
                 comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate)).mrid(comScheduleInfo.mRID).build();
@@ -224,7 +224,7 @@ public class SchedulingResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.DELETE_SCHEDULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_SCHEDULE)
     public Response deleteSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         if (this.isInUse(comSchedule)) {
@@ -239,7 +239,7 @@ public class SchedulingResource {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_SCHEDULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_SCHEDULE)
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         comSchedule.setName(comScheduleInfo.name);
