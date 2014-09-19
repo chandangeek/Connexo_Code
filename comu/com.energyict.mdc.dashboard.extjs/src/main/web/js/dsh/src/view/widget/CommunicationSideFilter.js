@@ -1,0 +1,105 @@
+Ext.define('Dsh.view.widget.CommunicationSideFilter', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.dsh-comm-side-filter',
+    requires: [
+        'Uni.component.filter.view.Filter',
+        'Dsh.view.widget.common.SideFilterCombo',
+        'Dsh.view.widget.common.SideFilterDateTime',
+        'Dsh.util.FilterHydrator'
+    ],
+    cls: 'filter-form',
+    width: 250,
+    title: Uni.I18n.translate('connection.widget.sideFilter.title', 'DSH', 'Filter'),
+    ui: 'medium',
+    items: [
+        {
+            xtype: 'nested-form',
+            hydrator: 'Dsh.util.FilterHydrator',
+            ui: 'filter',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            defaults: {
+                xtype: 'side-filter-combo',
+                labelAlign: 'top'
+            },
+            items: [
+                {
+                    itemId: 'current-state',
+                    name: 'state',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
+                    displayField: 'localizedValue',
+                    valueField: 'taskStatus',
+                    store: 'Dsh.store.filter.CurrentState'
+                },
+                {
+                    itemId: 'latest-result',
+                    name: 'latestResult',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
+                    displayField: 'localizedValue',
+                    valueField: 'successIndicator',
+                    store: 'Dsh.store.filter.LatestResult'
+                },
+
+
+                {
+                    itemId: 'communication-task',
+                    name: 'communicationTask',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.commTask', 'DSH', 'Communication task'),
+                    displayField: 'name',
+                    valueField: 'id',
+                    store: 'Dsh.store.filter.CommunicationTask'
+                },
+                {
+                    itemId: 'communication-schedule',
+                    name: 'communicationSchedule',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
+                    displayField: 'name',
+                    valueField: 'id',
+                    store: 'Dsh.store.filter.CommunicationSchedule'
+                },
+
+
+                {
+                    itemId: 'device-type',
+                    name: 'deviceType',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
+                    displayField: 'name',
+                    valueField: 'id',
+                    store: 'Dsh.store.filter.DeviceType'
+                },
+                {
+                    xtype: 'side-filter-date-time',
+                    itemId: 'started-between',
+                    name: 'startedBetween',
+                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.startedBetween', 'DSH', 'Started between')
+                },
+                {
+                    xtype: 'side-filter-date-time',
+                    itemId: 'finished-between',
+                    name: 'finishedBetween',
+                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.finishedBetween', 'DSH', 'Finished between')
+                }
+            ],
+            dockedItems: [
+                {
+                    xtype: 'toolbar',
+                    dock: 'bottom',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('connection.widget.sideFilter.apply', 'DSH', 'Apply'),
+                            ui: 'action',
+                            action: 'applyfilter'
+                        },
+                        {
+                            text: Uni.I18n.translate('connection.widget.sideFilter.clearAll', 'DSH', 'Clear all'),
+                            action: 'clearfilter'
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+});
+

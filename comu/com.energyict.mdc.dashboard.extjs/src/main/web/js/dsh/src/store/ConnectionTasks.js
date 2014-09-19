@@ -4,14 +4,8 @@ Ext.define('Dsh.store.ConnectionTasks', {
         'Dsh.model.ConnectionTask'
     ],
     model: 'Dsh.model.ConnectionTask',
-    remoteFilter: true,
     autoLoad: false,
-    sorters: [
-        {
-            direction: 'DESC',
-            property: 'startDateTime'
-        }
-    ],
+    remoteFilter: true,
     proxy: {
         type: 'rest',
         url: '/api/dsr/connections',

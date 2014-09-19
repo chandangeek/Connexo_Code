@@ -6,54 +6,56 @@ Ext.define('Dsh.view.Communications', {
     overflowY: 'auto',
     requires: [
         'Dsh.view.widget.CommunicationsList',
-        'Dsh.view.widget.PreviewCommunication'
+        'Dsh.view.widget.PreviewCommunication',
+        'Dsh.view.widget.CommunicationSideFilter',
+        'Dsh.view.widget.PreviewConnection'
     ],
     content: [
         {
             xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate('workspace.dataCommunication.communication.title', 'DSH', 'Communications'),
-            items: [
-                {
-                    xtype: 'filter-top-panel'
-                },
-                {
-                    xtype: 'preview-container',
-                    grid: {
-                        xtype: 'communications-list',
-                        itemId: 'communicationslist'
+        },
+        {
+            xtype: 'filter-top-panel',
+            itemId: 'dshcommunicationsfilterpanel'
+        },
+        {
+            xtype: 'preview-container',
+            grid: {
+                xtype: 'communications-list',
+                itemId: 'communicationslist'
+            },
+            emptyComponent: {
+                xtype: 'no-items-found-panel',
+                title: Uni.I18n.translate('workspace.dataCommunication.connections.empty.title', 'DSH', 'No connections found'),
+                reasons: [
+                    Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item1', 'DSH', 'No connections in the system.'),
+                    Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item2', 'DSH', 'No connections found due to applied filters.')
+                ]
+            },
+            previewComponent: {
+                hidden: true,
+                items: [
+                    {
+                        xtype: 'preview_communication',
+                        itemId: 'communicationdetails'
                     },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('workspace.dataCommunication.connections.empty.title', 'DSH', 'No connections found'),
-                        reasons: [
-                            Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item1', 'DSH', 'No connections in the system.'),
-                            Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item2', 'DSH', 'No connections found due to applied filters.')
-                        ]
-                    },
-                    previewComponent: {
-                        items: [
-                            {
-                                xtype: 'preview_communication',
-                                itemId: 'communicationdetails'
-                            },
-                            {
-                                style: {
-                                    'margin-top' : '32px'
-                                },
-                                xtype: 'preview_connection',
-                                itemId: 'connectiondetails'
-                            }
-                        ]
+                    {
+                        style: {
+                            'margin-top': '32px'
+                        },
+                        xtype: 'preview_connection',
+                        itemId: 'connectiondetails'
                     }
-                }
-            ]
+                ]
+            }
         }
     ],
 
     side: [
         {
-            xtype: 'dsh-side-filter',
+            xtype: 'dsh-comm-side-filter',
             itemId: 'dshcommunicationssidefilter'
         }
     ],

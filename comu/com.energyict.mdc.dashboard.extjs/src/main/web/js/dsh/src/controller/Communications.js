@@ -1,13 +1,26 @@
 Ext.define('Dsh.controller.Communications', {
     extend: 'Dsh.controller.BaseController',
 
+    models: [
+        'Dsh.model.ConnectionTask',
+        'Dsh.model.CommTasks',
+        'Dsh.model.CommunicationTask',
+        'Dsh.model.Filter'
+    ],
+
     views: [
         'Dsh.view.Communications',
         'Dsh.view.widget.PreviewCommunication'
     ],
 
     stores: [
-        'Dsh.store.CommunicationTasks'
+        'Dsh.store.CommunicationTasks',
+        'Dsh.store.filter.CommunicationSchedule',
+        'Dsh.store.filter.CommunicationTask',
+        'Dsh.store.filter.CurrentState',
+        'Dsh.store.filter.LatestResult',
+        'Dsh.store.filter.ConnectionType',
+        'Dsh.store.filter.DeviceType'
     ],
 
     refs: [
@@ -21,11 +34,11 @@ Ext.define('Dsh.controller.Communications', {
         },
         {
             ref: 'filterPanel',
-            selector: 'filter-top-panel'
+            selector: '#dshcommunicationsfilterpanel'
         },
         {
             ref: 'sideFilterForm',
-            selector: 'dsh-side-filter nested-form'
+            selector: 'dsh-comm-side-filter nested-form'
         }
     ],
 
@@ -38,7 +51,6 @@ Ext.define('Dsh.controller.Communications', {
 
         this.callParent(arguments);
     },
-
     showOverview: function () {
         var widget = Ext.widget('communications-details'),
             router = this.getController('Uni.controller.history.Router'),
@@ -53,21 +65,22 @@ Ext.define('Dsh.controller.Communications', {
 
     onSelectionChange: function (grid, selected) {
         var me = this,
-            record = selected[0],
-            connTaskData = record.get('connectionTask'),
-            connTaskRecord = Ext.create('Dsh.model.ConnectionTask', connTaskData),
             preview = me.getCommunicationPreview(),
-            connPreview = me.getConnectionPreview();
+            connPreview = me.getConnectionPreview(),
+            record = selected[0];
+        if (record) {
+            var connTaskData = record.get('connectionTask'),
+                connTaskRecord = Ext.create('Dsh.model.ConnectionTask', connTaskData);
+            preview.loadRecord(record);
+            preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
 
-        preview.loadRecord(record);
-        preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
-
-        if (connTaskData) {
-            connPreview.setTitle(connTaskData.connectionMethod.name + ' on ' + connTaskData.device.name);
-            connPreview.show();
-            connPreview.loadRecord(connTaskRecord);
-        } else {
-            connPreview.hide()
+            if (connTaskData) {
+                connPreview.setTitle(connTaskData.connectionMethod.name + ' on ' + connTaskData.device.name);
+                connPreview.show();
+                connPreview.loadRecord(connTaskRecord);
+            } else {
+                connPreview.hide()
+            }
         }
     }
 });
