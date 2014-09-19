@@ -35,7 +35,7 @@ public class PrivilegeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_GROUP)
+    @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public PrivilegeInfos getPrivileges(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Privilege> list = getPrivilegeRestQuery().select(queryParameters, Order.ascending("name"));
