@@ -46,7 +46,7 @@ public class ComServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public PagedInfoList getComServers(@BeanParam QueryParameters queryParameters) {
         List<ComServerInfo<?>> comServers = new ArrayList<>();
         List<ComServer> allComServers = this.getSortedComServers(queryParameters);
@@ -74,7 +74,7 @@ public class ComServerResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public ComServerInfo<?> getComServer(@PathParam("id") long id) {
         Optional<ComServer> comServer = engineModelService.findComServer(id);
         if (!comServer.isPresent()) {
@@ -87,7 +87,7 @@ public class ComServerResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.DELETE_COMSERVER)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public Response deleteComServer(@PathParam("id") long id) {
         try {
             Optional<ComServer> comServer = engineModelService.findComServer(id);
@@ -104,7 +104,7 @@ public class ComServerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.CREATE_COMSERVER)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public Response createComServer(ComServerInfo<ComServer> comServerInfo) {
         ComServer comServer = comServerInfo.createNew(engineModelService);
         comServerInfo.writeTo(comServer,engineModelService);
@@ -130,7 +130,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_COMSERVER)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
         Optional<ComServer> comServer = engineModelService.findComServer(id);
         if (!comServer.isPresent()) {
@@ -157,7 +157,7 @@ public class ComServerResource {
     }
 
     @Path("/{comServerId}/comports")
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public ComServerComPortResource getComPortResource() {
         return comServerComPortResourceProvider.get();
     }
