@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 
@@ -67,5 +68,7 @@ public interface Register<R extends Reading> extends BaseRegister {
      * @see #getLastReading()
      */
     public Optional<Date> getLastReadingDate();
+
+    public ReadingType getReadingType();
 
 }

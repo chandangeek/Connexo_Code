@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -191,7 +192,6 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         protected ScheduledComTaskExecutionUpdaterImpl(ScheduledComTaskExecutionImpl comTaskExecution) {
             super(comTaskExecution, ScheduledComTaskExecutionUpdater.class);
         }
-
     }
 
 }
