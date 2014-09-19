@@ -13,9 +13,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
@@ -26,6 +24,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.notNull;
 import static java.util.Comparator.naturalOrder;
@@ -162,20 +161,29 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         if (!isActive()) {
             return;
         }
-        for (Channel channel : getMeterActivation().getChannels()) {
-            validateChannel(interval, channel);
-        }
+        getMeterActivation().getChannels().stream()
+                .forEach(c -> validateChannel(c, interval));
         lastRun = new UtcInstant(clock.now());
         save();
     }
 
-    private void validateChannel(Interval interval, Channel channel) {
+    @Override
+    public void validate(Interval interval, String readingTypeCode) {
+        if (!isActive()) {
+            return;
+        }
+        getMeterActivation().getChannels().stream()
+                .filter(c -> c.getReadingTypes().stream().map(ReadingType::getMRID).anyMatch(readingTypeCode::equals))
+                .forEach(c -> validateChannel(c, interval));
+    }
+
+    private void validateChannel(Channel channel, Interval interval) {
         Date earliestLastChecked = null;
-        Iterable<IValidationRule> activeRules = getActiveRules();
+        List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
+            Interval intervalToValidate = intervalToValidate(channelValidation, interval);
             Date lastChecked = null;
-            Interval intervalToValidate = new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), interval.getEnd());
             for (IValidationRule validationRule : activeRules) {
                 lastChecked = validationRule.validateChannel(channel, intervalToValidate);
                 if (lastChecked != null) {
@@ -195,13 +203,13 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         }
     }
 
-    private boolean hasApplicableRules(Channel channel, Iterable<IValidationRule> activeRules) {
-        for (IValidationRule activeRule : activeRules) {
-            if (isApplicable(activeRule, channel)) {
-                return true;
-            }
-        }
-        return false;
+    private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval) {
+        return new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), interval.getEnd());
+    }
+
+    private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
+        return activeRules.stream()
+                .anyMatch(r -> isApplicable(r, channel));
     }
 
     private boolean isApplicable(IValidationRule activeRule, Channel channel) {
@@ -214,13 +222,10 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         return false;
     }
 
-    private Iterable<IValidationRule> getActiveRules() {
-        return Iterables.filter(getRuleSet().getRules(), new Predicate<IValidationRule>() {
-            @Override
-            public boolean apply(IValidationRule input) {
-                return input.isActive();
-            }
-        });
+    private List<IValidationRule> getActiveRules() {
+        return getRuleSet().getRules().stream()
+                .filter(IValidationRule::isActive)
+                .collect(Collectors.toList());
     }
 
     private Date getEarliestDate(Date first, Date second) {

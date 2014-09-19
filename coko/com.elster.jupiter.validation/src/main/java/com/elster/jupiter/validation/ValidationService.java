@@ -58,6 +58,8 @@ public interface ValidationService {
 
     void validate(MeterActivation meterActivation, Interval interval);
 
+    void validate(MeterActivation meterActivation, String readingTypeCode, Interval interval);
+
     List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation);
 
     List<? extends MeterActivationValidation> getActiveMeterActivationValidations(MeterActivation meterActivation);
