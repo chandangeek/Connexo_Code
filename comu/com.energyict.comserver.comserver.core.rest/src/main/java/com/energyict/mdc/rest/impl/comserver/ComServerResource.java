@@ -149,15 +149,16 @@ public class ComServerResource {
     }
 
     @PUT
-    @Path("/{id}/properties")
+    @Path("/{id}/status")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
-    // Don't update comports for this request
-    public ComServerInfo updateComServerProperties(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
+    public ComServerInfo updateComServerStatus(@PathParam("id") long id, ComServerStatusInfo comServerStatusInfo) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
-        comServerInfo.writeTo(comServer.get(), engineModelService);
-        comServer.get().save();
+        if(comServerStatusInfo.active != null){
+            comServer.get().setActive(comServerStatusInfo.active);
+            comServer.get().save();
+        }
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
     }
 
