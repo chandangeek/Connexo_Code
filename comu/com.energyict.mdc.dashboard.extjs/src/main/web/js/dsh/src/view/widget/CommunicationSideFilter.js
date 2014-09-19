@@ -41,11 +41,9 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
                     valueField: 'successIndicator',
                     store: 'Dsh.store.filter.LatestResult'
                 },
-
-
                 {
                     itemId: 'communication-task',
-                    name: 'communicationTask',
+                    name: 'comTasks',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.commTask', 'DSH', 'Communication task'),
                     displayField: 'name',
                     valueField: 'id',
@@ -53,14 +51,12 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
                 },
                 {
                     itemId: 'communication-schedule',
-                    name: 'communicationSchedule',
+                    name: 'comSchedules',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
                     displayField: 'name',
                     valueField: 'id',
                     store: 'Dsh.store.filter.CommunicationSchedule'
                 },
-
-
                 {
                     itemId: 'device-type',
                     name: 'deviceType',

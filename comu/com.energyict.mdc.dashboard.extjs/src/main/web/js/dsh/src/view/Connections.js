@@ -36,20 +36,22 @@ Ext.define('Dsh.view.Connections', {
             },
             previewComponent: {
                 xtype: 'preview_connection',
-                itemId: 'connectionpreview'
+                itemId: 'connectionpreview',
+                hidden: true
             }
         },
         {
             ui: 'medium',
             itemId: 'comtaskstitlepanel',
-            title: ''
-        },
-        {
-            xtype: 'container',
-            itemId: 'communicationcontainer'
+            padding: 0,
+            margin: '16 0 0 0',
+            title: '',
+            items: {
+                xtype: 'container',
+                itemId: 'communicationcontainer'
+            }
         }
     ],
-
     side: [
         {
             xtype: 'dsh-side-filter',

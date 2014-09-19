@@ -140,29 +140,22 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 trackMouse: true,
                 renderTo: Ext.getBody(),
                 listeners: {
-                    beforeshow: function () {
-                        var rowEl = Ext.get(ResultTip.triggerElement).up('tr'),
-                            latestResult = view.getRecord(rowEl).get('latestResult');
-                        if (latestResult.retries) {
-                            ResultTip.update(latestResult.retries + ' ' + Uni.I18n.translate('connection.widget.details.retries', 'DSH', 'retries'))
-                        }
-                    },
                     show: function () {
-                        var rowEl = Ext.get(ResultTip.triggerElement).up('tr'),
+                       var rowEl = Ext.get(ResultTip.triggerElement).up('tr'),
                             latestResult = view.getRecord(rowEl).get('latestResult');
                         if (latestResult.retries) {
                             ResultTip.update(latestResult.retries + ' ' + Uni.I18n.translate('connection.widget.details.retries', 'DSH', 'retries'));
+                        } else {
                             ResultTip.hide()
                         }
                     }
                 }
             });
-
     },
 
     initComponent: function () {
         var me = this;
-  //      me.on('afterrender', me.addTooltip);
+        me.on('afterrender', me.addTooltip);
         me.callParent(arguments);
     }
 });

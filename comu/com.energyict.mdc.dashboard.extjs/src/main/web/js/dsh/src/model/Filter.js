@@ -13,6 +13,8 @@ Ext.define('Dsh.model.Filter', {
         { name: 'latestStatus', type: 'auto' },
         { name: 'latestResults', type: 'auto' },
         { name: 'comPortPools', type: 'auto' },
+        { name: 'comSchedules', type: 'auto' },
+        { name: 'comTasks', type: 'auto' },
         { name: 'connectionTypes', type: 'auto' },
         { name: 'deviceTypes', type: 'auto' }
     ],
