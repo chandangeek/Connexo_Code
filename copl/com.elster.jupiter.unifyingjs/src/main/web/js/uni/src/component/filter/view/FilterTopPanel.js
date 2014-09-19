@@ -1,3 +1,6 @@
+/**
+ * todo: move out!
+ */
 Ext.define('Uni.component.filter.view.FilterTopPanel', {
     extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.filter-top-panel',
