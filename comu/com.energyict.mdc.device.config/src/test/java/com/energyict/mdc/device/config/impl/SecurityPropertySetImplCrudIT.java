@@ -44,6 +44,7 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -147,6 +148,9 @@ public class SecurityPropertySetImplCrudIT {
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
+                new BasicPropertiesModule(),
+                new MdcDynamicModule(),
+                new ProtocolApiModule(),
                 new TasksModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
@@ -161,10 +165,6 @@ public class SecurityPropertySetImplCrudIT {
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             meteringService = injector.getInstance(MeteringService.class);
-//            readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
-//            engineModelService = injector.getInstance(EngineModelService.class);
-//            protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-//            inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
@@ -192,12 +192,7 @@ public class SecurityPropertySetImplCrudIT {
         when(authLevel2.getId()).thenReturn(2);
         when(encLevel.getId()).thenReturn(2);
         when(principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
-
-//        when(applicationContext.findFactory(5011)).thenReturn(businessObjectFactory);
-
         initializeDatabase(false, false);
-//        protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-//        engineModelService = injector.getInstance(EngineModelService.class);
     }
 
     private class MockModule extends AbstractModule {
@@ -207,12 +202,6 @@ public class SecurityPropertySetImplCrudIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-//            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-//                @Override
-//                public DataModel get() {
-//                    return dataModel;
-//                }
-//            });
         }
 
     }
@@ -224,8 +213,7 @@ public class SecurityPropertySetImplCrudIT {
 
     @Test
     public void testCreation() {
-        DeviceCommunicationConfiguration communicationConfiguration;
-        SecurityPropertySet propertySet = null;
+        SecurityPropertySet propertySet;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();

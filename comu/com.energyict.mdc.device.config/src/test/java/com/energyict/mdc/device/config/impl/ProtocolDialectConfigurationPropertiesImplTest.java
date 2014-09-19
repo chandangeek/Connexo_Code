@@ -39,6 +39,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -181,6 +182,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
                 new SchedulingModule(),
+                new ProtocolApiModule(),
                 new TasksModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
