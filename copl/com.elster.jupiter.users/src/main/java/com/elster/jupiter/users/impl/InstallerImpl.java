@@ -71,9 +71,7 @@ public class InstallerImpl {
 	}
 
     private void createPrivileges(UserService userService) {
-        userService.createResourceWithPrivileges("SYS", "user.users", "user.users.description", new String[] {Privileges.VIEW_USER, Privileges.UPDATE_USER});
-        userService.createResourceWithPrivileges("SYS", "group.groups", "group.groups.description", new String[] {Privileges.VIEW_GROUP, Privileges.CREATE_GROUP, Privileges.UPDATE_GROUP, Privileges.DELETE_GROUP});
-        userService.createResourceWithPrivileges("SYS", "domain.domains", "domain.domains.description", new String[] {Privileges.VIEW_DOMAIN});
+        userService.createResourceWithPrivileges("SYS", "userAndRole.usersAndRoles", "userAndRole.usersAndRoles.description", new String[] {Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE});
     }
 
 	private void grantSystemAdministratorPrivileges(GroupImpl group){
