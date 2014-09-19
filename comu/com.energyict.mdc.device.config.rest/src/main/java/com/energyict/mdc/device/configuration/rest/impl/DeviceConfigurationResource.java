@@ -151,7 +151,7 @@ public class DeviceConfigurationResource {
     @POST
     @Path("/{deviceConfigurationId}/logbookconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response createLogBooksSpecForDeviceConfiguartion(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -174,7 +174,7 @@ public class DeviceConfigurationResource {
     @DELETE
     @Path("/{deviceConfigurationId}/logbookconfigurations/{logBookSpecId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response deleteLogBooksSpecFromDeviceConfiguartion(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -199,7 +199,7 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/logbookconfigurations/{logBookSpecId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response editLogBookSpecForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -220,7 +220,7 @@ public class DeviceConfigurationResource {
     @DELETE
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.DELETE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response deleteDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -231,7 +231,7 @@ public class DeviceConfigurationResource {
     @PUT
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public DeviceConfigurationInfo updateDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -249,7 +249,7 @@ public class DeviceConfigurationResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.CREATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public DeviceConfigurationInfo createDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, DeviceConfigurationInfo deviceConfigurationInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(deviceConfigurationInfo.name).

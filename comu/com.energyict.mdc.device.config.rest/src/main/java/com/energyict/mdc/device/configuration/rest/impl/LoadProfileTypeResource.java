@@ -9,7 +9,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
-import com.energyict.mdc.masterdata.security.Privileges;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
@@ -49,7 +49,7 @@ public class LoadProfileTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_LOAD_PROFILE_TYPE)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public Response getLoadProfilesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
@@ -78,7 +78,7 @@ public class LoadProfileTypeResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(com.energyict.mdc.device.config.security.Privileges.UPDATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response addLoadProfileTypesForDeviceType(@PathParam("id") long id, List<Long> ids, @Context UriInfo uriInfo) {
         boolean all = getBoolean(uriInfo, "all");
         if (!all && ids.isEmpty()) {
@@ -117,7 +117,7 @@ public class LoadProfileTypeResource {
     @DELETE
     @Path("/{loadProfileTypeId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.DELETE_LOAD_PROFILE_TYPE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response deleteLoadProfileTypeFromDeviceType(
             @PathParam("id") long id,
             @PathParam("loadProfileTypeId") long loadProfileTypeId,

@@ -119,7 +119,7 @@ public class ConnectionMethodResource {
 
     @DELETE
     @Path("/{connectionMethodId}")
-    @RolesAllowed(Privileges.DELETE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response deleteConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                             @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                             @PathParam("connectionMethodId") long connectionMethodId) {
@@ -133,7 +133,7 @@ public class ConnectionMethodResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.CREATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response createConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                            @Context UriInfo uriInfo,
@@ -148,7 +148,7 @@ public class ConnectionMethodResource {
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                                        @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                        @PathParam("connectionMethodId") long connectionMethodId,
