@@ -55,11 +55,11 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "comServer.comServers", "comServer.comServers.description", new String[] {Privileges.CREATE_COMSERVER, Privileges.UPDATE_COMSERVER, Privileges.DELETE_COMSERVER, Privileges.VIEW_COMSERVER});
+        this.userService.createResourceWithPrivileges("MDC", "comServer.comServers", "comServer.comServers.description", new String[] {Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE});
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.CREATE_COMSERVER, Privileges.UPDATE_COMSERVER, Privileges.DELETE_COMSERVER, Privileges.VIEW_COMSERVER});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE});
     }
 
     private void createTranslations() {
