@@ -5,7 +5,6 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.masterdata.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
 
@@ -31,7 +30,6 @@ public class PhenomenonResource {
     }
 
     @GET
-    @RolesAllowed(Privileges.VIEW_PHENOMENON)
     public Response getAllPhenomenons(@BeanParam QueryParameters queryParameters){
         List<Phenomenon> phenomenons = masterDataService.findAllPhenomena();
         return Response.ok(PagedInfoList.asJson("data", PhenomenonInfo.from(phenomenons), queryParameters)).build();

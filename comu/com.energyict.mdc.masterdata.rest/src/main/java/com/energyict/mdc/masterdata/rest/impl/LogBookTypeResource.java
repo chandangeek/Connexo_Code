@@ -39,7 +39,7 @@ public class LogBookTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_LOGBOOK)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getLogbookTypes(@BeanParam QueryParameters queryParameters) {
         List<LogBookTypeInfo> logbookTypeInfos = new ArrayList<>();
         // TODO it will be better to change the result type of masterDataService.findAllLogBookTypes() to Finder, as for masterDataService.findAllMeasurementTypes
@@ -56,7 +56,7 @@ public class LogBookTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_LOGBOOK)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getLogbookType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
         if (!logBookRef.isPresent()) {
@@ -70,7 +70,7 @@ public class LogBookTypeResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.CREATE_LOGBOOK)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response addLogBookType(LogBookTypeInfo logbook) {
         LogBookType newLogbook = masterDataService.newLogBookType(logbook.name, logbook.obisCode);
         newLogbook.save();
@@ -81,7 +81,7 @@ public class LogBookTypeResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_LOGBOOK)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response updateLogBookType(@PathParam("id") long id, LogBookTypeInfo logbook) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
         if (!logBookRef.isPresent()) {
@@ -97,7 +97,7 @@ public class LogBookTypeResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.DELETE_LOGBOOK)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response deleteLogBookType(@PathParam("id") long id) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
         if (!logBookRef.isPresent()) {
