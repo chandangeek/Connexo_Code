@@ -958,7 +958,7 @@ h6 {
   padding-right: 48px;
 }
 
-/* line 15, ../../sass/src/container/AppCenter.scss */
+/* line 17, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu {
   position: absolute !important;
   z-index: 20001 !important;
@@ -976,21 +976,21 @@ h6 {
   background: linear-gradient(to bottom, #2e587e, #529ebe);
   /* Standard syntax */
 }
-/* line 30, ../../sass/src/container/AppCenter.scss */
+/* line 32, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .x-menu-body {
   background-color: transparent;
   overflow: visible;
 }
-/* line 34, ../../sass/src/container/AppCenter.scss */
+/* line 36, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .x-menu-body .x-box-inner {
   overflow: visible;
 }
-/* line 39, ../../sass/src/container/AppCenter.scss */
+/* line 41, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview {
   margin-right: -5px !important;
   left: 0 !important;
 }
-/* line 43, ../../sass/src/container/AppCenter.scss */
+/* line 45, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview .handlebar {
   background-color: #2e587e;
   position: absolute;
@@ -998,29 +998,29 @@ h6 {
   height: 1px;
   top: -1px;
 }
-/* line 51, ../../sass/src/container/AppCenter.scss */
+/* line 53, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a {
   text-decoration: none;
   white-space: nowrap;
   font-size: 16px;
   color: white;
 }
-/* line 57, ../../sass/src/container/AppCenter.scss */
+/* line 59, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item {
   padding-top: 16px;
   padding-right: 16px;
   padding-bottom: 4px;
 }
-/* line 64, ../../sass/src/container/AppCenter.scss */
+/* line 66, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item:hover {
   background-color: #71adc7;
 }
-/* line 68, ../../sass/src/container/AppCenter.scss */
+/* line 70, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item.x-pressed {
   background-color: white;
   color: #2f77ac;
 }
-/* line 73, ../../sass/src/container/AppCenter.scss */
+/* line 75, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon {
   background-repeat: no-repeat;
   background-position: center;
@@ -1036,16 +1036,16 @@ h6 {
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon-connexo {
   background-image: url("images/container/appcenter/connexo.png");
 }
-/* line 9, ../../sass/src/container/AppCenter.scss */
-.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .x-pressed .icon-connexo {
-  background-image: url("images/container/appcenter/connexoSelected.png");
-}
 /* line 4, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon-devices {
   background-image: url("images/container/appcenter/devices.png");
 }
-/* line 9, ../../sass/src/container/AppCenter.scss */
-.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .x-pressed .icon-devices {
+/* line 11, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item.x-pressed .icon-connexo {
+  background-image: url("images/container/appcenter/connexoSelected.png");
+}
+/* line 11, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item.x-pressed .icon-devices {
   background-image: url("images/container/appcenter/devicesSelected.png");
 }
 
