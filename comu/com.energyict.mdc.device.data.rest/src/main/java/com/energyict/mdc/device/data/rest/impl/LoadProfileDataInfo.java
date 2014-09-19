@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class LoadProfileDataInfo {
     public IntervalInfo interval;
-    public Map<Long, BigDecimal> channelData = new HashMap<>();
+    public Map<Long, String> channelData = new HashMap<>();
     public Map<Long, ValidationInfo> channelValidationData = new HashMap<>();
     public Date readingTime;
     public List<String> intervalFlags;
@@ -47,7 +47,13 @@ public class LoadProfileDataInfo {
         }
 
         for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues().entrySet()) {
-            channelIntervalInfo.channelData.put(entry.getKey().getId(), entry.getValue());
+            Channel channel = entry.getKey();
+            BigDecimal value = entry.getValue();
+            if (value != null) {
+                int nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
+                value = value.setScale(nbrOfFractionDigits, BigDecimal.ROUND_UP);
+            }
+            channelIntervalInfo.channelData.put(channel.getId(), value != null ? value.toString() : "");
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {

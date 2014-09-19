@@ -13,6 +13,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -73,6 +74,8 @@ public class LoadProfileResourceTest extends JerseyTest {
     @Mock
     private LoadProfileReading loadProfileReading;
     @Mock
+    private ChannelSpec channelSpec;
+    @Mock
     private Channel channel1, channel2;
     @Mock
     private DeviceValidation deviceValidation;
@@ -106,8 +109,10 @@ public class LoadProfileResourceTest extends JerseyTest {
         when(mocks.clock.now()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device);
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
+        when(channel1.getChannelSpec()).thenReturn(channelSpec);
         when(channel2.getDevice()).thenReturn(device);
         when(channel2.getId()).thenReturn(CHANNEL_ID2);
+        when(channel2.getChannelSpec()).thenReturn(channelSpec);
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(channel1, NOW)).thenReturn(true);
         when(deviceValidation.isValidationActive(channel2, NOW)).thenReturn(true);
@@ -122,6 +127,7 @@ public class LoadProfileResourceTest extends JerseyTest {
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(rule1.getImplementation()).thenReturn("isPrime");
         when(rule1.getDisplayName()).thenReturn("Primes only");
+        when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
     }
 
     @After
@@ -180,8 +186,8 @@ public class LoadProfileResourceTest extends JerseyTest {
         assertThat(jsonModel.<List<?>>get("$.data[0].intervalFlags")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].intervalFlags[0]")).isEqualTo(BATTERY_LOW);
         Map values = jsonModel.<Map>get("$.data[0].channelData");
-        assertThat(values).contains(entry(String.valueOf(CHANNEL_ID1), 200));
-        assertThat(values).contains(entry(String.valueOf(CHANNEL_ID2), 250));
+        assertThat(values).contains(entry(String.valueOf(CHANNEL_ID1), "200.000"));
+        assertThat(values).contains(entry(String.valueOf(CHANNEL_ID2), "250.000"));
         Map validations = jsonModel.<Map>get("$.data[0].channelValidationData");
         assertThat(validations).hasSize(1).containsKey(String.valueOf(CHANNEL_ID1));
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".dataValidated")).isTrue();
