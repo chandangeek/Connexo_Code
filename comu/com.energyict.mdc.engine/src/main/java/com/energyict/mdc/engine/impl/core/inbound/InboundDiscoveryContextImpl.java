@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -144,20 +145,20 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         return this.getInboundDAO().getDeviceProtocolProperties(deviceIdentifier);
     }
 
-    public void addJournalEntry(Date timestamp, String description, Throwable t) {
+    public void addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {
         if (this.sessionBuilder != null) {
-            this.sessionBuilder.addJournalEntry(timestamp, description, t);
+            this.sessionBuilder.addJournalEntry(timestamp, logLevel, description, t);
         }
         else {
-            this.journalEntryBacklog.addJournalEntry(timestamp, description, t);
+            this.journalEntryBacklog.addJournalEntry(timestamp, logLevel, description, t);
         }
     }
 
     private class JournalEntryBacklog {
         private List<JournalEntryBacklogEntry> entries = new ArrayList<>();
 
-        private void addJournalEntry(Date timestamp, String description, Throwable t) {
-            this.entries.add(new JournalEntryBacklogEntry(timestamp, description, t));
+        private void addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {
+            this.entries.add(new JournalEntryBacklogEntry(timestamp, logLevel, description, t));
         }
 
         private void createWith (ComSessionBuilder builder) {
@@ -170,18 +171,20 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
     private class JournalEntryBacklogEntry {
         private Date timestamp;
+        private ComServer.LogLevel logLevel;
         private String description;
         private Throwable thrown;
 
-        private JournalEntryBacklogEntry(Date timestamp, String description, Throwable thrown) {
+        private JournalEntryBacklogEntry(Date timestamp, ComServer.LogLevel logLevel, String description, Throwable thrown) {
             super();
             this.timestamp = timestamp;
+            this.logLevel = logLevel;
             this.description = description;
             this.thrown = thrown;
         }
 
         private void createWith (ComSessionBuilder builder) {
-            builder.addJournalEntry(this.timestamp, this.description, this.thrown);
+            builder.addJournalEntry(this.timestamp, this.logLevel, this.description, this.thrown);
         }
 
     }

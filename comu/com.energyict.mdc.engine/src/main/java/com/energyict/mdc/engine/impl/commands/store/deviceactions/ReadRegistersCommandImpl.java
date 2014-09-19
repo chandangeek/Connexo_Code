@@ -19,10 +19,12 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Implementation for a {@link ReadRegistersCommand}
+ * Implementation for a {@link ReadRegistersCommand}.
  *
  * @author gna
  * @since 18/06/12 - 13:39
@@ -82,29 +84,37 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     }
 
     private List<CollectedData> convertToTextRegistersIfRequired(List<OfflineRegister> offlineRegisters, List<CollectedRegister> collectedRegisters) {
-        List<CollectedData> result = new ArrayList<>();
-        for (CollectedRegister collectedRegister : collectedRegisters) {
-            offlineRegisters.stream()
-                    .filter(offlineRegister -> collectedRegister.getResultType().equals(ResultType.Supported) && collectedRegister.getReadingType().equals(offlineRegister.getReadingType()))
-                    .forEach(offlineRegister -> {
-                        CollectedRegister register;
-                        if (!offlineRegister.isText()) {
-                            register = new DefaultDeviceRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
-                            register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime(), collectedRegister.getEventTime());
-                            register.setCollectedData(collectedRegister.getCollectedQuantity());
-                        } else if (collectedRegister.getCollectedQuantity() != null) {
-                            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
-                            register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
-                            register.setCollectedData(collectedRegister.getCollectedQuantity().toString());
-                        } else {
-                            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
-                            register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
-                            register.setCollectedData(collectedRegister.getText());
-                        }
-                        result.add(register);
-                    });
+        return collectedRegisters.stream().
+                    flatMap(toCollectedRegister(offlineRegisters)).
+                    collect(Collectors.toList());
+    }
+
+    private Function<CollectedRegister, Stream<CollectedRegister>> toCollectedRegister(List<OfflineRegister> offlineRegisters) {
+        return collectedRegister ->
+                offlineRegisters.stream().
+                        filter(offlineRegister -> ResultType.Supported.equals(collectedRegister.getResultType())).
+                        filter(offlineRegister -> collectedRegister.getReadingType().equals(offlineRegister.getReadingType())).
+                        map(offlineRegister -> this.toCollectedRegister(offlineRegister, collectedRegister));
+    }
+
+    private CollectedRegister toCollectedRegister(OfflineRegister offlineRegister, CollectedRegister collectedRegister) {
+        CollectedRegister register;
+        if (!offlineRegister.isText()) {
+            register = new DefaultDeviceRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
+            register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime(), collectedRegister.getEventTime());
+            register.setCollectedData(collectedRegister.getCollectedQuantity());
         }
-        return result;
+        else if (collectedRegister.getCollectedQuantity() != null) {
+            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
+            register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
+            register.setCollectedData(collectedRegister.getCollectedQuantity().toString());
+        }
+        else {
+            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
+            register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
+            register.setCollectedData(collectedRegister.getText());
+        }
+        return register;
     }
 
     @Override

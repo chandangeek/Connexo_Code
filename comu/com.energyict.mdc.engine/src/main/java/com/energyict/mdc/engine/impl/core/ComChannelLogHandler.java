@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.JournalEntryFactory;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -29,7 +28,7 @@ public class ComChannelLogHandler extends Handler {
 
     @Override
     public void publish (LogRecord record) {
-        this.journalEntryFactory.createJournalEntry(this.extractInfo(record));
+        this.journalEntryFactory.createJournalEntry(LogLevelMapper.forJavaUtilLogging().toComServerLogLevel(record.getLevel()), this.extractInfo(record));
     }
 
     private String extractInfo (LogRecord record) {

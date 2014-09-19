@@ -205,16 +205,16 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    public void createJournalEntry(String message) {
+    public void createJournalEntry(ComServer.LogLevel logLevel, String message) {
         if (this.getCurrentTaskExecutionBuilder() != null) {
-            this.createComTaskExecutionMessageJournalEntry(message);
+            this.createComTaskExecutionMessageJournalEntry(logLevel, message);
         } else {
-            this.createComSessionJournalEntry(message);
+            this.createComSessionJournalEntry(logLevel, message);
         }
     }
 
     public void fail(Throwable t, ComSession.SuccessIndicator reason) {
-        sessionBuilder.addJournalEntry(now(), messageFor(t), t);
+        sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.ERROR, messageFor(t), t);
         this.createComSessionCommand(sessionBuilder, reason);
     }
 
@@ -337,7 +337,7 @@ public final class ExecutionContext implements JournalEntryFactory {
                 builder.append(separator.get());
                 this.appendPropertyToMessage(builder, connectionProperty);
             }
-            sessionBuilder.addJournalEntry(now(), builder.toString(), null);
+            sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.INFO, builder.toString(), null);
         }
     }
 
@@ -348,7 +348,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     private void addProtocolDialectPropertiesAsJournalEntries(ComTaskExecution comTaskExecution) {
         TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(comTaskExecution);
         if (!protocolDialectTypedProperties.propertyNames().isEmpty()) {
-            currentTaskExecutionBuilder.addComTaskExecutionMessageJournalEntry(now(), "", asString(protocolDialectTypedProperties));
+            currentTaskExecutionBuilder.addComTaskExecutionMessageJournalEntry(now(), ComServer.LogLevel.INFO, asString(protocolDialectTypedProperties), "");
         }
     }
 
@@ -408,12 +408,12 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    private void createComSessionJournalEntry(String message) {
-        getComSessionBuilder().addJournalEntry(now(), message, null);
+    private void createComSessionJournalEntry(ComServer.LogLevel logLevel, String message) {
+        getComSessionBuilder().addJournalEntry(now(), logLevel, message, null);
     }
 
-    private void createComTaskExecutionMessageJournalEntry(String message) {
-        getCurrentTaskExecutionBuilder().addComTaskExecutionMessageJournalEntry(now(), "", message);
+    private void createComTaskExecutionMessageJournalEntry(ComServer.LogLevel logLevel, String message) {
+        getCurrentTaskExecutionBuilder().addComTaskExecutionMessageJournalEntry(now(), logLevel, message, "");
     }
 
     void comTaskExecutionFailure(ComTaskExecution comTaskExecution, Throwable t) {

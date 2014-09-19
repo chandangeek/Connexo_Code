@@ -82,7 +82,7 @@ public final class LoggerFactory {
     public static <MI> MI getLoggerFor (Class<MI> messageInterfaceClass) {
         Logger baseLogger = getBaseLogger(messageInterfaceClass);
         Level level = getLevel(baseLogger);
-        return getLoggerFor(messageInterfaceClass, LogLevelMapper.toComServerLogLevel(level));
+        return getLoggerFor(messageInterfaceClass, LogLevelMapper.forJavaUtilLogging().toLogLevel(level));
     }
 
     private static Level getLevel (Logger logger) {
@@ -125,7 +125,7 @@ public final class LoggerFactory {
      */
     public static synchronized <MI> MI getLoggerFor (Class<MI> messageInterfaceClass, Logger logger) {
         Context<MI> context = new ExistingLoggerStandardContext<>(logger);
-        return getLoggerFor(messageInterfaceClass, LogLevelMapper.toComServerLogLevel(logger.getLevel()), context);
+        return getLoggerFor(messageInterfaceClass, LogLevelMapper.forJavaUtilLogging().toLogLevel(logger.getLevel()), context);
     }
 
     /**
@@ -202,7 +202,7 @@ public final class LoggerFactory {
         @Override
         public void injectLogger (Class<MI> messageInterfaceClass, MI messageInterface, LogLevel logLevel) {
             Logger logger = this.getBaseLoggerFor(messageInterfaceClass);
-            logger.setLevel(LogLevelMapper.toJavaUtilLogLevel(logLevel));
+            logger.setLevel(LogLevelMapper.forJavaUtilLogging().fromLogLevel(logLevel));
             ((LoggerHolder) messageInterface).setLogger(logger);
         }
 
@@ -454,7 +454,7 @@ public final class LoggerFactory {
                 // Method level <= execution logLevel so we emit the message
                 this.validateExceptionParameters(method);
                 methodBodyBuilder.append("{java.util.logging.LogRecord _logRecord = new java.util.logging.LogRecord(java.util.logging.Level.");
-                methodBodyBuilder.append(LogLevelMapper.toJavaUtilLogLevel(configuration.logLevel()).getName());
+                methodBodyBuilder.append(LogLevelMapper.forJavaUtilLogging().fromLogLevel(configuration.logLevel()).getName());
                 boolean noParameters = this.getParameterTypes(method).length == 0;
                 if (noParameters) {
                     methodBodyBuilder.append(", \"");

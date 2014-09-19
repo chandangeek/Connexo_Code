@@ -107,7 +107,7 @@ public abstract aspect AbstractComPortDiscoveryLogging {
     }
 
     private LogLevel getServerLogLevel (ComServer comServer) {
-        return LogLevelMapper.map(comServer.getServerLogLevel());
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
     }
 
 }

@@ -1,11 +1,12 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
-import com.energyict.mdc.engine.impl.core.ExecutionContext;
-
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+
+import com.elster.jupiter.util.time.Clock;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -45,12 +46,26 @@ public class ExecutionContextLogHandler extends Handler {
     }
 
     private void publishComTaskMessageJournalEntry (ComTaskExecutionSessionBuilder taskExecutionSession, LogRecord record) {
-        Throwable thrown = record.getThrown();
-        taskExecutionSession.addComTaskExecutionMessageJournalEntry(clock.now(), thrown == null ? "" : StackTracePrinter.print(thrown), extractInfo(record));
+        String errorDesciption;
+        if (record.getThrown() == null) {
+            errorDesciption = "";
+        }
+        else {
+            errorDesciption = StackTracePrinter.print(record.getThrown());
+        }
+        taskExecutionSession.addComTaskExecutionMessageJournalEntry(
+                this.clock.now(),
+                LogLevelMapper.forComServerLogLevel().fromJavaUtilLogLevel(record.getLevel()),
+                extractInfo(record),
+                errorDesciption);
     }
 
     private void publishComSessionJournalEntry (ComSessionBuilder builder, LogRecord record) {
-        builder.addJournalEntry(clock.now(), extractInfo(record), record.getThrown());
+        builder.addJournalEntry(
+                this.clock.now(),
+                LogLevelMapper.forComServerLogLevel().fromJavaUtilLogLevel(record.getLevel()),
+                extractInfo(record),
+                record.getThrown());
     }
 
     private String extractInfo (LogRecord record) {

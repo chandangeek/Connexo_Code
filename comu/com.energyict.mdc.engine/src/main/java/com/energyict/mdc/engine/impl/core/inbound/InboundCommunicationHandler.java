@@ -14,7 +14,6 @@ import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.Counters;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
@@ -24,6 +23,7 @@ import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
 import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletRequest;
 import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletResponse;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
@@ -174,8 +174,10 @@ public class InboundCommunicationHandler {
      * @return the CreateInboundComSession
      */
     private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e){
-        ComSessionBuilder comSessionBuilder = serviceProvider.deviceDataService().buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now())
-                .addJournalEntry(serviceProvider.clock().now(), e.getMessage(), e);
+        ComSessionBuilder comSessionBuilder =
+                serviceProvider.deviceDataService().
+                        buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now()).
+                        addJournalEntry(serviceProvider.clock().now(), ComServer.LogLevel.ERROR, e.getMessage(), e);
         return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError, serviceProvider.clock());
     }
 

@@ -20,7 +20,7 @@ public aspect DeviceCommandExecutorLogging extends AbstractDeviceCommandExecutor
     }
 
     private LogLevel getLogLevel (ComServer.LogLevel logLevel) {
-        return LogLevelMapper.map(logLevel);
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(logLevel);
     }
 
 }

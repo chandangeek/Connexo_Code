@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.engine.model.ComServer;
+
 /**
  * Defines the behavior of a component that will create
  * {@link com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry ComSessionJournalEntries}
@@ -11,6 +13,6 @@ package com.energyict.mdc.engine.impl.core;
  */
 public interface JournalEntryFactory {
 
-    public void createJournalEntry(String message);
+    public void createJournalEntry(ComServer.LogLevel logLevel, String message);
 
 }

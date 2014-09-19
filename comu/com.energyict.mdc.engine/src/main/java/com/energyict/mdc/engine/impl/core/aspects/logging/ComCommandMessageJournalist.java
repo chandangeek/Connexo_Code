@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+
+import com.elster.jupiter.util.time.Clock;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -30,7 +32,10 @@ public class ComCommandMessageJournalist extends Handler {
 
     @Override
     public void publish (LogRecord record) {
-        comTaskExecutionSessionBuilder.addComTaskExecutionMessageJournalEntry(clock.now(), "", extractInfo(record));
+        this.comTaskExecutionSessionBuilder.addComTaskExecutionMessageJournalEntry(
+                this.clock.now(),
+                LogLevelMapper.forJavaUtilLogging().toComServerLogLevel(record.getLevel()),
+                extractInfo(record), "");
     }
 
     private String extractInfo (LogRecord record) {

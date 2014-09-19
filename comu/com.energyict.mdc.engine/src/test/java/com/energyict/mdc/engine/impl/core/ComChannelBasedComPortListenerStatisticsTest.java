@@ -35,6 +35,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -349,11 +351,11 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     private void assertComSessionJournalMessage (String expectedMessage) {
-        verify(comSessionBuilder).addJournalEntry(clock.now(), expectedMessage, null);
+        verify(comSessionBuilder).addJournalEntry(eq(clock.now()), any(ComServer.LogLevel.class), eq(expectedMessage), isNull(Throwable.class));
     }
 
     private void assertNoComSessionJournalMessage () {
-        verify(comSessionBuilder, never()).addJournalEntry(any(Date.class), anyString(), any(Throwable.class));
+        verify(comSessionBuilder, never()).addJournalEntry(any(Date.class), any(ComServer.LogLevel.class), anyString(), any(Throwable.class));
     }
 
     private void readFrom (ComPortRelatedComChannel comChannel) {
