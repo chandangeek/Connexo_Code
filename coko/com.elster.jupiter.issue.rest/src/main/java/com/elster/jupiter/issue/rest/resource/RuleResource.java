@@ -94,7 +94,7 @@ public class RuleResource extends BaseResource{
     @Path("/templates/{" + ID + "}/parameters")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_CREATION_RULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
     public Response getAllParametersValues(@PathParam(ID) String id, Map<String, Object> paramValues){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
         if (!template.isPresent()){
@@ -114,7 +114,7 @@ public class RuleResource extends BaseResource{
     @Path("/templates/{" + ID + "}/parameters/{" + KEY + "}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_CREATION_RULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
     public Response getSingleParametersValues(@PathParam(ID) String id, @PathParam(KEY) String key, Map<String, Object> paramValues){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
         if (!template.isPresent()){

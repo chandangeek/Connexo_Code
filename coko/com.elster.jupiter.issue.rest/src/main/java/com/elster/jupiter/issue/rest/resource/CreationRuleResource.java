@@ -61,7 +61,7 @@ public class CreationRuleResource extends BaseResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed(Privileges.DELETE_CREATION_RULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
     public Response deleteCreationRule(@PathParam("id") long id, @QueryParam("version") long version){
         if(version == 0){
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -86,7 +86,7 @@ public class CreationRuleResource extends BaseResource {
     }
 
     @POST
-    @RolesAllowed(Privileges.CREATE_CREATION_RULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
     public Response addCreationRule(CreationRuleInfo rule){
         getTransactionService().execute(new CreateCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));
         return Response.status(Response.Status.CREATED).build();
@@ -94,7 +94,7 @@ public class CreationRuleResource extends BaseResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed(Privileges.UPDATE_CREATION_RULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule){
         rule.setId(id);
         getTransactionService().execute(new EditCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));
