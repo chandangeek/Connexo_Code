@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -9,7 +10,6 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import org.joda.time.Duration;
 
 import java.util.Date;
@@ -50,6 +50,29 @@ public interface ComSession extends HasId, TaskExecutionSummary {
     public ComStatistics getStatistics();
 
     public List<ComSessionJournalEntry> getJournalEntries ();
+
+    /**
+     * Gets the {@link ComSessionJournalEntry ComSessionJournalEntries} of this session
+     * that are of the specified {@link ComServer.LogLevel}.
+     *
+     * @param levels The LogLevels of interes
+     * @return The filtered List of ComSessionJournalEntry
+     */
+    public Finder<ComSessionJournalEntry> getJournalEntries(Set<ComServer.LogLevel> levels);
+
+    /**
+     * Gets the {@link ComTaskExecutionJournalEntry ComTaskExecutionJournalEntries} of
+     * all the {@link ComTaskExecutionSession}s of this ComSession
+     * that are of the specified {@link ComServer.LogLevel}.
+     *
+     * @param levels The LogLevels of interes
+     * @param start The first ComTaskExecutionJournalEntry
+     * @param pageSize The number of ComTaskExecutionJournalEntries
+     * @return The filtered List of ComTaskExecutionJournalEntry
+     */
+    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries (Set<ComServer.LogLevel> levels, int start, int pageSize);
+
+    public List<CombinedLogEntry> getAllLogs (Set<ComServer.LogLevel> levels, int start, int pageSize);
 
     public List<ComTaskExecutionSession> getComTaskExecutionSessions ();
 
@@ -108,8 +131,62 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      */
     public boolean wasSuccessful ();
 
-    ComTaskExecutionSession createComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Interval interval, ComTaskExecutionSession.SuccessIndicator successIndicator);
+    public ComTaskExecutionSession createComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Interval interval, ComTaskExecutionSession.SuccessIndicator successIndicator);
 
-    ComSessionJournalEntry createJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
+    public ComSessionJournalEntry createJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
+
+    /**
+     * Models the combined view on {@link ComSessionJournalEntry} and {@link ComTaskExecutionJournalEntry}.
+     */
+    public interface CombinedLogEntry {
+
+        /**
+         * Gets the Date on which this {@link ComSessionJournalEntry} or {@link ComTaskExecutionJournalEntry} was created.
+         *
+         * @return The Date
+         * @see ComSessionJournalEntry#getTimestamp()
+         * @see ComTaskExecutionJournalEntry#getTimestamp()
+         */
+        public Date getTimestamp ();
+
+        /**
+         * Gets the level at which this {@link ComSessionJournalEntry} or {@link ComTaskExecutionMessageJournalEntry} was logged
+         * or {@link ComServer.LogLevel#INFO} for {@link ComCommandJournalEntry}.
+         *
+         * @return The LogLevel
+         * @see ComSessionJournalEntry#getLogLevel()
+         * @see ComTaskExecutionMessageJournalEntry#getLogLevel()
+         */
+        public ComServer.LogLevel getLogLevel();
+
+        /**
+         * Gets the details of this combined log entry, which will map to either
+         * <ul>
+         * <li>{@link ComSessionJournalEntry#getMessage()}</li>
+         * <li>{@link ComTaskExecutionMessageJournalEntry#getMessage()}</li>
+         * <li>{@link ComCommandJournalEntry#getCommandDescription()}</li>
+         * </ul>
+         * @return The details
+         * @see ComSessionJournalEntry#getMessage()
+         * @see ComTaskExecutionMessageJournalEntry#getMessage()
+         * @see ComCommandJournalEntry#getCommandDescription()
+         */
+        public String getDetail();
+
+        /**
+         * Gets the error details of this combined log entry, which will map to either
+         * <ul>
+         * <li>{@link ComSessionJournalEntry#getStackTrace()}</li>
+         * <li>{@link ComTaskExecutionMessageJournalEntry#getErrorDescription()}</li>
+         * <li>{@link ComCommandJournalEntry#getCompletionCode()}</li>
+         * </ul>
+         * @return The details
+         * @see ComSessionJournalEntry#getStackTrace()
+         * @see ComTaskExecutionMessageJournalEntry#getErrorDescription()
+         * @see ComCommandJournalEntry#getCompletionCode()
+         */
+        public String getErrorDetail();
+
+    }
 
 }
