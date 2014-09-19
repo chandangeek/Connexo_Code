@@ -24,6 +24,7 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public BigDecimal multiplier;
     public BigDecimal overflowValue;
     public PhenomenonInfo unitOfMeasure;
+    public int nbrOfFractionDigits;
     public Boolean isLinkedByActiveDeviceConfiguration;
 
     public static List<ChannelSpecInfo> from(List<ChannelSpec> channelSpecList){
@@ -41,6 +42,7 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         info.overruledObisCode = channelSpec.getDeviceObisCode();
         info.multiplier = channelSpec.getMultiplier();
         info.overflowValue = channelSpec.getOverflow();
+        info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         // TODO check that it is truth (true for isLinkedByDeviceType)
         info.registerTypeInfo = new RegisterTypeInfo(channelSpec.getChannelType(), true, false);
         info.unitOfMeasure = PhenomenonInfo.from(channelSpec.getPhenomenon());

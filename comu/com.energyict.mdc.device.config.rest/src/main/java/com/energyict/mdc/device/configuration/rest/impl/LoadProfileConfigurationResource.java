@@ -191,6 +191,7 @@ public class LoadProfileConfigurationResource {
         channelBuilder.setOverflow(request.overflowValue);
         channelBuilder.setMultiplier(request.multiplier);
         channelBuilder.setOverruledObisCode(request.overruledObisCode);
+        channelBuilder.setNbrOfFractionDigits(request.nbrOfFractionDigits);
 
         ChannelSpec newChannelSpec = channelBuilder.add();
         return Response.ok(ChannelSpecFullInfo.from(newChannelSpec, deviceConfiguration.isActive())).build();
@@ -222,6 +223,7 @@ public class LoadProfileConfigurationResource {
         specUpdater.setOverruledObisCode(request.overruledObisCode);
         specUpdater.setOverflow(request.overflowValue);
         specUpdater.setMultiplier(request.multiplier);
+        specUpdater.setNbrOfFractionDigits(request.nbrOfFractionDigits);
         specUpdater.update();
         return Response.ok(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())).build();
     }
