@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
+import com.energyict.mdc.engine.model.ComServer;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -16,13 +17,21 @@ import java.util.Date;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-08 (10:51)
  */
-public class ComTaskExecutionMessageJournalEntryImpl extends ComTaskExecutionJournalEntryImpl<ComTaskExecutionMessageJournalEntry> implements ComTaskExecutionMessageJournalEntry {
+public class ComTaskExecutionMessageJournalEntryImpl
+        extends ComTaskExecutionJournalEntryImpl<ComTaskExecutionMessageJournalEntry>
+        implements ComTaskExecutionMessageJournalEntry {
 
+    private ComServer.LogLevel logLevel;
     private String message;
 
     @Inject
     ComTaskExecutionMessageJournalEntryImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ComTaskExecutionMessageJournalEntry.class, dataModel, eventService, thesaurus);
+    }
+
+    @Override
+    public ComServer.LogLevel getLogLevel() {
+        return this.logLevel;
     }
 
     @Override
@@ -45,14 +54,15 @@ public class ComTaskExecutionMessageJournalEntryImpl extends ComTaskExecutionJou
         visitor.visit(this);
     }
 
-    public static ComTaskExecutionMessageJournalEntryImpl from(DataModel dataModel, ComTaskExecutionSessionImpl comTaskExecutionSession, Date timestamp, String errorDescription, String message) {
-        return dataModel.getInstance(ComTaskExecutionMessageJournalEntryImpl.class).init(timestamp, comTaskExecutionSession, errorDescription, message);
+    public static ComTaskExecutionMessageJournalEntryImpl from(DataModel dataModel, ComTaskExecutionSessionImpl comTaskExecutionSession, Date timestamp, String message, String errorDescription, ComServer.LogLevel logLevel) {
+        return dataModel.getInstance(ComTaskExecutionMessageJournalEntryImpl.class).init(timestamp, comTaskExecutionSession, logLevel, message, errorDescription);
     }
 
-    private ComTaskExecutionMessageJournalEntryImpl init(Date timestamp, ComTaskExecutionSessionImpl comTaskExecutionSession, String errorDescription, String message) {
+    private ComTaskExecutionMessageJournalEntryImpl init(Date timestamp, ComTaskExecutionSessionImpl comTaskExecutionSession, ComServer.LogLevel logLevel, String message, String errorDescription) {
         this.comTaskExecutionSession.set(comTaskExecutionSession);
         this.timestamp = new UtcInstant(timestamp);
         this.errorDescription = errorDescription;
+        this.logLevel = logLevel;
         this.message = message;
         return this;
     }

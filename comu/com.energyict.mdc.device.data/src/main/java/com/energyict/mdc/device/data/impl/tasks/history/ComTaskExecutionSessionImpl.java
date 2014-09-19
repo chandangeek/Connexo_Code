@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJourna
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
+import com.energyict.mdc.engine.model.ComServer;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -153,8 +154,8 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     @Override
-    public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Date timestamp, String errorDescription, String message) {
-        ComTaskExecutionMessageJournalEntryImpl journalEntry = ComTaskExecutionMessageJournalEntryImpl.from(dataModel, this, timestamp, errorDescription, message);
+    public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
+        ComTaskExecutionMessageJournalEntryImpl journalEntry = ComTaskExecutionMessageJournalEntryImpl.from(this.dataModel, this, timestamp, message, errorDescription, logLevel);
         comTaskExecutionJournalEntries.add(journalEntry);
         return journalEntry;
     }

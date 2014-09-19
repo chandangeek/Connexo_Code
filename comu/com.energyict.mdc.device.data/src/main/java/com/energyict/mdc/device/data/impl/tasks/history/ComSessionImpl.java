@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.ComServer;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -249,8 +250,8 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
-    public ComSessionJournalEntry createJournalEntry(Date timestamp, String message, Throwable cause) {
-        ComSessionJournalEntryImpl entry = ComSessionJournalEntryImpl.from(dataModel, this, timestamp, message, cause);
+    public ComSessionJournalEntry createJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
+        ComSessionJournalEntryImpl entry = ComSessionJournalEntryImpl.from(dataModel, this, timestamp, logLevel, message, cause);
         journalEntries.add(entry);
         return entry;
     }
