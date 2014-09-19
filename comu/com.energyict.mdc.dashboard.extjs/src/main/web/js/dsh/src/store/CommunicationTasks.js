@@ -1,5 +1,5 @@
 Ext.define('Dsh.store.CommunicationTasks', {
-    extend: 'Ext.data.Store',
+    extend: 'Uni.data.store.Filterable',
     requires: [
         'Dsh.model.CommunicationTask'
     ],

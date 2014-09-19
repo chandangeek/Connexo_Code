@@ -71,12 +71,10 @@ Ext.define('Dsh.controller.Connections', {
 
     showOverview: function () {
         var widget = Ext.widget('connections-details'),
-            router = this.getController('Uni.controller.history.Router'),
             store = this.getStore('Dsh.store.ConnectionTasks');
 
         this.getApplication().fireEvent('changecontentevent', widget);
         this.initFilter();
-        store.setFilterModel(router.filter);
         store.load();
     },
 

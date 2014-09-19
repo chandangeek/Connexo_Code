@@ -55,13 +55,10 @@ Ext.define('Dsh.controller.Communications', {
     },
     showOverview: function () {
         var widget = Ext.widget('communications-details'),
-            router = this.getController('Uni.controller.history.Router'),
             store = this.getStore('Dsh.store.CommunicationTasks');
 
         this.getApplication().fireEvent('changecontentevent', widget);
         this.initFilter();
-
-//        store.setFilterModel(router.filter);
         store.load();
     },
 

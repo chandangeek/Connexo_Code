@@ -1,5 +1,5 @@
 Ext.define('Dsh.model.Filter', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.data.model.Filter',
     requires: [
         'Uni.data.proxy.QueryStringProxy',
         'Dsh.model.DateRange'
@@ -37,5 +37,34 @@ Ext.define('Dsh.model.Filter', {
             getterName: 'getFinishedBetween',
             setterName: 'setFinishedBetween'
         }
-    ]
+    ],
+
+    getFilterData: function() {
+       var data = this.callParent(arguments);
+
+        if (this.startedBetween) {
+            var start =  this.getStartedBetween();
+
+            if (start.get('from')) {
+                data.push({property: 'startIntervalFrom', value: start.get('from').getTime()});
+            }
+
+            if (start.get('to')) {
+                data.push({property: 'startIntervalTo', value: start.get('to').getTime()});
+            }
+        }
+
+        if (this.finishedBetween) {
+            var end = this.getFinishedBetween();
+            if (end.get('from')) {
+                data.push({property: 'finishIntervalFrom', value: end.get('from').getTime()});
+            }
+
+            if (end.get('to')) {
+                data.push({property: 'finishIntervalTo', value: end.get('to').getTime()});
+            }
+        }
+
+        return data;
+    }
 });
