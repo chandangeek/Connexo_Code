@@ -4064,7 +4064,7 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
                 text: name + ': ' + value,
                 name: key,
                 listeners: {
-                    closeclick: function (btn) {
+                    closeclick: function () {
                         me.fireEvent('removeFilter', key);
                     }
                 }
@@ -5057,6 +5057,7 @@ Ext.define('Uni.util.History', {
 
 Ext.define('Uni.data.proxy.QueryStringProxy', {
     extend: 'Ext.data.proxy.Proxy',
+    alias: 'proxy.querystring',
     root: '',
     router: null,
 
