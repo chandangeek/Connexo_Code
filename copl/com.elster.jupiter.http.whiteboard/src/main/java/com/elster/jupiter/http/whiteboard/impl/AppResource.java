@@ -20,7 +20,7 @@ public class AppResource {
 
         // TODO Register these pages from within the apps.
         result.add(appInfo("Connexo System Admin", "connexo", "/apps/systemadmin/index.html"));
-        result.add(appInfo("Connexo Multi Sense", "connexo", "/apps/multisense/index.html"));
+        result.add(appInfo("Connexo MultiSense", "connexo", "/apps/multisense/index.html"));
 
 		return result;
 	}
