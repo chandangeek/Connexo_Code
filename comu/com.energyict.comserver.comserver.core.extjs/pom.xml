@@ -70,7 +70,13 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/web/js/mdc/build</directory>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+            <resource>
+            <directory>src/main/web/js/mdc/build</directory>
                 <targetPath>js/mdc/build</targetPath>
                 <includes>
                     <include>resources/**/*</include>
