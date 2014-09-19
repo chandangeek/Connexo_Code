@@ -55,7 +55,7 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "comServer.comServers", "comServer.comServers.description", new String[] {Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE});
+        this.userService.createResourceWithPrivileges("MDC", "communicationInfrastructure.communicationInfrastructures", "communicationInfrastructure.communicationInfrastructures.description", new String[] {Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE});
     }
 
     private void assignPrivilegesToDefaultRoles() {
