@@ -64,7 +64,7 @@ public class ProtocolDialectResource {
     @Path("/{protocolDialectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public ProtocolDialectInfo updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                                           @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                           @PathParam("protocolDialectId") long protocolDialectId,
