@@ -109,15 +109,13 @@ public class InstallServiceImpl implements InstallService {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("SYS", "issue.issues", "issue.issues.description",  new String[] {Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
-        this.userService.createResourceWithPrivileges("SYS", "creationRule.creationRules", "creationRule.creationRules.description", new String[] {Privileges.CREATE_CREATION_RULE, Privileges.UPDATE_CREATION_RULE, Privileges.DELETE_CREATION_RULE, Privileges.VIEW_CREATION_RULE});
-        this.userService.createResourceWithPrivileges("SYS", "assignmentRule.assignmentRules", "assignmentRule.assignmentRules.description", new String[] {Privileges.VIEW_ASSIGNMENT_RULE});
+        this.userService.createResourceWithPrivileges("MDC", "issue.issues", "issue.issues.description",  new String[] {Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
+        this.userService.createResourceWithPrivileges("MDC", "issueConfiguration.issueConfigurations", "issueConfiguration.issueConfigurations.description", new String[] {Privileges.VIEW_CREATION_RULE, Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE});
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.CREATE_CREATION_RULE, Privileges.UPDATE_CREATION_RULE, Privileges.DELETE_CREATION_RULE, Privileges.VIEW_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE,
-                Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.VIEW_CREATION_RULE, Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE, Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
     }
 
     private void createIssueOverdueTask(){
