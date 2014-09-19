@@ -1,6 +1,17 @@
 Ext.define('Dsh.controller.BaseController', {
     extend: 'Ext.app.Controller',
 
+    refs: [
+        {
+            ref: 'filterPanel',
+            selector: 'filter-top-panel'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: 'dsh-side-filter nested-form'
+        }
+    ],
+
     init: function () {
         this.control({
             'dsh-side-filter button[action=applyfilter]': {
