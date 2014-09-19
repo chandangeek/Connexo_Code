@@ -67,7 +67,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     },
 
     showDeviceCommunicationTasksView: function (mrid) {
-        debugger;
         var me = this;
         var communicationTasksOfDeviceStore = me.getCommunicationTasksOfDeviceStore();
         this.mrid = mrid;
@@ -92,7 +91,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         changeItems.push(menu.down('#changeConnectionMethodOfDeviceComTask'));
         changeItems.push(menu.down('#changeProtocolDialectOfDeviceComTask'));
         changeItems.push(menu.down('#changeUrgencyOfDeviceComTask'));
-        debugger;
         var selection = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
         if (selection.data.scheduleTypeKey === 'ON_REQUEST') {
             Ext.each(changeItems, function (item) {
@@ -123,7 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     },
 
     runDeviceComTask: function () {
-        debugger;
+
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
 
@@ -213,7 +211,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                debugger;
                 var changeConnectionItemPopUp = me.getChangeConnectionItemPopUp();
                 if(changeConnectionItemPopUp){
                     changeConnectionItemPopUp.close();
