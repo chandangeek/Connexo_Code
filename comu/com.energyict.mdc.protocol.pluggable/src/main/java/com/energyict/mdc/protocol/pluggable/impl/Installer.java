@@ -72,12 +72,12 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "protocol.protocols", "protocol.protocols.description", new String[] {Privileges.CREATE_PROTOCOL, Privileges.UPDATE_PROTOCOL, Privileges.DELETE_PROTOCOL, Privileges.VIEW_PROTOCOL});
+        this.userService.createResourceWithPrivileges("MDC", "protocol.protocols", "protocol.protocols.description", new String[] {Privileges.ADMINISTRATE_PROTOCOL, Privileges.VIEW_PROTOCOL});
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.CREATE_PROTOCOL, Privileges.UPDATE_PROTOCOL, Privileges.DELETE_PROTOCOL, Privileges.VIEW_PROTOCOL});
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_PROTOCOL});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_PROTOCOL, Privileges.VIEW_PROTOCOL});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_PROTOCOL});
     }
 
     private void createCapabilityMappings() {
