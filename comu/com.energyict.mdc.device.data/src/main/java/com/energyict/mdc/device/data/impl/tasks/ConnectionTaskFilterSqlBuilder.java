@@ -97,7 +97,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     }
 
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
-        SqlBuilder sqlBuilder = dataMapper.builder("ct");
+        SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
         this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
         if (   !this.isNull(this.lastSessionEnd)
             || !this.latestStatuses.isEmpty()
