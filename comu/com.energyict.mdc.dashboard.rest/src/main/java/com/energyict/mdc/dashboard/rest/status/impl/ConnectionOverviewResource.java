@@ -36,7 +36,7 @@ public class ConnectionOverviewResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public ConnectionOverviewInfo getConnectionOverview() throws Exception {
         TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();

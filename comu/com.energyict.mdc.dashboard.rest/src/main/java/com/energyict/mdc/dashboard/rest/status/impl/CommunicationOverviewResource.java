@@ -33,7 +33,7 @@ public class CommunicationOverviewResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public CommunicationOverviewInfo getCommunicationOverview() throws Exception {
         TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
         SummaryData summaryData = new SummaryData(taskStatusOverview);

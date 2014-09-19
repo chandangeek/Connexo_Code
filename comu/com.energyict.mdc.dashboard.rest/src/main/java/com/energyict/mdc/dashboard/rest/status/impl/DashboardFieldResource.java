@@ -56,7 +56,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/breakdown")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Object getBreakdownValues() {
         return asJsonArrayObjectWithTranslation("breakdowns", "breakdown", BREAKDOWN_OPTION_ADAPTER.getClientSideValues());
     }
@@ -64,7 +64,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/taskstatus")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Object getTaskStatusValues() {
         return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", new TaskStatusAdapter().getClientSideValues());
     }
@@ -72,7 +72,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/comsessionsuccessindicators")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Object getComSessionSuccessIndicatorValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ComSessionSuccessIndicatorAdapter().getClientSideValues());
     }
@@ -80,7 +80,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/connectiontasksuccessindicators")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Object getConnectionTaskSuccessIndicatorValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ConnectionTaskSuccessIndicatorAdapter().getClientSideValues());
     }
@@ -88,7 +88,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/lifecyclestatus")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Object getLifecycleStatus() {
         return asJsonArrayObjectWithTranslation("lifecycleStatuses", "lifecycleStatus", new ConnectionTaskLifecycleStatusAdaptor().getClientSideValues());
     }
@@ -131,7 +131,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/connectiontypepluggableclasses")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Object getConnectionTypeValues() {
         return Response.ok(asInfoMap("connectiontypepluggableclasses", protocolPluggableService.findAllConnectionTypePluggableClasses())).build();
     }
