@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -69,20 +70,18 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "device.devices", "device.devices.description", new String[] {Privileges.CREATE_DEVICE, Privileges.UPDATE_DEVICE, Privileges.DELETE_DEVICE, Privileges.VIEW_DEVICE, Privileges.IMPORT_DEVICE, Privileges.REVOKE_DEVICE, Privileges.VALIDATE_DEVICE, Privileges.SCHEDULE_DEVICE});
-        this.userService.createResourceWithPrivileges("MDC", "loadProfile.loadProfiles", "loadProfile.loadProfiles.description", new String[] {Privileges.CREATE_LOAD_PROFILE, Privileges.UPDATE_LOAD_PROFILE, Privileges.DELETE_LOAD_PROFILE, Privileges.VIEW_LOAD_PROFILE});
-        this.userService.createResourceWithPrivileges("MDC", "logBook.logBooks", "logBook.logBooks.description", new String[] {Privileges.CREATE_LOGBOOK, Privileges.UPDATE_LOGBOOK, Privileges.DELETE_LOGBOOK, Privileges.VIEW_LOGBOOK});
-        this.userService.createResourceWithPrivileges("MDC", "securityPropertySet.securityPropertySets", "securityPropertySet.securityPropertySets.description", new String[] {Privileges.CREATE_SECURITY_PROPERTY_SET, Privileges.UPDATE_SECURITY_PROPERTY_SET, Privileges.DELETE_SECURITY_PROPERTY_SET, Privileges.VIEW_SECURITY_PROPERTY_SET});
+        this.userService.createResourceWithPrivileges("MDC", "device.devices", "device.devices.description", new String[] {Privileges.ADMINISTRATE_DEVICE, Privileges.VIEW_DEVICE, Privileges.VALIDATE_DEVICE, Privileges.SCHEDULE_DEVICE});
+        this.userService.createResourceWithPrivileges("MDC", "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", new String[] {Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT, Privileges.CREATE_INVENTORY_MANAGEMENT});
+        this.userService.createResourceWithPrivileges("MDC", "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", new String[] {Privileges.ADMINISTRATE_DEVICE_SECURITY, Privileges.VIEW_DEVICE_SECURITY});
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {
-                Privileges.CREATE_DEVICE, Privileges.UPDATE_DEVICE, Privileges.DELETE_DEVICE, Privileges.VIEW_DEVICE, Privileges.IMPORT_DEVICE, Privileges.REVOKE_DEVICE, Privileges.VALIDATE_DEVICE, Privileges.SCHEDULE_DEVICE,
-                Privileges.CREATE_LOAD_PROFILE, Privileges.UPDATE_LOAD_PROFILE, Privileges.DELETE_LOAD_PROFILE, Privileges.VIEW_LOAD_PROFILE,
-                Privileges.CREATE_LOGBOOK, Privileges.UPDATE_LOGBOOK, Privileges.DELETE_LOGBOOK, Privileges.VIEW_LOGBOOK,
-                Privileges.CREATE_SECURITY_PROPERTY_SET, Privileges.UPDATE_SECURITY_PROPERTY_SET, Privileges.DELETE_SECURITY_PROPERTY_SET, Privileges.VIEW_SECURITY_PROPERTY_SET
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {
+                Privileges.ADMINISTRATE_DEVICE, Privileges.VIEW_DEVICE, Privileges.VALIDATE_DEVICE, Privileges.SCHEDULE_DEVICE,
+                Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT, Privileges.CREATE_INVENTORY_MANAGEMENT,
+                Privileges.ADMINISTRATE_DEVICE_SECURITY, Privileges.VIEW_DEVICE_SECURITY
         });
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_DEVICE, Privileges.VIEW_LOAD_PROFILE, Privileges.VIEW_LOGBOOK});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_DEVICE});
     }
 
     private void createMessageHandlers() {
