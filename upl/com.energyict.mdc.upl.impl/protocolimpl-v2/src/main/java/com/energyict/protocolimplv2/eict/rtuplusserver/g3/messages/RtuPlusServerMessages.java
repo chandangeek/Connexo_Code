@@ -48,6 +48,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     private final DlmsSession session;
     private List<DeviceMessageSpec> supportedMessages = null;
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
+    private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
 
     public RtuPlusServerMessages(DlmsSession session) {
         this.session = session;
@@ -106,11 +107,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             supportedMessages.add(PPPConfigurationDeviceMessage.SetPPPIdleTime);
             supportedMessages.add(NetworkConnectivityMessage.PreferGPRSUpstreamCommunication);
             supportedMessages.add(NetworkConnectivityMessage.EnableModemWatchdog);
-            supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogInterval);
-            supportedMessages.add(PPPConfigurationDeviceMessage.SetPPPDaemonResetThreshold);
-            supportedMessages.add(NetworkConnectivityMessage.SetModemResetThreshold);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SetSystemRebootThreshold);
+            supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogParameters);
             supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
+            supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
 
             //G3 interface messages
             supportedMessages.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
@@ -129,6 +128,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             supportedMessages.add(ClockDeviceMessage.SyncTime);
             supportedMessages.add(ConfigurationChangeDeviceMessage.SetDeviceName);
             supportedMessages.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
+            supportedMessages.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
             supportedMessages.add(DeviceActionMessage.RebootApplication);
 
             supportedMessages.add(FirewallConfigurationMessage.ActivateFirewall);
@@ -137,6 +137,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             supportedMessages.add(FirewallConfigurationMessage.ConfigureFWLAN);
             supportedMessages.add(FirewallConfigurationMessage.ConfigureFWWAN);
             supportedMessages.add(FirewallConfigurationMessage.SetFWDefaultState);
+
+            supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
+            supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
         }
         return supportedMessages;
     }
@@ -152,6 +155,10 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     setMaxNumberOfHops(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName)) {
                     setWeakLQIValue(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1)) {
+                    changePasswordUser1(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2)) {
+                    changePasswordUser2(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSecurityLevel)) {
                     setSecurityLevelpendingMessage(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetRoutingConfiguration)) {
@@ -217,16 +224,12 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     preferGPRSUpstreamCommunication(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableModemWatchdog)) {
                     enableModemWatchdog(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetModemWatchdogInterval)) {
-                    setModemWatchdogInterval(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PPPConfigurationDeviceMessage.SetPPPDaemonResetThreshold)) {
-                    setPPPDaemonResetThreshold(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetModemResetThreshold)) {
-                    setModemResetThreshold(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetSystemRebootThreshold)) {
-                    setSystemRebootThreshold(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetModemWatchdogParameters)) {
+                    setModemWatchdogParameters(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.EnableSSL)) {
                     enableSSL(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
+                    configurePushEventNotification(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SyncTime)) {
                     syncTime(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.REBOOT_DEVICE)) {
@@ -237,6 +240,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     setDeviceName(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetNTPAddress)) {
                     setNTPAddress(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SyncNTPServer)) {
+                    syncNTPServer(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement)) {
                     setAutomaticRouteManagement(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.EnableSNR)) {
@@ -516,8 +521,13 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         //TODO port from 8.11
     }
 
+    private void syncNTPServer(OfflineDeviceMessage pendingMessage) throws IOException {
+        this.session.getCosemObjectFactory().getNTPServerAddress().ntpSync();
+    }
+
     private void setDeviceName(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
+        String name = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        this.session.getCosemObjectFactory().getData(DEVICE_NAME_OBISCODE).setValueAttr(OctetString.fromString(name));
     }
 
     private void rebootApplication(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -539,24 +549,23 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         //TODO port from 8.11
     }
 
-    private void setSystemRebootThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
-    }
+    private void setModemWatchdogParameters(OfflineDeviceMessage pendingMessage) throws IOException {
+        int modemWatchdogInterval = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemWatchdogInterval).getDeviceMessageAttributeValue());
+        int pppDaemonResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PPPDaemonResetThreshold).getDeviceMessageAttributeValue());
+        int modemResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemResetThreshold).getDeviceMessageAttributeValue());
+        int systemRebootThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.systemRebootThreshold).getDeviceMessageAttributeValue());
 
-    private void setModemResetThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
-    }
-
-    private void setPPPDaemonResetThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
-    }
-
-    private void setModemWatchdogInterval(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
+        this.session.getCosemObjectFactory().getModemWatchdogConfiguration().writeConfigParameters(
+                modemWatchdogInterval,
+                pppDaemonResetThreshold,
+                modemResetThreshold,
+                systemRebootThreshold
+        );
     }
 
     private void enableModemWatchdog(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
+        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        this.session.getCosemObjectFactory().getModemWatchdogConfiguration().enableWatchdog(enable);
     }
 
     private void preferGPRSUpstreamCommunication(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -567,20 +576,42 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         //TODO port from 8.11
     }
 
+    private void configurePushEventNotification(OfflineDeviceMessage pendingMessage) throws IOException {
+        int transportType = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getDeviceMessageAttributeValue());
+        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getDeviceMessageAttributeValue();
+        int messageType = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getDeviceMessageAttributeValue());
+
+        this.session.getCosemObjectFactory().getEventPushNotificationConfig().writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
+    }
+
     private void writeUplinkPingTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
+        Integer timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        this.session.getCosemObjectFactory().getUplinkPingConfiguration().writeTimeout(timeout);
+    }
+
+    private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {
+        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        this.session.getCosemObjectFactory().getWebPortalPasswordConfig().changeUser1Password(newPassword);
+    }
+
+    private void changePasswordUser2(OfflineDeviceMessage pendingMessage) throws IOException {
+        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        this.session.getCosemObjectFactory().getWebPortalPasswordConfig().changeUser2Password(newPassword);
     }
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
+        Integer interval = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        this.session.getCosemObjectFactory().getUplinkPingConfiguration().writeInterval(interval);
     }
 
     private void writeUplinkPingDestinationAddress(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
+        String destinationAddress = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        this.session.getCosemObjectFactory().getUplinkPingConfiguration().writeDestAddress(destinationAddress);
     }
 
     private void enableUplinkPing(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
+        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        this.session.getCosemObjectFactory().getUplinkPingConfiguration().enableUplinkPing(enable);
     }
 
     private String pathRequest(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -870,6 +901,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             }
             return macAddresses.toString();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else {

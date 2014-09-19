@@ -36,11 +36,17 @@ public class G3GatewayConfigurationSupport implements ConfigurationSupport {
                 this.maxRecPduSizePropertySpec(),
                 this.timeZonePropertySpec(),
                 this.aarqTimeoutPropertySpec(),
-                this.readCachePropertySpec());
+                this.readCachePropertySpec(),
+                this.validateInvokeIdPropertySpec()
+        );
     }
 
     private PropertySpec timeZonePropertySpec() {
         return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
+    }
+
+    private PropertySpec validateInvokeIdPropertySpec() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(VALIDATE_INVOKE_ID, true);
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {

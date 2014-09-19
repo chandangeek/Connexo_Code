@@ -14,15 +14,11 @@ import com.energyict.protocolimpl.dlms.g3.registers.mapping.PLCOFDMType2PHYAndMA
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.SixLowPanAdaptationLayerSetupMapping;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.CustomRegisterMapping;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.FirewallSetupCustomRegisterMapping;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.G3NetworkManagementCustomRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.*;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.GprsModemSetupMapping;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -33,19 +29,20 @@ import java.util.List;
 public class G3GatewayRegisters {
 
     private static final ObisCode GSM_FIELD_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
+
     private final RegisterMapping[] registerMappings;
     private final CustomRegisterMapping[] customRegisterMappings;
-    private final List<ObisCode> normalRegisters;
     private final DlmsSession session;
 
     public G3GatewayRegisters(DlmsSession dlmsSession) {
         this.session = dlmsSession;
-        this.normalRegisters = new ArrayList<>();
-        normalRegisters.add(GSM_FIELD_STRENGTH);
 
         this.customRegisterMappings = new CustomRegisterMapping[]{
-                new FirewallSetupCustomRegisterMapping(dlmsSession.getCosemObjectFactory()),
-                new G3NetworkManagementCustomRegisterMapping(dlmsSession.getCosemObjectFactory()),
+                new FirewallSetupCustomRegisterMapping(session.getCosemObjectFactory()),
+                new G3NetworkManagementCustomRegisterMapping(session.getCosemObjectFactory()),
+                new UplinkPingSetupCustomRegisterMapping(session.getCosemObjectFactory()),
+                new AdditionalInfoCustomRegisterMapping(session.getCosemObjectFactory()),
+                new PushEventNotificationSetupRegisterMapping(session.getCosemObjectFactory()),
         };
 
         this.registerMappings = new RegisterMapping[]{
@@ -60,12 +57,12 @@ public class G3GatewayRegisters {
         ObisCode obisCode = register.getObisCode();
 
         try {
-            for (ObisCode supportedObisCode : normalRegisters) {
-                if (obisCode.equals(supportedObisCode)) {
-                    Quantity quantityValue = session.getCosemObjectFactory().getRegister(obisCode).getQuantityValue();
-                    RegisterValue registerValue = new RegisterValue(obisCode, quantityValue);
-                    return createCollectedRegister(registerValue, register);
-                }
+
+            //First check if we can read it out as a normal register (there is only 1 normal register at this time)
+            if (obisCode.equals(GSM_FIELD_STRENGTH)) {
+                Quantity quantityValue = session.getCosemObjectFactory().getRegister(obisCode).getQuantityValue();
+                RegisterValue registerValue = new RegisterValue(obisCode, quantityValue);
+                return createCollectedRegister(registerValue, register);
             }
 
             for (CustomRegisterMapping customRegisterMapping : customRegisterMappings) {

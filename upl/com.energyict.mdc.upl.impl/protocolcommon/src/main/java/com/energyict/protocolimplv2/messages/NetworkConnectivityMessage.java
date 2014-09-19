@@ -57,8 +57,12 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     ),
     PreferGPRSUpstreamCommunication(22, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.preferGPRSUpstreamCommunication)),
     EnableModemWatchdog(23, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableModemWatchdog)),
-    SetModemWatchdogInterval(24, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.modemWatchdogInterval)),
-    SetModemResetThreshold(25, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.modemResetThreshold)),;
+    SetModemWatchdogParameters(24,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.modemWatchdogInterval),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.PPPDaemonResetThreshold),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.modemResetThreshold),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.systemRebootThreshold)
+    );
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 

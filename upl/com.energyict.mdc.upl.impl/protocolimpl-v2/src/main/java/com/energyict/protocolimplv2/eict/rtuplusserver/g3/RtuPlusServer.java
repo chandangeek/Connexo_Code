@@ -6,6 +6,7 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -28,6 +29,8 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages;
@@ -59,6 +62,9 @@ public class RtuPlusServer implements DeviceProtocol {
     private G3GatewayEvents g3GatewayEvents;
     private RtuPlusServerMessages rtuPlusServerMessages;
     private DLMSCache dlmsCache = null;
+    private ComChannel comChannel = null;
+
+    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
 
     @Override
     public String getProtocolDescription() {
@@ -76,6 +82,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.comChannel = comChannel;
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
@@ -93,8 +100,35 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public void logOn() {
+        readFrameCounter();
         getDlmsSession().connect();
         checkCacheObjects();
+    }
+
+    /**
+     * First read out the frame counter for the management client, using the public client.
+     * Note that this happens without setting up an association, since the it's pre-established for the public client.
+     */
+    private void readFrameCounter() {
+        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
+        clone.setProperty(G3Properties.CLIENT_MAC_ADDRESS, "16");
+        clone.setProperty(G3Properties.SECURITY_LEVEL, "0:0");
+        G3GatewayProperties publicClientProperties = new G3GatewayProperties();
+        publicClientProperties.addProperties(clone);
+
+        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+        publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
+        long frameCounter;
+        try {
+            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
+        } catch (DataAccessResultException | ProtocolException e) {
+            frameCounter = new Random().nextInt();
+        } catch (IOException e) {
+            throw IOExceptionHandler.handle(e, publicDlmsSession);
+        }
+
+        //Read out the frame counter using the public client, it has a pre-established association
+        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
     @Override

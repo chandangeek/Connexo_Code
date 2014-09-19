@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom;
 
+import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.FirewallSetup;
 import com.energyict.dlms.cosem.attributes.FirewallSetupAttributes;
@@ -30,13 +31,12 @@ public class FirewallSetupCustomRegisterMapping extends CustomRegisterMapping {
 
     @Override
     public RegisterValue readRegister() throws IOException {
-        FirewallSetup firewallSetup = cosemObjectFactory.getFirewallSetup();
+        FirewallSetup firewallSetup = getCosemObjectFactory().getFirewallSetup();
 
         return createAttributesOverview(
-                firewallSetup.getAttrbAbstractDataType(FirewallSetupAttributes.ENABLED_BY_DEFAULT.getAttributeNumber()),
                 firewallSetup.getAttrbAbstractDataType(FirewallSetupAttributes.IS_ACTIVE.getAttributeNumber()),
-                firewallSetup.getAttrbAbstractDataType(FirewallSetupAttributes.WAN_SETUP.getAttributeNumber()),
                 firewallSetup.getAttrbAbstractDataType(FirewallSetupAttributes.LAN_SETUP.getAttributeNumber()),
+                firewallSetup.getAttrbAbstractDataType(FirewallSetupAttributes.WAN_SETUP.getAttributeNumber()),
                 firewallSetup.getAttrbAbstractDataType(FirewallSetupAttributes.GPRS_SETUP.getAttributeNumber())
         );
     }

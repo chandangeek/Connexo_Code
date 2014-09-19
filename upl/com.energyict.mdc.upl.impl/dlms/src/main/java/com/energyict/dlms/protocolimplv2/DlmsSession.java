@@ -5,7 +5,7 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.protocolimplv2.connection.*;
+import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.HDLCConnection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
@@ -47,6 +47,25 @@ public class DlmsSession implements ProtocolLink {
         this.dlmsConnection.setInvokeIdAndPriorityHandler(getProperties().getInvokeIdAndPriorityHandler());
         if (hhuSignOn != null) {
             this.dlmsConnection.setHHUSignOn(hhuSignOn, deviceId);
+        }
+    }
+
+    /**
+     * Init and set the connection state to connected, without actually opening the association to the meter.
+     * This method can be used do create a new DlmsSession on a meter that has already an open association,
+     * or with a meter that has a permanent association.
+     *
+     * @param serverMaxRecPduSize The max pdu size of the server
+     * @param conformanceBlock    The negotiated conformance block
+     */
+    public void assumeConnected(final int serverMaxRecPduSize, final ConformanceBlock conformanceBlock) {
+        if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+            final XdlmsAse xdlmsAse = this.aso.getAssociationControlServiceElement().getXdlmsAse();
+            xdlmsAse.setMaxRecPDUServerSize(serverMaxRecPduSize);
+            xdlmsAse.setNegotiatedConformance((int) conformanceBlock.getValue());
+            xdlmsAse.setNegotiatedQOS((byte) getProperties().getProposedQOS());
+            xdlmsAse.setNegotiatedDlmsVersion((byte) getProperties().getProposedDLMSVersion());
+            this.aso.setAssociationState(ApplicationServiceObject.ASSOCIATION_CONNECTED);
         }
     }
 

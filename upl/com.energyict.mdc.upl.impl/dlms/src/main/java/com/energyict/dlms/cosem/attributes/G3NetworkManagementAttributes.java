@@ -26,7 +26,9 @@ public enum G3NetworkManagementAttributes implements DLMSClassAttributes {
     KEEP_ALIVE_MIN_INACTIVE_METER_TIME(13, 96),
     KEEP_ALIVE_MAX_INACTIVE_METER_TIME(14, 104),
     KEEP_ALIVE_RETRIES(15, 112),
-    KEEP_ALIVE_TIMEOUT(16, 120);
+    KEEP_ALIVE_TIMEOUT(16, 120),
+    IS_G3_INTERFACE_ENABLED(17, 128),
+    JOINING_NODES(18, 136);
 
     /**
      * Attribute ID.

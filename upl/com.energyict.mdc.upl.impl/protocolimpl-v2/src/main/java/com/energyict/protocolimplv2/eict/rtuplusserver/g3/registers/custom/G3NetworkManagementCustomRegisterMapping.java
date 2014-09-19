@@ -30,10 +30,11 @@ public class G3NetworkManagementCustomRegisterMapping extends CustomRegisterMapp
 
     @Override
     public RegisterValue readRegister() throws IOException {
-        G3NetworkManagement g3NetworkManagement = cosemObjectFactory.getG3NetworkManagement();
-        PLCOFDMType2MACSetup plcofdmType2MACSetup = cosemObjectFactory.getPLCOFDMType2MACSetup();
+        G3NetworkManagement g3NetworkManagement = getCosemObjectFactory().getG3NetworkManagement();
+        PLCOFDMType2MACSetup plcofdmType2MACSetup = getCosemObjectFactory().getPLCOFDMType2MACSetup();
 
-        return createAttributesOverview(
+        RegisterValue result = createAttributesOverview(true,
+                g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.IS_G3_INTERFACE_ENABLED.getAttributeNumber()),
                 plcofdmType2MACSetup.getAttrbAbstractDataType(PLCOFDMType2MACSetupAttribute.MAC_PAN_ID.getAttributeNumber()),
                 g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.AUTOMATIC_ROUTE_MANAGEMENT_ENABLED.getAttributeNumber()),
                 g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.SNR_ENABLED.getAttributeNumber()),
@@ -48,5 +49,7 @@ public class G3NetworkManagementCustomRegisterMapping extends CustomRegisterMapp
                 g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.KEEP_ALIVE_RETRIES.getAttributeNumber()),
                 g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT.getAttributeNumber())
         );
+
+        return new RegisterValue(result.getObisCode(), result.getText());
     }
 }

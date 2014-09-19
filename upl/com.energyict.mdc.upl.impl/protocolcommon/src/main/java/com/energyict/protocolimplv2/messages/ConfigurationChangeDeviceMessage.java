@@ -93,12 +93,12 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     WhitelistedPhoneNumbers(31, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName)),
     EnableFW(32),
     DisableFW(33),
-    SetSystemRebootThreshold(34, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.systemRebootThreshold)),
     EnableSSL(35, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableSSL)),
     SetDeviceName(36, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceName)),
     SetNTPAddress(37, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ntpAddress)),
     Clear_Faults_Flags(38),
-    Clear_Statistical_Values(39);
+    Clear_Statistical_Values(39),
+    SyncNTPServer(40);
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;

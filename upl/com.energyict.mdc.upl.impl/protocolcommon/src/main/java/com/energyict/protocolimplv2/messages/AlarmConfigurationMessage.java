@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +20,12 @@ import java.util.List;
 public enum AlarmConfigurationMessage implements DeviceMessageSpec {
 
     RESET_ALL_ALARM_BITS(0),
-    WRITE_ALARM_FILTER(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName));
+    WRITE_ALARM_FILTER(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
+    CONFIGURE_PUSH_EVENT_NOTIFICATION(2,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.transportTypeAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.messageTypeAttributeName)
+    );
 
     private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.ALARM_CONFIGURATION;
 

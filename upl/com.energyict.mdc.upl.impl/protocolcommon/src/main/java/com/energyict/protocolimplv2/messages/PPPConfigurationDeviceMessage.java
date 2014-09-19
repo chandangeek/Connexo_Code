@@ -28,8 +28,7 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpec {
     SetPPPIdleTimeout(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPIdleTimeoutAttributeName)),
     SetPPPRetryInterval(9, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPRetryIntervalAttributeName)),
     SetPPPOptions(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPOptionsAttributeName)),
-    SetPPPIdleTime(11, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SetPPPIdleTime)),
-    SetPPPDaemonResetThreshold(12, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.PPPDaemonResetThreshold));
+    SetPPPIdleTime(11, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SetPPPIdleTime));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PPP_PARAMETERS;
 

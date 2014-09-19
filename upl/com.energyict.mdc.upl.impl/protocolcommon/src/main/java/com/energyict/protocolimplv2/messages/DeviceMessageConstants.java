@@ -448,6 +448,9 @@ public class DeviceMessageConstants {
 
     public static final String alarmFilterAttributeName = "AlarmConfigurationMessage.alarmfilter";
     public static final String configUserFileAttributeName = "GeneralDeviceMessage.configuserfile";
+    public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
+    public static final String destinationAddressAttributeName = "AlarmConfigurationMessage.destinationAddress";
+    public static final String messageTypeAttributeName = "AlarmConfigurationMessage.messageType";
 
     public static final String broadCastLogTableEntryTTLAttributeName = "PLCConfigurationDeviceMessage.broadcastlogtableentryttl";
     public static final String maxJoinWaitTime = "PLCConfigurationDeviceMessage.maxJoinWaitTime";

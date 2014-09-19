@@ -183,6 +183,18 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new Data(protocolLink,getObjectReference(obisCode));
     }
 
+    public NTPServerAddress getNTPServerAddress() throws ProtocolException {
+        return new NTPServerAddress(protocolLink, getObjectReference(NTPServerAddress.getDefaultObisCode()));
+    }
+
+    public EventPushNotificationConfig getEventPushNotificationConfig() throws ProtocolException {
+        return new EventPushNotificationConfig(protocolLink, getObjectReference(EventPushNotificationConfig.getDefaultObisCode()));
+    }
+
+    public WebPortalPasswordConfig getWebPortalPasswordConfig() throws ProtocolException {
+        return new WebPortalPasswordConfig(protocolLink, getObjectReference(WebPortalPasswordConfig.getDefaultObisCode()));
+    }
+
     public PrivacyEnhancingDataAggregation getPrivacyEnhancingDataAggregation(ObisCode obisCode) throws ProtocolException {
         return new PrivacyEnhancingDataAggregation(protocolLink,getObjectReference(obisCode));
     }
@@ -524,11 +536,11 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return useGetWithList;
     }
 
-    public ChangeOfTenancyOrSupplierManagement getChangeOfTenancyOrSupplierManagement() throws IOException {
+    public ChangeOfTenancyOrSupplierManagement getChangeOfTenancyOrSupplierManagement() throws ProtocolException {
         return new ChangeOfTenancyOrSupplierManagement(protocolLink);
     }
 
-    public ChangeOfTenancyOrSupplierManagement getChangeOfTenancyOrSupplierManagement(ObisCode obisCode) throws IOException {
+    public ChangeOfTenancyOrSupplierManagement getChangeOfTenancyOrSupplierManagement(ObisCode obisCode) throws ProtocolException {
         return new ChangeOfTenancyOrSupplierManagement(protocolLink, getObjectReference(obisCode));
     }
 
@@ -595,6 +607,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     	return new FirewallSetup(this.protocolLink, this.getObjectReference(FirewallSetup.getDefaultObisCode()));
     }
 
+    public final UplinkPingConfiguration getUplinkPingConfiguration() throws ProtocolException {
+    	return new UplinkPingConfiguration(this.protocolLink, this.getObjectReference(UplinkPingConfiguration.getDefaultObisCode()));
+    }
+
+    public final ModemWatchdogConfiguration getModemWatchdogConfiguration() throws ProtocolException {
+    	return new ModemWatchdogConfiguration(this.protocolLink, this.getObjectReference(ModemWatchdogConfiguration.getDefaultObisCode()));
+    }
+
     public final G3NetworkManagement getG3NetworkManagement() throws ProtocolException {
         return new G3NetworkManagement(this.protocolLink, this.getObjectReference(G3NetworkManagement.getDefaultObisCode()));
     }
@@ -619,19 +639,19 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new G3PlcSetPSK(this.protocolLink, this.getObjectReference(obisCode));
     }
 
-    public final NetworkManagement getNetworkManagement() throws IOException {
+    public final NetworkManagement getNetworkManagement() throws ProtocolException {
         return new NetworkManagement(this.protocolLink, this.getObjectReference(NetworkManagement.getDefaultObisCode()));
     }
 
-    public final GatewaySetup getGatewaySetup() throws IOException {
+    public final GatewaySetup getGatewaySetup() throws ProtocolException {
         return new GatewaySetup(this.protocolLink, this.getObjectReference(GatewaySetup.getDefaultObisCode()));
     }
 
-    public final LoggerSettings getLoggerSettings() throws IOException {
+    public final LoggerSettings getLoggerSettings() throws ProtocolException {
         return new LoggerSettings(this.protocolLink, this.getObjectReference(LoggerSettings.getDefaultObisCode()));
     }
 
-    public final MasterboardSetup getMasterboardSetup() throws IOException {
+    public final MasterboardSetup getMasterboardSetup() throws ProtocolException {
         return new MasterboardSetup(this.protocolLink, this.getObjectReference(MasterboardSetup.getDefaultObisCode()));
     }
 }
