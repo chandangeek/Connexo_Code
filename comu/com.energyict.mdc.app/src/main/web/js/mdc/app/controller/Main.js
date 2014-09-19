@@ -4,7 +4,7 @@
 Ext.define('MdcApp.controller.Main', {
     extend: 'Uni.controller.AppController',
 
-    applicationTitle: 'Connexo Multi Sense',
+    applicationTitle: 'Connexo MultiSense',
     defaultToken: '#/workspace',
 
     controllers: [
