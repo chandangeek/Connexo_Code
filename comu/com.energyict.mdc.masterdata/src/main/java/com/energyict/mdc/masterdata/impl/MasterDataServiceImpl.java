@@ -1,6 +1,5 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -57,25 +56,23 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
-    private volatile UserService userService;
 
     public MasterDataServiceImpl() {
         super();
     }
 
     @Inject
-    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService) {
-        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, userService, true);
+    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+        this(ormService, eventService, nlsService, meteringService, mdcReadingTypeUtilService, true);
     }
 
-    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, boolean createDefaults) {
+    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, boolean createDefaults) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
         this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
-        this.setUserService(userService);
         this.activate();
         this.install(true, createDefaults);
     }
@@ -284,11 +281,6 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -299,7 +291,6 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
-                bind(UserService.class).toInstance(userService);
                 bind(MasterDataService.class).toInstance(MasterDataServiceImpl.this);
             }
         };
@@ -320,7 +311,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     private void install(boolean exeuteDdl, boolean createDefaults) {
-        new Installer(this.dataModel, this.thesaurus, eventService, this.meteringService, this.mdcReadingTypeUtilService, this.userService, this).install(exeuteDdl, createDefaults);
+        new Installer(this.dataModel, this.thesaurus, eventService, this.meteringService, this.mdcReadingTypeUtilService, this).install(exeuteDdl, createDefaults);
     }
 
     @Override

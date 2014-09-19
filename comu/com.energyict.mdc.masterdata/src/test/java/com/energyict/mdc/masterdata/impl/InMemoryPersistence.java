@@ -91,7 +91,6 @@ public class InMemoryPersistence {
                 new TransactionModule(showSqlLogging),
                 new UtilModule(),
                 new NlsModule(),
-                new UserModule(),
                 new DomainUtilModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
@@ -117,7 +116,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewMasterDataService(boolean createDefaults) {
-        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.mdcReadingTypeUtilService, this.userService, createDefaults);
+        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.mdcReadingTypeUtilService, createDefaults);
         return this.masterDataService.getDataModel();
     }
 
