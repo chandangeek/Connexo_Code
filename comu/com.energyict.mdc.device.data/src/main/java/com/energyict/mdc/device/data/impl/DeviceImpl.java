@@ -1138,8 +1138,8 @@ public class DeviceImpl implements Device {
     }
 
     /**
-     * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value), just a list of placeholders for each reading interval within the requestInterval
-     * for all datetimes that occur with the bounds of a meter activation
+     * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value), just a list of placeholders for each reading
+     * interval within the requestInterval for all datetimes that occur with the bounds of a meter activation and load profile's last reading
      * @param loadProfile
      * @param requestInterval interval over which user wants to see readings
      * @param meter
@@ -1150,8 +1150,13 @@ public class DeviceImpl implements Device {
 
         Map<Date, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         Period period = Period.seconds(loadProfile.getInterval().getSeconds());
-        DateTime timeIndex = new DateTime(requestInterval.getStart().getTime() - (requestInterval.getStart().getTime() % period.toStandardDuration().getMillis()));
-        final DateTime endTime = new DateTime(requestInterval.getEnd().getTime());
+        DateTime timeIndex = new DateTime(requestInterval.getStart().getTime() - (requestInterval.getStart().getTime() % period.toStandardDuration().getMillis())); // round start time to interval boundary
+        DateTime endTime;
+        if (loadProfile.getLastReading()!=null && requestInterval.getEnd().after(loadProfile.getLastReading())) {
+            endTime=new DateTime(loadProfile.getLastReading().getTime());
+        } else {
+            endTime=new DateTime(requestInterval.getEnd().getTime());
+        }
         while (timeIndex.compareTo(endTime) < 0) {
             DateTime intervalEnd = timeIndex.plus(period);
             if (meterActivationIntervals.contains(timeIndex.toDate())) {
