@@ -39,7 +39,7 @@ public class ComTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public PagedInfoList getComTasks(@BeanParam QueryParameters queryParameters) {
         List<ComTaskInfo> comTaskInfos =
                 ComTaskInfo.from(ListPager.of(taskService.findAllComTasks(), new ComTaskComparator()).from(queryParameters).find());
@@ -49,7 +49,7 @@ public class ComTaskResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Response getComTask(@PathParam("id") long id) {
         return Response.status(Response.Status.OK).entity(ComTaskInfo.fullFrom(taskService.findComTask(id))).build();
     }
@@ -57,7 +57,7 @@ public class ComTaskResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_COMSERVER)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public Response addComTask(ComTaskInfo comTaskInfo) {
         ComTask newComTask = taskService.newComTask(comTaskInfo.name);
         for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
@@ -89,7 +89,7 @@ public class ComTaskResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_COMSERVER)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public Response updateComTask(@PathParam("id") long id, ComTaskInfo comTaskInfo) {
         ComTask editedComTask = taskService.findComTask(id);
         if (editedComTask != null) {
@@ -124,7 +124,7 @@ public class ComTaskResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_COMSERVER)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public Response deleteComTask(@PathParam("id") long id) {
         ComTask comTask = taskService.findComTask(id);
         if (comTask != null) {
@@ -137,7 +137,7 @@ public class ComTaskResource {
     @GET
     @Path("/categories")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public PagedInfoList getCategories(@BeanParam QueryParameters queryParameters) {
         List<CategoryInfo> categoryInfos = CategoryInfo.from(ListPager.of(Arrays.asList(Categories.values())).from(queryParameters).find());
         return PagedInfoList.asJson("data", categoryInfos, queryParameters);
@@ -146,7 +146,7 @@ public class ComTaskResource {
     @GET
     @Path("/actions")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public PagedInfoList getActions(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         Optional<String> categoryParameter = Optional.fromNullable(uriInfo.getQueryParameters().getFirst("category"));
         if (categoryParameter.isPresent()) {
@@ -161,7 +161,7 @@ public class ComTaskResource {
     @GET
     @Path("/messages")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Response getMessageCategories(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageService.allCategories().stream();
         String availableFor = uriInfo.getQueryParameters().getFirst("availableFor");
