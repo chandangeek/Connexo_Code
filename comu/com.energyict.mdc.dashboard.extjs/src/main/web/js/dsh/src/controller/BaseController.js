@@ -11,7 +11,8 @@ Ext.define('Dsh.controller.BaseController', {
                 clearAllFilters: this.clearFilter
             };
             control[this.prefix + ' #filter-form side-filter-combo'] = {
-                change: this.onFilterChange
+                change: this.onFilterChange,
+                updateTopFilterPanelTagButtons: this.onFilterChange
             };
             control[this.prefix + ' button[action=applyfilter]'] = {
                 click: this.applyFilter
@@ -52,7 +53,9 @@ Ext.define('Dsh.controller.BaseController', {
     },
 
     onFilterChange: function (combo) {
-        this.getFilterPanel().setFilter(combo.getName(), combo.getFieldLabel(), combo.getRawValue());
+        if (!_.isEmpty(combo.getRawValue())) {
+            this.getFilterPanel().setFilter(combo.getName(), combo.getFieldLabel(), combo.getRawValue());
+        }
     },
 
     applyFilter: function () {

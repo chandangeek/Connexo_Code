@@ -17,6 +17,7 @@ Ext.define('Dsh.view.widget.common.SideFilterCombo', {
         me.callParent(arguments);
         me.store.on('load', function () {
             me.select(me.getValue());
+            me.fireEvent('updateTopFilterPanelTagButtons', me);
         });
     },
 
