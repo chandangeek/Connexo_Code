@@ -46,10 +46,15 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
 
         me.dockedItems = [
             {
-                xtype: 'toolbar',
+                xtype: 'container',
                 border: 0,
+                margin: '0 0 5 0',
                 align: 'left',
                 dock: 'top',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
                 items: [
                     {
                         xtype: 'container',
@@ -60,8 +65,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                         xtype: 'button',
                         text: 'Add security setting',
                         action: 'addsecurityaction',
-                        margin: '0 5',
-                        hrefTarget: '',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/create'
                     }
                 ]

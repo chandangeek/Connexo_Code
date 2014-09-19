@@ -141,7 +141,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 gridView = grid.getView(),
                 selectionModel = gridView.getSelectionModel(),
                 communicationTasksCount = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getCount(),
-                word = Uni.I18n.translatePlural('communicationtasks.commtasks', communicationTasksCount, 'MDC', 'communication tasks'),
+                word = Uni.I18n.translatePlural('communicationtasks.commtaskconfigurations', communicationTasksCount, 'MDC', 'communication task configurations'),
                 widget = Ext.widget('container', {
                     html: communicationTasksCount + ' ' + word
                 });

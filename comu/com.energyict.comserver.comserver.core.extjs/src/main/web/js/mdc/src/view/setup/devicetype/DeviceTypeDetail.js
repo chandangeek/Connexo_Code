@@ -19,34 +19,56 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
 
             items: [
                 {
-                    xtype: 'form',
-                    border: false,
-                    itemId: 'deviceTypeDetailForm',
+                    xtype: 'container',
                     layout: {
-                        type: 'vbox',
+                        type: 'hbox',
                         align: 'stretch'
                     },
-                    tbar: [
+                    defaults: {
+                        xtype: 'container'
+                    },
+                    items: [
                         {
-                            xtype: 'component',
                             html: '<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>',
                             itemId: 'deviceTypePreviewTitle'
                         },
                         {
-                            xtype: 'component',
                             flex: 1
                         },
-                        '->',
                         {
-                            xtype: 'button',
-                            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                            iconCls: 'x-uni-action-iconD',
-                            menu: {
-                                xtype: 'device-type-action-menu'
-                            }
-                        }
-                    ],
+                            layout: {
+                                type: 'vbox',
+                                align: 'center',
+                                pack: 'center'
+                            },
 
+                            items: [
+                                {
+                                    xtype: 'container',
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'button',
+                                    text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                                    iconCls: 'x-uni-action-iconD',
+                                    menu: {
+                                        xtype: 'device-type-action-menu'
+                                    }
+                                },
+                                {
+                                    xtype: 'container',
+                                    flex: 1
+                                },
+                            ]
+                        }                    ]
+                },
+                {
+                    xtype: 'form',
+                    border: false,
+                    itemId: 'deviceTypeDetailForm',
+                    layout: {
+                        type: 'vbox'
+                    },
 
                     items: [
                         {

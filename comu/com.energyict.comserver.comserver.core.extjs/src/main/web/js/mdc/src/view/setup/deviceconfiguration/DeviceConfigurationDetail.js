@@ -20,6 +20,50 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
 
             items: [
                 {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox',
+                        align: 'stretch'
+                    },
+                    defaults: {
+                        xtype: 'container'
+                    },
+                    items: [
+                        {
+                            html: '<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>',
+                            itemId: 'deviceConfigurationPreviewTitle'
+                        },
+                        {
+                            flex: 1
+                        },
+                        {
+                            layout: {
+                                type: 'vbox',
+                                align: 'center',
+                                pack: 'center'
+                            },
+
+                            items: [
+                                {
+                                    xtype: 'container',
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'button',
+                                    text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                                    iconCls: 'x-uni-action-iconD',
+                                    menu: {
+                                        xtype: 'device-configuration-action-menu'
+                                    }
+                                },
+                                {
+                                    xtype: 'container',
+                                    flex: 1
+                                },
+                            ]
+                        }                    ]
+                },
+                {
                     xtype: 'form',
                     border: false,
                     itemId: 'deviceConfigurationDetailForm',
@@ -27,26 +71,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                         type: 'vbox',
                         align: 'stretch'
                     },
-                    tbar: [
-                        {
-                            xtype: 'component',
-                            html: '<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>',
-                            itemId: 'deviceConfigurationPreviewTitle'
-                        },
-                        {
-                            xtype: 'component',
-                            flex: 1
-                        },
-                        '->',
-                        {
-                            xtype: 'button',
-                            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                            iconCls: 'x-uni-action-iconD',
-                            menu: {
-                                xtype: 'device-configuration-action-menu'
-                            }
-                        }
-                    ],
 
                     items: [
                         {

@@ -5,10 +5,12 @@ Ext.define('Mdc.store.MeasurementTypesToAdd', {
     ],
     model: 'Mdc.model.RegisterType',
     autoload: false,
-    pageSize: 1000,
     proxy: {
         type: 'rest',
         url: '/api/dtc/registertypes',
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
         reader: {
             type: 'json',
             root: 'registerTypes'

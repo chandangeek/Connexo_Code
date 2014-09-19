@@ -53,10 +53,15 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
 
         me.dockedItems = [
             {
-                xtype: 'toolbar',
+                xtype: 'container',
                 border: 0,
+                margin: '0 0 5 0',
                 align: 'left',
                 dock: 'top',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
                 items: [
                     {
                         xtype: 'container',
@@ -66,8 +71,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration'),
-                        margin: '0 5',
-                        hrefTarget: '',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/create'
                     }
                 ]

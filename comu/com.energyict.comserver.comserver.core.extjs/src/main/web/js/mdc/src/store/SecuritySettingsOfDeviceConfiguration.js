@@ -9,6 +9,9 @@ Ext.define('Mdc.store.SecuritySettingsOfDeviceConfiguration', {
     proxy: {
         type: 'rest',
         url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/securityproperties',
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
         reader: {
             type: 'json',
             root: 'data'
