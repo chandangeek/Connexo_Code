@@ -72,7 +72,7 @@ public class UserResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_USER)
+    @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public UserInfos getUser(@PathParam("id") long id) {
         try (TransactionContext context = transactionService.getContext()) {
             Optional<User> party = userService.getUser(id);
@@ -89,7 +89,7 @@ public class UserResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_USER)
+    @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public UserInfos getUsers(@Context UriInfo uriInfo) {
         try (TransactionContext context = transactionService.getContext()) {
             QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -112,12 +112,12 @@ public class UserResource {
         return new PrivilegeInfos(user.getPrivileges());
     }
 
-
     @PUT
+
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_USER)
+    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
     public UserInfos updateUser(UserInfo info, @PathParam("id") long id) {
         info.id = id;
         transactionService.execute(new UpdateUserTransaction(info, userService));

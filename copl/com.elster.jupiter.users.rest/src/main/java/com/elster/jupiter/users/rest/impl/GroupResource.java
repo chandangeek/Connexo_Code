@@ -43,7 +43,7 @@ public class GroupResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.CREATE_GROUP)
+    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
     public GroupInfos createOrganization(GroupInfo info) {
         GroupInfos result = new GroupInfos();
         result.add(transactionService.execute(new CreateGroupTransaction(info, userService)));
@@ -53,7 +53,7 @@ public class GroupResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.DELETE_GROUP)
+    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
     public GroupInfos deleteGroup(GroupInfo info, @PathParam("id") long id) {
         info.id = id;
         transactionService.execute(new DeleteGroupTransaction(info, userService));
@@ -63,7 +63,7 @@ public class GroupResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_GROUP)
+    @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public GroupInfos getGroup(@PathParam("id") long id) {
         Optional<Group> group = userService.getGroup(id);
         if (group.isPresent()) {
@@ -74,7 +74,7 @@ public class GroupResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_GROUP)
+    @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public GroupInfos getGroups(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Group> list = getGroupRestQuery().select(queryParameters, Order.ascending("name"));
@@ -87,7 +87,7 @@ public class GroupResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_GROUP)
+    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
     public GroupInfos updateGroup(GroupInfo info, @PathParam("id") long id) {
         info.id = id;
         transactionService.execute(new UpdateGroupTransaction(info, userService));

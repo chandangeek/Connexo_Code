@@ -31,7 +31,7 @@ public class DomainResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DOMAIN)
+    @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public DomainInfos getDomains(@Context UriInfo uriInfo) {
         return new DomainInfos(userService.getUserDirectories());
     }
@@ -39,7 +39,7 @@ public class DomainResource {
     @GET
     @Path("/{name}/")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DOMAIN)
+    @RolesAllowed(Privileges.VIEW_USER_ROLE)
     public DomainInfos getDomain(@PathParam("name") String name) {
         Optional<UserDirectory> domain = userService.findUserDirectory(name);
         if (domain.isPresent()) {
