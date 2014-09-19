@@ -23516,28 +23516,27 @@ h6 {
 }
 /* line 51, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a {
-  text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
   font-size: 16px;
   color: white;
 }
-/* line 58, ../../sass/src/container/AppCenter.scss */
+/* line 57, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item {
   padding-top: 16px;
   padding-right: 16px;
   padding-bottom: 4px;
 }
-/* line 65, ../../sass/src/container/AppCenter.scss */
+/* line 64, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item:hover {
   background-color: #71adc7;
 }
-/* line 69, ../../sass/src/container/AppCenter.scss */
+/* line 68, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item.x-pressed {
   background-color: white;
   color: #2f77ac;
 }
-/* line 74, ../../sass/src/container/AppCenter.scss */
+/* line 73, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon {
   background-repeat: no-repeat;
   background-position: center;
