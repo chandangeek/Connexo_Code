@@ -76,11 +76,7 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComServerInfo<?> getComServer(@PathParam("id") long id) {
-        Optional<ComServer> comServer = engineModelService.findComServer(id);
-        if (!comServer.isPresent()) {
-            throw new WebApplicationException("No ComServer with id "+id,
-                Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build());
-        }
+        Optional<ComServer> comServer = findComServerOrThrowException(id);
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
     }
 
@@ -132,11 +128,7 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.UPDATE_COMSERVER)
     public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
-        Optional<ComServer> comServer = engineModelService.findComServer(id);
-        if (!comServer.isPresent()) {
-            throw new WebApplicationException("No ComServer with id " + id,
-                    Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id " + id).build());
-        }
+        Optional<ComServer> comServer = findComServerOrThrowException(id);
 
         Optional<List<InboundComPortInfo>> inboundComPorts = Optional.fromNullable(comServerInfo.inboundComPorts);
         Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.fromNullable(comServerInfo.outboundComPorts);
@@ -154,6 +146,28 @@ public class ComServerResource {
 
         comServer.get().save();
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
+    }
+
+    @PUT
+    @Path("/{id}/properties")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_COMSERVER)
+    // Don't update comports for this request
+    public ComServerInfo updateComServerProperties(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
+        Optional<ComServer> comServer = findComServerOrThrowException(id);
+        comServerInfo.writeTo(comServer.get(), engineModelService);
+        comServer.get().save();
+        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
+    }
+
+    private Optional<ComServer> findComServerOrThrowException(long id) {
+        Optional<ComServer> comServer = engineModelService.findComServer(id);
+        if (!comServer.isPresent()) {
+            throw new WebApplicationException("No ComServer with id " + id,
+                    Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id " + id).build());
+        }
+        return comServer;
     }
 
     @Path("/{comServerId}/comports")
