@@ -113,7 +113,8 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
     ),
     CHANGE_WEBPORTAL_PASSWORD1(29, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
-    CHANGE_WEBPORTAL_PASSWORD2(30, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName));
+    CHANGE_WEBPORTAL_PASSWORD2(30, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),
+    CHANGE_HLS_SECRET_PASSWORD(31, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newPasswordAttributeName));               //Password field
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 

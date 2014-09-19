@@ -94,8 +94,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
             supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY);
             supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY);
-            supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_HEX);
-            supportedMessages.add(SecurityMessage.CHANGE_LLS_SECRET_HEX);
+            supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
 
             supportedMessages.add(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION);
             supportedMessages.add(OutputConfigurationMessage.WriteOutputState);
@@ -274,10 +273,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     changeAuthKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
                     changeEncryptionKey(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_HEX)) {
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
                     changeHlsSecret(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_LLS_SECRET_HEX)) {
-                    changeLlsSecdret(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION)) {
                     writeFullConfig(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(OutputConfigurationMessage.WriteOutputState)) {
@@ -395,12 +392,6 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         if (encounteredError) {
             throw new ProtocolException(lastError);
         }
-    }
-
-    private void changeLlsSecdret(OfflineDeviceMessage pendingMessage) throws IOException {
-        String hex = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getAssociationLN().writeSecret(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(hex, "")));
     }
 
     private void changeHlsSecret(OfflineDeviceMessage pendingMessage) throws IOException {
