@@ -56,11 +56,11 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "schedule.schedules", "schedule.schedules.description", new String[] {Privileges.CREATE_SCHEDULE, Privileges.UPDATE_SCHEDULE, Privileges.DELETE_SCHEDULE, Privileges.VIEW_SCHEDULE});
+        this.userService.createResourceWithPrivileges("MDC", "schedule.schedules", "schedule.schedules.description", new String[] {Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE});
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.CREATE_SCHEDULE, Privileges.UPDATE_SCHEDULE, Privileges.DELETE_SCHEDULE, Privileges.VIEW_SCHEDULE});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE});
     }
 
     private void createTranslations() {
