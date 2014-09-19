@@ -54,6 +54,8 @@ Ext.define('Dsh.controller.Connections', {
         }
     ],
 
+    prefix: '#connectionsdetails',
+
     init: function () {
         this.control({
             '#connectionsdetails': {

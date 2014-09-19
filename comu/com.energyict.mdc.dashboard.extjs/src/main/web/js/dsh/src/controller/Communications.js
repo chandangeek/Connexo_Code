@@ -42,6 +42,8 @@ Ext.define('Dsh.controller.Communications', {
         }
     ],
 
+    prefix: '#communicationsdetails',
+
     init: function () {
         this.control({
             '#communicationdetails #communicationslist': {

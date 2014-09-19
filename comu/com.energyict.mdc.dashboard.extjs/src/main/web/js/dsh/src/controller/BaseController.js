@@ -1,19 +1,24 @@
 Ext.define('Dsh.controller.BaseController', {
     extend: 'Ext.app.Controller',
+    prefix: '',
 
     init: function () {
-        this.control({
-            'filter-top-panel': {
+        if (this.prefix) {
+            var control = {};
+
+            control[this.prefix + ' filter-top-panel'] = {
                 removeFilter: this.removeFilter,
                 clearAllFilters: this.clearFilter
-            },
-            '#filter-form side-filter-combo': {
+            };
+            control[this.prefix + ' #filter-form side-filter-combo'] = {
                 change: this.onFilterChange
-            },
-            'button[action=applyfilter]': {
+            };
+            control[this.prefix + ' button[action=applyfilter]'] = {
                 click: this.applyFilter
-            }
-        });
+            };
+            this.control(control);
+        }
+
         this.callParent(arguments);
     },
 
@@ -21,8 +26,8 @@ Ext.define('Dsh.controller.BaseController', {
         var router = this.getController('Uni.controller.history.Router');
         this.getSideFilterForm().loadRecord(router.filter);
 
-        var value = '';
         // todo: refactor this
+        var value = '';
         if (router.filter.startedBetween && (router.filter.startedBetween.get('from') || router.filter.startedBetween.get('to'))) {
             if (router.filter.startedBetween.get('from') && (router.filter.startedBetween.get('from') || router.filter.startedBetween.get('to'))) {
                 value += ' from ' + Ext.util.Format.date(router.filter.startedBetween.get('from'), 'd/m/Y H:i');
