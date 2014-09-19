@@ -152,7 +152,7 @@ public class ComServerResource {
     @Path("/{id}/properties")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_COMSERVER)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     // Don't update comports for this request
     public ComServerInfo updateComServerProperties(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
