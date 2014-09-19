@@ -6,11 +6,18 @@ import com.energyict.protocolimplv2.abnt.common.frame.field.Crc;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Data;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Function;
 
+import java.util.TimeZone;
+
 /**
  * @author sva
  * @since 130082014 - 11:33
  */
 public interface Frame<T extends Frame> extends Field<T> {
+
+    /**
+     * Getter for the TimeZone
+     */
+    public TimeZone getTimeZone();
 
     /**
      * Getter for the serial

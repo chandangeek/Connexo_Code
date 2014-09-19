@@ -267,6 +267,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_EK155(10015, "com.energyict.genericprotocolimpl.elster.ek155.EK155"),
     ELSTER_EK280(10016, "com.elster.genericprotocolimpl.dlms.ek280.EK280"),
     IDIS_RTUPLUSSERVER(10017, "com.energyict.genericprotocolimpl.rtuplusserver.idis.RtuPlusServer", FamilyRule.ELSTER_IDIS),
+    ELSTER_A1055(10018, "com.energyict.protocolimplv2.abnt.elster.A1055"),
 
     //Not released, only technical class
     JEM10(20001, "com.energyict.protocolimpl.ametek.Jem10"),

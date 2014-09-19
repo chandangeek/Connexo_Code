@@ -24,7 +24,10 @@ public class RequestFrame implements Frame<RequestFrame> {
     private Data data;
     private Crc crc;
 
+    private final TimeZone timeZone;
+
     public RequestFrame(TimeZone timeZone) {
+        this.timeZone = timeZone;
         this.function = new Function();
         this.readerSerialNumber = new ReaderSerialNumber();
         this.data = new Data(REQUEST_DATA_LENGTH, timeZone);
@@ -33,12 +36,16 @@ public class RequestFrame implements Frame<RequestFrame> {
 
     @Override
     public byte[] getBytes() {
-        return ProtocolTools.concatByteArrays(
-                function.getBytes(),
-                readerSerialNumber.getBytes(),
-                data.getBytes(),
-                crc.getBytes()
-        );
+        if (Function.isRegularFunction(function)) {
+            return ProtocolTools.concatByteArrays(
+                    function.getBytes(),
+                    readerSerialNumber.getBytes(),
+                    data.getBytes(),
+                    crc.getBytes()
+            );
+        } else {
+            return function.getBytes();
+        }
     }
 
     @Override
@@ -48,14 +55,20 @@ public class RequestFrame implements Frame<RequestFrame> {
         function.parse(rawData, ptr);
         ptr += function.getLength();
 
-        readerSerialNumber.parse(rawData, ptr);
-        ptr += readerSerialNumber.getLength();
+        if(Function.isRegularFunction(function)) {
+            readerSerialNumber.parse(rawData, ptr);
+            ptr += readerSerialNumber.getLength();
 
-        data.parse(rawData, ptr);
-        ptr += data.getLength();
+            data.parse(rawData, ptr);
+            ptr += data.getLength();
 
-        crc.parse(rawData, ptr);
+            crc.parse(rawData, ptr);
+        }
         return this;
+    }
+
+    public TimeZone getTimeZone() {
+        return timeZone;
     }
 
     public Function getFunction() {
@@ -88,7 +101,9 @@ public class RequestFrame implements Frame<RequestFrame> {
 
     @Override
     public void generateAndSetCRC() {
-        crc = generateCrc();
+        if (function.isRegularFunction(function)) {
+            crc = generateCrc();
+        }
     }
 
     private Crc generateCrc() {
@@ -105,6 +120,8 @@ public class RequestFrame implements Frame<RequestFrame> {
 
     @Override
     public int getLength() {
-        return REQUEST_FRAME_LENGTH;
+        return Function.isRegularFunction(getFunction())
+                ? REQUEST_FRAME_LENGTH
+                : getFunction().getLength();
     }
 }

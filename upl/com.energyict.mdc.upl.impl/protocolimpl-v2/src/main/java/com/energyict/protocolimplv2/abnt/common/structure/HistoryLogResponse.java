@@ -17,6 +17,7 @@ public class HistoryLogResponse extends Data<HistoryLogResponse> {
 
     private static final int EVENT_LOG_SIZE = 16;
     private static final int EXTENDED_EVENT_LOG_SIZE = 9;
+    private static final String INVALID_DATE_ENTRY = "000000000000";
 
     private List<HistoryLogRecord> eventLog;
     private List<HistoryLogRecord> extendedEventLog;
@@ -34,13 +35,17 @@ public class HistoryLogResponse extends Data<HistoryLogResponse> {
 
         for (int i = 0; i < EVENT_LOG_SIZE; i++) {
             HistoryLogRecord historyLogRecord = new HistoryLogRecord(getTimeZone()).parse(rawData, ptr);
-            eventLog.add(historyLogRecord);
+            if (!historyLogRecord.getEventDate().getBcdEncodedDate().getText().equals(INVALID_DATE_ENTRY)) { // Only add valid entries
+                eventLog.add(historyLogRecord);
+            }
             ptr += historyLogRecord.getLength();
         }
 
         for (int i = 0; i < EXTENDED_EVENT_LOG_SIZE; i++) {
             HistoryLogRecord historyLogRecord = new HistoryLogRecord(getTimeZone()).parse(rawData, ptr);
-            extendedEventLog.add(historyLogRecord);
+            if (!historyLogRecord.getEventDate().getBcdEncodedDate().getText().equals(INVALID_DATE_ENTRY)) { // Only add valid entries
+                extendedEventLog.add(historyLogRecord);
+            }
             ptr += historyLogRecord.getLength();
         }
         return this;

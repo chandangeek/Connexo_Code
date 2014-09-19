@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.protocolimplv2.messages.enums.DSTAlgorithm;
 
 import java.util.Arrays;
@@ -57,7 +59,18 @@ public enum ClockDeviceMessage implements DeviceMessageSpec {
     SetNTPOptions(13, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPOptionsAttributeName)),
     FTIONForceTimeSync(14),
 
-    SyncTime(15);
+    SyncTime(15),
+
+    ConfigureDST(17,
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.StartOfDSTAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.EndOfDSTAttributeName)
+    ),
+    ConfigureDSTWithoutHour(18,
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName),
+            PropertySpecFactory.datePropertySpec(DeviceMessageConstants.StartOfDSTAttributeName),
+            PropertySpecFactory.datePropertySpec(DeviceMessageConstants.EndOfDSTAttributeName)
+    );
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.CLOCK;
 

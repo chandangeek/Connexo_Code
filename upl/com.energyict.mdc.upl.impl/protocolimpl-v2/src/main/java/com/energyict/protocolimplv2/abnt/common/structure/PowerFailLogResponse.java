@@ -16,6 +16,7 @@ import java.util.TimeZone;
 public class PowerFailLogResponse extends Data<PowerFailLogResponse> {
 
     private static final int NR_OF_POWER_FAIL_RECORDS = 20;
+    private static final String INVALID_DATE = "000000000000";
 
     private List<PowerFailRecord> powerFailRecords;
 
@@ -31,7 +32,9 @@ public class PowerFailLogResponse extends Data<PowerFailLogResponse> {
 
         for (int i = 0; i < NR_OF_POWER_FAIL_RECORDS; i++) {
             PowerFailRecord powerFailRecord = new PowerFailRecord(getTimeZone()).parse(rawData, ptr);
-            this.powerFailRecords.add(powerFailRecord);
+            if (!powerFailRecord.getStartOfPowerFail().getBcdEncodedDate().getText().equals(INVALID_DATE)) {
+                this.powerFailRecords.add(powerFailRecord); // Only add valid entries
+            }
             ptr += powerFailRecord.getLength();
         }
         return this;

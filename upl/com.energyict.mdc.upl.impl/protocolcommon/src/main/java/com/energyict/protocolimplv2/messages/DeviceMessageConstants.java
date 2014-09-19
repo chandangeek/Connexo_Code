@@ -77,6 +77,23 @@ public class DeviceMessageConstants {
     public static final String enableSSL = "ConfigurationChangeDeviceMessage.enableSSL";
     public static final String deviceName = "ConfigurationChangeDeviceMessage.deviceName";
     public static final String ntpAddress = "ConfigurationChangeDeviceMessage.ntpAddress";
+    public static final String enableAutomaticDemandResetAttributeName = "ConfigurationChangeDeviceMessage.enabledemandreset";
+    public static final String holidayRecord1AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord1";
+    public static final String holidayRecord2AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord2";
+    public static final String holidayRecord3AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord3";
+    public static final String holidayRecord4AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord4";
+    public static final String holidayRecord5AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord5";
+    public static final String holidayRecord6AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord6";
+    public static final String holidayRecord7AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord7";
+    public static final String holidayRecord8AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord8";
+    public static final String holidayRecord9AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord9";
+    public static final String holidayRecord10AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord10";
+    public static final String holidayRecord11AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord11";
+    public static final String holidayRecord12AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord12";
+    public static final String holidayRecord13AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord13";
+    public static final String holidayRecord14AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord14";
+    public static final String holidayRecord15AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord15";
+
     public static final String managedWhiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.managed.whitelist.phonenumbers";
     public static final String smsCenterPhoneNumberAttributeName = "NetworkConnectivityMessage.smscenter.phonenumber";
     public static final String devicePhoneNumberAttributeName = "NetworkConnectivityMessage.device.phonenumber";
@@ -167,7 +184,10 @@ public class DeviceMessageConstants {
     public static final String modemWatchdogInterval = "NetworkConnectivityMessage.modemWatchdogInterval";
     public static final String modemResetThreshold = "NetworkConnectivityMessage.modemResetThreshold";
 
+    public static final String enableDSTAttributeName = "ClockDeviceMessage.enabledst";
     public static final String SetDSTAttributeName = "ClockDeviceMessage.setdst";
+    public static final String StartOfDSTAttributeName = "ClockDeviceMessage.startofdst";
+    public static final String EndOfDSTAttributeName = "ClockDeviceMessage.endofdst";
     public static final String SetTimezoneAttributeName = "ClockDeviceMessage.settimezone";
     public static final String TimeZoneOffsetInHoursAttributeName = "ClockDeviceMessage.gmtoffsetinhours";
     public static final String SetTimeAdjustmentAttributeName = "ClockDeviceMessage.settimeadjustment";
@@ -280,7 +300,6 @@ public class DeviceMessageConstants {
     public static final String CurrentValueAttributeName = "PeakShaverConfigurationDeviceMessage.currentvalue";
     public static final String NewValueAttributeName = "PeakShaverConfigurationDeviceMessage.newvalue";
 
-    public static final String enableDSTAttributeName = "ConfigurationChangeDeviceMessage.enabledst";
     public static final String newPDRAttributeName = "ConfigurationChangeDeviceMessage.pdr";
     public static final String converterTypeAttributeName = "ConfigurationChangeDeviceMessage.convertertype";
     public static final String converterSerialNumberAttributeName = "ConfigurationChangeDeviceMessage.converter.serialnumber";
@@ -541,5 +560,4 @@ public class DeviceMessageConstants {
     public static final String fileInfo = "fileInfo";
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
     public static final String servletURL = "servletURL";
-
 }

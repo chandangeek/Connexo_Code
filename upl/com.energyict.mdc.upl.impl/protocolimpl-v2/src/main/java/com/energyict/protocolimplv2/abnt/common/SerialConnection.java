@@ -9,10 +9,13 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ConnectionException;
 import com.energyict.protocolimplv2.abnt.common.exception.CrcMismatchException;
-import com.energyict.protocolimplv2.abnt.common.exception.TimeoutException;
+import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
+import com.energyict.protocolimplv2.abnt.common.exception.TimeOutException;
+import com.energyict.protocolimplv2.abnt.common.exception.TimeOutInfo;
 import com.energyict.protocolimplv2.abnt.common.frame.RequestFrame;
 import com.energyict.protocolimplv2.abnt.common.frame.ResponseFrame;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Crc;
+import com.energyict.protocolimplv2.abnt.common.frame.field.Data;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Function;
 import com.energyict.protocolimplv2.abnt.common.frame.field.MeterSerialNumber;
 
@@ -24,6 +27,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class SerialConnection implements Connection {
 
+    private static final Function NACK_FUNCTION = new Function(Function.FunctionCode.NACK);
     /**
      * The ComChannel used for communication with the device *
      */
@@ -40,7 +44,7 @@ public class SerialConnection implements Connection {
     }
 
     @Override
-    public void sendFrame(RequestFrame request) throws AbntException {
+    public void sendFrame(RequestFrame request) throws ParsingException {
         // 1. Generate CRC
         request.generateAndSetCRC();
 
@@ -49,28 +53,61 @@ public class SerialConnection implements Connection {
     }
 
     @Override
-    public ResponseFrame sendFrameGetResponse(RequestFrame request) throws AbntException {
+    public ResponseFrame sendFrameGetResponse(RequestFrame request) throws ParsingException {
+        return this.sendFrameGetResponse(request, 1);
+
+    }
+
+    @Override
+    public ResponseFrame sendFrameGetResponse(RequestFrame request, int expectedNumberOfSegments) throws ParsingException {
+        int numberOfSegments = 1;
+        ResponseFrame response = doSendFrameGetResponse(request);
+
+        // Check if response is segmented over multiple frames
+        // and if so, then load in all segments
+        if (responseIsSegmented(response)) {
+            byte[] dataBytesFullResponse = response.getData().getBytes();
+            ResponseFrame responseSegment = response;
+            while (!isLastSegment(responseSegment)) {
+                if (numberOfSegments >= expectedNumberOfSegments) {
+                   throw createUnexpectedResponseException(new ConnectionException("Invalid segmentation of response, expected to receive the last segment."));
+                }
+                responseSegment = doSendFrameGetResponse(request, false);
+                dataBytesFullResponse = ProtocolTools.concatByteArrays(dataBytesFullResponse, responseSegment.getData().getBytes());
+                numberOfSegments++;
+            }
+
+            Data fullResponseData = new Data(dataBytesFullResponse.length, getProperties().getTimeZone());
+            fullResponseData.parse(dataBytesFullResponse, 0);
+            response.setData(fullResponseData);
+        }
+        return response;
+    }
+
+    protected ResponseFrame doSendFrameGetResponse(RequestFrame request) throws ParsingException {
+        return this.doSendFrameGetResponse(request, true);
+    }
+
+    protected ResponseFrame doSendFrameGetResponse(RequestFrame request, boolean shouldSendOutRequest) throws ParsingException {
         int attempts = 0;
-        boolean retrying = false;
         do {
             try {
                 // 1. Generate CRC
                 request.generateAndSetCRC();
 
                 // 2. send out frame (or the retry NACK command) and read in raw data
-                ResponseFrame response = retrying
-                        ? doSendNACKGetRawResponse()
-                        : doSendFrameGetRawResponse(request);
+                ResponseFrame response = doSendBytesGetRawResponse(request.getBytes(), (attempts > 0) || shouldSendOutRequest);
 
                 // 3. Check if the response is not a special command, else handle appropriate
                 if (response.getFunction().getFunctionCode().equals(Function.FunctionCode.NACK)) {
                     // In case of a NACK, the reader must repeat the last frame
-                    //TODO!
+                    throw new ConnectionException("Received NACK from the device");
                 }
                 if (response.getFunction().getFunctionCode().equals(Function.FunctionCode.WAIT)) {
                     // The meter is not ready to respond or must process data, therefore it requests a wait.
                     // The reader should wait the amount of a response timeout before requesting the SAME command again
-                    //TODO!
+                    delayAfterError(-1);
+                    throw new ConnectionException("Received WAIT from the device");
                 }
 
                 // 4. Verify the CRC of the frame
@@ -83,12 +120,8 @@ public class SerialConnection implements Connection {
                 //5. Send ACK command to acknowledge successful receive of response
                 doSendACK();
 
-                // 6. Do parsing of the response frame
-                response.doParseData();
-
                 return response;
-            } catch (CrcMismatchException e) {
-                retrying = true;
+            } catch (CrcMismatchException | ConnectionException e) {
                 delayAndFlushConnection(-1);
                 attempts++;
                 if (attempts > getProperties().getRetries()) {
@@ -98,23 +131,11 @@ public class SerialConnection implements Connection {
         } while (true);
     }
 
-    private void doSendFrame(RequestFrame frame) {
-        doSendBytes(frame.getBytes());
-    }
-
-    private void doSendACK() {
-        doSendBytes(new byte[]{(byte) Function.FunctionCode.ACK.getFunctionCode()});
-    }
-
-    private void doSendNACK() {
-        doSendBytes(new byte[]{(byte) Function.FunctionCode.NACK.getFunctionCode()});
-    }
-
-    private void doSendBytes(byte[] bytes) {
+    protected void doSendFrame(RequestFrame frame) {
         int attempts = 0;
         do {
             try {
-                doSendRawBytes(bytes);
+                doSendRawBytes(frame.getBytes());
                 return;
             } catch (ConnectionException e) {
                 delayAndFlushConnection(-1);
@@ -126,21 +147,34 @@ public class SerialConnection implements Connection {
         } while (true);
     }
 
-    private ResponseFrame doSendFrameGetRawResponse(RequestFrame frame) {
-        return doSendBytesGetRawResponse(frame.getBytes());
+    protected void doSendACK() {
+        RequestFrame ack = new RequestFrame(properties.getTimeZone());
+        ack.setFunction(Function.fromFunctionCode(Function.FunctionCode.ACK));
+        doSendFrame(ack);
+        doForcedDelay();
     }
 
-    private ResponseFrame doSendNACKGetRawResponse() {
-        return doSendBytesGetRawResponse(new byte[]{(byte) Function.FunctionCode.NACK.getFunctionCode()});
-    }
-
-    private ResponseFrame doSendBytesGetRawResponse(byte[] bytes) {
+    protected ResponseFrame doSendBytesGetRawResponse(byte[] bytes, boolean shouldSendOutRequest) {
         int attempts = 0;
+        TimeOutInfo timeOutInfo = null;
         do {
             try {
-                doSendRawBytes(bytes);
+                if (attempts > 0) {
+                    if (timeOutInfo != null && timeOutInfo.equals(TimeOutInfo.NO_RESPONSE_RECEIVED)) {
+                        doSendRawBytes(bytes);  // Retry with original request frame
+                    } else {
+                        doSendRawBytes(NACK_FUNCTION.getBytes()); // Retry with a NACK
+                    }
+                } else {
+                    if (shouldSendOutRequest) {
+                        doSendRawBytes(bytes);
+                    }
+                }
                 return readFrame();
             } catch (AbntException e) {
+                if (e instanceof TimeOutException) {
+                    timeOutInfo = ((TimeOutException) e).getTimeOutInfo();
+                }
                 delayAndFlushConnection(-1);
                 attempts++;
                 if (attempts > getProperties().getRetries()) {
@@ -150,7 +184,7 @@ public class SerialConnection implements Connection {
         } while (true);
     }
 
-    private void doSendRawBytes(byte[] bytes) throws ConnectionException {
+    protected void doSendRawBytes(byte[] bytes) throws ConnectionException {
         try {
             doForcedDelay();
             ensureComChannelIsInWritingMode();
@@ -160,12 +194,12 @@ public class SerialConnection implements Connection {
         }
     }
 
-    private ResponseFrame readFrame() throws AbntException {
+    protected ResponseFrame readFrame() throws AbntException {
         byte[] rawFrame = readRawFrame();
         return new ResponseFrame(getProperties().getTimeZone()).parse(rawFrame, 0);
     }
 
-    private byte[] readRawFrame() throws ConnectionException {
+    protected byte[] readRawFrame() throws ConnectionException {
         ByteArrayOutputStream rawBytes = new ByteArrayOutputStream();
         ConnectionState state = ConnectionState.READ_FUNCTION_CODE;
         long timeOutMoment = System.currentTimeMillis() + getProperties().getTimeout();
@@ -174,7 +208,7 @@ public class SerialConnection implements Connection {
         do {
             if (System.currentTimeMillis() > timeOutMoment) {
                 String message = "Timed out while receiving data. State='" + state + "', timeout='" + getProperties().getTimeout() + "'.";
-                throw new TimeoutException(message);
+                throw new TimeOutException(message, rawBytes.size() == 0 ? TimeOutInfo.NO_RESPONSE_RECEIVED : TimeOutInfo.SHORT_RESPONSE);
             }
             if (!bytesFromDeviceAvailable()) {
                 ProtocolTools.delay(1);
@@ -214,7 +248,7 @@ public class SerialConnection implements Connection {
                         break;
                 }
             }
-        } while (state != ConnectionState.FRAME_RECEIVED || state != ConnectionState.SPECIAL_COMMAND);
+        } while (!state.equals(ConnectionState.FRAME_RECEIVED) && !state.equals(ConnectionState.SPECIAL_COMMAND));
         return rawBytes.toByteArray();
     }
 
@@ -222,7 +256,7 @@ public class SerialConnection implements Connection {
      * Sleep for 'forcedDelay' millis.<br>
      * Note: The ComChannel is unaffected during this operation.
      */
-    private void doForcedDelay() {
+    protected void doForcedDelay() {
         if (getProperties().getForcedDelay() > 0) {
             ProtocolTools.delay(getProperties().getForcedDelay());
         }
@@ -233,7 +267,7 @@ public class SerialConnection implements Connection {
      * the input buffer. If there ae still bytes on the stream, repeat this,
      * until the buffer is empty.
      */
-    private void delayAndFlushConnection(int delay) {
+    protected void delayAndFlushConnection(int delay) {
         delayAfterError(delay);
         while (bytesFromDeviceAvailable()) {
             delayAfterError(delay);
@@ -242,12 +276,7 @@ public class SerialConnection implements Connection {
         }
     }
 
-    private boolean bytesFromDeviceAvailable() {
-        ensureComChannelIsInReadingMode();
-        return comChannel.available() > 0;
-    }
-
-    private void delayAfterError(int delay) {
+    protected void delayAfterError(int delay) {
         if (delay == -1) {
             if (getProperties().getDelayAfterError() > 0) {
                 ProtocolTools.delay(getProperties().getDelayAfterError());
@@ -257,23 +286,40 @@ public class SerialConnection implements Connection {
         }
     }
 
-    private void ensureComChannelIsInReadingMode() {
-        comChannel.startReading();
+    protected boolean bytesFromDeviceAvailable() {
+        ensureComChannelIsInReadingMode();
+        return comChannel.available() > 0;
     }
 
-    private void ensureComChannelIsInWritingMode() {
-        comChannel.startWriting();
-    }
-
-    private static ComServerExecutionException createNumberOfRetriesReachedException(int attempts, AbntException e) {
-        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
-    }
-
-    public ComChannel getComChannel() {
+    protected ComChannel getComChannel() {
         return comChannel;
     }
 
-    public AbntProperties getProperties() {
+    protected void ensureComChannelIsInReadingMode() {
+        comChannel.startReading();
+    }
+
+    protected void ensureComChannelIsInWritingMode() {
+        comChannel.startWriting();
+    }
+
+    protected AbntProperties getProperties() {
         return properties;
+    }
+
+    protected boolean isLastSegment(ResponseFrame response) {
+        return response.getBlockCount().isLastBlock();
+    }
+
+    protected boolean responseIsSegmented(ResponseFrame response) {
+        return Function.allowsSegmentation(response.getFunction());
+    }
+
+    protected static ComServerExecutionException createUnexpectedResponseException(AbntException e) {
+        return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+    }
+
+    protected static ComServerExecutionException createNumberOfRetriesReachedException(int attempts, AbntException e) {
+        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
     }
 }

@@ -5,6 +5,7 @@ import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author sva
@@ -12,38 +13,49 @@ import java.util.Date;
  */
 public class DateTimeField extends AbstractField<DateTimeField> {
 
-    public int length;
     private SimpleDateFormat dateFormatter;
-
-    private Date dateTime;
+    private BcdEncodedField bcdEncodedDate;
 
     public DateTimeField(SimpleDateFormat dateFormatter, int length) {
         this.dateFormatter = dateFormatter;
-        this.length = length;
+        this.bcdEncodedDate = new BcdEncodedField(length);
     }
 
     @Override
     public byte[] getBytes() {
-        return getBCDFromHexString(dateFormatter.format(dateTime), length);
+        return bcdEncodedDate.getBytes();
     }
 
     @Override
     public DateTimeField parse(byte[] rawData, int offset) throws ParsingException {
-        try {
-            BcdEncodedField startOfPowerFailField = new BcdEncodedField(length).parse(rawData, offset);
-            this.dateTime = this.dateFormatter.parse(Integer.toString(startOfPowerFailField.getNumber()));
-        } catch (ParseException e) {
-            throw new ParsingException("Failed to parse DateTimeField:", e);
-        }
+         this.bcdEncodedDate.parse(rawData, offset);
         return this;
     }
 
     @Override
     public int getLength() {
-        return length;
+        return getBcdEncodedDate().getLength();
     }
 
-    public Date getDateTime() {
-        return dateTime;
+    public BcdEncodedField getBcdEncodedDate() {
+        return bcdEncodedDate;
+    }
+
+    public Date getDate(TimeZone timeZone) throws ParsingException {
+        dateFormatter.setTimeZone(timeZone);
+        try {
+            return dateFormatter.parse(bcdEncodedDate.getText());
+        } catch (ParseException e) {
+            throw new ParsingException("Failed to parse a proper date: " + e.getMessage());
+        }
+    }
+
+    public void setDate(Date date, TimeZone timeZone) {
+        dateFormatter.setTimeZone(timeZone);
+        this.bcdEncodedDate.setText(dateFormatter.format(date));
+    }
+
+    public void setDate(String formattedDateTime) {
+       this.bcdEncodedDate.setText(formattedDateTime);
     }
 }

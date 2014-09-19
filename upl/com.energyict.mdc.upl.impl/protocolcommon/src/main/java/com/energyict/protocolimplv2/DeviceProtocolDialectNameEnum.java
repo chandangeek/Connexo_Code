@@ -24,6 +24,8 @@ public enum DeviceProtocolDialectNameEnum {
     ACE4000_DEVICE_PROTOCOL_DIALECT_NAME("ACE4000GprsDialect"),
     GARNET_TCP_DIALECT_NAME("GarnetTcpDialect"),
     GARNET_SERIAL_DIALECT_NAME("GarnetSerialDialect"),
+    ABNT_SERIAL_DIALECT_NAME("AbntSerialDialect"),
+    ABNT_OPTICAL_DIALECT_NAME("AbntOpticalDialect"),
     NO_PARAMETERS_PROTOCOL_DIALECT_NAME("NoParamsDialect");
 
     DeviceProtocolDialectNameEnum(String uniqueName) {

@@ -16,7 +16,7 @@ public class PowerFailRecord extends AbstractField<PowerFailRecord> {
 
     public static final int LENGTH = 12;
     private static final int DATE_TIME_LENGTH = 6;
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat("HHmmssddMMyy");
+    private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("HHmmssddMMyy");
 
     private DateTimeField startOfPowerFail;
     private DateTimeField endOfPowerFail;

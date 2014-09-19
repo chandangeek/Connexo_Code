@@ -39,11 +39,11 @@ public class ReactivePowerCharacteristicField extends AbstractField<ReactivePowe
         return LENGTH;
     }
 
-    public int getInstallationStatusCode() {
+    public int getReactiveCharacteristicsCode() {
         return installationStatusCode;
     }
 
-    public String getInstallationStatusInfo() {
+    public String getReactivePowerCharacteristicsInfo() {
         if (!this.reactivePowerCharacteristic.equals(ReactivePowerCharacteristic.UNKNOWN)) {
             return reactivePowerCharacteristic.getStatusInfo();
         } else {
@@ -56,14 +56,14 @@ public class ReactivePowerCharacteristicField extends AbstractField<ReactivePowe
     }
 
     public enum ReactivePowerCharacteristic {
-        CAPACITIVE("C", "Capacitive"),
-        MONO_PHASE("I", "Inductive"),
-        UNKNOWN("0", "Unknown reactive power characteristic");
+        CAPACITIVE('C', "Capacitive"),
+        INDUCTIVE('L', "Inductive"),
+        UNKNOWN('0', "Unknown reactive power characteristic");
 
-        private final String statusCode;
+        private final char statusCode;
         private final String statusInfo;
 
-        private ReactivePowerCharacteristic(String statusCode, String statusInfo) {
+        private ReactivePowerCharacteristic(char statusCode, String statusInfo) {
             this.statusCode = statusCode;
             this.statusInfo = statusInfo;
         }
@@ -72,13 +72,13 @@ public class ReactivePowerCharacteristicField extends AbstractField<ReactivePowe
             return statusInfo;
         }
 
-        public String getStatusCode() {
+        public char getStatusCode() {
             return statusCode;
         }
 
         public static ReactivePowerCharacteristic fromStatusCode(int statusCode) {
             for (ReactivePowerCharacteristic version : ReactivePowerCharacteristic.values()) {
-                if (version.getStatusCode().equals(statusCode)) {
+                if (version.getStatusCode() == (char) statusCode) {
                     return version;
                 }
             }

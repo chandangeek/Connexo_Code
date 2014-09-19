@@ -2,10 +2,12 @@ package com.energyict.protocolimplv2.abnt.common.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
-import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
-import com.energyict.protocolimplv2.abnt.common.field.NullData;
 import com.energyict.protocolimplv2.abnt.common.frame.RequestFrame;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Data;
+import com.energyict.protocolimplv2.abnt.common.structure.field.ChannelGroupVisibility;
+import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileBlockArgument;
+import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileReadSizeArgument;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.PaddingData;
 
 import java.util.TimeZone;
 
@@ -17,17 +19,17 @@ public class ReadParametersRequest extends Data<ReadParametersRequest> {
 
     private static final int PADDING_DATA_LENGTH = 57;
 
-    private BcdEncodedField loadProfileBlockArgument;
-    private BcdEncodedField channelGroupVisibility;
-    private BcdEncodedField loadProfileReadSizeArgument;
-    private NullData nullData;
+    private LoadProfileBlockArgument loadProfileBlockArgument;
+    private ChannelGroupVisibility channelGroupVisibility;
+    private LoadProfileReadSizeArgument loadProfileReadSizeArgument;
+    private PaddingData paddingData;
 
     public ReadParametersRequest(TimeZone timeZone) {
         super(RequestFrame.REQUEST_DATA_LENGTH, timeZone);
-        this.loadProfileBlockArgument = new BcdEncodedField();
-        this.channelGroupVisibility = new BcdEncodedField();
-        this.loadProfileReadSizeArgument = new BcdEncodedField();
-        this.nullData = new NullData(PADDING_DATA_LENGTH);
+        this.loadProfileBlockArgument = new LoadProfileBlockArgument();
+        this.channelGroupVisibility = new ChannelGroupVisibility();
+        this.loadProfileReadSizeArgument = new LoadProfileReadSizeArgument();
+        this.paddingData = new PaddingData(PADDING_DATA_LENGTH);
     }
 
     @Override
@@ -36,7 +38,7 @@ public class ReadParametersRequest extends Data<ReadParametersRequest> {
                 loadProfileBlockArgument.getBytes(),
                 channelGroupVisibility.getBytes(),
                 loadProfileReadSizeArgument.getBytes(),
-                nullData.getBytes()
+                paddingData.getBytes()
         );
     }
 
@@ -54,15 +56,27 @@ public class ReadParametersRequest extends Data<ReadParametersRequest> {
         return this;
     }
 
-    public BcdEncodedField getLoadProfileBlockArgument() {
-        return loadProfileBlockArgument;
+    public int getLoadProfileBlockCount() {
+        return this.loadProfileBlockArgument.getLoadProfileBlockCount();
     }
 
-    public BcdEncodedField getChannelGroupVisibility() {
-        return channelGroupVisibility;
+    public void setLoadProfileBlockCount(int loadProfileBlockArgument) {
+        this.loadProfileBlockArgument.setBlockCount(loadProfileBlockArgument);
     }
 
-    public BcdEncodedField getLoadProfileReadSizeArgument() {
-        return loadProfileReadSizeArgument;
+    public int getChannelGroupVisibilitySelection() {
+        return this.channelGroupVisibility.getChannelGroupVisibilitySelection();
+    }
+
+    public void setChannelGroupSelection(int channelGroupVisibilitySelection) {
+        this.channelGroupVisibility.setChannelGroupVisibilitySelection(channelGroupVisibilitySelection);
+    }
+
+    public int getLoadProfileReadSizeArgument() {
+        return this.loadProfileReadSizeArgument.getReadSizeArgument();
+    }
+
+    public void setLoadProfileReadSizeArgument(LoadProfileReadSizeArgument readSizeArgument) {
+        this.loadProfileReadSizeArgument = readSizeArgument;
     }
 }

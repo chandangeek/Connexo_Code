@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.abnt.common.field;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 
@@ -42,8 +41,17 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
         return Float.intBitsToFloat(intBits);
     }
 
+    protected float getFloatFromBytesLE(byte[] rawData, int offset) {
+        int intBits = getIntFromBytesLE(rawData, offset, FLOAT_BYTE_LENGTH);
+        return Float.intBitsToFloat(intBits);
+    }
+
     protected String getHexStringFromBCD(byte[] rawData, int offset, int length) throws ParsingException {
         return ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(rawData, offset, offset + length), "");
+    }
+
+    protected int getIntFromBCD(byte[] rawData, int offset, int length) throws ParsingException {
+        return Integer.parseInt(getHexStringFromBCD(rawData, offset, length));  //TODO: error handling?
     }
 
     protected byte[] getBytesFromInt(int value, int length) {
@@ -62,16 +70,6 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
         }
         return bytes;
     }
-
-    protected byte[] getBCDFromInt(int value, int length) {
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < bytes.length; i++) {
-            int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = ProtocolUtils.hex2BCD((i < 4) ? (byte) ((value >> (i * 8))) : 0x00);
-        }
-        return bytes;
-    }
-
     protected byte[] getBCDFromHexString(String hexString, int length) {
         while (hexString.length() < (length * 2)) {
             hexString = "0" + hexString;    // Left pad with 0
@@ -99,10 +97,7 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
         }
 
         Field that = (Field) o;
-        if (!Arrays.equals(this.getBytes(), that.getBytes())) {
-            return false;
-        }
-        return true;
+        return Arrays.equals(this.getBytes(), that.getBytes());
     }
 
     @Override

@@ -9,34 +9,33 @@ import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 public class BcdEncodedField extends AbstractField<BcdEncodedField> {
 
     private int length;
-    private int number;
+    private String text;
 
     public BcdEncodedField() {
-        this.length = 1;
+        this(1, "");
     }
 
     public BcdEncodedField(int length) {
-        this.length = length;
+        this(length, "");
     }
 
-    public BcdEncodedField(int length, int number) {
+    public BcdEncodedField(String text) {
+        this(1, text);
+    }
+
+    public BcdEncodedField(int length, String text) {
         this.length = length;
-        this.number = number;
+        this.text = text;
     }
 
     @Override
     public byte[] getBytes() {
-        return getBCDFromInt(number, length);
+        return getBCDFromHexString(text, length);
     }
 
     @Override
     public BcdEncodedField parse(byte[] rawData, int offset) throws ParsingException {
-        String text = getHexStringFromBCD(rawData, offset, getLength());
-        try {
-            Integer.parseInt(text);
-        } catch (NumberFormatException e) {
-            throw new ParsingException("Failed to extract a valid number from the BCD encoded value", e);
-        }
+        this.text = getHexStringFromBCD(rawData, offset, getLength());
         return this;
     }
 
@@ -45,7 +44,19 @@ public class BcdEncodedField extends AbstractField<BcdEncodedField> {
         return length;
     }
 
-    public int getNumber() {
-        return number;
+    public long getValue() throws ParsingException {
+        try {
+            return Long.parseLong(text);
+        } catch (NumberFormatException e) {
+            throw new ParsingException("Failed to parse value of BcdEncodedfield (" + text + ") as number: " + e.getMessage());
+        }
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

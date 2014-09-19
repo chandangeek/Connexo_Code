@@ -40,12 +40,12 @@ public class DateTime extends AbstractField<DateTime> {
     @Override
     public byte[] getBytes() {
         return ProtocolTools.concatByteArrays(
-                getBCDFromInt(calendar.get(Calendar.YEAR) - 2000, 1),
-                getBCDFromInt(calendar.get(Calendar.MONTH) + 1, 1), // Month should be 1-based
-                getBCDFromInt(calendar.get(Calendar.DAY_OF_MONTH), 1),
-                getBCDFromInt(calendar.get(Calendar.HOUR_OF_DAY), 1),
-                getBCDFromInt(calendar.get(Calendar.MINUTE), 1),
-                getBCDFromInt(calendar.get(Calendar.SECOND), 1)
+                getBCDFromHexString(Integer.toString(calendar.get(Calendar.YEAR) - 2000), 1),
+                getBCDFromHexString(Integer.toString(calendar.get(Calendar.MONTH) + 1), 1), // Month should be 1-based
+                getBCDFromHexString(Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)), 1),
+                getBCDFromHexString(Integer.toString(calendar.get(Calendar.HOUR_OF_DAY)), 1),
+                getBCDFromHexString(Integer.toString(calendar.get(Calendar.MINUTE)), 1),
+                getBCDFromHexString(Integer.toString(calendar.get(Calendar.SECOND)), 1)
         );
     }
 

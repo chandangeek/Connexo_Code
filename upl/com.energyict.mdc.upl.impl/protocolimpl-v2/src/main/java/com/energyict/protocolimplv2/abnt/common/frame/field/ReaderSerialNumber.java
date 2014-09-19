@@ -18,6 +18,10 @@ public class ReaderSerialNumber extends AbstractField<ReaderSerialNumber> {
         this.serialNumber = new BcdEncodedField(LENGTH);
     }
 
+    public ReaderSerialNumber(int serialNumber) {
+        this.serialNumber = new BcdEncodedField(LENGTH, Integer.toString(serialNumber));
+    }
+
     @Override
     public byte[] getBytes() {
         return serialNumber.getBytes();
@@ -38,7 +42,7 @@ public class ReaderSerialNumber extends AbstractField<ReaderSerialNumber> {
         return serialNumber;
     }
 
-    public void setSerialNumber(BcdEncodedField serialNumber) {
-        this.serialNumber = serialNumber;
+    public void setSerialNumber(int serialNumber) {
+        this.serialNumber = new BcdEncodedField(LENGTH, Integer.toString(serialNumber));
     }
 }

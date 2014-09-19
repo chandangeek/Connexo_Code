@@ -42,6 +42,7 @@ public class V2ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolClasses.add("com.energyict.protocolimplv2.edp.CX20009");  this.protocolNames.add("SagemCom CX2000-9 DLMS");
         this.protocolClasses.add("com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator");  this.protocolNames.add("Elster Concentrator Garnet");
         this.protocolClasses.add("com.energyict.protocolimplv2.elster.garnet.A100C");  this.protocolNames.add("Elster A100C Garnet");
+        this.protocolClasses.add("com.energyict.protocolimplv2.abnt.elster.A1055"); this.protocolNames.add("Elster A1055 ABNT");
     }
 
     public String getProtocolName(int index) throws IOException {

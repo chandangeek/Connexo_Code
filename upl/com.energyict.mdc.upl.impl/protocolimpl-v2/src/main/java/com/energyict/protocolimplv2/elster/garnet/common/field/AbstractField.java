@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.garnet.common.field;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.exception.ParsingException;
 
@@ -53,15 +52,6 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
         byte[] bytes = new byte[length];
         for (int i = 0; i < bytes.length; i++) {
             bytes[i] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
-        }
-        return bytes;
-    }
-
-    protected byte[] getBCDFromInt(int value, int length) {
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < bytes.length; i++) {
-            int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = ProtocolUtils.hex2BCD((i < 4) ? (byte) ((value >> (i * 8))) : 0x00);
         }
         return bytes;
     }

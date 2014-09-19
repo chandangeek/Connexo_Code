@@ -11,20 +11,22 @@ public class TariffConfigurationField extends AbstractField<TariffConfigurationF
 
     public static final int LENGTH = 1;
 
-    private int bitMaskCode;
+    private int code;
+    private TariffCode tariffCode;
 
     public TariffConfigurationField() {
-        bitMaskCode = 0;
+        code = 0;
     }
 
     @Override
     public byte[] getBytes() {
-        return getBytesFromInt(bitMaskCode, LENGTH);
+        return getBytesFromInt(code, LENGTH);
     }
 
     @Override
     public TariffConfigurationField parse(byte[] rawData, int offset) throws ParsingException {
-        bitMaskCode = getIntFromBytes(rawData, offset, LENGTH);
+        code = getIntFromBytes(rawData, offset, LENGTH);
+        tariffCode = TariffCode.tariffCodeFromCode(code);
         return this;
     }
 
@@ -33,19 +35,52 @@ public class TariffConfigurationField extends AbstractField<TariffConfigurationF
         return LENGTH;
     }
 
-    public int getBitMaskCode() {
-        return bitMaskCode;
+    public int getCode() {
+        return code;
     }
 
-    public boolean peakTariffEnabled() {
-        return (bitMaskCode & 0x01) == 0x01;
+    public String getTariffInfo() {
+        return tariffCode.getMessage();
     }
 
-    public boolean offPeakTariffEnabled() {
-        return (bitMaskCode & 0x02) == 0x02;
+    public TariffCode getTariffCode() {
+        return tariffCode;
     }
 
-    public boolean nightTariffEnabled() {
-        return (bitMaskCode & 0x04) == 0x04;
+    public enum TariffCode {
+        UNDEFINED(0, "Undefined, it counts only Off-Peak"),
+        PEAK_AND_OFF_PEAK(1, "Peak and Off-Peak"),
+        ONLY_OFF_PEAK(2, "Only Off-Peak"),
+        PEAK_AND_OFF_PEAK_PREF(3, "Peak and Off-Peak"),
+        OFF_PEAK_AND_RESERVED(4, "Off-Peak and Reserved"),
+        PEAK_OFF_PEAK_AND_RESERVED(5, "Peak, Off-Peak and Reserved"),
+        OFF_PEAK_AND_RESERVED_PREF(6, "Off-Peak and Reserved"),
+        PEAK_OFF_PEAK_AND_RESERVED_PREF(7, "Peak, Off-Peak and Reserved");
+
+        private final int code;
+        private final String message;
+
+
+        TariffCode(int code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public static TariffCode tariffCodeFromCode(int code) {
+            for (TariffCode tariffCode : values()) {
+                if (tariffCode.getCode() == code) {
+                    return tariffCode;
+                }
+            }
+            return UNDEFINED;
+        }
     }
 }

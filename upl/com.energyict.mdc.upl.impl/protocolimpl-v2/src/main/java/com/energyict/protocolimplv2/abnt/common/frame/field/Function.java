@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.abnt.common.frame.field;
 
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
 
@@ -11,33 +10,43 @@ import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
 public class Function extends AbstractField<Function> {
 
     public static enum FunctionCode {
-
-        ACK(0x06),
-        NACK(0x15),
-        WAIT(0x10),
-        ACTUAL_PARAMETERS_WITH_DEMAND_RESET(0x20),
-        ACTUAL_PARAMETERS(0x21),
-        PREVIOUS_PARAMETERS(0x22),
-        ACTUAL_PARAMETERS_WITH_FULL_LP(0x51),
-        CURRENT_REGISTERS(0x23),
-        PREVIOUS_REGISTERS(0x24),
-        POWER_FAIL_LOG(0x25),
-        HISTORY_LOG(0x28),
-        INSTRUMENTATION_PAGE(0x14),
-        LP_OF_CURRENT_BILLING(0x26),
-        LP_OF_PREVIOUS_BILLING(0x27),
-        LP_ALL_DATA(0x52),
-
-        UNKNOWN(0x00);
+        ENQ(0x05, FrameFormat.SINGLE_RESPONSE),
+        ACK(0x06, FrameFormat.SINGLE_RESPONSE),
+        NACK(0x15, FrameFormat.SINGLE_RESPONSE),
+        WAIT(0x10, FrameFormat.SINGLE_RESPONSE),
+        INSTRUMENTATION_PAGE(0x14, FrameFormat.SINGLE_RESPONSE),
+        ACTUAL_PARAMETERS_WITH_DEMAND_RESET(0x20, FrameFormat.SINGLE_RESPONSE),
+        ACTUAL_PARAMETERS(0x21, FrameFormat.SINGLE_RESPONSE),
+        PREVIOUS_PARAMETERS(0x22, FrameFormat.SINGLE_RESPONSE),
+        ACTUAL_PARAMETERS_WITH_SELECTOR(0x51, FrameFormat.SINGLE_RESPONSE),
+        CURRENT_REGISTERS(0x23, FrameFormat.SINGLE_RESPONSE),
+        PREVIOUS_REGISTERS(0x24, FrameFormat.SINGLE_RESPONSE),
+        POWER_FAIL_LOG(0x25, FrameFormat.SINGLE_RESPONSE),
+        LP_OF_CURRENT_BILLING(0x26, FrameFormat.SEGMENTED_RESPONSE),
+        LP_OF_PREVIOUS_BILLING(0x27, FrameFormat.SEGMENTED_RESPONSE),
+        HISTORY_LOG(0x28, FrameFormat.SINGLE_RESPONSE),
+        DATE_CHANGE(0x29, FrameFormat.SINGLE_RESPONSE),
+        TIME_CHANGE(0x30, FrameFormat.SINGLE_RESPONSE),
+        CONFIGURE_HOLIDAY_LIST(0x32, FrameFormat.SINGLE_RESPONSE),
+        LP_DATA_WITH_SELECTOR(0x52, FrameFormat.SEGMENTED_RESPONSE),
+        CONFIGURE_AUTOMATIC_DEMAND_RESET(0x63, FrameFormat.SINGLE_RESPONSE),
+        CONFIGURE_DST(0x64, FrameFormat.SINGLE_RESPONSE),
+        UNKNOWN(0x00, FrameFormat.SINGLE_RESPONSE);
 
         private final int functionCode;
+        private final FrameFormat frameFormat;
 
-        private FunctionCode(int functionCode) {
+        private FunctionCode(int functionCode, FrameFormat frameFormat) {
             this.functionCode = functionCode;
+            this.frameFormat = frameFormat;
         }
 
         public int getFunctionCode() {
             return functionCode;
+        }
+
+        public FrameFormat getFrameFormat() {
+            return frameFormat;
         }
 
         public static FunctionCode fromCode(int code) {
@@ -48,6 +57,11 @@ public class Function extends AbstractField<Function> {
             }
             return FunctionCode.UNKNOWN;
         }
+    }
+
+    public enum FrameFormat {
+        SINGLE_RESPONSE,
+        SEGMENTED_RESPONSE // The response is segmented over multiple frames (e.g. load profile readout)
     }
 
     public static final int LENGTH = 1;
@@ -71,21 +85,20 @@ public class Function extends AbstractField<Function> {
     public Function parse(byte[] rawData, int offset) throws ParsingException {
         int code = getIntFromBytesLE(rawData, offset, LENGTH);
         functionCode = FunctionCode.fromCode(code);
-        if (functionCode.equals(FunctionCode.UNKNOWN)) {
-            throw new ParsingException("Encountered invalid/unknown function code " + ProtocolTools.getHexStringFromInt(code, 1, "0x") + ".");
-        }
         return this;
     }
 
     public static Function fromCode(int code) {
-        FunctionCode theFunctionCode;
         for (FunctionCode functionCode : FunctionCode.values()) {
             if (functionCode.getFunctionCode() == code) {
-                theFunctionCode = functionCode;
+                return new Function(functionCode);
             }
         }
-        theFunctionCode = FunctionCode.UNKNOWN;
-        return new Function(theFunctionCode);
+        return new Function(FunctionCode.UNKNOWN);
+    }
+
+    public static Function fromFunctionCode(FunctionCode functionCode) {
+        return new Function(functionCode);
     }
 
     @Override
@@ -106,15 +119,34 @@ public class Function extends AbstractField<Function> {
      * (and thus belonging to a regular frame), or if it defines
      * a special command.
      *
-     * @param function
+     * @param function the Function to examine
      * @return true if the function is of regular type
      * false if the function defines a special command
      */
     public static boolean isRegularFunction(Function function) {
-        if (function.getFunctionCode().equals(Function.FunctionCode.NACK) ||
-                function.getFunctionCode().equals(Function.FunctionCode.WAIT)) {
-            return false;
-        }
-        return true;
+        return !(function.getFunctionCode().equals(FunctionCode.ENQ) ||
+                function.getFunctionCode().equals(FunctionCode.ACK) ||
+                function.getFunctionCode().equals(FunctionCode.NACK) ||
+                function.getFunctionCode().equals(FunctionCode.WAIT));
+    }
+
+    /**
+     * Tests if the given {@link Function} is the heartbeat function or not
+     *
+     * @param function the Function to examine
+     * @return true if the function is the heartbeat function
+     */
+    public static boolean isHeartBeatFunction(Function function) {
+        return function.getFunctionCode().equals(FunctionCode.ENQ);
+    }
+
+    /**
+     * Tests if the given {@link Function} allows segmented response
+     *
+     * @param function the Function to examine
+     * @return true if the function allows segmented response
+     */
+    public static boolean allowsSegmentation(Function function) {
+        return function.getFunctionCode().getFrameFormat().equals(FrameFormat.SEGMENTED_RESPONSE);
     }
 }

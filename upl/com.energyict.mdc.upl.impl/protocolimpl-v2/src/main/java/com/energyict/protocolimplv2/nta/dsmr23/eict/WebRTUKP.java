@@ -54,7 +54,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
 
         HHUSignOnV2 hhuSignOn = null;
-        if (ComChannelType.SerialComChannel.is(comChannel)) {
+        if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, getProperDeviceId()));

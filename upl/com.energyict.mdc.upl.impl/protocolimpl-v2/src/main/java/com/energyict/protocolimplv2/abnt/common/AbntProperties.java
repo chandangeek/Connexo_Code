@@ -11,6 +11,7 @@ import com.energyict.protocol.MeterProtocol;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -22,11 +23,11 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  */
 public class AbntProperties implements ConfigurationSupport {
 
-    public static final String DEVICE_ID = "DeviceId";
-    public static final BigDecimal DEFAULT_DEVICE_ID = new BigDecimal(0);
+    public static final String READER_SERIAL_NUMBER_PROPERTY = "ReaderSerialNumber";
     public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
-    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(0, TimeDuration.MILLISECONDS);
+    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(50, TimeDuration.MILLISECONDS);
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.MILLISECONDS);
+    private static final BigDecimal DEFAULT_READER_SERIAL_NUMBER = new BigDecimal(1);
 
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
@@ -43,6 +44,7 @@ public class AbntProperties implements ConfigurationSupport {
      */
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         this.securityPropertySet = deviceProtocolSecurityPropertySet;
+        this.properties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
     }
 
     /**
@@ -52,11 +54,8 @@ public class AbntProperties implements ConfigurationSupport {
         return getProperties().getTypedProperty(MeterProtocol.SERIALNUMBER);
     }
 
-    /**
-     * Getter for the device ID.
-     */
-    public int getDeviceId() {
-        return parseBigDecimalProperty(DEVICE_ID, DEFAULT_DEVICE_ID);
+    public int getReaderSerialNumber() {
+        return getProperties().getTypedProperty(READER_SERIAL_NUMBER_PROPERTY, DEFAULT_READER_SERIAL_NUMBER).intValue();
     }
 
     /**
@@ -89,7 +88,10 @@ public class AbntProperties implements ConfigurationSupport {
      * The delay before sending the requests, expressed in milliseconds
      */
     public long getForcedDelay() {
-        return getProperties().getTypedProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY).getMilliSeconds();
+        long forcedDelay = getProperties().getTypedProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY).getMilliSeconds();
+        return (forcedDelay < DEFAULT_FORCED_DELAY.getMilliSeconds())
+                ? DEFAULT_FORCED_DELAY.getMilliSeconds()
+                : forcedDelay;
     }
 
     public long getDelayAfterError() {
@@ -122,23 +124,22 @@ public class AbntProperties implements ConfigurationSupport {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return Arrays.asList(
-                this.deviceIdPropertySpec()
-        );
+        return Collections.emptyList();
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
         return Arrays.asList(
-                this.timeZonePropertySpec()
+                this.timeZonePropertySpec(),
+                this.readerSerialNumberPropertySpec()
         );
-    }
-
-    private PropertySpec deviceIdPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DEVICE_ID, DEFAULT_DEVICE_ID);
     }
 
     private PropertySpec timeZonePropertySpec() {
         return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
+    }
+
+    private PropertySpec readerSerialNumberPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(READER_SERIAL_NUMBER_PROPERTY, DEFAULT_READER_SERIAL_NUMBER);
     }
 }

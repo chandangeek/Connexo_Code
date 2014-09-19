@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.abnt.common.structure.field;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
-import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.frame.field.ReaderSerialNumber;
 
@@ -20,14 +19,14 @@ public class HistoryLogRecord extends AbstractField<HistoryLogRecord> {
     private static final int DATE_TIME_LENGTH = 6;
     private SimpleDateFormat dateFormatter = new SimpleDateFormat("HHmmssddMMyy");
 
-    private BcdEncodedField eventCode;
+    private EventField event;
     private ReaderSerialNumber readerSerialNumber;
     private DateTimeField eventDate;
 
 
     public HistoryLogRecord(TimeZone timeZone) {
         this.dateFormatter.setTimeZone(timeZone);
-        this.eventCode = new BcdEncodedField();
+        this.event = new EventField();
         this.readerSerialNumber = new ReaderSerialNumber();
         this.eventDate = new DateTimeField(this.dateFormatter, DATE_TIME_LENGTH);
     }
@@ -35,7 +34,7 @@ public class HistoryLogRecord extends AbstractField<HistoryLogRecord> {
     @Override
     public byte[] getBytes() {
         return ProtocolTools.concatByteArrays(
-                eventCode.getBytes(),
+                event.getBytes(),
                 readerSerialNumber.getBytes(),
                 eventDate.getBytes()
         );
@@ -43,16 +42,16 @@ public class HistoryLogRecord extends AbstractField<HistoryLogRecord> {
 
     @Override
     public HistoryLogRecord parse(byte[] rawData, int offset) throws ParsingException {
-            int ptr = offset;
+        int ptr = offset;
 
-            eventCode.parse(rawData, ptr);
-            ptr += eventCode.getLength();
+        event.parse(rawData, ptr);
+        ptr += event.getLength();
 
-            readerSerialNumber.parse(rawData, ptr);
-            ptr += readerSerialNumber.getLength();
+        readerSerialNumber.parse(rawData, ptr);
+        ptr += readerSerialNumber.getLength();
 
-            eventDate.parse(rawData, offset);
-            return this;
+        eventDate.parse(rawData, ptr);
+        return this;
     }
 
     @Override
@@ -60,8 +59,8 @@ public class HistoryLogRecord extends AbstractField<HistoryLogRecord> {
         return LENGTH;
     }
 
-    public BcdEncodedField getEventCode() {
-        return eventCode;
+    public EventField getEvent() {
+        return event;
     }
 
     public ReaderSerialNumber getReaderSerialNumber() {

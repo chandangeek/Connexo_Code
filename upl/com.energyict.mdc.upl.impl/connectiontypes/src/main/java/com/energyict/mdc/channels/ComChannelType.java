@@ -15,11 +15,12 @@ public enum ComChannelType {
 
     Invalid(-1),
     SerialComChannel(0),            //HDLC connection layer
-    SocketComChannel(1),            //TCP connection layer
-    DatagramComChannel(2),          //UDP connection layer
-    WavenisGatewayComChannel(3),
-    WavenisSerialComChannel(4),
-    ProximusSmsComChannel(5);
+    OpticalComChannel(1),           //HDLC connection layer
+    SocketComChannel(2),            //TCP connection layer
+    DatagramComChannel(3),          //UDP connection layer
+    WavenisGatewayComChannel(4),
+    WavenisSerialComChannel(5),
+    ProximusSmsComChannel(6);
 
     public static final String TYPE = "ComChannelType";
     private Integer type;

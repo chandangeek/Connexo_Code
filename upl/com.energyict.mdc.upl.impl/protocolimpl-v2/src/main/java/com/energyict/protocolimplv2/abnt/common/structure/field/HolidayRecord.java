@@ -15,13 +15,21 @@ public class HolidayRecord extends AbstractField<HolidayRecord> {
 
     public static final int LENGTH = 3;
     private static final int DATE_LENGTH = 3;
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat("ddMMyy");
+    private static SimpleDateFormat dateFormatter = new SimpleDateFormat("ddMMyy");
+
+    static {
+        dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
 
     private DateTimeField holidayDate;
 
-    public HolidayRecord(TimeZone timeZone) {
-        this.dateFormatter.setTimeZone(timeZone);
+    public HolidayRecord() {
         this.holidayDate = new DateTimeField(dateFormatter, DATE_LENGTH);
+    }
+
+    public HolidayRecord(String date) {
+        this.holidayDate = new DateTimeField(dateFormatter, DATE_LENGTH);
+        this.holidayDate.setDate(date);
     }
 
     @Override
@@ -31,7 +39,7 @@ public class HolidayRecord extends AbstractField<HolidayRecord> {
 
     @Override
     public HolidayRecord parse(byte[] rawData, int offset) throws ParsingException {
-        holidayDate.parse(rawData, offset); //TODO: check if correct - can year be left unspecified?
+        holidayDate.parse(rawData, offset);
         return this;
     }
 

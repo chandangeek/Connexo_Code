@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.abnt.common.field;
 
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 
 /**
@@ -9,9 +10,13 @@ import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 public class FloatField extends AbstractField<FloatField> {
 
     private static final int FLOAT_BYTE_LENGTH = 4;
+
+    private final Unit unit;
+
     private float value;
 
-    public FloatField() {
+    public FloatField(Unit unit) {
+        this.unit = unit;
     }
 
     @Override
@@ -21,7 +26,7 @@ public class FloatField extends AbstractField<FloatField> {
 
     @Override
     public FloatField parse(byte[] rawData, int offset) throws ParsingException {
-        value = getFloatFromBytes(rawData, offset);
+        value = getFloatFromBytesLE(rawData, offset);
         return this;
     }
 
@@ -32,5 +37,9 @@ public class FloatField extends AbstractField<FloatField> {
 
     public float getValue() {
         return value;
+    }
+
+    public Unit getUnit() {
+        return unit;
     }
 }
