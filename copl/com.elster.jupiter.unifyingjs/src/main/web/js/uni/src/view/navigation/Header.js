@@ -60,7 +60,8 @@ Ext.define('Uni.view.navigation.Header', {
             iconCls: 'icon-search',
             scale: 'small',
             action: 'search',
-            href: '#/search'
+            href: '#/search',
+            hidden: true
         },
         {
             xtype: 'userMenu'
