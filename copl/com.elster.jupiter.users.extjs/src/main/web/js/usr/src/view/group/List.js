@@ -51,7 +51,7 @@ Ext.define('Usr.view.group.List', {
                         text: Uni.I18n.translate('group.create', 'USR', 'Add role'),
                         action: 'createGroup',
                         href: '#/administration/roles/add',
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.create.group')
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.userAndRole')
                     }
                 ]
             },
