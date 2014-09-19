@@ -14,6 +14,7 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
     items: [
         {
             xtype: 'nested-form',
+            itemId: 'filter-form',
             hydrator: 'Dsh.util.FilterHydrator',
             ui: 'filter',
             layout: {
@@ -27,7 +28,7 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
             items: [
                 {
                     itemId: 'current-state',
-                    name: 'state',
+                    name: 'currentStates',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
                     displayField: 'localizedValue',
                     valueField: 'taskStatus',
@@ -35,7 +36,7 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
                 },
                 {
                     itemId: 'latest-result',
-                    name: 'latestResult',
+                    name: 'latestResults',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
                     displayField: 'localizedValue',
                     valueField: 'successIndicator',
@@ -59,7 +60,7 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
                 },
                 {
                     itemId: 'device-type',
-                    name: 'deviceType',
+                    name: 'deviceTypes',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
                     displayField: 'name',
                     valueField: 'id',

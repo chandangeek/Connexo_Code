@@ -26,31 +26,31 @@ Ext.define('Dsh.controller.Connections', {
         },
         {
             ref: 'connectionPreview',
-            selector: '#connectionpreview'
+            selector: '#connectionsdetails #connectionpreview'
         },
         {
             ref: 'communicationList',
-            selector: '#communicationsdetails'
+            selector: '#connectionsdetails #communicationsdetails'
         },
         {
             ref: 'communicationContainer',
-            selector: '#communicationcontainer'
+            selector: '#connectionsdetails #communicationcontainer'
         },
         {
             ref: 'communicationPreview',
-            selector: '#communicationpreview'
+            selector: '#connectionsdetails #communicationpreview'
         },
         {
             ref: 'commTasksTitle',
-            selector: '#comtaskstitlepanel'
+            selector: '#connectionsdetails #comtaskstitlepanel'
         },
         {
             ref: 'filterPanel',
-            selector: 'filter-top-panel'
+            selector: '#connectionsdetails filter-top-panel'
         },
         {
             ref: 'sideFilterForm',
-            selector: 'dsh-side-filter nested-form'
+            selector: '#connectionsdetails #filter-form'
         }
     ],
 

@@ -19,6 +19,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
     items: [
         {
             xtype: 'nested-form',
+            itemId: 'filter-form',
             hydrator: 'Dsh.util.FilterHydrator',
             ui: 'filter',
             layout: {

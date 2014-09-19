@@ -30,21 +30,21 @@ Ext.define('Dsh.controller.Communications', {
         },
         {
             ref: 'connectionPreview',
-            selector: '#connectiondetails'
+            selector: '#communicationdetails #connectiondetails'
         },
         {
             ref: 'filterPanel',
-            selector: '#dshcommunicationsfilterpanel'
+            selector: '#communicationsdetails filter-top-panel'
         },
         {
             ref: 'sideFilterForm',
-            selector: 'dsh-comm-side-filter nested-form'
+            selector: '#communicationsdetails #filter-form'
         }
     ],
 
     init: function () {
         this.control({
-            '#communicationslist': {
+            '#communicationdetails #communicationslist': {
                 selectionchange: this.onSelectionChange
             }
         });
