@@ -58,10 +58,7 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "deviceConfiguration.deviceConfigurations", "deviceConfiguration.deviceConfigurations.description", new String[] {Privileges.CREATE_DEVICE_CONFIGURATION, Privileges.UPDATE_DEVICE_CONFIGURATION, Privileges.DELETE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION, Privileges.ACTIVATE_DEVICE_CONFIGURATION});
-        this.userService.createResourceWithPrivileges("MDC", "deviceType.deviceTypes", "deviceType.deviceTypes.description", new String[] {Privileges.CREATE_DEVICE_TYPE, Privileges.UPDATE_DEVICE_TYPE, Privileges.DELETE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE});
-        this.userService.createResourceWithPrivileges("MDC", "loadProfileConfiguration.loadProfileConfigurations", "loadProfileConfiguration.loadProfileConfigurations.description", new String[] {Privileges.CREATE_LOAD_PROFILE_CONFIG, Privileges.UPDATE_LOAD_PROFILE_CONFIG, Privileges.DELETE_LOAD_PROFILE_CONFIG, Privileges.VIEW_LOAD_PROFILE_CONFIG});
-        this.userService.createResourceWithPrivileges("MDC", "registerConfiguration.registerConfigurations", "registerConfiguration.registerConfigurations.description", new String[] {Privileges.CREATE_REGISTER_CONFIG, Privileges.UPDATE_REGISTER_CONFIG, Privileges.DELETE_REGISTER_CONFIG, Privileges.VIEW_REGISTER_CONFIG});
+        this.userService.createResourceWithPrivileges("MDC", "deviceConfiguration.deviceConfigurations", "deviceConfiguration.deviceConfigurations.description", new String[] {Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION});
     }
 
     private void createDTCPrivileges() {
@@ -71,12 +68,8 @@ public class Installer {
 
     private void assignPrivilegesToDefaultRoles() {
         this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {
-                Privileges.CREATE_DEVICE_CONFIGURATION, Privileges.UPDATE_DEVICE_CONFIGURATION, Privileges.DELETE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION, Privileges.ACTIVATE_DEVICE_CONFIGURATION,
-                Privileges.CREATE_DEVICE_TYPE, Privileges.UPDATE_DEVICE_TYPE, Privileges.DELETE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE,
-                Privileges.CREATE_LOAD_PROFILE_CONFIG, Privileges.UPDATE_LOAD_PROFILE_CONFIG, Privileges.DELETE_LOAD_PROFILE_CONFIG, Privileges.VIEW_LOAD_PROFILE_CONFIG,
-                Privileges.CREATE_REGISTER_CONFIG, Privileges.UPDATE_REGISTER_CONFIG, Privileges.DELETE_REGISTER_CONFIG, Privileges.VIEW_REGISTER_CONFIG
-        });
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_LOAD_PROFILE_CONFIG, Privileges.VIEW_DEVICE_TYPE, Privileges.VIEW_LOAD_PROFILE_CONFIG});
+                Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_DEVICE_CONFIGURATION});
     }
 
     private void createTranslations() {
