@@ -66,7 +66,7 @@ public class ConnectionResource {
     @GET
     @Path("/connectiontypepluggableclasses")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Object getConnectionTypeValues() {
         List<IdWithNameInfo> names = new ArrayList<>();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : this.protocolPluggableService.findAllConnectionTypePluggableClasses()) {
@@ -79,7 +79,7 @@ public class ConnectionResource {
 
     @GET
     @Consumes("application/json")
-    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
         if (queryParameters.getStart()==null || queryParameters.getLimit()==null) {
