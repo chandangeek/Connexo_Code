@@ -104,7 +104,7 @@ public class DeviceCommunicationProtocolsResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.DELETE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public Response deleteDeviceCommunicationProtocol(@PathParam("id") long id) {
         try {
             this.protocolPluggableService.deleteDeviceProtocolPluggableClass(id);
@@ -118,7 +118,7 @@ public class DeviceCommunicationProtocolsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.CREATE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(@Context final UriInfo uriInfo, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws WebApplicationException {
         try {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass =
@@ -138,7 +138,7 @@ public class DeviceCommunicationProtocolsResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public DeviceCommunicationProtocolInfo updateDeviceCommunicationProtocol(@Context final UriInfo uriInfo, @PathParam("id") final long id, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) {
         try {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(id);

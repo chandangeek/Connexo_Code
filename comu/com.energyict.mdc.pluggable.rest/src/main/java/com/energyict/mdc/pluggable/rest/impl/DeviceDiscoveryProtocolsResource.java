@@ -55,7 +55,7 @@ public class DeviceDiscoveryProtocolsResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.DELETE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public Response deleteDeviceDiscoveryProtocol(@PathParam("id") long id) {
         try {
             this.protocolPluggableService.deleteInboundDeviceProtocolPluggableClass(id);
@@ -69,7 +69,7 @@ public class DeviceDiscoveryProtocolsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.CREATE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public DeviceDiscoveryProtocolInfo createDeviceDiscoveryProtocol(DeviceDiscoveryProtocolInfo deviceDiscoveryProtocolInfo) throws WebApplicationException {
         try {
             InboundDeviceProtocolPluggableClass pluggableClass = this.protocolPluggableService.newInboundDeviceProtocolPluggableClass(deviceDiscoveryProtocolInfo.name, deviceDiscoveryProtocolInfo.javaClassName);
@@ -84,7 +84,7 @@ public class DeviceDiscoveryProtocolsResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public DeviceDiscoveryProtocolInfo updateDeviceDiscoveryProtocol(@PathParam("id") long id, DeviceDiscoveryProtocolInfo deviceDiscoveryProtocolInfo) throws WebApplicationException {
         try {
             InboundDeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClass(id);
