@@ -155,7 +155,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.append(" cs, ");
             this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
             this.append(" ctes where ctes.comtaskexec = ");
-            this.append(TableSpecs.DDC_COMTASKEXEC.name());
+            this.append(COM_TASK_EXECUTION_ALIAS_NAME);
             this.append(".id and ctes.comsession = cs.id ");
             if (!this.isNull(this.lastSessionStart)) {
                 this.appendWhereOrAnd();
