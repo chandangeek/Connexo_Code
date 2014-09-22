@@ -253,6 +253,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
     public DataModelImpl getUpgradeDataModel(DataModel model) {
         DataModelImpl existingDataModel = newDataModel("UPG", "Upgrade  of " + model.getName());
         DataModel existingTablesDataModel = getExistingTablesDataModel();
+        processedTables.clear();
         if (existingTablesDataModel != null) {
             for (Table<?> table : model.getTables()) {
                 Optional<ExistingTable> existingJournalTable = Optional.absent();
