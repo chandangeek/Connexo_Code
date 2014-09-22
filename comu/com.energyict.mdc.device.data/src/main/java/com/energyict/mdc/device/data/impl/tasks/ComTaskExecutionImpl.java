@@ -469,6 +469,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
+    public void runNow() {
+        this.scheduleNow();
+    }
+
+    @Override
     public void schedule(Date when) {
         this.schedule(when, this.getPlannedNextExecutionTimestamp());
         post();
