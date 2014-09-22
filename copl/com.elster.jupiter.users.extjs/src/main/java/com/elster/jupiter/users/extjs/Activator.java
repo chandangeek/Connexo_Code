@@ -15,7 +15,7 @@ public class Activator implements BundleActivator {
 	
 	public void start(BundleContext bundleContext) throws Exception {
 		String alias = "/usr";
-		DefaultStartPage usr = new DefaultStartPage("Usr", "", "/index.html", "Usr.controller.Main",null, Arrays.asList("USM"));
+		DefaultStartPage usr = new DefaultStartPage("Usr", "", "/index.html", "Usr.controller.Main",null, Arrays.asList("USR"));
         HttpResource resource = new HttpResource(alias, "/js/usr" , new BundleResolver(bundleContext), usr);
         registration = bundleContext.registerService(HttpResource.class, resource , null);
 	}
