@@ -1,5 +1,6 @@
 Ext.define('Uni.data.proxy.QueryStringProxy', {
     extend: 'Ext.data.proxy.Proxy',
+    alias: 'proxy.querystring',
     root: '',
     router: null,
 

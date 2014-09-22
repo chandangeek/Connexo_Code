@@ -1,3 +1,6 @@
+/**
+ * todo: move out!
+ */
 Ext.define('Uni.component.filter.view.FilterTopPanel', {
     extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.filter-top-panel',
@@ -13,7 +16,7 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
                 text: name + ': ' + value,
                 name: key,
                 listeners: {
-                    closeclick: function (btn) {
+                    closeclick: function () {
                         me.fireEvent('removeFilter', key);
                     }
                 }
