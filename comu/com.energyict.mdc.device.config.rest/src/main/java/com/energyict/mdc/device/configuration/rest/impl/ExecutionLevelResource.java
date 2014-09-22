@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -30,14 +29,12 @@ public class ExecutionLevelResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final ExecutionLevelInfoFactory executionLevelInfoFactory;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public ExecutionLevelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, ExecutionLevelInfoFactory executionLevelInfoFactory, Thesaurus thesaurus) {
+    public ExecutionLevelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, ExecutionLevelInfoFactory executionLevelInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.executionLevelInfoFactory = executionLevelInfoFactory;
-        this.thesaurus = thesaurus;
     }
 
     @GET
