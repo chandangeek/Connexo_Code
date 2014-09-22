@@ -17,10 +17,6 @@ Ext.define('Sam.controller.Main', {
         'Sam.store.Licensing'
     ],
 
-    config: {
-        navigationController: null
-    },
-
     refs: [
         {
             ref: 'viewport',
@@ -34,7 +30,6 @@ Ext.define('Sam.controller.Main', {
 
     init: function () {
         this.initMenu();
-        this.initNavigation();
     },
 
     initMenu: function () {
@@ -65,12 +60,6 @@ Ext.define('Sam.controller.Main', {
         Uni.store.PortalItems.add(
             licensingItem
         );
-    },
-
-    initNavigation: function () {
-        var navigationController = this.getController('Uni.controller.Navigation');
-        this.setNavigationController(navigationController);
-
     }
 });
 
