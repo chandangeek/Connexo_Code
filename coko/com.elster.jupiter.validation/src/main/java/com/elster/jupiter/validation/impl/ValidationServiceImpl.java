@@ -232,10 +232,12 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         }
         getUpdatedMeterActivationValidations(meterActivation);
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(meterActivation);
-        for (IMeterActivationValidation validation : validations) {
-            validation.updateLastChecked(date);
-            validation.save();
-        }
+        validations.stream().forEach(v -> saveLastChecked(v, date));
+    }
+
+    private void saveLastChecked(IMeterActivationValidation validation, Date date) {
+        validation.updateLastChecked(date);
+        validation.save();
     }
 
     @Override
@@ -366,12 +368,9 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         IMeterActivationValidation meterActivationValidation = MeterActivationValidationImpl.from(dataModel, meterActivation);
         meterActivationValidation.setRuleSet(ruleSet);
 
-
-        for (Channel channel : meterActivation.getChannels()) {
-            if (!ruleSet.getRules(channel.getReadingTypes()).isEmpty()) {
-                meterActivationValidation.addChannelValidation(channel);
-            }
-        }
+        meterActivation.getChannels().stream()
+                .filter(c -> !ruleSet.getRules(c.getReadingTypes()).isEmpty())
+                .forEach(meterActivationValidation::addChannelValidation);
 
         meterActivationValidation.save();
         return meterActivationValidation;
