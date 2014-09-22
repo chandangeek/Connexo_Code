@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.api.cim;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  * @author sva
  * @since 4/06/13 - 15:42
  */
-@Component(name="com.energyict.mdc.protocols.api.cim.enddeviceeventtype.factory", service = {EndDeviceEventTypeFactory.class}, property = "name=CEF", immediate = true)
+@Component(name = "com.energyict.mdc.protocols.api.cim.enddeviceeventtype.factory", service = {EndDeviceEventTypeFactory.class}, property = "name=CEF", immediate = true)
 public class EndDeviceEventTypeFactory {
 
     private static final Logger LOGGER = Logger.getLogger(EndDeviceEventTypeFactory.class.getName());
@@ -43,10 +44,9 @@ public class EndDeviceEventTypeFactory {
     }
 
     public EndDeviceEventType getEndDeviceEventType(String mRID) {
-        for (EndDeviceEventType endDeviceEventType : this.meteringService.getAvailableEndDeviceEventTypes()) {
-            if (endDeviceEventType.getMRID().equals(mRID)) {
-                return endDeviceEventType;
-            }
+        Optional<EndDeviceEventType> endDeviceEventType = this.meteringService.getEndDeviceEventType(mRID);
+        if (endDeviceEventType.isPresent()) {
+            return endDeviceEventType.get();
         }
         LOGGER.severe("EndDeviceEventType missing: " + mRID);
         return null;
