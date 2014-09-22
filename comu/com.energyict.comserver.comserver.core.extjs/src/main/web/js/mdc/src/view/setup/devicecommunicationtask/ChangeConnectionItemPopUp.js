@@ -4,7 +4,10 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
     requires: [
         'Mdc.widget.ScheduleField'
     ],
-    // plain: true,
+    closable: false,
+    autoShow: true,
+    modal: true,
+    floating: true,
     border: true,
     itemId: 'changeConnectionItemPopUp',
     shadow: true,
