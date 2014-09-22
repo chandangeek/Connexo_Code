@@ -16,8 +16,8 @@ import java.util.Map;
  */
 public class EndDeviceEventImpl implements EndDeviceEvent {
 
-    private final String code;
     private final Date eventOccurredDate;
+    private final String mRID;
     private String reason;
     private String severity;
     private Status status;
@@ -26,15 +26,14 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
     private String issuerTrackingId;
     private String userId;
     private Map<String, String> eventData = new HashMap<>();
-    private int logBookId;
+    private long logBookId;
     private int logBookPosition;
     private String aliasName;
     private String description;
-    private String mRID;
     private String name;
 
-    public EndDeviceEventImpl(String code, Date eventTime) {
-        this.code = code;
+    public EndDeviceEventImpl(String mRID, Date eventTime) {
+        this.mRID = mRID;
         this.eventOccurredDate = eventTime;
     }
 
@@ -87,7 +86,7 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
     }
 
     @Override
-    public int getLogBookId() {
+    public long getLogBookId() {
         return logBookId;
     }
 
@@ -98,7 +97,7 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
 
     @Override
     public String getEventTypeCode() {
-        return this.code;
+        return this.mRID;
     }
 
     @Override
@@ -153,7 +152,7 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
         this.eventData.putAll(eventData);
     }
 
-    public void setLogBookId(int logBookId) {
+    public void setLogBookId(long logBookId) {
         this.logBookId = logBookId;
     }
 
@@ -167,10 +166,6 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void setmRID(String mRID) {
-        this.mRID = mRID;
     }
 
     public void setName(String name) {
