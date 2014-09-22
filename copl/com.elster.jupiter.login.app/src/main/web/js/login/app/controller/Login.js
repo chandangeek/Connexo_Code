@@ -3,7 +3,8 @@ Ext.define('Login.controller.Login', {
 
     requires: [
         'Login.controller.Base64',
-        'Uni.store.Apps'
+        'Uni.store.Apps',
+        'Ext.History'
     ],
 
     views: [
@@ -101,7 +102,12 @@ Ext.define('Login.controller.Login', {
     loginOK: function () {
         var params = Ext.urlDecode(location.search.substring(1)),
             page = params.page,
+            token = Ext.History.getToken(),
             referrer = document.referrer;
+
+        if (token) {
+            page += '#' + token;
+        }
 
         if (page) {
             window.location.replace(page);
