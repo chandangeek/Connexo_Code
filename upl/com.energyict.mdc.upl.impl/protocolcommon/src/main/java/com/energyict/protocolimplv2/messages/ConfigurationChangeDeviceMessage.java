@@ -8,7 +8,10 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -98,7 +101,29 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     SetNTPAddress(37, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ntpAddress)),
     Clear_Faults_Flags(38),
     Clear_Statistical_Values(39),
-    SyncNTPServer(40);
+    SyncNTPServer(40),
+    ConfigureAutomaticDemandReset(41,
+                PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableAutomaticDemandResetAttributeName),
+                PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.day, BigDecimal.valueOf(0), BigDecimal.valueOf(31)),
+                PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.hour, BigDecimal.valueOf(0), BigDecimal.valueOf(23))
+        ),
+        ConfigureHolidayList(42,
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord1AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord2AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord3AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord4AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord5AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord6AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord7AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord8AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord9AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord10AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord11AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord12AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord13AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord14AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
+                PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord15AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT)
+        );
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
@@ -150,5 +175,11 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    private static class Constants {
+
+        private static final Date DEFAULT_DATE = new Date(978307200000l);   // 01/01/2001
+        private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yy");
     }
 }
