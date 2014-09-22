@@ -2,16 +2,12 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
@@ -21,24 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,49 +34,7 @@ import static org.mockito.Mockito.when;
  * Hard coding URLS here will be a "gently" reminder
  * @author bvn
  */
-public class ComPortPoolResourceTest extends JerseyTest {
-    private static EngineModelService engineModelService;
-    private static ProtocolPluggableService protocolPluggableService;
-    private static DeviceConfigurationService deviceConfigurationService;
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        engineModelService = mock(EngineModelService.class);
-        protocolPluggableService = mock(ProtocolPluggableService.class);
-        deviceConfigurationService = mock(DeviceConfigurationService.class);
-    }
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        reset(engineModelService);
-    }
-
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(ComPortPoolResource.class);
-        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(engineModelService).to(EngineModelService.class);
-                bind(protocolPluggableService).to(ProtocolPluggableService.class);
-                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-            }
-        });
-        return resourceConfig;
-    }
-
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class); // client side JSON processing
-
-        super.configureClient(config);
-    }
-
+public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest {
     @Test
     public void testGetNonExistingComPortPool() throws Exception {
         final Response response = target("/comportpools/8").request().get(Response.class);

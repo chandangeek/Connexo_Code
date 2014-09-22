@@ -4,7 +4,6 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
@@ -19,14 +18,13 @@ import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
-import com.energyict.mdc.rest.impl.comserver.ComPortResource;
-import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.google.common.base.Optional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,63 +32,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
-
-import com.google.common.base.Optional;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class ComPortResourceTest extends JerseyTest {
+public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
     private static final String COMPORTS_RESOURCE_URL = "/comports"; // if you need to change this URL, API changed!!
-    private static EngineModelService engineModelService;
-
-    @BeforeClass
-    static public void setUpClass() throws Exception {
-        engineModelService = mock(EngineModelService.class);
-    }
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        reset(engineModelService);
-    }
-
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class, ComPortResource.class);
-        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(engineModelService).to(EngineModelService.class);
-            }
-        });
-        return resourceConfig;
-    }
-
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class); // client side JSON processing
-
-        super.configureClient(config);
-    }
-
     @Test
     public void testCanCreateEmptyTcpInboundComPort() throws Exception {
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);

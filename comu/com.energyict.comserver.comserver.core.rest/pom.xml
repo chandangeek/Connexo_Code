@@ -101,6 +101,13 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools.rest</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
