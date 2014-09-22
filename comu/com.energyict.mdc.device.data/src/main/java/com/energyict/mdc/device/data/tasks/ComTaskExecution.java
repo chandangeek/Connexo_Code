@@ -312,6 +312,19 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     public void scheduleNow();
 
     /**
+     * RunNow will trigger the ComTaskExecution for an immediate  readout, regardless of the current strategy.
+     * <ul>
+     *     In case of:
+     *     <li>ASAP, the nextExecutionTimeStamp of the comTask will be set to now. This will automatically update the
+     *     nextExecutionTimeStamp of his connectionTask</li>
+     *     <li>Minimize, the nextExecutionTimeStamp fo the comTask will be set to new. Additionally, the nextExecutionTimeStamp
+     *     of his connectionTask will be set to now. This means that all ComTasks that were already pending for this minimize
+     *     connection, will also be read out.</li>
+     * </ul>
+     */
+    public void runNow();
+
+    /**
      * Updates the next execution of this ComTaskExecution
      * so that it will get picked as soon as possible after the specified Date.
      */
