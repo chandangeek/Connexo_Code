@@ -52,8 +52,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                                 break;
                         }
                     }
-                    return data[channel.id]
-                        ? '<span class="validation-column-align">' + validationFlag + ' ' + Uni.I18n.formatNumber(data[channel.id], 'MDC', 3) + ' ' + channel.unitOfMeasure.localizedValue + '</span>'
+                    return !Ext.isEmpty(data[channel.id])
+                        ? '<span class="validation-column-align">' + validationFlag + ' ' + data[channel.id] + ' ' + channel.unitOfMeasure.unit + '</span>'
                         : '<span class="icon-validation icon-validation-black"></span>';
                 }
             });

@@ -515,6 +515,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         }
                                         me.phenomenasStore.load({callback: function () {
                                             unitOfMeasureCombobox.store = me.phenomenasStore;
+                                            unitOfMeasureCombobox.setValue(channel.unitOfMeasure.id);
                                         }});
 
                                         me.availableMeasurementTypesStore.load({callback: function () {
@@ -528,6 +529,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         overruledObisField.setValue(channel.overruledObisCode);
                                         overflowValueField.setValue(channel.overflowValue);
                                         multiplierField.setValue(channel.multiplier);
+                                        widget.down('[name=nbrOfFractionDigits]').setValue(channel.nbrOfFractionDigits);
 
                                         me.deviceTypeName = deviceType.get('name');
                                         me.deviceConfigName = deviceConfig.get('name');

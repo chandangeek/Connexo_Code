@@ -55,6 +55,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
                         {
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.overflowValue', 'MDC', 'Overflow value'),
                             name: 'overflowValue'
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC' ,'Number of fraction digits'),
+                            name: 'nbrOfFractionDigits'
                         }
                     ]
                 },
