@@ -27,6 +27,10 @@ public class ChannelInfo {
     public BigDecimal multiplier;
     public BigDecimal overflowValue;
     public String flowUnit;
+    public Integer nbrOfFractionDigits;
+
+    // optionally filled if requesting details
+    public DetailedValidationInfo validationInfo;
 
     public static ChannelInfo from(Channel channel) {
         ChannelInfo info = new ChannelInfo();
@@ -40,6 +44,7 @@ public class ChannelInfo {
         info.overflowValue=channel.getOverflow();
         info.flowUnit=channel.getPhenomenon().getUnit().isFlowUnit()?"flow":"volume";
         info.obisCode=channel.getObisCode();
+        info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
         return info;
     }
 

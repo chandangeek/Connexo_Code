@@ -55,7 +55,6 @@ public class LoadProfileResource {
     private final Provider<ChannelResource> channelResourceProvider;
     private final Clock clock;
     private final ValidationEvaluator evaluator;
-    private final ValidationService validationService;
 
     @Inject
     public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Provider<ChannelResource> channelResourceProvider, ValidationService validationService, Clock clock) {
@@ -63,7 +62,6 @@ public class LoadProfileResource {
         this.thesaurus = thesaurus;
         this.channelResourceProvider = channelResourceProvider;
         this.clock = clock;
-        this.validationService = validationService;
         this.evaluator = validationService.getEvaluator();
     }
 
@@ -139,7 +137,7 @@ public class LoadProfileResource {
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
-            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(loadProfileData, thesaurus, clock, evaluator);
+            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(device, loadProfileData, thesaurus, clock, evaluator);
             infos = filter(infos, uriInfo.getQueryParameters());
             List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", paginatedLoadProfileData, queryParameters);

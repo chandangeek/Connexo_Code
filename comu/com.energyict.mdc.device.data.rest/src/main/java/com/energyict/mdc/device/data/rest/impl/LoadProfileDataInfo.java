@@ -7,6 +7,8 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,21 +22,22 @@ import java.util.Map;
  */
 public class LoadProfileDataInfo {
     public IntervalInfo interval;
-    public Map<Long, BigDecimal> channelData = new HashMap<>();
+    public Map<Long, String> channelData = new HashMap<>();
     public Map<Long, ValidationInfo> channelValidationData = new HashMap<>();
     public Date readingTime;
     public List<String> intervalFlags;
     public boolean validationActive;
 
-    public static List<LoadProfileDataInfo> from(List<? extends LoadProfileReading> loadProfileReadings, Thesaurus thesaurus, Clock clock, ValidationEvaluator evaluator) {
+    public static List<LoadProfileDataInfo> from(Device device, List<? extends LoadProfileReading> loadProfileReadings, Thesaurus thesaurus, Clock clock, ValidationEvaluator evaluator) {
         List<LoadProfileDataInfo> channelData = new ArrayList<>();
+        DeviceValidation deviceValidation = device.forValidation();
         for (LoadProfileReading loadProfileReading : loadProfileReadings) {
-            channelData.add(getLoadProfileDataInfo(loadProfileReading, thesaurus, clock, evaluator));
+            channelData.add(getLoadProfileDataInfo(loadProfileReading, deviceValidation, thesaurus, clock, evaluator));
         }
         return channelData;
     }
 
-    private static LoadProfileDataInfo getLoadProfileDataInfo(LoadProfileReading loadProfileReading, Thesaurus thesaurus, Clock clock, ValidationEvaluator evaluator) {
+    private static LoadProfileDataInfo getLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, Thesaurus thesaurus, Clock clock, ValidationEvaluator evaluator) {
         LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
         channelIntervalInfo.interval= IntervalInfo.from(loadProfileReading.getInterval());
         channelIntervalInfo.readingTime=loadProfileReading.getReadingTime();
@@ -44,7 +47,13 @@ public class LoadProfileDataInfo {
         }
 
         for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues().entrySet()) {
-            channelIntervalInfo.channelData.put(entry.getKey().getId(), entry.getValue());
+            Channel channel = entry.getKey();
+            BigDecimal value = entry.getValue();
+            if (value != null) {
+                int nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
+                value = value.setScale(nbrOfFractionDigits, BigDecimal.ROUND_UP);
+            }
+            channelIntervalInfo.channelData.put(channel.getId(), value != null ? value.toString() : "");
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
@@ -52,7 +61,7 @@ public class LoadProfileDataInfo {
         }
 
         for (Channel channel : loadProfileReading.getChannelValues().keySet()) {
-            channelIntervalInfo.validationActive |= channel.getDevice().forValidation().isValidationActive(channel, clock.now());
+            channelIntervalInfo.validationActive |= deviceValidation.isValidationActive(channel, clock.now());
         }
 
         return channelIntervalInfo;

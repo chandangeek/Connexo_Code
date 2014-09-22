@@ -4,78 +4,41 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
-import org.assertj.core.data.MapEntry;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,107 +48,32 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 6/19/14.
  */
-public class DeviceResourceTest extends JerseyTest {
+public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    private static final String DUMMY_THESAURUS_STRING = "";
     public static final Date NOW = new Date(1409738114);
-    private static DeviceDataService deviceDataService;
-    private static DeviceImportService deviceImportService;
-    private static DeviceConfigurationService deviceConfigurationService;
-    private static NlsService nlsService;
-    private static TransactionService transactionService;
-    private static Thesaurus thesaurus;
-    private static EngineModelService engineModelService;
-    private static IssueService issueService;
-    private static MdcPropertyUtils mdcPropertyUtils;
-    private static SchedulingService schedulingService;
-    private static ValidationService validationService;
-    private static Clock clock;
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        issueService=mock(IssueService.class);
-        deviceDataService = mock(DeviceDataService.class);
-        deviceImportService = mock(DeviceImportService.class);
-        deviceConfigurationService = mock(DeviceConfigurationService.class);
-        engineModelService = mock(EngineModelService.class);
-        transactionService = new FakeTransactionService();
-        nlsService = mock(NlsService.class);
-        thesaurus = mock(Thesaurus.class);
-        mdcPropertyUtils = mock(MdcPropertyUtils.class);
-        schedulingService = mock(SchedulingService.class);
-        validationService = mock(ValidationService.class);
-        clock = mock(Clock.class);
-    }
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        reset(deviceImportService, engineModelService);
-        when(thesaurus.getString(anyString(), anyString())).thenReturn(DUMMY_THESAURUS_STRING);
-        when(clock.now()).thenReturn(NOW);
-        NlsMessageFormat mft = mock(NlsMessageFormat.class);
-        when(mft.format(any(Object[].class))).thenReturn("format");
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(mft);
-    }
-
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(
-                ResourceHelper.class,
-                DeviceResource.class,
-                LoadProfileResource.class,
-                LogBookResource.class,
-                ChannelResource.class,
-                BulkScheduleResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
-                LocalizedExceptionMapper.class);
-        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(deviceDataService).to(DeviceDataService.class);
-                bind(deviceImportService).to(DeviceImportService.class);
-                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-                bind(engineModelService).to(EngineModelService.class);
-                bind(nlsService).to(NlsService.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(ResourceHelper.class).to(ResourceHelper.class);
-                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-                bind(thesaurus).to(Thesaurus.class);
-                bind(issueService).to(IssueService.class);
-                bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
-                bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
-                bind(ExceptionFactory.class).to(ExceptionFactory.class);
-                bind(schedulingService).to(SchedulingService.class);
-                bind(validationService).to(ValidationService.class);
-                bind(ChannelResource.class).to(ChannelResource.class);
-                bind(clock).to(Clock.class);
-            }
-        });
-        return resourceConfig;
-    }
-
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class); // client side JSON processing
-
-        super.configureClient(config);
-    }
 
     @Test
     public void testGetConnectionMethodsJsonBindings() throws Exception {
@@ -527,6 +415,7 @@ public class DeviceResourceTest extends JerseyTest {
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        when(clock.now()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device1);
         when(channel2.getDevice()).thenReturn(device1);
         DeviceValidation deviceValidation = mock(DeviceValidation.class);

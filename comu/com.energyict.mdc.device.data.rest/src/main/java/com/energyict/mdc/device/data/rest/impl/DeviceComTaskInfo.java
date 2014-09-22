@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Date;
 
-public class DeviceComTasksInfo {
+public class DeviceComTaskInfo {
 
     @JsonProperty("comTask")
     public ComTaskInfo comTask;
@@ -35,6 +34,6 @@ public class DeviceComTasksInfo {
     public Date plannedDate;
     @JsonProperty("status")
     public String status;
-
-
+    @JsonProperty("scheduleTypeKey")
+    public String scheduleTypeKey;
 }

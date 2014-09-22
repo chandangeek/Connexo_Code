@@ -15,6 +15,7 @@ public class DeviceSchedulesInfo {
     public String name;
     public TemporalExpressionInfo schedule;
     public Date plannedDate;
+    public Date nextCommunication;
     public List<ComTaskInfo> comTaskInfos;
     public ScheduleType type;
 
@@ -64,6 +65,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.name =((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
         deviceSchedulesInfo.schedule = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         deviceSchedulesInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
+        deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
         deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
         deviceSchedulesInfo.type = ScheduleType.SCHEDULED;
@@ -76,6 +78,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.type = ScheduleType.INDIVIDUAL;
         deviceSchedulesInfo.schedule = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         deviceSchedulesInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
+        deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
         deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
         return deviceSchedulesInfo;
@@ -86,6 +89,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.id = comTaskExecution.getId();
         deviceSchedulesInfo.type = ScheduleType.ADHOC;
         deviceSchedulesInfo.plannedDate = comTaskExecution.getNextExecutionTimestamp();
+        deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
         deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
         return deviceSchedulesInfo;

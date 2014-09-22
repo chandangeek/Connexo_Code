@@ -114,7 +114,7 @@ public class DeviceResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.CREATE_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public DeviceInfo addDevice(DeviceInfo info) {
         DeviceConfiguration deviceConfiguration = null;
         if(info.deviceConfigurationId != null){
@@ -136,7 +136,7 @@ public class DeviceResource {
 
     @DELETE
     @Path("/{mRID}")
-    @RolesAllowed(Privileges.DELETE_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response deleteDevice(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         device.delete();
@@ -166,7 +166,7 @@ public class DeviceResource {
     @POST
     @Path("/{mRID}/connectionmethods")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response createConnectionMethod(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
@@ -198,7 +198,7 @@ public class DeviceResource {
     @PUT
     @Path("/{mRID}/connectionmethods/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo, ConnectionMethodInfo<ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> task = findConnectionTaskOrThrowException(device, connectionMethodId);
@@ -231,7 +231,7 @@ public class DeviceResource {
 
     @DELETE
     @Path("/{mRID}/connectionmethods/{id}")
-    @RolesAllowed(Privileges.UPDATE_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response deleteConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?,?> targetConnectionTask = findConnectionTaskOrThrowException(device, connectionMethodId);

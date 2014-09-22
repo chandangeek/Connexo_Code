@@ -21,6 +21,11 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_LOAD_PROFILE_ON_DEVICE(23, "NoSuchLoadProfile", "Device {0} has no load profile {1}"),
     NO_SUCH_CHANNEL_ON_LOAD_PROFILE(30, "NoSuchChannel", "Load profile {0} has no channel {1}"),
     NO_SUCH_LOG_BOOK_ON_DEVICE(24, "NoSuchLogBook", "Device {0} has no log book {1}"),
+    CONNECTION_TYPE_STRATEGY_NOT_APPLICABLE(25, "connectionTypeStrategy.notApplicable", "Not applicable"),
+    UPDATE_URGENCY_NOT_ALLOWED(26,"urgencyUpdateNotAllowed" ,"Urgency update not allowed"),
+    UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED(27,"updateDialectPropertiesNotAllowed" ,"Protocol dialect update not allowed"),
+    UPDATE_CONNECTION_METHOD_NOT_ALLOWED(28,"updateConnectionMethodNotAllowed" ,"Connection method update not allowed"),
+    RUN_COMTASK__NOT_ALLOWED(29,"runComTaskNotAllowed" ,"Running of this communication task is not allowed"),
 
     POWERDOWN(31, ProfileStatus.Flag.POWERDOWN.name(), "Power down"),
     POWERUP(32, ProfileStatus.Flag.POWERUP.name(), "Power up"),
@@ -50,10 +55,8 @@ public enum MessageSeeds implements MessageSeed {
     ON_HOLD(66, "OnHold", "On hold"),
     RETRYING(67, "Retrying", "Retrying"),
     NEVER_COMPLETED(68, "NeverCompleted", "Never completed"),
-    WAITING(69, "Waiting", "Waiting"),
-    CONNECTION_TYPE_STRATEGY_NOT_APPLICABLE(14, "connectionTypeStrategy.notApplicable", "Not applicable"),
+    WAITING(69, "Waiting", "Waiting");
 
-    ;
 
     private final int number;
     private final String key;

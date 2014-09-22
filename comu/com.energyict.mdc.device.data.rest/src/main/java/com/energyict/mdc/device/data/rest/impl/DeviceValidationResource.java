@@ -68,7 +68,7 @@ public class DeviceValidationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
     public Response getValidationRulsetsForDevice(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -106,7 +106,7 @@ public class DeviceValidationResource {
     @Path("/{validationRuleSetId}/status")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_VALIDATION_RULE)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
     public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
@@ -137,7 +137,7 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatus(device);
@@ -221,7 +221,7 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_VALIDATION_RULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response setValidationFeatureStatus(@PathParam("mRID") String mrid, DeviceValidationStatusInfo deviceValidationStatusInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
