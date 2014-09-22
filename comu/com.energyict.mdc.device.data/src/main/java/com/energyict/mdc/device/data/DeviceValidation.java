@@ -21,4 +21,8 @@ public interface DeviceValidation {
     Optional<Date> getLastChecked(Channel c);
 
     List<DataValidationStatus> getValidationStatus(Channel channel, Interval interval);
+
+    void validateLoadProfile(LoadProfile loadProfile, Date start, Date until);
+
+    void validateChannel(Channel channel, Date start, Date until);
 }

@@ -1001,15 +1001,20 @@ public class DeviceImpl implements Device {
         return amrSystem.findMeter(String.valueOf(getId()));
     }
 
-    private Meter findOrCreateKoreMeter(AmrSystem amrSystem) {
+    Meter findOrCreateKoreMeter(AmrSystem amrSystem) {
         Optional<Meter> holder = this.findKoreMeter(amrSystem);
         if (!holder.isPresent()) {
-            Meter meter = amrSystem.newMeter(String.valueOf(getId()), getmRID());
-            meter.save();
+            Meter meter = createKoreMeter(amrSystem);
             return meter;
         } else {
             return holder.get();
         }
+    }
+
+    Meter createKoreMeter(AmrSystem amrSystem) {
+        Meter meter = amrSystem.newMeter(String.valueOf(getId()), getmRID());
+        meter.save();
+        return meter;
     }
 
     private void deleteKoreMeterIfExists() {
