@@ -32,11 +32,6 @@ Ext.define('Isu.controller.Main', {
         'Isu.store.Users'
     ],
 
-    config: {
-        navigationController: null,
-        configurationController: null
-    },
-
     refs: [
         {
             ref: 'viewport',
@@ -49,7 +44,6 @@ Ext.define('Isu.controller.Main', {
     ],
 
     init: function () {
-        this.initNavigation();
         this.initMenu();
     },
 
@@ -101,37 +95,6 @@ Ext.define('Isu.controller.Main', {
             ]
         });
 
-//        var dataexchange = Ext.create('Uni.model.PortalItem', {
-//            title: 'Data exchange',
-//            portal: 'workspace',
-//            route: 'dataexchange',
-//            items: [
-//                {
-//                    text: 'Overview',
-//                    href: '#/workspace/dataexchange'
-//                },
-//                {
-//                    text: 'Issues',
-//                    href: '#/workspace/dataexchange/issues'
-//                }
-//            ]
-//        });
-//        var dataoperation = Ext.create('Uni.model.PortalItem', {
-//            title: 'Data operation',
-//            portal: 'workspace',
-//            route: 'dataoperation',
-//            items: [
-//                {
-//                    text: 'Overview',
-//                    href: '#/workspace/dataoperation'
-//                },
-//                {
-//                    text: 'Issues',
-//                    href: '#/workspace/dataoperation/issues'
-//                }
-//            ]
-//        });
-//
         var datavalidation = Ext.create('Uni.model.PortalItem', {
             title: 'Data validation',
             portal: 'workspace',
@@ -166,18 +129,8 @@ Ext.define('Isu.controller.Main', {
 
         Uni.store.PortalItems.add(
             datacollection,
-//            dataexchange,
-//            dataoperation,
             datavalidation,
             issuemanagement
         );
-    },
-
-    initNavigation: function () {
-        var navigationController = this.getController('Uni.controller.Navigation'),
-            configurationController = this.getController('Uni.controller.Configuration');
-
-        this.setNavigationController(navigationController);
-        this.setConfigurationController(configurationController);
     }
 });
