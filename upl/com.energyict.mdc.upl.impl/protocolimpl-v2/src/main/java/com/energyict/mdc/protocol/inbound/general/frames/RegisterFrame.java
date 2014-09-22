@@ -44,13 +44,13 @@ public class RegisterFrame extends AbstractInboundFrame {
         }
     }
 
-    private void parseParameters (List<RegisterValue> registers) {
+    private void parseParameters(List<RegisterValue> registers) {
         for (String parameter : this.getParameters()) {
             this.parseParameter(parameter, registers);
         }
     }
 
-    private void parseParameter (String parameter, List<RegisterValue> registers) {
+    private void parseParameter(String parameter, List<RegisterValue> registers) {
         String[] obisCodeAndValue = parameter.split("=");
         if (obisCodeAndValue.length == 2) {
             ObisCode obisCode;
@@ -66,20 +66,22 @@ public class RegisterFrame extends AbstractInboundFrame {
         }
     }
 
-    private CollectedRegister processRegister (RegisterValue register) {
+    private CollectedRegister processRegister(RegisterValue register) {
         CollectedRegister deviceRegister;
+        Date readTime = getInboundParameters().getReadTime();
+        readTime = readTime == null ? new Date() : readTime;
         if (register.getObisCode().getF() != 255) {
             deviceRegister = MdcManager.getCollectedDataFactory().createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
-            deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime());
+            deviceRegister.setCollectedTimeStamps(readTime, null, readTime);
         } else if (register.getEventTime() != null) {
             deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
-            deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime(), register.getEventTime());
+            deviceRegister.setCollectedTimeStamps(readTime, null, readTime, register.getEventTime());
         } else {
             deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
-            deviceRegister.setReadTime(getInboundParameters().getReadTime());
+            deviceRegister.setReadTime(readTime);
         }
 
         if (this.getDevice() == null) {
@@ -90,15 +92,15 @@ public class RegisterFrame extends AbstractInboundFrame {
         return deviceRegister;
     }
 
-    private CollectedRegisterList getCollectedRegisterList(){
-        if(this.collectedRegisterList == null){
+    private CollectedRegisterList getCollectedRegisterList() {
+        if (this.collectedRegisterList == null) {
             this.collectedRegisterList = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
             getCollectedDatas().add(this.collectedRegisterList);
         }
         return this.collectedRegisterList;
     }
 
-    private RegisterIdentifier getRegisterIdentifier(ObisCode registerObisCode){
+    private RegisterIdentifier getRegisterIdentifier(ObisCode registerObisCode) {
         return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, getDeviceIdentifier());
     }
 
