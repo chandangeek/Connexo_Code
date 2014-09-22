@@ -31,8 +31,24 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                 header: Uni.I18n.translate('deviceCommunicationTask.frequency', 'MDC', 'Frequency'),
                 dataIndex: 'temporalExpression',
                 flex: 1,
-                renderer: function(value){
-                    return Mdc.util.ScheduleToStringConverter.convert(value);
+                renderer: function (value, metadata) {
+                    if(value) {
+                        metadata.tdAttr = 'data-qtip="' + Mdc.util.ScheduleToStringConverter.convert(value) + '"';
+                        switch (value.every.timeUnit) {
+                            case 'months':
+                                return Uni.I18n.translate('general.monthly', 'MDC', 'Monthly');
+                            case 'weeks':
+                                return Uni.I18n.translate('general.weekly', 'MDC', 'Weekly');
+                            case 'days':
+                                return Uni.I18n.translate('general.daily', 'MDC', 'Daily');
+                            case 'hours':
+                                return Uni.I18n.translate('general.hourly', 'MDC', 'Hourly');
+                            case 'minutes':
+                                return Uni.I18n.translate('general.everyFewMinutes', 'MDC', 'Every few minutes');
+                        }
+                    } else {
+                        return '';
+                    }
                 }
             },
             {

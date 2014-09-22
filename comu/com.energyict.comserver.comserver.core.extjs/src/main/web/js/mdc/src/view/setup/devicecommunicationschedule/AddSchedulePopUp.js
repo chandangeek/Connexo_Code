@@ -1,6 +1,8 @@
 Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSchedulePopUp', {
     extend: 'Ext.window.Window',
     alias: 'widget.addSchedulePopUp',
+    modal: true,
+    floating: true,
     requires: [
         'Mdc.widget.ScheduleField'
     ],

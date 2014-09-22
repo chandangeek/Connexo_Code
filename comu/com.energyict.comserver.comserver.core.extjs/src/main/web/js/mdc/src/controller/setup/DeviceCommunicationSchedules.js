@@ -76,12 +76,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var me = this;
         this.mrid = mrid;
 
-
+        var widget = Ext.widget('deviceCommunicationScheduleSetup', {mrid: mrid});
+        me.getApplication().fireEvent('changecontentevent', widget);
         var scheduleStore = me.getDeviceSchedulesStore();
         scheduleStore.getProxy().setUrl(mrid);
         scheduleStore.load({
             callback: function () {
-                var widget = Ext.widget('deviceCommunicationScheduleSetup', {mrid: mrid});
+
                 var shared = [];
                 var individual = [];
                 var adHocComTasks = [];
@@ -139,13 +140,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                     widget.down('#onRequestDeviceCommunicationScheduleSetupPanel').add(msg);
                 }
 
-                me.getApplication().fireEvent('changecontentevent', widget);
+
             }
         });
     },
 
     addSharedCommunicationScheduleHistory: function () {
-        location.href = '#/devices/' + this.mrid + '/communicationschedules/add';
+        location.href = '#/devices/' + this.mrid + '/communicationplanning/add';
     },
 
     cancelSharedScheduleHistory: function () {

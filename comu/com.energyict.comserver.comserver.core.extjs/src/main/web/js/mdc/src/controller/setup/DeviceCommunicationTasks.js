@@ -50,6 +50,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 '#runDeviceComTask[action=runDeviceComTask]': {
                     click: this.runDeviceComTask
                 },
+                '#runDeviceComTaskNow[action=runDeviceComTaskNow]': {
+                    click: this.runDeviceComTaskNow
+                },
                 '#changeButton[action=changeUrgencyOfDeviceComTask]': {
                     click: this.changeUrgency
                 },
@@ -70,13 +73,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var me = this;
         var communicationTasksOfDeviceStore = me.getCommunicationTasksOfDeviceStore();
         this.mrid = mrid;
+        var widget = Ext.widget('deviceCommunicationTaskSetup', {mrid: mrid});
+        me.getApplication().fireEvent('changecontentevent', widget);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
                 communicationTasksOfDeviceStore.getProxy().setExtraParam('mrid', mrid);
                 communicationTasksOfDeviceStore.load({
                     callback: function () {
-                        var widget = Ext.widget('deviceCommunicationTaskSetup', {mrid: mrid});
-                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getDeviceCommunicationTaskGrid().getSelectionModel().doSelect(0);
                     }
@@ -88,22 +91,28 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
 
     configureMenu: function (menu) {
         var changeItems = [];
+        var selection;
         changeItems.push(menu.down('#changeConnectionMethodOfDeviceComTask'));
         changeItems.push(menu.down('#changeProtocolDialectOfDeviceComTask'));
         changeItems.push(menu.down('#changeUrgencyOfDeviceComTask'));
-        var selection = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
+        changeItems.push(menu.down('#runDeviceComTaskNow'));
+        changeItems.push(menu.down('#runDeviceComTask'));
+        selection = menu.record || this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
+        Ext.each(changeItems, function (item) {
+            item.hide();
+        });
         if (selection.data.scheduleTypeKey === 'ON_REQUEST') {
-            Ext.each(changeItems, function (item) {
-                item.hide();
-            })
+            changeItems[3].show();
         } else if (selection.data.scheduleTypeKey === 'SHARED') {
             changeItems[0].show();
-            changeItems[1].hide();
             changeItems[2].show();
+            changeItems[3].show();
+            changeItems[4].show();
         } else {
-            Ext.each(changeItems, function (item) {
-                item.show();
-            })
+            changeItems[0].show();
+            changeItems[1].show();
+            changeItems[2].show();
+            changeItems[3].show();
         }
 
     },
@@ -121,11 +130,15 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     },
 
     runDeviceComTask: function () {
-
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.get('comTask').id + '/run',Uni.I18n.translate('deviceCommunicationTask.run', 'MDC', 'Run succeeded'));
+    },
 
-        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.get('comTask').id + '/run');
+    runDeviceComTaskNow: function () {
+        var request = {};
+        this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.get('comTask').id + '/runnow',Uni.I18n.translate('deviceCommunicationTask.runNow', 'MDC', 'Run now succeeded'));
     },
 
     showChangePopUp: function (menuItem) {
@@ -141,7 +154,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                             id: -1,
                             name: Uni.I18n.translate('deviceCommunicationTask.default', 'MDC', 'Default')
                         }));
-                        me.showPopUp(menuItem.action, connectionMethodsOfDeviceStore, comTask.get('connectionMethod'),comTask.get('scheduleName'));
+                        if(comTask.get('connectionMethod').toLowerCase().indexOf('default')>-1){
+                            var initialValue = 'Default';
+
+                        } else {
+                            initialValue = comTask.get('connectionMethod');
+                        }
+                        me.showPopUp(menuItem.action, connectionMethodsOfDeviceStore, initialValue,comTask.get('scheduleName'));
                     }
                 });
                 break;
@@ -177,31 +196,31 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.connectionMethod = values.name;
-        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/connectionmethod');
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/connectionmethod',Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethod', 'MDC', 'Change connection method succeeded'));
     },
 
     changeUrgency: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.urgency = values.urgency;
-        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/urgency');
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/urgency',Uni.I18n.translate('deviceCommunicationTask.changeUrgency', 'MDC', 'Change urgency succeeded'));
     },
 
     changeFrequency: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.temporalExpression = values.schedule;
-        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/frequency');
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/frequency',Uni.I18n.translate('deviceCommunicationTask.changeFrequency', 'MDC', 'Change frequency succeeded'));
     },
 
     changeProtocolDialect: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.protocolDialect = values.name;
-        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/protocoldialect');
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/protocoldialect',Uni.I18n.translate('deviceCommunicationTask.changeProtocolDialect', 'MDC', 'Change protocol dialect succeeded'));
     },
 
-    sendToServer: function (request, actionUrl) {
+    sendToServer: function (request, actionUrl, actionMsg) {
         var me = this;
         jsonData = Ext.encode(request);
         Ext.Ajax.request({
@@ -215,7 +234,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 if(changeConnectionItemPopUp){
                     changeConnectionItemPopUp.close();
                 }
-                me.getApplication().fireEvent('acknowledge', 'success');
+                me.getApplication().fireEvent('acknowledge', actionMsg);
                 me.showDeviceCommunicationTasksView(me.mrid);
             },
             failure: function () {

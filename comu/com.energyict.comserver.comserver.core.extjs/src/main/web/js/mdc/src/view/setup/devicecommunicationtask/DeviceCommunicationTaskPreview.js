@@ -157,7 +157,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                     name: 'temporalExpression',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationTask.frequency', 'MDC', 'Frequency'),
                                     renderer: function (value) {
-                                        return Mdc.util.ScheduleToStringConverter.convert(value);
+                                        if(value){
+                                            return Mdc.util.ScheduleToStringConverter.convert(value);
+                                        } else {
+                                            return '';
+                                        }
                                     }
                                 },
                                 {
