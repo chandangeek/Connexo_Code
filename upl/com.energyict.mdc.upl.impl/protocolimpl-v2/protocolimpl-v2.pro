@@ -65,3 +65,5 @@
 -keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol
 
 -keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.CTRDeviceProtocolCache
+
+-keepnames class com.energyict.protocolimplv2.abnt.elster.A1055
