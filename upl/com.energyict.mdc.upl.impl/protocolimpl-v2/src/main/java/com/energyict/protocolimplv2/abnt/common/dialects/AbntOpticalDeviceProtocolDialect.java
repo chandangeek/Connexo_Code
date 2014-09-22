@@ -24,7 +24,7 @@ public class AbntOpticalDeviceProtocolDialect extends AbstractDeviceProtocolDial
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
     public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
     public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(100, TimeDuration.MILLISECONDS);
-    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.MILLISECONDS);
+    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(250, TimeDuration.MILLISECONDS);
 
     @Override
     public String getDeviceProtocolDialectName() {
