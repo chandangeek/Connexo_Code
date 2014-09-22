@@ -149,7 +149,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             measurementTypeOrder.push(channel.name);
             seriesObject['yAxis'] = currentLine;
             currentLine += 1;
-            channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.localizedValue });
+            channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.unit });
             seriesToYAxisMap[index] = seriesObject['yAxis'];
             series.push(seriesObject);
         });
@@ -192,7 +192,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             dataStore.each(function (record) {
                 Ext.iterate(record.get('channelData'), function (key, value) {
                     if (channelDataArrays[key]) {
-                        channelDataArrays[key].unshift([record.get('interval').end, value]);
+                        channelDataArrays[key].unshift([record.get('interval').end, parseFloat(value)]);
                     }
                 });
             });
