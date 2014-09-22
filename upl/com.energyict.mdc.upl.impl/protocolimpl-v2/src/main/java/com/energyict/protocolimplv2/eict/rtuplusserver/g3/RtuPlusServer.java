@@ -30,7 +30,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimpl.dlms.g3.G3Properties;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages;
@@ -111,8 +111,8 @@ public class RtuPlusServer implements DeviceProtocol {
      */
     private void readFrameCounter() {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
-        clone.setProperty(G3Properties.CLIENT_MAC_ADDRESS, "16");
-        clone.setProperty(G3Properties.SECURITY_LEVEL, "0:0");
+        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, "16");
+        clone.setProperty(DlmsProtocolProperties.SECURITY_LEVEL, "0:0");
         G3GatewayProperties publicClientProperties = new G3GatewayProperties();
         publicClientProperties.addProperties(clone);
 
