@@ -35,7 +35,6 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSchedulePopUp', {
                                 align: 'stretch'
                             },
                             msgTarget: 'under',
-                            required: true,
                             items: [
                                 {
                                     xtype: 'scheduleField',
