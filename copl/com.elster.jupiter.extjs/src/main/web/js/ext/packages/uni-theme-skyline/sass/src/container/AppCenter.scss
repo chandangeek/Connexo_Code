@@ -4,8 +4,10 @@
     .icon-#{$icon} {
         background-image: url('images/container/appcenter/#{$icon}.png');
     }
+}
 
-    .x-pressed {
+@mixin iconSelected($icon) {
+    .app-item.x-pressed {
         .icon-#{$icon} {
             background-image: url('images/container/appcenter/#{$icon}Selected.png');
         }
@@ -49,7 +51,6 @@
         }
 
         a {
-            text-transform: uppercase;
             text-decoration: none;
             white-space: nowrap;
             font-size: 16px;
@@ -89,6 +90,9 @@
                 @include icon('connexo');
                 @include icon('devices');
             }
+
+            @include iconSelected('connexo');
+            @include iconSelected('devices');
         }
     }
 }
