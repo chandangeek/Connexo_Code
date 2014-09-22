@@ -60,10 +60,21 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
     chooseAction: function (menu, item) {
         var me = this,
-            gridView = me.getComServerGrid().getView(),
-            record = gridView.getSelectionModel().getLastSelected(),
+            grid = me.getComServerGrid(),
             activeChange = 'notChanged',
+            record,
+            form,
+            gridView;
+
+
+        if (grid) {
+            gridView = grid.getView();
+            record = gridView.getSelectionModel().getLastSelected();
             form = this.getComServerPreview().down('form');
+        } else {
+            record = menu.record;
+            form = this.getComServerOverviewForm();
+        }
 
 
         switch (item.action) {
@@ -82,15 +93,29 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         }
 
         if (activeChange != 'notChanged') {
-            record.set('active', activeChange);
-            record.save({
-                callback: function (model) {
-                    var msg = activeChange ? Uni.I18n.translate('comserver.changeState.activated', 'MDC', 'activated') :
-                        Uni.I18n.translate('comserver.changeState.deactivated', 'MDC', 'deactivated');
-                    gridView.refresh();
-                    form.loadRecord(model);
-                    me.getPreviewActionMenu().record = model;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comserver.changeState.msg', 'MDC', 'Communication server') + ' ' + msg);
+            var recordId = record.get('id');
+            Ext.Ajax.request({
+                url: '/api/mdc/comservers/' + recordId + '/status',
+                method: 'PUT',
+                jsonData: {active: activeChange},
+                success: function () {
+                    Ext.ModelManager.getModel('Mdc.model.ComServer').load(recordId, {
+                        callback: function (model) {
+                            if (grid) {
+                                record.set('active', activeChange);
+                                record.commit();
+                                gridView.refresh();
+                                me.getPreviewActionMenu().record = model;
+                            } else {
+                                menu.record = model;
+                            }
+
+                            var msg = activeChange ? Uni.I18n.translate('comserver.changeState.activated', 'MDC', 'activated') :
+                                Uni.I18n.translate('comserver.changeState.deactivated', 'MDC', 'deactivated');
+                            form.loadRecord(model);
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comserver.changeState.msg', 'MDC', 'Communication server') + ' ' + msg);
+                        }
+                    });
                 }
             });
         }
