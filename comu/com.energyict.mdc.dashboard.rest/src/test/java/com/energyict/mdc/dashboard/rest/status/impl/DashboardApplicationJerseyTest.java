@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
