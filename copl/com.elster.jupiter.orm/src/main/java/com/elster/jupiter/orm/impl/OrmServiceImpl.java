@@ -19,21 +19,22 @@ import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import javax.sql.DataSource;
-import javax.validation.ValidationProviderResolver;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import javax.validation.ValidationProviderResolver;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class, InstallService.class}, property = "name=" + OrmService.COMPONENTNAME)
 public class OrmServiceImpl implements OrmService, InstallService {
@@ -44,8 +45,10 @@ public class OrmServiceImpl implements OrmService, InstallService {
     private volatile Publisher publisher;
     private volatile JsonService jsonService;
     private volatile ValidationProviderResolver validationProviderResolver;
-    private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<String, DataModelImpl>());
+    private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<>());
     private volatile SchemaInfoProvider schemaInfoProvider;
+
+    private final Set<String> processedTables = new HashSet<>();
 
     public OrmServiceImpl() {
     }
@@ -263,19 +266,21 @@ public class OrmServiceImpl implements OrmService, InstallService {
     }
 
     private void addTableToExistingModel(DataModelImpl existingModel, DataModel databaseTablesModel, String tableName, String journalTableName) {
-        Optional<ExistingTable> existingTable = databaseTablesModel.mapper(ExistingTable.class).getEager(tableName);
-        if (existingTable.isPresent()) {
-            ExistingTable userTable = existingTable.get();
+        if (processedTables.add(tableName)) {
+            Optional<ExistingTable> existingTable = databaseTablesModel.mapper(ExistingTable.class).getEager(tableName);
+            if (existingTable.isPresent()) {
+                ExistingTable userTable = existingTable.get();
 
-            for (ExistingConstraint existingConstraint : userTable.getConstraints()) {
-                if (existingConstraint.isForeignKey()) {
-                    String referencedTableName = existingConstraint.getReferencedTableName();
-                    if (!tableName.equalsIgnoreCase(referencedTableName) && existingModel.getTable(referencedTableName) == null) {
-                        addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, null);
+                for (ExistingConstraint existingConstraint : userTable.getConstraints()) {
+                    if (existingConstraint.isForeignKey()) {
+                        String referencedTableName = existingConstraint.getReferencedTableName();
+                        if (!tableName.equalsIgnoreCase(referencedTableName) && existingModel.getTable(referencedTableName) == null) {
+                            addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, null);
+                        }
                     }
                 }
+                userTable.addTo(existingModel, Optional.fromNullable(journalTableName));
             }
-            userTable.addTo(existingModel, Optional.fromNullable(journalTableName));
         }
     }
 
