@@ -28,7 +28,7 @@ public class Function extends AbstractField<Function> {
         DATE_CHANGE(0x29, FrameFormat.SINGLE_RESPONSE),
         TIME_CHANGE(0x30, FrameFormat.SINGLE_RESPONSE),
         CONFIGURE_HOLIDAY_LIST(0x32, FrameFormat.SINGLE_RESPONSE),
-        LP_DATA_WITH_SELECTOR(0x52, FrameFormat.SEGMENTED_RESPONSE),
+        LP_DATA_WITH_SELECTOR(0x52, FrameFormat.SEGMENTED_RESPONSE),    // Warning: should not be used, cause doesn't handle time gaps correct
         CONFIGURE_AUTOMATIC_DEMAND_RESET(0x63, FrameFormat.SINGLE_RESPONSE),
         CONFIGURE_DST(0x64, FrameFormat.SINGLE_RESPONSE),
         UNKNOWN(0x00, FrameFormat.SINGLE_RESPONSE);

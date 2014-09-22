@@ -8,8 +8,8 @@ public class LoadProfileDataSelector {
 
     public enum ReadSizeArgument {
         READ_ALL_BLOCK(0),
-        HOURS_TO_READ(1),
-        DAYS_TO_READ(2),
+        HOURS_TO_READ(1),   // Warning: should not be used, cause doesn't handle time gaps correct
+        DAYS_TO_READ(2),    // Warning: should not be used, cause doesn't handle time gaps correct
         UNKNOWN(-1);
 
         private final int statusCode;

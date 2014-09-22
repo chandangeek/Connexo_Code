@@ -26,9 +26,9 @@ public class InstrumentationPageResponse extends Data<InstrumentationPageRespons
     public static final Unit ANGLE_UNIT = Unit.get(BaseUnit.DEGREE);
     public static final Unit VOLTAGE_UNIT = Unit.get(BaseUnit.VOLT);
     public static final Unit CURRENT_UNIT = Unit.get(BaseUnit.AMPERE);
-    public static final Unit ACTIVE_POWER_UNIT = Unit.get(BaseUnit.WATTHOUR);
-    public static final Unit REACTIVE_POWER_UNIT = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
-    public static final Unit APPARENT_POWER_UNIT = Unit.get(BaseUnit.VOLTAMPEREHOUR);
+    public static final Unit ACTIVE_POWER_UNIT = Unit.get(BaseUnit.WATT);
+    public static final Unit REACTIVE_POWER_UNIT = Unit.get(BaseUnit.VOLTAMPEREREACTIVE);
+    public static final Unit APPARENT_POWER_UNIT = Unit.get(BaseUnit.VOLTAMPERE);
     public static final Unit UNDEFINED_UNIT = Unit.getUndefined();
     public static final Unit TEMPERATURE_UNIT = Unit.get(BaseUnit.DEGREE_CELSIUS);
     public static final Unit FREQUENCY_UNIT = Unit.get(BaseUnit.HERTZ);

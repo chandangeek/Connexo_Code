@@ -9,6 +9,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
@@ -16,36 +17,46 @@ import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.structure.LoadProfileReadoutResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersResponse;
-import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileDataSelector;
 import com.energyict.protocolimplv2.abnt.common.structure.field.UnitField;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * @author sva                      //TODO >> After billing info is not correct!!! - Should re-establish the next interval (within 5 min) - check how to handle <<<
+ * @author sva
  * @since 28/08/2014 - 9:34
  */
-public class LoadProfileBuilder implements DeviceLoadProfileSupport {       //TODO: maybe apply power failure event log information -> channel status short/long
+public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
     private static final int NR_OF_WORDS_PER_INTERVAL = 166;
     private static final ObisCode LOAD_PROFILE_OBIS = ObisCode.fromString("1.0.99.1.0.255");
 
     private static final int SECONDS_PER_MINUTE = 60;
     private static final int CHANNELS_PER_GROUP = 3;
-    private static final int MILLIS_PER_HOUR = 3600 * 1000;
     private static final int CHANNELS_PER_CHANNEL_GROUP = 3;
 
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap;
+
+    /**
+     * Keeps track of the channel group number for the UnitMapping
+     */
+    private Map<UnitField.UnitMapping, Integer> unitMappingMappedToChannelGroup;
+
+    /**
+     * Keeps track of the List of ChannelInfos for each channel group
+     */
+    private Map<Integer, List<ChannelInfo>> channelInfosForChannelGroup;
 
     private final AbstractAbntProtocol meterProtocol;
 
@@ -74,30 +85,33 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {       //TO
             loadProfileConfig.setProfileInterval((int) (((BcdEncodedField) getRequestFactory().getDefaultParameters().getField(ReadParameterFields.loadProfileInterval)).getValue() * SECONDS_PER_MINUTE));
             List<ChannelInfo> channelInfos = new ArrayList<>(numberOfLoadProfileChannelGroups * CHANNELS_PER_GROUP);
             for (int i = 0; i < numberOfLoadProfileChannelGroups; i++) {
-                ReadParametersResponse parameters = getRequestFactory().readParameters(LoadProfileDataSelector.newFullProfileDataSelector(), i);
-                addChannelInfoForChannel(reader, channelInfos, parameters, ReadParameterFields.unitChn1);
-                addChannelInfoForChannel(reader, channelInfos, parameters, ReadParameterFields.unitChn2);
-                addChannelInfoForChannel(reader, channelInfos, parameters, ReadParameterFields.unitChn3);
+                List<ChannelInfo> channelGroupChannelInfos = new ArrayList<>();
+                ReadParametersResponse parameters = getRequestFactory().readParameters(i);
+                addChannelInfoForChannel(reader, channelInfos, channelGroupChannelInfos, i, parameters, ReadParameterFields.unitChn1);
+                addChannelInfoForChannel(reader, channelInfos, channelGroupChannelInfos, i, parameters, ReadParameterFields.unitChn2);
+                addChannelInfoForChannel(reader, channelInfos, channelGroupChannelInfos, i, parameters, ReadParameterFields.unitChn3);
+                getChannelInfosForChannelGroup().put(i, channelGroupChannelInfos);
             }
             loadProfileConfig.setChannelInfos(channelInfos);
             getChannelInfoMap().put(reader, channelInfos);
         } catch (ParsingException e) {
             loadProfileConfig.setSupportedByMeter(false);
-            loadProfileConfig.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(reader, "CouldNotParseLoadProfileData")); //TODO: add exception as parameter
+            loadProfileConfig.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(reader, "CouldNotParseLoadProfileData"));
         }
     }
 
-    private void addChannelInfoForChannel(LoadProfileReader reader, List<ChannelInfo> channelInfos, ReadParametersResponse parameters, ReadParameterFields unitFieldEnum) {
+    private void addChannelInfoForChannel(LoadProfileReader reader, List<ChannelInfo> channelInfos, List<ChannelInfo> channelGroupChannelInfos, int channelGroup, ReadParametersResponse parameters, ReadParameterFields unitFieldEnum) {
         UnitField unitField = (UnitField) parameters.getField(unitFieldEnum);
-        channelInfos.add(
-                new ChannelInfo(
-                        channelInfos.size(),
-                        unitField.getCorrespondingObisCode().toString(),
-                        unitField.getEisUnit(),
-                        reader.getMeterSerialNumber(),
-                        unitField.isCumulative()
-                )
+        getUnitMappingMappedToChannelGroup().put(unitField.getUnitMapping(), channelGroup);
+        ChannelInfo channelInfo = new ChannelInfo(
+                channelInfos.size(),
+                unitField.getCorrespondingObisCode().toString(),
+                unitField.getEisUnit(),
+                reader.getMeterSerialNumber(),
+                unitField.isCumulative()
         );
+        channelInfos.add(channelInfo);
+        channelGroupChannelInfos.add(channelInfo);
     }
 
     @Override
@@ -116,50 +130,98 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {       //TO
     }
 
     private void readLoadProfileData(LoadProfileReader reader, CollectedLoadProfile collectedLoadProfile) {
-        List<ChannelInfo> channelInfos = getChannelInfoMap().get(reader);   //TODO: should this list be shortened to only contain actual groups?
-        int numberOfLoadProfileChannelGroups = (int) Math.ceil((double) reader.getChannelInfos().size() / CHANNELS_PER_CHANNEL_GROUP);
-        numberOfLoadProfileChannelGroups = 7;   //TODO: hard-coded overrule here
-
-        LoadProfileDataSelector dataSelector = createLoadProfileDataSelectorFor(reader);
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         Map<Date, IntervalData> intervalDataMap = new HashMap<>();
-        for (int channelGroup = 0; channelGroup < numberOfLoadProfileChannelGroups; channelGroup++) { //TODO: warning - groups can be noon-adjacent!!!
-            readLoadProfilePart(collectedLoadProfile, intervalDataMap, dataSelector, channelGroup);
-        }
 
-        List<IntervalData> intervalData = composeAndFilterIntervalDataList(reader, intervalDataMap, numberOfLoadProfileChannelGroups);
-        collectedLoadProfile.setCollectedIntervalData(intervalData, channelInfos);
-    }
-
-    private LoadProfileDataSelector createLoadProfileDataSelectorFor(LoadProfileReader reader) {
-        long timeDifferenceInMillis = reader.getEndReadingTime().getTime() - reader.getStartReadingTime().getTime();
-        int nrOfHoursToRead = (int) Math.ceil((double) timeDifferenceInMillis / MILLIS_PER_HOUR);
-        return LoadProfileDataSelector.newHoursToReadDataSelector(nrOfHoursToRead < 99 ? nrOfHoursToRead : 99); //TODO: limited to 0x99 hours - is it possible to read out earlier data?
-    }
-
-    private void readLoadProfilePart(CollectedLoadProfile collectedLoadProfile, Map<Date, IntervalData> intervalDataMap, LoadProfileDataSelector dataSelector, int channelGroup) {
         try {
-            ReadParametersResponse parameters = getRequestFactory().readParameters(dataSelector, channelGroup);
-            int nrOfLoadProfileWords = (int) ((BcdEncodedField)parameters.getField(ReadParameterFields.numberOfLoadProfileWords)).getValue();
-            int maxNrOfSegments = (int) Math.ceil((double) nrOfLoadProfileWords / NR_OF_WORDS_PER_INTERVAL);
-            LoadProfileReadoutResponse loadProfileData = getRequestFactory().readLoadProfileData(maxNrOfSegments);
-
-            Calendar intervalCalendar = Calendar.getInstance(getMeterProtocol().getRequestFactory().getTimeZone());
-            intervalCalendar.setTime(((DateTimeField) parameters.getField(ReadParameterFields.dateTimeOfLastDemandInterval)).getDate(getMeterProtocol().getTimeZone()));
-            for (int i = nrOfLoadProfileWords; i > 0; i -= 3) {
-                IntervalData intervalData = intervalDataMap.containsKey(intervalCalendar.getTime())
-                        ? intervalDataMap.get(intervalCalendar.getTime())   // If the intervalData already exists (and thus contains already data for other channel groups) then re-use it
-                        : new IntervalData(intervalCalendar.getTime());     // else make a new IntervalData object (note: this should only be the case for channel group 0)
-
-                intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 3) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn1)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn1)).getValue());
-                intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 2) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn2)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn2)).getValue());
-                intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 1) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn3)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn3)).getValue());
-
-                intervalDataMap.put(intervalCalendar.getTime(), intervalData); // Create or update intervalData entry
-                intervalCalendar.add(Calendar.MINUTE, (int) (-1 * ((BcdEncodedField) parameters.getField(ReadParameterFields.loadProfileInterval)).getValue()));    // Subtract load profile interval from calendar
+            List<Integer> channelGroupsWhoShouldBeRead = findChannelGroupsWhoShouldBeRead(reader);
+            DateTimeField lastDemandResetDateTime = (DateTimeField) getRequestFactory().getDefaultParameters().getField(ReadParameterFields.dateTimeOfLastDemandReset);
+            boolean shouldReadPreviousBillingLoadProfileData = lastDemandResetDateTime.getDate(getMeterProtocol().getTimeZone()).after(reader.getStartReadingTime());
+            for (Integer channelGroup : channelGroupsWhoShouldBeRead) {
+                channelInfos.addAll(getChannelInfosForChannelGroup().get(channelGroup));
+                readLoadProfilePart(intervalDataMap, channelGroup, shouldReadPreviousBillingLoadProfileData);
             }
+
+            List<IntervalData> intervalData = composeAndFilterIntervalDataList(reader, intervalDataMap, channelGroupsWhoShouldBeRead.size());
+            collectedLoadProfile.setCollectedIntervalData(intervalData, channelInfos);
         } catch (ParsingException e) {
-            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(collectedLoadProfile, "CouldNotParseLoadProfileData")); //TODO: add exception as parameter
+            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(collectedLoadProfile, "CouldNotParseLoadProfileData"));
         }
+    }
+
+    private List<Integer> findChannelGroupsWhoShouldBeRead(LoadProfileReader loadProfileReader) {
+        List<Integer> channelGroupsWhoShouldBeRead = new ArrayList<>();
+        for (ChannelInfo channelInfo : loadProfileReader.getChannelInfos()) {
+            try {
+                UnitField.UnitMapping unitMapping = UnitField.UnitMapping.fromObisCode(channelInfo.getChannelObisCode());
+                if (!channelGroupsWhoShouldBeRead.contains(getUnitMappingMappedToChannelGroup().get(unitMapping))) {
+                    channelGroupsWhoShouldBeRead.add(getUnitMappingMappedToChannelGroup().get(unitMapping));
+                }
+            } catch (IOException e) {
+                throw new IllegalArgumentException(channelInfo + e.getMessage());
+            }
+        }
+        return channelGroupsWhoShouldBeRead;
+    }
+
+    private void readLoadProfilePart(Map<Date, IntervalData> intervalDataMap, Integer channelGroup, boolean shouldReadPreviousLoadProfile) throws ParsingException {
+        if (shouldReadPreviousLoadProfile) {
+            readPreviousBillingLoadProfileData(intervalDataMap, channelGroup);
+        }
+        readCurrentBillingLoadProfileData(intervalDataMap, channelGroup);
+    }
+
+    private void readPreviousBillingLoadProfileData(Map<Date, IntervalData> intervalDataMap, Integer channelGroup) throws ParsingException {
+        ReadParametersResponse parameters = getRequestFactory().readPreviousParameters(channelGroup);
+        int nrOfLoadProfileWords = (int) ((BcdEncodedField) parameters.getField(ReadParameterFields.numberOfLoadProfileWordsInPreviousBilling)).getValue();
+        int maxNrOfSegments = (int) Math.ceil((double) nrOfLoadProfileWords / NR_OF_WORDS_PER_INTERVAL);
+
+        LoadProfileReadoutResponse loadProfileData = getRequestFactory().readPreviousBillingLoadProfileData(maxNrOfSegments);
+
+        Calendar intervalCalendar = Calendar.getInstance(getMeterProtocol().getRequestFactory().getTimeZone());
+        intervalCalendar.setTime(getDateOfLastDemandInterval(parameters));
+        for (int i = nrOfLoadProfileWords; i > 0; i -= 3) {
+            IntervalData intervalData = intervalDataMap.containsKey(intervalCalendar.getTime())
+                    ? intervalDataMap.get(intervalCalendar.getTime())   // If the intervalData already exists (and thus contains already data for other channel groups) then re-use it
+                    : new IntervalData(intervalCalendar.getTime());     // else make a new IntervalData object (note: this should only be the case for channel group 0)
+
+            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 3) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn1)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn1)).getValue());
+            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 2) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn2)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn2)).getValue());
+            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 1) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn3)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn3)).getValue());
+
+            intervalDataMap.put(intervalCalendar.getTime(), intervalData); // Create or update intervalData entry
+            intervalCalendar.add(Calendar.MINUTE, (int) (-1 * ((BcdEncodedField) parameters.getField(ReadParameterFields.loadProfileInterval)).getValue()));    // Subtract load profile interval from calendar
+        }
+    }
+
+
+    private void readCurrentBillingLoadProfileData(Map<Date, IntervalData> intervalDataMap, Integer channelGroup) throws ParsingException {
+        ReadParametersResponse parameters = getRequestFactory().readParameters(channelGroup);
+        int nrOfLoadProfileWords = (int) ((BcdEncodedField) parameters.getField(ReadParameterFields.numberOfLoadProfileWords)).getValue();
+        int maxNrOfSegments = (int) Math.ceil((double) nrOfLoadProfileWords / NR_OF_WORDS_PER_INTERVAL);
+
+        LoadProfileReadoutResponse loadProfileData = getRequestFactory().readCurrentBillingLoadProfileData(maxNrOfSegments);
+
+        Calendar intervalCalendar = Calendar.getInstance(getMeterProtocol().getRequestFactory().getTimeZone());
+        intervalCalendar.setTime(getDateOfLastDemandInterval(parameters));
+        for (int i = nrOfLoadProfileWords; i > 0; i -= 3) {
+            IntervalData intervalData = intervalDataMap.containsKey(intervalCalendar.getTime())
+                    ? intervalDataMap.get(intervalCalendar.getTime())   // If the intervalData already exists (and thus contains already data for other channel groups) then re-use it
+                    : new IntervalData(intervalCalendar.getTime());     // else make a new IntervalData object (note: this should only be the case for channel group 0)
+
+            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 3) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn1)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn1)).getValue());
+            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 2) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn2)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn2)).getValue());
+            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 1) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn3)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn3)).getValue());
+
+            intervalDataMap.put(intervalCalendar.getTime(), intervalData); // Create or update intervalData entry
+            intervalCalendar.add(Calendar.MINUTE, (int) (-1 * ((BcdEncodedField) parameters.getField(ReadParameterFields.loadProfileInterval)).getValue()));    // Subtract load profile interval from calendar
+        }
+    }
+
+    private Date getDateOfLastDemandInterval(ReadParametersResponse parameters) throws ParsingException {
+        Date date = ((DateTimeField) parameters.getField(ReadParameterFields.dateTimeOfLastDemandInterval)).getDate(getMeterProtocol().getTimeZone());
+        long loadProfileInterval = ((BcdEncodedField) parameters.getField(ReadParameterFields.loadProfileInterval)).getValue();
+        return ProtocolTools.roundUpToNearestInterval(date, (int) loadProfileInterval);
     }
 
     private List<IntervalData> composeAndFilterIntervalDataList(LoadProfileReader reader, Map<Date, IntervalData> intervalDataMap, int numberOfLoadProfileChannelGroups) {
@@ -171,12 +233,17 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {       //TO
                 // Entry outside of requested time frame, no need to add it
             } else if (intervalData.getValueCount() != (numberOfLoadProfileChannelGroups * CHANNELS_PER_CHANNEL_GROUP)) {
                 // Entry has an invalid number of channels, definitely do not add it
-                System.out.println(intervalData.getEndTime() + " - CHN: " + intervalData.getIntervalValues().size());   //TODO: remove system out statement
             } else {
                 intervalDatas.add(intervalData);
             }
         }
-        Collections.sort(intervalDatas, new IntervalDataComparator());
+        Collections.sort(intervalDatas,
+                new Comparator<IntervalData>() {
+                    @Override
+                    public int compare(IntervalData o1, IntervalData o2) {
+                        return o1.getEndTime().compareTo(o2.getEndTime());
+                    }
+                });
         return intervalDatas;
     }
 
@@ -184,13 +251,17 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {       //TO
         collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(reader, "loadProfileXnotsupported", reader.getProfileObisCode()));
     }
 
+    public AbstractAbntProtocol getMeterProtocol() {
+        return meterProtocol;
+    }
+
+    public RequestFactory getRequestFactory() {
+        return getMeterProtocol().getRequestFactory();
+    }
+
     @Override
     public Date getTime() {
         return getMeterProtocol().getTime();
-    }
-
-    public AbstractAbntProtocol getMeterProtocol() {
-        return meterProtocol;
     }
 
     public Map<LoadProfileReader, List<ChannelInfo>> getChannelInfoMap() {
@@ -200,15 +271,17 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {       //TO
         return this.channelInfoMap;
     }
 
-    public RequestFactory getRequestFactory() {
-        return getMeterProtocol().getRequestFactory();
+    public Map<UnitField.UnitMapping, Integer> getUnitMappingMappedToChannelGroup() {
+        if (this.unitMappingMappedToChannelGroup == null) {
+            this.unitMappingMappedToChannelGroup = new HashMap<>();
+        }
+        return this.unitMappingMappedToChannelGroup;
     }
 
-    private class IntervalDataComparator implements java.util.Comparator<IntervalData> {
-
-        @Override
-        public int compare(IntervalData o1, IntervalData o2) {
-            return o1.getEndTime().compareTo(o2.getEndTime());
+    public Map<Integer, List<ChannelInfo>> getChannelInfosForChannelGroup() {
+        if (this.channelInfosForChannelGroup == null) {
+            this.channelInfosForChannelGroup = new HashMap<>();
         }
+        return this.channelInfosForChannelGroup;
     }
 }

@@ -87,9 +87,17 @@ public class RequestFactory {
         return (ReadParametersResponse) response.getData();
     }
 
+    public ReadParametersResponse readParameters(int channelGroup) throws ParsingException {
+        return readParameters(LoadProfileDataSelector.newFullProfileDataSelector(), channelGroup);
+    }
+
     public ReadParametersResponse readParameters(LoadProfileDataSelector dataSelector, int channelGroup) throws ParsingException {
         ResponseFrame response = sendFrameGetResponse(getParameterReadRequest(dataSelector, channelGroup));
         return (ReadParametersResponse) response.getData();
+    }
+
+    public ReadParametersResponse readPreviousParameters(int channelGroup) throws ParsingException {
+        return readPreviousParameters(LoadProfileDataSelector.newFullProfileDataSelector(), channelGroup);
     }
 
     public ReadParametersResponse readPreviousParameters(LoadProfileDataSelector dataSelector, int channelGroup) throws ParsingException {
@@ -188,13 +196,24 @@ public class RequestFactory {
         return request;
     }
 
-    public LoadProfileReadoutResponse readLoadProfileData(int maxNrOfSegments) throws ParsingException {
-        ResponseFrame response = sendFrameGetResponse(getLoadProfileReadoutRequest());  //TODO: pass along maxNrOfSegments to prevent endless loops
+    public LoadProfileReadoutResponse readCurrentBillingLoadProfileData(int maxNrOfSegments) throws ParsingException {
+        ResponseFrame response = sendFrameGetResponse(getCurrentBillingLoadProfileReadoutRequest(), maxNrOfSegments);
         return (LoadProfileReadoutResponse) response.getData();
     }
 
-    private RequestFrame getLoadProfileReadoutRequest() {
-        RequestFrame request = getBasicRequestFrame(Function.FunctionCode.LP_DATA_WITH_SELECTOR);
+    private RequestFrame getCurrentBillingLoadProfileReadoutRequest() {
+        RequestFrame request = getBasicRequestFrame(Function.FunctionCode.LP_OF_CURRENT_BILLING);
+        request.setData(new LoadProfileReadoutRequest(getTimeZone()));
+        return request;
+    }
+
+    public LoadProfileReadoutResponse readPreviousBillingLoadProfileData(int maxNrOfSegments) throws ParsingException {
+        ResponseFrame response = sendFrameGetResponse(getPreviousBillingLoadProfileReadoutRequest(), maxNrOfSegments);
+         return (LoadProfileReadoutResponse) response.getData();
+    }
+
+    private RequestFrame getPreviousBillingLoadProfileReadoutRequest() {
+        RequestFrame request = getBasicRequestFrame(Function.FunctionCode.LP_OF_PREVIOUS_BILLING);
         request.setData(new LoadProfileReadoutRequest(getTimeZone()));
         return request;
     }
@@ -330,6 +349,16 @@ public class RequestFactory {
 
     private ResponseFrame sendFrameGetResponse(RequestFrame requestFrame) throws ParsingException {
         ResponseFrame response = getConnection().sendFrameGetResponse(requestFrame);
+        try {
+            response.doParseData();    // Parsing of the frame data content is done here
+            return response;
+        } catch (UnknownFunctionCodeParsingException e) {
+            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+        }
+    }
+
+    private ResponseFrame sendFrameGetResponse(RequestFrame requestFrame, int maxNrOfSegments) throws ParsingException {
+        ResponseFrame response = getConnection().sendFrameGetResponse(requestFrame, maxNrOfSegments);
         try {
             response.doParseData();    // Parsing of the frame data content is done here
             return response;

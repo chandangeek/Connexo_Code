@@ -104,7 +104,8 @@ public class ResponseFrame implements Frame<ResponseFrame> {
      * </p>
      * <b>Warning:</b> This method may only be used when data is already decrypted. So make sure to decrypt the frame first!
      *
-     * @throws com.energyict.protocolimplv2.abnt.common.exception.ParsingException in case the data could not be parsed correct
+     * @throws ParsingException in case the data could not be parsed correct
+     * @throws UnknownFunctionCodeParsingException in case the data contains invalid/unknown function code
      */
     public void doParseData() throws ParsingException {
         switch (function.getFunctionCode()) {
@@ -152,7 +153,6 @@ public class ResponseFrame implements Frame<ResponseFrame> {
             case NACK:
                 break;
             default:
-                //Should never come here, these errors should already be captured in the connection layer
                 throw new UnknownFunctionCodeParsingException("Encountered unknown function code " + function.getFunctionCode().getFunctionCode());
         }
     }

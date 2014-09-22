@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.abnt.common.field;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 
 /**
@@ -12,13 +11,11 @@ import java.util.Arrays;
  */
 public abstract class AbstractField<T extends Field> implements Field<T> {
 
-    private static final int BINAIR_RADIX = 2;
-    private static final int NR_OF_BITS_PER_BYTE = 8;
     private static final int FLOAT_BYTE_LENGTH = 4;
 
     protected int getIntFromBytes(byte[] rawData, int offset, int length) {
-        byte[] intBytes = ProtocolTools.getSubArray(rawData, offset, offset + length);  // TODO: if not possible cause not in range, then an empty byte array is returned
-        int value = 0;                                                                  // TODO: Maybe it is better to throw an error instead of calculating with the wrong value
+        byte[] intBytes = ProtocolTools.getSubArray(rawData, offset, offset + length);
+        int value = 0;
         for (int i = 0; i < intBytes.length; i++) {
             int intByte = intBytes[i] & 0x0FF;
             value += intByte << ((intBytes.length - (i + 1)) * 8);
@@ -51,7 +48,11 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
     }
 
     protected int getIntFromBCD(byte[] rawData, int offset, int length) throws ParsingException {
-        return Integer.parseInt(getHexStringFromBCD(rawData, offset, length));  //TODO: error handling?
+        try {
+            return Integer.parseInt(getHexStringFromBCD(rawData, offset, length));
+        } catch (NumberFormatException e) {
+            throw new ParsingException(e);
+        }
     }
 
     protected byte[] getBytesFromInt(int value, int length) {
@@ -70,21 +71,12 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
         }
         return bytes;
     }
+
     protected byte[] getBCDFromHexString(String hexString, int length) {
         while (hexString.length() < (length * 2)) {
             hexString = "0" + hexString;    // Left pad with 0
         }
         return ProtocolTools.getBytesFromHexString(hexString, "");
-    }
-
-    protected String getBitStringFromByteArray(byte[] bytes) {
-        // Create a BigInteger using the byte array
-        BigInteger bi = new BigInteger(bytes);
-        String bitString = bi.toString(BINAIR_RADIX);
-        while (bitString.length() < (bytes.length * NR_OF_BITS_PER_BYTE)) {
-            bitString = "0" + bitString;
-        }
-        return bitString;
     }
 
     @Override

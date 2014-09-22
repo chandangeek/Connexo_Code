@@ -28,7 +28,6 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandR
 import com.energyict.protocolimplv2.abnt.common.structure.field.BatteryStatusField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.ConnectionTypeField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
-import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileDataSelector;
 import com.energyict.protocolimplv2.abnt.common.structure.field.QuantityConversionIndicatorField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.ReactivePowerCharacteristicField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.SoftwareVersionField;
@@ -314,14 +313,14 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private ReadParametersResponse getActualparameters(int channelGroup) throws ParsingException {
         if (!getActualParametersMap().containsKey(channelGroup)) {
-            getActualParametersMap().put(channelGroup, getRequestFactory().readParameters(LoadProfileDataSelector.newFullProfileDataSelector(), channelGroup - 1));
+            getActualParametersMap().put(channelGroup, getRequestFactory().readParameters(channelGroup - 1));
         }
         return getActualParametersMap().get(channelGroup);
     }
 
     private ReadParametersResponse getBillingParameters(int channelGroup) throws ParsingException {
         if (!getPreviousParametersMap().containsKey(channelGroup)) {
-            getPreviousParametersMap().put(channelGroup, getRequestFactory().readPreviousParameters(LoadProfileDataSelector.newFullProfileDataSelector(), channelGroup - 1));
+            getPreviousParametersMap().put(channelGroup, getRequestFactory().readPreviousParameters(channelGroup - 1));
         }
         return getPreviousParametersMap().get(channelGroup);
     }

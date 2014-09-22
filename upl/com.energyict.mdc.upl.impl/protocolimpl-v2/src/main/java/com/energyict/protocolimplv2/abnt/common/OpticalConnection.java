@@ -4,10 +4,8 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ConnectionException;
-import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.exception.TimeOutException;
 import com.energyict.protocolimplv2.abnt.common.exception.TimeOutInfo;
-import com.energyict.protocolimplv2.abnt.common.frame.RequestFrame;
 import com.energyict.protocolimplv2.abnt.common.frame.ResponseFrame;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Crc;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Function;
@@ -36,16 +34,10 @@ public class OpticalConnection extends SerialConnection {
         super(comChannel, properties);
     }
 
-    public void sendFrame(RequestFrame frame) throws ParsingException {
-        super.sendFrame(frame);
-    }
-
-    public ResponseFrame sendFrameGetResponse(RequestFrame frame) throws ParsingException {
-        return super.sendFrameGetResponse(frame);
-    }
-
     protected void doSendRawBytes(byte[] bytes) throws ConnectionException {
-        synchronizeOnHeartBeat();
+        if (bytes.length > 1) {
+            synchronizeOnHeartBeat();   // Only full frames should be synchronized on the heartBeat (thus not needed for short command frames (ACK / NACK))
+        }
         super.doSendRawBytes(bytes);
     }
 
