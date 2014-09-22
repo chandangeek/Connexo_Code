@@ -3,67 +3,7 @@ Ext.define('Mdc.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
-        'Uni.store.MenuItems',
-        'Mdc.controller.history.Setup',
-        'Mdc.controller.setup.AddLogbookConfigurations',
-        'Mdc.controller.setup.AddLogbookTypes',
-        'Mdc.controller.setup.CommunicationSchedules',
-        'Mdc.controller.setup.CommunicationTasks',
-        'Mdc.controller.setup.ComPortPoolComPortsView',
-        'Mdc.controller.setup.ComPortPoolEdit',
-        'Mdc.controller.setup.ComPortPoolOverview',
-        'Mdc.controller.setup.ComPortPools',
-        'Mdc.controller.setup.ComServerComPortsEdit',
-        'Mdc.controller.setup.ComServerComPortsView',
-        'Mdc.controller.setup.ComServerEdit',
-        'Mdc.controller.setup.ComServerOverview',
-        'Mdc.controller.setup.ComServersView',
-        'Mdc.controller.setup.Comtasks',
-        'Mdc.controller.setup.ConnectionMethods',
-        'Mdc.controller.setup.DeviceCommunicationProtocol',
-        'Mdc.controller.setup.DeviceCommunicationProtocols',
-        'Mdc.controller.setup.DeviceCommunicationSchedules',
-        'Mdc.controller.setup.DeviceCommunicationTasks',
-        'Mdc.controller.setup.DeviceConfigurationLogbooks',
-        'Mdc.controller.setup.DeviceConfigurations',
-        'Mdc.controller.setup.DeviceConnectionMethods',
-        'Mdc.controller.setup.DeviceDataValidation',
-        'Mdc.controller.setup.DeviceGroups',
-        'Mdc.controller.setup.DeviceLoadProfileChannelData',
-        'Mdc.controller.setup.DeviceLoadProfileChannelOverview',
-        'Mdc.controller.setup.DeviceLoadProfileChannels',
-        'Mdc.controller.setup.DeviceLoadProfileData',
-        'Mdc.controller.setup.DeviceLoadProfileOverview',
-        'Mdc.controller.setup.DeviceLoadProfiles',
-        'Mdc.controller.setup.DeviceLogbookData',
-        'Mdc.controller.setup.DeviceLogbookOverview',
-        'Mdc.controller.setup.DeviceLogbooks',
-        'Mdc.controller.setup.DeviceProtocolDialects',
-        'Mdc.controller.setup.DeviceRegisterConfiguration',
-        'Mdc.controller.setup.DeviceRegisterData',
-        'Mdc.controller.setup.Devices',
-        'Mdc.controller.setup.DeviceTypeLogbooks',
-        'Mdc.controller.setup.DeviceTypes',
-        'Mdc.controller.setup.EditLogbookConfiguration',
-        'Mdc.controller.setup.LicensedProtocol',
-        'Mdc.controller.setup.LoadProfileConfigurationDetails',
-        'Mdc.controller.setup.LoadProfileConfigurations',
-        'Mdc.controller.setup.LoadProfileTypes',
-        'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
-        'Mdc.controller.setup.LogbookTypes',
-        'Mdc.controller.setup.Properties',
-        'Mdc.controller.setup.PropertiesView',
-        'Mdc.controller.setup.ProtocolDialects',
-        'Mdc.controller.setup.RegisterConfigs',
-        'Mdc.controller.setup.RegisterGroups',
-        'Mdc.controller.setup.RegisterMappings',
-        'Mdc.controller.setup.RegisterTypes',
-        'Mdc.controller.setup.RuleDeviceConfigurations',
-        'Mdc.controller.setup.SearchItemsBulkAction',
-        'Mdc.controller.setup.SearchItems',
-        'Mdc.controller.setup.SecuritySettings',
-        'Mdc.controller.setup.SetupOverview',
-        'Mdc.controller.setup.ValidationRuleSets'
+        'Uni.store.MenuItems'
     ],
 
     controllers: [
@@ -129,18 +69,10 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ValidationRuleSets'
     ],
 
-    config: {
-        navigationController: null
-    },
-
     refs: [
         {
             ref: 'viewport',
             selector: 'viewport'
-        },
-        {
-            ref: 'contentPanel',
-            selector: 'viewport > #contentPanel'
         }
     ],
 
@@ -255,12 +187,6 @@ Ext.define('Mdc.controller.Main', {
             deviceCommunicationItem
         );
 
-        this.initNavigation();
         this.getApplication().fireEvent('cfginitialized');
-    },
-
-    initNavigation: function () {
-        var controller = this.getController('Uni.controller.Navigation');
-        this.setNavigationController(controller);
     }
 });
