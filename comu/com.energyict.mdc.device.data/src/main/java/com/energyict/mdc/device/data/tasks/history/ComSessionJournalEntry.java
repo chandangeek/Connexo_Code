@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.tasks.history;
 
+import com.energyict.mdc.engine.model.ComServer;
+
 import java.util.Date;
 
 /**
@@ -27,6 +29,13 @@ public interface ComSessionJournalEntry {
      * @return The Date
      */
     public Date getTimestamp ();
+
+    /**
+     * Gets the level at which this message journal entry was logged.
+     *
+     * @return The LogLevel
+     */
+    public ComServer.LogLevel getLogLevel();
 
     /**
      * Gets the message that describes the event that caused this

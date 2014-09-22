@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.util.Counters;
-import com.elster.jupiter.util.LongCounter;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -10,6 +7,11 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.model.ComServer;
+
+import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.LongCounter;
+import com.elster.jupiter.util.time.Interval;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -87,8 +89,8 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     }
 
     @Override
-    public ComTaskExecutionSessionBuilder addComTaskExecutionMessageJournalEntry(Date timestamp, String errorDesciption, String message) {
-        journalEntryBuilders.add(new ComTaskExecutionMessageJournalEntryBuilder(timestamp, errorDesciption, message));
+    public ComTaskExecutionSessionBuilder addComTaskExecutionMessageJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDesciption) {
+        journalEntryBuilders.add(new ComTaskExecutionMessageJournalEntryBuilder(timestamp, logLevel, message, errorDesciption));
         return this;
     }
 
@@ -139,18 +141,22 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     private class ComTaskExecutionMessageJournalEntryBuilder implements JournalEntryBuilder {
 
         private final Date timestamp;
-        private final String errorDescription;
+        private final ComServer.LogLevel logLevel;
         private final String message;
+        private final String errorDescription;
 
-        private ComTaskExecutionMessageJournalEntryBuilder(Date timestamp, String errorDescription, String message) {
+        private ComTaskExecutionMessageJournalEntryBuilder(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
             this.timestamp = timestamp;
-            this.errorDescription = errorDescription;
+            this.logLevel = logLevel;
             this.message = message;
+            this.errorDescription = errorDescription;
         }
 
         @Override
         public ComTaskExecutionJournalEntry build(ComTaskExecutionSession session) {
-            return session.createComTaskExecutionMessageJournalEntry(timestamp, errorDescription, message);
+            return session.createComTaskExecutionMessageJournalEntry(this.timestamp, this.logLevel, this.message, this.errorDescription);
         }
+
     }
+
 }

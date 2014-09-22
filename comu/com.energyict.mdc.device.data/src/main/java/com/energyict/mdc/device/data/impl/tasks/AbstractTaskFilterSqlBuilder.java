@@ -73,6 +73,10 @@ public abstract class AbstractTaskFilterSqlBuilder {
         return TableSpecs.DDC_CONNECTIONTASK.name();
     }
 
+    protected String connectionTaskAliasName() {
+        return "ct";
+    }
+
     protected String comTaskExecutionTableName() {
         return TableSpecs.DDC_COMTASKEXEC.name();
     }
