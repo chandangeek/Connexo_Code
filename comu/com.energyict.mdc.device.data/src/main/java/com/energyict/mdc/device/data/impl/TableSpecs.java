@@ -470,6 +470,7 @@ public enum TableSpecs {
             table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();
             table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
+            table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
             table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").
                     on(comtaskexecsession).
                     references(DDC_COMTASKEXECSESSION.name()).
@@ -488,6 +489,7 @@ public enum TableSpecs {
             table.map(ComSessionJournalEntryImpl.class);
             Column id = table.addAutoIdColumn();
             Column comsession = table.column("COMSESSION").number().notNull().add();
+            table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
             table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).notNull().map("message").add();
             table.column("TIMESTAMP").number().conversion(NUMBER2UTCINSTANT).notNull().map("timestamp").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();

@@ -412,8 +412,8 @@ public class ComSessionCrudIT {
         Throwable cause = new RuntimeException();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = deviceDataService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addJournalEntry(entryTime1, "entry1", null)
-                    .addJournalEntry(entryTime2, "entry2", cause)
+                    .addJournalEntry(entryTime1, ComServer.LogLevel.INFO, "entry1", null)
+                    .addJournalEntry(entryTime2, ComServer.LogLevel.INFO, "entry2", cause)
                     .endSession(stopTime, ComSession.SuccessIndicator.Success);
             ComSession comSession = endedComSessionBuilder.create();
             id = comSession.getId();
@@ -581,7 +581,7 @@ public class ComSessionCrudIT {
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = deviceDataService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
                     .addComTaskExecutionSession(comTaskExecution, device, taskStartTime)
-                    .addComTaskExecutionMessageJournalEntry(journalEntryTime, "Aok", "All is well")
+                    .addComTaskExecutionMessageJournalEntry(journalEntryTime, ComServer.LogLevel.INFO, "All is well", "Aok")
                     .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
                     .endSession(stopTime, ComSession.SuccessIndicator.Success);
             ComSession comSession = endedComSessionBuilder.create();
@@ -624,7 +624,7 @@ public class ComSessionCrudIT {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = deviceDataService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
                     .addComTaskExecutionSession(comTaskExecution, device, taskStartTime)
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.Ok, "AOK", "OpenValve")
-                    .addComTaskExecutionMessageJournalEntry(journalEntryTime, "Aok", "All is well")
+                    .addComTaskExecutionMessageJournalEntry(journalEntryTime, ComServer.LogLevel.INFO, "All is well", "Aok")
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConnectionError, "Oops", "CloseValve")
                     .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
                     .endSession(stopTime, ComSession.SuccessIndicator.Success);

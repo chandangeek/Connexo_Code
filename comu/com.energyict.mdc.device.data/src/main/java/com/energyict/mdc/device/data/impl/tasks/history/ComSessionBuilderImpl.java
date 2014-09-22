@@ -1,20 +1,22 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Counter;
-import com.elster.jupiter.util.Counters;
-import com.elster.jupiter.util.LongCounter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComStatistics;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.ComServer;
+
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Counter;
+import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.LongCounter;
 import com.google.common.base.Optional;
 import net.jcip.annotations.NotThreadSafe;
 import org.joda.time.Duration;
@@ -156,8 +158,8 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
-        public ComSessionBuilder addJournalEntry(Date timestamp, String message, Throwable cause) {
-            comSession.createJournalEntry(timestamp, message, cause);
+        public ComSessionBuilder addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
+            comSession.createJournalEntry(timestamp, logLevel, message, cause);
             return parentBuilder();
         }
 
@@ -312,12 +314,13 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
-    public ComSessionBuilder addJournalEntry(Date timestamp, String message, Throwable cause) {
-        return state.addJournalEntry(timestamp, message, cause);
+    public ComSessionBuilder addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
+        return state.addJournalEntry(timestamp, logLevel, message, cause);
     }
 
     @Override
     public Optional<ComTaskExecutionSessionBuilder> findFor(ComTaskExecution comTaskExecution) {
         return state.findFor(comTaskExecution);
     }
+
 }
