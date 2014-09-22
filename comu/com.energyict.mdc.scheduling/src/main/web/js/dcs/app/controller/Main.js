@@ -1,40 +1,31 @@
 Ext.define('Dcs.controller.Main', {
     extend: 'Ext.app.Controller',
+
     requires: [
         'Uni.controller.Navigation'
     ],
+
     controllers: [
         'Dcs.controller.history.Schedule'
     ],
-    config: {
-        navigationController: null
-    },
+
     refs: [
         {
             ref: 'viewport',
             selector: 'viewport'
-        },
-        {
-            ref: 'contentPanel',
-            selector: 'viewport > #contentPanel'
         }
     ],
+
     init: function () {
-        var me=this;
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Scheduling',
-            href: me.getApplication().getController('Dcs.controller.history.Schedule').tokenizeShowOverview(),
-            glyph: 'workspace'
-        });
+        var me = this,
+            menuItem = Ext.create('Uni.model.MenuItem', {
+                text: 'Scheduling',
+                href: me.getApplication().getController('Dcs.controller.history.Schedule').tokenizeShowOverview(),
+                glyph: 'workspace'
+            });
 
         Uni.store.MenuItems.add(menuItem);
-        this.initNavigation();
-        this.initDefaultHistoryToken();
-    },
-
-    initNavigation: function () {
-        var controller = this.getController('Uni.controller.Navigation');
-        this.setNavigationController(controller);
+        me.initDefaultHistoryToken();
     },
 
     initDefaultHistoryToken: function () {
@@ -45,17 +36,10 @@ Ext.define('Dcs.controller.Main', {
         eventBus.setDefaultToken(defaultToken);
     },
 
+    /**
+     * @deprecated Fire an event instead, as shown below.
+     */
     showContent: function (widget) {
-        this.clearContentPanel();
-        this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
-    },
-
-    clearContentPanel: function () {
-        var widget;
-        while (widget = this.getContentPanel().items.first()) {
-            this.getContentPanel().remove(widget, true);
-        }
+        this.getApplication().fireEvent('changecontentevent', widget);
     }
-
 });
