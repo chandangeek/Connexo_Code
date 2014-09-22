@@ -199,22 +199,20 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
         allMessagesStore.removeAll();
         selectedMessagesStore.removeAll();
-        this.operationType = Ext.isEmpty(taskId) ? Uni.I18n.translate('general.add', 'MDC', 'Add') : Uni.I18n.translate('general.edit', 'MDC', 'Edit');
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.getTaskEdit().getCenterContainer().down().setTitle(this.operationType + ' ' + Uni.I18n.translate('comtask.comtask', 'MDC', 'communication task'));
         this.getTaskEdit().down('toolbar').getComponent('createEditTask').setText(
             Ext.isEmpty(taskId) ? Uni.I18n.translate('general.add', 'MDC', 'Add') : Uni.I18n.translate('general.save', 'MDC', 'Save')
         );
         this.getTaskEdit().down('toolbar').getComponent('createEditTask').action = Ext.isEmpty(taskId) ? 'add' : 'save';
 
         if (taskId) {
-            this.taskEditId = taskId;
-            this.getTaskEdit().down('toolbar').getComponent('createEditTask').enable();
+            this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('comtask.comtask', 'MDC', 'communication task'));
             this.commands = [];
             this.loadModelToEditForm(taskId, widget, selectedMessagesStore, allMessagesStore);
         } else {
-            allMessagesStore.load();
+            this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + Uni.I18n.translate('comtask.comtask', 'MDC', 'communication task'));
             this.commands = [];
+            allMessagesStore.load();
         }
     },
 
@@ -343,6 +341,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             callback: function () {
                 model.load(id, {
                     success: function (record) {
+                        self.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'"  );
+                        self.getApplication().fireEvent('loadCommunicationTask', record);
                         form.loadRecord(record);
                         Ext.Array.each(record.get('commands'), function (command) {
                             self.addTagButton(command);
@@ -817,7 +817,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             itemId: 'tagBtn' + command.category,
             text: command.action.charAt(0).toUpperCase() + command.action.slice(1) + ' ' + command.category.charAt(0).toUpperCase() + command.category.slice(1),
             margin: '5 0 5 0',
-            width: 150,
+            width: 180,
             category: command.category,
             handler: function () {
                 var window = Ext.create('Mdc.view.setup.comtasks.ComTaskAddCommandWindow', {

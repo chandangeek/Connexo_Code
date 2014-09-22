@@ -17,14 +17,16 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                 {
                     xtype: 'uni-form-error-message',
                     itemId: 'errors',
-                    hidden: true
+                    hidden: true,
+                    width: 380
+
                 },
                 {
                     xtype: 'textfield',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
                     required: true,
-                    width: 900
+                    width: 500
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -83,13 +85,13 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                 },
                 {
                     xtype: 'container',
-                    margin: '-25 0 0 215',
+                    margin: '-25 0 30 215',
                     itemId: 'protocolTasksErrorMessage',
                     hidden: true
                 },
                 {
                     xtype: 'toolbar',
-                    margin: '0 0 0 215',
+                    margin: '-30 0 0 215',
                     items: [
                         {
                             xtype: 'button',
