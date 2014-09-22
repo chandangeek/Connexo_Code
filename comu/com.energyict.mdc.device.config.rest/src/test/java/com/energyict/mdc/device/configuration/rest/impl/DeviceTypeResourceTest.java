@@ -16,25 +16,16 @@ import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -44,23 +35,17 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
-
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -69,27 +54,15 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
-
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
-
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientResponse;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -99,86 +72,11 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DeviceTypeResourceTest extends JerseyTest {
-
-    private final String DUMMY_THESAURUS_STRING = "";
-    @Mock
-    private MasterDataService masterDataService;
-    @Mock
-    private DeviceConfigurationService deviceConfigurationService;
-    @Mock
-    private ValidationService validationService;
-    @Mock
-    private ProtocolPluggableService protocolPluggableService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Thesaurus thesaurus;
-    @Mock
-    private EngineModelService engineModelService;
-    @Mock
-    private DeviceDataService deviceDataService;
-    @Mock
-    private MdcPropertyUtils mdcPropertyUtils;
-    @Mock
-    private PropertyUtils propertyUtils;
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        reset(masterDataService, protocolPluggableService, engineModelService, deviceDataService, validationService);
-        when(thesaurus.getString(anyString(), anyString())).thenReturn(DUMMY_THESAURUS_STRING);
-    }
-
-    @Override
-    protected Application configure() {
-        MockitoAnnotations.initMocks(this);
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(
-                ResourceHelper.class,
-                DeviceTypeResource.class,
-                DeviceConfigurationResource.class,
-                RegisterConfigurationResource.class,
-                ConnectionMethodResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
-                LocalizedExceptionMapper.class);
-        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(masterDataService).to(MasterDataService.class);
-                bind(validationService).to(ValidationService.class);
-                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-                bind(protocolPluggableService).to(ProtocolPluggableService.class);
-                bind(engineModelService).to(EngineModelService.class);
-                bind(nlsService).to(NlsService.class);
-                bind(ResourceHelper.class).to(ResourceHelper.class);
-                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-                bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
-                bind(thesaurus).to(Thesaurus.class);
-                bind(deviceDataService).to(DeviceDataService.class);
-                bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
-                bind(ExceptionFactory.class).to(ExceptionFactory.class);
-                bind(PropertyUtils.class).to(PropertyUtils.class);
-            }
-        });
-        return resourceConfig;
-    }
-
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class); // client side JSON processing
-
-        super.configureClient(config);
-    }
+public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
     @Test
     public void testGetEmptyDeviceTypeList() throws Exception {

@@ -33,7 +33,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RegisterTypeResourceTest extends DeviceConfigurationJerseyTest {
+public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
     @Test
     public void testGetEmptyRegisterTypeList() throws Exception {

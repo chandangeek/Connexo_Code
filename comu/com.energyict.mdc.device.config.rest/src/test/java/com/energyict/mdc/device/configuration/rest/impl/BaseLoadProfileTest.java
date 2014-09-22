@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Ignore("basic functionality for load profiles")
-public class BaseLoadProfileTest extends DeviceConfigurationJerseyTest {
+public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTest {
     protected List<LoadProfileType> getLoadProfileTypes(int count) {
         List<LoadProfileType> loadProfileTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {

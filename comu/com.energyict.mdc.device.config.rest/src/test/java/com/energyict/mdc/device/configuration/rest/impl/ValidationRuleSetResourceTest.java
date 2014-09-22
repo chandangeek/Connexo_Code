@@ -23,7 +23,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ValidationRuleSetResourceTest extends DeviceConfigurationJerseyTest {
+public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
     public static final long DEVICE_TYPE_ID = 564L;
     public static final long DEVICE_CONFIGURATION_ID = 211L;

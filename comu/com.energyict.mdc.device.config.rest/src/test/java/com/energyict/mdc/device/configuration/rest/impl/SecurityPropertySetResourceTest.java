@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 9/12/14.
  */
-public class SecurityPropertySetResourceTest extends DeviceConfigurationJerseyTest {
+public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
     @Test
     public void testGetSecurityPropertySet() throws Exception {

@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 9/12/14.
  */
-public class ExecutionLevelResourceTest extends DeviceConfigurationJerseyTest {
+public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
     @Test
     public void testAddPrivilege() throws Exception {
