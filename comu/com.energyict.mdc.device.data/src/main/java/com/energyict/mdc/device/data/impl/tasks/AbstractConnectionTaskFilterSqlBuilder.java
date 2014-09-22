@@ -21,8 +21,6 @@ import java.util.Set;
  */
 public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilterSqlBuilder {
 
-    private static final String SUCCESS_INDICATOR_ALIAS_NAME = "successindicator";
-
     private Set<ConnectionTypePluggableClass> connectionTypes;
     private Set<ComPortPool> comPortPools;
     private Set<DeviceType> deviceTypes;
@@ -37,7 +35,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     }
 
     protected void appendWhereClause(ServerConnectionTaskStatus taskStatus) {
-        taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock());
+        taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock(), connectionTaskAliasName());
         this.appendConnectionTypeSql();
         this.appendComPortPoolSql();
         this.appendDeviceTypeSql();
@@ -45,7 +43,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
 
     protected void appendJoinedTables() {
         if (this.requiresLastComSessionClause()) {
-            this.appendLastComSessionJoinClause(this.connectionTaskTableName());
+            this.appendLastComSessionJoinClause(this.connectionTaskAliasName());
         }
     }
 
@@ -60,13 +58,13 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
         if (!this.comPortPools.isEmpty()) {
             this.appendWhereOrAnd();
             this.append(" (");
-            this.appendInClause(this.connectionTaskTableName() + ".comportpool", this.comPortPools);
+            this.appendInClause("ct.comportpool", this.comPortPools);
             this.append(")");
         }
     }
 
     private void appendDeviceTypeSql() {
-        this.appendDeviceTypeSql(this.connectionTaskTableName(), this.deviceTypes);
+        this.appendDeviceTypeSql(this.connectionTaskAliasName(), this.deviceTypes);
     }
 
     private boolean requiresLastComSessionClause() {
@@ -78,22 +76,11 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     }
 
     private void appendLastComSessionJoinClause(String connectionTaskTableName) {
-        this.appendLastComSessionJoinClauseForConnectionTask(
-                SUCCESS_INDICATOR_ALIAS_NAME,
-                connectionTaskTableName);
-    }
-
-    private void appendLastComSessionJoinClauseForConnectionTask(String successIndicatorAliasName, String connectionTaskTableName) {
-        this.append(", (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY ");
+        this.append(" join ");
         this.append(TableSpecs.DDC_COMSESSION.name());
-        this.append(".startdate DESC) ");
-        this.append(successIndicatorAliasName);
-        this.append(" from ");
-        this.append(TableSpecs.DDC_COMSESSION.name());
-        this.append(" group by connectiontask) cs");
-        this.appendWhereOrAnd();
+        this.append(" cs on ");
         this.append(connectionTaskTableName);
-        this.append(".id = cs.connectiontask");
+        this.append(".lastsession = cs.id");
     }
 
 }

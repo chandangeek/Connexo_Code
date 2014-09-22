@@ -26,6 +26,7 @@ import java.util.Set;
  */
 public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
 
+    private static final String COM_TASK_EXECUTION_ALIAS_NAME = "cte";
     private static final String COM_TASK_EXECUTION_SESSION_ALIAS_NAME = "ctes";
     private static final String HIGHEST_PRIORITY_COMPLETION_CODE_ALIAS_NAME = "highestPrioCompletionCode";
 
@@ -70,7 +71,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
-        SqlBuilder sqlBuilder = dataMapper.builder(null);   // Does not generate an alias
+        SqlBuilder sqlBuilder = dataMapper.builder(COM_TASK_EXECUTION_ALIAS_NAME);
         this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
         this.appendJoinedTables();
         String sqlStartClause = sqlBuilder.getText();
@@ -111,16 +112,15 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     private void appendLastSessionJoinClauseForComTaskExecution () {
-        this.append(", (select comtaskexec, MAX(highestPrioCompletionCode) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) ");
-        this.append(HIGHEST_PRIORITY_COMPLETION_CODE_ALIAS_NAME);
-        this.append(" from ");
+        this.append(" join ");
         this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        this.append(" group by comtaskexec) ");
         this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
+        this.append(" on ");
+        this.append(COM_TASK_EXECUTION_ALIAS_NAME);
+        this.append(".lastsession = ");
+        this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
+        this.append(".id");
         this.appendWhereOrAnd();
-        this.append(" id = ");
-        this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
-        this.append(".comtaskexec");
     }
 
     private void appendCompletionCodeClause () {
@@ -155,7 +155,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.append(" cs, ");
             this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
             this.append(" ctes where ctes.comtaskexec = ");
-            this.append(TableSpecs.DDC_COMTASKEXEC.name());
+            this.append(COM_TASK_EXECUTION_ALIAS_NAME);
             this.append(".id and ctes.comsession = cs.id ");
             if (!this.isNull(this.lastSessionStart)) {
                 this.appendWhereOrAnd();

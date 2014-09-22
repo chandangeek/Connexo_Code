@@ -385,8 +385,18 @@ public enum TableSpecs {
                     map(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).
                     add();
             table.primaryKey("PK_DDC_COMSESSION").on(id).add();
-//            table.index("IX_DDC_CS_LATESTRESULT").on(connectionTask, startDate, successIndicator, id).compress(1).add();
-            table.index("IX_DDC_CS_LATESTRESULT").on(connectionTask, startDate, successIndicator, id).add();
+        }
+    },
+    ADD_LAST_SESSION_TO_CONNECTION_TASK {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<?> table = dataModel.getTable(DDC_CONNECTIONTASK.name());
+            Column lastSession = table.column("LASTSESSION").number().add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_LASTCS").
+                    on(lastSession).
+                    references(DDC_COMSESSION.name()).
+                    map(ConnectionTaskFields.LAST_SESSION.fieldName()).
+                    add();
         }
     },
     DDC_COMTASKEXECSESSION {
@@ -434,6 +444,18 @@ public enum TableSpecs {
             table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).add();
         }
     },
+    ADD_LAST_SESSION_TO_COM_TASK_EXECUTION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<?> table = dataModel.getTable(DDC_COMTASKEXEC.name());
+            Column lastSession = table.column("LASTSESSION").number().add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS").
+                    on(lastSession).
+                    references(DDC_COMTASKEXECSESSION.name()).
+                    map(ComTaskExecutionFields.LAST_SESSION.fieldName()).
+                    add();
+        }
+    },
     DDC_COMTASKEXECJOURNALENTRY {
         @Override
         public void addTo(DataModel dataModel) {
@@ -448,6 +470,7 @@ public enum TableSpecs {
             table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();
             table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
+            table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
             table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").
                     on(comtaskexecsession).
                     references(DDC_COMTASKEXECSESSION.name()).
@@ -466,6 +489,7 @@ public enum TableSpecs {
             table.map(ComSessionJournalEntryImpl.class);
             Column id = table.addAutoIdColumn();
             Column comsession = table.column("COMSESSION").number().notNull().add();
+            table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
             table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).notNull().map("message").add();
             table.column("TIMESTAMP").number().conversion(NUMBER2UTCINSTANT).notNull().map("timestamp").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();

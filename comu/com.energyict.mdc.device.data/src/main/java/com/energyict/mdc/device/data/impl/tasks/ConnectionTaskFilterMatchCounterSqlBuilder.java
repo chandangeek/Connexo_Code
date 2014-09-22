@@ -40,6 +40,8 @@ public class ConnectionTaskFilterMatchCounterSqlBuilder extends AbstractConnecti
     private void appendFromClause() {
         this.append(" from ");
         this.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        this.append(" ");
+        this.append(connectionTaskAliasName());
         this.appendJoinedTables();
     }
 

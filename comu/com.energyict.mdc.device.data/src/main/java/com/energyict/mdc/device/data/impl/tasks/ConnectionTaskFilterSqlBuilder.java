@@ -97,12 +97,12 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     }
 
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
-        SqlBuilder sqlBuilder = dataMapper.builder(null);   // Does not generate an alias
+        SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
         this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
         if (   !this.isNull(this.lastSessionEnd)
             || !this.latestStatuses.isEmpty()
             || !this.latestResults.isEmpty()) {
-            this.appendLastSessionClause(this.connectionTaskTableName());
+            this.appendLastSessionClause();
             this.requiresLastComSessionClause(false);
         }
         String sqlStartClause = sqlBuilder.getText();
@@ -126,10 +126,11 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
                 && (interval.getEnd() == null));
     }
 
-    private void appendLastSessionClause(String connectionTaskTableName) {
-        this.append(", (select cs.connectiontask, MAX(cs.successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate DESC) successIndicator from ");
+    private void appendLastSessionClause() {
+        this.append(" join ");
         this.append(TableSpecs.DDC_COMSESSION.name());
-        this.append(" cs where ");
+        this.append(" cs on ct.lastsession = cs.id");
+        this.appendWhereOrAnd();
         boolean clauseAppended = this.appendLastSessionStatusClause();
         if (!this.isNull(this.lastSessionEnd)) {
             if (clauseAppended) {
@@ -137,10 +138,6 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
             }
             this.appendIntervalWhereClause("cs", "STOPDATE", this.lastSessionEnd);
         }
-        this.append(" group by connectiontask) t");
-        this.appendWhereOrAnd();
-        this.append(connectionTaskTableName);
-        this.append(".id = t.connectiontask");
     }
 
     private boolean appendLastSessionStatusClause() {

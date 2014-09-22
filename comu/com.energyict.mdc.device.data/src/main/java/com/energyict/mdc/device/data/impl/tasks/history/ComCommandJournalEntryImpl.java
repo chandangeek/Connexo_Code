@@ -1,13 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -28,36 +29,6 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
         super(ComCommandJournalEntry.class, dataModel, eventService, thesaurus);
     }
 
-//    @Override
-//    protected void doLoad (ResultSetIterator resultSet) throws SQLException {
-//        super.doLoad(resultSet);
-//        this.completionCode = CompletionCode.valueFromDb(resultSet.nextInt());
-//        this.commandDescription = resultSet.nextStringFromClob();
-//    }
-//
-//    @Override
-//    protected int bindBody (PreparedStatement preparedStatement, int firstParameterNumber) throws SQLException {
-//        int parameterNumber = super.bindBody(preparedStatement, firstParameterNumber);
-//        preparedStatement.setInt(parameterNumber++, this.completionCode.dbValue());
-//        this.bindClob(preparedStatement, this.commandDescription, parameterNumber++);
-//        return parameterNumber;
-//    }
-
-//    @Override
-//    protected ComTaskExecutionJournalEntryFactoryImpl.ComTaskExecutionJournalEntryDiscriminator getDiscriminator () {
-//        return ComTaskExecutionJournalEntryFactoryImpl.ComTaskExecutionJournalEntryDiscriminator.COMMAND;
-//    }
-
-//    private void validateNew (ComCommandJournalEntryShadow shadow) throws BusinessException {
-//        this.validate(shadow);
-//    }
-//
-//    private void validate (ComCommandJournalEntryShadow shadow) throws BusinessException {
-//        super.validate(shadow);
-//        this.validateNotNull(shadow.getCompletionCode(), "comtaskjournalentry.completioncode");
-//        this.validateNotNull(shadow.getCommandDescription(), "comtaskjournalentry.commanddescription");
-//    }
-
     @Override
     public CompletionCode getCompletionCode () {
         return completionCode;
@@ -70,14 +41,12 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
 
     @Override
     protected void doDelete() {
-        //TODO automatically generated method body, provide implementation.
-
+        this.dataModel.remove(this);
     }
 
     @Override
     protected void validateDelete() {
-        //TODO automatically generated method body, provide implementation.
-
+        // Nothing to validate right now
     }
 
     @Override
@@ -98,4 +67,5 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
         this.commandDescription = commandDescription;
         return this;
     }
+
 }

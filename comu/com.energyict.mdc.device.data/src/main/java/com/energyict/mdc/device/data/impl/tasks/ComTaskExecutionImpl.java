@@ -24,6 +24,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -94,6 +95,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private int plannedPriority;
     private int currentRetryCount;
     private boolean lastExecutionFailed;
+    private Reference<ComTaskExecutionSession> lastSession = ValueReference.absent();
     private boolean useDefaultConnectionTask;
     private boolean ignoreNextExecutionSpecsForInbound;
 
@@ -287,6 +289,20 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public Date getLastExecutionStartTimestamp() {
         return this.lastExecutionTimestamp;
+    }
+
+    @Override
+    public void sessionCreated(ComTaskExecutionSession session) {
+        if (this.lastSession.isPresent()) {
+            if (session.endsAfter(this.lastSession.get())) {
+                this.lastSession.set(session);
+                this.post();
+            }
+        }
+        else {
+            this.lastSession.set(session);
+            this.post();
+        }
     }
 
     @Override

@@ -106,6 +106,78 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
         }
     }
 
+    @Transactional
+    @Test
+    public void countConnectionTasksLastComSessionsWithAtLeastOneFailedTaskDoesNotProduceSQLExceptions() {
+        // Business method
+        inMemoryPersistence.getDeviceDataService().countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
+
+        // Asserts: should not cause any SQLExceptions
+    }
+
+    @Transactional
+    @Test
+    public void countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTaskDoesNotProduceSQLExceptions() {
+        // Business method
+        inMemoryPersistence.getDeviceDataService().countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
+
+        // Asserts: should not cause any SQLExceptions
+    }
+
+    @Transactional
+    @Test
+    public void getConnectionTaskLastComSessionSuccessIndicatorCountDoesNotProduceSQLExceptions() {
+        // Business method
+        inMemoryPersistence.getDeviceDataService().getConnectionTaskLastComSessionSuccessIndicatorCount();
+
+        // Asserts: should not cause any SQLExceptions
+    }
+
+    @Transactional
+    @Test
+    public void getComTaskLastComSessionHighestPriorityCompletionCodeCountDoesNotProduceSQLExceptions() {
+        // Business method
+        inMemoryPersistence.getDeviceDataService().getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+
+        // Asserts: should not cause any SQLExceptions
+    }
+
+    @Transactional
+    @Test
+    public void getConnectionTypeHeatMapDoesNotProduceSQLExceptions() {
+        // Business method
+        inMemoryPersistence.getDeviceDataService().getConnectionTypeHeatMap();
+
+        // Asserts: should not cause any SQLExceptions
+    }
+
+    @Transactional
+    @Test
+    public void getConnectionsDeviceTypeHeatMapDoesNotProduceSQLExceptions() {
+        // Business method
+        inMemoryPersistence.getDeviceDataService().getConnectionsDeviceTypeHeatMap();
+
+        // Asserts: should not cause any SQLExceptions
+    }
+
+    @Transactional
+    @Test
+    public void getComTasksDeviceTypeHeatMapDoesNotProduceSQLExceptions() {
+        // Business method
+        inMemoryPersistence.getDeviceDataService().getComTasksDeviceTypeHeatMap();
+
+        // Asserts: should not cause any SQLExceptions
+    }
+
+    @Transactional
+    @Test
+    public void getConnectionsComPortPoolHeatMapDoesNotProduceSQLExceptions() {
+        // Business method
+        inMemoryPersistence.getDeviceDataService().getConnectionsComPortPoolHeatMap();
+
+        // Asserts: should not cause any SQLExceptions
+    }
+
     private Set<TaskStatus> breakdownStatusses() {
         Set<TaskStatus> taskStatuses = EnumSet.noneOf(TaskStatus.class);
         taskStatuses.addAll(EnumSet.of(TaskStatus.Waiting));

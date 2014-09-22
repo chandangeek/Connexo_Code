@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.tasks.history;
 
+import com.energyict.mdc.engine.model.ComServer;
+
 import java.util.Date;
 
 /**
@@ -13,5 +15,6 @@ public interface ComTaskExecutionSessionBuilder extends BuildsStatistics<ComTask
 
     ComTaskExecutionSessionBuilder addComCommandJournalEntry(Date timestamp, CompletionCode completionCode, String errorDesciption, String commandDescription);
 
-    ComTaskExecutionSessionBuilder addComTaskExecutionMessageJournalEntry(Date timestamp, String errorDesciption, String message);
+    ComTaskExecutionSessionBuilder addComTaskExecutionMessageJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDesciption);
+
 }

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.tasks.history;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.model.ComServer;
 
 import java.util.Date;
 import java.util.EnumSet;
@@ -42,6 +43,8 @@ public interface ComTaskExecutionSession extends HasId {
 
     public Date getStopDate ();
 
+    public boolean endsAfter (ComTaskExecutionSession other);
+
     public SuccessIndicator getSuccessIndicator ();
 
     /**
@@ -61,11 +64,12 @@ public interface ComTaskExecutionSession extends HasId {
      * {@link ComTaskExecutionMessageJournalEntry} to this ComTaskExecutionSession.
      *
      * @param timestamp The timestamp of which the ComCommandJournalEntry
-     * @param errorDescription The error description
+     * @param logLevel The LogLevel
      * @param message The message
+     * @param errorDescription The error description
      * @return The ComTaskExecutionMessageJournalEntryBuilder
      */
-    public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Date timestamp, String errorDescription, String message);
+    public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDescription);
 
     /**
      * Gets the completion code with the highest priority

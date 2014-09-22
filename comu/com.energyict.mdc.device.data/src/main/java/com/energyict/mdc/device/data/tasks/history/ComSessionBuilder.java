@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.model.ComServer;
+
 import com.google.common.base.Optional;
 import org.joda.time.Duration;
 
@@ -36,7 +38,7 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ComSessionBuilder incrementNotExecutedTasks(int numberOfPlannedButNotExecutedTasks);
 
-    ComSessionBuilder addJournalEntry(Date timestamp, String message, Throwable cause);
+    ComSessionBuilder addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
 
     ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Date startDate);
 
@@ -48,4 +50,5 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
         ComSession create();
     }
+
 }
