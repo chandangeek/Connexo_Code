@@ -38,6 +38,7 @@ import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
@@ -145,6 +146,7 @@ public class DemoTest {
                 new TasksModule(),
                 new IssuesModule(),
                 new SchedulingModule(),
+                new ProtocolApiModule(),
 
                 new DemoModule()
         );
