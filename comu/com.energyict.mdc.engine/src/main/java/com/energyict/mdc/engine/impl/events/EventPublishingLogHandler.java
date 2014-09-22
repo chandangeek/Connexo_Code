@@ -28,7 +28,7 @@ public abstract class EventPublishingLogHandler extends Handler {
             eventPublisher.publish(
                     this.toEvent(
                             eventPublisher.serviceProvider(),
-                            LogLevelMapper.toComServerLogLevel(record.getLevel()),
+                            LogLevelMapper.forJavaUtilLogging().toLogLevel(record.getLevel()),
                             this.extractInfo(record)));
         }
     }

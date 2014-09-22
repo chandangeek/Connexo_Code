@@ -65,7 +65,7 @@ public aspect ComCommandJournaling {
     }
 
     private LogLevel getServerLogLevel (ComServer comServer) {
-        return LogLevelMapper.map(comServer.getCommunicationLogLevel());
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getCommunicationLogLevel());
     }
 
 }

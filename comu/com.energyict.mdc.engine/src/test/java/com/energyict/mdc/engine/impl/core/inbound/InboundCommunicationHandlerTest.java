@@ -267,7 +267,7 @@ public class InboundCommunicationHandlerTest {
         verify(deviceDataService).buildComSession(mock(ConnectionTask.class), comPortPool, comPort, sessionStartClock);
         verify(comSessionBuilder, never()).addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Date.class));
         verify(comSessionBuilder.endSession(sessionStopClock, ComSession.SuccessIndicator.Success));
-        verify(comSessionBuilder, times(3)).addJournalEntry(any(Date.class), anyString(), any(Throwable.class));   // Expect three journal entries (discovery start, discovery result, device not found)
+        verify(comSessionBuilder, times(3)).addJournalEntry(any(Date.class), ComServer.LogLevel.INFO, anyString(), any(Throwable.class));   // Expect three journal entries (discovery start, discovery result, device not found)
         verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
@@ -349,7 +349,7 @@ public class InboundCommunicationHandlerTest {
         verify(deviceDataService).buildComSession(mock(ConnectionTask.class), comPortPool, comPort, sessionStartClock);
         verify(comSessionBuilder, never()).addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Date.class));
         verify(comSessionBuilder.endSession(sessionStopClock, ComSession.SuccessIndicator.SetupError));
-        verify(comSessionBuilder, times(3)).addJournalEntry(any(Date.class), anyString(), any(Throwable.class));   // Expect three journal entries (discovery start, discovery result, device not found)
+        verify(comSessionBuilder, times(3)).addJournalEntry(any(Date.class), ComServer.LogLevel.INFO, anyString(), any(Throwable.class));   // Expect three journal entries (discovery start, discovery result, device not found)
     }
 
     @Test

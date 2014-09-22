@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
@@ -57,11 +58,9 @@ public class ComCommandJournalistTest {
         // Business method
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
-
-
         // Asserts
         verify(comTaskExecutionSessionBuilder, never()).addComCommandJournalEntry(any(Date.class), any(CompletionCode.class), anyString(), anyString());
-        verify(comTaskExecutionSessionBuilder, never()).addComTaskExecutionMessageJournalEntry(any(Date.class), anyString(), anyString());
+        verify(comTaskExecutionSessionBuilder, never()).addComTaskExecutionMessageJournalEntry(any(Date.class), any(ComServer.LogLevel.class), anyString(), anyString());
     }
 
     @Test

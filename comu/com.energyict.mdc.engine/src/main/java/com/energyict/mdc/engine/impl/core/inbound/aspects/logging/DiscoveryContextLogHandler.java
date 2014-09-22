@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -30,7 +31,11 @@ public class DiscoveryContextLogHandler extends Handler {
 
     @Override
     public void publish(LogRecord record) {
-        this.context.addJournalEntry(clock.now(), extractInfo(record), record.getThrown());
+        this.context.addJournalEntry(
+                this.clock.now(),
+                LogLevelMapper.forComServerLogLevel().fromJavaUtilLogLevel(record.getLevel()),
+                extractInfo(record),
+                record.getThrown());
     }
 
     private String extractInfo (LogRecord record) {

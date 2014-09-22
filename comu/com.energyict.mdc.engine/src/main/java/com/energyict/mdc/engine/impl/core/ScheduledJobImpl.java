@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
@@ -72,7 +73,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
     public void rescheduleToNextComWindow () {
         this.createExecutionContext(false);
         this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(this.getComTaskExecutions().size());
-        this.getExecutionContext().createJournalEntry("Rescheduling to next ComWindow because current timestamp is not " + this.getConnectionTask().getCommunicationWindow());
+        this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + this.getConnectionTask().getCommunicationWindow());
         this.doReschedule(RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
         this.completeSuccessfulComSession();
     }

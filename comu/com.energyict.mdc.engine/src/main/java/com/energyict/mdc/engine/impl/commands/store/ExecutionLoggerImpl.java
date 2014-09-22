@@ -1,14 +1,15 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.common.StackTracePrinter;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.issues.Issue;
+
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 
 /**
@@ -33,7 +34,11 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     @Override
     public void executed (DeviceCommand deviceCommand) {
         if (this.isLogLevelEnabled(deviceCommand)) {
-            getComSessionBuilder().addJournalEntry(clock.now(), deviceCommand.toJournalMessageDescription(this.logLevel), null);
+            getComSessionBuilder().addJournalEntry(
+                    this.clock.now(),
+                    this.logLevel,
+                    deviceCommand.toJournalMessageDescription(this.logLevel),
+                    null);
         }
     }
 

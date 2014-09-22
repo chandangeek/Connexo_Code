@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -8,7 +7,6 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -22,18 +20,20 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.tasks.RegistersTask;
+
+import com.elster.jupiter.metering.ReadingType;
 
 import java.util.Arrays;
 import java.util.List;
 
-import com.energyict.mdc.tasks.RegistersTask;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
@@ -142,6 +142,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         ReadRegistersCommand readRegistersCommand = commandRoot.getReadRegistersCommand(registerCommand, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedRegister collectedRegister = mock(CollectedRegister.class);
+        when(collectedRegister.getResultType()).thenReturn(ResultType.Supported);
         when(collectedRegister.getReadingType()).thenReturn(readingType);
         when(collectedRegister.getText()).thenReturn(collectedText);
         when(deviceProtocol.readRegisters(Matchers.<List<OfflineRegister>>any())).thenReturn(Arrays.asList(collectedRegister));
@@ -171,6 +172,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         ReadRegistersCommand readRegistersCommand = commandRoot.getReadRegistersCommand(registerCommand, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedRegister collectedRegister = mock(CollectedRegister.class);
+        when(collectedRegister.getResultType()).thenReturn(ResultType.Supported);
         when(collectedRegister.getReadingType()).thenReturn(readingType);
         when(collectedRegister.getCollectedQuantity()).thenReturn(quantity);
         when(deviceProtocol.readRegisters(Matchers.<List<OfflineRegister>>any())).thenReturn(Arrays.asList(collectedRegister));

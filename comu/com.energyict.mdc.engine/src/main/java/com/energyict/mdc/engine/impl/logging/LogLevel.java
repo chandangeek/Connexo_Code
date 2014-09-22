@@ -9,7 +9,7 @@ package com.energyict.mdc.engine.impl.logging;
 public enum LogLevel {
     /**
      * Shows only error messages that are the result of serious problems
-     * that have occured during the process. Typically, there is not
+     * that have occured during the process. Typically, there is no
      * recovery from these types of problems and the current
      * process will likely have stopped or been abandonned.
      */

@@ -64,7 +64,7 @@ public aspect InboundComPortLogging {
     }
 
     private LogLevel getServerLogLevel (ComServer comPort) {
-        return LogLevelMapper.map(comPort.getServerLogLevel());
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(comPort.getServerLogLevel());
     }
 
 }

@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandCreator;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -319,19 +320,7 @@ public abstract aspect AbstractComCommandLogging {
     }
 
     private Level getCommunicationLogLevel (ComServer comServer) {
-        switch (comServer.getCommunicationLogLevel()) {
-            case ERROR:
-                return Level.SEVERE;
-            case WARN:
-                return Level.WARNING;
-            case INFO:
-                return Level.INFO;
-            case DEBUG:
-                return Level.FINE;
-            case TRACE:
-                return Level.FINEST;
-        }
-        return Level.ALL;
+        return LogLevelMapper.forComServerLogLevel().toJavaUtilLogLevel(comServer.getCommunicationLogLevel());
     }
 
 }
