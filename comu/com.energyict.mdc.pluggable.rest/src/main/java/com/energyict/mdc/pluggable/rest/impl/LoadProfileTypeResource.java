@@ -2,7 +2,7 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.security.Privileges;
+import com.energyict.mdc.device.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -26,7 +26,7 @@ public class LoadProfileTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_LOAD_PROFILE_TYPE)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public LoadProfileTypeInfos getLoadProfileTypePropertyContext(@Context UriInfo uriInfo) {
         LoadProfileTypeInfos loadProfileTypeInfos = new LoadProfileTypeInfos();
         for (LoadProfileType loadProfileType : this.masterDataService.findAllLoadProfileTypes()) {
