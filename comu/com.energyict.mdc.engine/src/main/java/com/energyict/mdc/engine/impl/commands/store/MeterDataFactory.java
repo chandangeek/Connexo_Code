@@ -69,13 +69,14 @@ public final class MeterDataFactory {
      * Creates a list of {@link EndDeviceEvent EndDeviceEvents} based on the given DeviceLogBook
      *
      * @param deviceLogBook the collected LogBook which will serve as an input for the EndDeviceEvents
+     * @param logBookId
      * @return the newly created EndDeviceEvent list
      */
-    public static List<EndDeviceEvent> createEndDeviceEventsFor(DeviceLogBook deviceLogBook) {
+    public static List<EndDeviceEvent> createEndDeviceEventsFor(DeviceLogBook deviceLogBook, long logBookId) {
         List<EndDeviceEvent> endDeviceEvents = new ArrayList<>();
         for (MeterProtocolEvent meterProtocolEvent : deviceLogBook.getCollectedMeterEvents()) {
-            EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(meterProtocolEvent.getEventType().getName(), meterProtocolEvent.getTime());
-            endDeviceEvent.setLogBookId(meterProtocolEvent.getEventLogId());
+            EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(meterProtocolEvent.getEventType().getMRID(), meterProtocolEvent.getTime());
+            endDeviceEvent.setLogBookId(logBookId);
             endDeviceEvent.setLogBookPosition(meterProtocolEvent.getDeviceEventId());
             endDeviceEvents.add(endDeviceEvent);
         }

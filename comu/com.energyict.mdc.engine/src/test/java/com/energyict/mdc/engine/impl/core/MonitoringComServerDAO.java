@@ -23,11 +23,11 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 
@@ -130,7 +130,13 @@ public class MonitoringComServerDAO implements ComServerDAO {
         return null;
     }
 
-//    @Override
+    @Override
+    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+        return null;
+    }
+
+
+    //    @Override
 //    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
 //        return null;
 //    }
@@ -252,7 +258,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
         this.actual.updateLastLogBook(logBookIdentifier, lastLogBook);
     }
 
@@ -324,7 +330,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook) {
+        public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
 
         }
 
@@ -348,7 +354,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
             return null;
         }
 
-//        @Override
+        @Override
+        public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+            return null;
+        }
+
+        //        @Override
 //        public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
 //            return null;
 //        }

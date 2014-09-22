@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.mocks;
 
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -26,6 +25,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -259,7 +259,12 @@ public class MockComServerDAO implements ComServerDAO {
         return null;
     }
 
-//    @Override
+    @Override
+    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+        return null;
+    }
+
+    //    @Override
 //    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
 //        return null;
 //    }
@@ -461,7 +466,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
 
     }
 

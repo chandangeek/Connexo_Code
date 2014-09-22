@@ -1,18 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseLogBook} data into the system
@@ -26,9 +19,6 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     private final MeterDataStoreCommand meterDataStoreCommand;
     private ComServerDAO comServerDAO;
 
-
-    private interface Duo<A,B>{}
-
     public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook, MeterDataStoreCommand meterDataStoreCommand) {
         super();
         this.deviceLogBook = deviceLogBook;
@@ -38,31 +28,17 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         this.comServerDAO = comServerDAO;
-        LocalLogBook localLogBook = filterFutureDatesAndCalculateLastReading();
-        storeEventsAndUpdateLastLogbook(localLogBook);
+        PreStoreLogBook logBookPreStorer = new PreStoreLogBook(getClock(), comServerDAO);
+        PreStoreLogBook.LocalLogBook localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
+        updateMeterDataStorer(localLogBook);
     }
 
-    private void storeEventsAndUpdateLastLogbook(LocalLogBook localLogBook) {
-        if (localLogBook.endDeviceEvents.size() > 0) {
+    private void updateMeterDataStorer(final PreStoreLogBook.LocalLogBook localLogBook) {
+        if (localLogBook.getEndDeviceEvents().size() > 0) {
             DeviceIdentifier<Device> deviceIdentifier = this.comServerDAO.getDeviceIdentifierFor(this.deviceLogBook.getLogBookIdentifier());
-            this.meterDataStoreCommand.addEventReadings(deviceIdentifier, localLogBook.endDeviceEvents);
-            this.meterDataStoreCommand.addLastLogBookUpdater(this.deviceLogBook.getLogBookIdentifier(), localLogBook.lastLogbook);
+            this.meterDataStoreCommand.addEventReadings(deviceIdentifier, localLogBook.getEndDeviceEvents());
+            this.meterDataStoreCommand.addLastLogBookUpdater(this.deviceLogBook.getLogBookIdentifier(), localLogBook.getLastLogbook());
         }
-    }
-
-    private LocalLogBook filterFutureDatesAndCalculateLastReading() {
-        List<EndDeviceEvent> filteredEndDeviceEvents = new ArrayList<>();
-        EndDeviceEvent lastLogbook = null;
-        Date currentDate = getClock().now();
-        for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(this.deviceLogBook)) {
-            if (!endDeviceEvent.getCreatedDateTime().after(currentDate)) {
-                filteredEndDeviceEvents.add(endDeviceEvent);
-                if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().after(lastLogbook.getCreatedDateTime())) {
-                    lastLogbook = endDeviceEvent;
-                }
-            }
-        }
-        return new LocalLogBook(filteredEndDeviceEvents, lastLogbook);
     }
 
     @Override
@@ -76,16 +52,5 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     @Override
     public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.INFO;
-    }
-
-    private class LocalLogBook implements Duo<List<EndDeviceEvent>, Date> {
-
-        private final List<EndDeviceEvent> endDeviceEvents;
-        private final EndDeviceEvent lastLogbook;
-
-        private LocalLogBook(List<EndDeviceEvent> endDeviceEvents, EndDeviceEvent lastLogBook) {
-            this.endDeviceEvents = endDeviceEvents;
-            this.lastLogbook = lastLogBook;
-        }
     }
 }

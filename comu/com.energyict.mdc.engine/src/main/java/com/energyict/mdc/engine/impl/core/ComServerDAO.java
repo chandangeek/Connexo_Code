@@ -21,6 +21,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -297,6 +298,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
 
+    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier);
+
     //TODO enable once messages are ported
 //    /**
 //     * Finds the DeviceMessage that is uniquely identified
@@ -393,5 +396,6 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading);
 
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook);
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook);
+
 }

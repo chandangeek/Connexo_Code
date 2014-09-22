@@ -28,6 +28,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComJobFactory;
@@ -54,12 +55,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -253,6 +254,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         return new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile());
+    }
+
+    @Override
+    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+        return new OfflineLogBookImpl((LogBook) logBookIdentifier.getLogBook());
     }
 
     //    @Override
@@ -680,10 +686,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
         LogBook logBook = (LogBook) logBookIdentifier.getLogBook();
         LogBook.LogBookUpdater logBookUpdater = logBook.getDevice().getLogBookUpdaterFor(logBook);
-        logBookUpdater.setLastLogBookIfLater(lastLogBook.getCreatedDateTime());
+        logBookUpdater.setLastLogBookIfLater(lastLogBook);
         logBookUpdater.setLastReadingIfLater(getClock().now()); // We assume the event will be persisted with a time difference of only a few milliseconds
         logBookUpdater.update();
     }
