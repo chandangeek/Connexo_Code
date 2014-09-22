@@ -80,6 +80,11 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                         ptype: 'gridviewdragdrop',
                         dragGroup: allItems,
                         dropGroup: selectedItems
+                    },
+                    listeners: {
+                        drop: function (node, data, dropRec, dropPosition) {
+                            me.getAllItemsStore().sort(me.displayedColumn, 'ASC');
+                        }
                     }
                 },
                 height: 400,
@@ -87,6 +92,7 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
             },
             {
                 xtype: 'container',
+                margin: '0 10',
                 layout: {
                     type: 'vbox',
                     align: 'center',
@@ -103,6 +109,7 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                     {
                         xtype: 'button',
                         itemId: 'selectAllItems',
+                        width: 50,
                         text: '>>',
                         handler: function () {
                             me.selectAllItems();
@@ -111,7 +118,8 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                     {
                         xtype: 'button',
                         itemId: 'selectItems',
-                        text: ' >',
+                        width: 50,
+                        text: '>',
                         handler: function () {
                             me.selectItems();
                         }
@@ -119,7 +127,8 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                     {
                         xtype: 'button',
                         itemId: 'deselectItems',
-                        text: '< ',
+                        width: 50,
+                        text: '<',
                         handler: function () {
                             me.deselectItems();
 
@@ -128,6 +137,7 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                     {
                         xtype: 'button',
                         itemId: 'deselectAllItems',
+                        width: 50,
                         text: '<<',
                         handler: function () {
                             me.deselectAllItems();
@@ -155,6 +165,11 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                         ptype: 'gridviewdragdrop',
                         dragGroup: selectedItems,
                         dropGroup: allItems
+                    },
+                    listeners: {
+                        drop: function (node, data, dropRec, dropPosition) {
+                            me.getSelectedItemsStore().sort(me.displayedColumn, 'ASC');
+                        }
                     }
                 },
                 height: 400,
@@ -203,6 +218,8 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
             });
             allItemsStore.removeAll();
         }
+
+        selectedItemsStore.sort(this.displayedColumn, 'ASC');
     },
 
     selectItems: function () {
@@ -217,6 +234,8 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                 selectedItemsStore.add(record);
             });
         }
+
+        selectedItemsStore.sort(this.displayedColumn, 'ASC');
     },
 
     deselectItems: function () {
@@ -231,6 +250,8 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                 selectedItemsStore.remove(record);
             });
         }
+
+        allItemsStore.sort(this.displayedColumn, 'ASC');
     },
 
     deselectAllItems: function () {
@@ -243,5 +264,7 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
             });
             selectedItemsStore.removeAll();
         }
+
+        allItemsStore.sort(this.displayedColumn, 'ASC');
     }
 });
