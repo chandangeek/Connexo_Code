@@ -8,10 +8,12 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupActionMenu', {
     items: [
         {
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+            itemId: 'editRegisterGroup',
             action: 'editRegisterGroup'
         },
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+            itemId: 'removeRegisterGroup',
             action: 'removeRegisterGroup'
         }
     ]
