@@ -72,7 +72,9 @@ public class DeviceMessageServiceImpl implements DeviceMessageService, InstallSe
                         DeviceMessageCategories.GENERAL,
                         DeviceMessageCategories.PRICING_INFORMATION,
                         DeviceMessageCategories.CONFIGURATION_CHANGE,
-                        DeviceMessageCategories.ZIGBEE_CONFIGURATION);
+                        DeviceMessageCategories.ZIGBEE_CONFIGURATION,
+                        DeviceMessageCategories.CHANNEL_CONFIGURATION,
+                        DeviceMessageCategories.EIWEB_PARAMETERS);
         EnumSet<DeviceMessageCategories> included = EnumSet.complementOf(excluded);
         return included.stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList());
     }
