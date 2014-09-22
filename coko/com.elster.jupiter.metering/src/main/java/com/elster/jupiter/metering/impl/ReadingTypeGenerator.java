@@ -12,12 +12,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.cbo.Accumulation.DELTADELTA;
+import static com.elster.jupiter.cbo.Commodity.DEVICE;
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.*;
-import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
+import static com.elster.jupiter.cbo.MeasurementKind.*;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
-import static com.elster.jupiter.cbo.ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR;
-import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.*;
 import static com.elster.jupiter.cbo.TimeAttribute.*;
 
 
@@ -65,16 +65,29 @@ public final class ReadingTypeGenerator {
         ACTIVE_ENERGY_EXPORT_TARIF_2_KWH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).tou(2), "Active Energy Export Tariff 2 (kWh)"),
         ACTIVE_ENERGY_EXPORT_TARIF_2_WH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(WATTHOUR).tou(2), "Active Energy Export Tariff 2 (Wh)");
 
-		private final ReadingTypeCodeBuilder builder;
-		private final String name;
+        private final ReadingTypeCodeBuilder builder;
+        private final String name;
 
-		Root(ReadingTypeCodeBuilder builder , String name) {
-			this.builder = builder;
-			this.name = name;
-		}
-	}
-	
-	private final List<ReadingTypeImpl> readingTypes = new ArrayList<>();
+        Root(ReadingTypeCodeBuilder builder , String name) {
+            this.builder = builder;
+            this.name = name;
+        }
+    }
+
+    private enum FinalRoot {
+        ACTIVE_FIRMWARE_VERSION(ReadingTypeCodeBuilder.of(DEVICE).measure(ASSETNUMBER).in(ENCODEDVALUE), "Active firmware version"),
+        AMR_PROFILE_STATUS_CODE(ReadingTypeCodeBuilder.of(DEVICE).measure(DIAGNOSTIC).in(BOOLEANARRAY), "AMR Profile status code"),
+        ALARM_REGISTER(ReadingTypeCodeBuilder.of(DEVICE).measure(ALARM).in(BOOLEANARRAY), "Alarm register"),;
+        private final ReadingTypeCodeBuilder builder;
+        private final String name;
+
+        FinalRoot(ReadingTypeCodeBuilder builder, String name) {
+            this.builder = builder;
+            this.name = name;
+        }
+    }
+
+    private final List<ReadingTypeImpl> readingTypes = new ArrayList<>();
     private final MeteringServiceImpl meteringService;
 	
 	static List<ReadingTypeImpl> generate(MeteringServiceImpl meteringService) {
@@ -85,7 +98,10 @@ public final class ReadingTypeGenerator {
 		for (Root root : Root.values()) {
 			generate(root);
 		}
-		return readingTypes;
+        for (FinalRoot finalRoot : FinalRoot.values()) {
+            readingTypes.add(meteringService.createReadingType(finalRoot.builder.code(), finalRoot.name));
+        }
+        return readingTypes;
 	}
 	
 	private void generate(Root root) {
