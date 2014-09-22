@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -11,11 +15,10 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -43,9 +46,9 @@ public class ResourceHelper {
 
     public Register findRegisterOrThrowException(Device device, long registerId) {
         List<Register> registers = device.getRegisters();
-        for(Register register : registers) {
+        for (Register register : registers) {
             Optional<RegisterSpec> registerSpecOptional = Optional.fromNullable(register.getRegisterSpec());
-            if(registerSpecOptional.isPresent() && registerSpecOptional.get().getId() == registerId) {
+            if (registerSpecOptional.isPresent() && registerSpecOptional.get().getId() == registerId) {
                 return register;
             }
         }
@@ -55,7 +58,7 @@ public class ResourceHelper {
 
     public LoadProfile findLoadProfileOrThrowException(Device device, long loadProfileId) {
         for (LoadProfile loadProfile : device.getLoadProfiles()) {
-            if (loadProfile.getId()==loadProfileId) {
+            if (loadProfile.getId() == loadProfileId) {
                 return loadProfile;
             }
         }
@@ -64,7 +67,7 @@ public class ResourceHelper {
 
     public Channel findChannelOrThrowException(LoadProfile loadProfile, long channelId) {
         for (Channel channel : loadProfile.getChannels()) {
-            if (channel.getChannelSpec().getId()==channelId) {
+            if (channel.getChannelSpec().getId() == channelId) {
                 return channel;
             }
         }
@@ -73,7 +76,7 @@ public class ResourceHelper {
 
     public Condition getQueryConditionForDevice(StandardParametersBean params) {
         Condition condition = Condition.TRUE;
-        if(params.getQueryParameters().size() > 0) {
+        if (params.getQueryParameters().size() > 0) {
             condition = condition.and(addDeviceQueryCondition(params));
         }
         return condition;
@@ -83,23 +86,23 @@ public class ResourceHelper {
         Condition conditionDevice = Condition.TRUE;
         String mRID = params.getFirst("mRID");
         if (mRID != null) {
-            conditionDevice =  !params.isRegExp()
+            conditionDevice = !params.isRegExp()
                     ? conditionDevice.and(where("mRID").isEqualTo(mRID))
                     : conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
         }
         String serialNumber = params.getFirst("serialNumber");
         if (serialNumber != null) {
-            conditionDevice =  !params.isRegExp()
+            conditionDevice = !params.isRegExp()
                     ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
                     : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
         }
         String deviceType = params.getFirst("deviceTypeName");
         if (deviceType != null) {
-            conditionDevice = conditionDevice.and(createMultipleConditions(deviceType,"deviceConfiguration.deviceType.name"));
+            conditionDevice = conditionDevice.and(createMultipleConditions(deviceType, "deviceConfiguration.deviceType.name"));
         }
         String deviceConfiguration = params.getFirst("deviceConfigurationName");
         if (deviceConfiguration != null) {
-            conditionDevice = conditionDevice.and(createMultipleConditions(deviceConfiguration,"deviceConfiguration.name"));
+            conditionDevice = conditionDevice.and(createMultipleConditions(deviceConfiguration, "deviceConfiguration.name"));
         }
         return conditionDevice;
     }
@@ -123,6 +126,17 @@ public class ResourceHelper {
         return meterRef.get();
     }
 
+    Meter getOrCreateMeterFor(Device device) {
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        Meter meter = getMeterFor(device);
+        if (meter != null) {
+            return meter;
+        }
+        meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
+        meter.save();
+        return meter;
+    }
+
     public List<MeterActivation> getMeterActivationsMostCurrentFirst(Meter meter) {
         List<MeterActivation> activations = new ArrayList<>(meter.getMeterActivations());
         Collections.reverse(activations);
@@ -132,7 +146,7 @@ public class ResourceHelper {
     public Optional<com.elster.jupiter.metering.Channel> getRegisterChannel(Register register, Meter meter) {
         for (MeterActivation meterActivation : getMeterActivationsMostCurrentFirst(meter)) {
             Optional<com.elster.jupiter.metering.Channel> channelRef = getChannel(meterActivation, register.getRegisterSpec().getRegisterType().getReadingType());
-            if(channelRef.isPresent()) {
+            if (channelRef.isPresent()) {
                 return channelRef;
             }
         }
