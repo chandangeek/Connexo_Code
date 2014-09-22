@@ -31,7 +31,6 @@
 -keep interface *
 -keep class * implements com.energyict.protocol.SmartMeterProtocol
 -keep class * implements com.energyict.protocol.MeterProtocol
--keep class * implements com.energyict.mdw.amr.GenericProtocol
 
 # Keep names - Native method names. Keep all native class/method names.
 -keepclasseswithmembernames class * {
