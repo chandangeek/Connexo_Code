@@ -119,6 +119,21 @@ public class DeviceComTaskResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
+            comTaskExecutions.forEach(runComTaskFromExecutionNow(device));
+        } else if(comTaskExecutions.size()==0){
+            throw exceptionFactory.newException(MessageSeeds.RUN_COMTASK__NOT_ALLOWED);
+        }
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{comTaskId}/runnow")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response runnow(@PathParam("mRID") String mrid,@PathParam("comTaskId") Long comTaskId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
+        if(comTaskExecutions.size()>0){
             comTaskExecutions.forEach(runComTaskFromExecution(device));
         } else if(comTaskExecutions.size()==0){
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
@@ -142,7 +157,11 @@ public class DeviceComTaskResource {
     }
 
     private Consumer<? super ComTaskExecution> runComTaskFromExecution(Device device) {
-        return comTaskExecution -> comTaskExecution.scheduleNow();
+        return ComTaskExecution::scheduleNow;
+    }
+
+    private Consumer<? super ComTaskExecution> runComTaskFromExecutionNow(Device device) {
+        return ComTaskExecution::runNow;
     }
 
 

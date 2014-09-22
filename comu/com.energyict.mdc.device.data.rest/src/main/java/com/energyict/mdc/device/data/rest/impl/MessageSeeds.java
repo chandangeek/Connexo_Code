@@ -55,7 +55,9 @@ public enum MessageSeeds implements MessageSeed {
     ON_HOLD(66, "OnHold", "On hold"),
     RETRYING(67, "Retrying", "Retrying"),
     NEVER_COMPLETED(68, "NeverCompleted", "Never completed"),
-    WAITING(69, "Waiting", "Waiting");
+    WAITING(69, "Waiting", "Waiting"),
+    DEFAULT(70, "Default", "Default"),
+    DEFAULT_NOT_DEFINED(71, "DefaultNotDefined", "Default (not defined yet)");
 
 
     private final int number;
