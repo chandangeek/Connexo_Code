@@ -1,26 +1,16 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.TaskService;
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -28,19 +18,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
-
-import com.google.common.base.Optional;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
 import org.joda.time.DateTimeConstants;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,71 +27,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SchedulingResourceTest extends JerseyTest {
-
-    private static NlsService nlsService;
-    private static Thesaurus thesaurus;
-    private static Clock clock;
-    private static SchedulingService schedulingService;
-    private static DeviceDataService deviceDataService;
-    private static DeviceConfigurationService deviceConfigurationService;
-    private static TaskService taskService;
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        schedulingService = mock(SchedulingService.class);
-        deviceDataService = mock(DeviceDataService.class);
-        deviceConfigurationService = mock(DeviceConfigurationService.class);
-        taskService = mock(TaskService.class);
-        clock = mock(Clock.class);
-        nlsService = mock(NlsService.class);
-        thesaurus = mock(Thesaurus.class);
-    }
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        reset();
-    }
-
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(
-                SchedulingResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
-                LocalizedExceptionMapper.class);
-        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(schedulingService).to(SchedulingService.class);
-                bind(deviceDataService).to(DeviceDataService.class);
-                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-                bind(taskService).to(TaskService.class);
-                bind(nlsService).to(NlsService.class);
-                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-                bind(thesaurus).to(Thesaurus.class);
-                bind(clock).to(Clock.class);
-            }
-        });
-        return resourceConfig;
-    }
-
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class); // client side JSON processing
-
-        super.configureClient(config);
-    }
+public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
 
     @Test
     public void testGetEmptyScheduleList() throws Exception {
