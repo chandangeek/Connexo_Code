@@ -5,6 +5,15 @@ Ext.define('Mdc.model.LoadProfileType', {
         {name:'name', type: 'string'},
         {name:'obisCode', type: 'string'},
         {name:'timeDuration', type: 'auto'},
-        {name:'measurementTypes', type: 'auto'}
-    ]
+        {name:'measurementTypes', type: 'auto'},
+        {name:'isLinkedToActiveDeviceConf', type: 'boolean'}
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '../../api/mds/loadprofiles',
+        reader: {
+            type: 'json'
+        }
+    }
 });

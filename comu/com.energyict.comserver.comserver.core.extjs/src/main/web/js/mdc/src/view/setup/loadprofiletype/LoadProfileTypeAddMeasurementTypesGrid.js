@@ -1,9 +1,7 @@
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid', {
     extend: 'Uni.view.grid.BulkSelection',
-    xtype: 'loadProfileTypeAddMeasurementTypesGrid',
-
-    itemId: 'loadProfileTypeAddMeasurementTypesGrid',
-    store: 'MeasurementTypesToAdd',
+    alias: 'widget.load-profile-type-add-measurement-types-grid',
+    store: 'Mdc.store.MeasurementTypesToAdd',
 
     requires: [
         'Uni.grid.column.Obis',
@@ -49,12 +47,5 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
             dataIndex: 'readingType',
             align: 'right'
         }
-    ],
-
-    initComponent: function () {
-        var me = this;
-
-        me.cancelHref = '#/administration/loadprofiletypes/create';
-        me.callParent(arguments);
-    }
+    ]
 });
