@@ -18,18 +18,10 @@ Ext.define('Usr.controller.Main', {
         'Usr.store.Users'
     ],
 
-    config: {
-        navigationController: null
-    },
-
     refs: [
         {
             ref: 'viewport',
             selector: 'viewport'
-        },
-        {
-            ref: 'contentPanel',
-            selector: 'viewport > #contentPanel'
         }
     ],
 
@@ -37,13 +29,7 @@ Ext.define('Usr.controller.Main', {
         var me = this,
             historian = me.getController('Usr.controller.history.UserManagement'); // Forces route registration.
 
-        me.initNavigation();
         me.initMenu();
-    },
-
-    initNavigation: function () {
-        var controller = this.getController('Uni.controller.Navigation');
-        this.setNavigationController(controller);
     },
 
     initMenu: function () {
@@ -90,13 +76,10 @@ Ext.define('Usr.controller.Main', {
         }
     },
 
+    /**
+     * @deprecated Fire an event instead, as shown below.
+     */
     showContent: function (widget) {
-        this.clearContentPanel();
-        this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
-    },
-
-    clearContentPanel: function () {
-        this.getContentPanel().removeAll(false);
+        this.getApplication().fireEvent('changecontentevent', widget);
     }
 });
