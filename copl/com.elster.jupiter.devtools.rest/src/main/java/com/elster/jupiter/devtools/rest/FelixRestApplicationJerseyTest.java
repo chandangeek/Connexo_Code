@@ -1,6 +1,5 @@
 package com.elster.jupiter.devtools.rest;
 
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -17,10 +16,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -90,9 +87,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
             }
             return (String) invocationOnMock.getArguments()[1];
         });
-        NlsMessageFormat mft = mock(NlsMessageFormat.class);
-        when(mft.format(any(Object[].class))).thenReturn("format");
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(mft);
+        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenAnswer(invocation->new SimpleNlsMessageFormat((MessageSeed)invocation.getArguments()[0]));
         when(transactionService.getContext()).thenReturn(transactionContext);
     }
 
