@@ -16,26 +16,29 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     public static final String BATTERY_LOW = "BATTERY_LOW";
     public static final Date NOW = new Date(1410786205000L);
+    public static final Date LAST_CHECKED = new Date(1409570229000L);
     public static final long CHANNEL_ID1 = 151521354L;
     public static final long CHANNEL_ID2 = 7487921005L;
     private static long intervalStart = 1410774630000L;
@@ -159,6 +162,34 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
+    }
+
+    @Test
+    public void testValidate() {
+        when(loadProfile.getDevice()).thenReturn(device);
+        when(device.forValidation()).thenReturn(deviceValidation);
+
+        Response response = target("devices/1/loadprofiles/1/validate")
+                .request()
+                .put(Entity.json(new TriggerValidationInfo()));
+
+        assertThat(response.getEntity()).isNotNull();
+        verify(deviceValidation).validateLoadProfile(loadProfile, null, NOW);
+    }
+
+    @Test
+    public void testValidateWithDate() {
+        when(loadProfile.getDevice()).thenReturn(device);
+        when(device.forValidation()).thenReturn(deviceValidation);
+
+        TriggerValidationInfo triggerValidationInfo = new TriggerValidationInfo();
+        triggerValidationInfo.lastChecked = LAST_CHECKED.getTime();
+        Response response = target("devices/1/loadprofiles/1/validate")
+                .request()
+                .put(Entity.json(triggerValidationInfo));
+
+        assertThat(response.getEntity()).isNotNull();
+        verify(deviceValidation).validateLoadProfile(loadProfile, LAST_CHECKED, NOW);
     }
 
 }

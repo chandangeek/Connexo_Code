@@ -127,11 +127,15 @@ public class ResourceHelper {
     }
 
     Meter getOrCreateMeterFor(Device device) {
-        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
         Meter meter = getMeterFor(device);
         if (meter != null) {
             return meter;
         }
+        return createMeter(device);
+    }
+
+    private Meter createMeter(Device device) {
+        Meter meter;AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
         meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
         meter.save();
         return meter;

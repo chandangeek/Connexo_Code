@@ -1,9 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -42,7 +39,6 @@ import java.time.temporal.ChronoField;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -163,35 +159,21 @@ public class LoadProfileResource {
     @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
     public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        Meter meter = resourceHelper.getOrCreateMeterFor(device);
 
         LoadProfile loadProfile = device.getLoadProfiles().stream()
                 .filter(l -> l.getId() == loadProfileId)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, loadProfileId));
 
-        Set<ReadingType> readingTypes = loadProfile.getChannels().stream()
-                .map(Channel::getReadingType)
-                .collect(Collectors.toSet());
 
-        Date now = clock.now();
-        if (validationInfo.lastChecked != null) {
-            Date start = new Date(validationInfo.lastChecked);
-            Interval interval = Interval.startAt(start).withEnd(now);
-            meter.getMeterActivations().stream()
-                    .filter(m -> m.getInterval().overlaps(interval))
-                    .flatMap(m -> m.getChannels().stream())
-                    .filter(c -> readingTypes.contains(c.getMainReadingType()))
-                    .forEach(c -> validationService.validate(c.getMeterActivation(), c.getMainReadingType().getMRID(), interval));
-        } else {
-            meter.getMeterActivations().stream()
-                    .flatMap(m -> m.getChannels().stream())
-                    .filter(c -> readingTypes.contains(c.getMainReadingType()))
-                    .map(c -> Pair.of(c, new Interval(validationService.getLastChecked(c).or(c.getMeterActivation().getStart()), now)))
-                    .forEach(p -> validationService.validate(p.getFirst().getMeterActivation(), p.getFirst().getMainReadingType().getMRID(), p.getLast() ));
-        }
+        Date start = validationInfo.lastChecked == null ? null : new Date(validationInfo.lastChecked);
+        validateLoadProfile(loadProfile, start);
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private void validateLoadProfile(LoadProfile loadProfile, Date start) {
+        loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile, start, clock.now());
     }
 
     private boolean hasSuspects(LoadProfileDataInfo info) {
