@@ -8,9 +8,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         'setup.loadprofiletype.LoadProfileTypeFiltering',
         'setup.loadprofiletype.LoadProfileTypeGrid',
         'setup.loadprofiletype.LoadProfileTypePreview',
-        'setup.loadprofiletype.LoadProfileTypeForm',
-        'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesView',
-        'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid'
+        'Mdc.view.setup.loadprofiletype.LoadProfileTypeEdit'
     ],
 
     stores: [
@@ -20,19 +18,20 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         'Mdc.store.Intervals'
     ],
 
+    models: [
+        'Mdc.model.LoadProfileType'
+    ],
+
     refs: [
         {ref: 'loadTypeGrid', selector: 'loadProfileTypeSetup #loadProfileTypeGrid'},
         {ref: 'loadTypePreview', selector: 'loadProfileTypeSetup #loadProfileTypePreview'},
         {ref: 'loadTypeCountContainer', selector: 'loadProfileTypeSetup #loadProfileTypesCountContainer'},
         {ref: 'loadTypeEmptyListContainer', selector: 'loadProfileTypeSetup #loadProfileTypeEmptyListContainer'},
-        {ref: 'addMeasurementTypesGrid', selector: 'loadProfileTypeAddMeasurementTypesView #loadProfileTypeAddMeasurementTypesGrid'},
-        {ref: 'addMeasurementTypesView', selector: '#loadProfileTypeAddMeasurementTypesView'},
-        {ref: 'addMeasurementTypesCount', selector: '#measurementTypesCountContainer'},
-        {ref: 'uncheckMeasurementButton', selector: '#uncheckAllMeasurementTypes'},
-        {ref: 'loadTypeForm', selector: '#LoadProfileTypeFormId'},
         {ref: 'loadProfileSorting', selector: '#LoadProfileTypeSorting'},
         {ref: 'loadProfileFiltering', selector: '#LoadProfileTypeFiltering'},
-        {ref: 'loadProfileDockedItems', selector: '#LoadProfileTypeDockedItems'}
+        {ref: 'loadProfileDockedItems', selector: '#LoadProfileTypeDockedItems'},
+        {ref: 'editPage', selector: 'load-profile-type-edit #load-profile-type-edit'},
+        {ref: 'setupPage', selector: 'loadProfileTypeSetup'}
     ],
 
     init: function () {
@@ -40,21 +39,18 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             'loadProfileTypeSetup loadProfileTypeGrid': {
                 select: this.loadGridItemDetail
             },
-            'loadProfileTypeAddMeasurementTypesView': {
-                afterrender: this.measurementTypesLoad
-            },
-            'loadProfileTypeAddMeasurementTypesView loadProfileTypeAddMeasurementTypesGrid': {
+            'load-profile-type-edit #load-profile-type-add-measurement-types-grid': {
                 allitemsadd: this.onAllMeasurementTypesAdd,
                 selecteditemsadd: this.onSelectedMeasurementTypesAdd
             },
-            'loadProfileTypeForm button[name=loadprofiletypeaction]': {
-                click: this.onSubmit
-            },
-            '#LoadProfileTypeFormId #MeasurementTypesGrid actioncolumn': {
+            'load-profile-type-edit #measurement-types-grid actioncolumn': {
                 click: this.removeMeasurementType
             },
             'button[action=loadprofiletypenotificationerrorretry]': {
                 click: this.retrySubmit
+            },
+            'load-profile-type-edit #load-profile-type-edit-form #save-load-profile-type-button': {
+                click: this.saveLoadProfileType
             }
         });
 
@@ -62,17 +58,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         this.store = this.getStore('LoadProfileTypes');
         this.measurementTypesStore = this.getStore('MeasurementTypesToAdd');
         this.selectedMeasurementTypesStore = this.getStore('SelectedMeasurementTypesForLoadProfileType');
-    },
-
-    measurementTypesLoad: function () {
-        var me = this;
-        this.measurementTypesStore.load({callback: function () {
-            me.checkAndMarkMeasurementTypes();
-        }});
-    },
-
-    removeMeasurementType: function (grid, index, id, row, event, record) {
-        this.selectedMeasurementTypesStore.remove(record);
     },
 
     editRecord: function () {
@@ -99,121 +84,34 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     confirmationPanelHandler: function (state, text, conf) {
         var me = conf.config.me,
             grid = me.getLoadTypeGrid(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+            model = grid.getView().getSelectionModel().getLastSelected(),
+            widget = me.getSetupPage();
 
         if (state === 'confirm') {
             this.close();
-            Ext.Ajax.request({
-                url: '/api/mds/loadprofiles/' + lastSelected.getData().id,
-                method: 'DELETE',
-                waitMsg: 'Removing...',
-                success: function () {
-                    me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type was removed successfully'));
-                    me.store.loadPage(1);
-                },
-                failure: function (response) {
-                    var errorText,
-                        errorTitle;
+            widget.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
+            model.destroy({
+                callback: function (model, operation, success) {
+                    var json;
 
-                    if (response.status == 400) {
-                        errorText = Ext.decode(response.responseText, true).message;
-                        errorTitle = Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile');
+                    widget.setLoading(false);
 
-                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                    if (success) {
+                        me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type was removed successfully'));
+                        me.store.loadPage(1);
+                    } else {
+                        json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.message) {
+                            me.getApplication().getController(
+                                'Uni.controller.Error').showError(Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile'),
+                                json.message
+                            );
+                        }
                     }
                 }
             });
         } else if (state === 'cancel') {
             this.close();
-        }
-    },
-
-    retrySubmit: function (btn) {
-        var formPanel = this.getLoadTypeForm();
-        btn.up('messagebox').hide();
-        if (!Ext.isEmpty(formPanel)) {
-            var submitBtn = formPanel.down('button[name=loadprofiletypeaction]');
-            if (!Ext.isEmpty(submitBtn)) {
-                this.onSubmit(submitBtn);
-            }
-        }
-    },
-
-    onSubmit: function (btn) {
-        var me = this,
-            formPanel = me.getLoadTypeForm(),
-            form = formPanel.getForm(),
-            formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
-            formValue = form.getValues(),
-            timeDurationId = formValue.timeDuration,
-            measurementTypesErrorPanel = formPanel.down('fieldcontainer').down('panel[name=measurementTypesErrors]'),
-            jsonValues;
-        formValue['measurementTypes'] = [];
-        if (form.isValid() && me.selectedMeasurementTypesStore.getCount() > 0) {
-            me.selectedMeasurementTypesStore.each(function (value) {
-                formValue.measurementTypes.push({'id': value.getData().id});
-            });
-            formValue.timeDuration = { id: timeDurationId };
-            jsonValues = Ext.JSON.encode(formValue);
-            formErrorsPanel.hide();
-            switch (btn.action) {
-                case 'add':
-                    formPanel.setLoading(Uni.I18n.translate('general.adding', 'MDC', 'Adding...'));
-                    Ext.Ajax.request({
-                        url: '/api/mds/loadprofiles',
-                        method: 'POST',
-                        jsonData: jsonValues,
-                        success: function () {
-                            me.handleSuccessRequest('Load profile type saved');
-                        },
-                        failure: function(response){
-                            var json = Ext.decode(response.responseText, true);
-                            if (json && json.errors) {
-                                form.markInvalid(json.errors);
-                            }
-                        },
-                        callback: function () {
-                            formPanel.setLoading(false);
-                        }
-                    });
-                    break;
-                case 'save':
-                    preloader = Ext.create('Ext.LoadMask', {
-                        msg: "Updating load profile form",
-                        target: formPanel
-                    });
-                    preloader.show();
-                    Ext.Ajax.request({
-                        url: '/api/mds/loadprofiles/' + me.loadProfileTypeId,
-                        method: 'PUT',
-                        jsonData: jsonValues,
-                        success: function () {
-                            me.handleSuccessRequest('Load profile type saved');
-                        },
-                        failure: function(response){
-                            var json = Ext.decode(response.responseText);
-                            if (json && json.errors) {
-                                form.markInvalid(json.errors);
-                            }
-                        },
-                        callback: function () {
-                            preloader.destroy();
-                        }
-                    });
-            }
-        } else {
-            if (me.selectedMeasurementTypesStore.getCount() == 0) {
-                measurementTypesErrorPanel.hide();
-                measurementTypesErrorPanel.removeAll();
-                measurementTypesErrorPanel.add({
-                    html: 'You need to add at least one measurement type',
-                    style: {
-                        color: 'red'
-                    }
-                });
-                measurementTypesErrorPanel.show();
-            }
-            formErrorsPanel.show();
         }
     },
 
@@ -248,36 +146,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             msg: errormsgs,
             icon: Ext.MessageBox.ERROR
         })
-    },
-
-    onAllMeasurementTypesAdd: function () {
-        this.addMeasurementTypes([]);
-    },
-
-    onSelectedMeasurementTypesAdd: function (selection) {
-        this.addMeasurementTypes(selection);
-    },
-
-    addMeasurementTypes: function (selection) {
-        var me = this,
-            grid = me.getAddMeasurementTypesGrid();
-
-        if (Ext.isEmpty(selection)) {
-            selection = grid.getStore().data.items;
-        }
-
-        me.selectedMeasurementTypesStore.removeAll();
-        me.selectedMeasurementTypesStore.add(selection);
-
-        window.location = '#/administration/loadprofiletypes/create';
-    },
-
-    checkAndMarkMeasurementTypes: function () {
-        var me = this,
-            grid = this.getAddMeasurementTypesGrid(),
-            selectionModel = grid.getView().getSelectionModel();
-
-        selectionModel.select(me.selectedMeasurementTypesStore.data.items);
     },
 
     checkLoadProfileTypesCount: function () {
@@ -372,87 +240,146 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }
     },
 
-    showLoadProfileTypesCreateView: function () {
+    showEdit: function (id) {
         var me = this,
-            widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: 'Add load profile type', loadProfileTypeAction: 'Add', loadButtonAction: 'add', loadProfileTypeActionHref: 'create'}),
-            intervalCombobox = widget.down('combobox[name=timeDuration]');
-        me.measurementTypesStore.removeAll();
-        me.getApplication().fireEvent('changecontentevent', widget);
-        intervalCombobox.store = me.intervalStore;
-        me.intervalStore.load({callback: function () {
-            if (!Ext.isEmpty(me.temporallyFormValues)) {
-                me.loadTemporallyValues();
-            } else {
-                intervalCombobox.setValue(0);
-            }
-        }})
+            router = me.getController('Uni.controller.history.Router'),
+            returnLink = router.getRoute('administration/loadprofiletypes').buildUrl(),
+            currentRoute = router.currentRoute.replace('/addmeasurementtypes', ''),
+            addMeasurementTypesLink = router.getRoute(currentRoute + '/addmeasurementtypes').buildUrl(),
+            intervalsStore = me.getStore('Mdc.store.Intervals'),
+            widget,
+            form;
 
+        if (me.getEditPage()) {
+            this.getEditPage().getLayout().setActiveItem(0);
+            return;
+        }
+
+        widget = Ext.widget('load-profile-type-edit', {
+            currentRoute: router.getRoute(currentRoute).buildUrl()
+        });
+        me.getApplication().fireEvent('changecontentevent', widget);
+        form = widget.down('#load-profile-type-edit-form');
+
+        if (id) {
+            widget.setLoading(true);
+            me.getModel('Mdc.model.LoadProfileType').load(id, {
+                success: function (record) {
+                    me.getApplication().fireEvent('loadProfileType', record);
+
+                    if (intervalsStore.getCount()) {
+                        form.loadRecord(record);
+                    } else {
+                        intervalsStore.on('load', function () {
+                            form.loadRecord(record);
+                        }, me, {single: true});
+                    }
+
+                    if (record.get('isLinkedToActiveDeviceConf')) {
+                        form.down('[name=timeDuration]').disable();
+                        form.down('[name=obisCode]').disable();
+                        form.down('#measurement-types-fieldcontainer').disable();
+                        form.down('#measurement-types-grid').disable();
+                        router.getRoute(currentRoute).forward();
+                    }
+                },
+                callback: function () {
+                    form.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.editTitle', 'MDC', 'Edit load profile type'));
+                    form.setEdit(true, returnLink, addMeasurementTypesLink);
+                    widget.setLoading(false);
+                }
+            });
+        } else {
+            form.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.addTitle', 'MDC', 'Add load profile type'));
+            form.setEdit(false, returnLink, addMeasurementTypesLink);
+            form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
+        }
     },
 
-    showLoadProfileTypesEditView: function (loadProfileTypeId) {
-        var me = this;
-        me.loadProfileTypeId = loadProfileTypeId;
-        this.measurementTypesStore.removeAll();
-        Ext.Ajax.request({
-            url: '/api/mds/loadprofiles/' + me.loadProfileTypeId,
-            params: {},
-            method: 'GET',
-            success: function (response) {
-                var loadProfileType = Ext.JSON.decode(response.responseText),
-                    widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: Uni.I18n.translate('loadprofiletype.editloadprofiletypes', 'MDC', 'Edit load profile type'), loadProfileTypeAction: 'Save', loadButtonAction: 'save', loadProfileTypeActionHref: me.loadProfileTypeId + '/edit' }),
-                    nameField = widget.down('textfield[name=name]'),
-                    intervalCombobox = widget.down('combobox[name=timeDuration]'),
-                    obisCodeField = widget.down('[name=obisCode]'),
-                    measurementTypesView = widget.down('fieldcontainer');
+    showMeasurementTypesAddView: function (id) {
+        if (!this.getEditPage()) {
+            this.showEdit(id);
+        }
 
-                me.getApplication().fireEvent('loadProfileType', loadProfileType);
-                me.getApplication().fireEvent('changecontentevent', widget);
+        this.getStore('Mdc.store.MeasurementTypesToAdd').load();
+        this.getEditPage().getLayout().setActiveItem(1);
+    },
 
-                nameField.setValue(loadProfileType.name);
-                nameField.focus();
+    onAllMeasurementTypesAdd: function () {
+        var me = this,
+            measurementTypesToAddStore = me.getStore('Mdc.store.MeasurementTypesToAdd');
 
-                intervalCombobox.store = me.intervalStore;
-                intervalCombobox.setValue(loadProfileType.timeDuration.id);
-
-                obisCodeField.setValue(loadProfileType.obisCode);
-
-                if (loadProfileType.isLinkedToActiveDeviceConf) {
-                    intervalCombobox.disable();
-                    obisCodeField.disable();
-                    Ext.each(measurementTypesView.items.items, function (item) {
-                        item.disable();
-                    });
-                    measurementTypesView.disable();
-                }
-
-                Ext.each(loadProfileType.measurementTypes, function (measurementType) {
-                    me.selectedMeasurementTypesStore.add(measurementType);
-                });
-
-                me.loadProfileAction = 'Edit load profile type';
-                if (!Ext.isEmpty(me.temporallyFormValues)) {
-                    me.loadTemporallyValues();
-                }
+        measurementTypesToAddStore.getRange(0, 9999, {
+            callback: function (range) {
+                me.addMeasurementTypes(range);
             }
         });
     },
 
-    showMeasurementTypesAddView: function (id) {
-        var form = this.getLoadTypeForm();
+    onSelectedMeasurementTypesAdd: function (selection) {
+        this.addMeasurementTypes(selection);
+    },
 
-        if (!Ext.isEmpty(form)) {
-            this.saveTemporallyValues(form);
+    addMeasurementTypes: function (selection) {
+        var measurementTypesStore = this.getEditPage().down('#measurement-types-grid').getStore(),
+            router = this.getController('Uni.controller.history.Router');
+
+        router.getRoute(router.currentRoute.replace('/addmeasurementtypes', '')).forward();
+
+        measurementTypesStore.removeAll();
+        measurementTypesStore.add(selection);
+    },
+
+    removeMeasurementType: function (grid, index, id, row, event, record) {
+        grid.getStore().remove(record);
+    },
+
+    saveLoadProfileType: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            editPage = me.getEditPage(),
+            widget = editPage.up('load-profile-type-edit'),
+            form = editPage.down('#load-profile-type-edit-form'),
+            basicForm = form.getForm(),
+            formErrorsPanel = form.down('uni-form-error-message'),
+            model = form.getRecord();
+
+        formErrorsPanel.hide();
+        basicForm.clearInvalid();
+        form.updateRecord(model);
+
+        if (model.getId()) {
+            widget.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
+        } else {
+            widget.setLoading(Uni.I18n.translate('general.adding', 'MDC', 'Adding...'));
         }
-        var widget = Ext.widget('loadProfileTypeAddMeasurementTypesView');
-        this.getApplication().fireEvent('changecontentevent', widget);
-    },
 
-    saveTemporallyValues: function (form) {
-        this.temporallyFormValues = form.getValues();
-    },
+        model.save({
+            callback: function (model, operation, success) {
+                var messageText,
+                    json;
 
-    loadTemporallyValues: function () {
-        var form = this.getLoadTypeForm();
-        form.getForm().setValues(this.temporallyFormValues);
+                widget.setLoading(false);
+
+                if (success) {
+                    switch (operation.action) {
+                        case 'create':
+                            messageText = Uni.I18n.translate('loadProfileTypes.loadProfileTypeAdded', 'MDC', 'Load profile type added');
+                            break;
+                        case 'update':
+                            messageText = Uni.I18n.translate('loadProfileTypes.loadProfileTypeUpdated', 'MDC', 'Load profile type updated');
+                            break;
+                    }
+                    me.getApplication().fireEvent('acknowledge', messageText);
+                    router.getRoute('administration/loadprofiletypes').forward();
+                } else {
+                    json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        basicForm.markInvalid(json.errors);
+                        formErrorsPanel.show();
+                    }
+                }
+            }
+        });
     }
 });

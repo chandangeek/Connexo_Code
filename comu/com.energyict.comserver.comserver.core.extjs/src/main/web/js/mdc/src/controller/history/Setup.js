@@ -389,7 +389,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Add profile type',
                             route: 'create',
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
-                            action: 'showLoadProfileTypesCreateView',
+                            action: 'showEdit',
                             items: {
                                 addmeasurementtypes: {
                                     title: 'Add measurement types',
@@ -403,10 +403,10 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Edit profile type',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
-                            action: 'showLoadProfileTypesEditView',
+                            action: 'showEdit',
                             callback: function (route) {
                                 this.getApplication().on('loadProfileType', function (record) {
-                                    route.setTitle('Edit \'' + record.name + '\'');
+                                    route.setTitle('Edit \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
