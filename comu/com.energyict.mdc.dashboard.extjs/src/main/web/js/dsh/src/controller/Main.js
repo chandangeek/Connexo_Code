@@ -21,11 +21,6 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.controller.Communications'
     ],
 
-    config: {
-        navigationController: null,
-        configurationController: null
-    },
-
     stores: [
         'Dsh.store.ConnectionTasks',
         'Dsh.store.CommunicationTasks',
@@ -40,15 +35,7 @@ Ext.define('Dsh.controller.Main', {
     ],
 
     init: function () {
-        this.initNavigation();
         this.initMenu();
-    },
-
-    initNavigation: function () {
-        var navigationController = this.getController('Uni.controller.Navigation'),
-            configurationController = this.getController('Uni.controller.Configuration');
-        this.setNavigationController(navigationController);
-        this.setConfigurationController(configurationController);
     },
 
     initMenu: function () {
