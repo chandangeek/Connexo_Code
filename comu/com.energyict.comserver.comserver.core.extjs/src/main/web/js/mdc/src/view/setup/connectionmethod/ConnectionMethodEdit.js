@@ -42,9 +42,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 items: [
                     {
                         xtype: 'component',
-                        html: '',
                         itemId: 'connectionMethodEditAddTitle',
-                        margins: '10 10 10 10'
+                        margins: '0 10 10 10'
                     },
 //                    {
 //                        xtype: 'container',
@@ -121,25 +120,39 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 msgTarget: 'under'
                             },
                             {
-                                xtype: 'scheduleField',
-                                name: 'temporalExpression',
-                                itemId: 'scheduleField',
-                                hidden: true,
-                                required: true,
+                                xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('connectionmethod.connectionSchedule', 'MDC', 'Connection schedule'),
-                                hourCfg: {
-                                    width: 60
+                                itemId: 'scheduleFieldContainer',
+                                hidden: true,
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
                                 },
-                                minuteCfg: {
-                                    width: 60
-                                },
-                                secondCfg: {
-                                    width: 60
-                                }
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('connectionmethod.every', 'MDC', 'Every'),
+                                        margin: '0 10 0 0'
+                                    },
+                                    {
+                                        xtype: 'scheduleField',
+                                        name: 'temporalExpression',
+                                        itemId: 'scheduleField',
+                                        hourCfg: {
+                                            width: 60
+                                        },
+                                        minuteCfg: {
+                                            width: 60
+                                        },
+                                        secondCfg: {
+                                            width: 60
+                                        }
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel:Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
+                                fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
                                 itemId: 'rescheduleRetryDelayFieldContainer',
                                 layout: {
                                     type: 'hbox',
@@ -148,14 +161,15 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
-                                        value: Uni.I18n.translate('connectionmethod.retryEvery', 'MDC', 'Retry every'),
-                                        margin: '0 5 0 0'
+                                        value: Uni.I18n.translate('connectionmethod.every', 'MDC', 'Every'),
+                                        margin: '0 10 0 0'
                                     },
                                     {
                                         xtype: 'timeInfoField',
                                         name: 'rescheduleRetryDelay',
                                         itemId: 'rescheduleRetryDelay',
-                                        required: true
+                                        numberFieldWidth: 70,
+                                        unitFieldWidth: 100
                                     }
                                 ]
                             },
@@ -172,32 +186,79 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     margin: '0 5 0 0'
                                 },
                                 items: [
+//                                    {
+//                                        xtype: 'checkbox',
+//                                        itemId: 'activateComWindowCheckBox',
+//                                        submitValue: false
+//                                    },
                                     {
-                                        xtype: 'checkbox',
-                                        itemId: 'activateComWindowCheckBox',
-                                        submitValue: false
+                                        xtype: 'radiogroup',
+                                        itemId: 'activateConnWindowRadiogroup',
+                                        vertical: true,
+                                        columns: 1,
+                                        allowBlank: false,
+                                        items: [
+                                            {
+                                                name: 'enableConnWindow',
+                                                inputValue: false,
+                                                checked: true,
+                                                margin: '0 10 5 0'
+                                            },
+                                            {
+                                                name: 'enableConnWindow',
+                                                inputValue: true,
+                                                margin: '0 10 5 0'
+                                            }
+                                        ]
                                     },
                                     {
-                                        xtype: 'displayfield',
-                                        value: Uni.I18n.translate('connectionmethod.openConnectionBetween', 'MDC', 'Open connection between')
-                                    },
-                                    {
-                                        xtype: 'timeInSecondsField',
-                                        name: 'comWindowStart',
-                                        itemId: 'comWindowStart',
-                                        disabled: true
+                                        xtype: 'container',
+                                        layout: {
+                                            type: 'vbox',
+                                            align: 'stretch'
+                                        },
+                                        items: [
+                                            {
+                                                xtype: 'displayfield',
+                                                value: Uni.I18n.translate('connectionmethod.norestriction', 'MDC', 'No restrictions')
+                                            },
+                                            {
+                                                xtype: 'container',
+                                                layout: {
+                                                    type: 'hbox',
+                                                    align: 'stretch'
+                                                },
+                                                margin: '-2 0 0 0',
+                                                items: [
+                                                    {
+                                                        xtype: 'displayfield',
+                                                        value: Uni.I18n.translate('connectionmethod.between', 'MDC', 'Between'),
+                                                        margin: '0 10 0 0'
+                                                    },
+                                                    {
+                                                        xtype: 'timeInSecondsField',
+                                                        name: 'comWindowStart',
+                                                        itemId: 'comWindowStart',
+                                                        disabled: true
 
-                                    },
-                                    {
-                                        xtype: 'displayfield',
-                                        value: ' - '
-                                    },
-                                    {
-                                        xtype: 'timeInSecondsField',
-                                        name: 'comWindowEnd',
-                                        itemId: 'comWindowEnd',
-                                        disabled: true
+                                                    },
+                                                    {
+                                                        xtype: 'displayfield',
+                                                        value: Uni.I18n.translate('general.and', 'MDC', 'And').toLowerCase(),
+                                                        margin: '0 5 0 0'
+                                                    },
+                                                    {
+                                                        xtype: 'timeInSecondsField',
+                                                        name: 'comWindowEnd',
+                                                        itemId: 'comWindowEnd',
+                                                        disabled: true
 
+                                                    }
+                                                ]
+
+                                            }
+
+                                        ]
                                     }
                                 ]
                             },

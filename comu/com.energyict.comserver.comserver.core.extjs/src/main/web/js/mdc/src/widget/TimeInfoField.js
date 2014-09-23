@@ -13,6 +13,8 @@ Ext.define('Mdc.widget.TimeInfoField', {
     layout: 'hbox',
     msgTarget: 'side',
     submitFormat: 'c',
+    numberFieldWidth: 100,
+    unitFieldWidth: 185,
     flex: 1,
 
     valueCfg: null,
@@ -45,7 +47,7 @@ Ext.define('Mdc.widget.TimeInfoField', {
                 itemId: 'valueField',
                 hideTrigger: false,
                 submitValue: false,
-                width: 100,
+                width: me.numberFieldWidth,
                 margin: '0 5 5 0'
             }, me.valueCfg),
             Ext.apply({
@@ -57,7 +59,7 @@ Ext.define('Mdc.widget.TimeInfoField', {
                 valueField: 'timeUnit',
                 submitValue: false,
                 forceSelection: true,
-                width: 185
+                width: me.unitFieldWidth
             }, me.unitCfg)]
     },
 
