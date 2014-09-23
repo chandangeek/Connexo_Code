@@ -8,8 +8,6 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.AvailableCommunicationSchedulesForDevice'
     ],
-//    radioHidden: true,
-//    bottomToolbarHidden: true,
     height: 300,
     store: 'AvailableCommunicationSchedulesForDevice',
     columns: [
@@ -22,7 +20,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
             flex: 0.9
         },
         {
-            header: Uni.I18n.translate('deviceCommunicationSchedule.schedule', 'MDC', 'Schedule'),
+            header: Uni.I18n.translate('deviceCommunicationSchedule.frequency', 'MDC', 'Frequency'),
             dataIndex: 'temporalExpression',
             sortable: false,
             hideable: false,
@@ -47,6 +45,20 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                 }
             }
         }
-    ]
+    ],
+
+    initComponent: function(){
+        this.counterTextFn = function (count) {
+            return Uni.I18n.translatePlural(
+                'deviceCommunicationSchedule.BulkSelection.counterText',
+                count,
+                'UNI',
+                '{0} communication schedules selected'
+            );
+        };
+        this.callParent(arguments);
+    }
+
+
 });
 

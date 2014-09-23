@@ -39,30 +39,40 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
         // 1 means cumulative
         if (accumulationBehavior && accumulationBehavior == 1) {
             me.columns.push({
-                header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
+                header: '',
                 dataIndex: 'value',
 
                 renderer: function (value, metaData, record) {
                     var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
                     switch (record.get('validationResult')) {
                         case 'validationStatus.notValidated':
-                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>' + ' '
-                                + toDisplay + '</span>';
+                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
                             break;
                         case 'validationStatus.ok':
-                            return toDisplay;
+                            return '<span class="validation-column-align"><span class="icon-validation"></span>';
                             break;
                         case 'validationStatus.suspect':
-                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>' + '  '
-                                + toDisplay + '</span>';
+                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
                             break;
                         default:
-                            return toDisplay;
+                            return '';
                             break;
+                        }
+                    },
+                    width: 30,
+                    align: 'right'
+                },
+                {
+                    header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
+                    dataIndex: 'value',
+                    flex: 1.5,
+                    align: 'right',
+                    renderer: function (value, metaData, record) {
+                        var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                        return toDisplay;
                     }
                 },
-                flex: 1
-            }, {
+                {
                 header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
                 dataIndex: 'delta',
                 align: 'right',
@@ -81,22 +91,30 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                     var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
                     switch (record.get('validationResult')) {
                         case 'validationStatus.notValidated':
-                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>' + ' '
-                                + toDisplay + '</span>';
+                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
                             break;
                         case 'validationStatus.ok':
-                            return toDisplay;
+                            return '<span class="validation-column-align"><span class="icon-validation"></span>';
                             break;
                         case 'validationStatus.suspect':
-                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>' + '  '
-                                + toDisplay + '</span>';
+                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
                             break;
                         default:
-                            return toDisplay;
+                            return '';
                             break;
                     }
                 },
-                flex: 1
+                width: 30
+            },
+            {
+                    header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
+                    dataIndex: 'value',
+                    flex: 1.5,
+                    align: 'right',
+                    renderer: function (value, metaData, record) {
+                        var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                        return toDisplay;
+                    }
             });
         }
 

@@ -29,11 +29,11 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
         ];
         Ext.Array.each(me.channels, function (channel) {
             me.columns.push({
-                header: channel.name,
+                header: '',
                 dataIndex: 'channelData',
                 align: 'right',
-                minWidth : 150,
-                flex: 1,
+                //minWidth : 150,
+                width: 30,
                 renderer: function (data, metaData, record) {
                     var validationFlag = '';
                     if (record.data.channelValidationData && record.data.channelValidationData[channel.id]) {
@@ -53,10 +53,25 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                         }
                     }
                     return !Ext.isEmpty(data[channel.id])
-                        ? '<span class="validation-column-align">' + validationFlag + ' ' + data[channel.id] + ' ' + channel.unitOfMeasure.unit + '</span>'
+                        ? '<span class="validation-column-align">' + validationFlag + '</span>'
                         : '<span class="icon-validation icon-validation-black"></span>';
                 }
-            });
+            },
+                {
+                    header: channel.name,
+                    dataIndex: 'channelData',
+                    align: 'right',
+                    minWidth: 200,
+                    renderer: function (data, metaData, record) {
+                        var validationFlag = '';
+                        if (record.data.channelValidationData && record.data.channelValidationData[channel.id]) {
+                            return data[channel.id] + ' ' + channel.unitOfMeasure.unit;
+                        }
+                        return !Ext.isEmpty(data[channel.id])
+                            ? data[channel.id] + ' ' + channel.unitOfMeasure.unit
+                            : '';
+                    }
+                });
         });
         me.columns.push({
             xtype: 'uni-actioncolumn',
