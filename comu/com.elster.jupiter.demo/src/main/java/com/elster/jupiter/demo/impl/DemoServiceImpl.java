@@ -147,7 +147,7 @@ public class DemoServiceImpl implements DemoService {
                 InboundComPortPool inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool 099");
                 createInboundServletPort("Inbound Servlet 099", 4444, comServer, inboundServletComPortPool);
 
-                comServer = createComServer(comServerName.toUpperCase());
+                comServer = createComServer(comServerName);
                 outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
                 store.getOutboundComPortPools().put(OUTBOUND_TCP_POOL_NAME,createOutboundTcpComPortPool(OUTBOUND_TCP_POOL_NAME, outboundTCPPort));
                 inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool");
@@ -167,7 +167,7 @@ public class DemoServiceImpl implements DemoService {
     private OnlineComServer createComServer(String name) {
         System.out.println("==> Creating ComServer '" + name + "' ...");
         OnlineComServer comServer = engineModelService.newOnlineComServerInstance();
-        comServer.setName(name);
+        comServer.setName(name.toUpperCase());
         comServer.setActive(true);
         comServer.setServerLogLevel(ComServer.LogLevel.INFO);
         comServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
