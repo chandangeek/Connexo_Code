@@ -41,6 +41,15 @@ public class DataMapperWriter<T> {
 		}
 	}
 	
+	private long getCurrent(Connection connection , String sequence) throws SQLException {
+		try (PreparedStatement statement = connection.prepareStatement("select " + sequence + ".currval from dual")) {
+			try (ResultSet rs = statement.executeQuery()) {
+				rs.next();
+				return rs.getLong(1);
+			}
+		}
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void persist(T object) throws SQLException {
 		prepare(object,false,new UtcInstant(getTable().getDataModel().getClock()));
@@ -85,12 +94,6 @@ public class DataMapperWriter<T> {
 			return;
 		}
 		UtcInstant now = new UtcInstant(getTable().getDataModel().getClock());
-		if (getTable().hasAutoIncrementColumns() && getTable().hasChildren()) {
-			for (T tuple : objects) {
-				persist(tuple);
-			}
-			return;
-		}
 		try (Connection connection = getConnection(true)) {			
 			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(true))) {
 				for (T tuple : objects) {
@@ -104,8 +107,17 @@ public class DataMapperWriter<T> {
 					statement.addBatch();
 				}
 				statement.executeBatch();
-			}							
+			}
+			for (ColumnImpl column : getColumns()) {
+				if (column.isAutoIncrement()) {
+					long sequence = getCurrent(connection, column.getQualifiedSequenceName()) - objects.size() + 1;
+					for (Object each : objects) {
+						column.setDomainValue(each, sequence++);
+					}
+				}
+			}
 		} 	
+		
 		if (getTable().hasChildren()) {
 			persistChildren(objects);
 		}
