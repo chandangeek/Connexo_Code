@@ -18,10 +18,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             width: '100%',
             itemId: 'loadProfileConfigurationDetailChannelFormId',
             defaults: {
-                labelWidth: 150,
+                labelWidth: 200,
                 validateOnChange: false,
                 validateOnBlur: false,
-                anchor: '50%'
+                width: 700
             },
             items: [
                 {
@@ -87,6 +87,15 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     msgTarget: 'under',
                     maxLength: 80,
                     vtype: 'overflowValue'
+                },
+                {
+                    xtype: 'numberfield',
+                    fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC' ,'Number of fraction digits'),
+                    name: 'nbrOfFractionDigits',
+                    required: true,
+                    value: 0,
+                    minValue: 0,
+                    width: 270
                 },
                 {
                     xtype: 'textfield',

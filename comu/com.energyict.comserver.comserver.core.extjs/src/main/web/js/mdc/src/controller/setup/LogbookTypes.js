@@ -90,7 +90,8 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             msg: Uni.I18n.translate('logbookType.deleteLogbookType', 'MDC', 'The logbook type will no longer be available.'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + logbookTypeToDelete.get('name') + '?',
             config: {
-                logbookTypeToDelete: logbookTypeToDelete
+                logbookTypeToDelete: logbookTypeToDelete,
+                me: me
             },
             fn: me.deleteLogbookTypeInDatabase
         });
@@ -103,6 +104,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
     deleteLogbookTypeInDatabase: function (btn, text, opt) {
         if (btn === 'confirm') {
             var logbookTypeToDelete = opt.config.logbookTypeToDelete;
+            var me = opt.config.me;
             logbookTypeToDelete.destroy({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbookType.acknowlegment.removed', 'MDC', 'Logbook type removed') );
@@ -148,7 +150,6 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             edit: false,
             returnLink: '#/administration/logbooktypes/'
         });
-        var me = this;
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.down('#logbookTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('logbookType.createLogbookType', 'MDC', 'Add logbook type') + '</h1>');
     },

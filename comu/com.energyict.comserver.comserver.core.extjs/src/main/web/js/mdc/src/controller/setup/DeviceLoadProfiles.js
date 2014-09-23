@@ -61,13 +61,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             loadProfileId = record.get('id'),
             preview = me.getPreview();
+        me.loadProfileId = loadProfileId;
+        me.loadProfileName = record.get('name');
         preview.setTitle(record.get('name'));
         loadProfileOfDeviceModel.getProxy().setUrl(me.mRID);
-        preview.up('deviceLoadProfilesSetup').setLoading();
+        preview.setLoading();
         loadProfileOfDeviceModel.load(loadProfileId, {
             success: function (rec) {
                 preview.down('#deviceLoadProfilesPreviewForm').loadRecord(rec);
-                preview.up('deviceLoadProfilesSetup').setLoading(false);
+                preview.setLoading(false);
             }
         });
         preview.down('#deviceLoadProfilesActionMenu').record = record;
@@ -108,11 +110,24 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 confirmation: function () {
                     me.activateDataValidation(record, this);
                 }
-            });
-        confirmationWindow.add(me.getValidationContent());
-        confirmationWindow.show({
-            title: Uni.I18n.translatePlural('deviceloadprofiles.validateNow', me.mRID, 'MDC', 'Validate data of load profile {0}?'),
-            msg: ''
+            }),
+            text = Uni.I18n.translatePlural('deviceloadprofiles.validateNow.statement', me.mRID, 'MDC', 'Validate data of load profile {0}') + '<br><br>' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile');
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            method: 'GET',
+            success: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+                if (res.hasValidation) {
+                    me.dataValidationLastChecked = res.lastChecked;
+                    confirmationWindow.add(me.getValidationContent());
+                    confirmationWindow.show({
+                        title: Uni.I18n.translatePlural('deviceloadprofiles.validateNow', me.mRID, 'MDC', 'Validate data of load profile {0}?'),
+                        msg: ''
+                    });
+                } else {
+                    me.getApplication().fireEvent('acknowledge', text);
+                }
+            }
         });
         confirmationWindow.on('close', function () {
             this.destroy();
@@ -133,8 +148,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     editable: false,
                     showToday: false,
                     value: new Date(me.dataValidationLastChecked),
-                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item1', 'MDC', 'The data of this load profile will be validated starting from'),
-                    labelWidth: 400,
+                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item1', 'MDC', 'The data of load profile will be validated starting from'),
+                    labelWidth: 375,
                     labelPad: 0.5
                 },
                 {
@@ -156,5 +171,27 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 }
             ]
         });
+    },
+
+    activateDataValidation: function (view, confWindow) {
+        var me = this;
+        if (confWindow.down('#validateLoadProfileFromDate').getValue() > me.dataValidationLastChecked) {
+            confWindow.down('#validateLoadProfileDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
+            confWindow.down('#validateLoadProfileDateErrors').setVisible(true);
+        } else {
+            Ext.Ajax.request({
+                url: '../../api/ddr/devices/' + me.mRID + '/loadprofiles/' + me.loadProfileId + '/validate',
+                method: 'PUT',
+                jsonData: {
+                    lastChecked: confWindow.down('#validateLoadProfileFromDate').getValue().getTime()
+                },
+                success: function () {
+                    confWindow.removeAll(true);
+                    confWindow.destroy();
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translatePlural('deviceloadprofiles.activation.completed', me.loadProfileName, 'MDC', 'Data validation on load profile {0} was completed successfully'));
+                }
+            });
+        }
     }
 });

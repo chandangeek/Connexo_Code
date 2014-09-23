@@ -62,10 +62,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
 
                         },
                         {
+                            fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC' ,'Number of fraction digits'),
+                            name: 'nbrOfFractionDigits'
+                        },
+                        {
                             fieldLabel: 'Unit of measure',
                             name: 'unitOfMeasure',
                             renderer: function (value) {
-                                return value.name;
+                                return value.localizedValue;
                             }
                         }
                     ]
