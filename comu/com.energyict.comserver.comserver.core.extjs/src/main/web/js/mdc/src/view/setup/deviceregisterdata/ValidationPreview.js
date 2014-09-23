@@ -41,20 +41,20 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
             renderer: function (value, field) {
                 if (!Ext.isEmpty(value)) {
                     field.show();
-                switch (value) {
-                    case 'validationStatus.notValidated':
-                        return '<span class="icon-validation icon-validation-black"></span>&nbsp;&nbsp;' + ' ' + Uni.I18n.translate('device.registerData.notValidated', 'MDC', 'Not validated');
-                        break;
-                    case 'validationStatus.ok':
-                        return Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect');
-                        break;
-                    case 'validationStatus.suspect':
-                        return '<span class="icon-validation icon-validation-red"></span>&nbsp;&nbsp;' + ' ' + Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect');
-                        break;
-                    default:
-                        return '';
-                        break;
-                }
+                    switch (value) {
+                        case 'validationStatus.notValidated':
+                            return '<span class="icon-validation icon-validation-black"></span>&nbsp;&nbsp;' + ' ' + Uni.I18n.translate('device.registerData.notValidated', 'MDC', 'Not validated');
+                            break;
+                        case 'validationStatus.ok':
+                            return Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect');
+                            break;
+                        case 'validationStatus.suspect':
+                            return '<span class="icon-validation icon-validation-red"></span>&nbsp;&nbsp;' + ' ' + Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect');
+                            break;
+                        default:
+                            return '';
+                            break;
+                    }
                 } else {
                     field.hide();
                 }
@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                     return str;
                 } else {
                     field.hide();
-                     return '';
+                    return '';
 
                 }
 
