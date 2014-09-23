@@ -31,8 +31,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         {ref: 'onRequestCommunicationScheduleGrid', selector: '#onRequestComtaskGrid'},
         {ref: 'individualCommunicationScheduleGrid', selector: '#individualComtaskGrid'},
         {ref: 'scheduleField', selector: '#scheduleField'},
-        {ref: 'overlapWarning', selector: '#overlapWarning'},
-        {ref: 'addButton', selector: '#addButton'}
+        {ref: 'warningMessage', selector: '#warningMessage'},
+        {ref: 'addButton', selector: '#addButton'},
+        {ref: 'uniFormErrorMessage', selector: '#form-errors'}
 
     ],
 
@@ -185,9 +186,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
     previewDeviceCommunicationSchedule: function () {
         var communicationSchedules = this.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection();
         var me = this;
-        if (communicationSchedules.length == 1) {
-            me.getOverlapWarning().setVisible(false);
-            me.getAddButton().setDisabled(false);
+        me.getWarningMessage().setVisible(false);
+        me.getUniFormErrorMessage().hide();
+        if (communicationSchedules.length === 1) {
             this.getAddSharedCommunicationSchedulePreview().setTitle(communicationSchedules[0].get('name'));
             this.getAddSharedCommunicationSchedulePreview().setVisible(true);
             this.getAddSharedCommunicationSchedulePreviewForm().loadRecord(communicationSchedules[0]);
@@ -205,7 +206,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 });
             }
 
-        } else {
+        }
+        else {
            var valuesToCheck = [];
            Ext.each(communicationSchedules,function(item){
                valuesToCheck.push.apply(valuesToCheck,item.get('comTaskUsages'));
@@ -213,11 +215,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
            if(_.uniq(valuesToCheck,function(item){
                return item.id;
            }).length===valuesToCheck.length){
-              me.getOverlapWarning().setVisible(false);
-               me.getAddButton().setDisabled(false);
+               me.getUniFormErrorMessage().hide();
+               me.getWarningMessage().setVisible(false);
            } else {
-               me.getOverlapWarning().setVisible(true);
-               me.getAddButton().setDisabled(true);
+               me.getUniFormErrorMessage().show();
+               me.getWarningMessage().update('<span style="color:red">'+ Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', 'The current selection has overlapping communication tasks.') +'</span>');
+               me.getWarningMessage().setVisible(true);
            }
         }
     },
@@ -228,22 +231,56 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var scheduleIds = [];
         var jsonData;
         var request = {};
-        Ext.each(communicationSchedules, function (communicationSchedule) {
-            scheduleIds.push(communicationSchedule.get('id'));
-        });
-        request.deviceMRIDs = [this.mrid];
-        request.scheduleIds = scheduleIds;
-        jsonData = Ext.encode(request);
-        Ext.Ajax.request({
-            url: '/api/ddr/devices/schedules',
-            method: 'PUT',
-            params: '',
-            jsonData: jsonData,
-            timeout: 180000,
-            success: function (response) {
-                location.href = '#/devices/' + me.mrid + '/communicationschedules';
+
+        if(this.checkValidSelection(communicationSchedules)){
+            Ext.each(communicationSchedules, function (communicationSchedule) {
+                scheduleIds.push(communicationSchedule.get('id'));
+            });
+            request.deviceMRIDs = [this.mrid];
+            request.scheduleIds = scheduleIds;
+            jsonData = Ext.encode(request);
+            Ext.Ajax.request({
+                url: '/api/ddr/devices/schedules',
+                method: 'PUT',
+                params: '',
+                jsonData: jsonData,
+                timeout: 180000,
+                success: function (response) {
+                    location.href = '#/devices/' + me.mrid + '/communicationplanning';
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addSharedScheduleSucceeded', 'MDC', 'Add shared communication schedule succeeded'));
+                }
+            });
+        }
+    },
+
+    checkValidSelection: function(communicationSchedules){
+        var me=this;
+        me.getUniFormErrorMessage().hide();
+        if(communicationSchedules.length ===1){
+            return true;
+        } else if(communicationSchedules.length === 0){
+            me.getUniFormErrorMessage().show();
+            me.getWarningMessage().update('<span style="color:red">'+ Uni.I18n.translate('deviceCommunicationSchedule.noScheduleSelected', 'MDC', 'Select at least one schedule') +'</span>');
+            me.getWarningMessage().setVisible(true);
+            return false;
+        } else if (communicationSchedules.length > 1) {
+            var valuesToCheck = [];
+            Ext.each(communicationSchedules,function(item){
+                valuesToCheck.push.apply(valuesToCheck,item.get('comTaskUsages'));
+            });
+            if(_.uniq(valuesToCheck,function(item){
+                return item.id;
+            }).length===valuesToCheck.length){
+                me.getUniFormErrorMessage().hide();
+                me.getWarningMessage().setVisible(false);
+                return true;
+            } else {
+                me.getUniFormErrorMessage().show();
+                me.getWarningMessage().update('<span style="color:red">'+ Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', 'The current selection has overlapping communication tasks.') +'</span>');
+                me.getWarningMessage().setVisible(true);
+                return false;
             }
-        });
+        }
     },
 
     removeSharedCommunicationScheduleConfirmation: function () {
@@ -268,7 +305,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
 
     removeSharedCommunicationSchedule: function (record) {
         var me = this;
-        // var scheduleIds = [ btn.up('panel').schedule.get('masterScheduleId')];
         var jsonData;
         var request = {};
         request.deviceMRIDs = [this.mrid];
@@ -281,6 +317,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeSharedScheduleSucceeded', 'MDC', 'Remove shared communication schedule succeeded'));
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });
@@ -290,7 +327,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var me = this;
         var widget = Ext.widget('addSchedulePopUp', {action: 'addIndividualScheduleAction'});
         var comTask = this.getOnRequestCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
-        widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.addSchedule', 'MDC', 'Add schedule to communication task') + "'" + comTask.get('comTaskInfos')[0].name + "'");
+        widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.addFrequency', 'MDC', 'Add frequency to communication task ') + "'" + comTask.get('comTaskInfos')[0].name + "'");
         widget.show();
 
     },
@@ -299,7 +336,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var me = this;
         var widget = Ext.widget('addSchedulePopUp', {action: 'changeIndividualScheduleAction'});
         var comTask = this.getIndividualCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
-        widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.addSchedule', 'MDC', 'Add schedule to communication task') + "'" + comTask.get('comTaskInfos')[0].name + "'");
+        widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.changeFrequency', 'MDC', 'Change frequency of communication task ') + "'" + comTask.get('comTaskInfos')[0].name + "'");
         widget.down('#addScheduleForm').loadRecord(comTask);
         widget.show();
     },
@@ -333,11 +370,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         Ext.Ajax.request({
             url: '/api/ddr/devices/' + me.mrid + '/schedules',
             method: 'PUT',
-            method: 'PUT',
             params: '',
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeScheduleSucceeded', 'MDC', 'Remove communication schedule succeeded'))
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });
@@ -361,6 +398,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             timeout: 180000,
             success: function (response) {
                 me.showDeviceCommunicationScheduleView(me.mrid);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addScheduleSucceeded', 'MDC', 'Add communication schedule succeeded'));
             }
         });
         button.up('.window').close();
@@ -379,6 +417,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.runScheduleSucceeded', 'MDC', 'Run communication schedule succeeded'));
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });
@@ -399,6 +438,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.editScheduleSucceeded', 'MDC', 'Edit communication schedule succeeded'));
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });

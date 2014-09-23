@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSchedulePopUp', {
                             flex: 1
                         },
                         {
-                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                             xtype: 'button',
                             ui: 'action',
                             action: 'addIndividualScheduleAction',
