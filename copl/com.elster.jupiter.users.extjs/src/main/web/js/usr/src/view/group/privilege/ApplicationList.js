@@ -26,16 +26,18 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                     dataIndex: 'componentName',
                     flex: 3,
                     renderer: function (value, metadata, record) {
-                        var text = [];
+                        var text = [],
+                            translate = Uni.I18n.translate(record.get('componentName'), 'USR', record.get('componentName'));
+
                         switch (record.get('selected')) {
                             case 0:
-                                text = '<img src="../sky/build/resources/images/grid/drop-no.png"/>&nbsp;' + record.get('componentName');
+                                text = '<img src="../sky/build/resources/images/grid/drop-no.png"/>&nbsp;' + translate;
                                 break;
                             case 1:
-                                text = '<img src="../sky/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + record.get('componentName');
+                                text = '<img src="../sky/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + translate;
                                 break;
                             case 2:
-                                text = '<img src="../sky/build/resources/images/grid/drop-yes.png"/>&nbsp;' + record.get('componentName');
+                                text = '<img src="../sky/build/resources/images/grid/drop-yes.png"/>&nbsp;' + translate;
                                 break;
                         }
                         return text;
