@@ -55,6 +55,10 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private DLMSConnection dlmsConnection;
     private SimpleApplicationServiceObject aso;
 
+    public DlmsSerialNumberDiscover() {
+        super();
+    }
+
     @Override
     public InboundDeviceProtocol.DiscoverResultType doDiscovery() {
         try {

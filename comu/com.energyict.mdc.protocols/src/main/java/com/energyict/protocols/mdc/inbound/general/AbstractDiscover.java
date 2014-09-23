@@ -50,6 +50,9 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     private InboundDiscoveryContext context;
     private PropertySpecService propertySpecService;
 
+    protected AbstractDiscover() {
+    }
+
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
