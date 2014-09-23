@@ -41,13 +41,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
             renderer: function (value) {
                 switch (value) {
                     case 'validationStatus.notValidated':
-                        return Uni.I18n.translate('device.registerData.notValidated', 'MDC', 'Not validated') + '&nbsp;&nbsp;<span class="icon-validation icon-validation-black"></span>';
+                        return '<span class="icon-validation icon-validation-black"></span>&nbsp;&nbsp;' + ' ' + Uni.I18n.translate('device.registerData.notValidated', 'MDC', 'Not validated');
                         break;
                     case 'validationStatus.ok':
                         return Uni.I18n.translate('validationStatus.ok', 'MDC', 'OK');
                         break;
                     case 'validationStatus.suspect':
-                        return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + ' ' + '&nbsp;&nbsp;<span class="icon-validation icon-validation-red"></span>';
+                        return '<span class="icon-validation icon-validation-red"></span>&nbsp;&nbsp;' + ' ' + Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect');
                         break;
                     default:
                         return '';

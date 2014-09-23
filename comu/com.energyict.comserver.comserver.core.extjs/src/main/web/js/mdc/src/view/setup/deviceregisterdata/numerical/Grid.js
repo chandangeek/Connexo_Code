@@ -17,12 +17,29 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 defaultRenderer: function (value) {
                     return Ext.util.Format.date(value, this.format);
                 },
-                flex: 1
+                width: 200
             },
             {
                 dataIndex: 'value',
                 xtype: 'validation-flag-column',
-                flex: 3
+                align: 'right',
+                header: '',
+                width: 30
+            },
+            {
+                dataIndex: 'value',
+                header: 'Value',
+                flex: 1,
+                align: 'right',
+                renderer: function (value, metaData, record) {
+                        return value + ' ' + record.get('unitOfMeasure') + '</span>';
+                }
+
+            },
+            {
+                align: 'right',
+                header: '',
+                flex: 6
             },
             {
                 xtype: 'uni-actioncolumn'
