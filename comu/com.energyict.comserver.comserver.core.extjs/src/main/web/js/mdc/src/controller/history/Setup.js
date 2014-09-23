@@ -708,7 +708,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showCommunicationTasksCreateEdit',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationTask', function (record) {
-                                    route.setTitle(('general.edit', 'MDC', 'Edit') + ' \''  + record.get('name') + '\'');
+                                    route.setTitle(('general.edit', 'MDC', 'Edit') + ' \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
@@ -889,7 +889,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             items: {
 
                                 add: {
-                                    title: 'Add shared Communication schedules',
+                                    title: 'Add shared communication schedules',
                                     route: 'add',
                                     controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
                                     action: 'addSharedCommunicationSchedule'
@@ -903,12 +903,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceCommunicationTasks',
                             action: 'showDeviceCommunicationTasksView',
                             items: {
-//                                add: {
-//                                    title: 'Add shared Communication schedules',
-//                                    route: 'add',
-//                                    controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
-//                                    action: 'addSharedCommunicationSchedule'
-//                                }
 
                             }
                         },
@@ -1049,6 +1043,7 @@ Ext.define('Mdc.controller.history.Setup', {
             }
         }
     },
+
     tokenizePreviousTokens: function () {
         return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
     },
