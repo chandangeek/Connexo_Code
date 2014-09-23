@@ -20,6 +20,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step1', {
         },
         {
             xtype: 'devices-selection-grid'
+        },
+        {
+            xtype: 'container',
+            itemId: 'stepSelectionError',
+            margin: '-20 0 0 0',
+            hidden: true,
+            html: '<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1device', 'MDC', 'Select at least 1 device') + '</span>'
         }
     ]
 });

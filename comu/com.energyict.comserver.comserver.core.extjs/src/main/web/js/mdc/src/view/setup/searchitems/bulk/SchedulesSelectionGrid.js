@@ -22,6 +22,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
 
     cancelHref: '#/search',
 
+    margin: '0 0 -20 0',
+
     columns: {
         items: [
             {

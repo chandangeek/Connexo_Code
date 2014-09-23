@@ -31,8 +31,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             selector: '#searchitems-bulk-step1 devices-selection-grid'
         },
         {
-            ref: 'step3selectionError',
-            selector: '#step3selectionError'
+            ref: 'stepSelectionError',
+            selector: '#stepSelectionError'
         },
         {
             ref: 'schedulesGrid',
@@ -339,9 +339,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     changeContent: function (nextCmp, currentCmp) {
         var me = this,
             layout = me.getSearchItemsWizard().getLayout(),
+            errorContainer = currentCmp.down('#stepSelectionError'),
             validation = true,
             errorPanel = null,
-            step3container,
             progressBar;
 
         switch (currentCmp.name) {
@@ -365,7 +365,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 } else {
                     me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
                 }
-                step3container = me.getStep3selectionError();
                 errorPanel = currentCmp.down('#step3-errors');
                 validation = me.schedules.length;
                 break;
@@ -394,13 +393,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     break;
             }
             errorPanel && errorPanel.hide();
+            errorContainer && errorContainer.hide();
             layout.setActiveItem(nextCmp);
             this.updateButtonsState(nextCmp);
             this.updateTitles();
             return true;
         } else {
             errorPanel.show();
-            step3container && step3container.show();
+            errorContainer && errorContainer.show();
             return false;
         }
     },
