@@ -39,6 +39,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
+import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
@@ -53,6 +54,8 @@ import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.swing.text.html.Option;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
@@ -124,16 +127,20 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     private void initializeEndDeviceEventTypeFactory() {
         MeteringService meteringService = mock(MeteringService.class);
         EndDeviceEventType hardwareError = mock(EndDeviceEventType.class);
-        when(hardwareError.getMRID()).thenReturn("0.0.0.79");
+        String hardwareErrorMRID = "0.0.0.79";
+        when(hardwareError.getMRID()).thenReturn(hardwareErrorMRID);
         EndDeviceEventType powerDown = mock(EndDeviceEventType.class);
-        when(powerDown.getMRID()).thenReturn("0.26.38.47");
+        String powerDownEventMRID = "0.26.38.47";
+        when(powerDown.getMRID()).thenReturn(powerDownEventMRID);
         EndDeviceEventType configurationChange = mock(EndDeviceEventType.class);
-        when(configurationChange.getMRID()).thenReturn("0.7.31.13");
-        List<EndDeviceEventType> mockedAvailableEndDeviceEventTypes = new ArrayList<>();
-        mockedAvailableEndDeviceEventTypes.add(hardwareError);
-        mockedAvailableEndDeviceEventTypes.add(powerDown);
-        mockedAvailableEndDeviceEventTypes.add(configurationChange);
-        when(meteringService.getAvailableEndDeviceEventTypes()).thenReturn(mockedAvailableEndDeviceEventTypes);
+        String configurationChangeEventMRID = "0.7.31.13";
+        when(configurationChange.getMRID()).thenReturn(configurationChangeEventMRID);
+        Optional<EndDeviceEventType> hardwareErrorOptional = Optional.of(hardwareError);
+        when(meteringService.getEndDeviceEventType(hardwareErrorMRID)).thenReturn(hardwareErrorOptional);
+        Optional<EndDeviceEventType> powerDownEventOptional = Optional.of(powerDown);
+        when(meteringService.getEndDeviceEventType(powerDownEventMRID)).thenReturn(powerDownEventOptional);
+        Optional<EndDeviceEventType> configurationChangeEventOptional = Optional.of(configurationChange);
+        when(meteringService.getEndDeviceEventType(configurationChangeEventMRID)).thenReturn(configurationChangeEventOptional);
         EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
         endDeviceEventTypeFactory.setMeteringService(meteringService);
         endDeviceEventTypeFactory.activate();

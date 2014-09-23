@@ -18,6 +18,7 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
@@ -69,10 +70,10 @@ public final class MeterDataFactory {
      * Creates a list of {@link EndDeviceEvent EndDeviceEvents} based on the given DeviceLogBook
      *
      * @param deviceLogBook the collected LogBook which will serve as an input for the EndDeviceEvents
-     * @param logBookId
+     * @param logBookId the (MDC) database id of the LogBook
      * @return the newly created EndDeviceEvent list
      */
-    public static List<EndDeviceEvent> createEndDeviceEventsFor(DeviceLogBook deviceLogBook, long logBookId) {
+    public static List<EndDeviceEvent> createEndDeviceEventsFor(CollectedLogBook deviceLogBook, long logBookId) {
         List<EndDeviceEvent> endDeviceEvents = new ArrayList<>();
         for (MeterProtocolEvent meterProtocolEvent : deviceLogBook.getCollectedMeterEvents()) {
             EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(meterProtocolEvent.getEventType().getMRID(), meterProtocolEvent.getTime());

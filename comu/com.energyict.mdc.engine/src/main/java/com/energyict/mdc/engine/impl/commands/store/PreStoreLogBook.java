@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 
 import java.util.ArrayList;
@@ -34,12 +35,13 @@ public class PreStoreLogBook {
      * <ul>
      *     <li>Filter future dates</li>
      *     <li>Filter duplicates</li>
+     *     <li>Calculate lastlogbook date</li>
      * </ul>
      *
      * @param deviceLogBook the collected events from the device
      * @return the preStored logbook
      */
-    public LocalLogBook preStore(DeviceLogBook deviceLogBook) {
+    public LocalLogBook preStore(CollectedLogBook deviceLogBook) {
         Set<UniqueDuo<String, Date>> uniqueCheck = new HashSet<>();
         OfflineLogBook offlineLogBook = this.comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier());
 
@@ -97,16 +99,10 @@ public class PreStoreLogBook {
                 return false;
             }
 
-            UniqueDuo uniqueDuo = (UniqueDuo) o;
+            UniqueDuo<F,S> uniqueDuo = (UniqueDuo<F,S>) o;
 
-            if (!first.equals(uniqueDuo.first)) {
-                return false;
-            }
-            if (!second.equals(uniqueDuo.second)) {
-                return false;
-            }
+            return first.equals(uniqueDuo.first) && second.equals(uniqueDuo.second);
 
-            return true;
         }
 
         @Override

@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
@@ -10,6 +11,7 @@ import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +23,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva
@@ -82,6 +85,16 @@ public class CollectedLogBookDeviceCommandTest {
 
     private void initializeEndDeviceEventTypeFactory() {
         MeteringService meteringService = mock(MeteringService.class);
+        EndDeviceEventType powerUp = mock(EndDeviceEventType.class);
+        String powerUpEventMRID = "0.26.38.49";
+        when(powerUp.getMRID()).thenReturn(powerUpEventMRID);
+        EndDeviceEventType powerDown = mock(EndDeviceEventType.class);
+        String powerDownEventMRID = "0.26.38.47";
+        when(powerDown.getMRID()).thenReturn(powerDownEventMRID);
+        Optional<EndDeviceEventType> hardwareErrorOptional = Optional.of(powerUp);
+        when(meteringService.getEndDeviceEventType(powerUpEventMRID)).thenReturn(hardwareErrorOptional);
+        Optional<EndDeviceEventType> powerDownEventOptional = Optional.of(powerDown);
+        when(meteringService.getEndDeviceEventType(powerDownEventMRID)).thenReturn(powerDownEventOptional);
         EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
         endDeviceEventTypeFactory.setMeteringService(meteringService);
         endDeviceEventTypeFactory.activate();
