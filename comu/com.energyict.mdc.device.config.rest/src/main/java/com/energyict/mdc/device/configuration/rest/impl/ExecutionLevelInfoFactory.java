@@ -27,7 +27,7 @@ public class ExecutionLevelInfoFactory {
     public List<ExecutionLevelInfo> from(Collection<DeviceSecurityUserAction> userActions) {
         return userActions.stream().
                         map(userAction -> new ExecutionLevelInfo(
-                                userAction.name(),
+                                userAction.getPrivilege(),
                                 thesaurus.getString(userAction.getPrivilege(), userAction.getPrivilege()),
                                 userService.getGroups().stream()
                                         .filter(group -> group.hasPrivilege(userAction.getPrivilege()))

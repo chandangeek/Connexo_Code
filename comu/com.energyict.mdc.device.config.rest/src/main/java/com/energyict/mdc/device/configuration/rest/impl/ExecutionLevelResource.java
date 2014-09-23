@@ -67,12 +67,12 @@ public class ExecutionLevelResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
         List<String> unknownPrivileges = new ArrayList<>();
-        privilegeIds.stream().filter(p->!DeviceSecurityUserAction.forName(p).isPresent()).forEach(unknownPrivileges::add);
+        privilegeIds.stream().filter(p->!DeviceSecurityUserAction.forPrivilege(p).isPresent()).forEach(unknownPrivileges::add);
         if (!unknownPrivileges.isEmpty()) {
             throw exceptionFactory.newException(MessageSeeds.UNKNOWN_PRIVILEGE_ID, Joiner.on(",").join(unknownPrivileges));
         }
 
-        privilegeIds.stream().map(DeviceSecurityUserAction::forName).filter(Optional::isPresent).map(Optional::get).forEach(securityPropertySet::addUserAction);
+        privilegeIds.stream().map(DeviceSecurityUserAction::forPrivilege).filter(Optional::isPresent).map(Optional::get).forEach(securityPropertySet::addUserAction);
         return Response.status(Response.Status.CREATED).build();
     }
 
@@ -82,7 +82,7 @@ public class ExecutionLevelResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
-        Optional<DeviceSecurityUserAction> optional = DeviceSecurityUserAction.forName(privilegeId);
+        Optional<DeviceSecurityUserAction> optional = DeviceSecurityUserAction.forPrivilege(privilegeId);
         if (!optional.isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.UNKNOWN_PRIVILEGE_ID, privilegeId);
         }

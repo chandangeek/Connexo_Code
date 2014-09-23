@@ -39,7 +39,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         when(securityPropertySet.getId()).thenReturn(999L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
 
-        List<String> executionLevels = Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.name(), DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4.name());
+        List<String> executionLevels = Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege(), DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4.getPrivilege());
         Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels").request().post(Entity.json(executionLevels));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
@@ -60,7 +60,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         when(securityPropertySet.getId()).thenReturn(999L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
 
-        List<String> executionLevels = Arrays.asList("UNKOWN", DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4.name());
+        List<String> executionLevels = Arrays.asList("UNKOWN", DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4.getPrivilege());
         Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels").request().post(Entity.json(executionLevels));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -82,7 +82,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         when(securityPropertySet.getId()).thenReturn(999L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
 
-        Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels/ALLOWCOMTASKEXECUTION3").request().delete();
+        Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels/execute.com.task.level3").request().delete();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
         ArgumentCaptor<DeviceSecurityUserAction> argumentCaptor = ArgumentCaptor.forClass(DeviceSecurityUserAction.class);
@@ -122,8 +122,8 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<List>get("$.executionLevels[*].id"))
                 .hasSize(8)
-                .containsExactly(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.name(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2.name(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3.name(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4.name(),
-                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1.name(), DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2.name(), DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3.name(), DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4.name());
+                .containsExactly(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2.getPrivilege(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3.getPrivilege(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4.getPrivilege(),
+                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1.getPrivilege(), DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2.getPrivilege(), DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3.getPrivilege(), DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4.getPrivilege());
         assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("Edit device security properties (level 1)", "Edit device security properties (level 2)", "Edit device security properties (level 3)", "Edit device security properties (level 4)",
                 "View device security properties (level 1)", "View device security properties (level 2)", "View device security properties (level 3)", "View device security properties (level 4)");
     }
@@ -147,7 +147,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<List>get("$.executionLevels[*].id"))
                 .hasSize(4)
-                .containsExactly(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1.name(), DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2.name(), DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION3.name(), DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4.name());
+                .containsExactly(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1.getPrivilege(), DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2.getPrivilege(), DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION3.getPrivilege(), DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4.getPrivilege());
         assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("Execute com task (level 1)", "Execute com task (level 2)", "Execute com task (level 3)", "Execute com task (level 4)");
         assertThat(jsonModel.<List>get("$.executionLevels[0].userRoles")).hasSize(3);
         assertThat(jsonModel.<List<String>>get("$.executionLevels[0].userRoles[*].name")).isSortedAccordingTo((n1,n2)->n1.compareToIgnoreCase(n2));
