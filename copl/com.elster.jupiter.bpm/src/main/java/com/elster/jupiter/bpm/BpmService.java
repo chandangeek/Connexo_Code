@@ -13,4 +13,6 @@ public interface BpmService {
     Map<String, Object> getProcessParameters(String processId);
 
     boolean startProcess(String deploymentId, String processId, Map<String, Object> parameters);
+
+    BpmServer getBpmServer();
 }

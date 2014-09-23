@@ -77,6 +77,16 @@
             <artifactId>appserver</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>http.whiteboard</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ow2.util.base64</groupId>
+            <artifactId>base64</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

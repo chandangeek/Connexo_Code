@@ -2,7 +2,9 @@ package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmProcess;
+import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -15,6 +17,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -38,6 +42,8 @@ public class BpmServiceImpl implements BpmService, InstallService {
     private volatile AppService appService;
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
+    private BpmServerImpl bpmServer;
+    private ServiceRegistration<App> appServiceRegistration;
 
     public BpmServiceImpl(){
     }
@@ -49,14 +55,14 @@ public class BpmServiceImpl implements BpmService, InstallService {
         setAppService(appService);
         setJsonService(jsonService);
         setUserService(userService);
-        activate();
+        activate(null);
         if (!dataModel.isInstalled()) {
             install();
         }
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext context) {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -69,10 +75,20 @@ public class BpmServiceImpl implements BpmService, InstallService {
                 bind(BpmService.class).toInstance(BpmServiceImpl.this);
             }
         });
+        if (context != null) {
+            bpmServer = new BpmServerImpl(context);
+            App app = new App("BPM console", "jBPM", bpmServer.getUrl());
+            appServiceRegistration = context.registerService(App.class, app, null);
+
+        }
     }
 
     @Deactivate
     public void deactivate() {
+        bpmServer = null;
+        if (appServiceRegistration != null) {
+            appServiceRegistration.unregister();
+        }
     }
 
     @Override
@@ -109,6 +125,11 @@ public class BpmServiceImpl implements BpmService, InstallService {
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Override
+    public BpmServer getBpmServer() {
+        return bpmServer;
     }
 
     @Override
