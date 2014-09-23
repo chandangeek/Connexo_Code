@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -134,6 +135,52 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
             boolean fullyValidated = configured && active && wasValidated;
             result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, validationRuleMap));
 
+        }
+        return result;
+    }
+
+    @Override
+    public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Interval interval) {
+        List<DataValidationStatus> result = new ArrayList<>();
+        List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
+        boolean configured = !channelValidations.isEmpty();
+        boolean active = channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
+        Date lastChecked = configured ? getMinLastChecked(channelValidations.stream()
+                .filter(ChannelValidation::hasActiveRules)
+                .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
+
+        ListMultimap<String, IValidationRule> validationRuleMap = getValidationRulesPerReadingQuality(channelValidations);
+
+        ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, interval);
+
+        Set<Date> timesWithReadings = new HashSet<>();
+
+        ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+        for (BaseReading reading : readings) {
+            boolean containsKey = readingQualities.containsKey(reading.getTimeStamp());
+            List<ReadingQualityRecord> qualities = (containsKey ? readingQualities.get(reading.getTimeStamp()) : new ArrayList<ReadingQualityRecord>());
+            timesWithReadings.add(reading.getTimeStamp());
+            if (qualities.isEmpty() && configured) {
+                if (wasValidated(lastChecked, reading.getTimeStamp())) {
+                    qualities.add(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp()));
+                }
+            }
+            boolean fullyValidated = false;
+            if (configured && active) {
+                fullyValidated = (wasValidated(lastChecked, reading.getTimeStamp()));
+            }
+            result.add(createDataValidationStatusListFor(reading.getTimeStamp(), fullyValidated, qualities, validationRuleMap));
+
+        }
+
+        Set<Date> timesWithoutReadings = new HashSet<>(readingQualities.keySet());
+        timesWithoutReadings.removeAll(timesWithReadings);
+
+        for (Date readingTimestamp : timesWithoutReadings) {
+            List<ReadingQuality> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
+            boolean wasValidated = wasValidated(lastChecked, readingTimestamp);
+            boolean fullyValidated = configured && active && wasValidated;
+            result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, validationRuleMap));
         }
         return result;
     }
