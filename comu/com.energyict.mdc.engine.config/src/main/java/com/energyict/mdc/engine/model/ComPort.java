@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model;
 
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.util.Date;
@@ -33,7 +34,7 @@ import java.util.Date;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (16:26)
  */
-public interface ComPort extends HasId {
+public interface ComPort extends HasId, HasName  {
 
     /**
      * Gets the timestamp of the last modification applied to this ComPort.
