@@ -74,6 +74,12 @@ Ext.define('Dsh.view.widget.Summary', {
         this.callParent(arguments);
     },
 
+    summaryTitleUpdate: function (total) {
+        var me = this,
+            title = me.down('#connection-summary-title-panel');
+        title.update('<h3>' + me.wTitle + ' (' + total + ' ' + Uni.I18n.translate('overview.widget.connections', 'Dsh', 'connections') + ')' + '</h3>')
+    },
+
     setRecord: function (record) {
         var me = this,
             view = me.down('#summary-dataview'),
@@ -82,6 +88,6 @@ Ext.define('Dsh.view.widget.Summary', {
         view.total = total || 0;
         view.record = record;
         view.bindStore(record.counters());
-        title.update('<h3>' + me.wTitle + ' (' + total + ' ' + Uni.I18n.translate('overview.widget.connections', 'Dsh', 'connections') + ')' + '</h3>')
+        me.summaryTitleUpdate(total)
     }
 });
