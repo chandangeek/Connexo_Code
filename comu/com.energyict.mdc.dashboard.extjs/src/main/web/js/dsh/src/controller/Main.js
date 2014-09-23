@@ -8,7 +8,8 @@ Ext.define('Dsh.controller.Main', {
         'Uni.controller.history.EventBus',
         'Uni.model.PortalItem',
         'Uni.store.PortalItems',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
+        'Dsh.util.FilterStoreHydrator'
     ],
 
     controllers: [
