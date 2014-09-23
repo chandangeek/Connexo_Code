@@ -60,7 +60,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private String deviceEventType;
     private Status status;
     private long processingFlags;
-    private int logBookId;
+    private long logBookId;
     private int logBookPosition;
     private UtcInstant createdDateTime;
     
@@ -152,7 +152,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     }
 
     @Override
-    public int getLogBookId() {
+    public long getLogBookId() {
         return logBookId;
     }
 
@@ -233,7 +233,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     }
 
     @Override
-    public void setLogBookId(int logBookId) {
+    public void setLogBookId(long logBookId) {
         this.logBookId = logBookId;
     }
 

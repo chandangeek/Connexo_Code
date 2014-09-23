@@ -20,7 +20,7 @@ public interface EndDeviceEvent extends IdentifiedObject {
 	String getIssuerTrackingID();
 	String getUserID();
     Map<String, String> getEventData();
-    int getLogBookId();
+    long getLogBookId();
     int getLogBookPosition();
 
     /**

@@ -35,7 +35,7 @@ public interface EndDeviceEventRecord extends EndDeviceEvent {
 
     void setIssuerTrackingID(String issuerTrackingID);
 
-    void setLogBookId(int logBookId);
+    void setLogBookId(long logBookId);
 
     void setLogBookPosition(int logBookPosition);
 

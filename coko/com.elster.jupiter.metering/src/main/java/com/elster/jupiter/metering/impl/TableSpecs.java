@@ -319,7 +319,7 @@ public enum TableSpecs {
             table.column("STATUSREMARK").varChar(NAME_LENGTH).map("status.remark").add();
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
             table.column("PROCESSINGFLAGS").type("number").map("processingFlags").conversion(NUMBER2LONG).add();
-            table.column("LOGBOOKID").type("number").map("logBookId").conversion(NUMBER2INT).add();
+            table.column("LOGBOOKID").type("number").map("logBookId").conversion(NUMBER2LONG).add();
             table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
             table.addAuditColumns();
