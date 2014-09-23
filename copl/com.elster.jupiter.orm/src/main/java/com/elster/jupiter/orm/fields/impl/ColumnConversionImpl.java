@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.fields.impl;
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Currency;
 import java.util.Date;
 
@@ -404,7 +405,24 @@ public enum ColumnConversionImpl {
         	long value = rs.getLong(index);				 
 			return rs.wasNull() ? null : new Date(value*1000L);
 		} 	
-    };
+    },
+	NUMBER2INSTANT {
+		@Override
+		public Object convertToDb(Object value) {
+			return getTime(value);
+		}	
+		
+		@Override
+		public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+			long value = rs.getLong(index);				 
+			return rs.wasNull() ? null : Instant.ofEpochMilli(value);
+		}
+		
+		@Override
+		public Object convert(String in) {
+			return  Instant.ofEpochMilli(Long.valueOf(in));
+		}
+	};
 
 
 	public abstract Object convertToDb(Object value);
@@ -414,6 +432,9 @@ public enum ColumnConversionImpl {
 	Long getTime(Object value) {	
 		if (value == null) {
 			return null;
+		}
+		if (value instanceof Instant) {
+			return ((Instant) value).toEpochMilli();
 		}
 		if (value instanceof Date) {
 			return ((Date) value).getTime();
