@@ -55,19 +55,20 @@ Ext.define('Uni.view.navigation.Menu', {
     },
 
     selectMenuItem: function (model) {
-        var itemId = model.id;
+        var me = this,
+            itemId = model.id;
 
         this.items.items.forEach(function (item) {
             if (itemId === item.data.id) {
+                me.deselectAllMenuItems();
                 item.toggle(true, false);
             }
         });
     },
 
-    deselectAllMenuItems: function() {
+    deselectAllMenuItems: function () {
         this.items.items.forEach(function (item) {
             item.toggle(false, false);
         });
     }
-
 });
