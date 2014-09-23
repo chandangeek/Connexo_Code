@@ -7,32 +7,34 @@ Ext.define('Dsh.view.widget.Summary', {
     initComponent: function () {
         var me = this;
         this.items = [
-            { html: '<h3>' + me.wTitle + '</h3>' },
+            {
+                html: '<h3>' + me.wTitle + '</h3>',
+                itemId: 'connection-summary-title-panel'
+            },
             {
                 xtype: 'dataview',
                 itemId: 'summary-dataview',
                 itemSelector: 'tbody.item',
                 cls: 'summary',
                 total: 0,
-                tpl:
-                    '<table>' +
-                        '<tpl for=".">' +
-                            '<tbody class="item item-{#}">' +
-                                '{% var parentIndex = xindex; %}' +
-                                '<tr>' +
-                                    '<td class="label">' +
-                                        '<a href="#{alias}">{displayName}</a>' +
-                                    '</td>' +
-                                    '<td width="100%" id="bar-{[parentIndex]}" class="bar-{alias}"></td>' +
-                                '</tr>' +
-                                '<tpl for="counters">' +
-                                    '<tr class="child">' +
-                                        '<td class="label">{displayName}</td>' +
-                                        '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{alias}"></td>' +
-                                    '</tr>' +
-                                '</tpl>' +
-                            '</tbody>' +
-                        '</tpl>' +
+                tpl: '<table>' +
+                    '<tpl for=".">' +
+                    '<tbody class="item item-{#}">' +
+                    '{% var parentIndex = xindex; %}' +
+                    '<tr>' +
+                    '<td class="label">' +
+                    '<a href="#{alias}">{displayName}</a>' +
+                    '</td>' +
+                    '<td width="100%" id="bar-{[parentIndex]}" class="bar-{alias}"></td>' +
+                    '</tr>' +
+                    '<tpl for="counters">' +
+                    '<tr class="child">' +
+                    '<td class="label">{displayName}</td>' +
+                    '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{alias}"></td>' +
+                    '</tr>' +
+                    '</tpl>' +
+                    '</tbody>' +
+                    '</tpl>' +
                     '</table>',
                 listeners: {
                     refresh: function (view) {
@@ -52,7 +54,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                 });
                             }
 
-                            var bar =  Ext.widget('bar', {
+                            var bar = Ext.widget('bar', {
                                 limit: view.total,
                                 total: view.total,
                                 count: record.get('count'),
@@ -72,13 +74,14 @@ Ext.define('Dsh.view.widget.Summary', {
         this.callParent(arguments);
     },
 
-    setRecord: function(record) {
-        var me = this;
-
-        var view = me.down('#summary-dataview');
-        view.total = record.get('total') || 0;
+    setRecord: function (record) {
+        var me = this,
+            view = me.down('#summary-dataview'),
+            title = me.down('#connection-summary-title-panel'),
+            total = record.get('total');
+        view.total = total || 0;
         view.record = record;
-
         view.bindStore(record.counters());
+        title.update('<h3>' + me.wTitle + ' (' + total + ' ' + Uni.I18n.translate('overview.widget.connections', 'Dsh', 'connections') + ')' + '</h3>')
     }
 });
