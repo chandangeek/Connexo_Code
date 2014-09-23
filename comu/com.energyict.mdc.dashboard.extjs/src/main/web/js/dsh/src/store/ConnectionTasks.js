@@ -1,9 +1,11 @@
 Ext.define('Dsh.store.ConnectionTasks', {
     extend: 'Uni.data.store.Filterable',
     requires: [
-        'Dsh.model.ConnectionTask'
+        'Dsh.model.ConnectionTask',
+        'Dsh.util.FilterStoreHydrator'
     ],
     model: 'Dsh.model.ConnectionTask',
+    hydrator: 'Dsh.util.FilterStoreHydrator',
     autoLoad: false,
     remoteFilter: true,
     proxy: {
