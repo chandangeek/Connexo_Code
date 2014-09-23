@@ -23,10 +23,10 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import test.com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 import org.xml.sax.SAXException;
+import test.com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -386,6 +386,9 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
             getLogger().info("Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
             builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
+                return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
+            }
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Arrays.asList(lpr));

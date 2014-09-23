@@ -45,13 +45,13 @@ import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -232,6 +232,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         try {
             LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
             builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
+            if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
+                CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!"));
+            }
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
