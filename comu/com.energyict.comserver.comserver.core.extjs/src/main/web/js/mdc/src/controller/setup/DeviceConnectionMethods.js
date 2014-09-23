@@ -85,7 +85,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             '#deviceConnectionMethodEdit #addEditButton[action=editDeviceInboundConnectionMethod]': {
                 click: this.editDeviceInboundConnectionMethod
             },
-            '#connectionStrategyComboBox': {
+            '#deviceConnectionMethodEdit #connectionStrategyComboBox': {
                 select: this.showScheduleField
             },
             '#deviceConnectionMethodEdit #activateComWindowCheckBox': {
