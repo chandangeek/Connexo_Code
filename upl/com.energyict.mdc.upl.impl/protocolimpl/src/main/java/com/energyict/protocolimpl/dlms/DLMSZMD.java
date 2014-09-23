@@ -202,7 +202,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
             // status & EV_START_OF_INTERVAL is true
             // SVA Update: profile entries where status & EV_LOAD_PROFILE_CLEARED is true can also be left out.
 
-            if (((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0) || ((intervalList[i].getField(IL_EVENT) & EV_LOAD_PROFILE_CLEARED) == 0)) {
+            if (((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0) && ((intervalList[i].getField(IL_EVENT) & EV_LOAD_PROFILE_CLEARED) == 0)) {
 
                 // In case the EV_NORMAL_END_OF_INTERVAL bit is not set, calendar is possibly
                 // not aligned to interval boundary caused by an event
