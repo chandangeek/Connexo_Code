@@ -1,5 +1,6 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
+import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.rest.util.BinderProvider;
@@ -41,6 +42,7 @@ public class WhiteBoard extends Application implements BinderProvider {
 
     private int sessionTimeout = 600; // default value 10 min
     private List<HttpResource> resources = new CopyOnWriteArrayList<>();
+    private List<App> apps = new CopyOnWriteArrayList<>();
 
     private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
 
@@ -61,59 +63,73 @@ public class WhiteBoard extends Application implements BinderProvider {
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }
-    
+
     @Reference
     public void setEventAdminService(EventAdmin eventAdminService) {
-    	this.eventAdminHolder.set(eventAdminService);
+        this.eventAdminHolder.set(eventAdminService);
     }
 
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
-    	String alias = getAlias(resource.getAlias());
+        String alias = getAlias(resource.getAlias());
         HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, eventAdminHolder);
         try {
             httpService.registerResources(alias, resource.getLocalName(), httpContext);
             resources.add(resource);
         } catch (NamespaceException e) {
-            LOGGER.log(Level.SEVERE, "Error while registering " + alias + ": " + e.getMessage() , e);
+            LOGGER.log(Level.SEVERE, "Error while registering " + alias + ": " + e.getMessage(), e);
             throw new UnderlyingNetworkException(e);
         }
     }
 
+
+    @Reference(name = "ZApplication", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addApplication(App resource) {
+        if (resource.isInternalApp()) {
+            addResource(resource.getMainResource());
+        }
+        apps.add(resource);
+    }
+
     @Activate
-    public void activate(BundleContext context, Map<String,Object> props) {
-    	boolean generateEvents = props != null && Boolean.TRUE.equals(props.get("event"));
-    	if (!generateEvents) {
-    		eventAdminHolder.set(null);
-    	}
-        if(context != null){
+    public void activate(BundleContext context, Map<String, Object> props) {
+        boolean generateEvents = props != null && Boolean.TRUE.equals(props.get("event"));
+        if (!generateEvents) {
+            eventAdminHolder.set(null);
+        }
+        if (context != null) {
             int timeout = 0;
             String sessionTimeoutParam = context.getProperty(SESSION_TIMEOUT);
-            if(sessionTimeoutParam != null){
-                try{
+            if (sessionTimeoutParam != null) {
+                try {
                     timeout = Integer.parseInt(sessionTimeoutParam);
-                } catch(NumberFormatException e){
+                } catch (NumberFormatException e) {
                     throw new IllegalArgumentException("Cannot parse '" + sessionTimeoutParam + "' as a timeout value.", e);
                 }
             }
 
-            if(timeout > 0){
+            if (timeout > 0) {
                 sessionTimeout = timeout;
             }
         }
     }
 
-    int getSessionTimeout(){
+    int getSessionTimeout() {
         return sessionTimeout;
     }
-    
+
     public void removeResource(HttpResource resource) {
         httpService.unregister(getAlias(resource.getAlias()));
         resources.remove(resource);
     }
-    
+
+    public void removeApplication(App app) {
+        removeResource(app.getMainResource());
+        apps.remove(app);
+    }
+
     String getAlias(String name) {
-        return "/apps" + name;
+        return "/apps" + (name.startsWith("/") ? name : "/" + name);
     }
 
     @Override
@@ -123,6 +139,10 @@ public class WhiteBoard extends Application implements BinderProvider {
 
     List<HttpResource> getResources() {
         return new ArrayList<>(resources);
+    }
+
+    List<App> getApps() {
+        return apps;
     }
 
     @Override
