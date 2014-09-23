@@ -6,6 +6,7 @@ Ext.define('SystemApp.controller.Main', {
 
     applicationTitle: 'Connexo System Admin',
     defaultToken: '#/administration',
+    searchEnabled: false,
 
     controllers: [
         'Usr.controller.Main',
