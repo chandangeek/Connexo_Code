@@ -42,7 +42,7 @@ Ext.define('Mdc.model.Register', {
             persist: false,
             mapping: function (data) {
                 return (data.detailedValidationInfo && data.detailedValidationInfo.dataValidated) ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
-                    : Uni.I18n.translate('general.no', 'MDC', 'No') + '&nbsp;&nbsp;<span class="icon-validation icon-validation-black"></span>';
+                    : '<span class="icon-validation icon-validation-black"></span>&nbsp;&nbsp;' + Uni.I18n.translate('general.no', 'MDC', 'No');
             }
         },
         {
