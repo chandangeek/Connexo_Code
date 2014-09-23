@@ -103,6 +103,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private boolean registerIsOfType(OfflineRegister register, ObisCode baseObisCode) {
         ObisCode obisCode = register.getObisCode();
+        obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) 0);
         obisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 0);
         return obisCode.equalsIgnoreBillingField(baseObisCode);
     }
@@ -110,15 +111,16 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private void readParameterReadRegisters(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
         ReadParameterFields field = ReadParameterFields.fromCode(register.getObisCode().getE());
         boolean billingRegisters = register.getObisCode().getF() != 255;
+        int channelGroup = register.getObisCode().getB();
         if (field != null) {
-            setCollectedData(register, collectedRegister, getParameters(1, billingRegisters).getField(field));
+            setCollectedData(register, collectedRegister, getParameters(channelGroup, billingRegisters).getField(field));
         } else {
             registerNotSupported(register, collectedRegister);
         }
     }
 
     private void readRegisterReadRegisters(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
-        int channelGroup = register.getObisCode().getC();
+        int channelGroup = register.getObisCode().getC() -1;
         boolean billingRegisters = register.getObisCode().getF() != 255;
 
         ReadParametersResponse parameters = getParameters(channelGroup, billingRegisters);
@@ -307,20 +309,20 @@ public class RegisterFactory implements DeviceRegisterSupport {
         if (billingRegisters) {
             return getBillingParameters(channelGroup);
         } else {
-            return getActualparameters(channelGroup);
+            return getActualParameters(channelGroup);
         }
     }
 
-    private ReadParametersResponse getActualparameters(int channelGroup) throws ParsingException {
+    private ReadParametersResponse getActualParameters(int channelGroup) throws ParsingException {
         if (!getActualParametersMap().containsKey(channelGroup)) {
-            getActualParametersMap().put(channelGroup, getRequestFactory().readParameters(channelGroup - 1));
+            getActualParametersMap().put(channelGroup, getRequestFactory().readParameters(channelGroup));
         }
         return getActualParametersMap().get(channelGroup);
     }
 
     private ReadParametersResponse getBillingParameters(int channelGroup) throws ParsingException {
         if (!getPreviousParametersMap().containsKey(channelGroup)) {
-            getPreviousParametersMap().put(channelGroup, getRequestFactory().readPreviousParameters(channelGroup - 1));
+            getPreviousParametersMap().put(channelGroup, getRequestFactory().readPreviousParameters(channelGroup));
         }
         return getPreviousParametersMap().get(channelGroup);
     }
