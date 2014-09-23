@@ -29,7 +29,6 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
@@ -56,7 +55,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.dlms.siemenszmd.EventNumber;
+import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
@@ -122,28 +121,10 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     }
 
     protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
-        DataContainer dc = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCalendar,toCalendar);
-
-        if (DEBUG>=1) {
-			dc.printDataContainer();
-		}
-
-        if (DEBUG>=1) {
-           getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getCaptureObjectsAsDataContainer().printDataContainer();
-        }
-
-        for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
-            Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-            int id;
-            if (eventIdIndex == -1) {
-                id = dc.getRoot().getStructure(i).getInteger(1);
-            } else {
-                id = dc.getRoot().getStructure(i).convert2Long(eventIdIndex).intValue();
-            }
-            MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-            if (meterEvent != null) {
-                profileData.addEvent(meterEvent);
-            }
+        LogBookReader logBookReader = new LogBookReader(this);
+        List<MeterEvent> meterEvents = logBookReader.getEventLog(fromCalendar, toCalendar);
+        for (MeterEvent meterEvent : meterEvents) {
+            profileData.addEvent(meterEvent);
         }
     }
 
