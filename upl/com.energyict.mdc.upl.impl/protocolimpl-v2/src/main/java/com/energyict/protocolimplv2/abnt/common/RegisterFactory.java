@@ -120,7 +120,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void readRegisterReadRegisters(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
-        int channelGroup = register.getObisCode().getC() -1;
+        int channelGroup = register.getObisCode().getC();
         boolean billingRegisters = register.getObisCode().getF() != 255;
 
         ReadParametersResponse parameters = getParameters(channelGroup, billingRegisters);
