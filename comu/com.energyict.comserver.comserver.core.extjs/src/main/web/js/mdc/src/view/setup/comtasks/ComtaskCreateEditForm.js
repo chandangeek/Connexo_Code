@@ -75,6 +75,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                         {
                             xtype: 'connected-grid',
                             itemId: 'messagesConnectedGrid',
+                            disableIndication: true,
+                            enableSorting: true,
                             allItemsTitle: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Message categories'),
                             allItemsStoreName: 'Mdc.store.MessageCategories',
                             selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.categories', 'MDC', 'Selected message categories'),
