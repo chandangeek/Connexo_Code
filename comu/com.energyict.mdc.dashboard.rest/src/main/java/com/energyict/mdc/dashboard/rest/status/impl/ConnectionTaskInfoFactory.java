@@ -65,7 +65,7 @@ public class ConnectionTaskInfoFactory {
         info.communicationTasks.count=comTaskExecutions.size();
         info.communicationTasks.communicationsTasks= comTaskExecutionInfoFactory.get().from(comTaskExecutions);
 
-        info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
+        info.comPort = connectionTask.getLastComSession().isPresent()?new IdWithNameInfo(connectionTask.getLastComSession().get().getComPort()):null;
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),connectionTask.getConnectionType().getDirection().name());
         info.connectionType = ConnectionTypeRule.getConnectionTypeName(connectionTask.getConnectionType().getClass()).orNull();
         info.connectionMethod = new IdWithNameInfo();

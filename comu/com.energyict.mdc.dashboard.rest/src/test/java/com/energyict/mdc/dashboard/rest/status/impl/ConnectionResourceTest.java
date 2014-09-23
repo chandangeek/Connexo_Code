@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -259,6 +260,11 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        ComPort comPort = mock(ComPort.class);
+        when(comPort.getName()).thenReturn("com port");
+        when(comPort.getId()).thenReturn(99L);
+        when(comSession.getComPort()).thenReturn(comPort);
+        when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         ComWindow window = mock(ComWindow.class);
         when(window.getStart()).thenReturn(PartialTime.fromHours(9));
         when(window.getEnd()).thenReturn(PartialTime.fromHours(17));
@@ -291,7 +297,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
                 .containsKey("startDateTime")
                 .containsKey("endDateTime")
                 .containsKey("duration")
-                .containsKey("comPortPool")
+                .containsKey("comPort")
                 .containsKey("comServer")
                 .containsKey("direction")
                 .containsKey("connectionType")
