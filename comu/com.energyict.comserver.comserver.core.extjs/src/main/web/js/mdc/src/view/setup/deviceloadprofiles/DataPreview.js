@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                         itemId: 'channelValidationResult' + channel.id
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('device.registerData.suspectReason', 'MDC', 'Suspect reason'),
+                        fieldLabel: Uni.I18n.translate('device.registerData.failedValidationRules', 'MDC', 'Failed validation rules'),
                         itemId: 'channelSuspectReason' + channel.id
                     }
                 ]
@@ -131,7 +131,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                     value && field.setValue(value);
                 });
                 Ext.Array.each(me.channels, function (channel) {
-                    !Ext.isEmpty(record.data.channelData[channel.id]) ? form.down('#channelValue' + channel.id).setValue(record.data.channelData[channel.id] + ' ' + channel.unitOfMeasure.localizedValue) : form.down('#channelValue' + channel.id).setValue(Uni.I18n.translate('general.missing', 'MDC', 'Missing'));
+                    !Ext.isEmpty(record.data.channelData[channel.id]) ? form.down('#channelValue' + channel.id).setValue(record.data.channelData[channel.id] + ' ' + channel.unitOfMeasure.unit) : form.down('#channelValue' + channel.id).setValue(Uni.I18n.translate('general.missing', 'MDC', 'Missing'));
                     if (record.data.channelValidationData[channel.id]) {
                         record.data.channelValidationData[channel.id].dataValidated ? form.down('#channelDataValidated' + channel.id).setValue(Uni.I18n.translate('general.yes', 'MDC', 'Yes')) : form.down('#channelDataValidated' + channel.id).setValue(Uni.I18n.translate('general.no', 'MDC', 'No') + '&nbsp;&nbsp;<span class="icon-validation icon-validation-black"></span>');
 

@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 dataIndex: 'value',
 
                 renderer: function (value, metaData, record) {
-                    var toDisplay = value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+                    var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
                     switch (record.get('validationResult')) {
                         case 'validationStatus.notValidated':
                             return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>' + ' '
@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 dataIndex: 'delta',
                 align: 'right',
                 renderer: function (value, metaData, record) {
-                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
                 },
                 flex: 1
             });
@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 align: 'right',
                 //todo: refactor component ValidationFlag so we can use it here for rendering the flag
                 renderer: function (value, metaData, record) {
-                    var toDisplay = value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+                    var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
                     switch (record.get('validationResult')) {
                         case 'validationStatus.notValidated':
                             return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>' + ' '
