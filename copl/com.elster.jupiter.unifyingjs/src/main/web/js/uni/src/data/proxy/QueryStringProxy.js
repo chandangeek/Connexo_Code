@@ -1,7 +1,30 @@
+/**
+ * @class Uni.data.proxy.QueryStringProxy
+ *
+ * Uses URL query string as data storage.
+ * The model is serialized and deserialized over JSON encode/decode
+
+ * # Example Usage
+ *
+ *     Ext.define('User', {
+ *         extend: 'Ext.data.Model',
+ *         fields: ['firstName', 'lastName'],
+ *         proxy: {
+ *             type: 'querystring',
+ *             root: 'filter'
+ *         }
+ *     });
+ */
 Ext.define('Uni.data.proxy.QueryStringProxy', {
     extend: 'Ext.data.proxy.Proxy',
     alias: 'proxy.querystring',
+
+    /**
+     * @cfg {String} root
+     * The root from which to read and save data
+     */
     root: '',
+
     router: null,
 
     requires: [
@@ -30,6 +53,13 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         this.setQueryParams.apply(this, arguments);
     },
 
+    /**
+     * Deserializes model from the URL via router
+     *
+     * @param operation
+     * @param callback
+     * @param scope
+     */
     read: function (operation, callback, scope) {
         var me = this,
             router = me.router,
@@ -77,6 +107,13 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         router.getRoute().forward();
     },
 
+    /**
+     * Serializes model to the URL via router
+     *
+     * @param operation
+     * @param callback
+     * @param model
+     */
     setQueryParams: function (operation, callback, model) {
         var router = this.router,
             queryParams = {};
