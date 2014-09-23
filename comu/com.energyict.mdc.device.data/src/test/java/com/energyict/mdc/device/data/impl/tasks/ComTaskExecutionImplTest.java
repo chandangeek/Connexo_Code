@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.scheduling.TemporalExpression;
@@ -26,10 +27,12 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.google.common.base.Optional;
 import org.assertj.core.api.Condition;
 import org.junit.*;
 
@@ -216,6 +219,34 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         // Asserts
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isEqualTo(testUseDefault);
+    }
+
+    @Test
+    @Transactional
+    public void runNowWithMinimizeConnectionsTest() {
+
+        Date frozenClock = freezeClock(2014, Calendar.AUGUST, 28, 1, 11, 23, 0);
+        Date plannedNextExecutionTimeStamp = createFixedTimeStamp(2014, Calendar.AUGUST, 29, 0, 0, 0, 0);
+
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        device.save();
+
+        ScheduledConnectionTaskImpl connectionTask = createMinimizeOneDayConnectionStandardTask(device);
+        ComTaskExecution comTaskExecution = device.newScheduledComTaskExecution(comSchedule).connectionTask(connectionTask).add();
+        device.save();
+
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(plannedNextExecutionTimeStamp);
+        assertThat(connectionTask.getNextExecutionTimestamp()).isEqualTo(plannedNextExecutionTimeStamp);
+
+        comTaskExecution.runNow();
+
+        ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getDeviceDataService().findComTaskExecution(comTaskExecution.getId());
+        ScheduledConnectionTask reloadedScheduledConnectionTask = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(connectionTask.getId()).get();
+
+        assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isEqualTo(frozenClock);
+        assertThat(reloadedScheduledConnectionTask.getNextExecutionTimestamp()).isEqualTo(frozenClock);
     }
 
     @Test

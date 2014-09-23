@@ -470,7 +470,18 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @Override
     public void runNow() {
-        this.scheduleNow();
+        Date currentDate = this.clock.now();
+        this.resetCurrentRetryCount();
+        this.setExecutingComPort(null);
+        this.setExecutionStartedTimestamp(null);
+        this.setPlannedNextExecutionTimestamp(currentDate);
+        this.nextExecutionTimestamp = currentDate;
+
+        ConnectionTask<?, ?> connectionTask = this.getConnectionTask();
+        if (connectionTask instanceof ScheduledConnectionTask) {
+            ((ScheduledConnectionTask) connectionTask).scheduleNow();
+        }
+        this.post();
     }
 
     @Override
