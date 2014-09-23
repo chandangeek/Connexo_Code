@@ -111,9 +111,9 @@ public enum DeviceSecurityUserAction {
         return this.ordinal();
     }
 
-    public static Optional<DeviceSecurityUserAction> forName(String name) {
+    public static Optional<DeviceSecurityUserAction> forPrivilege(String privilege) {
         for (DeviceSecurityUserAction userAction : values()) {
-            if (userAction.name().equals(name)) {
+            if (userAction.getPrivilege().equals(privilege)) {
                 return Optional.of(userAction);
             }
         }

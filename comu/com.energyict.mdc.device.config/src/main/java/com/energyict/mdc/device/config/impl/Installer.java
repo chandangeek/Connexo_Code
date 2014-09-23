@@ -58,11 +58,15 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "deviceConfiguration.deviceConfigurations", "deviceConfiguration.deviceConfigurations.description", new String[] {Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION});
+        try {
+            this.userService.createResourceWithPrivileges("MDC", "deviceConfiguration.deviceConfigurations", "deviceConfiguration.deviceConfigurations.description", new String[] {Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION});
+        } catch (Exception e) {
+            this.logger.log(Level.SEVERE, e.getMessage(), e);
+        }
     }
 
     private void createDTCPrivileges() {
-        List<String> collect = Arrays.asList(DeviceSecurityUserAction.values()).stream().map(DeviceSecurityUserAction::name).collect(toList());
+        List<String> collect = Arrays.asList(DeviceSecurityUserAction.values()).stream().map(DeviceSecurityUserAction::getPrivilege).collect(toList());
         this.userService.createResourceWithPrivileges("DTC", "DTC", "compatibility.with.EIServer", collect.toArray(new String[collect.size()]));
     }
 
