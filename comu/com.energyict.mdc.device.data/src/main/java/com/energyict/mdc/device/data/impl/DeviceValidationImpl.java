@@ -51,7 +51,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         return found.isPresent() && validationService.validationEnabled(found.get());
     }
 
-    private boolean isValidationActive(Date when, boolean useCached){
+    private boolean isValidationActive(Date when, boolean useCached) {
         if (!useCached || validationActiveCached == null) {
             validationActiveCached = isValidationActive(when);
         }
@@ -101,21 +101,28 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private void validateReadingType(ReadingType readingType, Date start, Date until) {
-        Meter meter = fetchKoreMeter();
         if (start != null) {
-            Interval interval = new Interval(start, until);
-            meter.getMeterActivations().stream()
-                    .filter(m -> m.getInterval().overlaps(interval))
-                    .flatMap(m -> m.getChannels().stream())
-                    .filter(c -> c.getReadingTypes().contains(readingType))
-                    .forEach(c -> validationService.validate(c.getMeterActivation(), readingType.getMRID(), clippedInterval(c, start, until)));
-        } else {
-            meter.getMeterActivations().stream()
-                    .flatMap(m -> m.getChannels().stream())
-                    .filter(c -> c.getReadingTypes().contains(readingType))
-                    .map(c -> Pair.of(c, clippedInterval(c, until)))
-                    .forEach(p -> validationService.validate(p.getFirst().getMeterActivation(), readingType.getMRID(), p.getLast()));
+            doValidate(readingType, start, until);
+            return;
         }
+        doValidate(readingType, until);
+    }
+
+    private void doValidate(ReadingType readingType, Date until) {
+        fetchKoreMeter().getMeterActivations().stream()
+                .flatMap(m -> m.getChannels().stream())
+                .filter(c -> c.getReadingTypes().contains(readingType))
+                .map(c -> Pair.of(c, clippedInterval(c, until)))
+                .forEach(p -> validationService.validate(p.getFirst().getMeterActivation(), readingType.getMRID(), p.getLast()));
+    }
+
+    private void doValidate(ReadingType readingType, Date start, Date until) {
+        Interval interval = new Interval(start, until);
+        fetchKoreMeter().getMeterActivations().stream()
+                .filter(m -> m.getInterval().overlaps(interval))
+                .flatMap(m -> m.getChannels().stream())
+                .filter(c -> c.getReadingTypes().contains(readingType))
+                .forEach(c -> validationService.validate(c.getMeterActivation(), readingType.getMRID(), clippedInterval(c, start, until)));
     }
 
     private Interval clippedInterval(com.elster.jupiter.metering.Channel c, Date start, Date until) {
