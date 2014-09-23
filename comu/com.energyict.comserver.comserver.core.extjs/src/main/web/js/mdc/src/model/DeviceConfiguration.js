@@ -14,6 +14,6 @@ Ext.define('Mdc.model.DeviceConfiguration', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations'
+        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations'
     }
 })

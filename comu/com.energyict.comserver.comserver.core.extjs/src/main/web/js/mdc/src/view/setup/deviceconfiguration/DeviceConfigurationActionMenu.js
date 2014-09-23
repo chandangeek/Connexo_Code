@@ -9,7 +9,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationActionMenu', {
         {
             text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
             itemId: 'activateDeviceconfigurationMenuItem',
-            action: 'activateDeactivateDeviceConfiguration'
+            action: 'activateDeviceConfiguration'
+        },
+        {
+            text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
+            itemId: 'deactivateDeviceconfigurationMenuItem',
+            action: 'deactivateDeviceConfiguration'
         },
         {
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
