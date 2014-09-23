@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
@@ -14,7 +17,6 @@ import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.google.common.collect.ImmutableList;
 
 final class JoinTreeNode<T>  {
 	
@@ -32,9 +34,7 @@ final class JoinTreeNode<T>  {
 	
 	void clearCache() {
 		value.clearCache();
-		for (JoinTreeNode<?> each : children) {
-			each.clearCache();
-		}
+		children.forEach(child -> child.clearCache());
 	}
 	
 	final <R> boolean addMapper(DataMapperImpl<R> newMapper , AliasFactory aliasFactory) {
@@ -55,8 +55,19 @@ final class JoinTreeNode<T>  {
 		children.add(node);
 	}
 
+	private <R> R mark(String fieldName, BiFunction<String, JoinDataMapper<?>, R> biFunction) {
+		return execute(fieldName, TreeAction.mark(biFunction));
+	}
+	
+	private <R> R clear(String fieldName, BiFunction<String, JoinDataMapper<?>, R> biFunction) {
+		return execute(fieldName, TreeAction.clear(biFunction));
+	} 
 
-	final <R> R execute(String fieldName , JoinTreeAction<R> action) {
+	private <R> R find(String fieldName, BiFunction<String, JoinDataMapper<?>, R> biFunction) {
+		return execute(fieldName, TreeAction.find(biFunction));
+	} 
+	
+	private <R> R execute(String fieldName , JoinTreeAction<R> action) {
 		if (fieldName == null) {
 			return null;
 		}
@@ -85,21 +96,11 @@ final class JoinTreeNode<T>  {
 	}
 	
 	final boolean hasWhereField(String fieldName) {
-		return booleanValue(execute(fieldName , new JoinTreeAction<Boolean>(true,false) {			
-			@Override
-			Boolean invoke(String fieldName , JoinDataMapper<?> value) {
-				return value.hasWhereField(fieldName);
-			}
-		}));
+		return booleanValue(mark(fieldName , (reduced,value) -> value.hasWhereField(reduced)));
 	}
 	
 	final Class<?> getType(String fieldName) {
-		return execute(fieldName , new JoinTreeAction<Class<?>>(false,false) {			
-			@Override
-			Class<?> invoke(String fieldName , JoinDataMapper<?> value) {
-				return value.getType(fieldName);
-			}
-		});
+		return find(fieldName , (reduced,value) -> value.getType(reduced));
 	}
 	
 	final ColumnImpl getColumnForField(String fieldName) {
@@ -108,49 +109,23 @@ final class JoinTreeNode<T>  {
 	}
 	
 	final List<ColumnAndAlias> getColumnAndAliases(String fieldName) {
-		return execute(fieldName , new JoinTreeAction<List<ColumnAndAlias>>(true,false) {
-			@Override
-			List<ColumnAndAlias> invoke(String fieldName, JoinDataMapper<?> value) {
-				return value.getColumnAndAliases(fieldName);
-			}
-		});
+		return mark(fieldName , (reduced,value) -> value.getColumnAndAliases(reduced));
 	}
 	
 	final ColumnAndAlias getColumnAndAliasForField(String fieldName) {
-		return execute(fieldName , new JoinTreeAction<ColumnAndAlias>(true,false) {
-			@Override
-			ColumnAndAlias invoke(String fieldName, JoinDataMapper<?> value) {
-				return value.getColumnAndAlias(fieldName);
-			}
-		});			
+		return mark(fieldName , (reduced,value) -> value.getColumnAndAlias(reduced));
 	}	
 	
 	final SqlFragment getFragment(final Comparison comparison , String fieldName) {
-		return execute(fieldName , new JoinTreeAction<SqlFragment> (false,false) {
-			@Override
-			SqlFragment invoke(String fieldName, JoinDataMapper<?> value) {
-				return value.getFragment(comparison,fieldName);
-			}		
-		});
+		return find(fieldName , (reduced,value) -> value.getFragment(comparison,reduced));
 	}
 	
 	final SqlFragment getFragment(final Contains contains , String fieldName) {
-		return execute(fieldName , new JoinTreeAction<SqlFragment> (false,false) {
-			@Override
-			SqlFragment invoke(String fieldName, JoinDataMapper<?> value) {
-				return value.getFragment(contains,fieldName);
-			}		
-		});
-	
+		return find(fieldName , (reduced,value) -> value.getFragment(contains,reduced));	
 	}
 	
 	final DataMapperImpl<?> getDataMapperForField(String fieldName) {
-		return execute(fieldName , new JoinTreeAction<DataMapperImpl<?>> (false,false) {
-			@Override
-			DataMapperImpl<?> invoke(String fieldName, JoinDataMapper<?> value) {
-				return value.getDataMapperForField(fieldName);
-			}		
-		});
+		return find(fieldName , (reduced, value) -> value.getDataMapperForField(reduced));
 	}
 		
 	final int set(Object target , ResultSet rs, int index)  throws SQLException {
@@ -168,9 +143,7 @@ final class JoinTreeNode<T>  {
 	final void completeFind(Date effectiveDate) {
 		if (!semiJoin()) {
 			// do children first, so they can set collection relations before postLoad does.
-			for (JoinTreeNode<?> each : children) {			
-				each.completeFind(effectiveDate);
-			}
+			children.forEach(child-> child.completeFind(effectiveDate));
 			value.completeFind(effectiveDate);
 		}		
 	}
@@ -188,10 +161,8 @@ final class JoinTreeNode<T>  {
 	}
 	
 	final void appendFromClause(SqlBuilder builder, String parentAlias , boolean forceOuterJoin) {
-		forceOuterJoin = value.appendFromClause(builder, parentAlias , isMarked() , forceOuterJoin );
-		for (JoinTreeNode<?> each : children) {
-			each.appendFromClause(builder, value.getAlias() , forceOuterJoin);		
-		}
+		boolean force = value.appendFromClause(builder, parentAlias , isMarked() , forceOuterJoin );
+		children.forEach(child -> child.appendFromClause(builder, value.getAlias() , force));		
 	}
 	
 	List<JoinTreeNode<?>> getChildren() {
@@ -200,9 +171,7 @@ final class JoinTreeNode<T>  {
 
 	JoinTreeNode<T> copy() {
 		JoinTreeNode<T> result = new JoinTreeNode<>(this.value);
-		for (JoinTreeNode<?> each : children) {
-			result.add(each.copy());
-		}
+		children.forEach(child -> result.add(child.copy()));
 		return result;
 	}
 
@@ -224,12 +193,7 @@ final class JoinTreeNode<T>  {
 	}
 	
 	private boolean isAnyChildMarked() {
-		for (JoinTreeNode<?> each : children) {
-			if (each.isMarked()) {
-				return true;
-			}
-		} 
-		return false;
+		return children.stream().anyMatch(child -> child.isMarked());
 	}
 	
 	void mark() {
@@ -239,9 +203,7 @@ final class JoinTreeNode<T>  {
 	void markReachable() {
 		if (isReachable()) {
 			mark();
-			for (JoinTreeNode<?> each : children) {
-				each.markReachable();
-			}
+			children.forEach(child -> child.markReachable());
 		}
 	}
 	
@@ -254,53 +216,32 @@ final class JoinTreeNode<T>  {
 	}
 	
 	boolean clear(String fieldName) {
-		return booleanValue(execute(fieldName , new JoinTreeAction<Boolean>(false,true) {			
-			@Override
-			Boolean invoke(String fieldName, JoinDataMapper<?> value) {
-				return fieldName.isEmpty() || (value.getColumnAndAlias(fieldName.substring(0,fieldName.length()-1)) != null);
-			}			
-		}));
+		return booleanValue(clear(fieldName,(reduced, value) -> reduced.isEmpty() || (value.getColumnAndAlias(reduced.substring(0,reduced.length()-1)) != null)));		
 	}
 			
 	boolean mark(String fieldName) {
-		return booleanValue(execute(fieldName , new JoinTreeAction<Boolean>(true,false) {			
-			@Override
-			Boolean invoke(String fieldName, JoinDataMapper<?> value) {
-				return fieldName.isEmpty() || (value.getColumnAndAlias(fieldName.substring(0,fieldName.length()-1)) != null);
-			}
-		}));		
+		return booleanValue(mark(fieldName, (reduced, value) -> reduced.isEmpty() || (value.getColumnAndAlias(reduced.substring(0,reduced.length()-1)) != null)));		
 	}
 	
 	void clearChildMappers() {
 		if (value.isChild()) {
 			clear();
 		} else {
-			for (JoinTreeNode<?> each : children) {
-				each.clearChildMappers();
-			}
+			children.forEach(child -> child.clearChildMappers());
 		}		 
 	}	
 	
 	void clear() {
 		marked = false;
-		for (JoinTreeNode<?> each : children) {
-			each.clear();
-		}			
+		children.forEach(child -> child.clear());			
 	}
 
     List<String> getQueryFields() {
-		String localName = value.getName();
-		localName = (localName == null) ? "" : localName + ".";		
-        ImmutableList.Builder<String> builder = ImmutableList.builder();
-		for (String each : value.getQueryFields()) {
-			builder.add(localName+each);
-		}		
-		for (JoinTreeNode<?> each : children) {
-			for (String field : each.getQueryFields()) {
-				builder.add(localName + field);
-			}
-		}
-		return builder.build();
+		String baseName = value.getName();
+		String localName = (baseName == null) ? "" : baseName + ".";	
+		return Stream.concat(value.getQueryFields().stream(), children.stream().flatMap(child -> child.getQueryFields().stream()))
+			.map(field -> localName + field)
+			.collect(Collectors.toList());
 	}
 	
 	boolean semiJoin() {
@@ -308,15 +249,7 @@ final class JoinTreeNode<T>  {
 	}
 	
 	boolean hasSemiJoin() {
-		if (semiJoin()) {
-			return true;
-		}
-		for (JoinTreeNode<?> each : children) {
-			if (each.hasSemiJoin()) {
-				return true;
-			}
-		}
-		return false;
+		return semiJoin() || children.stream().anyMatch(child -> child.hasSemiJoin());
 	}
 	
 	@Override
