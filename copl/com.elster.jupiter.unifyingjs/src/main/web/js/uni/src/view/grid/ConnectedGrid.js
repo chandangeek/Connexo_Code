@@ -22,7 +22,9 @@
  *       allItemsStoreName: 'Mdc.store.MessageCategories',
  *       selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.cathegories', 'MDC', 'Selected message categories'),
  *       selectedItemsStoreName: 'Mdc.store.SelectedMessageCategories',
- *       displayedColumn: 'name'
+ *       displayedColumn: 'name',
+ *       disableIndication: true,
+ *       enableSorting: true
  *     }
  *   ]
  * },
@@ -33,6 +35,10 @@
 Ext.define('Uni.view.grid.ConnectedGrid', {
     extend: 'Ext.container.Container',
     xtype: 'connected-grid',
+
+    requires: [
+        'Uni.grid.plugin.DragDropWithoutIndication'
+    ],
 
     layout: {
         type: 'hbox'
@@ -48,11 +54,20 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
 
     displayedColumn: null,
 
+    disableIndication: false,
+
+    enableSorting: false,
+
 
     initComponent: function () {
         var me = this,
             allItems = me.id + 'allItemsGrid',
-            selectedItems = me.id + 'selectedItemsGrid';
+            selectedItems = me.id + 'selectedItemsGrid',
+            dragDropPlugin = 'gridviewdragdrop';
+
+        if (me.disableIndication) {
+            dragDropPlugin = 'gridviewdragdropwithoutindication'
+        }
 
 
         if (Ext.isEmpty(me.displayedColumn)) {
@@ -77,13 +92,13 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                 ],
                 viewConfig: {
                     plugins: {
-                        ptype: 'gridviewdragdrop',
+                        ptype: dragDropPlugin,
                         dragGroup: allItems,
                         dropGroup: selectedItems
                     },
                     listeners: {
                         drop: function (node, data, dropRec, dropPosition) {
-                            me.getAllItemsStore().sort(me.displayedColumn, 'ASC');
+                            me.enableSorting && me.getAllItemsStore().sort(me.displayedColumn, 'ASC');
                         }
                     }
                 },
@@ -162,13 +177,13 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                 ],
                 viewConfig: {
                     plugins: {
-                        ptype: 'gridviewdragdrop',
+                        ptype: dragDropPlugin,
                         dragGroup: selectedItems,
                         dropGroup: allItems
                     },
                     listeners: {
                         drop: function (node, data, dropRec, dropPosition) {
-                            me.getSelectedItemsStore().sort(me.displayedColumn, 'ASC');
+                            me.enableSorting && me.getSelectedItemsStore().sort(me.displayedColumn, 'ASC');
                         }
                     }
                 },
@@ -219,7 +234,7 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
             allItemsStore.removeAll();
         }
 
-        selectedItemsStore.sort(this.displayedColumn, 'ASC');
+        this.enableSorting && selectedItemsStore.sort(this.displayedColumn, 'ASC');
     },
 
     selectItems: function () {
@@ -235,7 +250,7 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
             });
         }
 
-        selectedItemsStore.sort(this.displayedColumn, 'ASC');
+        this.enableSorting && selectedItemsStore.sort(this.displayedColumn, 'ASC');
     },
 
     deselectItems: function () {
@@ -251,7 +266,7 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
             });
         }
 
-        allItemsStore.sort(this.displayedColumn, 'ASC');
+        this.enableSorting && allItemsStore.sort(this.displayedColumn, 'ASC');
     },
 
     deselectAllItems: function () {
@@ -265,6 +280,6 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
             selectedItemsStore.removeAll();
         }
 
-        allItemsStore.sort(this.displayedColumn, 'ASC');
+        this.enableSorting && allItemsStore.sort(this.displayedColumn, 'ASC');
     }
 });
