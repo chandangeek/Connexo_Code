@@ -119,7 +119,7 @@ public class DeviceComTaskResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
-            comTaskExecutions.forEach(runComTaskFromExecutionNow(device));
+            comTaskExecutions.forEach(runComTaskFromExecution(device));
         } else if(comTaskExecutions.size()==0){
             throw exceptionFactory.newException(MessageSeeds.RUN_COMTASK__NOT_ALLOWED);
         }
@@ -134,7 +134,7 @@ public class DeviceComTaskResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
-            comTaskExecutions.forEach(runComTaskFromExecution(device));
+            comTaskExecutions.forEach(runComTaskFromExecutionNow(device));
         } else if(comTaskExecutions.size()==0){
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             comTaskEnablements.forEach(runComTaskFromEnablement(device));
