@@ -6,18 +6,16 @@ Ext.define('Uni.grid.column.ValidationFlag', {
     renderer: function (value, metaData, record) {
         switch (record.get('validationResult')) {
             case 'validationStatus.notValidated':
-                return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>' + ' '
-                    + value + ' ' + record.get('unitOfMeasure') + '</span>';
+                return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
                 break;
             case 'validationStatus.ok':
-                return value + ' ' + record.get('unitOfMeasure');
+                return '<span class="validation-column-align"><span class="icon-validation"></span>';
                 break;
             case 'validationStatus.suspect':
-                return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>' + '  '
-                    + value + ' ' + record.get('unitOfMeasure') + '</span>';
+                return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
                 break;
             default:
-                return value + ' ' + record.get('unitOfMeasure');
+                return '';
                 break;
         }
     }

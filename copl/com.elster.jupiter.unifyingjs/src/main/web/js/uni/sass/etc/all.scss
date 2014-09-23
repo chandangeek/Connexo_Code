@@ -373,11 +373,13 @@
     height: 13px;
     width: 13px;
     vertical-align: middle;
+    background-position: left;
 }
 
 .icon-validation-black {
     background-image: url('images/shared/Not-validated.png');
 }
+
 
 .icon-validation-red {
     background-image: url('images/shared/Suspect.png');
