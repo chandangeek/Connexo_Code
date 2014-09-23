@@ -3,6 +3,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
     alias: 'widget.communication-servers',
     initComponent: function () {
         var router = this.router;
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         this.items = [
             {
                 xtype: 'dataview',
@@ -11,7 +12,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 emptyText: Uni.I18n.translate('overview.widget.communicationServers.noServersFound', 'DSH', 'No communication servers found'),
                 tpl: new Ext.XTemplate(
                     '<div>',
-                        '<h3>' + Uni.I18n.translate('overview.widget.communicationServers.title', 'DSH', 'Communication servers') + '</h3>',
+                        '<h3>' + Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Down communication servers') + '</h3>',
                         '<table style="margin: 5px 0 10px 0">',
                             '<tpl for=".">',
                                 '<tpl if="!running && xindex &lt; 4">',
