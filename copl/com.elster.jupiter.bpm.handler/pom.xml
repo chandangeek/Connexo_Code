@@ -77,10 +77,6 @@
             <artifactId>bpm</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>org.ow2.util.base64</groupId>
-            <artifactId>base64</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

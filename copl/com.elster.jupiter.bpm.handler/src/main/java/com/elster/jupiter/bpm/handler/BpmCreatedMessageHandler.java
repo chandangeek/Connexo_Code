@@ -1,6 +1,7 @@
 package com.elster.jupiter.bpm.handler;
 
 import com.elster.jupiter.bpm.BpmProcess;
+import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
@@ -11,16 +12,19 @@ import java.util.Map;
 
 public class BpmCreatedMessageHandler implements MessageHandler{
     private final JsonService jsonService;
+    private final BpmServer bpmRestClient;
 
-    public BpmCreatedMessageHandler(JsonService jsonService) {
+    public BpmCreatedMessageHandler(JsonService jsonService, BpmServer server) {
         this.jsonService = jsonService;
+        this.bpmRestClient = server;
     }
+
 
     @Override
     public void process(Message message) {
         BpmProcess bpmProcess =  jsonService.deserialize(message.getPayload(), BpmProcess.class);
         String targetURL = "/rest/runtime/"+bpmProcess.getDeploymentId()+"/process/"+bpmProcess.getId()+"/start"+getProcessParameters(bpmProcess.getParameters());
-        new BpmRestClient().doPost(targetURL);
+        bpmRestClient.doPost(targetURL);
     }
 
     private String getProcessParameters(Map<String, Object> params) {
