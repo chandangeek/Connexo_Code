@@ -16,9 +16,9 @@ public class Activator implements BundleActivator {
     private volatile ServiceRegistration<App> registration;
 
     public void start(BundleContext bundleContext) throws Exception {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/mdc", new BundleResolver(bundleContext), new DefaultStartPage("Multi Sense App"));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/mdc", new BundleResolver(bundleContext), new DefaultStartPage("MultiSense App"));
 //        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.energyict.mdc.app/src/main/web/js/mdc", new FileResolver(), new DefaultStartPage("Multi Sense App"));
-        App mdcApp = new App("Connexo Multi Sense", "connexo", HTTP_RESOURCE_ALIAS, resource);
+        App mdcApp = new App("Connexo MultiSense", "connexo", HTTP_RESOURCE_ALIAS, resource);
         registration = bundleContext.registerService(App.class, mdcApp, null);
     }
 
