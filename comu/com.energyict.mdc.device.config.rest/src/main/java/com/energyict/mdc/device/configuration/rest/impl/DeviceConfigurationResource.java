@@ -235,13 +235,24 @@ public class DeviceConfigurationResource {
     public DeviceConfigurationInfo updateDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        if (deviceConfigurationInfo.active!=null && deviceConfigurationInfo.active && !deviceConfiguration.isActive()) {
-            deviceConfiguration.activate();
-        } else if (deviceConfigurationInfo.active!=null && !deviceConfigurationInfo.active && deviceConfiguration.isActive()) {
+        deviceConfigurationInfo.writeTo(deviceConfiguration);
+        deviceConfiguration.save();
+        return new DeviceConfigurationInfo(deviceConfiguration);
+    }
+
+    @PUT
+    @Path("/{deviceConfigurationId}/status")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
+    public DeviceConfigurationInfo updateDeviceConfigurationsStatus(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        if (deviceConfigurationInfo.active != null && deviceConfigurationInfo.active) {
+            if (!deviceConfiguration.isActive()) {
+                deviceConfiguration.activate();
+            }
+        } else if (deviceConfiguration.isActive()) {
             deviceConfiguration.deactivate();
-        } else {
-            deviceConfigurationInfo.writeTo(deviceConfiguration);
-            deviceConfiguration.save();
         }
         return new DeviceConfigurationInfo(deviceConfiguration);
     }
@@ -283,7 +294,7 @@ public class DeviceConfigurationResource {
     public LoadProfileConfigurationResource getLoadProfileConfigurationResource() {
         return loadProfileConfigurationResourceProvider.get();
     }
-    
+
     @Path("/{deviceConfigurationId}/securityproperties")
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();

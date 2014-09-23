@@ -643,7 +643,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         deviceConfigurationInfo.name="new name";
         deviceConfigurationInfo.active=true;
         Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
-        Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
+        Response response = target("/devicetypes/31/deviceconfigurations/101/status").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceConfiguration101, never()).setName(anyString());
         verify(deviceConfiguration101, times(1)).activate();
