@@ -445,7 +445,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         me.comServerId = id;
         me.comportEdit = widget;
         me.portDirection = 'outbound';
-        me.portType = me.defaultType;
+        me.portType = me.portType ? me.portType : me.defaultType;
 
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getAddComPortForm().setTitle(Uni.I18n.translate('comServerComPorts.addOutboundPort', 'MDC', 'Add outbound communication port'));

@@ -173,7 +173,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         });
     },
 
-    activateDataValidation: function (view, confWindow) {
+    activateDataValidation: function (record, confWindow) {
         var me = this;
         if (confWindow.down('#validateLoadProfileFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateLoadProfileDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
@@ -190,6 +190,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translatePlural('deviceloadprofiles.activation.completed', me.loadProfileName, 'MDC', 'Data validation on load profile {0} was completed successfully'));
+                    Ext.ComponentQuery.query('#deviceLoadProfilesGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfilesGrid')[0].getSelectionModel(), record);
                 }
             });
         }

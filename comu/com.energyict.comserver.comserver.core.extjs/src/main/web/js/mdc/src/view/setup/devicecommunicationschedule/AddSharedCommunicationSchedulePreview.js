@@ -7,8 +7,6 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
         'Mdc.util.ScheduleToStringConverter'
     ],
     hidden: true,
-//    header: true,
-//    title: ' ',
     items: [
         {
             xtype: 'form',
@@ -38,12 +36,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                             items: [
                                 {
                                     xtype: 'displayfield',
-                                    name: 'temporalExpression',
-                                    fieldLabel: Uni.I18n.translate('deviceCommunicationSchedule.schedule', 'MDC', 'Schedule'),
-                                    renderer: function(value){
-                                        return Mdc.util.ScheduleToStringConverter.convert(value);
-                                    }
-
+                                    name: 'name',
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationSchedule.name', 'MDC', 'Name')
                                 },
                                 {
                                     xtype: 'fieldcontainer',
@@ -57,6 +51,40 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                             ]
                                         }
                                     ]
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'container',
+                            columnWidth: 0.5,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
+                            defaults: {
+                                labelWidth: 250
+                            },
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'temporalExpression',
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationSchedule.frequency', 'MDC', 'Frequency'),
+                                    renderer: function(value){
+                                        return Mdc.util.ScheduleToStringConverter.convert(value);
+                                    }
+
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'plannedDate',
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationSchedule.plannedDate', 'MDC', 'Planned date'),
+                                    renderer: function (value) {
+                                        if (value !== null) {
+                                            return new Date(value).toLocaleString();
+                                        } else {
+                                            return '';
+                                        }
+                                    }
                                 }
                             ]
                         }
