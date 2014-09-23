@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                         itemId: 'channelValidationResult' + channel.id
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('device.registerData.suspectReason', 'MDC', 'Suspect reason'),
+                        fieldLabel: Uni.I18n.translate('device.registerData.failedValidationRules', 'MDC', 'Failed validation rules'),
                         itemId: 'channelSuspectReason' + channel.id
                     }
                 ]

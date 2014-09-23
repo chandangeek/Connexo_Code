@@ -708,7 +708,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showCommunicationTasksCreateEdit',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationTask', function (record) {
-                                    route.setTitle(('general.edit', 'MDC', 'Edit') + ' \''  + record.get('name') + '\'');
+                                    route.setTitle(('general.edit', 'MDC', 'Edit') + ' \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
@@ -1043,6 +1043,7 @@ Ext.define('Mdc.controller.history.Setup', {
             }
         }
     },
+
     tokenizePreviousTokens: function () {
         return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
     },

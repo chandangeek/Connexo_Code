@@ -79,15 +79,15 @@ Ext.define('Mdc.controller.Main', {
     init: function () {
         var me = this;
 
-        var menuItem = Ext.create('Uni.model.MenuItem', {
+        var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
             text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
-            href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
+            href: '#/devices',
             glyph: 'devices',
             portal: 'devices',
             index: 20
         });
 
-        Uni.store.MenuItems.add(menuItem);
+        Uni.store.MenuItems.add(devicesMenuItem);
 
         var portalItem = Ext.create('Uni.model.PortalItem', {
             title: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),

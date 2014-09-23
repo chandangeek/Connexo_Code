@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('device.registerData.suspectReason', 'MDC', 'Suspect reason'),
+            fieldLabel: Uni.I18n.translate('device.registerData.failedValidationRules', 'MDC', 'Failed validation rules'),
             name: 'suspect_rules'
         }
     ]
