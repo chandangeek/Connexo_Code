@@ -1,10 +1,10 @@
 package com.elster.jupiter.bpm.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.rest.util.BinderProvider;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.ComponentContext;
-import com.elster.jupiter.rest.util.BinderProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -31,13 +31,12 @@ public class BpmApplication extends Application implements BinderProvider{
     }
 
     @Reference
-    public void setDeviceDataService(BpmService bpmService) {
+    public void setBpmService(BpmService bpmService) {
         this.bpmService = bpmService;
     }
 
     @Activate
     public void activate(ComponentContext context) {
-        BpmStartup.init(context.getBundleContext());
     }
 
     @Deactivate
