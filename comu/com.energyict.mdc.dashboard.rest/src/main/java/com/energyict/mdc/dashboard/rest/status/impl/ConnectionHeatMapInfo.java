@@ -52,8 +52,8 @@ public class ConnectionHeatMapInfo {
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }
                     TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                    taskCounterInfo.id = MessageSeeds.AT_LEAST_ONE_FAILED.getKey();
-                    taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(), MessageSeeds.AT_LEAST_ONE_FAILED.getKey());
+                    taskCounterInfo.id = MessageSeeds.SOME_TASKS_FAILED.getKey();
+                    taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.SOME_TASKS_FAILED.getKey(), MessageSeeds.SOME_TASKS_FAILED.getKey());
                     taskCounterInfo.count = counters.getAtLeastOneTaskFailedCount();
                     heatMapRowInfo.data.add(taskCounterInfo);
                 }

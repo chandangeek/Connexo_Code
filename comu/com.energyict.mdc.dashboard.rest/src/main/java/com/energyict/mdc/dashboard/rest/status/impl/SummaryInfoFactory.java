@@ -53,7 +53,7 @@ public class SummaryInfoFactory {
             connectionsWithFailingTasks = new TaskSummaryCounterInfo();
             connectionsWithFailingTasks.count = atLeastOneTaskFailed;
             connectionsWithFailingTasks.id = null; // not navigable
-            connectionsWithFailingTasks.displayName = thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(), "At least one task failed");
+            connectionsWithFailingTasks.displayName = thesaurus.getString(MessageSeeds.SOME_TASKS_FAILED.getKey(), "At least one task failed");
             successfulConnections.counters.add(connectionsWithFailingTasks);
         }
 
