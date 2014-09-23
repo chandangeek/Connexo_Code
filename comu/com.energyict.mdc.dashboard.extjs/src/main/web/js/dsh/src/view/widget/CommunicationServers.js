@@ -3,7 +3,6 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
     alias: 'widget.communication-servers',
     initComponent: function () {
         var router = this.router;
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         this.items = [
             {
                 xtype: 'dataview',
