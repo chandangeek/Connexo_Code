@@ -260,7 +260,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             return true;
         } else if(communicationSchedules.length === 0){
             me.getUniFormErrorMessage().show();
-            me.getWarningMessage().update('<span style="color:red">'+ Uni.I18n.translate('deviceCommunicationSchedule.noScheduleSelected', 'MDC', 'Select at least one shared schedule') +'</span>');
+            me.getWarningMessage().update('<span style="color:red">'+ Uni.I18n.translate('deviceCommunicationSchedule.noScheduleSelected', 'MDC', 'Select at least one shared communication schedule') +'</span>');
             me.getWarningMessage().setVisible(true);
             return false;
         } else if (communicationSchedules.length > 1) {
