@@ -55,16 +55,32 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 }
                             },
                             {
+                                xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
-                                name: 'reportedDateTime',
-                                format: 'M j, Y \\a\\t G:i',
-                                renderer: function (value) {
-                                    if (!Ext.isEmpty(value)) {
-                                        return Ext.util.Format.date(new Date(value), this.format);
-                                    }
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'reportedDateTime',
+                                        renderer: function (value) {
+                                            if (!Ext.isEmpty(value)) {
+                                                return Ext.util.Format.date(new Date(value), this.format);
+                                            }
 
-                                    return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')
-                                }
+                                            return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')
+                                        }
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        tooltip: Uni.I18n.translate('deviceregisterconfiguration.tooltip.latestReading', 'MDC', 'The moment when the data was read out for the last time'),
+                                        iconCls: 'icon-info-small',
+                                        ui: 'blank',
+                                        itemId: 'latestReadingHelp',
+                                        shadow: false,
+                                        margin: '6 0 0 10',
+                                        width: 16
+                                    }
+                                ]
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),

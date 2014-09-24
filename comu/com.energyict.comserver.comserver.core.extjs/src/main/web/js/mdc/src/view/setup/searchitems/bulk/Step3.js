@@ -62,6 +62,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                 frame: true,
                 itemId: 'communicationschedulepreview',
                 hidden: true,
+                margin: '0 0 5 0',
                 requires: [
                     'Mdc.model.DeviceType'
                 ],
@@ -103,9 +104,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
         },
         {
             xtype: 'container',
-            itemId: 'step3selectionError',
+            itemId: 'stepSelectionError',
             hidden: true,
-            html: '<span style="color: #eb5642">Select at least 1 item</span>'
+            html: '<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1communicationschedule', 'MDC', 'Select at least 1 communication schedule') + '</span>'
         }
     ]
 });
