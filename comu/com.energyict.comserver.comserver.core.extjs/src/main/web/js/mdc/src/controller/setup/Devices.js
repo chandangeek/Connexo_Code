@@ -55,7 +55,7 @@ Ext.define('Mdc.controller.setup.Devices', {
     },
 
     back: function () {
-        location.href = "#devices";
+        location.href = "#/devices";
     },
 
     showDeviceDetailsView: function (mRID) {
