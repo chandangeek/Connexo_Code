@@ -9,19 +9,18 @@ import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsFirst;
-import static java.util.Comparator.nullsLast;
+import static java.util.Comparator.*;
 
 /**
  * Created by tgr on 9/09/2014.
@@ -41,7 +40,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
-    public Device getDevice() {
+    public DeviceImpl getDevice() {
         return device;
     }
 
@@ -72,9 +71,31 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
+    public boolean isValidationActive(Register<?> register, Date when) {
+        if (!isValidationActive(when, true)) {
+            return false;
+        }
+        Optional<com.elster.jupiter.metering.Channel> found = device.findKoreChannel(register, when);
+        return found.isPresent() && validationService.getMeterActivationValidations(found.get().getMeterActivation()).stream()
+                .map(m -> m.getChannelValidation(found.get()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .anyMatch(ChannelValidation::hasActiveRules);
+    }
+
+    @Override
     public Optional<Date> getLastChecked(Channel channel) {
-        return device.findKoreChannels(channel).stream()
-                .filter(k -> k.getReadingTypes().contains(channel.getReadingType()))
+        return getLastChecked(channel::getReadingType);
+    }
+
+    @Override
+    public Optional<Date> getLastChecked(Register<?> register) {
+        return getLastChecked(() -> register.getReadingType());
+    }
+
+    private Optional<Date> getLastChecked(Supplier<ReadingType> readingTypeSupplier) {
+        return device.findKoreChannels(readingTypeSupplier).stream()
+                .filter(k -> k.getReadingTypes().contains(readingTypeSupplier.get()))
                 .map(validationService::getLastChecked)
                 .findFirst()
                 .orElse(Optional.<Date>absent());
@@ -98,6 +119,18 @@ public class DeviceValidationImpl implements DeviceValidation {
     @Override
     public void validateChannel(Channel channel, Date start, Date until) {
         validateReadingType(channel.getReadingType(), start, until);
+    }
+
+    @Override
+    public boolean hasData(Channel channel) {
+        return getDevice().findKoreChannels(channel).stream()
+                .anyMatch(c -> c.hasData());
+    }
+
+    @Override
+    public boolean hasData(Register<?> register) {
+        return getDevice().findKoreChannels(register).stream()
+                .anyMatch(c -> c.hasData());
     }
 
     private void validateReadingType(ReadingType readingType, Date start, Date until) {

@@ -108,10 +108,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -127,6 +127,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -1213,21 +1214,37 @@ public class DeviceImpl implements Device {
     }
 
     Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Date when) {
+        return findKoreChannel(channel::getReadingType, when);
+    }
+
+    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Date when) {
+        return findKoreChannel(() -> register.getReadingType(), when);
+    }
+
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Supplier<ReadingType> readingTypeSupplier, Date when) {
         Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
         if (found.isPresent()) {
             Optional<MeterActivation> meterActivation = found.get().getMeterActivation(when);
             if (meterActivation.isPresent()) {
-                return Optional.fromNullable(getChannel(meterActivation.get(), channel.getReadingType()).orElse(null));
+                return Optional.fromNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
             }
         }
         return Optional.absent();
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Channel channel) {
+        return findKoreChannels(channel::getReadingType);
+    }
+
+    List<com.elster.jupiter.metering.Channel> findKoreChannels(Register<?> register) {
+        return findKoreChannels(() -> register.getReadingType());
+    }
+
+    List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier) {
         Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
         if (found.isPresent()) {
             return found.get().getMeterActivations().stream()
-                    .map(m -> getChannel(m, channel.getReadingType()))
+                    .map(m -> getChannel(m, readingTypeSupplier.get()))
                     .filter(java.util.Optional::isPresent)
                     .map(java.util.Optional::get)
                     .collect(Collectors.toList());
