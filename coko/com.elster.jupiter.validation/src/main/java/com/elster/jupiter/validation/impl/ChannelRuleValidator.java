@@ -82,7 +82,8 @@ class ChannelRuleValidator {
                                         ReadingQualityType readingQualityType, BaseReadingRecord readingRecord) {
         Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
         if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
-            saveNewReadingQuality(channel, readingRecord, readingQualityType);
+            ReadingQualityRecord readingQualityRecord = saveNewReadingQuality(channel, readingRecord, readingQualityType);
+            existingReadingQualities.put(readingRecord.getTimeStamp(), readingQualityRecord);
             readingRecord.setProcessingFlags(ProcessStatus.Flag.SUSPECT);
         }
         if (ValidationResult.VALID.equals(result) && existingQualityForType.isPresent()) {
@@ -96,7 +97,8 @@ class ChannelRuleValidator {
                                         ReadingQualityType readingQualityType, Date timestamp) {
         Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, timestamp);
         if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
-            saveNewReadingQuality(channel, timestamp, readingQualityType);
+            ReadingQualityRecord readingQualityRecord = saveNewReadingQuality(channel, timestamp, readingQualityType);
+            existingReadingQualities.put(timestamp, readingQualityRecord);
         }
         if (ValidationResult.VALID.equals(result) && existingQualityForType.isPresent()) {
             existingQualityForType.get().delete();
@@ -123,14 +125,16 @@ class ChannelRuleValidator {
         return newLastChecked;
     }
 
-    private void saveNewReadingQuality(Channel channel, BaseReadingRecord reading, ReadingQualityType readingQualityType) {
+    private ReadingQualityRecord saveNewReadingQuality(Channel channel, BaseReadingRecord reading, ReadingQualityType readingQualityType) {
         ReadingQualityRecord readingQuality = channel.createReadingQuality(readingQualityType, reading);
         readingQuality.save();
+        return readingQuality;
     }
 
-    private void saveNewReadingQuality(Channel channel, Date timestamp, ReadingQualityType readingQualityType) {
+    private ReadingQualityRecord saveNewReadingQuality(Channel channel, Date timestamp, ReadingQualityType readingQualityType) {
         ReadingQualityRecord readingQuality = channel.createReadingQuality(readingQualityType, timestamp);
         readingQuality.save();
+        return readingQuality;
     }
 
 
