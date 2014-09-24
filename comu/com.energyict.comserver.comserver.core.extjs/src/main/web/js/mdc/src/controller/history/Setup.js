@@ -248,7 +248,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showSecuritySettingsEditView'
                                                         },
                                                         executionLevels: {
-                                                            title: 'Add execution levels',
+                                                            title: 'Add privileges',
                                                             route: '{securitySettingId}/executionlevels/add',
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showAddExecutionLevelsView'

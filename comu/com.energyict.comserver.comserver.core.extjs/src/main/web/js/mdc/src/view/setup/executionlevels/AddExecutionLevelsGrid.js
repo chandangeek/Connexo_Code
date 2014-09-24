@@ -9,14 +9,14 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevelsGrid', {
             'executionlevels.selectedItems',
             count,
             'MDC',
-            '{0} execution levels selected'
+            '{0} privileges selected'
         );
     },
 
     columns: {
         items: [
             {
-                header: Uni.I18n.translate('executionLevel.executionlevel', 'MDC', 'Execution level'),
+                header: Uni.I18n.translate('executionLevel.executionlevel', 'MDC', 'Privilege'),
                 dataIndex: 'name',
                 flex: 0.3
             },

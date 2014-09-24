@@ -208,11 +208,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         executionLevelsTitle.show();
         executionLevelscontainer.show();
 
-        this.getExecutionLevelsForSecuritySettingPreview().setTitle(record.getData().name + ' ' + Uni.I18n.translate('executionLevel.gridTitle', 'MDC', 'execution levels'));
+        this.getExecutionLevelsForSecuritySettingPreview().setTitle(record.getData().name + ' ' + Uni.I18n.translate('executionLevel.gridTitle', 'MDC', 'privileges'));
 
         executionLevelsgrid.down('pagingtoolbartop').store = record.executionLevels();
         executionLevelsgrid.down('pagingtoolbartop').store.totalCount = record.executionLevels().getCount();
-        executionLevelsgrid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', record.executionLevels().getCount(), 'MDC', '{2} execution levels'),
+        executionLevelsgrid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', record.executionLevels().getCount(), 'MDC', '{2} privileges'),
         executionLevelsgrid.down('pagingtoolbartop').updateInfo();
 
         preloader.destroy();
@@ -463,7 +463,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                             me.getApplication().fireEvent('loadSecuritySetting', securitySetting);
                                             var widget = Ext.widget('add-execution-levels', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigId, securitySettingId: securitySettingId})
                                             me.getApplication().fireEvent('changecontentevent', widget);
-                                            me.getAddExecutionLevelPanel().setTitle(Uni.I18n.translate('executionlevels.addExecutionLevels', 'MDC', 'Add execution levels'));
+                                            me.getAddExecutionLevelPanel().setTitle(Uni.I18n.translate('executionlevels.addExecutionLevels', 'MDC', 'Add privileges'));
                                           //  var numberOfExecutionLevelsLabel = Ext.ComponentQuery.query('add-execution-levels toolbar label[name=ExecutionLevelCount]')[0],
                                                 var grid = Ext.ComponentQuery.query('add-execution-levels grid')[0];
                                             //numberOfExecutionLevelsLabel.setText(Uni.I18n.translate('executionlevels.noExecutionLevelsSelected', 'MDC','No execution levels selected'));
@@ -515,13 +515,13 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 jsonData: jsonIds,
                 success: function () {
                     router.getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').forward();
-                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevels.acknowlegment.added', 'MDC', 'Execution levels added'));
+                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevels.acknowlegment.added', 'MDC', 'Privileges added'));
                 },
                 failure: function (response) {
                     if (response.status == 400) {
                         var result = Ext.decode(response.responseText, true),
                             errorTitle = 'Failed to add',
-                            errorText = 'Execution levels could not be added. There was a problem accessing the database';
+                            errorText = 'Privileges could not be added. There was a problem accessing the database';
 
                         if (result !== null) {
                             errorTitle = result.error;
@@ -547,7 +547,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             securitySetting = securitySettingsGrid.getView().getSelectionModel().getLastSelected().getData().id;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('executionlevel.removeExecutionLevel', 'MDC', 'The execution level will no longer be available.'),
+            msg: Uni.I18n.translate('executionlevel.removeExecutionLevel', 'MDC', 'The privilege will no longer be available.'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + '\'' + lastSelected.getData().name + '\'?',
             config: {
                 executionLevelToDelete: lastSelected,
@@ -569,7 +569,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 method: 'DELETE',
                 waitMsg: 'Removing...',
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevel.acknowlegment.removed', 'MDC', 'Execution level removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevel.acknowlegment.removed', 'MDC', 'Privilege removed'));
                     me.store.load();
                 },
                 failure: function (response, request) {
@@ -581,7 +581,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                             errorText = result.message;
                         }
 
-                        me.getApplication().getController('Uni.controller.Error').showError("Error during removing of execution level", errorText);
+                        me.getApplication().getController('Uni.controller.Error').showError("Error during removing of privilege", errorText);
                     }
                 }
             });
