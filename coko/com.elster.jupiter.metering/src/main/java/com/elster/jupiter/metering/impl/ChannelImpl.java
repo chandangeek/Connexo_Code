@@ -288,7 +288,7 @@ public final class ChannelImpl implements Channel {
     }
 
     private Condition inInterval(Interval interval) {        
-        return where("readingTimestamp").inClosed(interval);
+        return where("readingTimestamp").inOpenClosed(interval);
     }
 
     private Condition ofThisChannel() {
