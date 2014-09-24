@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 width: 30,
                 renderer: function (data, metaData, record) {
                     var validationFlag = '';
-                    if (record.data.channelValidationData && record.data.channelValidationData[channel.id]) {
+                    if (record.data.channelValidationData[channel.id]) {
                         switch (record.data.channelValidationData[channel.id].validationResult) {
                             case 'validationStatus.notValidated':
                                 validationFlag = '<span class="icon-validation icon-validation-black"></span>';
@@ -51,10 +51,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                                 validationFlag = '';
                                 break;
                         }
+                    } else {
+                        validationFlag = '<span class="icon-validation icon-validation-black"></span>';
                     }
-                    return !Ext.isEmpty(data[channel.id])
-                        ? '<span class="validation-column-align">' + validationFlag + '</span>'
-                        : '<span class="icon-validation icon-validation-black"></span>';
+                    return  '<span class="validation-column-align">' + validationFlag + '</span>';
                 }
             },
                 {
@@ -63,10 +63,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                     align: 'right',
                     minWidth: 200,
                     renderer: function (data, metaData, record) {
-                        var validationFlag = '';
-                        if (record.data.channelValidationData && record.data.channelValidationData[channel.id]) {
-                            return data[channel.id] + ' ' + channel.unitOfMeasure.unit;
-                        }
                         return !Ext.isEmpty(data[channel.id])
                             ? data[channel.id] + ' ' + channel.unitOfMeasure.unit
                             : '';

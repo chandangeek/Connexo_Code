@@ -63,7 +63,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.DataGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('devicelogbooks.dataGrid.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Events per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                deferLoading: false
             }
         ];
 

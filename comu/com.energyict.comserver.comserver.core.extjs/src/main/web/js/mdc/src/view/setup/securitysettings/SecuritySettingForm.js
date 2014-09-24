@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             required: true,
                             regex: /[a-zA-Z0-9]+/,
                             allowBlank: false,
-                            fieldLabel: 'Name',
+                            fieldLabel: Uni.I18n.translate('securitySetting.name','MDC','Name'),
                             msgTarget: 'under'
                         },
                         {
@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             required: true,
                             editable: false,
                             allowBlank: false,
-                            fieldLabel: 'Authentication level',
+                            fieldLabel: Uni.I18n.translate('securitySetting.authenticationLevel','MDC','Authentication level'),
                             emptyText: 'Select authentication level',
                             name: 'authenticationLevelId',
                             displayField: 'name',
@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             required: true,
                             editable: false,
                             allowBlank: false,
-                            fieldLabel: 'Encryption level',
+                            fieldLabel: Uni.I18n.translate('securitySetting.encryptionLevel','MDC','Encryption level'),
                             emptyText: 'Select encryption level',
                             name: 'encryptionLevelId',
                             displayField: 'name',
@@ -93,7 +93,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
         this.down('#SecuritySettingCancel').add(
             {
                 xtype: 'button',
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                 name: 'cancel',
                 hrefTarget: '',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings',

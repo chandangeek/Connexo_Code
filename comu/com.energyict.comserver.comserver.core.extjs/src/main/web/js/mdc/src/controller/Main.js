@@ -23,7 +23,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ComServersView',
         'Mdc.controller.setup.Comtasks',
         'Mdc.controller.setup.ConnectionMethods',
-        'Mdc.controller.setup.DeviceCommunicationProtocol',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
         'Mdc.controller.setup.DeviceCommunicationSchedules',
         'Mdc.controller.setup.DeviceCommunicationTasks',
@@ -79,33 +78,35 @@ Ext.define('Mdc.controller.Main', {
     init: function () {
         var me = this;
 
-        var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
-            href: '#/devices',
-            glyph: 'devices',
-            portal: 'devices',
-            index: 20
-        });
+        if (Uni.Auth.hasPrivilege('privilege.administrate.device') ||
+           (Uni.Auth.hasPrivilege('privilege.view.device'))) {
+            var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
+                href: '#/devices',
+                glyph: 'devices',
+                portal: 'devices',
+                index: 20
+            });
 
-        Uni.store.MenuItems.add(devicesMenuItem);
+            Uni.store.MenuItems.add(devicesMenuItem);
 
-        var portalItem = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),
-            portal: 'devices',
-            route: 'devices',
-            items: [
-                {
-                    text: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),
-                    href: '#/devices/devicegroups',
-                    route: 'devicegroups'
-                }
-            ]
-        });
+            var portalItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),
+                portal: 'devices',
+                route: 'devices',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),
+                        href: '#/devices/devicegroups',
+                        route: 'devicegroups'
+                    }
+                ]
+            });
 
-        Uni.store.PortalItems.add(
-            portalItem
-        );
-
+            Uni.store.PortalItems.add(
+                portalItem
+            );
+        }
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),

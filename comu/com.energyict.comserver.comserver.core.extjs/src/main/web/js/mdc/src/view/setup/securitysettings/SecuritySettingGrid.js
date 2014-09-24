@@ -18,12 +18,12 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
 
         me.columns = [
             {
-                header: 'Name',
+                header: Uni.I18n.translate('securitySetting.name','MDC','Name'),
                 dataIndex: 'name',
                 flex: 0.2
             },
             {
-                header: 'Authentication level',
+                header: Uni.I18n.translate('securitySetting.authenticationLevel','MDC','Authentication level'),
                 dataIndex: 'authenticationLevel',
                 flex: 0.3,
                 renderer: function (value) {
@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 }
             },
             {
-                header: 'Encryption level',
+                header: Uni.I18n.translate('securitySetting.encryptionLevel','MDC','Encryption level'),
                 dataIndex: 'encryptionLevel',
                 flex: 0.3,
                 renderer: function (value) {
@@ -46,25 +46,21 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
 
         me.dockedItems = [
             {
-                xtype: 'container',
-                border: 0,
-                margin: '0 0 5 0',
-                align: 'left',
+                xtype: 'pagingtoolbartop',
+                store: this.store,
+                usesExactCount: true,
+                displayMsg: Uni.I18n.translatePlural('securitySetting.pagingtoolbartop.displayMsg',this.store.count ,'MDC', '{2} security settings'),
+                emptyMsg: Uni.I18n.translate('securitySetting.pagingtoolbartop.emptyMsg', 'MDC', 'There are no security settings'),
                 dock: 'top',
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
                 items: [
                     {
-                        xtype: 'container',
-                        itemId: 'securityCount',
+                        xtype: 'component',
                         flex: 1
                     },
                     {
                         xtype: 'button',
-                        text: 'Add security setting',
-                        action: 'addsecurityaction',
+                        text:  Uni.I18n.translate('securitySetting.addSecuritySetting','MDC','Add security setting'),
+                        action: 'addsecurityaction',                       
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/create'
                     }
                 ]

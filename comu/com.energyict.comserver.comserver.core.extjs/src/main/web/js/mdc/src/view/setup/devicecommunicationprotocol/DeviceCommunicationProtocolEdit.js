@@ -27,7 +27,8 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
     initComponent: function () {
         var me = this;
-        this.content = [
+
+        me.content = [
             {
                 xtype: 'container',
                 overflowY: true,
@@ -111,14 +112,15 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                 ]
             }
         ];
-        this.callParent(arguments);
 
-        if (this.isEdit()) {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-            this.down('#createEditButton').action = 'editDeviceCommunicationProtocol';
+        me.callParent(arguments);
+
+        if (me.isEdit()) {
+            me.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
+            me.down('#createEditButton').action = 'editDeviceCommunicationProtocol';
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-            this.down('#createEditButton').action = 'createDeviceCommunicationProtocol';
+            me.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
+            me.down('#createEditButton').action = 'createDeviceCommunicationProtocol';
         }
     }
 });

@@ -1,54 +1,54 @@
-Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSchedule', {
+Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevels', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.addSharedCommunicationSchedule',
-    itemId: 'AddSharedCommunicationSchedule',
+    alias: 'widget.add-execution-levels',
+    deviceTypeId: null,
+    deviceConfigurationId: null,
+    securitySettingId: null,
+    store: 'AvailableExecLevelsForSecSettingsOfDevConfig',
+
     requires: [
-        'Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationScheduleGrid',
-        'Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSchedulePreview',
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.view.setup.executionlevels.AddExecutionLevelsGrid',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.container.PreviewContainer'
     ],
-    store: 'Mdc.store.AvailableCommunicationSchedulesForDevice',
+
     content: [
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('deviceCommunicationSchedule.addCommunicationSchedules', 'MDC', 'Add shared communication schedules'),
+            itemId: 'addExecutionLevelPanel',
             items: [
                 {
-                    itemId: 'form-errors',
+                    itemId: 'add-execution-level-errors',
                     xtype: 'uni-form-error-message',
-                    name: 'form-errors',
                     hidden: true,
                     width: 380
                 },
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'addSharedCommunicationScheduleGrid'
+                        xtype: 'add-execution-levels-grid',
+                        itemId: 'execution-level-add-grid'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('deviceCommunicationSchedule.empty.title', 'MDC', 'No shared communication schedules found'),
+                        title: Uni.I18n.translate('executionlevels.empty.title', 'MDC', 'No execution levels found'),
                         reasons: [
-                            Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item1', 'MDC', 'No shared communication schedules have been added yet.')
+                            Uni.I18n.translate('executionlevels.empty.list.item1', 'MDC', 'All existing exection levels are added to this security set.')
                         ]
-                    },
-                    previewComponent: {
-                        xtype: 'addSharedCommunicationSchedulePreview'
                     }
 
                 },
                 {
-                    xtype: 'component',
-                    itemId: 'warningMessage',
-                    html: '',
-                    hidden: true
+                    xtype: 'container',
+                    itemId: 'add-execution-level-selection-error',
+                    hidden: true,
+                    html: '<span style="color: #eb5642">' + Uni.I18n.translate('executionlevels.no.executionlevel.selected', 'MDC', 'Select at least 1 execution level') + '</span>'
                 },
                 {
                     xtype: 'form',
                     border: false,
-                    itemId: 'addSharedScheduleButtonForm',
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -70,16 +70,21 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                 {
                                     text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                     xtype: 'button',
-                                    action: 'addAction',
-                                    itemId: 'addButton',
+                                    action: 'add',
                                     ui: 'action'
                                 },
                                 {
+                                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                    action: 'cancel',
                                     xtype: 'button',
-                                    itemId: 'cancelLink',
-                                    action: 'cancelAction',
                                     ui: 'link',
-                                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
+                                    listeners: {
+                                        click: {
+                                            fn: function () {
+                                                window.location.href = '#/administration/devicetypes/' + this.up('add-execution-levels').deviceTypeId + '/deviceconfigurations/' + this.up('add-execution-levels').deviceConfigurationId + '/securitysettings';
+                                            }
+                                        }
+                                    }
                                 }
                             ]
                         }
@@ -96,7 +101,5 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
     initComponent: function () {
         this.callParent(arguments);
     }
+
 });
-
-
-

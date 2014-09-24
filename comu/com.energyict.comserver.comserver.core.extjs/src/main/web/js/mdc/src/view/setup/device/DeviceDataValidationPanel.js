@@ -1,17 +1,33 @@
 Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.device-data-validation-panel',
+    xtype: 'device-data-validation-panel',
+
     requires: [
         'Mdc.view.setup.device.DeviceActionMenu'
     ],
+
     overflowY: 'auto',
     itemId: 'deviceDataValidationPanel',
     mRID: null,
     ui: 'tile',
     title: Uni.I18n.translate('device.dataValidation', 'MDC', 'Data validation'),
+
     initComponent: function () {
         var me = this;
-        this.items = [
+
+        me.tools = [
+            {
+                xtype: 'button',
+                itemId: 'floatBtn',
+                text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
+                iconCls: 'x-uni-action-iconD',
+                menu: {
+                    xtype: 'device-action-menu'
+                }
+            }
+        ];
+
+        me.items = [
             {
                 xtype: 'container',
                 layout: 'hbox',
@@ -42,7 +58,8 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'MDC', 'All data validated'),
                                 name: 'allDataValidated',
                                 renderer: function (value) {
-                                    return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No') + '&nbsp;&nbsp;<span class="icon-validation icon-validation-black"></span>';
+                                    return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') :
+                                        '<span class="icon-validation icon-validation-black"></span>&nbsp;&nbsp;&nbsp;' + Uni.I18n.translate('general.no', 'MDC', 'No');
                                 }
                             },
                             {
@@ -70,7 +87,6 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'lastChecked',
-                                        margin: '3 0 0 0',
                                         renderer: function (value, field) {
                                             if (!Ext.isEmpty(value)) {
                                                 field.up('#lastValidationCont').show();
@@ -93,29 +109,12 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 ]
                             }
                         ]
-                    },
-                    {
-                        xtype: 'container',
-                        itemId: 'contForFloatBtn',
-                        margin: '-20 50 0 0',
-                        items: [
-                            {
-                                xtype: 'button',
-                                itemId: 'floatBtn',
-                                text: Uni.I18n.translate('general.actions', 'CFG','Actions'),
-                                iconCls: 'x-uni-action-iconD',
-                                menu: {
-                                    xtype: 'device-action-menu'
-                                },
-                                renderTo: Ext.getCmp('contForFloatBtn'),
-                                floating: true
-                            }
-                        ]
                     }
                 ]
             }
         ];
-        this.callParent();
+
+        me.callParent();
     }
 });
 

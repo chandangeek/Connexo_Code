@@ -42,7 +42,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
         channelModel.load(channelId, {
             success: function (record) {
                 me.getApplication().fireEvent('channelOfLoadProfilesOfDeviceLoad', record);
-                widget.down('#deviceLoadProfileChannelsPreviewForm').loadRecord(record);
+                widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(record);
                 widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(mRID, loadProfileId, record);
                 widget.setLoading(false);
             }
