@@ -42,13 +42,14 @@ public enum MessageSeeds implements MessageSeed {
     INBOUND(33, ConnectionType.Direction.INBOUND.name(), "inbound"),
     OUTBOUND(34, ConnectionType.Direction.OUTBOUND.name(), "outbound"),
     DEFAULT(35, "default", "default"),
-    AS_SOON_AS_POSSIBLE(36, "asSoonAsPossible", "As soon a possible"),
+    AS_SOON_AS_POSSIBLE(36, "asSoonAsPossible", "As soon as possible"),
     MINIMIZE_CONNECTIONS(37, "minimizeConnections", "Minimize connections"),
     PER_COMMUNICATION_TASK(38, "PerCommunicationTask", "Per communication task"),
     PER_COMMUNICATION_SCHEDULE(39, "PerCommunicationSchedule", "Per communication schedule"),
     INDIVIDUAL(40, "Individual", "Individual"),
     FAILURE(41, "Failure", "Failure"),
-    NOT_APPLICABLE(41, "NotApplicable", "Not applicable"),
+    NOT_APPLICABLE(42, "NotApplicable", "Not applicable"),
+    NO_RESTRICTIONS(43, "NoRestrictions", "No restrictions"),
     ;
 
 

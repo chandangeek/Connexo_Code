@@ -72,7 +72,7 @@ public class ConnectionTaskInfoFactory {
         info.connectionMethod.id = connectionTask.getPartialConnectionTask().getId();
         info.connectionMethod.name = connectionTask.getPartialConnectionTask().getName();
         if (connectionTask.isDefault()) {
-            info.connectionMethod.name+="( "+thesaurus.getString("default", "default")+" )";
+            info.connectionMethod.name+=" ("+thesaurus.getString(MessageSeeds.DEFAULT.getKey(), "default")+")";
         }
         ComServer executingComServer = connectionTask.getExecutingComServer();
         if (executingComServer!=null) {
@@ -89,6 +89,8 @@ public class ConnectionTaskInfoFactory {
             ComWindow communicationWindow = scheduledConnectionTask.getCommunicationWindow();
             if (communicationWindow!=null) {
                 info.window = communicationWindow.getStart() + " - " + communicationWindow.getEnd();
+            } else {
+                info.window = thesaurus.getString(MessageSeeds.NO_RESTRICTIONS.getKey(), MessageSeeds.NO_RESTRICTIONS.getDefaultFormat());
             }
             info.nextExecution=scheduledConnectionTask.getPlannedNextExecutionTimestamp();
         }

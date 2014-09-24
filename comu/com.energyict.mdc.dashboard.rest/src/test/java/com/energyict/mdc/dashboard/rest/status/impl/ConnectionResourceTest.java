@@ -20,18 +20,19 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.google.common.base.Optional;
+import com.jayway.jsonpath.JsonModel;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Response;
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -212,6 +213,10 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testConnectionTaskJsonBinding() throws Exception {
+        DateTime now = DateTime.now();
+        Date startDate = now.toDate();
+        Date endDate = now.plusHours(1).toDate();
+        Date plannedNext = now.plusHours(2).toDate();
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(deviceDataService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
         ComSession comSession = mock(ComSession.class);
@@ -221,6 +226,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getName()).thenReturn("fancy name");
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getName()).thenReturn("partial connection task name");
+        when(partialConnectionTask.getId()).thenReturn(991L);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.isDefault()).thenReturn(true);
         Device device = mock(Device.class);
@@ -239,32 +245,31 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getConnectionTask()).thenReturn((ConnectionTask) connectionTask);
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
-        when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
+        when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
         when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
-        when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.Busy);
+        when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.OnHold);
         when(connectionTask.getCurrentRetryCount()).thenReturn(7);
+        ComServer comServer = mock(ComServer.class);
+        when(comServer.getId()).thenReturn(1212L);
+        when(comServer.getName()).thenReturn("com server");
+        when(connectionTask.getExecutingComServer()).thenReturn(comServer);
         when(comSession.getNumberOfFailedTasks()).thenReturn(401);
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
         when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(3);
         when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
-        when(comSession.getStartDate()).thenReturn(new Date());
-        when(comSession.getStopDate()).thenReturn(new Date());
+        when(comSession.getStartDate()).thenReturn(startDate);
+        when(comSession.getStopDate()).thenReturn(endDate);
         when(comSession.getTotalDuration()).thenReturn(Duration.standardSeconds(4L));
-        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
-        when(comPortPool.getName()).thenReturn("comPortPool");
-        when(comPortPool.getId()).thenReturn(1111L);
-        when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        OutboundTcpIpConnectionType connectionType = mock(OutboundTcpIpConnectionType.class);
-        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
-        when(connectionTask.getConnectionType()).thenReturn(connectionType);
+        when(connectionTask.getConnectionType()).thenReturn(new OutboundTcpIpConnectionType());
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getName()).thenReturn("com port");
         when(comPort.getId()).thenReturn(99L);
         when(comSession.getComPort()).thenReturn(comPort);
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
+        when(connectionTask.getPlannedNextExecutionTimestamp()).thenReturn(plannedNext);
         ComWindow window = mock(ComWindow.class);
         when(window.getStart()).thenReturn(PartialTime.fromHours(9));
         when(window.getEnd()).thenReturn(PartialTime.fromHours(17));
@@ -281,33 +286,40 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
         when(deviceDataService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
-        Map<String, Object> map = target("/connections").queryParam("start",0).queryParam("limit", 10).request().get(Map.class);
+        String response = target("/connections").queryParam("start",0).queryParam("limit", 10).request().get(String.class);
 
-        assertThat(map).containsKey("total");
-        assertThat(map).containsKey("connectionTasks");
-        Map<String, Object> connectionTaskMap = (Map) ((List) map.get("connectionTasks")).get(0);
-        assertThat(connectionTaskMap)
-                .containsKey("device")
-                .containsKey("deviceType")
-                .containsKey("deviceConfiguration")
-                .containsKey("currentState")
-                .containsKey("latestStatus")
-                .containsKey("latestResult")
-                .containsKey("taskCount")
-                .containsKey("startDateTime")
-                .containsKey("endDateTime")
-                .containsKey("duration")
-                .containsKey("comPort")
-                .containsKey("comServer")
-                .containsKey("direction")
-                .containsKey("connectionType")
-                .containsKey("connectionMethod")
-                .containsKey("connectionStrategy")
-                .containsKey("window")
-                .containsKey("nextExecution")
-                .containsKey("communicationTasks")
-                .hasSize(19);
+        JsonModel jsonModel = JsonModel.model(response);
 
-
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.connectionTasks")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].device.id")).isEqualTo("1234-5678-9012");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].device.name")).isEqualTo("some device");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].deviceType.id")).isEqualTo(1010);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].deviceType.name")).isEqualTo("device type");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].deviceConfiguration.id")).isEqualTo(123123);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].deviceConfiguration.name")).isEqualTo("123123");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.id")).isEqualTo("OnHold");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.displayValue")).isEqualTo("Inactive");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.id")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.displayValue")).isEqualTo("Success");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfSuccessfulTasks")).isEqualTo(12);
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfFailedTasks")).isEqualTo(401);
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfIncompleteTasks")).isEqualTo(3);
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].startDateTime")).isEqualTo(startDate.getTime());
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].endDateTime")).isEqualTo(endDate.getTime());
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].duration.count")).isEqualTo(4);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].duration.timeUnit")).isEqualTo("seconds");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comServer.id")).isEqualTo(1212);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].comServer.name")).isEqualTo("com server");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].direction")).isEqualTo("outbound");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionType")).isEqualTo("OutboundTcpIp");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].connectionMethod.id")).isEqualTo(991);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionMethod.name")).isEqualTo("partial connection task name (default)");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.getTime());
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].communicationTasks.count")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.connectionTasks[0].communicationTasks.communicationsTasks")).hasSize(1);
     }
 }
