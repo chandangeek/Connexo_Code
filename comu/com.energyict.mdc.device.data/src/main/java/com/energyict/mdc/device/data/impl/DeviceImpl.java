@@ -1001,15 +1001,20 @@ public class DeviceImpl implements Device {
         return amrSystem.findMeter(String.valueOf(getId()));
     }
 
-    private Meter findOrCreateKoreMeter(AmrSystem amrSystem) {
+    Meter findOrCreateKoreMeter(AmrSystem amrSystem) {
         Optional<Meter> holder = this.findKoreMeter(amrSystem);
         if (!holder.isPresent()) {
-            Meter meter = amrSystem.newMeter(String.valueOf(getId()), getmRID());
-            meter.save();
+            Meter meter = createKoreMeter(amrSystem);
             return meter;
         } else {
             return holder.get();
         }
+    }
+
+    Meter createKoreMeter(AmrSystem amrSystem) {
+        Meter meter = amrSystem.newMeter(String.valueOf(getId()), getmRID());
+        meter.save();
+        return meter;
     }
 
     private void deleteKoreMeterIfExists() {
@@ -1111,7 +1116,7 @@ public class DeviceImpl implements Device {
             }
             java.util.Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
-                List<DataValidationStatus> validationStatus = this.validationService.getEvaluator().getValidationStatus(koreChannel.get(), meterReadings);
+                List<DataValidationStatus> validationStatus = this.validationService.getEvaluator().getValidationStatus(koreChannel.get(), meterReadings, meterActivationInterval);
                 for (DataValidationStatus status : validationStatus) {
                     LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(status.getReadingTimestamp());
                     loadProfileReading.setDataValidationStatus(mdcChannel, status);
