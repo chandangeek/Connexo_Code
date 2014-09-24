@@ -1,11 +1,15 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -109,18 +113,16 @@ public class AssociationControlServiceElement {
     private void updateUserInformation() {
         byte[] userInformation = this.xdlmsAse.getInitiatRequestByteArray();
 
-        switch (getSecurityContext().getSecurityPolicy()) {
-            case SecurityContext.SECURITYPOLICY_BOTH:
-            case SecurityContext.SECURITYPOLICY_ENCRYPTION:
-                XDlmsEncryption xdlmsEncryption = new XDlmsEncryption();
-                xdlmsEncryption.setPlainText(userInformation);
-                xdlmsEncryption.setSystemTitle(getSecurityContext().getSystemTitle());
-                xdlmsEncryption.setFrameCounter(getSecurityContext().getFrameCounterInBytes());
-                xdlmsEncryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
-                xdlmsEncryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
-                xdlmsEncryption.setSecurityControlByte((byte) 0x30);
-                userInformation = xdlmsEncryption.generateCipheredAPDU();
-                getSecurityContext().incFrameCounter();
+        if (getSecurityContext().getSecurityPolicy() != SecurityContext.SECURITYPOLICY_NONE) {
+            XDlmsEncryption xdlmsEncryption = new XDlmsEncryption();
+            xdlmsEncryption.setPlainText(userInformation);
+            xdlmsEncryption.setSystemTitle(getSecurityContext().getSystemTitle());
+            xdlmsEncryption.setFrameCounter(getSecurityContext().getFrameCounterInBytes());
+            xdlmsEncryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
+            xdlmsEncryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
+            xdlmsEncryption.setSecurityControlByte((byte) 0x30);
+            userInformation = xdlmsEncryption.generateCipheredAPDU();
+            getSecurityContext().incFrameCounter();
         }
 
         setUserInformation(userInformation);
@@ -178,8 +180,7 @@ public class AssociationControlServiceElement {
     /**
      * Setter for the {@link #calledApplicationEntityQualifier}
      *
-     * @param calledApplicationEntityQualifier
-     *         the AEQualifier to set
+     * @param calledApplicationEntityQualifier the AEQualifier to set
      */
     public void setCalledApplicationEntityQualifier(byte[] calledApplicationEntityQualifier) {
         if (calledApplicationEntityQualifier != null) {
@@ -798,7 +799,7 @@ public class AssociationControlServiceElement {
 
     /**
      * @return a byteArray containing the callingAuthenticationValue(in other
-     *         words, the password) coded as a graphical string...
+     * words, the password) coded as a graphical string...
      * @throws ConnectionException when the callingauthenticationvalue is not filled in
      */
     protected byte[] assembleCallingAuthenticationValue() throws UnsupportedException {
