@@ -429,6 +429,9 @@ public class DemoServiceImpl implements DemoService {
         deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
         deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
         deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(ALARM_REGISTER));
+        deviceType.addRegisterType(store.getRegisterTypes().get(AMR_PROFILE_STATUS_CODE));
+        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_FIRMWARE_VERSION));
         deviceType.addLoadProfileType(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY));
         deviceType.addLoadProfileType(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY));
         deviceType.addLoadProfileType(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
@@ -452,8 +455,9 @@ public class DemoServiceImpl implements DemoService {
         addRegisterSpecsToDeviceConfiguration(configBuilder, store,
                 ACTIVE_ENERGY_IMPORT_TOTAL_WH, ACTIVE_ENERGY_IMPORT_TARIFF_1_WH,
                 ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, ACTIVE_ENERGY_EXPORT_TOTAL_WH,
-                ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, ACTIVE_ENERGY_EXPORT_TARIFF_2_WH);
-
+                ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, ACTIVE_ENERGY_EXPORT_TARIFF_2_WH,
+                ALARM_REGISTER, AMR_PROFILE_STATUS_CODE);
+        configBuilder.newTextualRegisterSpec(store.getRegisterTypes().get(ACTIVE_FIRMWARE_VERSION));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY));
@@ -516,7 +520,10 @@ public class DemoServiceImpl implements DemoService {
         configBuilder.description("A simple device configuration which contains one LoadProfile and a minimal set of Registers.");
         configBuilder.canActAsGateway(true);
         configBuilder.isDirectlyAddressable(true);
-        addRegisterSpecsToDeviceConfiguration(configBuilder, store, ACTIVE_ENERGY_IMPORT_TOTAL_WH, ACTIVE_ENERGY_EXPORT_TOTAL_WH);
+        addRegisterSpecsToDeviceConfiguration(configBuilder, store,
+                ACTIVE_ENERGY_IMPORT_TOTAL_WH, ACTIVE_ENERGY_EXPORT_TOTAL_WH,
+                ALARM_REGISTER, AMR_PROFILE_STATUS_CODE);
+        configBuilder.newTextualRegisterSpec(store.getRegisterTypes().get(ACTIVE_FIRMWARE_VERSION));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
         configBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
         DeviceConfiguration configuration = configBuilder.add();
