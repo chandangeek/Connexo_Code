@@ -87,7 +87,8 @@ public class ConnectionTaskInfoFactory {
             info.connectionStrategy.id=scheduledConnectionTask.getConnectionStrategy();
             info.connectionStrategy.displayValue=thesaurus.getString(CONNECTION_STRATEGY_ADAPTER.marshal(scheduledConnectionTask.getConnectionStrategy()), scheduledConnectionTask.getConnectionStrategy().name());
             ComWindow communicationWindow = scheduledConnectionTask.getCommunicationWindow();
-            if (communicationWindow!=null) {
+            if (communicationWindow!=null &&
+                    (communicationWindow.getStart().getMillis()!=0 || communicationWindow.getEnd().getMillis()!=0)) {
                 info.window = communicationWindow.getStart() + " - " + communicationWindow.getEnd();
             } else {
                 info.window = thesaurus.getString(MessageSeeds.NO_RESTRICTIONS.getKey(), MessageSeeds.NO_RESTRICTIONS.getDefaultFormat());
