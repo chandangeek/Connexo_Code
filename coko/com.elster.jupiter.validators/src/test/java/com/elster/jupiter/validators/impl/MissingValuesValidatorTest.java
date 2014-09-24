@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -226,6 +227,21 @@ public class MissingValuesValidatorTest {
         validator.init(channel, readingType, new Interval(start, end));
 
         assertThat(validator.finish()).isEmpty();
+    }
+
+    @Test
+    public void testPossibleIntOverflow() {
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
+        MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
+        validator.init(channel, readingType, Interval.startAt(start));
+
+        when(intervalReading.getTimeStamp()).thenReturn(new DateTime(start).plusDays(400).toDate());
+        assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
+
+        Map<Date, ValidationResult> finish = validator.finish();
+
+        assertThat(finish).isNotEmpty();
+        assertThat(finish.keySet().stream().noneMatch(d -> d.compareTo(start) < 0)).isTrue();
     }
 
 }
