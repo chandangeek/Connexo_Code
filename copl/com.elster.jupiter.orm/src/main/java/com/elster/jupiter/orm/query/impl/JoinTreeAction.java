@@ -1,30 +1,49 @@
 package com.elster.jupiter.orm.query.impl;
 
+import java.util.function.BiFunction;
 
-public abstract class JoinTreeAction<T> {
+
+class JoinTreeAction<T> {
 	private final boolean mark;
 	private final boolean clear;
+	private final BiFunction<JoinDataMapper<?>, String, T> biFunction; 
 	
-	JoinTreeAction(boolean mark, boolean clear) {
+	private JoinTreeAction(boolean mark, boolean clear, BiFunction<JoinDataMapper<?> , String, T> biFunction) {
 		this.mark = mark;
 		this.clear = clear;
+		this.biFunction = biFunction;
 		if (mark && clear) {
 			throw new IllegalArgumentException("You cannot have both");
 		}
 	}
 	
-	final boolean mark() {
-		return mark;
+	void matched(JoinTreeNode<?> node) {
+		if (mark) {
+			node.mark();
+		}
+		if (clear) {
+			node.clear();
+		}
 	}
 	
-	final boolean clear() {
-		return clear;
+	boolean proceed(T lastResult) {
+		return lastResult ==  null || lastResult == Boolean.FALSE;
 	}
 	
-	final boolean proceed(T lastResult) {
-		return lastResult == null || lastResult == Boolean.FALSE;
+	T apply(JoinDataMapper<?> value, String reduced) {
+		return biFunction.apply(value, reduced);
 	}
 	
-	abstract T invoke(String fieldName , JoinDataMapper<?> value);	
+	static <T> JoinTreeAction<T> mark(BiFunction<JoinDataMapper<?>, String, T> biFunction) {
+		return new JoinTreeAction<>(true, false, biFunction);
+	}
+	
+	static <T> JoinTreeAction<T> clear(BiFunction<JoinDataMapper<?>, String, T> biFunction) {
+		return new JoinTreeAction<>(false, true, biFunction);
+	}
+	
+	static <T> JoinTreeAction<T> find(BiFunction<JoinDataMapper<?>, String, T> biFunction) {
+		return new JoinTreeAction<>(false, false, biFunction);
+	}
 	
 }
