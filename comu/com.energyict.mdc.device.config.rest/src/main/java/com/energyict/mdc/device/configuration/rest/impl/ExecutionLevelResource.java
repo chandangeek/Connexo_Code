@@ -46,7 +46,8 @@ public class ExecutionLevelResource {
         Set<DeviceSecurityUserAction> userActions;
         Set<DeviceSecurityUserAction> existingUserActions = securityPropertySet.getUserActions();
         if (filterAvailable!=null && filterAvailable) {
-            Set<DeviceSecurityUserAction> allUserActions = EnumSet.of(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION3, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4,
+            Set<DeviceSecurityUserAction> allUserActions =
+                EnumSet.of(
                     DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4,
                     DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
             allUserActions.removeAll(existingUserActions);
