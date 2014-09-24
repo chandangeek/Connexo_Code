@@ -47,6 +47,7 @@ Ext.define('Uni.view.panel.FilterToolbar', {
         {
             xtype: 'container',
             dock: 'right',
+            minHeight: 150,
             items: {
                 itemId: 'Reset',
                 xtype: 'button',
@@ -57,8 +58,14 @@ Ext.define('Uni.view.panel.FilterToolbar', {
     ],
 
     updateContainer: function (container) {
-        var count = container.items.getCount();
-        !count || count < 1 ? this.hide() : this.show();
+        var hasItems = container.items.getCount() ? true : false;
+
+        if (!this.emptyText) {
+            this.setVisible(hasItems);
+        } else {
+            this.getEmptyLabel().setVisible(!hasItems);
+            this.getClearButton().setDisabled(!hasItems);
+        }
     },
 
     initComponent: function () {
