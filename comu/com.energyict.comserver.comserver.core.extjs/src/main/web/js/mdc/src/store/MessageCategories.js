@@ -13,6 +13,10 @@ Ext.define('Mdc.store.MessageCategories', {
         reader: {
             type: 'json',
             root: 'data'
-        }
+        },
+        timeout: 300000,
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
