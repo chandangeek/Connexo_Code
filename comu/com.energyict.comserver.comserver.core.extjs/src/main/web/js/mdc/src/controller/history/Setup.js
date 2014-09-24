@@ -246,6 +246,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: '{securitySettingId}/edit',
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showSecuritySettingsEditView'
+                                                        },
+                                                        executionLevels: {
+                                                            title: 'Add execution levels',
+                                                            route: '{securitySettingId}/executionlevels/add',
+                                                            controller: 'Mdc.controller.setup.SecuritySettings',
+                                                            action: 'showAddExecutionLevelsView'
                                                         }
                                                     }
                                                 },
@@ -1018,7 +1024,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: Uni.I18n.translate('router.logbookData', 'MDC', 'Logbook data'),
                                             route: 'data',
                                             controller: 'Mdc.controller.setup.DeviceLogbookData',
-                                            action: 'showOverview'
+                                            action: 'showOverview',
+                                            filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                                         }
                                     }
                                 }

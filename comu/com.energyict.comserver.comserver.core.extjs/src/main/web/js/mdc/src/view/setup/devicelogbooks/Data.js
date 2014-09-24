@@ -5,9 +5,9 @@ Ext.define('Mdc.view.setup.devicelogbooks.Data', {
     requires: [
         'Mdc.view.setup.devicelogbooks.SubMenuPanel',
         'Mdc.view.setup.devicelogbooks.SideFilter',
-        'Mdc.view.setup.devicelogbooks.TopFilter',
         'Mdc.view.setup.devicelogbooks.DataSortingToolbar',
-        'Mdc.view.setup.devicelogbooks.DataTableView'
+        'Mdc.view.setup.devicelogbooks.DataTableView',
+        'Uni.component.filter.view.FilterTopPanel'
     ],
 
     router: null,
@@ -17,16 +17,21 @@ Ext.define('Mdc.view.setup.devicelogbooks.Data', {
         title: Uni.I18n.translate('devicelogbooks.data.header', 'MDC', 'Logbook data'),
         items: [
             {
-                xtype: 'deviceLogbookDataTopFilter'
+                xtype: 'filter-top-panel',
+                itemId: 'device-logbook-data-filter-toolbar',
+                emptyText: Uni.I18n.translate('general.none', 'MDC', 'None'),
+                hideEmpty: false
             },
             {
                 xtype: 'menuseparator'
             },
             {
-                xtype: 'deviceLogbookDataSortingToolbar'
+                xtype: 'deviceLogbookDataSortingToolbar',
+                itemId: 'deviceLogbookDataSortingToolbar'
             },
             {
-                xtype: 'deviceLogbookDataTableView'
+                xtype: 'deviceLogbookDataTableView',
+                itemId: 'deviceLogbookDataTableView'
             }
         ]
     },
@@ -47,7 +52,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Data', {
                     router: me.router
                 },
                 {
-                    xtype: 'deviceLogbookDataSideFilter'
+                    xtype: 'deviceLogbookDataSideFilter',
+                    itemId: 'device-logbook-data-side-filter'
                 }
             ]
         };

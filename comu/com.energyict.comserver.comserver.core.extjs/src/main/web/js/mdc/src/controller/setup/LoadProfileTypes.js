@@ -46,9 +46,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             'load-profile-type-edit #measurement-types-grid actioncolumn': {
                 click: this.removeMeasurementType
             },
-            'button[action=loadprofiletypenotificationerrorretry]': {
-                click: this.retrySubmit
-            },
             'load-profile-type-edit #load-profile-type-edit-form #save-load-profile-type-button': {
                 click: this.saveLoadProfileType
             }

@@ -24,7 +24,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 if (view.down('#dataValidationStatusPanel')) {
                     view.down('#deviceDataValidationStatusField').setValue(res.isActive ?
                         Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                        Uni.I18n.translate('general.inactive', 'MDC', 'Inctive')
+                        Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     );
                     view.down('#deviceDataValidationStateChangeBtn').setText((res.isActive ?
                         Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
