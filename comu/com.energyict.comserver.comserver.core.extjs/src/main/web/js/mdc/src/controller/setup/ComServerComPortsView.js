@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.ComServerComPortsView', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.util.Common'
+    ],
+
     models: [
         'Mdc.model.ComServer',
         'Mdc.model.ComServerComPort'
@@ -20,7 +24,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         'Mdc.store.ComPortTypes',
         'Mdc.store.FlowControls',
         'Mdc.store.NrOfDataBits',
-        'Mdc.store.NrOfStopBits'
+        'Mdc.store.NrOfStopBits',
+        'Mdc.store.ComServers'
     ],
 
     refs: [
@@ -73,25 +78,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         }
     },
 
-    checkLoadingOfNecessaryStores: function (callback, storesArr) {
-        var me = this,
-            counter = storesArr.length,
-            check = function () {
-                counter--;
-                counter === 0 && callback();
-            };
-
-        Ext.Array.each(storesArr, function (item) {
-            var store = me.getStore(item);
-
-            if (store.getCount()) {
-                check();
-            } else {
-                store.load(check);
-            }
-        });
-    },
-
     showView: function (id) {
         var me = this,
             comServerModel = me.getModel('Mdc.model.ComServer'),
@@ -114,7 +100,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
 
-        me.checkLoadingOfNecessaryStores(function () {
+        Uni.util.Common.checkNecessaryStoresLoading(storesArr, function () {
             widget = Ext.widget('comServerComPortsView');
             addMenus = widget.query('comServerComPortsAddMenu');
             addMenus && Ext.Array.each(addMenus, function (menu) {
@@ -129,7 +115,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     me.getApplication().fireEvent('comServerOverviewLoad', record);
                 }
             });
-        }, storesArr);
+        }, false);
     },
 
     showPreview: function (selectionModel, record, showComServer) {

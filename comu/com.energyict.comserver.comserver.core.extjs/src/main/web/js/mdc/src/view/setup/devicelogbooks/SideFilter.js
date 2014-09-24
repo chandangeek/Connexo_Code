@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.SideFilter', {
     ui: 'medium',
     width: 250,
     items: {
-        xtype: 'filter-form',
+        xtype: 'form',
         itemId: 'deviceLogbookDataSideFilterForm',
         title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
         ui: 'filter',
@@ -24,6 +24,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.SideFilter', {
         items: [
             {
                 xtype: 'fieldcontainer',
+                itemId: 'event-date-container',
                 fieldLabel: Uni.I18n.translate('devicelogbooks.eventDate', 'MDC', 'Event date'),
                 layout: 'form',
                 margin: '0 0 25 0',

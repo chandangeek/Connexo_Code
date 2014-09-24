@@ -1024,7 +1024,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: Uni.I18n.translate('router.logbookData', 'MDC', 'Logbook data'),
                                             route: 'data',
                                             controller: 'Mdc.controller.setup.DeviceLogbookData',
-                                            action: 'showOverview'
+                                            action: 'showOverview',
+                                            filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                                         }
                                     }
                                 }

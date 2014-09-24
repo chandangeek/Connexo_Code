@@ -1,7 +1,6 @@
 Ext.define('Mdc.view.setup.devicelogbooks.DataTableView', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.deviceLogbookDataTableView',
-    itemId: 'deviceLogbookDataTableView',
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.devicelogbooks.DataGrid',
