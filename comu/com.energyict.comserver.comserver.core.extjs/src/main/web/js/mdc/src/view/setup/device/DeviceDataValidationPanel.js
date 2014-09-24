@@ -87,7 +87,6 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'lastChecked',
-                                        margin: '3 0 0 0',
                                         renderer: function (value, field) {
                                             if (!Ext.isEmpty(value)) {
                                                 field.up('#lastValidationCont').show();
