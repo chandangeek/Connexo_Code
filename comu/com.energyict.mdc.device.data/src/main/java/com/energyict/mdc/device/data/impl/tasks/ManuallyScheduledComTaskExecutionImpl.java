@@ -256,9 +256,8 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     @Override
     protected Date calculateNextExecutionTimestamp(Date now) {
         if (this.isAdHoc()) {
-            return null;
-        }
-        else {
+            return (this.getLastExecutionStartTimestamp() != null && this.getNextExecutionTimestamp() != null && this.getLastExecutionStartTimestamp().after(this.getNextExecutionTimestamp())) ? null : this.getNextExecutionTimestamp();
+        } else {
             return super.calculateNextExecutionTimestamp(now);
         }
     }
