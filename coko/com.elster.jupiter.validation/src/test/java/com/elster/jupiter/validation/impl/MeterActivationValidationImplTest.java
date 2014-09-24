@@ -47,7 +47,7 @@ public class MeterActivationValidationImplTest {
     private MeterActivation meterActivation;
     @Mock
     private IValidationRuleSet validationRuleSet;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Channel channel1, channel2;
     @Mock
     private IValidationRule rule1, rule2;
@@ -114,6 +114,7 @@ public class MeterActivationValidationImplTest {
     public void testValidateOneRuleAppliesToOneChannel() throws Exception {
         doReturn(Collections.singleton(readingType1)).when(rule1).getReadingTypes();
         when(rule1.validateChannel(channel1, INTERVAL)).thenReturn(DATE4);
+        when(channel1.getTimeSeries().getLastDateTime()).thenReturn(DATE4);
 
         meterActivationValidation.validate(INTERVAL);
 
@@ -132,6 +133,8 @@ public class MeterActivationValidationImplTest {
         when(rule1.validateChannel(channel2, INTERVAL)).thenReturn(DATE2);
         when(rule2.validateChannel(channel1, INTERVAL)).thenReturn(DATE2);
         when(rule2.validateChannel(channel2, INTERVAL)).thenReturn(DATE4);
+        when(channel1.getTimeSeries().getLastDateTime()).thenReturn(DATE4);
+        when(channel2.getTimeSeries().getLastDateTime()).thenReturn(DATE4);
 
         meterActivationValidation.validate(INTERVAL);
 

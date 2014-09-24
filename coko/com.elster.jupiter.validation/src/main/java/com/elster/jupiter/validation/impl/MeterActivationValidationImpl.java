@@ -27,8 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.notNull;
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsLast;
+import static java.util.Comparator.*;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
 
@@ -182,7 +181,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
-            Interval intervalToValidate = intervalToValidate(channelValidation, interval);
+            Interval intervalToValidate = intervalToValidate(channelValidation, interval, channel);
             Date lastChecked = null;
             for (IValidationRule validationRule : activeRules) {
                 lastChecked = validationRule.validateChannel(channel, intervalToValidate);
@@ -203,8 +202,8 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         }
     }
 
-    private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval) {
-        return new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), interval.getEnd());
+    private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval, Channel channel) {
+        return new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), getLatestDate(channel.getTimeSeries().getLastDateTime(), interval.getEnd()));
     }
 
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
@@ -230,6 +229,11 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     private Date getEarliestDate(Date first, Date second) {
         return first == null ? second : Ordering.natural().min(second, first);
+    }
+
+    private Date getLatestDate(Date first, Date second) {
+        Comparator<Date> comparator = nullsFirst(naturalOrder());
+        return Ordering.from(comparator).max(first, second);
     }
 
     private ChannelValidationImpl findOrAddValidationFor(final Channel channel) {
