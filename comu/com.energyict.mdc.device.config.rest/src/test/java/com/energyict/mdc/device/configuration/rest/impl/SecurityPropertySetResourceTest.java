@@ -38,7 +38,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         Group group2 = mockUserGroup(67L, "A - user group 2");
         Group group3 = mockUserGroup(68L, "O - user group 1");
         when(userService.getGroups()).thenReturn(Arrays.asList(group2, group1, group3));
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1, "Auth1", 1001, "Encrypt1", EnumSet.of(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2));
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1, "Auth1", 1001, "Encrypt1", EnumSet.of(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2));
         SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 2, "Auth2", 1002, "Encrypt2", EnumSet.of(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1));
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         Map response = target("/devicetypes/123/deviceconfigurations/456/securityproperties").request().get(Map.class);
@@ -54,8 +54,8 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         assertThat(jsonModel.<Integer>get("$.data[0].encryptionLevel.id")).isEqualTo(1001);
         assertThat(jsonModel.<String>get("$.data[0].encryptionLevel.name")).isEqualTo("Encrypt1");
         assertThat(jsonModel.<List>get("$.data[0].executionLevels")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].id")).isEqualTo(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].name")).isEqualTo("Execute com task (level 1)");
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].id")).isEqualTo(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege());
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].name")).isEqualTo("Edit device security properties (level 1)");
         assertThat(jsonModel.<List>get("$.data[0].executionLevels[0].userRoles")).hasSize(3);
         assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[0].id")).isEqualTo(67);
         assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[0].name")).isEqualTo("A - user group 2");
@@ -63,8 +63,8 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[1].name")).isEqualTo("O - user group 1");
         assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[2].id")).isEqualTo(66);
         assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[2].name")).isEqualTo("Z - user group 1");
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].id")).isEqualTo(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].name")).isEqualTo("Execute com task (level 2)");
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].id")).isEqualTo(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2.getPrivilege());
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].name")).isEqualTo("Edit device security properties (level 2)");
 
         assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].id")).isEqualTo(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege());
         assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].name")).isEqualTo("Edit device security properties (level 1)");
@@ -79,12 +79,12 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(deviceType);
-        Group group1 = mockUserGroup(66L, "Z - user group 1", Arrays.asList(Privileges.EXECUTE_COM_TASK_1));
-        Group group2 = mockUserGroup(67L, "A - user group 2", Arrays.asList(Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_4));
+        Group group1 = mockUserGroup(66L, "Z - user group 1", Arrays.asList(Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_1));
+        Group group2 = mockUserGroup(67L, "A - user group 2", Arrays.asList(Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_4));
         Group group3 = mockUserGroup(68L, "O - user group 3", Collections.emptyList());
         when(userService.getGroups()).thenReturn(Arrays.asList(group2, group1, group3));
-        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1, "Auth1", 1001, "Encrypt1", EnumSet.of(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2));
-        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 2, "Auth2", 1002, "Encrypt2", EnumSet.of(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1));
+        SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1, "Auth1", 1001, "Encrypt1", EnumSet.of(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2));
+        SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 2, "Auth2", 1002, "Encrypt2", EnumSet.of(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1));
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         String response = target("/devicetypes/123/deviceconfigurations/456/securityproperties").request().get(String.class);
 
@@ -98,10 +98,10 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         assertThat(jsonModel.<List>get("$.data[0].executionLevels[1].userRoles")).isEmpty();
 
         assertThat(jsonModel.<List>get("$.data[1].executionLevels")).hasSize(2);
-        assertThat(jsonModel.<List>get("$.data[1].executionLevels[0].userRoles")).hasSize(1);
-        assertThat(jsonModel.<Integer>get("$.data[1].executionLevels[0].userRoles[0].id")).isEqualTo(67);
-        assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].userRoles[0].name")).isEqualTo("A - user group 2");
-        assertThat(jsonModel.<List>get("$.data[1].executionLevels[1].userRoles")).isEmpty();
+        assertThat(jsonModel.<List>get("$.data[1].executionLevels[0].userRoles")).isEmpty();
+        assertThat(jsonModel.<List>get("$.data[1].executionLevels[1].userRoles")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.data[1].executionLevels[1].userRoles[0].id")).isEqualTo(67);
+        assertThat(jsonModel.<String>get("$.data[1].executionLevels[1].userRoles[0].name")).isEqualTo("A - user group 2");
     }
 
     private Group mockUserGroup(long id, String name) {
