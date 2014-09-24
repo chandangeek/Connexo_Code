@@ -1089,6 +1089,48 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void testGetLoadProfileDataIfRequestIntervalExceedsLoadProfilesLastReading() {
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        Date requestIntervalStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
+        Date requestIntervalEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock = new IntervalBlockImpl(code);
+        Date readingTimeStamp = new Date(1406852100000L);// 1/8/2014 0:15
+        intervalBlock.addIntervalReading(new IntervalReadingImpl(readingTimeStamp, readingValue));
+        IntervalBlockImpl intervalBlock2 = new IntervalBlockImpl(code);
+        Date previousReadingTimeStamp = new Date(1406851200000L);// 1/8/2014 0:00
+        intervalBlock2.addIntervalReading(new IntervalReadingImpl(previousReadingTimeStamp, BigDecimal.ZERO));
+        MeterReadingImpl meterReading = new MeterReadingImpl();
+        meterReading.addIntervalBlock(intervalBlock);
+        meterReading.addIntervalBlock(intervalBlock2);
+        device.store(meterReading);
+        Date lastReading = new Date(1406926800000L); //  Fri, 01 Aug 2014 21:00:00 GMT
+        Date startIntervalOfLastReading = new Date(1406925900000L); //  Fri, 01 Aug 2014 20:45:00 GMT
+        device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(requestIntervalStart, requestIntervalEnd));
+        assertThat(readings).describedAs("There should be no data(holders) for the interval 21:00->00:00").hasSize(24 * 4 - 12); // 3 times 4 intervals/hour missing
+        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(lastReading);
+        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(requestIntervalStart);
+        for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
+            if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
+                assertThat(reading.getChannelValues()).hasSize(1);
+                for (Map.Entry<Channel, BigDecimal> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
+                    assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
+                    assertThat(channelBigDecimalEntry.getValue()).isEqualTo(readingValue);
+                }
+            }
+        }
+    }
+
+    @Test
+    @Transactional
     public void testGetLoadProfileData() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
