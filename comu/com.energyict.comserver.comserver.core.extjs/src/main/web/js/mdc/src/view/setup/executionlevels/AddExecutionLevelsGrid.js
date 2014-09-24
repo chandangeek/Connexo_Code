@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.exceutionlevels.AddExecutionLevelsGrid', {
+Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevelsGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.add-execution-levels-grid',
     store: 'AvailableExecLevelsForSecSettingsOfDevConfig',
