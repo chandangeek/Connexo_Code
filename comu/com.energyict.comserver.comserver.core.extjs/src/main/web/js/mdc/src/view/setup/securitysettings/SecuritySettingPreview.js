@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Name',
+                            fieldLabel: Uni.I18n.translate('securitySetting.name','MDC','Name'),
                             name: 'name'
                         }
                     ]
@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Authentication level',
+                            fieldLabel: Uni.I18n.translate('securitySetting.authenticationLevel','MDC','Authentication level'),
                             labelWidth: 200,
                             name: 'authenticationLevel',
                             renderer: function (value) {
@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                         },
                         {
                             xtype: 'displayfield',
-                            fieldLabel: 'Encryption level',
+                            fieldLabel: Uni.I18n.translate('securitySetting.encryptionLevel','MDC','Encryption level'),
                             labelWidth: 200,
                             name: 'encryptionLevel',
                             renderer: function (value) {

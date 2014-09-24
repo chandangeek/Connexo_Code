@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.securitysettings.SecuritySettingGrid',
         'Mdc.view.setup.securitysettings.SecuritySettingPreview',
+        'Mdc.view.setup.executionlevels.ExecutionLevelGrid',
         'Uni.view.container.PreviewContainer'
     ],
 
@@ -35,10 +36,11 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: 'Security settings',
+                title: Uni.I18n.translate('securitySetting.title','MDC','Security settings'),
                 items: [
                     {
                         xtype: 'preview-container',
+                        itemId: 'security-settings-grid-preview-container',
                         grid: {
                             xtype: 'securitySettingGrid',
                             deviceTypeId: me.deviceTypeId,
@@ -46,14 +48,14 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: 'No security settings found',
+                            title: Uni.I18n.translate('securitySetting.NoSecuritySettingsFound','MDC','No security settings found'),
                             reasons: [
-                                'No security settings have been defined yet.',
-                                'No security settings comply to the filter.'
+                                Uni.I18n.translate('securitySetting.reason1','MDC','No security settings have been defined yet.'),
+                                Uni.I18n.translate('securitySetting.reason2','MDC','No security settings comply to the filter.')
                             ],
                             stepItems: [
                                 {
-                                    text: 'Add security setting',
+                                    text:  Uni.I18n.translate('securitySetting.addSecuritySetting','MDC','Add security setting'),
                                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/create'
                                 }
                             ]
@@ -61,6 +63,39 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                         previewComponent: {
                             xtype: 'securitySettingPreview'
                         }
+                    },
+                    {
+                        xtype: 'panel',
+                        title: Uni.I18n.translate('executionLevel.gridTitle', 'MDC', 'execution levels'),
+                        itemId: 'execution-level-grid-title',
+                        ui: 'medium',
+                        padding: '32 0 0 0',
+                        hidden:true
+                    },
+                    {
+                        xtype: 'preview-container',
+                        itemId: 'execution-levels-grid-preview-container',
+                        grid: {
+                            xtype: 'execution-level-grid',
+                            deviceTypeId: me.deviceTypeId,
+                            deviceConfigId: me.deviceConfigId
+                        },
+                        emptyComponent: {
+                            xtype: 'no-items-found-panel',
+                            title: Uni.I18n.translate('executionLevel.noExecutionLevelsFound','MDC','No execution levels found'),
+                            reasons: [
+                                Uni.I18n.translate('executionLevel.reason1','MDC','No execution levels have been defined yet.'),
+                                Uni.I18n.translate('executionLevel.reason2','MDC','No execution levels comply to the filter.')
+                            ],
+                            stepItems: [
+                                {
+                                    text: Uni.I18n.translate('executionLevel.addExecutionLevels','MDC','Add execution levels'),
+                                    itemId: 'execution-level-grid-add-link',
+                                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/'
+                                }
+                            ]
+                        },
+                        hidden: true
                     }
                 ]
             }
