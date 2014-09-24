@@ -151,7 +151,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
     },
 
     cancelSharedScheduleHistory: function () {
-        location.href = '#/devices/' + this.mrid + '/communicationschedules';
+        location.href = '#/devices/' + this.mrid + '/communicationplanning';
     },
 
     addSharedCommunicationSchedule: function (mrid) {
