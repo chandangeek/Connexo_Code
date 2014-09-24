@@ -28,27 +28,37 @@ Ext.define('Dsh.controller.BaseController', {
         this.getSideFilterForm().loadRecord(router.filter);
 
         // todo: refactor this
-        var value = '';
-        if (router.filter.startedBetween && (router.filter.startedBetween.get('from') || router.filter.startedBetween.get('to'))) {
-            if (router.filter.startedBetween.get('from') && (router.filter.startedBetween.get('from') || router.filter.startedBetween.get('to'))) {
-                value += ' from ' + Ext.util.Format.date(router.filter.startedBetween.get('from'), 'd/m/Y H:i');
-            }
-            if (router.filter.startedBetween.get('to')) {
-                value += ' to ' + Ext.util.Format.date(router.filter.startedBetween.get('to'), 'd/m/Y H:i');
-            }
+        this.setFilterTimeInterval(router.filter.startedBetween, 'started', 'startedBetween');
+        this.setFilterTimeInterval(router.filter.finishedBetween, 'finished', 'finishedBetween');
 
-            this.getFilterPanel().setFilter('startedBetween', 'Started between', value);
-        }
+    },
 
-        if (router.filter.finishedBetween && (router.filter.finishedBetween.get('from') || router.filter.finishedBetween.get('to'))) {
-            value = '';
-            if (router.filter.finishedBetween.get('from')) {
-                value += ' from ' + Ext.util.Format.date(router.filter.finishedBetween.get('from'), 'd/m/Y H:i');
+    // todo: refactor this also
+    setFilterTimeInterval: function (interval, prefix, propName) {
+        var value = '',
+            intervalFrom = interval ? interval.get('from') : undefined,
+            intervalTo = interval ? interval.get('to') : undefined,
+            defaultLabel = prefix.charAt(0).toUpperCase() + prefix.slice(1),
+            label = Uni.I18n.translate('connection.widget.' + prefix, 'DSH', defaultLabel),
+            between = Uni.I18n.translate('connection.widget.between', 'DSH', 'between'),
+            after = Uni.I18n.translate('connection.widget.after', 'DSH', 'after'),
+            before = Uni.I18n.translate('connection.widget.before', 'DSH', 'before'),
+            and = Uni.I18n.translate('connection.widget.and', 'DSH', 'and');
+
+        if (interval && (intervalFrom || intervalTo)) {
+            if (intervalFrom && intervalTo) {
+                value += ' ' + between + ' ';
+                value += Ext.util.Format.date(intervalFrom, 'd/m/Y H:i');
+                value += ' ' + and + ' ';
+                value += Ext.util.Format.date(intervalTo, 'd/m/Y H:i');
             }
-            if (router.filter.finishedBetween.get('to')) {
-                value += ' to ' + Ext.util.Format.date(router.filter.finishedBetween.get('to'), 'd/m/Y H:i');
+            if (intervalFrom && !intervalTo) {
+                value += ' after ' + Ext.util.Format.date(intervalFrom, 'd/m/Y H:i');
             }
-            this.getFilterPanel().setFilter('finishedBetween', 'Finished between', value);
+            if (!intervalFrom && intervalTo) {
+                value += ' before ' + Ext.util.Format.date(intervalTo, 'd/m/Y H:i');
+            }
+            this.getFilterPanel().setFilter(propName, label, value);
         }
     },
 
