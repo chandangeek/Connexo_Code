@@ -26,8 +26,8 @@ class JoinTreeAction<T> {
 		}
 	}
 	
-	boolean proceed(T lastResult) {
-		return lastResult ==  null || lastResult == Boolean.FALSE;
+	boolean isValid(T lastResult) {
+		return lastResult !=  null && lastResult != Boolean.FALSE;
 	}
 	
 	T apply(JoinDataMapper<?> value, String reduced) {

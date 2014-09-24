@@ -43,8 +43,12 @@ final class JoinTreeNode<T>  {
 		return 
 			Stream.concat(
 				children.stream().map(child -> child.addMapper(newMapper,aliasFactory)),
-				value.wrap(newMapper, aliasFactory).stream().map( mapper -> add(new JoinTreeNode<>(mapper))))
+				value.wrap(newMapper, aliasFactory).stream().map( mapper -> add(mapper)))
 					.reduce(false,Boolean::logicalOr);
+	}
+	
+	private <R> boolean add(JoinDataMapper<R> mapper) {
+		return add(new JoinTreeNode<>(mapper));
 	}
 	
 	private <R> boolean add(JoinTreeNode<R> node) {
@@ -72,15 +76,15 @@ final class JoinTreeNode<T>  {
 			return null;
 		}
 		R result = action.apply(value,reduced);
-		if (action.proceed(result)) {
+		if (action.isValid(result)) {
+			action.matched(this);
+		} else {
 			result = children.stream()
 				.map(child -> child.execute(reduced,action))
-				.filter( answer -> !action.proceed(answer))
+				.filter(action::isValid)
 				.findFirst()
 				.orElse(null);
-		} else {
-			action.matched(this);
-		}	
+		} 
 		return result;
 	}
 	
