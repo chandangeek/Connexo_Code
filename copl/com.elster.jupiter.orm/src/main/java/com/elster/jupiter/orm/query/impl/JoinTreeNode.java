@@ -38,21 +38,17 @@ final class JoinTreeNode<T>  {
 	}
 	
 	final <R> boolean addMapper(DataMapperImpl<R> newMapper , AliasFactory aliasFactory) {
-		boolean result = false;
-		for (JoinTreeNode<?> each : children) {
-			if (each.addMapper(newMapper,aliasFactory)){
-				result = true;
-			}
-		}
-		for (JoinDataMapper<R> newNodeValue : value.wrap(newMapper, aliasFactory)) {				
-			add(new JoinTreeNode<>(newNodeValue));
-			result = true;
-		}
-		return result;
+		// returns true, if mapper was added.
+		// take care not to shortcircuit calculations, as map lambdas have side effects.
+		return 
+			Stream.concat(
+				children.stream().map(child -> child.addMapper(newMapper,aliasFactory)),
+				value.wrap(newMapper, aliasFactory).stream().map( mapper -> add(new JoinTreeNode<>(mapper))))
+					.reduce(Boolean.FALSE,Boolean::logicalOr);
 	}
 	
-	private <R> void add(JoinTreeNode<R> node) {
-		children.add(node);
+	private <R> boolean add(JoinTreeNode<R> node) {
+		return children.add(node);
 	}
 
 	private <R> R mark(String fieldName, BiFunction<String, JoinDataMapper<?>, R> biFunction) {
