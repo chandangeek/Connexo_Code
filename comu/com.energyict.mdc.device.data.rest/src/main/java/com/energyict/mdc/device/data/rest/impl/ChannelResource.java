@@ -32,9 +32,6 @@ import java.time.temporal.ChronoField;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.streams.Predicates.isNull;
 
 /**
  * Created by bvn on 9/5/14.
@@ -72,9 +69,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannel(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
-        Channel channel = resourceHelper.findChannelOrThrowException(loadProfile, channelId);
+        Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         ChannelInfo channelInfo = ChannelInfo.from(channel);
         addValidationInfo(channel, channelInfo);
         return Response.ok(channelInfo).build();
@@ -91,8 +86,8 @@ public class ChannelResource {
     }
 
     private Date lastChecked(Channel channel) {
-        Optional optional =  channel.getDevice().forValidation().getLastChecked(channel);
-        return (optional.isPresent()) ? (Date) optional.get() : null;
+        Optional<Date> optional =  channel.getDevice().forValidation().getLastChecked(channel);
+        return (optional.isPresent()) ? optional.get() : null;
     }
 
     private Interval lastMonth() {
@@ -106,9 +101,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
-        Channel channel = resourceHelper.findChannelOrThrowException(loadProfile, channelId);
+        Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         boolean isValidationActive = channel.getDevice().forValidation().isValidationActive(channel, clock.now());
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
@@ -118,6 +111,30 @@ public class ChannelResource {
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    private Channel doGetChannel(String mrid, long loadProfileId, long channelId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
+        return resourceHelper.findChannelOrThrowException(loadProfile, channelId);
+    }
+
+    @Path("{channelid}/validationstatus")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION)
+    public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
+        Channel channel = doGetChannel(mrid, loadProfileId, channelId);
+        ValidationStatusInfo deviceValidationStatusInfo = determineStatus(channel);
+        return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
+    }
+
+    private ValidationStatusInfo determineStatus(Channel channel) {
+        return new ValidationStatusInfo(isValidationActive(channel), lastChecked(channel), hasData(channel));
+    }
+
+    private boolean hasData(Channel channel) {
+        return channel.getDevice().forValidation().hasData(channel);
     }
 
 }
