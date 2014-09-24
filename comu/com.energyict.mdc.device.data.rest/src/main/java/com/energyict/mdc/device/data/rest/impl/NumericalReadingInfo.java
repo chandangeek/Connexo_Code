@@ -52,7 +52,7 @@ public class NumericalReadingInfo extends ReadingInfo<NumericalReading, Numerica
         this.multiplier = registerSpec.getMultiplier();
 
         this.validationStatus = isValidationStatusActive;
-        if(isValidationStatusActive) {
+        if(dataValidationStatus != null) {
             this.dataValidated = dataValidationStatus.completelyValidated();
             this.validationResult = ValidationStatus.forResult(validationEvaluator.getValidationResult(dataValidationStatus.getReadingQualities()));
             this.suspectReason = ValidationRuleInfo.from(dataValidationStatus);

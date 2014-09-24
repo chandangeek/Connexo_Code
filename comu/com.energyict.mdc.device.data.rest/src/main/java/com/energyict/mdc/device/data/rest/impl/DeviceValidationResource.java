@@ -206,10 +206,7 @@ public class DeviceValidationResource {
     }
 
     private Date getLastChecked(Meter meter) {
-        List<? extends MeterActivation> meterActivations = new ArrayList<>(meter.getMeterActivations());    // getMeterActivations returns ImmutableList
-        Collections.reverse(meterActivations);
-        for (MeterActivation meterActivation : meterActivations) {
-
+        for (MeterActivation meterActivation : resourceHelper.getMeterActivationsMostCurrentFirst(meter)) {
             Optional<Date> lastChecked = validationService.getLastChecked(meterActivation);
             if (lastChecked.isPresent()) {
                 return lastChecked.get();
@@ -233,15 +230,15 @@ public class DeviceValidationResource {
 
         if (deviceValidationStatusInfo.isActive && meter.hasData()) {
             if (deviceValidationStatusInfo.lastChecked == null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastCkecked");
+                throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
             }
             Date lastCheckedDate = new Date(deviceValidationStatusInfo.lastChecked);
-            for (MeterActivation meterActivation : getMeterActivationsMostCurrentFirst(meter)) {
+            for (MeterActivation meterActivation : resourceHelper.getMeterActivationsMostCurrentFirst(meter)) {
                 if (meterActivation.isEffective(lastCheckedDate) || meterActivation.getInterval().startsAfter(lastCheckedDate)) {
                     Optional<Date> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
                     if (meterActivation.isCurrent()) {
                         if (meterActivationLastChecked.isPresent() && lastCheckedDate.after(meterActivationLastChecked.get())) {
-                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastCkecked", meterActivationLastChecked.get());
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", meterActivationLastChecked.get());
                         }
                         validationService.updateLastChecked(meterActivation, lastCheckedDate);
                     } else {
@@ -259,12 +256,6 @@ public class DeviceValidationResource {
         return Ordering.natural().min(date1, date2);
     }
 
-    private List<MeterActivation> getMeterActivationsMostCurrentFirst(Meter meter) {
-        List<MeterActivation> activations = new ArrayList<>(meter.getMeterActivations());
-        Collections.reverse(activations);
-        return activations;
-    }
-
     @Path("/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
@@ -272,12 +263,12 @@ public class DeviceValidationResource {
     public Response validateDeviceData(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
-        for (MeterActivation meterActivation : getMeterActivationsMostCurrentFirst(meter)) {
+        resourceHelper.getMeterActivationsMostCurrentFirst(meter).forEach(meterActivation -> {
             if (!validationService.getEvaluator().isAllDataValidated(meterActivation)) {
                 Date date = validationService.getLastChecked(meterActivation).or(meterActivation.getStart());
                 validationService.validate(meterActivation, Interval.startAt(date));
             }
-        }
+        });
         return Response.status(Response.Status.OK).build();
     }
 
