@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.exceutionlevels.AddExecutionLevels', {
+Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevels', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.add-execution-levels',
     deviceTypeId: null,
