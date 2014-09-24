@@ -121,7 +121,8 @@ public class DeviceComTaskResource {
         if(comTaskExecutions.size()>0){
             comTaskExecutions.forEach(runComTaskFromExecution(device));
         } else if(comTaskExecutions.size()==0){
-            throw exceptionFactory.newException(MessageSeeds.RUN_COMTASK__NOT_ALLOWED);
+            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
+            comTaskEnablements.forEach(runComTaskFromEnablement(device));
         }
         return Response.ok().build();
     }
@@ -137,7 +138,7 @@ public class DeviceComTaskResource {
             comTaskExecutions.forEach(runComTaskFromExecutionNow(device));
         } else if(comTaskExecutions.size()==0){
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            comTaskEnablements.forEach(runComTaskFromEnablement(device));
+            comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
         }
         return Response.ok().build();
     }
@@ -151,8 +152,22 @@ public class DeviceComTaskResource {
                         .forEach(manuallyScheduledComTaskExecutionComTaskExecutionBuilder::connectionTask);
             }
             ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = manuallyScheduledComTaskExecutionComTaskExecutionBuilder.add();
-            manuallyScheduledComTaskExecution.scheduleNow();
             device.save();
+            manuallyScheduledComTaskExecution.scheduleNow();
+        };
+    }
+
+    private Consumer<? super ComTaskEnablement> runComTaskFromEnablementNow(Device device) {
+        return comTaskEnablement -> {
+            ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orNull());
+            if (comTaskEnablement.hasPartialConnectionTask()) {
+                device.getConnectionTasks().stream()
+                        .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
+                        .forEach(manuallyScheduledComTaskExecutionComTaskExecutionBuilder::connectionTask);
+            }
+            ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = manuallyScheduledComTaskExecutionComTaskExecutionBuilder.add();
+            device.save();
+            manuallyScheduledComTaskExecution.runNow();
         };
     }
 
