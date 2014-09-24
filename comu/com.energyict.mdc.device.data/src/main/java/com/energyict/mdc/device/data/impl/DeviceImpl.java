@@ -108,10 +108,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -127,6 +127,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -1143,8 +1144,8 @@ public class DeviceImpl implements Device {
     }
 
     /**
-     * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value), just a list of placeholders for each reading interval within the requestInterval
-     * for all datetimes that occur with the bounds of a meter activation
+     * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value), just a list of placeholders for each reading
+     * interval within the requestInterval for all datetimes that occur with the bounds of a meter activation and load profile's last reading
      * @param loadProfile
      * @param requestInterval interval over which user wants to see readings
      * @param meter
@@ -1155,8 +1156,13 @@ public class DeviceImpl implements Device {
 
         Map<Date, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         Period period = Period.seconds(loadProfile.getInterval().getSeconds());
-        DateTime timeIndex = new DateTime(requestInterval.getStart().getTime() - (requestInterval.getStart().getTime() % period.toStandardDuration().getMillis()));
-        final DateTime endTime = new DateTime(requestInterval.getEnd().getTime());
+        DateTime timeIndex = new DateTime(requestInterval.getStart().getTime() - (requestInterval.getStart().getTime() % period.toStandardDuration().getMillis())); // round start time to interval boundary
+        DateTime endTime;
+        if (loadProfile.getLastReading()!=null && requestInterval.getEnd().after(loadProfile.getLastReading())) {
+            endTime=new DateTime(loadProfile.getLastReading().getTime());
+        } else {
+            endTime=new DateTime(requestInterval.getEnd().getTime());
+        }
         while (timeIndex.compareTo(endTime) < 0) {
             DateTime intervalEnd = timeIndex.plus(period);
             if (meterActivationIntervals.contains(timeIndex.toDate())) {
@@ -1213,21 +1219,37 @@ public class DeviceImpl implements Device {
     }
 
     Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Date when) {
+        return findKoreChannel(channel::getReadingType, when);
+    }
+
+    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Date when) {
+        return findKoreChannel(() -> register.getReadingType(), when);
+    }
+
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Supplier<ReadingType> readingTypeSupplier, Date when) {
         Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
         if (found.isPresent()) {
             Optional<MeterActivation> meterActivation = found.get().getMeterActivation(when);
             if (meterActivation.isPresent()) {
-                return Optional.fromNullable(getChannel(meterActivation.get(), channel.getReadingType()).orElse(null));
+                return Optional.fromNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
             }
         }
         return Optional.absent();
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Channel channel) {
+        return findKoreChannels(channel::getReadingType);
+    }
+
+    List<com.elster.jupiter.metering.Channel> findKoreChannels(Register<?> register) {
+        return findKoreChannels(() -> register.getReadingType());
+    }
+
+    List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier) {
         Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
         if (found.isPresent()) {
             return found.get().getMeterActivations().stream()
-                    .map(m -> getChannel(m, channel.getReadingType()))
+                    .map(m -> getChannel(m, readingTypeSupplier.get()))
                     .filter(java.util.Optional::isPresent)
                     .map(java.util.Optional::get)
                     .collect(Collectors.toList());

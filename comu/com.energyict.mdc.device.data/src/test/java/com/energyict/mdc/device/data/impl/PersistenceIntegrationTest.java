@@ -103,10 +103,10 @@ public abstract class PersistenceIntegrationTest {
         deviceType.save();
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);

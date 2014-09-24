@@ -97,7 +97,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
 
     @Override
     public void prepareForSaving() {
-        if (!this.isAdHoc()) {
+        if (this.nextExecutionSpecs.isPresent()) {
             this.nextExecutionSpecs.get().save();
         }
         super.prepareForSaving();
@@ -145,7 +145,10 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
                 this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
             }
             else {
-                this.nextExecutionSpecs.set(this.getSchedulingService().newNextExecutionSpecs(temporalExpression));
+                NextExecutionSpecs nextExecutionSpecs1 = this.getSchedulingService().newNextExecutionSpecs(temporalExpression);
+                nextExecutionSpecs1.save();
+                this.nextExecutionSpecs.set(nextExecutionSpecs1);
+                this.recalculateNextAndPlannedExecutionTimestamp();
             }
         }
     }
@@ -287,6 +290,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
         @Override
         public ManuallyScheduledComTaskExecutionUpdater scheduleAccordingTo(TemporalExpression temporalExpression) {
             this.getComTaskExecution().setNextExecutionSpecsFrom(temporalExpression);
+            this.getComTaskExecution().recalculateNextAndPlannedExecutionTimestamp();
             return self();
         }
 
