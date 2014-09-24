@@ -17,6 +17,7 @@ Ext.define('Uni.property.view.property.Period', {
             },
             {
                 xtype: 'combobox',
+                margin: '0 0 0 16',
                 itemId: me.key + 'combobox',
                 name: this.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
@@ -27,7 +28,7 @@ Ext.define('Uni.property.view.property.Period', {
                 forceSelection: false,
                 required: me.required
             }
-        ]
+        ];
     },
 
     getComboCmp: function () {
@@ -56,9 +57,9 @@ Ext.define('Uni.property.view.property.Period', {
     },
 
     setValue: function (value) {
-        var unit = null;
-        var count = null;
-        var timeDuration = null;
+        var unit = null,
+            count = null,
+            timeDuration = null;
 
         if (value != null) {
             unit = value.timeUnit;
