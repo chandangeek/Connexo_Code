@@ -214,6 +214,7 @@ public class DeviceComTaskResource {
                     .findFirst();
             if(comTaskExecution.isScheduledManually() && dialectConfigurationPropertiesOptional.isPresent()){
                 device.getComTaskExecutionUpdater((ManuallyScheduledComTaskExecution)comTaskExecution).protocolDialectConfigurationProperties(dialectConfigurationPropertiesOptional.get()).update();
+                device.save();
             } else {
                 throw exceptionFactory.newException(MessageSeeds.UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED);
             }

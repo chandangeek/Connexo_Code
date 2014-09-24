@@ -59,15 +59,25 @@ public class DeviceScheduleResource {
         for(ComTaskEnablement comTaskEnablement:deviceConfiguration.getComTaskEnablements()){
             if(comTaskEnablement.getComTask().getId()==schedulingInfo.id){
                 if(schedulingInfo.schedule!=null){
-                    ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orNull(), schedulingInfo.schedule.asTemporalExpression());
-                    if(comTaskEnablement.hasPartialConnectionTask()){
-                        for (ConnectionTask<?, ?> connectionTask : device.getConnectionTasks()) {
-                            if(connectionTask.getPartialConnectionTask().getId()==comTaskEnablement.getPartialConnectionTask().get().getId()){
-                                builder.connectionTask(connectionTask);
-                            }
+                    boolean comTaskExecutionExists = false;
+                    for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
+                        if(comTaskExecution.isAdHoc() && comTaskExecution.getComTasks().get(0).getId()==comTaskEnablement.getComTask().getId()){
+
+                            ((ManuallyScheduledComTaskExecution)comTaskExecution).getUpdater().scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression()).update();
+                            comTaskExecutionExists = true;
                         }
                     }
-                    builder.add();
+                    if(!comTaskExecutionExists) {
+                        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orNull(), schedulingInfo.schedule.asTemporalExpression());
+                        if(comTaskEnablement.hasPartialConnectionTask()){
+                            for (ConnectionTask<?, ?> connectionTask : device.getConnectionTasks()) {
+                                if(connectionTask.getPartialConnectionTask().getId()==comTaskEnablement.getPartialConnectionTask().get().getId()){
+                                    builder.connectionTask(connectionTask);
+                                }
+                            }
+                        }
+                        builder.add();
+                    }
                     device.save();
                 } else {
                     boolean comTaskExecutionExists = false;
