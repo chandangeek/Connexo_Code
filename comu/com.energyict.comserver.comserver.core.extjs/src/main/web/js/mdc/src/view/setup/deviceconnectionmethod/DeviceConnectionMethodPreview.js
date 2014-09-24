@@ -177,14 +177,15 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                                     endMinutes = (value.end/3600 | 0),
                                                     endSeconds = (value.end/60 - endMinutes*60);
 
-                                                var addZeroIfOneSymbol = function (int) {
-                                                    var string = int.toString();
+                                                var addZeroIfOneSymbol = function (timeCount) {
+                                                    var timeInString = timeCount.toString();
 
-                                                    if (string.length === 1) {
-                                                        string = '0' + string;
+                                                    if (timeInString.length === 1) {
+                                                        timeInString = '0' + timeInString;
                                                     }
-                                                    return string;
+                                                    return timeInString;
                                                 }
+
                                                 return Uni.I18n.translate('connectionmethod.between', 'MDC', 'Between') + ' ' + addZeroIfOneSymbol(startMinutes) + ':' + addZeroIfOneSymbol(startSeconds)  + ' ' + Uni.I18n.translate('general.and', 'MDC', 'And').toLowerCase() + ' ' + addZeroIfOneSymbol(endMinutes) + ':' + addZeroIfOneSymbol(endSeconds);
 
                                             } else {
