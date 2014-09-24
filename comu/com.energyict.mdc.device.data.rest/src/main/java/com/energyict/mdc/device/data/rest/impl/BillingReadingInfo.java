@@ -45,7 +45,7 @@ public class BillingReadingInfo extends ReadingInfo<BillingReading, NumericalReg
             this.interval = IntervalInfo.from(reading.getInterval().get());
         }
         this.validationStatus = isValidationStatusActive;
-        if(isValidationStatusActive) {
+        if(dataValidationStatus != null) {
             this.dataValidated = dataValidationStatus.completelyValidated();
             this.validationResult = ValidationStatus.forResult(validationEvaluator.getValidationResult(dataValidationStatus.getReadingQualities()));
             this.suspectReason = ValidationRuleInfo.from(dataValidationStatus);
