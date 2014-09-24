@@ -172,12 +172,7 @@ public class MeterActivationImpl implements MeterActivation {
 
     @Override
     public boolean hasData() {
-        for (Channel channel : getChannels()) {
-            if (channel.getTimeSeries().getFirstDateTime() != null || channel.getTimeSeries().getLastDateTime() != null) {
-                return true;
-            }
-        }
-        return false;
+        return getChannels().stream().anyMatch(Channel::hasData);
     }
 
     @Override

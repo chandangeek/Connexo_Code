@@ -364,4 +364,9 @@ public final class ChannelImpl implements Channel {
 	public boolean hasMacroPeriod() {
 		return !mainReadingType.get().equals(MacroPeriod.NOTAPPLICABLE);
 	}
+
+    @Override
+    public boolean hasData() {
+        return getTimeSeries().getFirstDateTime() != null || getTimeSeries().getLastDateTime() != null;
+    }
 }

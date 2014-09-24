@@ -66,15 +66,7 @@ public class MeterActivationsImpl implements ReadingContainer {
 
     @Override
     public boolean hasData() {
-        if (meterActivations.isEmpty()) {
-            return false;
-        }
-        for (MeterActivationImpl meterActivation : meterActivations) {
-            if (meterActivation.hasData()) {
-                return true;
-            }
-        }
-        return false;
+        return meterActivations.stream().anyMatch(MeterActivationImpl::hasData);
     }
 
     private MeterActivationImpl last() {

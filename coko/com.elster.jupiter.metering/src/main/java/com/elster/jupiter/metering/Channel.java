@@ -37,4 +37,5 @@ public interface Channel {
     List<BaseReadingRecord> getReadingsBefore(Date when, int readingCount);
     List<BaseReadingRecord> getReadingsOnOrBefore(Date when, int readingCount);
 	boolean hasMacroPeriod();
+    boolean hasData();
 }
