@@ -119,9 +119,10 @@ public class DeviceComTaskResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
-            comTaskExecutions.forEach(runComTaskFromExecutionNow(device));
+            comTaskExecutions.forEach(runComTaskFromExecution(device));
         } else if(comTaskExecutions.size()==0){
-            throw exceptionFactory.newException(MessageSeeds.RUN_COMTASK__NOT_ALLOWED);
+            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
+            comTaskEnablements.forEach(runComTaskFromEnablement(device));
         }
         return Response.ok().build();
     }
@@ -134,10 +135,10 @@ public class DeviceComTaskResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
-            comTaskExecutions.forEach(runComTaskFromExecution(device));
+            comTaskExecutions.forEach(runComTaskFromExecutionNow(device));
         } else if(comTaskExecutions.size()==0){
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            comTaskEnablements.forEach(runComTaskFromEnablement(device));
+            comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
         }
         return Response.ok().build();
     }
@@ -151,8 +152,22 @@ public class DeviceComTaskResource {
                         .forEach(manuallyScheduledComTaskExecutionComTaskExecutionBuilder::connectionTask);
             }
             ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = manuallyScheduledComTaskExecutionComTaskExecutionBuilder.add();
-            manuallyScheduledComTaskExecution.scheduleNow();
             device.save();
+            manuallyScheduledComTaskExecution.scheduleNow();
+        };
+    }
+
+    private Consumer<? super ComTaskEnablement> runComTaskFromEnablementNow(Device device) {
+        return comTaskEnablement -> {
+            ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orNull());
+            if (comTaskEnablement.hasPartialConnectionTask()) {
+                device.getConnectionTasks().stream()
+                        .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
+                        .forEach(manuallyScheduledComTaskExecutionComTaskExecutionBuilder::connectionTask);
+            }
+            ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = manuallyScheduledComTaskExecutionComTaskExecutionBuilder.add();
+            device.save();
+            manuallyScheduledComTaskExecution.runNow();
         };
     }
 
@@ -199,6 +214,7 @@ public class DeviceComTaskResource {
                     .findFirst();
             if(comTaskExecution.isScheduledManually() && dialectConfigurationPropertiesOptional.isPresent()){
                 device.getComTaskExecutionUpdater((ManuallyScheduledComTaskExecution)comTaskExecution).protocolDialectConfigurationProperties(dialectConfigurationPropertiesOptional.get()).update();
+                device.save();
             } else {
                 throw exceptionFactory.newException(MessageSeeds.UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED);
             }
