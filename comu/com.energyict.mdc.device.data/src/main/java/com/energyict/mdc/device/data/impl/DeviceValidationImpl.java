@@ -17,7 +17,6 @@ import com.google.common.collect.Ordering;
 
 import java.util.Date;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.*;
@@ -85,17 +84,17 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     @Override
     public Optional<Date> getLastChecked(Channel channel) {
-        return getLastChecked(channel::getReadingType);
+        return getLastChecked(channel.getReadingType());
     }
 
     @Override
     public Optional<Date> getLastChecked(Register<?> register) {
-        return getLastChecked(() -> register.getReadingType());
+        return getLastChecked(register.getReadingType());
     }
 
-    private Optional<Date> getLastChecked(Supplier<ReadingType> readingTypeSupplier) {
-        return device.findKoreChannels(readingTypeSupplier).stream()
-                .filter(k -> k.getReadingTypes().contains(readingTypeSupplier.get()))
+    private Optional<Date> getLastChecked(ReadingType readingType) {
+        return device.findKoreChannels(() -> readingType).stream()
+                .filter(k -> k.getReadingTypes().contains(readingType))
                 .map(validationService::getLastChecked)
                 .findFirst()
                 .orElse(Optional.<Date>absent());
