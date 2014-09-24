@@ -154,7 +154,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commPort', 'DSH', 'Communication port'),
-                    name: 'comPortPool',
+                    name: 'comPort',
                     renderer: function (val) {
                         return val ? val.name : ''
                     }

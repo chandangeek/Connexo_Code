@@ -6,17 +6,15 @@ Ext.define('Dsh.view.widget.HeatMap', {
     tbar: [
         '->',
         {
-            xtype: 'fieldcontainer',
-            fieldLabel: 'Combine',
-            items: {
-                xtype: 'combobox',
-                itemId: 'combine-combo',
-                displayField: 'localizedValue',
-                queryMode: 'local',
-                valueField: 'breakdown',
-                store: 'Dsh.store.CombineStore',
-                autoSelect: true
-            }
+            xtype: 'combobox',
+            fieldLabel: Uni.I18n.translate('overview.widget.heatmap.combineLabel', 'DSH', 'Latest result combine'),
+            labelWidth: 150,
+            itemId: 'combine-combo',
+            displayField: 'localizedValue',
+            queryMode: 'local',
+            valueField: 'breakdown',
+            store: 'Dsh.store.CombineStore',
+            autoSelect: true
         },
         '->'
     ],
