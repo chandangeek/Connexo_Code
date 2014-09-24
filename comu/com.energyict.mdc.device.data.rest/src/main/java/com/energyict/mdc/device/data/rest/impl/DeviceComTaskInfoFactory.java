@@ -15,7 +15,6 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -105,7 +104,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(((ScheduledComTaskExecution) comTaskExecution).getComSchedule().getTemporalExpression());
         deviceComTasksInfo.scheduleName = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule().getName();
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.SHARED.name();
-        deviceComTasksInfo.scheduleType = thesaurus.getString("masterSchedule","Master schedule");
+        deviceComTasksInfo.scheduleType = thesaurus.getString("masterSchedule","Shared schedule");
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
         deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(comTaskExecution.getStatus()),taskStatusAdapter.marshal(comTaskExecution.getStatus()));
         if (comTaskExecution.useDefaultConnectionTask()) {
