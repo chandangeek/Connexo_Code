@@ -50,7 +50,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
                     {
                         xtype: 'displayfield',
                         name: 'lastChecked_formatted',
-                        margin: '3 0 0 0',
                         renderer: function (value, field) {
                             if (!_.isEmpty(value)) {
                                 field.up('#lastCheckedCont').show();
@@ -63,7 +62,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
                     },
                     {
                         xtype: 'button',
-                        tooltip: Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The moment when the last interval was checked in the validation process.'),
+                        tooltip: Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The timestamp of the last data that was validated'),
                         iconCls: 'icon-info-small',
                         ui: 'blank',
                         itemId: 'lastCheckedHelp',
