@@ -198,28 +198,28 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.connectionMethod = values.name;
-        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/connectionmethod',Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethod', 'MDC', 'Change connection method succeeded'));
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/connectionmethod',Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethod', 'MDC', 'Connection method changed'));
     },
 
     changeUrgency: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.urgency = values.urgency;
-        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/urgency',Uni.I18n.translate('deviceCommunicationTask.changeUrgency', 'MDC', 'Change urgency succeeded'));
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/urgency',Uni.I18n.translate('deviceCommunicationTask.changeUrgency', 'MDC', 'Urgency changed'));
     },
 
     changeFrequency: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.temporalExpression = values.schedule;
-        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/frequency',Uni.I18n.translate('deviceCommunicationTask.changeFrequency', 'MDC', 'Change frequency succeeded'));
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/frequency',Uni.I18n.translate('deviceCommunicationTask.changeFrequency', 'MDC', 'Frequency changed'));
     },
 
     changeProtocolDialect: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.protocolDialect = values.name;
-        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/protocoldialect',Uni.I18n.translate('deviceCommunicationTask.changeProtocolDialect', 'MDC', 'Change protocol dialect succeeded'));
+        this.sendToServer(request, '/api/ddr/devices/' + this.mrid + '/comtasks/' + this.comTask.id + '/protocoldialect',Uni.I18n.translate('deviceCommunicationTask.changeProtocolDialect', 'MDC', 'Protocol dialect changed'));
     },
 
     sendToServer: function (request, actionUrl, actionMsg) {

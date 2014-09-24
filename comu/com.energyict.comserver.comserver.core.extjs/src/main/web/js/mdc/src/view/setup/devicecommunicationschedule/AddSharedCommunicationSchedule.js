@@ -19,7 +19,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                     itemId: 'form-errors',
                     xtype: 'uni-form-error-message',
                     name: 'form-errors',
-                    hidden: true
+                    hidden: true,
+                    width: 380
                 },
                 {
                     xtype: 'preview-container',

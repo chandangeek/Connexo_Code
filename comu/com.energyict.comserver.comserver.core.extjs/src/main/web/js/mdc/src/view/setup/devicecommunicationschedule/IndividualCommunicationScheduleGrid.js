@@ -65,13 +65,13 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
                         shadow: false,
                         items: [
                             {
-                                text: Uni.I18n.translate('deviceCommunicationSchedules.changeCommunicationSchedule', 'MDC', 'Change communication schedule'),
+                                text: Uni.I18n.translate('deviceCommunicationSchedules.changeFrequency', 'MDC', 'Change frequency'),
                                 itemId: 'changeCommunicationSchedule',
                                 action: 'changeCommunicationSchedule'
 
                             },
                             {
-                                text: Uni.I18n.translate('deviceCommunicationSchedules.removeCommunicationSchedule', 'MDC', 'Remove communication schedule'),
+                                text: Uni.I18n.translate('deviceCommunicationSchedules.removeFrequency', 'MDC', 'Remove frequency'),
                                 itemId: 'removeCommunicationSchedule',
                                 action: 'removeCommunicationSchedule'
 
