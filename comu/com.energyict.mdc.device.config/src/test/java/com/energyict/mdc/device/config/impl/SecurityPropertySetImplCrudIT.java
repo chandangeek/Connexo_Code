@@ -72,7 +72,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1;
+import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3;
@@ -224,7 +224,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -240,7 +240,7 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(reloaded.getName()).isEqualTo("Name");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
-        assertThat(reloaded.getUserActions()).isEqualTo(EnumSet.of(ALLOWCOMTASKEXECUTION1, EDITDEVICESECURITYPROPERTIES2));
+        assertThat(reloaded.getUserActions()).isEqualTo(EnumSet.of(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2));
 
     }
 
@@ -259,7 +259,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -292,7 +292,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -303,7 +303,7 @@ public class SecurityPropertySetImplCrudIT {
             SecurityPropertySet toUpdate = deviceConfiguration.getSecurityPropertySets().get(0);
             toUpdate.addUserAction(VIEWDEVICESECURITYPROPERTIES4);
             toUpdate.setAuthenticationLevel(2);
-            toUpdate.removeUserAction(ALLOWCOMTASKEXECUTION1);
+            toUpdate.removeUserAction(EDITDEVICESECURITYPROPERTIES1);
             toUpdate.update();
             context.commit();
         }
@@ -337,7 +337,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration.createSecurityPropertySet(null)
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -360,7 +360,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration.createSecurityPropertySet("       ")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -383,7 +383,7 @@ public class SecurityPropertySetImplCrudIT {
             deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -406,7 +406,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -416,7 +416,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -438,7 +438,7 @@ public class SecurityPropertySetImplCrudIT {
             deviceConfiguration1.createSecurityPropertySet(expectedName)
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -452,7 +452,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration2.createSecurityPropertySet(expectedName)
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -481,7 +481,7 @@ public class SecurityPropertySetImplCrudIT {
 
             propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -505,7 +505,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -527,7 +527,7 @@ public class SecurityPropertySetImplCrudIT {
 
             propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 
@@ -551,7 +551,7 @@ public class SecurityPropertySetImplCrudIT {
             propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
-                    .addUserAction(ALLOWCOMTASKEXECUTION1)
+                    .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                     .build();
 

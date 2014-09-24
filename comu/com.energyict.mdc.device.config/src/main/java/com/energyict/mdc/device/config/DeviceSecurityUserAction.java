@@ -59,30 +59,6 @@ public enum DeviceSecurityUserAction {
         public boolean isEditing () {
             return true;
         }
-    },
-    ALLOWCOMTASKEXECUTION1(Privileges.EXECUTE_COM_TASK_1){
-        @Override
-        public boolean isExecutable() {
-            return true;
-        }
-    },
-    ALLOWCOMTASKEXECUTION2(Privileges.EXECUTE_COM_TASK_2){
-        @Override
-        public boolean isExecutable() {
-            return true;
-        }
-    },
-    ALLOWCOMTASKEXECUTION3(Privileges.EXECUTE_COM_TASK_3){
-        @Override
-        public boolean isExecutable() {
-            return true;
-        }
-    },
-    ALLOWCOMTASKEXECUTION4(Privileges.EXECUTE_COM_TASK_4){
-        @Override
-        public boolean isExecutable() {
-            return true;
-        }
     };
 
     public String getPrivilege() {

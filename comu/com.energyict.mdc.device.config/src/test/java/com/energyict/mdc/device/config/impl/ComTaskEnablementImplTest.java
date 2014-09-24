@@ -115,7 +115,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
                     createSecurityPropertySet(name).
                         authenticationLevel(0).
                         encryptionLevel(0).
-                        addUserAction(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1).
+                        addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1).
                         build();
     }
 
