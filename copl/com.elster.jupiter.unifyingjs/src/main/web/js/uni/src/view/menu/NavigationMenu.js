@@ -2,14 +2,21 @@ Ext.define('Uni.view.menu.NavigationMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.navigation-menu',
     cls: 'x-navigation-menu',
+
+    requires: [
+        'Uni.view.menu.NavigationItem'
+    ],
+
     defaults: {
         xtype: 'navigation-item'
     },
+
     floating: false,
     hidden: false,
     activeStep: 1,
     jumpBack: true,
     jumpForward: false,
+
     listeners: {
         add: function (menu, item, index) {
             item.renderData.index = item.index = ++index;
