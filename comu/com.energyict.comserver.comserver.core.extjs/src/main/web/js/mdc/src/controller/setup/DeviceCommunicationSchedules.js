@@ -260,7 +260,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             return true;
         } else if(communicationSchedules.length === 0){
             me.getUniFormErrorMessage().show();
-            me.getWarningMessage().update('<span style="color:red">'+ Uni.I18n.translate('deviceCommunicationSchedule.noScheduleSelected', 'MDC', 'Select at least one schedule') +'</span>');
+            me.getWarningMessage().update('<span style="color:red">'+ Uni.I18n.translate('deviceCommunicationSchedule.noScheduleSelected', 'MDC', 'Select at least one shared communication schedule') +'</span>');
             me.getWarningMessage().setVisible(true);
             return false;
         } else if (communicationSchedules.length > 1) {
@@ -317,7 +317,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeSharedScheduleSucceeded', 'MDC', 'Remove shared communication schedule succeeded'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeSharedScheduleSucceeded', 'MDC', 'Shared communication schedule removed'));
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });
@@ -374,7 +374,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeScheduleSucceeded', 'MDC', 'Remove communication schedule succeeded'))
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeScheduleSucceeded', 'MDC', 'Communication schedule removed'))
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });
@@ -398,7 +398,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             timeout: 180000,
             success: function (response) {
                 me.showDeviceCommunicationScheduleView(me.mrid);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addScheduleSucceeded', 'MDC', 'Add communication schedule succeeded'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addScheduleSucceeded', 'MDC', 'Communication schedule added'));
             }
         });
         button.up('.window').close();
@@ -438,7 +438,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.editScheduleSucceeded', 'MDC', 'Edit communication schedule succeeded'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.editScheduleSucceeded', 'MDC', 'Communication schedule saved'));
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });
