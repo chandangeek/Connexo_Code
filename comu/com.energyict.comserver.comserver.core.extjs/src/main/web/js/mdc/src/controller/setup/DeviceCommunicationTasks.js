@@ -103,6 +103,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         });
         if (selection.data.scheduleTypeKey === 'ON_REQUEST') {
             changeItems[3].show();
+            changeItems[4].show();
         } else if (selection.data.scheduleTypeKey === 'SHARED') {
             changeItems[0].show();
             changeItems[2].show();
@@ -113,6 +114,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             changeItems[1].show();
             changeItems[2].show();
             changeItems[3].show();
+            changeItems[4].show();
         }
 
     },

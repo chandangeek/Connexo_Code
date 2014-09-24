@@ -4,6 +4,22 @@ Ext.define('Mdc.model.SecuritySetting', {
         {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true},
         {name: 'authenticationLevel', type: 'auto', useNull: true},
-        {name: 'encryptionLevel', type: 'auto', useNull: true}
-    ]
+        {name: 'encryptionLevel', type: 'auto', useNull: true},
+        {name: 'executionLevels'}
+    ],
+    requires: [
+        'Mdc.model.ExecutionLevel'
+    ],
+    associations: [
+        {name: 'executionLevels', type: 'hasMany', model: 'Mdc.model.ExecutionLevel', associationKey: 'executionLevels',
+            getTypeDiscriminator: function (node) {
+                return 'Mdc.model.ExecutionLevel';
+            }
+        }
+    ],
+    proxy: {
+        type: 'rest',
+        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/securityproperties'
+    }
+
 });
