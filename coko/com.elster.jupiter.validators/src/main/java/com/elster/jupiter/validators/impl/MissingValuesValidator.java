@@ -30,7 +30,7 @@ class MissingValuesValidator extends AbstractValidator {
     private static final String READING_QUALITY_TYPE_CODE = "3.5.259";
     
     private Interval interval;
-    private int millisBetweenReadings;
+    private long millisBetweenReadings;
     private BitSet bitSet;
     private int expectedReadings;
     private boolean openEnded;
