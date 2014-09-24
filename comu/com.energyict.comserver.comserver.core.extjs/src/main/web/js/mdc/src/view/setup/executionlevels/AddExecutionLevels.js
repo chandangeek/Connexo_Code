@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevels', {
                     xtype: 'container',
                     itemId: 'add-execution-level-selection-error',
                     hidden: true,
-                    html: '<span style="color: #eb5642">' + Uni.I18n.translate('executionlevels.no.executionlevel.selected', 'MDC', 'No execution levels found') + '</span>'
+                    html: '<span style="color: #eb5642">' + Uni.I18n.translate('executionlevels.no.executionlevel.selected', 'MDC', 'Select at least 1 execution level') + '</span>'
                 },
                 {
                     xtype: 'form',

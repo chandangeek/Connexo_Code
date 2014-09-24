@@ -548,7 +548,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('executionlevel.removeExecutionLevel', 'MDC', 'The execution level will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + lastSelected.getData().name + '?',
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + '\'' + lastSelected.getData().name + '\'?',
             config: {
                 executionLevelToDelete: lastSelected,
                 securitySetting: securitySetting,

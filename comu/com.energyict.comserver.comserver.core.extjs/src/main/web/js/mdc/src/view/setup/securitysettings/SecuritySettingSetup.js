@@ -84,8 +84,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('executionLevel.noExecutionLevelsFound','MDC','No execution levels found'),
                             reasons: [
-                                Uni.I18n.translate('executionLevel.reason1','MDC','No execution levels have been defined yet.'),
-                                Uni.I18n.translate('executionLevel.reason2','MDC','No execution levels comply to the filter.')
+                                Uni.I18n.translate('executionLevel.reason1','MDC','No execution levels have been defined yet.')
                             ],
                             stepItems: [
                                 {
