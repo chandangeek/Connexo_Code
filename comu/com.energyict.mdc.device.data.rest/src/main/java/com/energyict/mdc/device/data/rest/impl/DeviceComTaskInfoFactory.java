@@ -68,7 +68,7 @@ public class DeviceComTaskInfoFactory {
     private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution) {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.INDIVIDUAL.name();
         deviceComTasksInfo.scheduleType = thesaurus.getString("individualSchedule","Individual schedule");
-        deviceComTasksInfo.protocolDialect = ((ManuallyScheduledComTaskExecution)comTaskExecution).getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName();
+        deviceComTasksInfo.protocolDialect = ((ManuallyScheduledComTaskExecution)comTaskExecution).getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
         if(comTaskExecution.getNextExecutionSpecs().isPresent()){
             deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         }
