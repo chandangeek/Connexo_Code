@@ -311,7 +311,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].duration.timeUnit")).isEqualTo("seconds");
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comServer.id")).isEqualTo(1212);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].comServer.name")).isEqualTo("com server");
-        assertThat(jsonModel.<String>get("$.connectionTasks[0].direction")).isEqualTo("outbound");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].direction")).isEqualTo("Outbound");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionType")).isEqualTo("OutboundTcpIp");
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].connectionMethod.id")).isEqualTo(991);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionMethod.name")).isEqualTo("partial connection task name (default)");
