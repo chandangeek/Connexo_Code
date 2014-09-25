@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
     ui: 'medium',
     title: Uni.I18n.translate('deviceloadprofiles.loadProfiles', 'MDC', 'Load profiles'),
     router: null,
-    commonRoute: 'devices/device/loadprofiles/loadprofile/',
+    commonRoute: 'devices/device/loadprofiles/loadprofile',
     items: [
         {
             xtype: 'navigationSubMenu',
@@ -19,19 +19,19 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
                 {
                     text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                     itemId: 'loadProfileOfDeviceOverviewLink',
-                    href: 'overview',
+                    href: '',
                     hrefTarget: '_self'
                 },
                 {
                     text: Uni.I18n.translate('deviceloadprofiles.channels', 'MDC', 'Channels'),
                     itemId: 'loadProfileOfDeviceChannelsLink',
-                    href: 'channels',
+                    href: '/channels',
                     hrefTarget: '_self'
                 },
                 {
                     text: Uni.I18n.translate('deviceloadprofiles.loadProfileData', 'MDC', 'Load profile data'),
                     itemId: 'loadProfileOfDeviceDataLink',
-                    href: 'data',
+                    href: '/data',
                     hrefTarget: '_self'
                 }
             ]

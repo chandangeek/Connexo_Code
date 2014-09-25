@@ -61,6 +61,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             },
             'deviceLoadProfileChannelData #deviceLoadProfileChannelDataTopFilter #Reset': {
                 click: this.setDefaults
+            },
+            'deviceLoadProfileChannelData #deviceLoadProfileChannelGraphView': {
+                resize: this.onGraphResize
             }
         });
     },
@@ -111,10 +114,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 dataStore.on('load', function () {
-                    me.showReadingsCount(dataStore);
-                    me.showGraphView(record);
-                    widget.setLoading(false);
-                    widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfileChannelTableView').isVisible() && dataStore.count());
+                    if (!widget.isDestroyed) {
+                        me.showReadingsCount(dataStore);
+                        me.showGraphView(record);
+                        widget.setLoading(false);
+                        widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfileChannelTableView').isVisible() && dataStore.count());
+                    }
                 }, me);
 
                 me.setDefaults();
@@ -180,6 +185,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             container.down('#emptyGraphMessage').show();
         }
         me.getPage().doLayout();
+    },
+
+    onGraphResize: function (graphView, width, height) {
+        if (graphView.chart) {
+            graphView.chart.setSize(width, height, false);
+        }
     },
 
 
