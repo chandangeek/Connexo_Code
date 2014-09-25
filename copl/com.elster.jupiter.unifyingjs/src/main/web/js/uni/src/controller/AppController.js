@@ -97,7 +97,7 @@ Ext.define('Uni.controller.AppController', {
     },
 
     redirectToLogin: function () {
-        window.location = '/apps/usr/login.html?expired&page='
+        window.location = '/apps/login/index.html?expired&page='
             + window.location.pathname
             + window.location.hash;
     },
