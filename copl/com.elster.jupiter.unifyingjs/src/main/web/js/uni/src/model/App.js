@@ -8,7 +8,7 @@ Ext.define('Uni.model.App', {
         {
             name: 'url',
             convert: function (value, record) {
-                if (value.indexOf('#') === -1) {
+                if (value.indexOf('#') === -1 && value.indexOf('http') === -1) {
                     value += '#';
                 }
                 return value;
