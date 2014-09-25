@@ -16,4 +16,8 @@ public enum Predicates {
         return r -> r == null;
     }
 
+    public static <T> Predicate<T> not(Predicate<T> predicate) {
+        return e -> !predicate.test(e);
+    }
+
 }
