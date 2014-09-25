@@ -17,6 +17,9 @@ Ext.define('Dsh.controller.BaseController', {
             control[this.prefix + ' button[action=applyfilter]'] = {
                 click: this.applyFilter
             };
+            control[this.prefix + ' button[action=clearfilter]'] = {
+                click: this.clearFilter
+            };
             this.control(control);
         }
 
