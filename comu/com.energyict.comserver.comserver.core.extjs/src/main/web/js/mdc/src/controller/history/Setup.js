@@ -248,8 +248,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showSecuritySettingsEditView'
                                                         },
                                                         executionLevels: {
-                                                            title: 'Add execution levels',
-                                                            route: '{securitySettingId}/executionlevels/add',
+                                                            title: 'Add privileges',
+                                                            route: '{securitySettingId}/privileges/add',
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showAddExecutionLevelsView'
                                                         }
@@ -762,12 +762,14 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('deviceGroups.title', 'MDC', 'Device groups'),
                     route: 'devicegroups',
                     controller: 'Mdc.controller.setup.DeviceGroups',
+                    authorized: Uni.Auth.hasPrivilege('privilege.administrate.device') || Uni.Auth.hasPrivilege('privilege.view.device'),
                     action: 'showDeviceGroups'
                 },
                 add: {
                     title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
                     route: 'add',
                     controller: 'Mdc.controller.setup.Devices',
+                    authorized: Uni.Auth.hasPrivilege('privilege.create.inventoryManagement'),
                     action: 'showAddDevice'
                 },
                 device: {
@@ -854,7 +856,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             items: {
                                 register: {
                                     route: '{registerId}',
-                                    redirect: 'devices/device/registers/register/overview',
+                                    controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                                    action: 'showDeviceRegisterConfigurationDetailsView',
                                     callback: function (route) {
                                         this.getApplication().on('loadRegisterConfiguration', function (record) {
                                             route.setTitle(record.get('name'));
@@ -864,12 +867,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return this;
                                     },
                                     items: {
-                                        overview: {
-                                            title: 'Overview',
-                                            route: 'overview',
-                                            controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
-                                            action: 'showDeviceRegisterConfigurationDetailsView'
-                                        },
                                         data: {
                                             title: 'Register data',
                                             route: 'data',
@@ -923,22 +920,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: '{loadProfileId}',
                                     controller: 'Mdc.controller.setup.DeviceLoadProfileOverview',
                                     action: 'showOverview',
-                                    redirect: 'devices/device/loadprofiles/loadprofile/overview',
                                     callback: function (route) {
                                         this.getApplication().on('loadProfileOfDeviceLoad', function (record) {
                                             route.setTitle(record.get('name'));
                                             return true;
                                         }, {single: true});
                                         return this;
-
                                     },
                                     items: {
-                                        overview: {
-                                            title: 'Overview',
-                                            route: 'overview',
-                                            controller: 'Mdc.controller.setup.DeviceLoadProfileOverview',
-                                            action: 'showOverview'
-                                        },
                                         channels: {
                                             title: Uni.I18n.translate('routing.channels', 'MDC', 'Channels'),
                                             route: 'channels',
@@ -948,22 +937,16 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 channel: {
                                                     title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
                                                     route: '{channelId}',
-                                                    redirect: 'devices/device/loadprofiles/loadprofile/channels/channel/overview',
+                                                    controller: 'Mdc.controller.setup.DeviceLoadProfileChannelOverview',
+                                                    action: 'showOverview',
                                                     callback: function (route) {
                                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
                                                             route.setTitle(record.get('name'));
                                                             return true;
                                                         }, {single: true});
                                                         return this;
-
                                                     },
                                                     items: {
-                                                        overview: {
-                                                            title: Uni.I18n.translate('routing.overview', 'MDC', 'Overview'),
-                                                            route: 'overview',
-                                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelOverview',
-                                                            action: 'showOverview'
-                                                        },
                                                         data: {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
                                                             route: 'data',

@@ -433,10 +433,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         me.getConnectionTypeComboBox().disable();
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
-                                                        if (connectionMethod.get('comWindowStart') === 0 && connectionMethod.get('comWindowEnd') === 0) {
-                                                            widget.down('form').down('#activateConnWindowRadiogroup').items.items[0].setValue(true);
-                                                        } else {
+                                                        if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
                                                             widget.down('form').down('#activateConnWindowRadiogroup').items.items[1].setValue(true);
+                                                        } else {
+                                                            widget.down('form').down('#activateConnWindowRadiogroup').items.items[0].setValue(true);
                                                         }
                                                         var form = widget.down('property-form');
                                                         form.loadRecordAsNotRequired(connectionMethod);

@@ -28,11 +28,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         {ref: 'deviceConnectionMethodComboBox', selector: '#deviceConnectionMethodComboBox'},
         {ref: 'connectionStrategyComboBox', selector: '#connectionStrategyComboBox'},
         {ref: 'scheduleField', selector: '#scheduleField'},
+        {ref: 'scheduleFieldContainer', selector: '#scheduleFieldContainer'},
         {ref: 'toggleDefaultMenuItem', selector: '#toggleDefaultMenuItem'},
         {ref: 'toggleActiveMenuItem', selector: '#toggleActiveMenuItem'},
         {ref: 'comWindowStart', selector: '#deviceConnectionMethodEdit #comWindowStart'},
         {ref: 'comWindowEnd', selector: '#deviceConnectionMethodEdit #comWindowEnd'},
-        {ref: 'activateComWindowCheckBox', selector: '#deviceConnectionMethodEdit #activateComWindowCheckBox'}
+        {ref: 'activateConnWindowRadiogroup', selector: '#activateConnWindowRadiogroup'}
+
     ],
 
     init: function () {
@@ -88,8 +90,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             '#deviceConnectionMethodEdit #connectionStrategyComboBox': {
                 select: this.showScheduleField
             },
-            '#deviceConnectionMethodEdit #activateComWindowCheckBox': {
-                change: this.activateComWindow
+            '#deviceConnectionMethodEdit #activateConnWindowRadiogroup': {
+                change: this.activateConnWindow
             }
         });
     },
@@ -181,8 +183,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             connectionStrategies: connectionStrategiesStore,
             direction: direction
         });
-        widget.setLoading(true);
         me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
         deviceModel.load(mrid, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
@@ -240,23 +242,19 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.comPortPoolStore.load();
         this.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
-        this.getDeviceConnectionMethodEditView().down('#scheduleField').setDisabled(false);
+        this.getDeviceConnectionMethodEditView().down('#scheduleFieldContainer').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
         // this.getDeviceConnectionMethodEditView().down('#rescheduleRetryDelay').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
         if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
-            this.getDeviceConnectionMethodEditView().down('form').down('#scheduleField').setVisible(true);
+            this.getDeviceConnectionMethodEditView().down('form').down('#scheduleFieldContainer').setVisible(true);
             this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
         }
-        if (connectionMethod.get('comWindowStart') != 0) {
-            this.getComWindowStart().setDisabled(false);
-            this.getComWindowEnd().setDisabled(false);
-            this.getActivateComWindowCheckBox().setValue(true);
+        if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
+            this.getActivateConnWindowRadiogroup().items.items[1].setValue(true);
         } else {
-            this.getComWindowStart().setDisabled(true);
-            this.getComWindowEnd().setDisabled(true);
-            this.getActivateComWindowCheckBox().setValue(false);
+            this.getActivateConnWindowRadiogroup().items.items[0].setValue(true);
         }
         this.getDeviceConnectionMethodEditView().down('form').loadRecord(connectionMethod);
         this.getDeviceConnectionMethodEditView().down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
@@ -267,7 +265,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     showScheduleField: function (combobox, objList) {
         this.getScheduleField().clear();
         if (objList[0].get('connectionStrategy') === 'minimizeConnections') {
-            this.getScheduleField().setVisible(true);
+            this.getScheduleFieldContainer().setVisible(true);
              this.getScheduleField().setValue({
                  every: {
                      count: 5,
@@ -280,7 +278,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
              });
             this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
         } else {
-            this.getScheduleField().setVisible(false);
+            this.getScheduleFieldContainer().setVisible(false);
             this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
         }
     },
@@ -458,8 +456,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                             connectionStrategies: connectionStrategiesStore,
                             direction: connectionMethod.get('direction')
                         });
-                        widget.setLoading(true);
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        widget.setLoading(true);
                         connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
                         connectionMethodsStore.clearFilter(true);
                         connectionMethodsStore.filter('direction', connectionMethod.get('direction'));
@@ -480,19 +478,19 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                 me.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
-                                                me.getDeviceConnectionMethodEditView().down('#scheduleField').setDisabled(false);
+                                                me.getDeviceConnectionMethodEditView().down('#scheduleFieldContainer').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
-
                                                 me.getDeviceConnectionMethodComboBox().setDisabled(true);
                                                 me.getDeviceConnectionMethodEditView().down('form').loadRecord(connectionMethod);
                                                 if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
-                                                    widget.down('form').down('#scheduleField').setVisible(true);
+                                                    widget.down('form').down('#scheduleFieldContainer').setVisible(true);
+                                                    me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setVisible(false);
                                                 }
-                                                if (connectionMethod.get('comWindowStart') === 0 && connectionMethod.get('comWindowEnd') === 0) {
-                                                    widget.down('form').down('#activateComWindowCheckBox').setValue(false);
+                                                if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
+                                                    me.getActivateConnWindowRadiogroup().items.items[1].setValue(true);
                                                 } else {
-                                                    widget.down('form').down('#activateComWindowCheckBox').setValue(true);
+                                                    me.getActivateConnWindowRadiogroup().items.items[0].setValue(true);
                                                 }
                                                 widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                 widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
@@ -573,8 +571,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         });
     },
 
-    activateComWindow: function (checkbox, newValue) {
-        if (newValue) {
+
+    activateConnWindow: function (radiogroup, value) {
+        if (value.enableConnWindow) {
             this.getComWindowStart().setDisabled(false);
             this.getComWindowEnd().setDisabled(false);
         } else {

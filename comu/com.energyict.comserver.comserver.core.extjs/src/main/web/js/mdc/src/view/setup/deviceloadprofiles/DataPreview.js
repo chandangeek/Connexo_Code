@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                 labelAlign: 'top',
                 labelWidth: 400,
                 layout: 'vbox',
+                margin: '35 0 0 0',
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 200
@@ -44,8 +45,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                 items: [
                     {
                         fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                        itemId: 'channelValue' + channel.id,
-                        margin: '5 0 0 0'
+                        itemId: 'channelValue' + channel.id
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
@@ -194,7 +194,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                                 if (rule.name === 'removed rule') {
                                     str += Uni.I18n.translate('device.registerData.removedRule', 'MDC', 'removed rule') + '<br>';
                                 } else {
-                                    str += '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>' + prop + '<br>';
+                                    str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>' + prop + '</span>' + '<br>';
                                 }
                             });
                             form.down('#channelSuspectReason' + channel.id).setValue(str);

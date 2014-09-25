@@ -52,7 +52,7 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
             jsonData: jsonIds,
             success: function () {
                 router.getRoute('administration/devicetypes/view/deviceconfigurations/view/logbookconfigurations').forward();
-                self.getApplication().fireEvent('acknowledge', 'Successfully added');
+                self.getApplication().fireEvent('acknowledge', 'Logbook configurations added');
             },
             failure: function (response) {
                 if(response.status == 400) {

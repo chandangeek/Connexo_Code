@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                     },
                     {
                         xtype: 'panel',
-                        title: Uni.I18n.translate('executionLevel.gridTitle', 'MDC', 'execution levels'),
+                        title: Uni.I18n.translate('executionLevel.gridTitle', 'MDC', 'privileges'),
                         itemId: 'execution-level-grid-title',
                         ui: 'medium',
                         padding: '32 0 0 0',
@@ -82,13 +82,13 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('executionLevel.noExecutionLevelsFound','MDC','No execution levels found'),
+                            title: Uni.I18n.translate('executionLevel.noExecutionLevelsFound','MDC','No privileges found'),
                             reasons: [
-                                Uni.I18n.translate('executionLevel.reason1','MDC','No execution levels have been defined yet.')
+                                Uni.I18n.translate('executionLevel.reason1','MDC','No privileges have been defined yet.')
                             ],
                             stepItems: [
                                 {
-                                    text: Uni.I18n.translate('executionLevel.addExecutionLevels','MDC','Add execution levels'),
+                                    text: Uni.I18n.translate('executionLevel.addExecutionLevels','MDC','Add privileges'),
                                     itemId: 'execution-level-grid-add-link',
                                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/'
                                 }
