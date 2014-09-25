@@ -1118,10 +1118,12 @@ public class DeviceImpl implements Device {
             java.util.Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
                 List<DataValidationStatus> validationStatus = this.validationService.getEvaluator().getValidationStatus(koreChannel.get(), meterReadings, meterActivationInterval);
-                for (DataValidationStatus status : validationStatus) {
-                    LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(status.getReadingTimestamp());
-                    loadProfileReading.setDataValidationStatus(mdcChannel, status);
-                }
+                validationStatus.stream()
+                        .filter(s -> s.getReadingTimestamp().after(meterActivationInterval.getStart()))
+                        .forEach(s -> {
+                            LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(s.getReadingTimestamp());
+                            loadProfileReading.setDataValidationStatus(mdcChannel, s);
+                        });
             }
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
