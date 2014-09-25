@@ -11,7 +11,7 @@ Ext.define('Uni.util.Common', {
      *
      *     var me =this;
      *
-     *     Uni.util.Common.checkNecessaryStoresLoading([
+     *     Uni.util.Common.loadNecessaryStores([
      *          'Mdc.store.Domains',
      *          'Mdc.store.Subdomains',
      *          'Mdc.store.EventsOrActions'
@@ -25,7 +25,7 @@ Ext.define('Uni.util.Common', {
      * @param {Number} [timeout=30000 ms] Time after which the callback will be performed regardless stores loading.
      * Pass `false` to wait until the stores will be loaded.
      */
-    checkNecessaryStoresLoading: function (stores, callback, timeout) {
+    loadNecessaryStores: function (stores, callback, timeout) {
         var me = this,
             counter,
             timeoutId,
