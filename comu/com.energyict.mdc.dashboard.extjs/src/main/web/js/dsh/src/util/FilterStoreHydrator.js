@@ -1,13 +1,13 @@
 Ext.define('Dsh.util.FilterStoreHydrator', {
     extract: function(filter) {
-
         var data = filter.getData();
 
         // transform all single items int array
-        _.map(data, function (item) {
+        data = _.map(data, function (item) {
             if (item) {
                 if (!_.isArray(item)) {item = [item]}
             }
+            return item;
         });
 
         if (filter.startedBetween) {
