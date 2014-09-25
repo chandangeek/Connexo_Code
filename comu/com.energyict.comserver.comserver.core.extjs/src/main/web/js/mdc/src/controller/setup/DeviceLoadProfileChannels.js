@@ -61,9 +61,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                 loadProfileOfDeviceModel.getProxy().setUrl(mRID);
                 loadProfileOfDeviceModel.load(loadProfileId, {
                     success: function (record) {
-                        me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                        widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
-                        widget.down('#deviceLoadProfileChannelsIntervalAndLastReading').loadRecord(record);
+                        if (!widget.isDestroyed) {
+                            me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
+                            widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
+                            widget.down('#deviceLoadProfileChannelsIntervalAndLastReading').loadRecord(record);
+                        }
                     }
                 });
             };
@@ -88,7 +90,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                 route = 'devices/device/loadprofiles/loadprofile/channels/channel/data';
                 break;
             case 'viewDetails':
-                route = 'devices/device/loadprofiles/loadprofile/channels/channel/overview';
+                route = 'devices/device/loadprofiles/loadprofile/channels/channel';
                 break;
         }
 

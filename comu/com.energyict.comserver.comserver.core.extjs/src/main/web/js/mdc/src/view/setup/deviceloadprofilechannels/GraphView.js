@@ -6,8 +6,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
     items: [
         {
             xtype: 'container',
-            itemId: 'graphContainer'
-
+            itemId: 'graphContainer',
+            style: {
+                width: '100%'
+            }
         },
         {
             xtype: 'no-items-found-panel',
@@ -29,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
             }
         });
 
-        new Highcharts.StockChart({
+        me.chart = new Highcharts.StockChart({
 
             title: {
                 text: channelName

@@ -59,6 +59,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             },
             'deviceLoadProfilesData #deviceLoadProfileDataTopFilter #Reset': {
                 click: this.setDefaults
+            },
+            'deviceLoadProfilesData #deviceLoadProfilesGraphView': {
+                resize: this.onGraphResize
             }
         });
     },
@@ -92,10 +95,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 dataStore.on('load', function () {
-                    me.showReadingsCount(dataStore);
-                    me.showGraphView(record);
-                    widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
-                    widget.setLoading(false);
+                    if (!widget.isDestroyed) {
+                        me.showReadingsCount(dataStore);
+                        me.showGraphView(record);
+                        widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
+                        widget.setLoading(false);
+                    }
                 }, me);
 
                 me.setDefaults();
@@ -205,6 +210,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         }
 
         me.getPage().doLayout();
+    },
+
+    onGraphResize: function (graphView, width, height) {
+        if (graphView.chart) {
+            graphView.chart.setSize(width, height, false);
+        }
     },
 
     toggleView: function (button) {
