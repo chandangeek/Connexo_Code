@@ -84,7 +84,6 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         if (!readings.isEmpty()) {
             List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
             boolean configured = !channelValidations.isEmpty();
-            boolean active = channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
             Date lastChecked = configured ? getMinLastChecked(channelValidations.stream()
                     .filter(ChannelValidation::hasActiveRules)
                     .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
@@ -101,7 +100,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
                     }
                 }
                 boolean fullyValidated = false;
-                if (configured && active) {
+                if (configured) {
                     fullyValidated = (wasValidated(lastChecked, reading.getTimeStamp()));
                 }
                 result.add(createDataValidationStatusListFor(reading.getTimeStamp(), fullyValidated, qualities, validationRuleMap));
@@ -117,7 +116,6 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         List<DataValidationStatus> result = new ArrayList<>();
         List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
         boolean configured = !channelValidations.isEmpty();
-        boolean active = channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
         Date lastChecked = configured ? getMinLastChecked(channelValidations.stream()
                 .filter(ChannelValidation::hasActiveRules)
                 .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
@@ -132,7 +130,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
             if (qualities.isEmpty() && configured && wasValidated) {
                 qualities.add(OK_QUALITY);
             }
-            boolean fullyValidated = configured && active && wasValidated;
+            boolean fullyValidated = configured && wasValidated;
             result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, validationRuleMap));
 
         }
@@ -144,7 +142,6 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         List<DataValidationStatus> result = new ArrayList<>();
         List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
         boolean configured = !channelValidations.isEmpty();
-        boolean active = channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
         Date lastChecked = configured ? getMinLastChecked(channelValidations.stream()
                 .filter(ChannelValidation::hasActiveRules)
                 .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
@@ -166,7 +163,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
                 }
             }
             boolean fullyValidated = false;
-            if (configured && active) {
+            if (configured) {
                 fullyValidated = (wasValidated(lastChecked, reading.getTimeStamp()));
             }
             result.add(createDataValidationStatusListFor(reading.getTimeStamp(), fullyValidated, qualities, validationRuleMap));
@@ -179,7 +176,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         for (Date readingTimestamp : timesWithoutReadings) {
             List<ReadingQuality> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
             boolean wasValidated = wasValidated(lastChecked, readingTimestamp);
-            boolean fullyValidated = configured && active && wasValidated;
+            boolean fullyValidated = configured && wasValidated;
             result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, validationRuleMap));
         }
         return result;
