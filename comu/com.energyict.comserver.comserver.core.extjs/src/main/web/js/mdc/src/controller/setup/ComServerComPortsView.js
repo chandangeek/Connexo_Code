@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
 
-        Uni.util.Common.checkNecessaryStoresLoading(storesArr, function () {
+        Uni.util.Common.loadNecessaryStores(storesArr, function () {
             widget = Ext.widget('comServerComPortsView');
             addMenus = widget.query('comServerComPortsAddMenu');
             addMenus && Ext.Array.each(addMenus, function (menu) {
