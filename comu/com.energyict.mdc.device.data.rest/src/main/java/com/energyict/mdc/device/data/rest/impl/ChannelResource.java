@@ -21,6 +21,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -171,5 +172,22 @@ public class ChannelResource {
     private boolean hasData(Channel channel) {
         return channel.getDevice().forValidation().hasData(channel);
     }
+
+    @Path("{channelid}/validate")
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
+    public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
+
+        Date start = validationInfo.lastChecked == null ? null : new Date(validationInfo.lastChecked);
+        validateLoadProfile(doGetChannel(mrid, loadProfileId, channelId), start);
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private void validateLoadProfile(Channel channel, Date start) {
+        channel.getDevice().forValidation().validateChannel(channel, start, clock.now());
+    }
+
 
 }

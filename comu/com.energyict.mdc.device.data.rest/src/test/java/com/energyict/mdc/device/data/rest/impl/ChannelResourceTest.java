@@ -20,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,6 +31,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
@@ -160,5 +163,32 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
     }
 
+    @Test
+    public void testValidate() {
+        when(loadProfile.getDevice()).thenReturn(device);
+        when(device.forValidation()).thenReturn(deviceValidation);
+
+        Response response = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/validate")
+                .request()
+                .put(Entity.json(new TriggerValidationInfo()));
+
+        assertThat(response.getEntity()).isNotNull();
+        verify(deviceValidation).validateChannel(channel1, null, NOW);
+    }
+
+    @Test
+    public void testValidateWithDate() {
+        when(loadProfile.getDevice()).thenReturn(device);
+        when(device.forValidation()).thenReturn(deviceValidation);
+
+        TriggerValidationInfo triggerValidationInfo = new TriggerValidationInfo();
+        triggerValidationInfo.lastChecked = LAST_CHECKED.getTime();
+        Response response = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/validate")
+                .request()
+                .put(Entity.json(triggerValidationInfo));
+
+        assertThat(response.getEntity()).isNotNull();
+        verify(deviceValidation).validateChannel(channel1, LAST_CHECKED, NOW);
+    }
 
 }
