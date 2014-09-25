@@ -53,7 +53,7 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
                 {
                     itemId: 'communication-schedule',
                     name: 'comSchedules',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Communication schedule'),
                     displayField: 'name',
                     valueField: 'id',
                     store: 'Dsh.store.filter.CommunicationSchedule'
