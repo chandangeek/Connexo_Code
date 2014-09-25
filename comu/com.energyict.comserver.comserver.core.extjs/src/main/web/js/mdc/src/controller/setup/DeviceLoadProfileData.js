@@ -29,8 +29,18 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         {
             ref: 'readingsCount',
             selector: 'deviceLoadProfilesData #readingsCount'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: 'deviceLoadProfilesData #deviceLoadProfileDataFilterForm'
+        },
+        {
+            ref: 'filterPanel',
+            selector: 'deviceLoadProfilesData filter-top-panel'
         }
     ],
+
+    prefix: 'deviceLoadProfilesData',
 
     loadProfileModel: null,
 
@@ -255,12 +265,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
         dataStoreProxy.extraParams = {};
 
-        Ext.iterate(filterModel.getFilterQueryParams(), function (key, value) {
-            value && dataStoreProxy.setExtraParam(key, value);
-        });
+//        Ext.iterate(filterModel.getFilterQueryParams(), function (key, value) {
+//            value && dataStoreProxy.setExtraParam(key, value);
+//        });
 
         page.down('#deviceLoadProfilesGraphView').isVisible() && page.setLoading(true);
-        page.down('#deviceLoadProfileDataTopFilter').addButtons(filterModel);
+//        page.down('#deviceLoadProfileDataTopFilter').addButtons(filterModel);
         dataStore.load();
     },
 

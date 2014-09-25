@@ -1,8 +1,14 @@
 Ext.define('Mdc.model.LoadProfilesOfDeviceDataFilter', {
     extend: 'Ext.data.Model',
     requires: [
-        'Mdc.model.LoadProfileDataDuration'
+        'Uni.data.proxy.QueryStringProxy',
+        'Mdc.model.LoadProfileDataDuration',
+        'Mdc.model.DateRange'
     ],
+    proxy: {
+        type: 'querystring',
+        root: 'filter'
+    },
     fields: [
         {name: 'intervalStart', defaultValue: undefined},
         {name: 'intervalEnd', defaultValue: undefined}
@@ -10,12 +16,21 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceDataFilter', {
 
     associations: [
         {
-            name: 'duration',
             type: 'hasOne',
+            name: 'endOfInterval',
+            model: 'Mdc.model.DateRange',
+            instanceName: 'endOfInterval',
+            associationKey: 'endOfInterval',
+            getterName: 'getEndOfInterval',
+            setterName: 'setEndOfInterval'
+        },
+        {
+            type: 'hasOne',
+            name: 'duration',
             model: 'Mdc.model.LoadProfileDataDuration',
             associationKey: 'duration',
-            setterName: 'setDuration',
-            getterName: 'getDuration'
+            getterName: 'getDuration',
+            setterName: 'setDuration'
         }
     ],
 

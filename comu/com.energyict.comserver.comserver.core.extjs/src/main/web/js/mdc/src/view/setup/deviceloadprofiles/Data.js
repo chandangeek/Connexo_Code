@@ -42,7 +42,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
             ],
             items: [
                 {
-                    xtype: 'deviceLoadProfileDataTopFilter'
+                    xtype: 'filter-top-panel',
+                    itemId: 'deviceloadprofilesdatafilterpanel'
                 },
                 {
                     tbar: {
