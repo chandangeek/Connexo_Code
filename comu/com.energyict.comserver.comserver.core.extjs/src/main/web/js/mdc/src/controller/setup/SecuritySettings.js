@@ -86,7 +86,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     createAddExecutionLevelHistory: function () {
         var grid = this.getSecurityGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + lastSelected.getData().id + '/executionlevels/add';
+        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + lastSelected.getData().id + '/privileges/add';
     },
 
     editRecord: function () {
@@ -194,8 +194,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         var executionLevelsgrid = Ext.ComponentQuery.query('securitySettingSetup execution-level-grid')[0];
         var executionLevelscontainer = Ext.ComponentQuery.query('securitySettingSetup #execution-levels-grid-preview-container')[0];
         var executionLevelsTitle = Ext.ComponentQuery.query('securitySettingSetup #execution-level-grid-title')[0];
-        this.getExecutionLevelGridAddLink().getEl().set({href: executionLevelscontainer.emptyComponent.stepItems[0].href + record.get('id') + '/executionlevels/add'});
-        this.getExecutionLevelAddLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + record.get('id') + '/executionlevels/add'});
+        this.getExecutionLevelGridAddLink().getEl().set({href: executionLevelscontainer.emptyComponent.stepItems[0].href + record.get('id') + '/privileges/add'});
+        this.getExecutionLevelAddLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + record.get('id') + '/privileges/add'});
 
         var preview = Ext.ComponentQuery.query('securitySettingSetup #execution-levels-grid-preview-container')[0];
         preview.bindStore(record.executionLevels());
