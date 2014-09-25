@@ -19,7 +19,7 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
     private final long timeStamp;
     private final long version;
     private final long recordTime;
-    private Object[] values;
+    private final Object[] values;
 
     TimeSeriesEntryImpl(TimeSeriesImpl timeSeries, ResultSet resultSet) throws SQLException {
         this.timeSeries = timeSeries;
@@ -39,18 +39,7 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
         this.timeStamp = timeStamp.getTime();
         this.version = 1;
         this.recordTime = 0;
-        int derivedFieldCount = ((RecordSpecImpl) timeSeries.getRecordSpec()).derivedFieldCount();
-        this.values = new Object[values.length + derivedFieldCount];
-        Iterator<? extends FieldSpec> it = timeSeries.getRecordSpec().getFieldSpecs().iterator();
-        int offset = 0;
-        for (int i = 0; i < values.length; i++) {
-            FieldSpec fieldSpec = it.next();
-            while (fieldSpec.isDerived()) {
-                offset++;
-                fieldSpec = it.next();
-            }
-            this.values[i + offset] = values[i];
-        }
+        this.values = Arrays.copyOf(values, values.length);
     }
 
     private TimeSeriesEntryImpl(TimeSeriesEntryImpl source) {

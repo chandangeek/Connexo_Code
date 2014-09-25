@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @LiteralSql
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	private final boolean overrules;
 	private final Map<RecordSpecInVault,SlaveTimeSeriesDataStorer> storerMap = new HashMap<>();
 	private final StorerStatsImpl stats = new StorerStatsImpl();
-	private final Map<Long, TimeSeriesImpl> lockedTimeSeriesMap = new HashMap<>();
 	private final DataModel dataModel;
 	private final Clock clock;
 
@@ -50,6 +50,9 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	@Override
 	public void add(TimeSeries timeSeries, Date timeStamp, Object... values) {
 		if (!timeSeries.isValidDateTime(timeStamp)) {
+			throw new IllegalArgumentException();
+		}
+		if (values.length != timeSeries.getRecordSpec().getFieldSpecs().size()) {
 			throw new IllegalArgumentException();
 		}
 		TimeSeriesImpl timeSeriesImpl = (TimeSeriesImpl) timeSeries;
@@ -78,30 +81,12 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		return stats;
 	}
 	
-	private List<TimeSeriesImpl> getAllTimeSeries() {
-		List<TimeSeriesImpl> result = new ArrayList<>();
-		for (SlaveTimeSeriesDataStorer storer : storerMap.values()) {
-			result.addAll(storer.getAllTimeSeries());
-		}
-		Collections.sort(result,getTimeSeriesComparator());
-		return result;
-	}
-	
-	private Comparator<TimeSeriesImpl> getTimeSeriesComparator() {
-		return new Comparator<TimeSeriesImpl>() {
-			public int compare(TimeSeriesImpl t1 , TimeSeriesImpl t2) {
-				long t1Id = t1.getId();
-				long t2Id = t2.getId();
-				return t1Id == t2Id ? 0 : ((t1Id < t2Id) ? -1 : 1); 
-			}
-		};
-	}
-	
-	private void doExecute() throws SQLException {		
-		for (TimeSeriesImpl timeSeries : getAllTimeSeries())   {
-			long key = timeSeries.getId();
-			lockedTimeSeriesMap.put(key,timeSeries.lock());
-		}
+	private void doExecute() throws SQLException {
+		// lock and refresh all timeseries objects, but make sure to do this in id order to avoid deadlocks between concurrent storers
+		Map<Long, TimeSeriesImpl> lockedTimeSeriesMap = storerMap.values().stream()
+			.flatMap(slaveStorer -> slaveStorer.getAllTimeSeries().stream())
+			.sorted((t1,t2) -> Long.signum(t2.getId() - t1.getId()))
+			.collect(Collectors.toMap(timeSeries -> timeSeries.getId() , timeSeries -> timeSeries.lock()));
 		for(SlaveTimeSeriesDataStorer storer : storerMap.values()) {
 			storer.updateTimeSeries(lockedTimeSeriesMap);
 			storer.execute(stats,overrules());			
@@ -343,26 +328,30 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                     TimeSeriesEntryImpl previous = previous(entry, null);
                     if (previous != null) {
                         TimeSeriesEntryImpl current = entry.copy();
-                        updateFromPrevious(current, previous);
-                        newEntries.put(current.getTimeStamp(),current);
+                        if (updateFromPrevious(current, previous)) {
+                        	newEntries.put(current.getTimeStamp(),current);
+                        }
                     }
                 }
 			}
 		}
 		
-		private void updateFromPrevious(TimeSeriesEntryImpl current, TimeSeriesEntryImpl previous) {
+		private boolean updateFromPrevious(TimeSeriesEntryImpl current, TimeSeriesEntryImpl previous) {
+			boolean result = false;
 			for (int i = 0 ; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
 				FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
-				if (fieldSpec.isDerived()) {
+				if (fieldSpec.isDerived() && current.getBigDecimal(i) == null) {
 					BigDecimal currentValue = current.getBigDecimal(i+1);
 					if (currentValue != null) {
 						BigDecimal previousValue = previous.getBigDecimal(i+1);
 						if (previousValue != null) {
 							current.set(i,currentValue.subtract(previousValue));
+							result = true;
 						}
 					}
 				}
 			}
+			return result;
 		}
 		
 		private TimeSeriesEntryImpl previous(TimeSeriesEntryImpl current, TimeSeriesEntryImpl guess) {
@@ -383,6 +372,14 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		
 		boolean isUpdate(TimeSeriesEntryImpl entry) {
 			TimeSeriesEntryImpl oldEntry = oldEntries.get(entry.getTimeStamp());
+			if (oldEntry != null && timeSeries.getRecordSpec().derivedFieldCount() > 0) {
+				for (int i = 0 ; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
+					FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
+					if (fieldSpec.isDerived() && entry.getBigDecimal(i+1) == null) {
+						entry.set(i+1, oldEntry.getBigDecimal(i+1));
+					}
+				}
+			}
 			return oldEntry != null && !entry.matches(oldEntry); 
 		}
 		

@@ -81,15 +81,15 @@ public class DerivedFieldTest {
 	        ts = vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), IntervalLengthUnit.MINUTE.withLength(15), 0);
 	        TimeSeriesDataStorer storer = idsService.createStorer(true);
 	        DateTime dateTime = new DateTime(2014, 1, 1, 0, 0,0);
-	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(10));
+	        storer.add(ts, dateTime.toDate(), null, BigDecimal.valueOf(10));
 	        Date date = new DateTime(2014,1,1,0,45,0).toDate();
-	        storer.add(ts, date,BigDecimal.valueOf(500));
+	        storer.add(ts, date, null, BigDecimal.valueOf(500));
 	        storer.execute();
 	        storer = idsService.createStorer(true);
 	        dateTime = dateTime.plus(15*60000L);
-	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(100));
+	        storer.add(ts, dateTime.toDate(), null, BigDecimal.valueOf(100));
 	        dateTime = dateTime.plus(15*60000L);
-	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(200));
+	        storer.add(ts, dateTime.toDate(), null, BigDecimal.valueOf(200));
 	        storer.execute();
 	        ctx.commit();
         }
@@ -105,7 +105,7 @@ public class DerivedFieldTest {
         	TimeSeriesDataStorer storer = idsService.createStorer(true);
 	        dateTime = new DateTime(2014, 1, 1, 0, 0,0);
 	        dateTime = dateTime.plus(15*60000L);
-	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(50));
+	        storer.add(ts, dateTime.toDate(), null, BigDecimal.valueOf(50));
 	        dateTime = dateTime.plus(15*60000L);
 	        storer.execute();
 	        ctx.commit();
