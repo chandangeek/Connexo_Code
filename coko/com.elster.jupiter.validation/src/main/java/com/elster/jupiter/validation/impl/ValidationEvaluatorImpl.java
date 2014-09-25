@@ -15,7 +15,6 @@ import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.google.common.base.Function;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
@@ -31,7 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Comparator.*;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsFirst;
 
 /**
 * Created by tgr on 5/09/2014.
@@ -205,12 +205,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
 
     private ListMultimap<Date, ReadingQualityRecord> getReadingQualities(Channel channel, Interval interval) {
         List<ReadingQualityRecord> readingQualities = channel.findReadingQuality(interval);
-        return Multimaps.index(readingQualities, new Function<ReadingQualityRecord, Date>() {
-            @Override
-            public Date apply(ReadingQualityRecord input) {
-                return input.getReadingTimestamp();
-            }
-        });
+        return Multimaps.index(readingQualities, ReadingQualityRecord::getReadingTimestamp);
     }
 
     private Interval getInterval(List<? extends BaseReading> readings) {
