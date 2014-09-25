@@ -63,6 +63,7 @@ Ext.define('Uni.controller.AppController', {
         me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
+        me.getApplication().on('sessionexpired', me.redirectToLogin, me);
 
         me.loadControllers();
         me.callParent(arguments);
@@ -93,6 +94,12 @@ Ext.define('Uni.controller.AppController', {
         this.getContentPanel().removeAll();
         this.getContentPanel().add(widget);
         this.getContentPanel().doComponentLayout();
+    },
+
+    redirectToLogin: function () {
+        window.location = '/apps/usr/login.html?expired&page='
+            + window.location.pathname
+            + window.location.hash;
     },
 
     loadControllers: function () {

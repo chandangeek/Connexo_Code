@@ -124,7 +124,7 @@ Ext.define('Uni.controller.Error', {
                 this.showError(title, message);
                 break;
             case 401: // Unauthorized.
-                this.getApplication().fireEvent("sessionexpired");
+                this.getApplication().fireEvent('sessionexpired');
                 break;
             case 403: // Forbidden.
             // Fallthrough.
