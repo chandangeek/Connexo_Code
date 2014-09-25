@@ -36,7 +36,7 @@ public abstract class AbstractInboundFrame {
     private InboundParameters inboundParameters = null;
     private List<CollectedData> collectedDatas;
     private String[] parameters = new String[0];
-    private DialHomeIdPlaceHolderDeviceIdentifier deviceIdentifierBySerialNumberPlaceHolder;
+    private DialHomeIdPlaceHolderDeviceIdentifier deviceIdentifierByDialHomeIdPlaceHolder;
 
     protected abstract FrameType getType();
 
@@ -94,7 +94,7 @@ public abstract class AbstractInboundFrame {
      */
     private boolean findDevice() {
         this.callHomeIdPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
-        device = getDeviceIdentifierBySerialNumberPlaceHolder().findDevice();
+        device = getDeviceIdentifierByDialHomeIdPlaceHolder().findDevice();
         Environment.getDefault().closeConnection();
         return device != null;
     }
@@ -137,10 +137,10 @@ public abstract class AbstractInboundFrame {
         }
     }
 
-    DialHomeIdPlaceHolderDeviceIdentifier getDeviceIdentifierBySerialNumberPlaceHolder() {
-        if (this.deviceIdentifierBySerialNumberPlaceHolder == null) {
-            this.deviceIdentifierBySerialNumberPlaceHolder = new DialHomeIdPlaceHolderDeviceIdentifier(callHomeIdPlaceHolder);
+    DialHomeIdPlaceHolderDeviceIdentifier getDeviceIdentifierByDialHomeIdPlaceHolder() {
+        if (this.deviceIdentifierByDialHomeIdPlaceHolder == null) {
+            this.deviceIdentifierByDialHomeIdPlaceHolder = new DialHomeIdPlaceHolderDeviceIdentifier(callHomeIdPlaceHolder);
         }
-        return this.deviceIdentifierBySerialNumberPlaceHolder;
+        return this.deviceIdentifierByDialHomeIdPlaceHolder;
     }
 }
