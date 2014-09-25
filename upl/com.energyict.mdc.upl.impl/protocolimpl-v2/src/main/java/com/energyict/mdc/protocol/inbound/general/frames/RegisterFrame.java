@@ -8,9 +8,9 @@ import com.energyict.mdc.protocol.inbound.general.frames.parsing.RegisterInfo;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdPlaceHolderDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,8 +31,8 @@ public class RegisterFrame extends AbstractInboundFrame {
         return FrameType.REGISTER;
     }
 
-    public RegisterFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        super(frame, serialNumberPlaceHolder);
+    public RegisterFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
+        super(frame, callHomeIdPlaceHolder);
     }
 
     @Override
@@ -104,8 +104,8 @@ public class RegisterFrame extends AbstractInboundFrame {
         return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, getDeviceIdentifier());
     }
 
-    private DeviceIdentifierBySerialNumberPlaceHolder getDeviceIdentifier() {
-        return new DeviceIdentifierBySerialNumberPlaceHolder(serialNumberPlaceHolder);
+    private DialHomeIdPlaceHolderDeviceIdentifier getDeviceIdentifier() {
+        return new DialHomeIdPlaceHolderDeviceIdentifier(callHomeIdPlaceHolder);
     }
 
 }

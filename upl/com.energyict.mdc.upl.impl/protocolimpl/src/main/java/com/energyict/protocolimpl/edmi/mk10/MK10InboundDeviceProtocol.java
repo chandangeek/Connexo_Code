@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
@@ -70,8 +70,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
      * implemented by reading bytes until a timeout occurs.
      *
      * @return the partial frame
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
-     *          in case of timeout after x retries
+     * @throws com.energyict.mdc.exceptions.ComServerExecutionException in case of timeout after x retries
      */
     private byte[] readFrame() {
         getComChannel().startReading();
@@ -131,7 +130,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     public void setDeviceIdentifier(String serialNumber) {
-        this.deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
+        this.deviceIdentifier = new DialHomeIdDeviceIdentifier(serialNumber);
     }
 
     @Override
@@ -149,9 +148,10 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
         this.comChannel = comChannel;
     }
 
-    protected ComChannel getComChannel () {
+    protected ComChannel getComChannel() {
         return comChannel;
     }
+
     @Override
     public List<PropertySpec> getRequiredProperties() {
         return new ArrayList<>();

@@ -1,14 +1,9 @@
 package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.general.frames.AbstractInboundFrame;
-import com.energyict.mdc.protocol.inbound.general.frames.DeployFrame;
-import com.energyict.mdc.protocol.inbound.general.frames.EventFrame;
-import com.energyict.mdc.protocol.inbound.general.frames.EventPOFrame;
-import com.energyict.mdc.protocol.inbound.general.frames.RegisterFrame;
-import com.energyict.mdc.protocol.inbound.general.frames.RequestFrame;
+import com.energyict.mdc.protocol.inbound.general.frames.*;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +24,7 @@ public class InboundConnection {
     private static final String EVENTPO = "EVENTPO";
     private static final int DEFAULT_DELAY_MILLIS = 10;
 
-    private final SerialNumberPlaceHolder serialNumberPlaceHolder = new SerialNumberPlaceHolder();
+    private final CallHomeIdPlaceHolder callHomeIdPlaceHolder = new CallHomeIdPlaceHolder();
     private ComChannel comChannel;
     private int timeout;
     private int retries;
@@ -84,8 +79,7 @@ public class InboundConnection {
      * Read in a frame after the I request was sent.
      * This method reads in bytes until a timeout occurs and returns the result.
      *
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
-     *          when no bytes were received after a certain time
+     * @throws com.energyict.mdc.exceptions.ComServerExecutionException when no bytes were received after a certain time
      */
     public String readVariableFrame() throws InboundTimeOutException {
         return readVariableLength(null, null);   //Read in a frame until a timeout occurs
@@ -118,8 +112,7 @@ public class InboundConnection {
      *
      * @param retryRequest this is what we send in case of timeouts. Nothing is sent if the request is null.
      * @return the full inbound frame
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
-     *          if a timeout occurs
+     * @throws com.energyict.mdc.exceptions.ComServerExecutionException if a timeout occurs
      */
     public AbstractInboundFrame readInboundFrame(byte[] retryRequest) throws InboundTimeOutException {
         StringBuilder sb = new StringBuilder();
@@ -139,24 +132,23 @@ public class InboundConnection {
      *
      * @param frame the received string
      * @return the parsing result
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
-     *          when an unknown frame type was received
+     * @throws com.energyict.mdc.exceptions.ComServerExecutionException when an unknown frame type was received
      */
     private AbstractInboundFrame parseInboundFrame(String frame) {
         if (frame.contains(REQUEST_TAG)) {
-            return new RequestFrame(frame, serialNumberPlaceHolder);
+            return new RequestFrame(frame, callHomeIdPlaceHolder);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame, serialNumberPlaceHolder);
+            return new EventFrame(frame, callHomeIdPlaceHolder);
         }
         if (frame.contains(EVENTPO_TAG)) {
-            return new EventPOFrame(frame, serialNumberPlaceHolder);
+            return new EventPOFrame(frame, callHomeIdPlaceHolder);
         }
         if (frame.contains(DEPLOY_TAG)) {
-            return new DeployFrame(frame, serialNumberPlaceHolder);
+            return new DeployFrame(frame, callHomeIdPlaceHolder);
         }
         if (frame.contains(REGISTER_TAG)) {
-            return new RegisterFrame(frame, serialNumberPlaceHolder);
+            return new RegisterFrame(frame, callHomeIdPlaceHolder);
         }
         throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }
@@ -172,8 +164,7 @@ public class InboundConnection {
      * @param retryRequest in case of timeouts, send a retry.
      * @param endString    Stop reading in bytes when this string is found. If null, read in bytes until a timeout occurs.
      * @return the partial frame
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
-     *          in case of timeout after x retries
+     * @throws com.energyict.mdc.exceptions.ComServerExecutionException in case of timeout after x retries
      */
     private String readVariableLength(String endString, byte[] retryRequest) throws InboundTimeOutException {
         comChannel.startReading();
@@ -215,8 +206,7 @@ public class InboundConnection {
      * @param length       the number of bytes that should be read
      * @param retryRequest in case of timeouts, send a retry.
      * @return the bytes that were read out
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
-     *          in case of timeout after x retries
+     * @throws com.energyict.mdc.exceptions.ComServerExecutionException in case of timeout after x retries
      */
     private String readFixedLength(int length, byte[] retryRequest) {
         StringBuilder sb = new StringBuilder();
@@ -268,6 +258,6 @@ public class InboundConnection {
     }
 
     public void updateSerialNumberPlaceHolder(String serialNumber) {
-        this.serialNumberPlaceHolder.setSerialNumber(serialNumber);
+        this.callHomeIdPlaceHolder.setSerialNumber(serialNumber);
     }
 }

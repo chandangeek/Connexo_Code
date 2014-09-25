@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,8 +78,8 @@ public class MK10InboundDeviceProtocolTest {
         DeviceIdentifier deviceIdentifier = inboundDeviceProtocol.getDeviceIdentifier();
 
         assertEquals(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER, discoverResultType);
-        assertEquals(DeviceIdentifierBySerialNumber.class, deviceIdentifier.getClass());
-        assertEquals("device with serial number " + SERIALNUMBER, deviceIdentifier.toString());
+        assertEquals(DialHomeIdDeviceIdentifier.class, deviceIdentifier.getClass());
+        assertEquals("device with call home id " + SERIALNUMBER, deviceIdentifier.toString());
     }
 
     @Test(expected = ComServerExecutionException.class)

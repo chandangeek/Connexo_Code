@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
 import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.cpo.PropertySpec;
@@ -28,8 +29,7 @@ import java.util.List;
 @XmlRootElement
 public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
 
-    public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
-    public static final PropertySpec CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+    public static final PropertySpec CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
 
     private final String callHomeID;
     private Device device;

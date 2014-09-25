@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.sms;
 
+import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 
@@ -18,14 +19,13 @@ import java.util.List;
 public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnectionType {
 
     public static final String DEVICE_PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
-    public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
 
     private PropertySpec phoneNumberPropertySpec() {
         return PropertySpecFactory.stringPropertySpec(DEVICE_PHONE_NUMBER_PROPERTY_NAME);
     }
 
     private PropertySpec callHomeIdPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+        return PropertySpecFactory.stringPropertySpec(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
         switch (name) {
             case DEVICE_PHONE_NUMBER_PROPERTY_NAME:
                 return this.phoneNumberPropertySpec();
-            case CALL_HOME_ID_PROPERTY_NAME:
+            case AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME:
                 return this.callHomeIdPropertySpec();
             default:
                 return null;
@@ -43,7 +43,7 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
     @Override
     public boolean isRequiredProperty(String name) {
         return DEVICE_PHONE_NUMBER_PROPERTY_NAME.equals(name) ||
-                CALL_HOME_ID_PROPERTY_NAME.equals(name);
+                AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME.equals(name);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
+import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedData;
@@ -51,7 +52,6 @@ import java.util.TimeZone;
  */
 public class SmsHandler {
 
-    private final String Call_HOME_ID_PROPERTY_NAME = "callHomeId";
     private final String SMS_IDENTIFICATION_NUMBER = "SMS identification number";
 
     /**
@@ -293,9 +293,9 @@ public class SmsHandler {
     }
 
     public String getCallHomeID() throws CTRException {
-        String callHomeId = (String) getAllProperties().getProperty(Call_HOME_ID_PROPERTY_NAME, "");
+        String callHomeId = (String) getAllProperties().getProperty(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
         if (callHomeId.isEmpty()) {
-            throw new CTRException("Required property " + Call_HOME_ID_PROPERTY_NAME + " is missing.");
+            throw new CTRException("Required property " + AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME + " is missing.");
         }
         return callHomeId;
     }

@@ -16,7 +16,7 @@ import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.Tracker;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import org.w3c.dom.Document;
@@ -861,7 +861,7 @@ public class ObjectFactory {
                         setCurrentSlaveSerialNumber(currentSerialNumber);
                         getMBusBillingData().parse(mdElement);
                         for (RegisterValue registerValue : getMBusBillingData().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, new DeviceIdentifierBySerialNumber(currentSerialNumber)));
+                            getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, new DialHomeIdDeviceIdentifier(currentSerialNumber)));
                             getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.MBusBillingRegister));
@@ -870,7 +870,7 @@ public class ObjectFactory {
                         setCurrentSlaveSerialNumber(currentSerialNumber);
                         getMBusCurrentReadings().parse(mdElement);
                         for (RegisterValue registerValue : getMBusCurrentReadings().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedMBusCurrentRegisters().add(createCommonRegister(registerValue, new DeviceIdentifierBySerialNumber(currentSerialNumber)));
+                            getAce4000().getCollectedMBusCurrentRegisters().add(createCommonRegister(registerValue, new DialHomeIdDeviceIdentifier(currentSerialNumber)));
                             getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.MBusCurrentRegister));

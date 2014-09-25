@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 
 /**
  * Copyrights EnergyICT
@@ -15,8 +15,8 @@ public class RequestFrame extends AbstractInboundFrame {
         return FrameType.REQUEST;
     }
 
-    public RequestFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        super(frame, serialNumberPlaceHolder);
+    public RequestFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
+        super(frame, callHomeIdPlaceHolder);
     }
 
     @Override

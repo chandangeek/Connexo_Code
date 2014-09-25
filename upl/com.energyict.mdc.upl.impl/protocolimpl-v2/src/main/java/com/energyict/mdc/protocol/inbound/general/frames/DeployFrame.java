@@ -3,8 +3,8 @@ package com.energyict.mdc.protocol.inbound.general.frames;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 /**
  * Copyrights EnergyICT
@@ -19,13 +19,13 @@ public class DeployFrame extends AbstractInboundFrame {
         return FrameType.DEPLOY;
     }
 
-    public DeployFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        super(frame, serialNumberPlaceHolder);
+    public DeployFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
+        super(frame, callHomeIdPlaceHolder);
     }
 
     @Override
     public void doParse() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber("CORRECT_MY_SERIALNUMBER"));
+        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DialHomeIdDeviceIdentifier(getSerialNumber()));
         String meterType = getInboundParameters().getMeterType();
         //TODO use info for topology
 

@@ -15,7 +15,7 @@ import com.energyict.protocol.ProtocolInstantiator;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.IdentificationFactory;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -69,7 +69,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     }
 
     protected void setSerialNumber (String serialNumber) {
-        setDeviceIdentifier(new DeviceIdentifierBySerialNumber(serialNumber));
+        setDeviceIdentifier(new DialHomeIdDeviceIdentifier(serialNumber));
         getInboundConnection().updateSerialNumberPlaceHolder(serialNumber);
     }
 

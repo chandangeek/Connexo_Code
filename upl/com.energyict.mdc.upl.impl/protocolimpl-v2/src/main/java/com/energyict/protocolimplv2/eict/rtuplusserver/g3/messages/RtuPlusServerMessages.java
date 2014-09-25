@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
+import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.axrdencoding.*;
@@ -47,7 +48,6 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private final DlmsSession session;
     private List<DeviceMessageSpec> supportedMessages = null;
-    public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
 
     public RtuPlusServerMessages(DlmsSession session) {
@@ -879,7 +879,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             for (BusinessObject businessObject : group.getMembers()) {
                 if (businessObject instanceof Device) {
                     Device device = (Device) businessObject;
-                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(CALL_HOME_ID_PROPERTY_NAME, "");
+                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
                     if (!callHomeId.isEmpty()) {
                         if (macAddresses.length() != 0) {
                             macAddresses.append(";");

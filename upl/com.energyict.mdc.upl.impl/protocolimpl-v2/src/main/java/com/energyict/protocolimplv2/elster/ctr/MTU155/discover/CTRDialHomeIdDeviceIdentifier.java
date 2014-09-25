@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
 import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
@@ -28,8 +29,6 @@ import java.util.List;
  */
 @XmlRootElement
 public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
-
-    public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
 
     private final String callHomeID;
     private Device device;
@@ -65,7 +64,7 @@ public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     }
 
     private void fetchAllDevices() {
-        this.allDevices = getDeviceFactory().findByConnectionTypeProperty(CTRInboundDialHomeIdConnectionType.class, CALL_HOME_ID_PROPERTY_NAME, callHomeID);
+        this.allDevices = getDeviceFactory().findByConnectionTypeProperty(CTRInboundDialHomeIdConnectionType.class, AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeID);
     }
 
     @Override

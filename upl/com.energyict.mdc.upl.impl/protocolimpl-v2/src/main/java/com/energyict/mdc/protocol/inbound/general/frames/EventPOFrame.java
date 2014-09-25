@@ -9,9 +9,9 @@ import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,8 +36,8 @@ public class EventPOFrame extends AbstractInboundFrame {
         return FrameType.EVENTP0;
     }
 
-    public EventPOFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        super(frame, serialNumberPlaceHolder);
+    public EventPOFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
+        super(frame, callHomeIdPlaceHolder);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class EventPOFrame extends AbstractInboundFrame {
         if (!device.getLogBooks().isEmpty()) {
             logBookIdentifier = new LogBookIdentifierById(genericLogBook.getId(), genericLogBook.getLogBookSpec().getDeviceObisCode());
         } else {
-            getCollectedDatas().add(MdcManager.getCollectedDataFactory().createNoLogBookCollectedData(new DeviceIdentifierBySerialNumber(getInboundParameters().getSerialNumber())));
+            getCollectedDatas().add(MdcManager.getCollectedDataFactory().createNoLogBookCollectedData(new DialHomeIdDeviceIdentifier(getInboundParameters().getSerialNumber())));
             return;
         }
 

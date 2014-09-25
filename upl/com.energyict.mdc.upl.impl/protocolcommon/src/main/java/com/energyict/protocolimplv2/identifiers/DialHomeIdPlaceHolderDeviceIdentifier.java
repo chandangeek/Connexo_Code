@@ -1,8 +1,11 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
 import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
@@ -18,40 +21,38 @@ import java.util.List;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface
- * that uses a PlaceHolder for a {@link com.energyict.mdw.core.Device}'s serial number to uniquely identify it.
- * <b>Be aware that the serialNumber is NOT a unique field in the database.
- * It is possible that multiple devices are found based on the provided SerialNumber.
- * In that case, a {@link com.energyict.cbo.NotFoundException} is throw</b>
- * <p/>
- * Copyrights EnergyICT
- * Date: 9/3/13
- * Time: 11:45 AM
+ * that uses an {@link com.energyict.mdw.core.Device}'s Call Home ID to uniquely identify it.
+ *
+ * @author: khe
+ * @since: 25/09/14 (10:00)
  */
 @XmlRootElement
-public class DeviceIdentifierBySerialNumberPlaceHolder implements ServerDeviceIdentifier {
+public class DialHomeIdPlaceHolderDeviceIdentifier implements ServerDeviceIdentifier {
 
-    private final SerialNumberPlaceHolder serialNumberPlaceHolder;
+    public static final PropertySpec CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+
+    private final CallHomeIdPlaceHolder callHomeIdPlaceHolder;
     private Device device;
     private List<Device> allDevices;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public DeviceIdentifierBySerialNumberPlaceHolder() {
-        this.serialNumberPlaceHolder = null;
+    public DialHomeIdPlaceHolderDeviceIdentifier() {
+        callHomeIdPlaceHolder = new CallHomeIdPlaceHolder();
     }
 
-    public DeviceIdentifierBySerialNumberPlaceHolder(SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        this.serialNumberPlaceHolder = serialNumberPlaceHolder;
+    public DialHomeIdPlaceHolderDeviceIdentifier(CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
+        super();
+        this.callHomeIdPlaceHolder = callHomeIdPlaceHolder;
     }
 
     @Override
     public Device findDevice() {
-        // lazy load the device
         if (this.device == null) {
             fetchAllDevices();
             if (this.allDevices.isEmpty()) {
-                throw new NotFoundException("Device with serialnumber " + this.serialNumberPlaceHolder.getSerialNumber() + " not found");
+                throw new NotFoundException("Device with callHomeID " + this.callHomeIdPlaceHolder.getSerialNumber() + " not found");
             } else {
                 if (this.allDevices.size() > 1) {
                     throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
@@ -64,29 +65,12 @@ public class DeviceIdentifierBySerialNumberPlaceHolder implements ServerDeviceId
     }
 
     private void fetchAllDevices() {
-        this.allDevices = getDeviceFactory().findBySerialNumber(serialNumberPlaceHolder.getSerialNumber());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DeviceIdentifierBySerialNumberPlaceHolder that = (DeviceIdentifierBySerialNumberPlaceHolder) o;
-        return serialNumberPlaceHolder.equals(that.serialNumberPlaceHolder);
-    }
-
-    @Override
-    public int hashCode() {
-        return serialNumberPlaceHolder.getSerialNumber().hashCode();
+        this.allDevices = getDeviceFactory().findByNotInheritedProtocolProperty(CALL_HOME_ID_PROPERTY_SPEC, callHomeIdPlaceHolder.getSerialNumber());
     }
 
     @Override
     public String toString() {
-        return "device with serial number " + serialNumberPlaceHolder.getSerialNumber();
+        return "device with call home id " + this.callHomeIdPlaceHolder.getSerialNumber();
     }
 
     @XmlElement(name = "type")
@@ -99,18 +83,18 @@ public class DeviceIdentifierBySerialNumberPlaceHolder implements ServerDeviceId
     }
 
     @XmlAttribute
-    public SerialNumberPlaceHolder getSerialNumberPlaceHolder() {
-        return serialNumberPlaceHolder;
+    public CallHomeIdPlaceHolder getCallHomeIdPlaceHolder() {
+        return callHomeIdPlaceHolder;
     }
 
     @Override
     public String getIdentifier() {
-        return serialNumberPlaceHolder.getSerialNumber();
+        return callHomeIdPlaceHolder.getSerialNumber();
     }
 
     @Override
     public List<OfflineDevice> getAllDevices() {
-        if(this.allDevices == null){
+        if (this.allDevices == null) {
             fetchAllDevices();
         }
         List<OfflineDevice> allOfflineDevices = new ArrayList<>();

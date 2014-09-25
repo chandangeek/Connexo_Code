@@ -4,9 +4,8 @@ import com.energyict.cpo.Environment;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.InboundParameters;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactoryProvider;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdPlaceHolderDeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.List;
  */
 public abstract class AbstractInboundFrame {
 
-    protected final SerialNumberPlaceHolder serialNumberPlaceHolder;
+    protected final CallHomeIdPlaceHolder callHomeIdPlaceHolder;
 
     public enum FrameType {
         REQUEST,
@@ -37,12 +36,12 @@ public abstract class AbstractInboundFrame {
     private InboundParameters inboundParameters = null;
     private List<CollectedData> collectedDatas;
     private String[] parameters = new String[0];
-    private DeviceIdentifierBySerialNumberPlaceHolder deviceIdentifierBySerialNumberPlaceHolder;
+    private DialHomeIdPlaceHolderDeviceIdentifier deviceIdentifierBySerialNumberPlaceHolder;
 
     protected abstract FrameType getType();
 
-    public AbstractInboundFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        this.serialNumberPlaceHolder = serialNumberPlaceHolder;
+    public AbstractInboundFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
+        this.callHomeIdPlaceHolder = callHomeIdPlaceHolder;
         this.frame = frame;
         parse();
     }
@@ -91,10 +90,10 @@ public abstract class AbstractInboundFrame {
      * Find the unique device, based on its serialNumber.
      *
      * @return true if an unique device has been found
-     *         false if no unique device could be found
+     * false if no unique device could be found
      */
     private boolean findDevice() {
-        this.serialNumberPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
+        this.callHomeIdPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
         device = getDeviceIdentifierBySerialNumberPlaceHolder().findDevice();
         Environment.getDefault().closeConnection();
         return device != null;
@@ -138,9 +137,9 @@ public abstract class AbstractInboundFrame {
         }
     }
 
-    DeviceIdentifierBySerialNumberPlaceHolder getDeviceIdentifierBySerialNumberPlaceHolder(){
-        if(this.deviceIdentifierBySerialNumberPlaceHolder == null){
-            this.deviceIdentifierBySerialNumberPlaceHolder = new DeviceIdentifierBySerialNumberPlaceHolder(serialNumberPlaceHolder);
+    DialHomeIdPlaceHolderDeviceIdentifier getDeviceIdentifierBySerialNumberPlaceHolder() {
+        if (this.deviceIdentifierBySerialNumberPlaceHolder == null) {
+            this.deviceIdentifierBySerialNumberPlaceHolder = new DialHomeIdPlaceHolderDeviceIdentifier(callHomeIdPlaceHolder);
         }
         return this.deviceIdentifierBySerialNumberPlaceHolder;
     }

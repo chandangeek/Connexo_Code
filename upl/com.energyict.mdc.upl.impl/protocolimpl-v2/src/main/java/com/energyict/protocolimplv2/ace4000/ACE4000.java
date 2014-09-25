@@ -6,7 +6,7 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierBySerialNumber(serialNumber);
+        return new DialHomeIdDeviceIdentifier(serialNumber);
     }
 
     public String getSerialNumber() {
@@ -162,7 +162,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
         return getTimeZone().inDaylightTime(getObjectFactory().getCurrentMeterTime(false, new Date()));
     }
 
-    public void addReceivedRegisterObisCode(final ObisCode obisCode){
+    public void addReceivedRegisterObisCode(final ObisCode obisCode) {
         this.receivedRegisterObisCodeList.add(obisCode);
     }
 
