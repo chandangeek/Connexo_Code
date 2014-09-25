@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
     initComponent: function () {
         this.columns = [
             {
-                header: Uni.I18n.translate('executionLevel.executionlevel', 'MDC', 'Execution level'),
+                header: Uni.I18n.translate('executionLevel.executionlevel', 'MDC', 'Privilege'),
                 dataIndex: 'name',
                 flex: 0.3
             },
@@ -47,15 +47,15 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
                 store: this.store,
                 usesExactCount: true,
                 dock: 'top',
-                displayMsg: Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', 0 ,'MDC', '{2} execution levels'),
-                emptyMsg: Uni.I18n.translate('executionLevel.pagingtoolbartop.emptyMsg', 'MDC', 'There are no execution levels'),
+                displayMsg: Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', 0 ,'MDC', '{2} privileges'),
+                emptyMsg: Uni.I18n.translate('executionLevel.pagingtoolbartop.emptyMsg', 'MDC', 'There are no privileges'),
                 items: [
                     {
                         xtype: 'component',
                         flex: 1
                     },
                     {
-                        text: Uni.I18n.translate('executionLevel.addExecutionLevel', 'MDC', 'Add execution levels'),
+                        text: Uni.I18n.translate('executionLevel.addExecutionLevel', 'MDC', 'Add privileges'),
                         itemId: 'createExecutionLevel',
                         xtype: 'button',
                         action: 'createExecutionLevel',

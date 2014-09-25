@@ -47,8 +47,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 model.load(mRID, {
                     success: function (record) {
-                        me.getApplication().fireEvent('loadDevice', record);
-                        widget.down('#stepsMenu').setTitle(record.get('mRID'));
+                        if (!widget.isDestroyed) {
+                            me.getApplication().fireEvent('loadDevice', record);
+                            widget.down('#stepsMenu').setTitle(record.get('mRID'));
+                        }
                     }
                 });
             };
@@ -68,8 +70,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         preview.setLoading();
         loadProfileOfDeviceModel.load(loadProfileId, {
             success: function (rec) {
-                preview.down('#deviceLoadProfilesPreviewForm').loadRecord(rec);
-                preview.setLoading(false);
+                if (!preview.isDestroyed) {
+                    preview.down('#deviceLoadProfilesPreviewForm').loadRecord(rec);
+                    preview.setLoading(false);
+                }
             }
         });
         preview.down('#deviceLoadProfilesActionMenu').record = record;
@@ -91,7 +95,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 route = 'devices/device/loadprofiles/loadprofile/data';
                 break;
             case 'viewDetails':
-                route = 'devices/device/loadprofiles/loadprofile/overview';
+                route = 'devices/device/loadprofiles/loadprofile';
                 break;
             case 'validateNow':
                 me.showValidateNowMessage(menu.record);

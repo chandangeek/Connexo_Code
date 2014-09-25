@@ -148,7 +148,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             });
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Ext.String.format(Uni.I18n.translate('comtask.remove.confirmation.title', 'MDC', 'Remove {0}?'), record.data.name),
+            title: Ext.String.format(Uni.I18n.translate('comtask.remove.confirmation.title', 'MDC', 'Remove \'{0}\'?'), record.data.name),
             msg: Uni.I18n.translate('comtask.remove.confirmation.msg', 'MDC', 'This communication task will no longer be available'),
             fn: function (state) {
                 if (state === 'confirm') {

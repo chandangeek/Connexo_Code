@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevels', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('executionlevels.empty.title', 'MDC', 'No execution levels found'),
+                        title: Uni.I18n.translate('executionlevels.empty.title', 'MDC', 'No privileges found'),
                         reasons: [
                             Uni.I18n.translate('executionlevels.empty.list.item1', 'MDC', 'All existing exection levels are added to this security set.')
                         ]
@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevels', {
                     xtype: 'container',
                     itemId: 'add-execution-level-selection-error',
                     hidden: true,
-                    html: '<span style="color: #eb5642">' + Uni.I18n.translate('executionlevels.no.executionlevel.selected', 'MDC', 'Select at least 1 execution level') + '</span>'
+                    html: '<span style="color: #eb5642">' + Uni.I18n.translate('executionlevels.no.executionlevel.selected', 'MDC', 'Select at least 1 privilege') + '</span>'
                 },
                 {
                     xtype: 'form',
