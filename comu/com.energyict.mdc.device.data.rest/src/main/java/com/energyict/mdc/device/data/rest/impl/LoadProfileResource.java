@@ -43,6 +43,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.isNull;
+import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 
@@ -182,8 +183,9 @@ public class LoadProfileResource {
     }
 
     private List<LoadProfileDataInfo> filter(List<LoadProfileDataInfo> infos, MultivaluedMap<String, String> queryParameters) {
-        Predicate<LoadProfileDataInfo> fromParams = getFilter(queryParameters);
-        return infos.stream().filter(fromParams).collect(Collectors.toList());
+        Predicate<LoadProfileDataInfo> toKeep = getFilter(queryParameters);
+        infos.removeIf(not(toKeep));
+        return infos;
     }
 
     private Predicate<LoadProfileDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
@@ -192,7 +194,7 @@ public class LoadProfileResource {
             list.add(this::hasSuspects);
         }
         if (filterActive(queryParameters, "hideMissing")) {
-            list.add(this::hasMissingData);
+            list.add(not(this::hasMissingData));
         }
         return lpi -> list.build().stream().allMatch(p -> p.test(lpi));
     }

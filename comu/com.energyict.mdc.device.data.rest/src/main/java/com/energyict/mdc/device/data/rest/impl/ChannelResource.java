@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,14 +25,19 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Created by bvn on 9/5/14.
@@ -100,17 +106,46 @@ public class ChannelResource {
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
-    public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters) {
+    public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         boolean isValidationActive = channel.getDevice().forValidation().isValidationActive(channel, clock.now());
         if (intervalStart!=null && intervalEnd!=null) {
-            List<LoadProfileReading> loadProfileData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
-            List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
-            List<ChannelDataInfo> infos = ChannelDataInfo.from(paginatedLoadProfileData, isValidationActive, thesaurus, evaluator);
-            PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
+            List<LoadProfileReading> channelData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
+            List<ChannelDataInfo> infos = ChannelDataInfo.from(channelData, isValidationActive, thesaurus, evaluator);
+            infos = filter(infos, uriInfo.getQueryParameters());
+            List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
+            PagedInfoList pagedInfoList = PagedInfoList.asJson("data", paginatedChannelData, queryParameters);
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, MultivaluedMap<String, String> queryParameters) {
+        Predicate<ChannelDataInfo> fromParams = getFilter(queryParameters);
+        return infos.stream().filter(fromParams).collect(Collectors.toList());
+    }
+
+    private boolean hasSuspects(ChannelDataInfo info) {
+        return ValidationStatus.SUSPECT.equals(info.validationResult);
+    }
+
+    private boolean hasMissingData(ChannelDataInfo info) {
+        return info.value == null;
+    }
+
+    private Predicate<ChannelDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
+        ImmutableList.Builder<Predicate<ChannelDataInfo>> list = ImmutableList.builder();
+        if (filterActive(queryParameters, "onlySuspect")) {
+            list.add(this::hasSuspects);
+        }
+        if (filterActive(queryParameters, "hideMissing")) {
+            list.add(this::hasMissingData);
+        }
+        return cdi -> list.build().stream().allMatch(p -> p.test(cdi));
+    }
+
+    private boolean filterActive(MultivaluedMap<String, String> queryParameters, String key) {
+        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
     }
 
     private Channel doGetChannel(String mrid, long loadProfileId, long channelId) {
