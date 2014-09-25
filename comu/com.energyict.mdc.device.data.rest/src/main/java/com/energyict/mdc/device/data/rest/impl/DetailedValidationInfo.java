@@ -23,11 +23,9 @@ public class DetailedValidationInfo {
 
     public DetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Date lastChecked) {
         validationActive = active;
-        if (validationActive) {
-            this.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
-            this.suspectReason = getSuspectReasonMap(dataValidationStatuses).entrySet();
-            this.lastChecked = lastChecked == null ? null : lastChecked.getTime();
-        }
+        this.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
+        this.suspectReason = getSuspectReasonMap(dataValidationStatuses).entrySet();
+        this.lastChecked = lastChecked == null ? null : lastChecked.getTime();
     }
 
     public DetailedValidationInfo() {

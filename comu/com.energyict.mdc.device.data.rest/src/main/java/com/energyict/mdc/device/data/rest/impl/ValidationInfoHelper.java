@@ -10,6 +10,8 @@ import com.energyict.mdc.device.data.*;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,7 @@ public class ValidationInfoHelper {
         List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
         boolean validationStatusForRegister = getValidationStatus(channelRef, meter);
         Optional<Date> lastChecked = Optional.absent();
-        if (validationStatusForRegister) {
+        if(channelRef.isPresent()) {
             List<Reading> readings = getReadingsForOneYear(register);
             List<ReadingRecord> readingRecords = readings.stream().map(r -> r.getActualReading()).collect(Collectors.toList());
             dataValidationStatuses = validationService.getEvaluator().getValidationStatus(channelRef.get(), readingRecords);

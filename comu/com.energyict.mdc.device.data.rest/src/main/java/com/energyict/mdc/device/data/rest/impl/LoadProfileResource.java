@@ -43,6 +43,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.isNull;
+import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 
@@ -88,13 +89,17 @@ public class LoadProfileResource {
     @Path("{lpid}")
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
+        LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
         LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile);
 
         addValidationInfo(loadProfile, loadProfileInfo);
 
         return Response.ok(loadProfileInfo).build();
+    }
+
+    private LoadProfile doGetLoadProfile(String mrid, long loadProfileId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        return resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
     }
 
     private void addValidationInfo(LoadProfile loadProfile, LoadProfileInfo loadProfileInfo) {
@@ -158,16 +163,9 @@ public class LoadProfileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
     public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-
-        LoadProfile loadProfile = device.getLoadProfiles().stream()
-                .filter(l -> l.getId() == loadProfileId)
-                .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, loadProfileId));
-
 
         Date start = validationInfo.lastChecked == null ? null : new Date(validationInfo.lastChecked);
-        validateLoadProfile(loadProfile, start);
+        validateLoadProfile(doGetLoadProfile(mrid, loadProfileId), start);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -185,8 +183,9 @@ public class LoadProfileResource {
     }
 
     private List<LoadProfileDataInfo> filter(List<LoadProfileDataInfo> infos, MultivaluedMap<String, String> queryParameters) {
-        Predicate<LoadProfileDataInfo> fromParams = getFilter(queryParameters);
-        return infos.stream().filter(fromParams).collect(Collectors.toList());
+        Predicate<LoadProfileDataInfo> toKeep = getFilter(queryParameters);
+        infos.removeIf(not(toKeep));
+        return infos;
     }
 
     private Predicate<LoadProfileDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
@@ -195,7 +194,7 @@ public class LoadProfileResource {
             list.add(this::hasSuspects);
         }
         if (filterActive(queryParameters, "hideMissing")) {
-            list.add(this::hasMissingData);
+            list.add(not(this::hasMissingData));
         }
         return lpi -> list.build().stream().allMatch(p -> p.test(lpi));
     }
@@ -207,6 +206,29 @@ public class LoadProfileResource {
     @Path("{lpid}/channels")
     public ChannelResource getChannelResource() {
         return channelResourceProvider.get();
+    }
+
+    @Path("{lpid}/validationstatus")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION)
+    public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
+        LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
+        ValidationStatusInfo deviceValidationStatusInfo = determineStatus(loadProfile);
+        return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
+    }
+
+    private ValidationStatusInfo determineStatus(LoadProfile loadProfile) {
+        return new ValidationStatusInfo(isValidationActive(loadProfile), lastChecked(loadProfile), hasData(loadProfile));
+    }
+
+    private boolean hasData(LoadProfile loadProfile) {
+        return loadProfile.getChannels().stream()
+            .anyMatch(hasData());
+    }
+
+    private Predicate<Channel> hasData() {
+        return c -> c.getDevice().forValidation().hasData(c);
     }
 
 }
