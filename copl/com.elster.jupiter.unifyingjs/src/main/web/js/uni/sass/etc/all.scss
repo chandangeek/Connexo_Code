@@ -9,13 +9,16 @@
     background-color: $sky-blue;
 }
 
+/*
+TODO Move this into a separate button UI.
+*/
 @mixin transparent-button {
-    background: none;
+    background: none !important;
     border: none;
     border-radius: 0;
     -moz-border-radius: 0;
     -webkit-border-radius: 0;
-    padding: 0;
+    padding: 0 !important;
 
     .x-btn-button {
         padding: {
@@ -379,7 +382,6 @@
 .icon-validation-black {
     background-image: url('images/shared/Not-validated.png');
 }
-
 
 .icon-validation-red {
     background-image: url('images/shared/Suspect.png');
