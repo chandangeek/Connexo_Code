@@ -279,6 +279,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         if (!getChannelValidations().isEmpty()) {
             return getChannelValidations().stream()
                     .filter(notNull())
+                    .filter(ChannelValidation::hasActiveRules)
                     .map(ChannelValidation::getLastChecked)
                     .filter(notNull())
                     .min(naturalOrder())
