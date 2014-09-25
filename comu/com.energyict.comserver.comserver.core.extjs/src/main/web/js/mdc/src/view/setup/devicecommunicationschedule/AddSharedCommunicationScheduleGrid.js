@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                 'deviceCommunicationSchedule.BulkSelection.counterText',
                 count,
                 'UNI',
-                '{0} communication schedules selected'
+                '{0} shared communication schedules selected'
             );
         };
         this.callParent(arguments);

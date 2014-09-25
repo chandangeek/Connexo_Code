@@ -92,7 +92,35 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                         return value? Uni.I18n.translate('general.yes', 'MDC', 'Yes'):Uni.I18n.translate('general.no', 'MDC', 'No');
 
                                     }
-                                }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'connectionWindow',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionWindow', 'MDC', 'Connection window'),
+                                    renderer: function(value) {
+                                        if (value) {
+                                            if (value.start || value.end) {
+                                                var startMinutes = (value.start/3600 | 0),
+                                                    startSeconds = (value.start/60 - startMinutes*60),
+                                                    endMinutes = (value.end/3600 | 0),
+                                                    endSeconds = (value.end/60 - endMinutes*60);
+
+                                                var addZeroIfOneSymbol = function (timeCount) {
+                                                    var timeInString = timeCount.toString();
+
+                                                    if (timeInString.length === 1) {
+                                                        timeInString = '0' + timeInString;
+                                                    }
+                                                    return timeInString;
+                                                }
+                                                return Uni.I18n.translate('connectionmethod.between', 'MDC', 'Between') + ' ' + addZeroIfOneSymbol(startMinutes) + ':' + addZeroIfOneSymbol(startSeconds)  + ' ' + Uni.I18n.translate('general.and', 'MDC', 'And').toLowerCase() + ' ' + addZeroIfOneSymbol(endMinutes) + ':' + addZeroIfOneSymbol(endSeconds);
+
+                                            } else {
+                                                return Uni.I18n.translate('connectionmethod.norestriction', 'MDC', 'No restrictions');
+                                            }
+                                        }
+                                    }
+                                },
                             ]
                         },
                         {
@@ -122,7 +150,17 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'comPortPool',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.portPool', 'MDC', 'Port pool')
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.comPortPool', 'MDC', 'Communication port pool')
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'rescheduleRetryDelay',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
+                                    renderer: function(value) {
+                                        if (value) {
+                                            return value.count + ' ' + value.timeUnit
+                                        }
+                                    }
                                 }
                             ]
                         }

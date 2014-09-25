@@ -13,10 +13,20 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step1', {
 
     items: [
         {
-            itemId: 'step1-errors',
-            xtype: 'uni-form-error-message',
-            hidden: true,
-            text: Uni.I18n.translate('searchItems.bulk.devicesError', 'MDC', 'It is required to select one or more devices to go to the next step')
+            xtype: 'panel',
+            layout: {
+                type: 'vbox',
+                align: 'left'
+            },
+            width: '100%',
+            items: [
+                {
+                    itemId: 'step1-errors',
+                    xtype: 'uni-form-error-message',
+                    hidden: true,
+                    text: Uni.I18n.translate('searchItems.bulk.devicesError', 'MDC', 'It is required to select one or more devices to go to the next step.')
+                }
+            ]
         },
         {
             xtype: 'devices-selection-grid'

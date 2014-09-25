@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                                 {
                                     xtype: 'button',
                                     name: 'addCommands',
-                                    text: 'Add Commands',
+                                    text: Uni.I18n.translate('comtask.add.command', 'MDC', 'Add command'),
                                     margin: '5 0 5 0',
                                     itemId: 'addCommandsToTask',
                                     action: 'addCommand'

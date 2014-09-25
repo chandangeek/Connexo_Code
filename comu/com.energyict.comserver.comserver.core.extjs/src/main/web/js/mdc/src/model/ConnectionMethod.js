@@ -15,7 +15,14 @@ Ext.define('Mdc.model.ConnectionMethod', {
         'rescheduleRetryDelay',
         {name: 'temporalExpression', useNull: true},
         {name: 'comWindowStart',type: 'int',useNull: true},
-        {name: 'comWindowEnd',type: 'int',useNull: true}
+        {name: 'comWindowEnd',type: 'int',useNull: true},
+        {
+            name: 'connectionWindow',
+            persist: false,
+            mapping: function (data) {
+                return {start: data.comWindowStart, end: data.comWindowEnd};
+            }
+        }
     ],
     associations: [
         {name: 'rescheduleRetryDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleRetryDelay'},

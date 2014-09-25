@@ -173,7 +173,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     }
                                 ]
                             },
-
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'comWindowField',
@@ -186,11 +185,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     margin: '0 5 0 0'
                                 },
                                 items: [
-//                                    {
-//                                        xtype: 'checkbox',
-//                                        itemId: 'activateComWindowCheckBox',
-//                                        submitValue: false
-//                                    },
                                     {
                                         xtype: 'radiogroup',
                                         itemId: 'activateConnWindowRadiogroup',

@@ -4,7 +4,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.DataSortingToolbar', {
         'Uni.view.button.SortItemButton'
     ],
     alias: 'widget.deviceLogbookDataSortingToolbar',
-    itemId: 'deviceLogbookDataSortingToolbar',
     title: Uni.I18n.translate('general.sort', 'MDC', 'Sort'),
     emptyText: Uni.I18n.translate('general.none', 'MDC', 'None'),
     showClearButton: false,

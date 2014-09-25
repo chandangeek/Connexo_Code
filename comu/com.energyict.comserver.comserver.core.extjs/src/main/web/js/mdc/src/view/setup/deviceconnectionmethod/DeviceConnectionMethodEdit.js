@@ -94,22 +94,35 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 disabled: true
                             },
                             {
-                                xtype: 'scheduleField',
-                                name: 'nextExecutionSpecs',
-                                itemId: 'scheduleField',
+                                xtype: 'fieldcontainer',
+                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionSchedule', 'MDC', 'Connection schedule'),
+                                itemId: 'scheduleFieldContainer',
                                 hidden: true,
-                                required: true,
-                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionSchedule', 'MDC', 'Connection schedule'),
-                                hourCfg: {
-                                    width: 60
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
                                 },
-                                minuteCfg: {
-                                    width: 60
-                                },
-                                secondCfg: {
-                                    width: 60
-                                },
-                                disabled: true
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('connectionmethod.every', 'MDC', 'Every'),
+                                        margin: '0 10 0 0'
+                                    },
+                                    {
+                                        xtype: 'scheduleField',
+                                        name: 'nextExecutionSpecs',
+                                        itemId: 'scheduleField',
+                                        hourCfg: {
+                                            width: 60
+                                        },
+                                        minuteCfg: {
+                                            width: 60
+                                        },
+                                        secondCfg: {
+                                            width: 60
+                                        }
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'fieldcontainer',
@@ -125,31 +138,73 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 },
                                 items: [
                                     {
-                                        xtype: 'checkbox',
-                                        itemId: 'activateComWindowCheckBox',
-                                        submitValue: false
+                                        xtype: 'radiogroup',
+                                        itemId: 'activateConnWindowRadiogroup',
+                                        vertical: true,
+                                        columns: 1,
+                                        allowBlank: false,
+                                        items: [
+                                            {
+                                                name: 'enableConnWindow',
+                                                inputValue: false,
+                                                checked: true,
+                                                margin: '0 10 5 0'
+                                            },
+                                            {
+                                                name: 'enableConnWindow',
+                                                inputValue: true,
+                                                margin: '0 10 5 0'
+                                            }
+                                        ]
                                     },
                                     {
-                                        xtype: 'displayfield',
-                                        value: Uni.I18n.translate('connectionmethod.openConnectionBetween', 'MDC', 'Open connection between')
-                                    },
-                                    {
-                                        xtype: 'timeInSecondsField',
-                                        name: 'comWindowStart',
-                                        itemId: 'comWindowStart',
-                                        disabled: true
+                                        xtype: 'container',
+                                        layout: {
+                                            type: 'vbox',
+                                            align: 'stretch'
+                                        },
+                                        items: [
+                                            {
+                                                xtype: 'displayfield',
+                                                value: Uni.I18n.translate('connectionmethod.norestriction', 'MDC', 'No restrictions')
+                                            },
+                                            {
+                                                xtype: 'container',
+                                                layout: {
+                                                    type: 'hbox',
+                                                    align: 'stretch'
+                                                },
+                                                margin: '-2 0 0 0',
+                                                items: [
+                                                    {
+                                                        xtype: 'displayfield',
+                                                        value: Uni.I18n.translate('connectionmethod.between', 'MDC', 'Between'),
+                                                        margin: '0 10 0 0'
+                                                    },
+                                                    {
+                                                        xtype: 'timeInSecondsField',
+                                                        name: 'comWindowStart',
+                                                        itemId: 'comWindowStart',
+                                                        disabled: true
 
-                                    },
-                                    {
-                                        xtype: 'displayfield',
-                                        value: ' - '
-                                    },
-                                    {
-                                        xtype: 'timeInSecondsField',
-                                        name: 'comWindowEnd',
-                                        itemId: 'comWindowEnd',
-                                        disabled: true
+                                                    },
+                                                    {
+                                                        xtype: 'displayfield',
+                                                        value: Uni.I18n.translate('general.and', 'MDC', 'And').toLowerCase(),
+                                                        margin: '0 5 0 0'
+                                                    },
+                                                    {
+                                                        xtype: 'timeInSecondsField',
+                                                        name: 'comWindowEnd',
+                                                        itemId: 'comWindowEnd',
+                                                        disabled: true
 
+                                                    }
+                                                ]
+
+                                            }
+
+                                        ]
                                     }
                                 ]
                             },

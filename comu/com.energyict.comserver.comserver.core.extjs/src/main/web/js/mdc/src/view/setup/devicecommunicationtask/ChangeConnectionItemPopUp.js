@@ -4,11 +4,12 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
     requires: [
         'Mdc.widget.ScheduleField'
     ],
+    width: 500,
+    height: 200,
     closable: false,
     autoShow: true,
     modal: true,
     floating: true,
-    border: true,
     itemId: 'changeConnectionItemPopUp',
     shadow: true,
     items: [
@@ -19,14 +20,13 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
         },
         {
             xtype: 'container',
-            margin: '10px',
             items: [
                 {
                     xtype: 'form',
                     border: false,
                     itemId: 'changeConnectionItemForm',
                     layout: {
-                        type: 'hbox',
+                        type: 'vbox',
                         align: 'stretch'
                     },
                     defaults: {
@@ -34,45 +34,36 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                     },
                     items: [
                     ]
+                }
+
+            ]
+        },
+    ],
+
+    bbar: [
+
+                {
+                    xtype: 'container',
+                    flex: 1
                 },
                 {
-                    xtype: 'fieldcontainer',
-                    ui: 'actions',
-                    fieldLabel: '&nbsp',
-                    labelWidth: 250,
-                    layout: {
-                        type: 'hbox'
-                        //     align: 'stretch'
+                    text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                    xtype: 'button',
+                    ui: 'action',
+                    //action: 'addIndividualScheduleAction',
+                    itemId: 'changeButton',
+                    flex: 0
+                },
+                {
+                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                    xtype: 'button',
+                    ui: 'link',
+                    itemId: 'cancelLink',
+                    handler: function (button) {
+                        button.up('.window').close();
                     },
-                    width: '100%',
-                    items: [
-                        {
-                            xtype: 'component',
-                            flex: 1
-                        },
-                        {
-                            text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
-                            xtype: 'button',
-                            ui: 'action',
-                            //action: 'addIndividualScheduleAction',
-                            itemId: 'changeButton',
-                            flex: 0
-                        },
-                        {
-                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                            xtype: 'button',
-                            ui: 'link',
-                            itemId: 'cancelLink',
-                            handler: function (button) {
-                                button.up('.window').close();
-                            },
-                            flex: 0
-                        }
-                    ]
+                    flex: 0
                 }
-            ]
-        }
-
     ],
     initComponent: function () {
         var me = this;

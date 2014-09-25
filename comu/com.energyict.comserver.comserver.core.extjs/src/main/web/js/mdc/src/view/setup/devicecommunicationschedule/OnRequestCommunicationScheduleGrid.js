@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationSch
                         shadow: false,
                         items: [
                             {
-                                text: Uni.I18n.translate('deviceCommunicationSchedules.addCommunicationSchedule', 'MDC', 'Add communication schedule'),
+                                text: Uni.I18n.translate('deviceCommunicationSchedules.addFrequency', 'MDC', 'Add frequency'),
                                 itemId: 'addCommunicationSchedule',
                                 action: 'addCommunicationSchedule'
 
