@@ -23,8 +23,6 @@ Ext.define('Login.controller.Login', {
     ],
 
     init: function (application) {
-        this.getApplication().on('sessionexpired', this.sessionExpired);
-
         this.control({
             'login #login-form [action=login]': {
                 click: this.signinuser
@@ -43,16 +41,10 @@ Ext.define('Login.controller.Login', {
 
     showOverview: function (error) {
         var params = Ext.urlDecode(location.search.substring(1));
-        if (params.expired != undefined) {
+        if (typeof params.expired !== 'undefined') {
             this.getLoginForm().down('#errorLabel').setValue('Session expired.');
             this.showLoginError();
         }
-    },
-
-    sessionExpired: function () {
-        // TODO Make sure the users gets redirected to the expired URL.
-        window.location = '/apps/login/index.html?expired';
-        //window.location = '/apps/usr/login.html?expired' + window.location.pathname + window.location.hash;
     },
 
     onPasswordKey: function (field, event, options) {
