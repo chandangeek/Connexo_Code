@@ -27,12 +27,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel', {
                     itemId: 'channelOfLoadProfileOfDeviceDataLink',
                     href: 'data',
                     hrefTarget: '_self'
-                },
-                {
-                    text: Uni.I18n.translate('deviceloadprofiles.validation', 'MDC', 'Validation'),
-                    itemId: 'channelOfLoadProfileOfDeviceValidationLink',
-                    href: 'validation',
-                    hrefTarget: '_self'
                 }
             ]
         }
