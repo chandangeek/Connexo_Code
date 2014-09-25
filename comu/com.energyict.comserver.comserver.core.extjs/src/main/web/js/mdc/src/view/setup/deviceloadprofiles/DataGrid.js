@@ -62,6 +62,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                     dataIndex: 'channelData',
                     align: 'right',
                     minWidth: 200,
+                    flex: 1,
                     renderer: function (data, metaData, record) {
                         return !Ext.isEmpty(data[channel.id])
                             ? data[channel.id] + ' ' + channel.unitOfMeasure.unit
