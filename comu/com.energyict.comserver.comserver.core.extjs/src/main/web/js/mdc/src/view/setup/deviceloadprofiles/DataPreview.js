@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
 
     channels: null,
 
+    /* Commented for now because of JP-5561
     tools: [
         {
             xtype: 'button',
@@ -22,6 +23,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
             }
         }
     ],
+    */
 
     initComponent: function () {
         var me = this,

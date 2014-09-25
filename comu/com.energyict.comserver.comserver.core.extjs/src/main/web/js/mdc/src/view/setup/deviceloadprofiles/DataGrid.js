@@ -69,12 +69,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                     }
                 });
         });
+        /* Commented for now because of JP-5561
         me.columns.push({
             xtype: 'uni-actioncolumn',
             menu: {
                 xtype: 'deviceLoadProfilesDataActionMenu'
             }
         });
+        */
 
         me.callParent(arguments);
     }
