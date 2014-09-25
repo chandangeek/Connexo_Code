@@ -26,6 +26,14 @@ Ext.define('Uni.model.App', {
                 return href.indexOf(record.data.url, 0) === 0
                     || fullPath.indexOf(record.data.url, 0) === 0;
             }
+        },
+        {
+            name: 'isExternal',
+            persist: false,
+            convert: function (value, record) {
+                var url = record.get('url');
+                return url.indexOf('http') === 0;
+            }
         }
     ]
 });

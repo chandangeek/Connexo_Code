@@ -102,7 +102,7 @@ Ext.define('Uni.controller.AppController', {
             try {
                 this.getController(controller);
             } catch (ex) {
-                console.log('Could not load the \'' + controller + '\' controller.');
+                console.error('Could not load the \'' + controller + '\' controller.');
             }
         }
     }
