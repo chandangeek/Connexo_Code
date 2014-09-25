@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
 
         sideFilter = me.getSideFilter();
         sideFilter.disable();
-        Uni.util.Common.checkNecessaryStoresLoading([
+        Uni.util.Common.loadNecessaryStores([
             'Mdc.store.Domains',
             'Mdc.store.Subdomains',
             'Mdc.store.EventsOrActions'
