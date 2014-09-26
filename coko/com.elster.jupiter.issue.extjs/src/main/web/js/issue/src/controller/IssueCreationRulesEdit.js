@@ -10,7 +10,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         'Isu.store.CreationRuleTemplate',
         'Isu.store.DueinType',
         'Isu.store.Clipboard',
-        'Isu.store.CreationRuleActionPhases'
+        'Isu.store.CreationRuleActionPhases',
+        'Isu.store.IssueReason'
     ],
     views: [
         'Isu.view.administration.datacollection.issuecreationrules.Edit',
