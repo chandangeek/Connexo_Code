@@ -116,31 +116,31 @@ public class SchedulingResource {
         else if(comTaskEnablementsToCheck.size()==1){
            return true;
         } else {
-            Long protocolDialectConfigurationPropertiesId = null;
+            long protocolDialectConfigurationPropertiesId = 0;
             if(comTaskEnablementsToCheck.get(0).getProtocolDialectConfigurationProperties().isPresent()){
                 protocolDialectConfigurationPropertiesId = comTaskEnablementsToCheck.get(0).getProtocolDialectConfigurationProperties().get().getId();
             }
             long securityPropertySetId = comTaskEnablementsToCheck.get(0).getSecurityPropertySet().getId();
-            Long partialConnectionTaskId = null;
+            long partialConnectionTaskId = 0;
             if(comTaskEnablementsToCheck.get(0).getPartialConnectionTask().isPresent()){
                 partialConnectionTaskId = comTaskEnablementsToCheck.get(0).getPartialConnectionTask().get().getId();
             }
             int priority = comTaskEnablementsToCheck.get(0).getPriority();
             for(int i = 1;i< comTaskEnablementsToCheck.size();i++){
 
-                Long compareProtocolDialectConfigurationPropertiesId = null;
+                long compareProtocolDialectConfigurationPropertiesId = 0;
                 if(comTaskEnablementsToCheck.get(i).getProtocolDialectConfigurationProperties().isPresent()){
                     compareProtocolDialectConfigurationPropertiesId = comTaskEnablementsToCheck.get(i).getProtocolDialectConfigurationProperties().get().getId();
                 }
                 long compareSecurityPropertySetId = comTaskEnablementsToCheck.get(i).getSecurityPropertySet().getId();
-                Long comparePartialConnectionTaskId = null;
+                long comparePartialConnectionTaskId = 0;
                 if(comTaskEnablementsToCheck.get(i).getPartialConnectionTask().isPresent()){
                     comparePartialConnectionTaskId = comTaskEnablementsToCheck.get(i).getPartialConnectionTask().get().getId();
                 }
                 int comparePriority = comTaskEnablementsToCheck.get(i).getPriority();
-                if(!protocolDialectConfigurationPropertiesId.equals(compareProtocolDialectConfigurationPropertiesId) ||
+                if(protocolDialectConfigurationPropertiesId!=compareProtocolDialectConfigurationPropertiesId ||
                         securityPropertySetId!=compareSecurityPropertySetId ||
-                        !partialConnectionTaskId.equals(comparePartialConnectionTaskId)||
+                        partialConnectionTaskId!=comparePartialConnectionTaskId||
                         priority!=comparePriority){
                     return false;
                 }
