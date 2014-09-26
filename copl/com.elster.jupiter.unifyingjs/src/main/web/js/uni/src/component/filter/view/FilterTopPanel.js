@@ -22,5 +22,6 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
                 }
             }));
         }
+        this.updateContainer(this.getContainer());
     }
 });
