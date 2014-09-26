@@ -228,6 +228,15 @@ public class DeviceValidationResourceTest extends JerseyTest {
         when(channel7.getMainReadingType()).thenReturn(regReadingType);
         when(channel8.getMainReadingType()).thenReturn(channelReadingType1);
         when(channel9.getMainReadingType()).thenReturn(channelReadingType2);
+        doReturn(Arrays.asList(regReadingType)).when(channel1).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType1)).when(channel2).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType2)).when(channel3).getReadingTypes();
+        doReturn(Arrays.asList(regReadingType)).when(channel4).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType1)).when(channel5).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType2)).when(channel6).getReadingTypes();
+        doReturn(Arrays.asList(regReadingType)).when(channel7).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType1)).when(channel8).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(suspect.getTypeCode()).thenReturn("3.0.1");
         when(notSuspect.getTypeCode()).thenReturn("0");
