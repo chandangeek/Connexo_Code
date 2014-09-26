@@ -85,7 +85,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'deviceLoadProfileChannelsPreview'
+                        xtype: 'deviceLoadProfileChannelsPreview',
+                        router: me.router
                     }
                 }
             ]

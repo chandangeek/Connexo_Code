@@ -15,7 +15,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'validationResult', type:'auto'},
         {name: 'validationStatus', type:'auto'},
 
-        {
+        /*{
             name: 'suspect_rules',
             persist: false,
             mapping: function (data) {
@@ -68,7 +68,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                     return '';
                 }
             }
-        },
+        },  */
 
         {
             name: 'interval_start',
