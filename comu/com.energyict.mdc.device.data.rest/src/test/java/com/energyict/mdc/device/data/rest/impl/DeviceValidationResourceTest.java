@@ -1,31 +1,29 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.google.common.base.Optional;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.mockito.Mock;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -33,11 +31,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -51,27 +44,11 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     public static final long DEVICE_ID = 56854L;
     public static final java.util.Date NOW = Date.from(ZonedDateTime.of(2014, 6, 14, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant());
     @Mock
-    private DeviceImportService deviceImportService;
-    @Mock
-    private DeviceDataService deviceDataService;
-    @Mock
-    private DeviceConfigurationService deviceConfigurationService;
-    @Mock
-    private IssueService issueService;
-    @Mock
-    private EngineModelService engineModelService;
-    @Mock
     private MdcPropertyUtils mdcPropertyUtils;
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private ValidationService validationService;
-    @Mock
-    private MeteringService meteringService;
-    @Mock
     private AmrSystem mdcAmrSystem;
-    @Mock
-    private Clock clock;
     @Mock
     private ValidationEvaluator evaluator;
 
