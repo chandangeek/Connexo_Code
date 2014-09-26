@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -84,7 +85,8 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		Map<Long, TimeSeriesImpl> lockedTimeSeriesMap = storerMap.values().stream()
 			.flatMap(slaveStorer -> slaveStorer.getAllTimeSeries().stream())
 			.sorted((t1,t2) -> Long.signum(t2.getId() - t1.getId()))
-			.collect(Collectors.toMap(timeSeries -> timeSeries.getId() , timeSeries -> timeSeries.lock()));
+			.map(timeSeries -> timeSeries.refreshAndLock())
+			.collect(Collectors.toMap(timeSeries -> timeSeries.getId() , timeSeries -> timeSeries));
 		for(SlaveTimeSeriesDataStorer storer : storerMap.values()) {
 			storer.updateTimeSeries(lockedTimeSeriesMap);
 			storer.execute(stats,overrules());			
@@ -114,7 +116,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		
 		@Override
 		public int hashCode() {
-			return vault.hashCode() ^ recordSpec.hashCode();
+			return Objects.hash(vault,recordSpec);
 		}			
 	}
 	
@@ -179,9 +181,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		void updateTimeSeries(Map<Long,TimeSeriesImpl> timeSeriesMap) {
-			for (SingleTimeSeriesStorer storer : storerMap.values()) {
-				storer.updateTimeSeries(timeSeriesMap.get(storer.getTimeSeries().getId()));
-			}
+			storerMap.values().forEach(storer -> storer.updateTimeSeries(timeSeriesMap.get(storer.getTimeSeries().getId())));
 		}
 		
 		void setOldEntries(Connection connection) throws SQLException {
@@ -201,9 +201,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 						storer.add(rs);
 					}
 				}
-				for (SingleTimeSeriesStorer storer: storers) {
-					storer.prepare();
-				}
+				storers.forEach(storer -> storer.prepare());
 			}
 		}
 		
@@ -313,14 +311,15 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 			if (!timeSeries.isRegular() || timeSeries.getRecordSpec().derivedFieldCount() == 0) {
 				return;
 			}
-			TimeSeriesEntryImpl last = null;
-			for (TimeSeriesEntryImpl entry : newEntries.values()) {
-				TimeSeriesEntryImpl previous = previous(entry,last);
-				if (previous != null) {
-					updateFromPrevious(entry, previous);
-				}
-				last = previous;
-			}
+			newEntries.values().stream().reduce(
+				null,
+				(guess, current) -> {
+					TimeSeriesEntryImpl previous = previous(current,guess);
+					if (previous != null) {
+						updateFromPrevious(current,previous);
+					}
+					return current;
+				});			
 			for (TimeSeriesEntryImpl entry : oldEntries.values()) {
 				if (!newEntries.containsKey(entry.getTimeStamp())) {
                     TimeSeriesEntryImpl previous = previous(entry, null);

@@ -9,7 +9,6 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
@@ -253,14 +252,8 @@ public final class TimeSeriesImpl implements TimeSeries {
     	return getVault().getEntry(this,when);
     }
     
-    TimeSeriesImpl lock() {
-        //TODO review with Karel.
-        //Would like to have a lock(T) method
-        TimeSeriesImpl lock = dataModel.mapper(TimeSeriesImpl.class).lock(getId());
-        if (lock.version != this.version) {
-            throw new OptimisticLockException();
-        }
-        return this;
+    TimeSeriesImpl refreshAndLock() {     
+        return dataModel.mapper(TimeSeriesImpl.class).lock(getId());
     }
 	
 	@Override
@@ -276,7 +269,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	
 	@Override
 	public int hashCode() {
-		return new Long(this.id).hashCode();
+		return Objects.hashCode(id);
 	}
 	
 	Date next(Date date , int numberOfEntries) {
