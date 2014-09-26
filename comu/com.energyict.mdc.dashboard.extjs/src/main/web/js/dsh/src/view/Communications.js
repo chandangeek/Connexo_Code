@@ -24,7 +24,26 @@ Ext.define('Dsh.view.Communications', {
             xtype: 'preview-container',
             grid: {
                 xtype: 'communications-list',
-                itemId: 'communicationslist'
+                itemId: 'communicationslist',
+                dockedItems: [
+                    {
+                        itemId: 'pagingtoolbartop',
+                        xtype: 'pagingtoolbartop',
+                        dock: 'top',
+                        store: 'Dsh.store.CommunicationTasks',
+                        displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} connections'),
+                        displayMoreMsg: Uni.I18n.translate('connection.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
+                        emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display')
+                    },
+                    {
+                        itemId: 'pagingtoolbarbottom',
+                        xtype: 'pagingtoolbarbottom',
+                        store: 'Dsh.store.CommunicationTasks',
+                        dock: 'bottom',
+                        deferLoading: true,
+                        itemsPerPageMsg: Uni.I18n.translate('connection.widget.details.itemsPerPage', 'DSH', 'Connections per page')
+                    }
+                ]
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',
