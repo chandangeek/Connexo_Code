@@ -3,9 +3,9 @@ Ext.define('Dsh.util.FilterStoreHydrator', {
         var data = filter.getData();
 
         // transform all single items int array
-        data = _.map(data, function (item) {
+        _.map(data, function (item, key) {
             if (item) {
-                if (!_.isArray(item)) {item = [item]}
+                if (!_.isArray(item)) {data[key] = [item]}
             }
             return item;
         });
