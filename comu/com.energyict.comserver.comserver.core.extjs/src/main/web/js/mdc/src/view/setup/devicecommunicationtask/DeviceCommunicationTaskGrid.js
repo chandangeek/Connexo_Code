@@ -47,36 +47,63 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                                 return Uni.I18n.translate('general.everyFewMinutes', 'MDC', 'Every few minutes');
                         }
                     } else {
-                        return '';
+                        metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.noFrequency', 'MDC', 'No frequency') + '"';
+                        return '-';
                     }
                 }
             },
             {
                 header: Uni.I18n.translate('deviceCommunicationTask.scheduleName', 'MDC', 'Schedule name'),
                 dataIndex: 'scheduleName',
-                flex: 1
+                flex: 1,
+                renderer: function(value,metadata){
+                    if(!value){
+                        metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.noSchedule', 'MDC', 'No schedule') + '"';
+                        return '-';
+                    } else {
+                        return value;
+                    }
+            }
+
             },
             {
                 header: Uni.I18n.translate('deviceCommunicationTask.status', 'MDC', 'Status'),
                 dataIndex: 'status',
-                flex: 1
+                flex: 1,
+                renderer: function(value,metadata) {
+                    if (!value) {
+                        metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.noStatus', 'MDC', 'No status') + '"';
+                        return '-';
+                    } else {
+                        return value;
+                    }
+                }
             },
             {
                 header: Uni.I18n.translate('deviceCommunicationTask.nextCommunication', 'MDC', 'Next communication'),
                 dataIndex: 'nextCommunication',
                 flex: 2,
-                renderer: function (value) {
+                renderer: function (value,metadata) {
                     if (value !== null) {
                         return new Date(value).toLocaleString();
                     } else {
-                        return '';
+                        metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.noNextCommunication', 'MDC', 'No next communication') + '"';
+                        return '-';
                     }
                 }
             },
             {
                 header: Uni.I18n.translate('deviceCommunicationTask.connectionMethod', 'MDC', 'Connection method'),
                 dataIndex: 'connectionMethod',
-                flex: 1
+                flex: 2,
+                renderer: function(value,metadata) {
+                    if (!value) {
+                        metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.noConnectionMethod', 'MDC', 'No connection method') + '"';
+                        return '-';
+                    } else {
+                        return value;
+                    }
+                }
             },
             {
                 xtype: 'uni-actioncolumn',
