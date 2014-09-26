@@ -36,6 +36,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/connections")
@@ -65,7 +66,7 @@ public class ConnectionResource {
 
     @GET
     @Path("/connectiontypepluggableclasses")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Object getConnectionTypeValues() {
         List<IdWithNameInfo> names = new ArrayList<>();
@@ -78,7 +79,7 @@ public class ConnectionResource {
     }
 
     @GET
-    @Consumes("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
@@ -93,7 +94,6 @@ public class ConnectionResource {
             Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
             connectionTaskInfos.add(connectionTaskInfoFactory.from(connectionTask, lastComSession, comTaskExecutions));
         }
-
         return Response.ok(PagedInfoList.asJson("connectionTasks", connectionTaskInfos, queryParameters)).build();
     }
 
