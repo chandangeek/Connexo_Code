@@ -24,7 +24,10 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.IssueDetail',
         'Isu.controller.AdministrationDataCollection',
         'Isu.controller.NotifySend',
-        'Isu.controller.DataValidation'
+        'Isu.controller.DataValidation',
+        'Isu.controller.IssueCreationRulesEdit',
+        'Isu.controller.IssueCreationRulesActionsEdit',
+        'Isu.controller.DataCollectionOverview'
     ],
 
     stores: [
