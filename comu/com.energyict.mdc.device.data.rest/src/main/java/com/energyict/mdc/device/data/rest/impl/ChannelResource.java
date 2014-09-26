@@ -34,6 +34,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -68,7 +69,20 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         List<Channel> channelsPage = ListPager.of(loadProfile.getChannels(), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
-        return Response.ok(PagedInfoList.asJson("channels", ChannelInfo.from(channelsPage), queryParameters)).build();
+
+        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        for (Channel channel : channelsPage) {
+            ChannelInfo channelInfo = ChannelInfo.from(channel);
+            addValidationInfo(channel, channelInfo);
+            channelInfos.add(channelInfo);
+        }
+        return Response.ok(PagedInfoList.asJson("channels", channelInfos, queryParameters)).build();
+    }
+
+    private void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
+        List<DataValidationStatus> states =
+                channel.getDevice().forValidation().getValidationStatus(channel, lastMonth());
+        channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, lastChecked(channel));
     }
 
     @GET
@@ -80,12 +94,6 @@ public class ChannelResource {
         ChannelInfo channelInfo = ChannelInfo.from(channel);
         addValidationInfo(channel, channelInfo);
         return Response.ok(channelInfo).build();
-    }
-
-    private void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
-        List<DataValidationStatus> states =
-                channel.getDevice().forValidation().getValidationStatus(channel, lastMonth());
-        channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, lastChecked(channel));
     }
 
     private boolean isValidationActive(Channel channel) {
