@@ -178,8 +178,6 @@ public class SmartMeterProtocolLogBookAdapterTest {
 
         assertThat(LOGBOOK1_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(0).getLogBookIdentifier()).getLogBookId());
         assertThat(ResultType.NotSupported).isEqualTo(logBookData.get(0).getResultType());
-        assertThat(logBookData.get(0).getIssues().get(0).getDescription()).isNotEmpty();
-        assertEquals(logBookData.get(0).getIssues().get(0).getSource(), LOGBOOK1_OBIS);
 
         assertThat(LOGBOOK2_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(1).getLogBookIdentifier()).getLogBookId());
         assertThat(ResultType.Supported).isEqualTo(logBookData.get(1).getResultType());
