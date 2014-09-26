@@ -178,8 +178,13 @@ public class DeviceValidationResource {
                 .flatMap(d -> d.getReadingQualities().stream())
                 .filter(q -> q.getTypeCode().startsWith("3."))
                 .count();
-        deviceValidationStatusInfo.allDataValidated &= statuses.stream()
-                .allMatch(DataValidationStatus::completelyValidated);
+        if (statuses.isEmpty()) {
+            deviceValidationStatusInfo.allDataValidated &= device.getRegisters().stream()
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.now()));
+        } else {
+            deviceValidationStatusInfo.allDataValidated &= statuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
     }
 
     private boolean intersect(Collection<String> first, Collection<? extends ReadingType> second) {
@@ -208,8 +213,14 @@ public class DeviceValidationResource {
                 .flatMap(d -> d.getReadingQualities().stream())
                 .filter(q -> q.getTypeCode().startsWith("3."))
                 .count();
-        deviceValidationStatusInfo.allDataValidated = statuses.stream()
-                .allMatch(DataValidationStatus::completelyValidated);
+        if (statuses.isEmpty()) {
+            deviceValidationStatusInfo.allDataValidated &= device.getLoadProfiles().stream()
+                    .flatMap(l -> l.getChannels().stream())
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.now()));
+        } else {
+            deviceValidationStatusInfo.allDataValidated = statuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
     }
 
     private Date getLastChecked(Meter meter) {
