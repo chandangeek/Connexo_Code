@@ -10,10 +10,12 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
@@ -66,6 +69,8 @@ public class MeterActivationImplTest {
     @Mock
     private IdsService idsService;
     @Mock
+    private MeteringService meteringService;
+    @Mock
     private Vault vault;
     @Mock
     private RecordSpec recordSpec;
@@ -84,7 +89,7 @@ public class MeterActivationImplTest {
         final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
 			@Override
 			public ChannelImpl get() {
-				return new ChannelImpl(dataModel, idsService, clock);
+				return new ChannelImpl(dataModel, idsService, meteringService, clock);
 			}
 		};
 		

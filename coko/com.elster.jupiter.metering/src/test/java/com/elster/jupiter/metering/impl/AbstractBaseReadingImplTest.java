@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,6 +37,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+
 import javax.inject.Provider;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,6 +62,8 @@ public abstract class AbstractBaseReadingImplTest {
     @Mock
     private IdsService idsService;
     @Mock
+    private MeteringService meteringService;
+    @Mock
     private EventService eventService;
     @Mock
     private Thesaurus thesaurus;
@@ -82,7 +87,7 @@ public abstract class AbstractBaseReadingImplTest {
         final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
 			@Override
 			public ChannelImpl get() {
-				return new ChannelImpl(dataModel,idsService,clock);
+				return new ChannelImpl(dataModel,idsService, meteringService, clock);
 			}
         };
         final Provider<ChannelBuilder> channelBuilder = new Provider<ChannelBuilder>() {

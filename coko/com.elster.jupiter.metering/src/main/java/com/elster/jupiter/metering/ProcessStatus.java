@@ -34,6 +34,10 @@ public final class ProcessStatus {
 		return new ProcessStatus(newBits);
 	}
 	
+	public ProcessStatus or(ProcessStatus other) {
+		return new ProcessStatus(bits | other.getBits());
+	}
+	
 	public boolean get(Flag flag) {
 		return (bits & flag.mask()) != 0;
 	}

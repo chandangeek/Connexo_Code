@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.TimeAttribute;
+import static org.joda.time.DateTimeConstants.MILLIS_PER_MINUTE;
+
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -8,8 +9,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.IntervalBuilder;
-
-import static org.joda.time.DateTimeConstants.MILLIS_PER_MINUTE;
 
 public class MeterReadingFacade {
 	private final MeterReading meterReading;

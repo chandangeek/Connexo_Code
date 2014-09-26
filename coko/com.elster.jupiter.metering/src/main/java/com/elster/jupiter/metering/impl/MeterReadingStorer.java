@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 public class MeterReadingStorer {
@@ -190,7 +189,7 @@ public class MeterReadingStorer {
     private void store(IntervalReading reading, String readingTypeCode) {
         Channel channel = findOrCreateChannel(reading, readingTypeCode);
         if (channel != null) {
-            readingStorer.addIntervalReading(channel, reading.getTimeStamp(), reading.getProfileStatus(), reading.getValue());
+            readingStorer.addReading(channel, reading);
             addedReading(channel, reading);
         }
     }

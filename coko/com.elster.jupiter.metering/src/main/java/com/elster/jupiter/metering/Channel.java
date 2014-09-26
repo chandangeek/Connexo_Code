@@ -1,12 +1,12 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
-
 import java.util.Date;
 import java.util.List;
+
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.util.time.Interval;
+import com.google.common.base.Optional;
 
 public interface Channel {
 	long getId();
@@ -39,5 +39,5 @@ public interface Channel {
     List<BaseReadingRecord> getReadingsOnOrBefore(Date when, int readingCount);
 	boolean hasMacroPeriod();
     boolean hasData();
-	void editReadings(List<Reading> readings);
+	void editReadings(List<? extends BaseReading> readings);
 }

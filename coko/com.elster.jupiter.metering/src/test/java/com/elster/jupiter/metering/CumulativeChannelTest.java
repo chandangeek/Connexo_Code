@@ -15,6 +15,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -30,6 +31,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -124,8 +126,8 @@ public class CumulativeChannelTest {
             assertThat(channel.getBulkQuantityReadingType()).isPresent();
             ReadingStorer storer = meteringService.createOverrulingStorer();
             DateTime dateTime = new DateTime(2014,1,1,0,0,0);
-            storer.addIntervalReading(channel, dateTime.toDate(), ProfileStatus.of(),BigDecimal.valueOf(1000));
-            storer.addIntervalReading(channel, dateTime.plus(15*60*1000L).toDate(), ProfileStatus.of(),BigDecimal.valueOf(1100));
+            storer.addReading(channel, new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
+            storer.addReading(channel, new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100)));
             storer.execute();
             List<BaseReadingRecord> readings = channel.getReadings(new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()));
             assertThat(readings).hasSize(2);

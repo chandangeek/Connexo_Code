@@ -14,6 +14,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
@@ -34,6 +35,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -274,12 +276,12 @@ public class MeterReadingStorerTest {
             Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
             List<Reading> changes = new ArrayList<>();
             changes.add(new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1300), dateTime.toDate()));
-            /*channel.editReadings(changes);
+            channel.editReadings(changes);
             readings = meter.getReadings(Interval.sinceEpoch(),meteringService.getReadingType(intervalReadingTypeCode).get());
             assertThat(readings).isNotEmpty();
             assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1300));
+            assertThat(readings.get(0).getProcesStatus().get(ProcessStatus.Flag.EDITED)).isTrue();
             ctx.commit();
-            */
         }
     }
     
@@ -304,5 +306,43 @@ public class MeterReadingStorerTest {
             ctx.commit();
         }
     }
+    
+    @Test
+    public void testBulkUpdate() {
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        	Meter meter = amrSystem.newMeter("myMeter");
+        	meter.save();
+        	ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+        			.period(TimeAttribute.MINUTE15)
+        			.accumulate(Accumulation.BULKQUANTITY)
+        			.flow(FlowDirection.FORWARD)
+        			.measure(MeasurementKind.ENERGY)
+        			.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+        	String intervalReadingTypeCode = builder.code();
+        	MeterReadingImpl meterReading = new MeterReadingImpl();
+        	IntervalBlockImpl block = new IntervalBlockImpl(intervalReadingTypeCode);
+        	meterReading.addIntervalBlock(block);
+        	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
+        	block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
+        	block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100)));
+        	String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
+        	meter.store(meterReading);
+        	Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+        	IntervalReading reading = new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(50));
+        	channel.editReadings(ImmutableList.of(reading));
+            List<? extends BaseReadingRecord> readings = channel.getReadings(
+            		new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()));
+            assertThat(readings).hasSize(2);
+            assertThat(readings.get(0).getQuantity(0)).isNull();
+            assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(50));
+            assertThat(readings.get(1).getQuantity(1).getValue()).isEqualTo(BigDecimal.valueOf(1100));
+            assertThat(readings.get(1).getProcesStatus().get(ProcessStatus.Flag.EDITED)).isTrue();
+            ctx.commit();
+        }
+   
+    }
+
 
 }

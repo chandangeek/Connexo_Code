@@ -1,23 +1,35 @@
 package com.elster.jupiter.metering.impl;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.TimeZone;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -32,19 +44,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import javax.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.TimeZone;
-
-import static com.elster.jupiter.util.conditions.Where.where;
-
-public final class ChannelImpl implements Channel {
+public final class ChannelImpl implements ChannelContract {
 	
 	private static final int REGULARVAULTID = 1;
 	private static final int IRREGULARVAULTID = 2;
@@ -68,13 +68,15 @@ public final class ChannelImpl implements Channel {
 	private List<ReadingTypeInChannel> readingTypeInChannels = new ArrayList<>();
 
     private final IdsService idsService;
+    private final MeteringService meteringService;
     private final Clock clock;
     private final DataModel dataModel;
 
     @Inject
-	ChannelImpl(DataModel dataModel, IdsService idsService, Clock clock) {
+	ChannelImpl(DataModel dataModel, IdsService idsService, MeteringService meteringService, Clock clock) {
         this.dataModel = dataModel;
         this.idsService = idsService;
+        this.meteringService = meteringService;
         this.clock = clock;
     }
 	
@@ -123,29 +125,33 @@ public final class ChannelImpl implements Channel {
 	}
 	
 	private TimeSeries createTimeSeries() {
-		Optional<IntervalLength> intervalLength = getIntervalLength();
-		boolean regular = intervalLength.isPresent();
-        Vault vault = getVault(regular);
-        RecordSpec recordSpec = getRecordSpec(regular);
+        Vault vault = getVault();
+        RecordSpec recordSpec = getRecordSpec();
         TimeZone timeZone = clock.getTimeZone();
-		return regular ? 
-			vault.createRegularTimeSeries(recordSpec, clock.getTimeZone(), intervalLength.get(), 0) :
+		return isRegular() ? 
+			vault.createRegularTimeSeries(recordSpec, clock.getTimeZone(), getIntervalLength().get(), 0) :
 			vault.createIrregularTimeSeries(recordSpec, timeZone);
-	
 	}
 
-    private RecordSpec getRecordSpec(boolean regular) {
-    	RecordSpecs definition;
-    	if (regular) {
-    		definition = bulkQuantityReadingType.isPresent() ? RecordSpecs.BULKQUANTITYINTERVAL : RecordSpecs.SINGLEINTERVAL;
+	@Override
+	public Object[] toArray(BaseReading reading, ProcessStatus status) {
+		return getRecordSpecDefinition().toArray(reading, status);
+	}
+	
+	private RecordSpecs getRecordSpecDefinition() {
+		if (isRegular()) {
+    		return bulkQuantityReadingType.isPresent() ? RecordSpecs.BULKQUANTITYINTERVAL : RecordSpecs.SINGLEINTERVAL;
     	} else {
-    		definition = hasMacroPeriod() ? RecordSpecs.BILLINGPERIOD : RecordSpecs.BASEREGISTER;
+    		return hasMacroPeriod() ? RecordSpecs.BILLINGPERIOD : RecordSpecs.BASEREGISTER;
     	}
-        return definition.get(idsService);
+	}
+	
+    private RecordSpec getRecordSpec() {
+        return getRecordSpecDefinition().get(idsService);
     }
 
-    private Vault getVault(boolean regular) {
-        int id = regular ? REGULARVAULTID : IRREGULARVAULTID;
+    private Vault getVault() {
+        int id = isRegular() ? REGULARVAULTID : IRREGULARVAULTID;
         Optional<Vault> result = idsService.getVault(MeteringService.COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
@@ -374,8 +380,18 @@ public final class ChannelImpl implements Channel {
     }
 	
 	@Override
-	public void editReadings(List<Reading> readings) {
-		TimeSeriesDataStorer storer = idsService.createStorer(true);
-		readings.forEach(reading -> storer.add(timeSeries.get(), reading.getTimeStamp() , 0));
+	public void editReadings(List<? extends BaseReading> readings) {
+		readings.forEach(reading -> editReading(reading)); 
+	}
+	
+	private void editReading(BaseReading reading) {
+		ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.EDITED);
+		Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
+		if (oldReading.isPresent()) {
+			processStatus = processStatus.or(oldReading.get().getProcesStatus());
+		}
+		ReadingStorer storer = meteringService.createOverrulingStorer();
+		storer.addReading(this, reading, processStatus);
+		storer.execute();			
 	}
 }
