@@ -1,39 +1,5 @@
 Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview', {
     extend: 'Uni.view.container.ContentContainer',
-    requires: [
-        'Uni.view.navigation.SubMenu',
-        'Isu.view.administration.datacollection.issuecreationrules.List',
-        'Isu.view.administration.datacollection.issuecreationrules.Item'
-    ],
-    alias: 'widget.issue-creation-rules-overview',
-    itemId: 'creation-rules-overview',
-    content: [
-        {
-            cls: 'content-wrapper',
-            items: [
-                {
-                    itemId: 'pageTitle',
-                    title: 'Issue creation rules',
-                    ui: 'large',
-                    margin: '0 0 20 0'
-                },
-                {
-                    itemId: 'creation-rules-list',
-                    xtype: 'issues-creation-rules-list',
-                    margin: '0 15 20 0'
-                },
-                {
-                    itemId: 'creation-rules-item',
-                    xtype: 'issue-creation-rules-item',
-                    margin: '0 15 0 0'
-                }
-            ]
-        }
-    ]
-});
-
-Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview', {
-    extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.issue-creation-rules-overview',
     itemId: 'creation-rules-overview',
 
@@ -66,7 +32,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
                         stepItems: [
                             {
                                 itemId: 'createRule',
-                                text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Create rule'),
+                                text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Add rule'),
                                 href: '#/administration/creationrules/add',
                                 action: 'create'
                             }

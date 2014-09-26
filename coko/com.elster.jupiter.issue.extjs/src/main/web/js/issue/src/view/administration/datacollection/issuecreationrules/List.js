@@ -53,7 +53,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
                 {
                     itemId: 'createRule',
                     xtype: 'button',
-                    text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Create rule'),
+                    text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Add rule'),
                     href: '#/administration/creationrules/add',
                     action: 'create'
                 }
