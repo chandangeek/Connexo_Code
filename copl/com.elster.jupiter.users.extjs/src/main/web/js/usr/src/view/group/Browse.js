@@ -7,6 +7,7 @@ Ext.define('Usr.view.group.Browse', {
     requires: [
         'Usr.view.group.List',
         'Usr.view.group.Details',
+        'Usr.view.group.GroupActionMenu',
         'Ext.panel.Panel',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
