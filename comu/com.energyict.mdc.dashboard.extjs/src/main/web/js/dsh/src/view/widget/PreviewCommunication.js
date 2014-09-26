@@ -125,7 +125,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successful on'),
+                    fieldLabel: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successfully on'),
                     name: 'successfulFinishTime',
                     renderer: function (val) {
                         return Ext.Date.format(val, 'm/d/Y h:i:s');

@@ -68,7 +68,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
             },
             {
                 itemId: 'successfulFinishTime',
-                text: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished succesfuly on'),
+                text: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successfully on'),
                 dataIndex: 'successfulFinishTime',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',
