@@ -1,9 +1,12 @@
 package com.elster.jupiter.ids.impl;
 
+import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.IntervalLengthUnit;
 import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.StorerStats;
 import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OptimisticLockException;
@@ -12,11 +15,13 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,10 +61,12 @@ public final class TimeSeriesImpl implements TimeSeries {
 	private TimeZone timeZone;	
 	
 	private final DataModel dataModel;
+	private final IdsService idsService;
 	
     @Inject
-	TimeSeriesImpl(DataModel dataModel) {
+	TimeSeriesImpl(DataModel dataModel, IdsService idsService) {
     	this.dataModel = dataModel;
+    	this.idsService = idsService;
 	}
 
 	TimeSeriesImpl init(VaultImpl vault , RecordSpec recordSpec, TimeZone timeZone) {
@@ -168,14 +175,10 @@ public final class TimeSeriesImpl implements TimeSeries {
 	
 	@Override
 	public boolean add(Date dateTime, boolean overrule, Object... values) {
-		if (!isValid(dateTime)) {
-			throw new IllegalArgumentException();
-		}
-		boolean result = getVault().add(this,dateTime,overrule,values);
-		if (result) {
-			updateRange(dateTime,dateTime);
-		}
-		return result;
+		TimeSeriesDataStorer storer = idsService.createStorer(overrule);
+		storer.add(this, dateTime, values);
+		StorerStats stats = storer.execute();
+		return stats.getInsertCount() > 0 || stats.getUpdateCount() > 0;
 	}
 	
 	void updateRange(Date minDate , Date maxDate) {

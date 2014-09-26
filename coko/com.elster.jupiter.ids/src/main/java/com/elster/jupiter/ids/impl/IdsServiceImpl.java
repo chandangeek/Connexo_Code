@@ -97,6 +97,7 @@ public class IdsServiceImpl implements IdsService, InstallService {
 			@Override
 			protected void configure() {
 				this.bind(DataModel.class).toInstance(dataModel);
+				this.bind(IdsService.class).toInstance(IdsServiceImpl.this);
 				this.bind(Clock.class).toInstance(clock);
 			}
     	};
