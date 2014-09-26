@@ -11,7 +11,6 @@ Ext.define('Dsh.controller.BaseController', {
                 clearAllFilters: this.clearFilter
             };
             control[this.prefix + ' #filter-form side-filter-combo'] = {
-//                change: this.onFilterChange,
                 updateTopFilterPanelTagButtons: this.onFilterChange
             };
             control[this.prefix + ' button[action=applyfilter]'] = {
