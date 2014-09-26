@@ -109,13 +109,7 @@ public final class RecordSpecImpl implements RecordSpec {
     }
     
     int derivedFieldCount() {
-    	int result = 0;
-    	for (FieldSpec field : getFieldSpecs()) {
-    		if (field.isDerived()) {
-    			result++;
-    		}
-    	}
-    	return result;
+    	return getFieldSpecs().stream().filter(field -> field.isDerived()).mapToInt(field -> 1).sum();
     }
     
     List<String> columnNames() {
