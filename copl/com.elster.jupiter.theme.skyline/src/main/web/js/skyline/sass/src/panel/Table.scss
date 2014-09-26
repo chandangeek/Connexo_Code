@@ -26,6 +26,10 @@
   border-style: $grid-body-border-style !important;
   border-top-width: 0 !important;
 
+  &.#{$prefix}panel-body-wrong-data {
+    border-color: $color-red !important;
+  }
+
   // this removes horisontal scrollbar, which appears probably because of ext-neptune border management override
   .#{$prefix}grid-view {
     margin: -$grid-body-border-width !important;
