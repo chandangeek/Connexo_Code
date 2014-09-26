@@ -351,6 +351,7 @@ public class OfflineDeviceImplTest {
         return register;
     }
 
+    @Ignore // reenable when messages are properly implemented
     @Test
     public void pendingDeviceMessagesTest() {
         Device device = createMockDevice();
@@ -372,6 +373,7 @@ public class OfflineDeviceImplTest {
         assertEquals("Size of the sent list should be 0", 0, offlineDevice.getAllSentDeviceMessages().size());
     }
 
+    @Ignore // reenable when messages are properly implemented
     @Test
     public void sentDeviceMessagesTest() {
         Device

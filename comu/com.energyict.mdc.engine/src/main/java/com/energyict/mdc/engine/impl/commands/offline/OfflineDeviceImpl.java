@@ -359,11 +359,13 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     private List<OfflineDeviceMessage> createPendingMessagesList() {
-        return createOfflineMessageList(getDeviceMessageFactory().findByDeviceAndState(device, DeviceMessageStatus.PENDING));
+//        return createOfflineMessageList(getDeviceMessageFactory().findByDeviceAndState(device, DeviceMessageStatus.PENDING));
+        return Collections.emptyList();
     }
 
     private List<OfflineDeviceMessage> createSentMessagesList() {
-        return createOfflineMessageList(getDeviceMessageFactory().findByDeviceAndState(device, DeviceMessageStatus.SENT));
+//        return createOfflineMessageList(getDeviceMessageFactory().findByDeviceAndState(device, DeviceMessageStatus.SENT));
+        return Collections.emptyList();
     }
 
     private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage> deviceMessages) {
