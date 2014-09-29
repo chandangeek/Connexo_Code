@@ -78,33 +78,28 @@ public class RegisterResource {
         return RegisterInfoFactory.asInfo(register, validationInfoHelper.getRegisterValidationInfo(register));
     }
 
-/*    @Override
-    public void validate(MeterActivation meterActivation, String readingTypeCode, Interval interval)*/
-
     @PUT
     @Path("/{registerId}/validate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
-    public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, Long date) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, TriggerValidationInfo validationInfo) {
         Register<?> register = doGetRegister(mRID, registerId);
-
-        Meter meter = resourceHelper.getMeterFor(device);
-        Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
-        if(!channelRef.isPresent()) {
-            throw new WebApplicationException("There is no channel for that register");
-        }
-        if (date == null) {
+        if (validationInfo.lastChecked == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
         }
-        Date newDate = new Date(date);
-        Optional<Date> lastChecked = device.forValidation().getLastChecked(register);
-        if (lastChecked.isPresent() && newDate.after(lastChecked.get())) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", lastChecked.get());
+        Date newDate = new Date(validationInfo.lastChecked);
+        Date lastChecked = lastChecked(register);
+        if (lastChecked != null && newDate.after(lastChecked)) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", lastChecked);
         }
-        device.forValidation().validateRegister(register, newDate, null);
+        validateRegister(register, newDate);
         return Response.status(Response.Status.OK).build();
+    }
+
+    private void validateRegister(Register<?> register, Date start) {
+        validationService.updateLastChecked(resourceHelper.getRegisterChannel(register, resourceHelper.getMeterFor(register.getDevice())).orNull(), start);
+        register.getDevice().forValidation().validateRegister(register, start, clock.now());
     }
 
     private Register<?> doGetRegister(String mRID, long registerId) {
