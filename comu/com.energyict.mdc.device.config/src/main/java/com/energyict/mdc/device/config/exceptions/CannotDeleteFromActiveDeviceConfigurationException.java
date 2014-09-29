@@ -51,7 +51,7 @@ public class CannotDeleteFromActiveDeviceConfigurationException extends Localize
      * @return the newly created exception
      */
     public static CannotDeleteFromActiveDeviceConfigurationException forLogbookSpec(Thesaurus thesaurus, LogBookSpec logBookSpec, DeviceConfiguration deviceConfiguration) {
-        CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG, logBookSpec, deviceConfiguration);
+        CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG, logBookSpec, deviceConfiguration.getName());
         cannotDeleteFromActiveDeviceConfigurationException.set("logBookSpec", logBookSpec);
         cannotDeleteFromActiveDeviceConfigurationException.set("deviceConfiguration", deviceConfiguration);
         return cannotDeleteFromActiveDeviceConfigurationException;
