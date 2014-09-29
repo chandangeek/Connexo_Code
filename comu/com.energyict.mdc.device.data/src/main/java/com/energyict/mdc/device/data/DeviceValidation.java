@@ -30,6 +30,8 @@ public interface DeviceValidation {
 
     void validateChannel(Channel channel, Date start, Date until);
 
+    public void validateRegister(Register<?> register, Date start, Date until);
+
     boolean hasData(Channel c);
 
     boolean hasData(Register<?> register);

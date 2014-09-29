@@ -121,6 +121,11 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
+    public void validateRegister(Register<?> register, Date start, Date until) {
+        validateReadingType(register.getRegisterSpec().getRegisterType().getReadingType(), start, until);
+    }
+
+    @Override
     public boolean hasData(Channel channel) {
         return getDevice().findKoreChannels(channel).stream()
                 .anyMatch(c -> c.hasData());
