@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                     }
                 ]
             }
-        ]
+        ];
 
         this.callParent(arguments);
     }
