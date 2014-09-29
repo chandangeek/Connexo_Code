@@ -35,10 +35,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                 });
                 loadProfileOfDeviceModel.load(loadProfileId, {
                     success: function (record) {
-                        me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                        widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
-                        widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
-                        widget.setLoading(false);
+                        if (!widget.isDestroyed) {
+                            me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
+                            widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
+                            widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
+                            widget.setLoading(false);
+                        }
                     }
                 });
             };

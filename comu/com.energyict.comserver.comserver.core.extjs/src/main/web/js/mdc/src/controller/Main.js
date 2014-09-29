@@ -171,7 +171,7 @@ Ext.define('Mdc.controller.Main', {
                     route: 'devicecommunicationprotocols'
                 },
                 {
-                    text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Communication schedules'),
+                    text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
                     href: '#/administration/communicationschedules',
                     route: 'communicationschedules'
                 },

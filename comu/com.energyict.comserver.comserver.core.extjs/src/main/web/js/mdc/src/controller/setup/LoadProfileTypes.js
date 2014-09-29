@@ -31,6 +31,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         {ref: 'loadProfileFiltering', selector: '#LoadProfileTypeFiltering'},
         {ref: 'loadProfileDockedItems', selector: '#LoadProfileTypeDockedItems'},
         {ref: 'editPage', selector: 'load-profile-type-edit #load-profile-type-edit'},
+        {ref: 'editForm', selector: 'load-profile-type-edit #load-profile-type-edit #load-profile-type-edit-form'},
         {ref: 'setupPage', selector: 'loadProfileTypeSetup'}
     ],
 
@@ -343,6 +344,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
         formErrorsPanel.hide();
         basicForm.clearInvalid();
+        form.down('#measurement-types-fieldcontainer').clearInvalid();
         form.updateRecord(model);
 
         if (model.getId()) {
@@ -373,10 +375,23 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
                         basicForm.markInvalid(json.errors);
+                        me.measurementTypesIsValid(json.errors);
                         formErrorsPanel.show();
                     }
                 }
             }
         });
+    },
+
+    measurementTypesIsValid: function (errors) {
+        var me = this,
+            measurementTypesError = Ext.Array.findBy(errors, function (error) {
+                return error.id === 'readingType';
+            }, me),
+            form = me.getEditForm();
+
+        if (form && measurementTypesError) {
+            form.down('#measurement-types-fieldcontainer').markInvalid(measurementTypesError.msg);
+        }
     }
 });

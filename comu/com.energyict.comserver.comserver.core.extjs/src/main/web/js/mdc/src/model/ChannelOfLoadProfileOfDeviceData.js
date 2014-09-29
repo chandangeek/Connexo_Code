@@ -15,7 +15,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'validationResult', type:'auto'},
         {name: 'validationStatus', type:'auto'},
 
-        {
+        /*{
             name: 'suspect_rules',
             persist: false,
             mapping: function (data) {
@@ -60,7 +60,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         if (rule.name === 'removed rule') {
                             str += Uni.I18n.translate('device.registerData.removedRule', 'MDC', 'removed rule') + '<br>';
                         } else {
-                            str += '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>' + prop + '<br>';
+                            str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>' + prop + '</span>' + '<br>';
                         }
                     });
                     return str;
@@ -68,7 +68,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                     return '';
                 }
             }
-        },
+        },  */
 
         {
             name: 'interval_start',

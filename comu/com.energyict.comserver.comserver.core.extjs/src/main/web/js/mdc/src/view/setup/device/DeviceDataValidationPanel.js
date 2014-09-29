@@ -2,10 +2,6 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
     extend: 'Ext.panel.Panel',
     xtype: 'device-data-validation-panel',
 
-    requires: [
-        'Mdc.view.setup.device.DeviceActionMenu'
-    ],
-
     overflowY: 'auto',
     itemId: 'deviceDataValidationPanel',
     mRID: null,
@@ -14,18 +10,6 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
 
     initComponent: function () {
         var me = this;
-
-        me.tools = [
-            {
-                xtype: 'button',
-                itemId: 'floatBtn',
-                text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
-                iconCls: 'x-uni-action-iconD',
-                menu: {
-                    xtype: 'device-action-menu'
-                }
-            }
-        ];
 
         me.items = [
             {

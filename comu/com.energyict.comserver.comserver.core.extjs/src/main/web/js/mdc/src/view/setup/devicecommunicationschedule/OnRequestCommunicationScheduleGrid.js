@@ -28,11 +28,12 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationSch
                     header: Uni.I18n.translate('deviceCommunicationSchedules.nextCommunication', 'MDC', 'Next communication'),
                     flex: 1,
                     dataIndex: 'nextCommunication',
-                    renderer: function (value) {
+                    renderer: function (value,metadata) {
                         if (value !== null) {
                             return new Date(value).toLocaleString();
                         } else {
-                            return '';
+                            metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationSchedules.noNextCommunication', 'MDC', 'No next communication') + '"';
+                            return '-';
                         }
                     }
                 },

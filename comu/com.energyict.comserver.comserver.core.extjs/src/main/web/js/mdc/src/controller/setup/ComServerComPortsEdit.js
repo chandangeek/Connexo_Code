@@ -441,7 +441,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             widget = Ext.widget('comportEdit'),
             comServerModel = me.getModel('Mdc.model.ComServer');
 
-        me.currentUrl = 'administration/comservers/detail/comports/addOutbound'
+        me.currentUrl = 'administration/comservers/detail/comports/addOutbound';
         me.comServerId = id;
         me.comportEdit = widget;
         me.portDirection = 'outbound';

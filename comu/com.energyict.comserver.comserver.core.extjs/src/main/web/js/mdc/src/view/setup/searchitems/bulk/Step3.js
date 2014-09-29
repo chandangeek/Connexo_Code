@@ -45,13 +45,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('setup.searchitems.bulk.Step3.NoItemsFoundPanel.title', 'MDC', 'No communication schedules found'),
+                title: Uni.I18n.translate('setup.searchitems.bulk.Step3.NoItemsFoundPanel.title', 'MDC', 'No shared communication schedules found'),
                 reasons: [
-                    Uni.I18n.translate('communicationschedule.empty.list.item1', 'MDC', 'No communication schedules have been created yet.')
+                    Uni.I18n.translate('communicationschedule.empty.list.item1', 'MDC', 'No shared communication schedules have been created yet.')
                 ],
                 stepItems: [
                     {
-                        text: Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add communication schedule'),
+                        text: Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add shared communication schedule'),
                         action: 'createCommunicationSchedule',
                         itemId: 'createCommunicationSchedule'
                     }
@@ -99,14 +99,14 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                         ]
                     }
                 ],
-                emptyText: '<h3>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No communication schedule selected') + '</h3><p>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</p>'
+                emptyText: '<h3>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No shared communication schedule selected') + '</h3><p>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a shared communication schedule to see its details') + '</p>'
             }
         },
         {
             xtype: 'container',
             itemId: 'stepSelectionError',
             hidden: true,
-            html: '<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1communicationschedule', 'MDC', 'Select at least 1 communication schedule') + '</span>'
+            html: '<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1communicationschedule', 'MDC', 'Select at least 1 shared communication schedule') + '</span>'
         }
     ]
 });

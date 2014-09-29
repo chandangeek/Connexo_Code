@@ -10,15 +10,15 @@ Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
             'setup.searchitems.bulk.SchedulesSelectionGrid.counterText',
             count,
             'MDC',
-            '{0} communication schedules selected'
+            '{0} shared communication schedules selected'
         );
     },
 
-    allLabel: Uni.I18n.translate('searchItems.bulk.allSchedules', 'MDC', 'All communication schedules'),
-    allDescription: Uni.I18n.translate('searchItems.bulk.selectSchedulesMsg', 'MDC', 'Select all communication schedules'),
+    allLabel: Uni.I18n.translate('searchItems.bulk.allSchedules', 'MDC', 'All shared communication schedules'),
+    allDescription: Uni.I18n.translate('searchItems.bulk.selectSchedulesMsg', 'MDC', 'Select all shared communication schedules'),
 
-    selectedLabel: Uni.I18n.translate('searchItems.bulk.selectedSchedules', 'MDC', 'Selected communication schedules'),
-    selectedDescription: Uni.I18n.translate('searchItems.bulk.selectedScheduleInTable', 'MDC', 'Select communication schedules in table'),
+    selectedLabel: Uni.I18n.translate('searchItems.bulk.selectedSchedules', 'MDC', 'Selected shared communication schedules'),
+    selectedDescription: Uni.I18n.translate('searchItems.bulk.selectedScheduleInTable', 'MDC', 'Select shered communication schedules in table'),
 
     cancelHref: '#/search',
 

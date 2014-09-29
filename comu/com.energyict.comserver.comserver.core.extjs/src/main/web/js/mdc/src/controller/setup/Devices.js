@@ -82,7 +82,6 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceGeneralInformationForm().loadRecord(device);
                 me.getDeviceCommunicationTopologyForm().loadRecord(device);
                 me.getDeviceOpenIssuesForm().loadRecord(device);
-                me.getDeviceSetupPanel().down('#floatBtn').show();
                 me.updateDataValidationStatusSection(mRID, widget);
             }
         });
