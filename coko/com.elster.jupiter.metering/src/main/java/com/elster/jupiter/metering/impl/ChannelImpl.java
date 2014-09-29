@@ -5,6 +5,7 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -16,6 +17,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -31,6 +33,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -364,9 +367,15 @@ public final class ChannelImpl implements Channel {
 	public boolean hasMacroPeriod() {
 		return !mainReadingType.get().equals(MacroPeriod.NOTAPPLICABLE);
 	}
-
-    @Override
+    
+	@Override
     public boolean hasData() {
         return getTimeSeries().getFirstDateTime() != null || getTimeSeries().getLastDateTime() != null;
     }
+	
+	@Override
+	public void editReadings(List<Reading> readings) {
+		TimeSeriesDataStorer storer = idsService.createStorer(true);
+		readings.forEach(reading -> storer.add(timeSeries.get(), reading.getTimeStamp() , 0));
+	}
 }

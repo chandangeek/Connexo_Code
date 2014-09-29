@@ -7,6 +7,7 @@ import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.base.Optional;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -44,6 +45,7 @@ public class ReadingStorerImplTest {
     @Before
     public void setUp() {
         when(channel.getTimeSeries()).thenReturn(timeSeries);
+        when(channel.getBulkQuantityReadingType()).thenReturn(Optional.absent());
         when(idsService.createStorer(true)).thenReturn(storer);
 
         readingStorer = new ReadingStorerImpl(idsService, eventService, true);

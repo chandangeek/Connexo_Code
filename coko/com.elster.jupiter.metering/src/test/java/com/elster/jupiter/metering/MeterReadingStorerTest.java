@@ -50,6 +50,7 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -268,7 +269,17 @@ public class MeterReadingStorerTest {
         	Reading reading = new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
         	meterReading.addReading(reading);
         	meter.store(meterReading);     	
+            List<? extends BaseReadingRecord> readings = meter.getReadings(Interval.sinceEpoch(),meteringService.getReadingType(intervalReadingTypeCode).get());
+            assertThat(readings).isNotEmpty();
+            Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+            List<Reading> changes = new ArrayList<>();
+            changes.add(new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1300), dateTime.toDate()));
+            /*channel.editReadings(changes);
+            readings = meter.getReadings(Interval.sinceEpoch(),meteringService.getReadingType(intervalReadingTypeCode).get());
+            assertThat(readings).isNotEmpty();
+            assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1300));
             ctx.commit();
+            */
         }
     }
     

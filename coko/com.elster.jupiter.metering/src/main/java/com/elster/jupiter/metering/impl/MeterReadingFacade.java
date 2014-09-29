@@ -20,14 +20,17 @@ public class MeterReadingFacade {
 		this.interval = createInterval();
 	}
 	
+	private long millisToSubtract(String readingTypeCode) {
+		return ReadingTypeImpl.extractTimeAttribute(readingTypeCode).getMinutes() * MILLIS_PER_MINUTE;
+		
+	}
 	private Interval createInterval() {
 		IntervalBuilder builder = new IntervalBuilder();
 		for (Reading reading : meterReading.getReadings()) {
-			builder.add(reading.getTimeStamp());
+			builder.add(reading.getTimeStamp(), -millisToSubtract(reading.getReadingTypeCode()));
 		}
 		for (IntervalBlock block : meterReading.getIntervalBlocks()) {
-			TimeAttribute timeAttribute = ReadingTypeImpl.extractTimeAttribute(block.getReadingTypeCode());
-			long length = -timeAttribute.getMinutes() * MILLIS_PER_MINUTE;
+			long length = -millisToSubtract(block.getReadingTypeCode());
 			for (IntervalReading reading : block.getIntervals()) {			
 				builder.add(reading.getTimeStamp(),length);
 			}

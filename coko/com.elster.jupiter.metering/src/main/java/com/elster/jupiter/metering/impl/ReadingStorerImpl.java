@@ -30,10 +30,15 @@ public class ReadingStorerImpl implements ReadingStorer {
 	
 	@Override
 	public void addIntervalReading(Channel channel, Date dateTime, ProfileStatus profileStatus, BigDecimal... values) {
-		Object[] entries = new Object[values.length + 2];
-		entries[0] = DEFAULTPROCESSSTATUS.getBits();
-		entries[1] = profileStatus.getBits();
-        System.arraycopy(values, 0, entries, 2, values.length);
+		int i = 0;
+		boolean useBulk = channel.getBulkQuantityReadingType().isPresent();
+		Object[] entries = new Object[values.length + (useBulk ? 3 : 2)];
+		entries[i++] = DEFAULTPROCESSSTATUS.getBits();
+		entries[i++] = profileStatus.getBits();
+		if (useBulk) {
+			i++;
+		}
+		System.arraycopy(values, 0, entries, i, values.length);
 		this.storer.add(channel.getTimeSeries(), dateTime, entries);
         addScope(channel, dateTime);
 	}
