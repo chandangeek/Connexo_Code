@@ -5,11 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -17,7 +15,6 @@ import java.util.TimeZone;
 
 import javax.inject.Inject;
 
-import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
@@ -27,9 +24,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.inject.Provider;
 
@@ -61,13 +58,11 @@ public class VaultImpl implements Vault {
 	private String userName;
 	
 	private final DataModel dataModel;
-	private final Clock clock;
 	private final Provider<TimeSeriesImpl> timeSeriesProvider;
 	
     @Inject
-	VaultImpl(DataModel dataModel, Clock clock,Provider<TimeSeriesImpl> timeSeriesProvider)  {
+	VaultImpl(DataModel dataModel, Provider<TimeSeriesImpl> timeSeriesProvider)  {
     	this.dataModel = dataModel;
-    	this.clock = clock;
     	this.timeSeriesProvider = timeSeriesProvider;
 	}
 	
@@ -317,103 +312,12 @@ public class VaultImpl implements Vault {
 		return isActive() && this.minTime.getTime() < when && when <= this.maxTime.getTime();
 	}
 
-	boolean add(TimeSeriesImpl timeSeries, Date timeStamp,boolean overrule, Object[] values) {
-		if (!isValidDateTime(timeStamp)) {
-			throw new IllegalArgumentException();
-		}		
-		try {
-			return doAdd(timeSeries,timeStamp.getTime(),overrule,values);
-		} catch (SQLException ex) {
-			throw new UnderlyingSQLFailedException(ex);
-		}
-	}
-	
-	boolean doAdd(TimeSeriesImpl timeSeries , long when , boolean overrule , Object[] values) throws SQLException {
-		TimeSeriesEntry timeSeriesEntry = doGet(timeSeries,when);
-		if (timeSeriesEntry == null) {
-			doInsert(timeSeries,when,values);
-			return true;
-		} else {
-			if (overrule) {
-				long now = clock.now().getTime();
-				if (hasJournal()) {
-					journal(timeSeries,when,now);
-				}					
-				doUpdate(timeSeries,when,values,now);
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
+
 	
 	private StringBuilder selectSql(TimeSeriesImpl timeSeries) {
 		StringBuilder builder = selectSql(timeSeries.getRecordSpec());
 		builder.append(" TIMESERIESID = ?");	
 		return builder;
-	}
-	
-	private String findSql(TimeSeriesImpl timeSeries) {
-		StringBuilder builder = selectSql(timeSeries);
-		builder.append(" AND UTCSTAMP = ?");
-		return builder.toString();
-	}
-	
-	private TimeSeriesEntry doGet(TimeSeriesImpl timeSeries, long when) throws SQLException {
-		try (Connection connection = getConnection(false)) {
-			try (PreparedStatement statement = connection.prepareStatement(findSql(timeSeries))) {
-				statement.setLong(1,timeSeries.getId());
-				statement.setLong(2, when);
-				try (ResultSet rs = statement.executeQuery()) {
-					return rs.next() ? new TimeSeriesEntryImpl(timeSeries,rs) : null;
-				}
-			}
-		}		
-	}
-	
-	
-	private String insertSql(TimeSeriesImpl timeSeries) {
-		return insertSql(timeSeries.getRecordSpec());
-	}
-	
-	private void doInsert(TimeSeriesImpl timeSeries, long when , Object[] values) throws SQLException {
-		try (Connection connection = getConnection(true)) {
-			try (PreparedStatement statement = connection.prepareStatement(insertSql(timeSeries))) {
-				int offset = 1;
-				statement.setLong(offset++,timeSeries.getId());
-				statement.setLong(offset++, when);
-				statement.setLong(offset++, clock.now().getTime());
-				if (hasLocalTime()) {
-					Calendar cal = timeSeries.getStartCalendar(new Date(when));
-					statement.setTimestamp(offset++,new Timestamp(cal.getTime().getTime()),cal);
-				}
-				int i = 0;
-				for (FieldSpec fieldSpec : timeSeries.getRecordSpec().getFieldSpecs()) {
-					((FieldSpecImpl) fieldSpec).bind(statement , offset++ , values[i++]);
-				}
-				statement.executeUpdate();				
-			}
-		}		
-	}
-	
-	private String updateSql(TimeSeriesImpl timeSeries) {		
-		return updateSql(timeSeries.getRecordSpec());
-	}
-	
-	private void doUpdate(TimeSeriesImpl timeSeries, long when , Object[] values , long now) throws SQLException {
-		try (Connection connection = getConnection(true)) {
-			try (PreparedStatement statement = connection.prepareStatement(updateSql(timeSeries))) {
-				int offset = 1;
-				statement.setLong(offset++, now);
-				int i = 0;
-				for (FieldSpec fieldSpec : timeSeries.getRecordSpec().getFieldSpecs()) {
-					((FieldSpecImpl) fieldSpec).bind(statement , offset++ , values[i++]);
-				}
-				statement.setLong(offset++,timeSeries.getId());
-				statement.setLong(offset++, when);
-				statement.executeUpdate();
-			}
-		}			
 	}
 	
 	String journalSql() {
@@ -539,21 +443,16 @@ public class VaultImpl implements Vault {
 		StringBuilder builder = new StringBuilder("insert into ");
 		builder.append(getTableName());
 		builder.append(" (");
-		builder.append("TIMESERIESID,UTCSTAMP,VERSIONCOUNT,RECORDTIME");
+		builder.append("TIMESERIESID, UTCSTAMP, VERSIONCOUNT, RECORDTIME, ");
 		if (hasLocalTime()) {
-			builder.append(",LOCALDATE");
+			builder.append("LOCALDATE, ");
 		}		
-		for (String column : recordSpec.columnNames()) {
-			builder.append(",");
-			builder.append(column);
-		}
+		builder.append(Joiner.on(", ").join(recordSpec.columnNames()));
 		builder.append(") VALUES (?,?,1,?");
 		if (hasLocalTime()) {
 			builder.append(",?");			
 		}
-		for (int i = 0 ; i < recordSpec.getFieldSpecs().size() ; i++) {
-			builder.append(",?");			
-		}
+		recordSpec.getFieldSpecs().forEach( fieldSpec -> builder.append(",?"));			
 		builder.append(")");
 		return builder.toString();
 	}

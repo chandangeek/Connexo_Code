@@ -1,4 +1,4 @@
-package com.elster.jupiter.ids.plumbing;
+package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.RecordSpec;

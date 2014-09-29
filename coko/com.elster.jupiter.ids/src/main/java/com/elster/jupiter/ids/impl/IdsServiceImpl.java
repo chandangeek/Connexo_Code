@@ -5,8 +5,6 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.ids.plumbing.InstallerImpl;
-import com.elster.jupiter.ids.plumbing.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;

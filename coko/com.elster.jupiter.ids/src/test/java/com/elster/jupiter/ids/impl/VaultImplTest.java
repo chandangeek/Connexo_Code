@@ -21,7 +21,7 @@ public class VaultImplTest extends EqualsContractTest {
     @Mock
     private Provider<TimeSeriesImpl> provider;
     
-    private Object a = new VaultImpl(dataModel,clock,provider).init(COMPONENT_NAME,ID,DESCRIPTION,SLOT_COUNT,0,true);
+    private Object a = new VaultImpl(dataModel, provider).init(COMPONENT_NAME,ID,DESCRIPTION,SLOT_COUNT,0,true);
 
     @Override
     protected Object getInstanceA() {
@@ -30,12 +30,12 @@ public class VaultImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new VaultImpl(dataModel,clock,provider).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, 0,true);
+        return new VaultImpl(dataModel, provider).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, 0,true);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(new VaultImpl(dataModel,clock,provider).init(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT,0, true));
+        return ImmutableList.of(new VaultImpl(dataModel ,provider).init(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT,0, true));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class VaultImplTest extends EqualsContractTest {
     private class SubVault extends VaultImpl {
 
 		SubVault(DataModel dataModel, Clock clock,Provider<TimeSeriesImpl> timeSeriesProvider) {
-			super(dataModel, clock, timeSeriesProvider);
+			super(dataModel, timeSeriesProvider);
 		}
     	
     }

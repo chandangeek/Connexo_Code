@@ -1,4 +1,4 @@
-package com.elster.jupiter.ids.plumbing;
+package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.IdsService;
