@@ -379,7 +379,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public List<ComTaskExecution> findComTaskExecutionsByFilter(ComTaskExecutionFilterSpecification filter, int pageStart, int pageSize) {
         ComTaskExecutionFilterSqlBuilder sqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, this.clock);
         DataMapper<ComTaskExecution> dataMapper = this.dataModel.mapper(ComTaskExecution.class);
-        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart, pageSize));
+        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart+1, pageSize)); // SQL is 1-based
     }
 
     private List<ComTaskExecution> fetchComTaskExecutions(DataMapper<ComTaskExecution> dataMapper, SqlBuilder sqlBuilder) {
@@ -509,7 +509,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter, int pageStart, int pageSize) {
         ConnectionTaskFilterSqlBuilder sqlBuilder = new ConnectionTaskFilterSqlBuilder(filter, this.clock);
         DataMapper<ConnectionTask> dataMapper = this.dataModel.mapper(ConnectionTask.class);
-        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart, pageSize));
+        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart+1, pageSize)); // SQL is 1-based
     }
 
     private List<ConnectionTask> fetchConnectionTasks(DataMapper<ConnectionTask> dataMapper, SqlBuilder sqlBuilder) {
