@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.util.time.Clock;
@@ -17,7 +15,6 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.google.common.base.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -29,7 +26,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.ZoneId;
@@ -98,7 +94,6 @@ public class RegisterResource {
     }
 
     private void validateRegister(Register<?> register, Date start) {
-        validationService.updateLastChecked(resourceHelper.getRegisterChannel(register, resourceHelper.getMeterFor(register.getDevice())).orNull(), start);
         register.getDevice().forValidation().validateRegister(register, start, clock.now());
     }
 
