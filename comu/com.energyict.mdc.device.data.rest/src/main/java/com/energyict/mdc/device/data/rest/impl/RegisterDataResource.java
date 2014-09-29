@@ -3,18 +3,18 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -30,26 +30,21 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.streams.Predicates.isNull;
 
 public class RegisterDataResource {
 
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
-    private final ValidationService validationService;
-    private final ValidationInfoHelper validationInfoHelper;
+    private final Clock clock;
 
     @Inject
-    public RegisterDataResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, ValidationService validationService, ValidationInfoHelper validationInfoHelper) {
+    public RegisterDataResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
-        this.validationService = validationService;
-        this.validationInfoHelper = validationInfoHelper;
+        this.clock = clock;
     }
 
     @GET
@@ -57,19 +52,20 @@ public class RegisterDataResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Register register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Meter meter = resourceHelper.getMeterFor(device);
-        List<Reading> readings = register.getReadings(Interval.sinceEpoch());
-        List<ReadingRecord> readingRecords = readings.stream().map(r -> r.getActualReading()).collect(Collectors.toList());
+        Interval interval = Interval.sinceEpoch();
+        List<? extends Reading> readings = register.getReadings(interval);
+        List<ReadingRecord> readingRecords = readings.stream().map(Reading::getActualReading).collect(Collectors.toList());
         Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
         List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
         Boolean validationStatusForRegister = false;
         if(channelRef.isPresent()) {
-            validationStatusForRegister = validationInfoHelper.getValidationStatus(channelRef, meter);
-            dataValidationStatuses = validationService.getEvaluator().getValidationStatus(channelRef.get(), readingRecords);
+            validationStatusForRegister = device.forValidation().isValidationActive(register, clock.now());
+            dataValidationStatuses = device.forValidation().getValidationStatus(register, readingRecords, interval);
         }
         List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register.getRegisterSpec(),
-                validationStatusForRegister, dataValidationStatuses, validationService.getEvaluator());
+                validationStatusForRegister, dataValidationStatuses);
         readingInfos = filter(readingInfos, uriInfo.getQueryParameters());
 
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos, ((ri1, ri2) -> ri1.timeStamp.compareTo(ri2.timeStamp))).from(queryParameters).find();

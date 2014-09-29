@@ -4,12 +4,12 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,16 +28,16 @@ public class LoadProfileDataInfo {
     public List<String> intervalFlags;
     public boolean validationActive;
 
-    public static List<LoadProfileDataInfo> from(Device device, List<? extends LoadProfileReading> loadProfileReadings, Thesaurus thesaurus, Clock clock, ValidationEvaluator evaluator) {
+    public static List<LoadProfileDataInfo> from(Device device, List<? extends LoadProfileReading> loadProfileReadings, Thesaurus thesaurus, Clock clock) {
         List<LoadProfileDataInfo> channelData = new ArrayList<>();
         DeviceValidation deviceValidation = device.forValidation();
         for (LoadProfileReading loadProfileReading : loadProfileReadings) {
-            channelData.add(getLoadProfileDataInfo(loadProfileReading, deviceValidation, thesaurus, clock, evaluator));
+            channelData.add(getLoadProfileDataInfo(loadProfileReading, deviceValidation, thesaurus, clock));
         }
         return channelData;
     }
 
-    private static LoadProfileDataInfo getLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, Thesaurus thesaurus, Clock clock, ValidationEvaluator evaluator) {
+    private static LoadProfileDataInfo getLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, Thesaurus thesaurus, Clock clock) {
         LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
         channelIntervalInfo.interval= IntervalInfo.from(loadProfileReading.getInterval());
         channelIntervalInfo.readingTime=loadProfileReading.getReadingTime();
@@ -57,7 +57,7 @@ public class LoadProfileDataInfo {
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
-            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), new ValidationInfo(entry.getValue(), evaluator));
+            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), new ValidationInfo(entry.getValue(), deviceValidation));
         }
 
         for (Channel channel : loadProfileReading.getChannelValues().keySet()) {

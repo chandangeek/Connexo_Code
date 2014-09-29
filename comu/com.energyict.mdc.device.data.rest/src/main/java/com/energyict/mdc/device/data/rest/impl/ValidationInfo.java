@@ -1,15 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.energyict.mdc.device.data.DeviceValidation;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -22,10 +17,10 @@ public class ValidationInfo {
     public boolean dataValidated;
     public Set<ValidationRuleInfo> validationRules;
 
-    public ValidationInfo(DataValidationStatus value, ValidationEvaluator evaluator) {
+    public ValidationInfo(DataValidationStatus value, DeviceValidation deviceValidation) {
             dataValidated = value.completelyValidated();
             validationRules = ValidationRuleInfo.from(value);
-            validationResult = ValidationStatus.forResult(evaluator.getValidationResult(value.getReadingQualities()));
+            validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(value.getReadingQualities()));
     }
 
     public ValidationInfo() {

@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Reading;
-
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
@@ -19,7 +17,7 @@ import javax.xml.bind.annotation.XmlRootElement;
         @JsonSubTypes.Type(value = TextReadingInfo.class, name = "text"),
         @JsonSubTypes.Type(value = FlagsReadingInfo.class, name = "flags")
 })
-public abstract class ReadingInfo<R extends Reading, S extends RegisterSpec> {
+public abstract class ReadingInfo {
     @JsonProperty("timeStamp")
     public Long timeStamp;
     @JsonProperty("reportedDateTime")
@@ -30,7 +28,7 @@ public abstract class ReadingInfo<R extends Reading, S extends RegisterSpec> {
     public ReadingInfo() {
     }
 
-    public ReadingInfo(R reading) {
+    public ReadingInfo(Reading reading) {
         this.timeStamp = reading.getTimeStamp().getTime();
         this.reportedDateTime = reading.getReportedDateTime().getTime();
         this.reading = reading;

@@ -4,7 +4,7 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.FlagsReading;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class FlagsReadingInfo extends ReadingInfo<FlagsReading, NumericalRegisterSpec> {
+public class FlagsReadingInfo extends ReadingInfo {
     @JsonProperty("value")
     public Long value;
 

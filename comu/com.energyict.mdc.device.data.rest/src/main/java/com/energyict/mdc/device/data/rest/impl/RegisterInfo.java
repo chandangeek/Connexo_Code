@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.validation.ValidationEvaluator;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
@@ -57,7 +56,7 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
 
     public RegisterInfo() {}
 
-    public RegisterInfo(R register, ValidationEvaluator evaluator) {
+    public RegisterInfo(Register register) {
         RegisterSpec registerSpec = register.getRegisterSpec();
         this.id = registerSpec.getId();
         this.name = registerSpec.getRegisterType().getName();
@@ -71,7 +70,7 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
 
         Optional<RE> lastReading = register.getLastReading();
         if(lastReading.isPresent()) {
-            this.lastReading = ReadingInfoFactory.asInfo(lastReading.get(), registerSpec, evaluator);
+            this.lastReading = ReadingInfoFactory.asInfo(lastReading.get(), registerSpec);
         }
     }
 }

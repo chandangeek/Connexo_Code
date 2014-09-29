@@ -7,6 +7,7 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -38,7 +39,7 @@ public class ChannelDataInfo {
     @JsonProperty("suspectReason")
     public Set<ValidationRuleInfo> suspectReason;
 
-    public static List<ChannelDataInfo> from(List<? extends LoadProfileReading> loadProfileReadings, boolean isValidationActive, Thesaurus thesaurus, ValidationEvaluator evaluator) {
+    public static List<ChannelDataInfo> from(List<? extends LoadProfileReading> loadProfileReadings, boolean isValidationActive, Thesaurus thesaurus, DeviceValidation deviceValidation) {
         List<ChannelDataInfo> channelData = new ArrayList<>();
         for (LoadProfileReading loadProfileReading : loadProfileReadings) {
             ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
@@ -59,7 +60,7 @@ public class ChannelDataInfo {
             }
             Set<Map.Entry<Channel, DataValidationStatus>> states = loadProfileReading.getChannelValidationStates().entrySet();    //  only one channel
             for (Map.Entry<Channel, DataValidationStatus> entry : states) {
-                    ValidationInfo validationInfo = new ValidationInfo(entry.getValue(), evaluator);
+                    ValidationInfo validationInfo = new ValidationInfo(entry.getValue(), deviceValidation);
                     channelIntervalInfo.validationResult = validationInfo.validationResult;
                     channelIntervalInfo.suspectReason = validationInfo.validationRules;
                     channelIntervalInfo.dataValidated = validationInfo.dataValidated;
