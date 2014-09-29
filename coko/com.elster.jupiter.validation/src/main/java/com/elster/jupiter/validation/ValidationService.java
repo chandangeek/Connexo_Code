@@ -67,4 +67,6 @@ public interface ValidationService {
     List<? extends MeterActivationValidation> getActiveMeterActivationValidations(MeterActivation meterActivation);
 
     ValidationEvaluator getEvaluator();
+
+    ValidationEvaluator getEvaluator(Meter meter, Interval interval);
 }

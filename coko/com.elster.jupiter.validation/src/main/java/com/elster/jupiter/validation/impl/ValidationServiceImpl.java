@@ -436,6 +436,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return new ValidationEvaluatorImpl(this);
     }
 
+    @Override
+    public ValidationEvaluator getEvaluator(Meter meter, Interval interval) {
+        return new ValidationEvaluatorForMeter(this, meter, interval);
+    }
+
     private List<ChannelValidation> getChannelValidationsWithActiveRules(Channel channel) {
         return dataModel.mapper(ChannelValidation.class).find("channel", channel, "activeRules", true);
     }

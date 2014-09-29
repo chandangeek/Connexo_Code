@@ -1,18 +1,17 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.collect.ImmutableList;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 29/08/2014
- * Time: 17:12
- */
 public class DataValidationStatusImpl implements DataValidationStatus {
     private final Date timeStamp;
     private final Map<ReadingQuality, List<? extends ValidationRule>> qualityRecordList = new HashMap<>();
