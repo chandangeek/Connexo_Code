@@ -724,19 +724,19 @@ Ext.define('Mdc.controller.history.Setup', {
                     }
                 },
                 communicationschedules: {
-                    title: 'Communication schedules',
+                    title: 'Shared communication schedules',
                     route: 'communicationschedules',
                     controller: 'Mdc.controller.setup.CommunicationSchedules',
                     action: 'showCommunicationSchedules',
                     items: {
                         create: {
-                            title: 'Add communication schedule',
+                            title: 'Add shared communication schedule',
                             route: 'create',
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
                             action: 'showCommunicationSchedulesEditView'
                         },
                         edit: {
-                            title: 'Edit communication schedule',
+                            title: 'Edit shared communication schedule',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
                             action: 'showCommunicationSchedulesEditView',

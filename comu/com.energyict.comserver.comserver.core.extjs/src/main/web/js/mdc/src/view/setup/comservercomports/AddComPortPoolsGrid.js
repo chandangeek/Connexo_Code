@@ -6,10 +6,10 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPoolsGrid', {
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'setup.searchitems.bulk.SchedulesSelectionGrid.counterText',
+            'comServerComPorts.pagingtoolbartop.portPoolsSelected',
             count,
             'MDC',
-            '{0} communication schedules selected'
+            '{0} communication port pools selected'
         );
     },
 

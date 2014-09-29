@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 } else {
                     var msg = {
                         xtype: 'displayfield',
-                        value: Uni.I18n.translate('deviceCommunicationSchedule.noIndividualCommunicationSchedules', 'MDC', 'The device does not use individual communication schedules.')
+                        value: Uni.I18n.translate('deviceCommunicationSchedule.noIndividualCommunicationSchedules', 'MDC', 'The device does not use individual shared communication schedules.')
                     };
                     widget.down('#individualDeviceCommunicationScheduleSetupPanel').add(msg);
                 }
@@ -287,7 +287,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var me = this;
         var record = this.getSharedCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmationSharedSchedule.msg', 'MDC', 'This communication schedule will no longer be available on this device.'),
+            msg: Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmationSharedSchedule.msg', 'MDC', 'This shared communication schedule will no longer be available on this device.'),
             title: Ext.String.format(Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmationSharedSchedule.title', 'MDC', 'Remove \'{0}\'?'), record.get('name')),
             fn: function (state) {
                 switch (state) {
@@ -345,7 +345,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var me = this;
         var record = this.getIndividualCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmation.msg', 'MDC', 'This communication schedule will no longer be available.'),
+            msg: Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmation.msg', 'MDC', 'This shared communication schedule will no longer be available.'),
             title: Ext.String.format(Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmation.title', 'MDC', 'Remove schedule from \'{0}\'?'), record.get('comTaskInfos')[0].name),
             fn: function (state) {
                 switch (state) {
@@ -374,7 +374,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeScheduleSucceeded', 'MDC', 'Communication schedule removed'))
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeScheduleSucceeded', 'MDC', 'Shared communication schedule removed'))
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });
@@ -398,7 +398,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             timeout: 180000,
             success: function (response) {
                 me.showDeviceCommunicationScheduleView(me.mrid);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addScheduleSucceeded', 'MDC', 'Communication schedule added'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addScheduleSucceeded', 'MDC', 'Shared communication schedule added'));
             }
         });
         button.up('.window').close();
@@ -417,7 +417,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.runScheduleSucceeded', 'MDC', 'Run communication schedule succeeded'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.runScheduleSucceeded', 'MDC', 'Run shared communication schedule succeeded'));
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });
@@ -438,7 +438,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.editScheduleSucceeded', 'MDC', 'Communication schedule saved'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.editScheduleSucceeded', 'MDC', 'Shared communication schedule saved'));
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });

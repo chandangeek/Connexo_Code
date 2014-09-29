@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         widget.down('#card').getLayout().setActiveItem(0);
         if (id === undefined) {
             this.record = Ext.create(Mdc.model.CommunicationSchedule);
-            widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add communication schedule'));
+            widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add shared communication schedule'));
             me.initComTaskStore(widget);
         } else {
             Ext.ModelManager.getModel('Mdc.model.CommunicationSchedule').load(id, {
@@ -320,7 +320,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     if (operation.wasSuccessful()) {
                         gridToolbarTop.totalCount = 0;
                         store.loadPage(1);
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.removed', 'MDC', 'Communication schedule successfully removed'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.removed', 'MDC', 'Shared communication schedule successfully removed'));
                     }
                 }
             });
