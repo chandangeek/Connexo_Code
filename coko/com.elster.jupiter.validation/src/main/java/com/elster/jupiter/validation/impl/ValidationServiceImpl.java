@@ -228,11 +228,28 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     @Override
     public void updateLastChecked(MeterActivation meterActivation, Date date) {
         if (date == null) {
-            throw new IllegalArgumentException("Last Checked Date is absent");
+            throw new IllegalArgumentException("Last checked date is absent");
         }
         getUpdatedMeterActivationValidations(meterActivation);
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(meterActivation);
         validations.stream().forEach(v -> saveLastChecked(v, date));
+    }
+
+    @Override
+    public void updateLastChecked(Channel channel, Date date) {
+        if (channel == null || date == null) {
+            throw new IllegalArgumentException("Last checked date or channel is absent");
+        }
+        List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(channel.getMeterActivation());
+        validations.stream().map(m -> m.getChannelValidation(channel))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(ChannelValidation::hasActiveRules)
+                .map(ChannelValidationImpl.class::cast)
+                .forEach(cv -> {
+                    cv.setLastChecked(date);
+                    cv.getMeterActivationValidation().save();
+                 });
     }
 
     private void saveLastChecked(IMeterActivationValidation validation, Date date) {
@@ -242,6 +259,9 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public boolean isValidationActive(Channel channel) {
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel is absent");
+        }
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(channel.getMeterActivation());
         List<ChannelValidation> channelValidations = validations.stream()
                 .map(m -> m.getChannelValidation(channel))
