@@ -18,7 +18,11 @@ public interface DeviceValidation {
 
     boolean isValidationActive(Channel channel, Date when);
 
-    boolean isValidationActive(Register<?> channel, Date when);
+    boolean isValidationActive(Register<?> register, Date when);
+
+    boolean allDataValidated(Channel channel, Date when);
+
+    boolean allDataValidated(Register<?> register, Date when);
 
     Optional<Date> getLastChecked(Channel c);
 
