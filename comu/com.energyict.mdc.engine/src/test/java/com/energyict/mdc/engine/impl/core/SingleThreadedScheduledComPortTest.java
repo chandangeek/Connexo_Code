@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.events.EventService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
@@ -183,6 +184,8 @@ public class SingleThreadedScheduledComPortTest {
     @Mock
     private HexService hexService;
     @Mock
+    private EventService eventService;
+    @Mock
     private EventPublisherImpl eventPublisher;
     @Mock
     private ComSessionBuilder comSessionBuilder;
@@ -251,6 +254,7 @@ public class SingleThreadedScheduledComPortTest {
         this.serviceProvider.setEngineService(engineService);
         this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
         this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
+        this.serviceProvider.setEventService(this.eventService);
         when(this.managementBeanFactory.findOrCreateFor(any(ScheduledComPort.class))).thenReturn(this.scheduledComPortMonitor);
         ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
         when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
