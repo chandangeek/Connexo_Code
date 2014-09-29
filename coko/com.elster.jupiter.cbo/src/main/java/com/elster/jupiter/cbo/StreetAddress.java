@@ -3,7 +3,6 @@ package com.elster.jupiter.cbo;
 import java.util.Objects;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlTransient;
 
 public final class StreetAddress implements Cloneable {

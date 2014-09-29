@@ -2,6 +2,8 @@ package com.elster.jupiter.cbo;
 
 import java.util.Currency;
 
+import com.google.common.base.Joiner;
+
 public final class ReadingTypeCodeBuilder {
 	private MacroPeriod macroPeriod = MacroPeriod.NOTAPPLICABLE;
 	private Aggregate aggregate = Aggregate.NOTAPPLICABLE;
@@ -133,25 +135,24 @@ public final class ReadingTypeCodeBuilder {
 	}
 	
 	public String code() {
-		return 
-			"" +
-			macroPeriod.getId() + "." + 
-			aggregate.getId() + "." + 
-			measuringPeriod.getId() + "." + 
-			accumulation.getId() + "." + 
-			flowDirection.getId() + "." +
-			commodity.getId() + "." + 
-			measurementKind.getId() + "." + 
-			interharmonic.getNumerator() + "." + 
-			interharmonic.getDenominator() + "." + 
-			argument.getNumerator() + "." + 
-			argument.getDenominator() + "." + 
-			tou + "." + 
-			cpp + "." + 
-			consumptionTier + "." + 
-			phases.getId() + "." + 
-			multiplier.getId() + "." + 
-			unit.getId() + "." + 
-			ReadingTypeCodeBuilder.getCurrencyId(currency);
+		return Joiner.on(".").join(
+			macroPeriod.getId(), 
+			aggregate.getId(), 
+			measuringPeriod.getId(), 
+			accumulation.getId(), 
+			flowDirection.getId(),
+			commodity.getId(), 
+			measurementKind.getId(), 
+			interharmonic.getNumerator(), 
+			interharmonic.getDenominator(), 
+			argument.getNumerator(), 
+			argument.getDenominator(), 
+			tou, 
+			cpp,
+			consumptionTier,
+			phases.getId(), 
+			multiplier.getId(), 
+			unit.getId(), 
+			ReadingTypeCodeBuilder.getCurrencyId(currency));
 	}
 }

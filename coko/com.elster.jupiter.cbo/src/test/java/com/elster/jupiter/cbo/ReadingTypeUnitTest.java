@@ -2,8 +2,6 @@ package com.elster.jupiter.cbo;
 
 import org.junit.Test;
 
-import com.elster.jupiter.util.units.Unit;
-
 import java.util.HashSet;
 import java.util.Set;
 
