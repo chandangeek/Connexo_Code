@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
@@ -57,10 +58,12 @@ public class DeviceValidationImplTest {
     private MeterActivation meterActivation1, meterActivation2;
     @Mock
     private com.elster.jupiter.metering.Channel koreChannel1, koreChannel2, koreChannel3, koreChannel4;
+    @Mock
+    private Clock clock;
 
     @Before
     public void setUp() {
-        deviceValidation = new DeviceValidationImpl(amrSystem, validationService, device);
+        deviceValidation = new DeviceValidationImpl(amrSystem, validationService, clock, device);
 
         when(device.findKoreMeter(amrSystem)).thenReturn(Optional.of(meter));
         when(device.findKoreChannel(channel, NOW)).thenReturn(Optional.of(koreChannel));
@@ -71,6 +74,7 @@ public class DeviceValidationImplTest {
         when(channelValidation1.hasActiveRules()).thenReturn(false);
         when(channelValidation2.hasActiveRules()).thenReturn(false);
         when(channelValidation3.hasActiveRules()).thenReturn(false);
+        when(clock.now()).thenReturn(NOW);
 
         when(meterActivationValidation1.getChannelValidation(koreChannel)).thenReturn(Optional.of(channelValidation2));
 
@@ -91,7 +95,7 @@ public class DeviceValidationImplTest {
     public void testIsValidationActive() {
         when(validationService.validationEnabled(meter)).thenReturn(true);
 
-        boolean validationActive = deviceValidation.isValidationActive(NOW);
+        boolean validationActive = deviceValidation.isValidationActive();
         assertThat(validationActive).isTrue();
     }
 
@@ -100,7 +104,7 @@ public class DeviceValidationImplTest {
         when(validationService.validationEnabled(meter)).thenReturn(true);
         when(device.findKoreMeter(amrSystem)).thenReturn(Optional.absent());
 
-        boolean validationActive = deviceValidation.isValidationActive(NOW);
+        boolean validationActive = deviceValidation.isValidationActive();
         assertThat(validationActive).isFalse();
     }
 
