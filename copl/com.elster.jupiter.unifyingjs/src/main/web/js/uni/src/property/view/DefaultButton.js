@@ -1,9 +1,9 @@
 Ext.define('Uni.property.view.DefaultButton', {
     extend: 'Ext.button.Button',
     xtype: 'uni-default-button',
+
     border: 0,
-    icon: '../ext/packages/uni-theme-skyline/resources/images/form/restore.png',
-   // style: 'padding: 5px 3px 2px 3px;',
+    icon: '../sky/build/resources/images/form/restore.png',
     height: 28,
     width: 28,
     scale: 'small',
