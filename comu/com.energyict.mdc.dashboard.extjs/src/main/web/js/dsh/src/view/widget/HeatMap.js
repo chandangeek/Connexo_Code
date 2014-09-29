@@ -3,21 +3,6 @@ Ext.define('Dsh.view.widget.HeatMap', {
     alias: 'widget.heat-map',
     layout: 'fit',
     minHeight: 450,
-    tbar: [
-        '->',
-        {
-            xtype: 'combobox',
-            fieldLabel: Uni.I18n.translate('overview.widget.heatmap.combineLabel', 'DSH', 'Latest result combine'),
-            labelWidth: 150,
-            itemId: 'combine-combo',
-            displayField: 'localizedValue',
-            queryMode: 'local',
-            valueField: 'breakdown',
-            store: 'Dsh.store.CombineStore',
-            autoSelect: true
-        },
-        '->'
-    ],
     items: {
         xtype: 'box',
         minHeight: 400,
@@ -82,23 +67,54 @@ Ext.define('Dsh.view.widget.HeatMap', {
         var me = this,
             xTitle = '',
             store = Ext.getStore('Dsh.store.ConnectionResultsStore');
+        if (me.parent == 'connections') {
+            me.tbar = [
+                '->',
+                {
+                    xtype: 'combobox',
+                    fieldLabel: Uni.I18n.translate('overview.widget.connections.heatmap.combineLabel', 'DSH', 'Combine latest result and'),
+                    labelWidth: 200,
+                    itemId: 'combine-combo',
+                    displayField: 'localizedValue',
+                    queryMode: 'local',
+                    valueField: 'breakdown',
+                    store: 'Dsh.store.CombineStore',
+                    autoSelect: true
+                },
+                '->'
+            ];
+        } else if (me.parent == 'communications') {
+            me.tbar = [
+                '->',
+                {
+                    xtype: 'label',
+                    text: Uni.I18n.translate('overview.widget.communications.heatmap.combineLabel', 'DSH', 'Combine latest result and device type')
+                },
+                '->'
+            ];
+            xTitle = 'Device types'
+        }
         this.callParent(arguments);
+        var cmp = me.down('#heatmapchart');
         store.on('load', function () {
             me.loadChart(store, xTitle)
         });
-        var combo = me.getCombo(),
-            cmp = me.down('#heatmapchart');
-        combo.getStore().on('load', function (store) {
-            if (store.getCount() > 0) {
-                var val = store.getAt(1);
-                combo.select(val);
-                xTitle = val.get('localizedValue')
-            }
-        });
-        combo.on('change', function (combo, newValue) {
-            store.proxy.extraParams.filter = '[{"property":"breakdown","value": "' + newValue + '"}]';
+        if (me.parent == 'connections') {
+            var combo = me.getCombo();
+            combo.getStore().on('load', function (store) {
+                if (store.getCount() > 0) {
+                    var val = store.getAt(1);
+                    combo.select(val);
+                    xTitle = val.get('localizedValue')
+                }
+            });
+            combo.on('change', function (combo, newValue) {
+                store.proxy.extraParams.filter = '[{"property":"breakdown","value": "' + newValue + '"}]';
+                store.load();
+            });
+        } else if (me.parent == 'communications') {
             store.load();
-        });
+        }
         cmp.on('afterrender', function () {
             Ext.defer(function () {
                 me.renderChart(cmp.getEl().dom);
