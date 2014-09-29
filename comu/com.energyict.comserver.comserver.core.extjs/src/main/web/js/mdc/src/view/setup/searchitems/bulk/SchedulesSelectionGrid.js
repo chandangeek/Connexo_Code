@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
-    extend: 'Uni.view.grid.BulkSelection',
-    xtype: 'schedules-selection-grid',
+    extend: 'Uni.view.grid.SelectionGrid',
+//    extend: 'Uni.view.grid.BulkSelection',
+    alias: 'widget.schedules-selection-grid',
     itemId: 'schedulesgrid',
 
     store: 'Mdc.store.CommunicationSchedulesWithoutPaging',
@@ -13,12 +14,12 @@ Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
             '{0} shared communication schedules selected'
         );
     },
-
-    allLabel: Uni.I18n.translate('searchItems.bulk.allSchedules', 'MDC', 'All shared communication schedules'),
-    allDescription: Uni.I18n.translate('searchItems.bulk.selectSchedulesMsg', 'MDC', 'Select all shared communication schedules'),
-
-    selectedLabel: Uni.I18n.translate('searchItems.bulk.selectedSchedules', 'MDC', 'Selected shared communication schedules'),
-    selectedDescription: Uni.I18n.translate('searchItems.bulk.selectedScheduleInTable', 'MDC', 'Select shered communication schedules in table'),
+//
+//    allLabel: Uni.I18n.translate('searchItems.bulk.allSchedules', 'MDC', 'All shared communication schedules'),
+//    allDescription: Uni.I18n.translate('searchItems.bulk.selectSchedulesMsg', 'MDC', 'Select all shared communication schedules'),
+//
+//    selectedLabel: Uni.I18n.translate('searchItems.bulk.selectedSchedules', 'MDC', 'Selected shared communication schedules'),
+//    selectedDescription: Uni.I18n.translate('searchItems.bulk.selectedScheduleInTable', 'MDC', 'Select shered communication schedules in table'),
 
     cancelHref: '#/search',
 
@@ -52,6 +53,6 @@ Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
 
     initComponent: function () {
         this.callParent(arguments);
-        this.getBottomToolbar().setVisible(false);
+   //     this.down('#bottomToolbar').setVisible(false);
     }
 });
