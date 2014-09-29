@@ -14,6 +14,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             required: true,
             allowBlank: false,
             minValue: 1,
+            stripCharsRe: /\D/,
             listeners: {
                 blur: {
                     fn: function(field){
@@ -43,6 +44,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             required: true,
             allowBlank: false,
             minValue: 1,
+            stripCharsRe: /\D/,
             listeners: {
                 blur: {
                     fn: function(field){

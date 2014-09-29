@@ -181,6 +181,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.ringCount', 'MDC', 'Ring count'),
             name: 'ringCount',
             minValue: 0,
+            stripCharsRe: /\D/,
             value: 3
         },
         {
@@ -190,6 +191,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.errorNum', 'MDC', 'Max. number of dial errors'),
             name: 'maximumNumberOfDialErrors',
             minValue: 0,
+            stripCharsRe: /\D/,
             value: 3
         },
         {
@@ -208,6 +210,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     margin: '0 8 0 0',
                     flex: 2,
                     minValue: 0,
+                    stripCharsRe: /\D/,
                     value: 5
                 },
                 {
@@ -239,6 +242,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     margin: '0 8 0 0',
                     flex: 2,
                     minValue: 0,
+                    stripCharsRe: /\D/,
                     value: 5
                 },
                 {
@@ -270,6 +274,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     margin: '0 8 0 0',
                     flex: 2,
                     minValue: 0,
+                    stripCharsRe: /\D/,
                     value: 5
                 },
                 {
@@ -301,6 +306,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     margin: '0 8 0 0',
                     flex: 2,
                     minValue: 0,
+                    stripCharsRe: /\D/,
                     value: 5
                 },
                 {
@@ -323,6 +329,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.atTry', 'MDC', 'AT command try'),
             name: 'atCommandTry',
             minValue: 0,
+            stripCharsRe: /\D/,
             value: 3
         }
     ],
