@@ -58,6 +58,8 @@ public interface ValidationService {
 
     void updateLastChecked(MeterActivation meterActivation, Date date);
 
+    void updateLastChecked(Channel channel, Date date);
+
     void validate(MeterActivation meterActivation, Interval interval);
 
     void validate(MeterActivation meterActivation, String readingTypeCode, Interval interval);
