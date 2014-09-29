@@ -36,7 +36,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
                             result += '<a href="' + url + '"> ' + rule.key.name + '</a>' + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                         });
                         return result;
-                    } else {
+                    }
+                    if(Ext.isEmty(value.suspectReason)) {
                         field.hide();
                     }
                 }

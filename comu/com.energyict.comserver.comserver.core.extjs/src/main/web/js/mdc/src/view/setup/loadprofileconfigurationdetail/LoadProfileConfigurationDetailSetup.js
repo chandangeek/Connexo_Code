@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 {
                     xtype: 'image',
                     margin: '0 10 0 0',
-                    src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
+                    src: '../sky/build/build/resources/images/shared/icon-info-small.png',
                     height: 20,
                     width: 20
                 },
