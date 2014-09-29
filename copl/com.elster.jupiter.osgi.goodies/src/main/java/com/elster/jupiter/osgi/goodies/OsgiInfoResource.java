@@ -3,6 +3,7 @@ package com.elster.jupiter.osgi.goodies;
 
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.associations.RefAny;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -14,7 +15,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("deprecation")
@@ -85,6 +89,19 @@ public class OsgiInfoResource {
     	Analyzer analyzer = new Analyzer();
 		analyzer.build(context,admin);
 		return analyzer.getWheel();
+    }
+
+    @GET
+    @Path("/versions")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<BundleVersion> getVersions() {
+        List<BundleVersion> versions = new ArrayList<>();
+        for (Bundle bundle : context.getBundles()) {
+            versions.add(new BundleVersion(bundle.getSymbolicName(), bundle.getVersion().toString(),
+                    bundle.getHeaders().get("Git-SHA-1"), bundle.getHeaders().get("Build-timestamp")));
+        }
+        Collections.sort(versions, (o1, o2) -> o1.bundleName.compareTo(o2.bundleName));
+        return versions;
     }
 
     @GET
