@@ -1,60 +1,42 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.google.common.base.Optional;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-import javax.ws.rs.core.Application;
-import java.util.Collections;
-import java.util.Date;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-public class DeviceValidationResourceTest extends JerseyTest {
+public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
@@ -62,29 +44,11 @@ public class DeviceValidationResourceTest extends JerseyTest {
     public static final long DEVICE_ID = 56854L;
     public static final java.util.Date NOW = Date.from(ZonedDateTime.of(2014, 6, 14, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant());
     @Mock
-    private ResourceHelper resourceHelper;
-    @Mock
-    private DeviceImportService deviceImportService;
-    @Mock
-    private DeviceDataService deviceDataService;
-    @Mock
-    private DeviceConfigurationService deviceConfigurationService;
-    @Mock
-    private IssueService issueService;
-    @Mock
-    private EngineModelService engineModelService;
-    @Mock
     private MdcPropertyUtils mdcPropertyUtils;
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private ValidationService validationService;
-    @Mock
-    private MeteringService meteringService;
-    @Mock
     private AmrSystem mdcAmrSystem;
-    @Mock
-    private Clock clock;
     @Mock
     private ValidationEvaluator evaluator;
 
@@ -113,48 +77,9 @@ public class DeviceValidationResourceTest extends JerseyTest {
     @Mock
     private com.energyict.mdc.device.data.Channel ch1, ch2;
 
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
-        MockitoAnnotations.initMocks(this);
-
-        ResourceConfig resourceConfig = new ResourceConfig(
-                DeviceValidationResource.class,
-                DeviceResource.class
-        );
-        resourceConfig.register(JacksonFeature.class);
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(resourceHelper).to(ResourceHelper.class);
-                bind(deviceImportService).to(DeviceImportService.class);
-                bind(deviceDataService).to(DeviceDataService.class);
-                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-                bind(issueService).to(IssueService.class);
-                bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
-                bind(engineModelService).to(EngineModelService.class);
-                bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
-                bind(ExceptionFactory.class).to(ExceptionFactory.class);
-                bind(thesaurus).to(Thesaurus.class);
-                bind(validationService).to(ValidationService.class);
-                bind(meteringService).to(MeteringService.class);
-                bind(clock).to(Clock.class);
-            }
-        });
-        return resourceConfig;
-    }
-
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class);
-        super.configureClient(config);
-    }
-
     @Before
     public void setUp1() {
-        when(resourceHelper.findDeviceByMrIdOrThrowException("MRID")).thenReturn(device);
+        when(deviceDataService.findByUniqueMrid("MRID")).thenReturn(device);
         when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(mdcAmrSystem));
         when(device.getId()).thenReturn(DEVICE_ID);
         when(mdcAmrSystem.findMeter("" + DEVICE_ID)).thenReturn(Optional.of(meter));
@@ -162,11 +87,6 @@ public class DeviceValidationResourceTest extends JerseyTest {
         when(clock.getTimeZone()).thenReturn(TimeZone.getDefault());
 
         doModelStubbing();
-    }
-
-    @After
-    public void tearDown() {
-
     }
 
     @Test
@@ -228,6 +148,15 @@ public class DeviceValidationResourceTest extends JerseyTest {
         when(channel7.getMainReadingType()).thenReturn(regReadingType);
         when(channel8.getMainReadingType()).thenReturn(channelReadingType1);
         when(channel9.getMainReadingType()).thenReturn(channelReadingType2);
+        doReturn(Arrays.asList(regReadingType)).when(channel1).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType1)).when(channel2).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType2)).when(channel3).getReadingTypes();
+        doReturn(Arrays.asList(regReadingType)).when(channel4).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType1)).when(channel5).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType2)).when(channel6).getReadingTypes();
+        doReturn(Arrays.asList(regReadingType)).when(channel7).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType1)).when(channel8).getReadingTypes();
+        doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(suspect.getTypeCode()).thenReturn("3.0.1");
         when(notSuspect.getTypeCode()).thenReturn("0");

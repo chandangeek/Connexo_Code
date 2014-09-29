@@ -40,6 +40,7 @@ import javax.ws.rs.core.Response;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -169,7 +170,7 @@ public class DeviceValidationResource {
         List<DataValidationStatus> statuses = meter.getMeterActivations().stream()
                 .filter(m -> m.getInterval().overlaps(loadProfileInterval))
                 .flatMap(m -> m.getChannels().stream())
-                .filter(c -> channelTypes.contains(c.getMainReadingType().getMRID()))
+                .filter(c -> intersect(channelTypes, c.getReadingTypes()))
                 .flatMap(c -> validationService.getEvaluator().getValidationStatus(c, c.getMeterActivation().getInterval().intersection(loadProfileInterval)).stream())
                 .collect(Collectors.toList());
 
@@ -177,8 +178,19 @@ public class DeviceValidationResource {
                 .flatMap(d -> d.getReadingQualities().stream())
                 .filter(q -> q.getTypeCode().startsWith("3."))
                 .count();
-        deviceValidationStatusInfo.allDataValidated &= statuses.stream()
-                .allMatch(DataValidationStatus::completelyValidated);
+        if (statuses.isEmpty()) {
+            deviceValidationStatusInfo.allDataValidated &= device.getRegisters().stream()
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.now()));
+        } else {
+            deviceValidationStatusInfo.allDataValidated &= statuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
+    }
+
+    private boolean intersect(Collection<String> first, Collection<? extends ReadingType> second) {
+        return second.stream()
+                .map(ReadingType::getMRID)
+                .anyMatch(first::contains);
     }
 
     private void collectRegisterData(Device device, Meter meter, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
@@ -193,7 +205,7 @@ public class DeviceValidationResource {
         List<DataValidationStatus> statuses = meter.getMeterActivations().stream()
                 .filter(m -> m.getInterval().overlaps(registerInterval))
                 .flatMap(m -> m.getChannels().stream())
-                .filter(c -> registerTypes.contains(c.getMainReadingType().getMRID()))
+                .filter(c -> intersect(registerTypes, c.getReadingTypes()))
                 .flatMap(c -> validationService.getEvaluator().getValidationStatus(c, c.getMeterActivation().getInterval().intersection(registerInterval)).stream())
                 .collect(Collectors.toList());
 
@@ -201,8 +213,14 @@ public class DeviceValidationResource {
                 .flatMap(d -> d.getReadingQualities().stream())
                 .filter(q -> q.getTypeCode().startsWith("3."))
                 .count();
-        deviceValidationStatusInfo.allDataValidated = statuses.stream()
-                .allMatch(DataValidationStatus::completelyValidated);
+        if (statuses.isEmpty()) {
+            deviceValidationStatusInfo.allDataValidated &= device.getLoadProfiles().stream()
+                    .flatMap(l -> l.getChannels().stream())
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.now()));
+        } else {
+            deviceValidationStatusInfo.allDataValidated = statuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
     }
 
     private Date getLastChecked(Meter meter) {
