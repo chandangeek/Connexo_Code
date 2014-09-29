@@ -1,5 +1,6 @@
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.GeneralPreview', {
     extend: 'Ext.panel.Panel',
+    itemId: 'device-register-configuration-general-preview',
 
     requires: [
         'Mdc.view.setup.deviceregisterconfiguration.ActionMenu'
