@@ -3,11 +3,13 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.rest.impl.comserver.ComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
@@ -194,6 +196,25 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
 
         final Response response = target("/comportpools/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
+
+    @Test
+    public void testCreateComPortPoolWithoutType() throws Exception {
+        ComPortPoolInfo outboundComPortPoolInfo = new ComPortPoolInfo() { // Unknown type
+            @Override
+            protected ComPortPool createNew(EngineModelService engineModelService) {
+                return null;
+            }
+        };
+        outboundComPortPoolInfo.active=true;
+        outboundComPortPoolInfo.name="Created";
+        outboundComPortPoolInfo.description="description";
+        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.MINUTES));
+
+        Entity<ComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
+
+        final Response response = target("/comportpools/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
