@@ -9,6 +9,7 @@
         <artifactId>parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>issue.extjs</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
@@ -19,7 +20,6 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
@@ -32,6 +32,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>install</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
@@ -54,7 +59,7 @@
                 </includes>
             </resource>
             <resource>
-            <directory>src/main/web/js/issue/build</directory>
+                <directory>src/main/web/js/issue/build</directory>
                 <targetPath>js/issue/build</targetPath>
                 <includes>
                     <include>resources/**/*</include>
