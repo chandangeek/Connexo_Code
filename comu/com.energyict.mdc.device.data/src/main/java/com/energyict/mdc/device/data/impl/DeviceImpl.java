@@ -188,6 +188,7 @@ public class DeviceImpl implements Device {
     private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     private final Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
+    private transient DeviceValidationImpl deviceValidation;
 
     @Inject
     public DeviceImpl(
@@ -1117,7 +1118,7 @@ public class DeviceImpl implements Device {
             }
             java.util.Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
-                List<DataValidationStatus> validationStatus = this.validationService.getEvaluator().getValidationStatus(koreChannel.get(), meterReadings, meterActivationInterval);
+                List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval);
                 validationStatus.stream()
                         .filter(s -> s.getReadingTimestamp().after(meterActivationInterval.getStart()))
                         .forEach(s -> {
@@ -1528,7 +1529,10 @@ public class DeviceImpl implements Device {
 
     @Override
     public DeviceValidation forValidation() {
-        return new DeviceValidationImpl(getMdcAmrSystem().get(), validationService, this);
+        if (deviceValidation == null) {
+            deviceValidation = new DeviceValidationImpl(getMdcAmrSystem().get(), validationService, clock, this);
+        }
+        return deviceValidation;
     }
 
     private boolean hasSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {

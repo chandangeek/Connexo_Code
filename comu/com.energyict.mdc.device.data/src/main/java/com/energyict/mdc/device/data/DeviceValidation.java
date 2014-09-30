@@ -1,9 +1,13 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.base.Optional;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +18,9 @@ public interface DeviceValidation {
 
     Device getDevice();
 
-    boolean isValidationActive(Date when);
+    public ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities);
+
+    boolean isValidationActive();
 
     boolean isValidationActive(Channel channel, Date when);
 
@@ -24,17 +30,25 @@ public interface DeviceValidation {
 
     boolean allDataValidated(Register<?> register, Date when);
 
-    Optional<Date> getLastChecked(Channel c);
+    Optional<Date> getLastChecked();
 
-    Optional<Date> getLastChecked(Register<?> c);
+    Optional<Date> getLastChecked(Channel channel);
 
-    List<DataValidationStatus> getValidationStatus(Channel channel, Interval interval);
+    Optional<Date> getLastChecked(Register<?> register);
 
-    void validateLoadProfile(LoadProfile loadProfile, Date start, Date until);
+    List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Interval interval);
+
+    List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings, Interval interval);
+
+    List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings);
+
+    List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings);
+
+    void validateLoadProfile(LoadProfile loadProfile, Date start, Date until); // TODO : interval
 
     void validateChannel(Channel channel, Date start, Date until);
 
-    public void validateRegister(Register<?> register, Date start, Date until);
+    void validateRegister(Register<?> register, Date start, Date until);
 
     boolean hasData(Channel c);
 
