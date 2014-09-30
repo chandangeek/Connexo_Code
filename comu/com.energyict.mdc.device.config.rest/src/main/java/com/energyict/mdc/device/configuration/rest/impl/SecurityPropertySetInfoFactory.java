@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -12,13 +11,11 @@ import javax.inject.Inject;
  */
 public class SecurityPropertySetInfoFactory {
     private final Thesaurus thesaurus;
-    private final UserService userService;
     private final ExecutionLevelInfoFactory executionLevelInfoFactory;
 
     @Inject
-    public SecurityPropertySetInfoFactory(Thesaurus thesaurus, UserService userService, ExecutionLevelInfoFactory executionLevelInfoFactory) {
+    public SecurityPropertySetInfoFactory(Thesaurus thesaurus, ExecutionLevelInfoFactory executionLevelInfoFactory) {
         this.thesaurus = thesaurus;
-        this.userService = userService;
         this.executionLevelInfoFactory = executionLevelInfoFactory;
     }
 
