@@ -23,7 +23,8 @@ public enum ColumnConversion {
     TIMESTAMP2DATE,
     CLOB2STRING,
     BLOB2BYTE,
-    NUMBERINUTCSECONDS2DATE;
+    NUMBERINUTCSECONDS2DATE,
+    NUMBER2INSTANT;
     
 	public static final int CATALOGNAMELIMIT = 30;
 }

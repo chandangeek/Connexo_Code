@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Date;
 
 import org.junit.Test;
@@ -50,6 +51,19 @@ public class ColumnConversionTest {
 		try {
 			when(rs.getTimestamp(anyInt())).thenReturn(new java.sql.Timestamp(110));
 			assertThat(ColumnConversionImpl.TIMESTAMP2DATE.convertFromDb(rs,5)).isEqualTo(date);
+		} catch (SQLException ex) {
+			assertThat(true).isFalse();
+		}
+	}
+	
+	@Test
+	public void testInstant() {
+		Instant instant = Instant.ofEpochMilli(123456789L);
+		assertThat(ColumnConversionImpl.NUMBER2INSTANT.convert("123456789")).isEqualTo(instant);
+		assertThat(ColumnConversionImpl.NUMBER2INSTANT.convertToDb(instant)).isEqualTo(123456789L);
+		try {
+			when(rs.getLong(anyInt())).thenReturn(123456789L);
+			assertThat(ColumnConversionImpl.NUMBER2INSTANT.convertFromDb(rs,5)).isEqualTo(instant);
 		} catch (SQLException ex) {
 			assertThat(true).isFalse();
 		}
