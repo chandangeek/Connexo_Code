@@ -28,11 +28,16 @@ Ext.define('Uni.controller.Navigation', {
         {
             ref: 'breadcrumbs',
             selector: 'breadcrumbTrail'
+        },
+        {
+            ref: 'searchButton',
+            selector: 'navigationHeader #globalSearch'
         }
     ],
 
     applicationTitle: 'Connexo Multi Sense',
     applicationTitleSeparator: '-',
+    searchEnabled: true,
 
     init: function () {
         var me = this;
@@ -41,6 +46,7 @@ Ext.define('Uni.controller.Navigation', {
             me.selectMenuItemByActiveToken();
         });
 
+        this.initApps();
         this.initMenuItems();
 
         this.control({
@@ -49,6 +55,9 @@ Ext.define('Uni.controller.Navigation', {
             },
             'navigationAppSwitcher': {
                 afterrender: this.resetAppSwitcherState
+            },
+            'navigationHeader #globalSearch': {
+                afterrender: this.initSearch
             }
         });
 
@@ -58,6 +67,10 @@ Ext.define('Uni.controller.Navigation', {
 
         this.getController('Uni.controller.history.Router').on('routematch', this.initBreadcrumbs, this);
         this.getController('Uni.controller.history.Router').on('routechange', this.initBreadcrumbs, this);
+    },
+
+    initApps: function () {
+        Uni.store.Apps.load();
     },
 
     initTitle: function (breadcrumbItem) {
@@ -106,6 +119,11 @@ Ext.define('Uni.controller.Navigation', {
 
         me.initTitle(breadcrumb);
         breadcrumbs.setBreadcrumbItem(breadcrumb);
+    },
+
+    initSearch: function () {
+        var me = this;
+        me.getSearchButton().setVisible(me.searchEnabled);
     },
 
     onAfterRenderNavigationMenu: function () {

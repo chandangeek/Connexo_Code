@@ -22,7 +22,9 @@ Ext.define('Uni.view.navigation.AppCenter', {
                 tpl: [
                     '<div class="handlebar"></div>',
                     '<tpl for=".">',
-                    '<a href="{url}">',
+                    '<a href="{url}"',
+                    '<tpl if="isExternal"> target="_blank"</tpl>',
+                    '>',
                     '<div class="app-item',
                     '<tpl if="isActive"> x-pressed</tpl>',
                     '">',

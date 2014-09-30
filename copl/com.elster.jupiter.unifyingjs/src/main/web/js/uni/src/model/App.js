@@ -5,7 +5,15 @@ Ext.define('Uni.model.App', {
     extend: 'Ext.data.Model',
     fields: [
         'name',
-        'url',
+        {
+            name: 'url',
+            convert: function (value, record) {
+                if (value.indexOf('#') === -1 && value.indexOf('http') === -1) {
+                    value += '#';
+                }
+                return value;
+            }
+        },
         'icon',
         {
             name: 'isActive',
@@ -17,6 +25,14 @@ Ext.define('Uni.model.App', {
 
                 return href.indexOf(record.data.url, 0) === 0
                     || fullPath.indexOf(record.data.url, 0) === 0;
+            }
+        },
+        {
+            name: 'isExternal',
+            persist: false,
+            convert: function (value, record) {
+                var url = record.get('url');
+                return url.indexOf('http') === 0;
             }
         }
     ]

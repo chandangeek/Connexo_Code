@@ -276,12 +276,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
         me.setGridVisible(!me.isAllSelected());
-
-        if (me.isAllSelected()) {
-            me.view.getSelectionModel().deselectAll();
-        } else if (!me.isAllSelected() && me.store.getCount() > 0) {
-            me.view.getSelectionModel().select(0);
-        }
     },
 
     setGridVisible: function (visible) {

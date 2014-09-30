@@ -29,13 +29,27 @@ Ext.define('Uni.controller.AppController', {
      */
     applicationTitle: 'Connexo',
 
+    /**
+     * @cfg {String} defaultToken
+     *
+     * The default history token the application needs to use.
+     */
+    defaultToken: '',
+
+    /**
+     * @cfg {Boolean} searchEnabled
+     *
+     * Whether the search button shows or not in the application header.
+     * True by default.
+     */
+    searchEnabled: true,
+
     // <debug>
     /**
      * @cfg {Object[]} packages
      *
      * The packages that need to be loaded in by the application.
      *
-
      */
     packages: [],
     // </debug>
@@ -46,7 +60,10 @@ Ext.define('Uni.controller.AppController', {
         me.initCrossroads();
 
         me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
+        me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
+        me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
+        me.getApplication().on('sessionexpired', me.redirectToLogin, me);
 
         me.loadControllers();
         me.callParent(arguments);
@@ -79,6 +96,12 @@ Ext.define('Uni.controller.AppController', {
         this.getContentPanel().doComponentLayout();
     },
 
+    redirectToLogin: function () {
+        window.location = '/apps/login/index.html?expired&page='
+            + window.location.pathname
+            + window.location.hash;
+    },
+
     loadControllers: function () {
         for (var i = 0; i < this.controllers.length; i++) {
             var controller = this.controllers[i];
@@ -86,7 +109,7 @@ Ext.define('Uni.controller.AppController', {
             try {
                 this.getController(controller);
             } catch (ex) {
-                console.log('Could not load the \'' + controller + '\' controller.');
+                console.error('Could not load the \'' + controller + '\' controller.');
             }
         }
     }

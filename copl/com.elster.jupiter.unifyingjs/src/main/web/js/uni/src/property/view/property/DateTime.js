@@ -4,12 +4,14 @@ Ext.define('Uni.property.view.property.DateTime', {
     timeFormat: 'H:i:s',
 
     getEditCmp: function () {
-        var me = this;
-        var result = new Array()
+        var me = this,
+            result = [];
+
         result[0] = this.callParent(arguments);
         result[1] = {
             xtype: 'timefield',
-            name: this.getName() + '.time',
+            name: me.getName() + '.time',
+            margin: '0 0 0 16',
             itemId: me.key + 'timefield',
             format: me.timeFormat,
             width: me.width,
@@ -28,8 +30,8 @@ Ext.define('Uni.property.view.property.DateTime', {
     },
 
     setValue: function (value) {
-        var dateValue = null;
-        var timeValue = null;
+        var dateValue = null,
+            timeValue = null;
 
         if (value !== null && value !== '') {
             var date = new Date(value);
@@ -46,16 +48,15 @@ Ext.define('Uni.property.view.property.DateTime', {
     },
 
     getValue: function (value) {
-        var timeValue = this.getTimeField().getValue();
-        var dateValue = this.getDateField().getValue();
+        var timeValue = this.getTimeField().getValue(),
+            dateValue = this.getDateField().getValue();
 
         if (timeValue !== null && timeValue !== '' && dateValue !== null && dateValue !== '') {
             var newDate = new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(),
                 timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
             return newDate.getTime();
-        } else {
-            return null;
         }
 
+        return null;
     }
 });

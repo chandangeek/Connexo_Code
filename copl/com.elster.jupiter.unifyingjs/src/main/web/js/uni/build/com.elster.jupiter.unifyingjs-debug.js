@@ -770,11 +770,13 @@ Ext.define('Uni.I18n', {
         } else {
             if (!this.blacklist[key + component]) {
                 this.blacklist[key + component] = true;
-                var warning = 'Missing translation for key "' + key + '"';
+                var warning = 'Missing translation for key \'' + key + '\'';
                 if (component) {
-                    warning += ' in component "' + component + '"';
+                    warning += ' in component \'' + component + '\'.';
+                } else {
+                    warning += '.';
                 }
-                console.log(warning);
+                console.warn(warning);
             }
         }
 
@@ -1479,7 +1481,11 @@ Ext.define('Uni.store.Privileges', {
     remoteFilter: false
 });
 
-
+/**
+ * @class Uni.Auth
+ *
+ * Authorization class that checks whether the currently logged-in user has privileges or not.
+ */
 Ext.define('Uni.Auth', {
     singleton: true,
     requires: ['Uni.store.Privileges'],
@@ -1500,19 +1506,18 @@ Ext.define('Uni.Auth', {
         });
     },
 
-    hasNoPrivilege : function (privilege) {
-        for (var i=0; i<Uni.store.Privileges.getCount(); i++) {
+    hasPrivilege: function (privilege) {
+        for (var i = 0; i < Uni.store.Privileges.getCount(); i++) {
             if (privilege === Uni.store.Privileges.getAt(i).get('name')) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     },
 
-    hasPrivilege : function (privilege) {
-        return !this.hasNoPrivilege(privilege);
+    hasNoPrivilege: function (privilege) {
+        return !this.hasPrivilege(privilege);
     }
-
 });
 
 /**
@@ -1542,7 +1547,7 @@ Ext.define('Uni.view.window.Acknowledgement', {
         msgPanel.removeAll();
         msgPanel.add({
             xtype: 'label',
-            text: message
+            html: message
         });
     },
 
@@ -2327,7 +2332,7 @@ Ext.define('Uni.controller.Error', {
                 this.showError(title, message);
                 break;
             case 401: // Unauthorized.
-                this.getApplication().fireEvent("sessionexpired");
+                this.getApplication().fireEvent('sessionexpired');
                 break;
             case 403: // Forbidden.
             // Fallthrough.
@@ -2403,13 +2408,20 @@ Ext.define('Uni.controller.history.EventBus', {
                 me.onHistoryChange(token);
             });
 
-            var token = Ext.util.History.getToken();
-            if (token === null || token === '') {
-                token = me.getDefaultToken();
-                Ext.util.History.add(token);
-            }
-            me.onHistoryChange(token);
+            me.checkHistoryState();
         });
+    },
+
+    checkHistoryState: function () {
+        var me = this,
+            token = Ext.util.History.getToken();
+
+        if (token === null || token === '') {
+            token = me.getDefaultToken();
+            Ext.util.History.add(token);
+        }
+
+        me.onHistoryChange(token);
     },
 
     onHistoryChange: function (token) {
@@ -2518,7 +2530,15 @@ Ext.define('Uni.model.App', {
     extend: 'Ext.data.Model',
     fields: [
         'name',
-        'url',
+        {
+            name: 'url',
+            convert: function (value, record) {
+                if (value.indexOf('#') === -1 && value.indexOf('http') === -1) {
+                    value += '#';
+                }
+                return value;
+            }
+        },
         'icon',
         {
             name: 'isActive',
@@ -2530,6 +2550,14 @@ Ext.define('Uni.model.App', {
 
                 return href.indexOf(record.data.url, 0) === 0
                     || fullPath.indexOf(record.data.url, 0) === 0;
+            }
+        },
+        {
+            name: 'isExternal',
+            persist: false,
+            convert: function (value, record) {
+                var url = record.get('url');
+                return url.indexOf('http') === 0;
             }
         }
     ]
@@ -2543,7 +2571,7 @@ Ext.define('Uni.store.Apps', {
     model: 'Uni.model.App',
     storeId: 'apps',
     singleton: true,
-    autoLoad: true,
+    autoLoad: false,
 
     proxy: {
         type: 'ajax',
@@ -2821,15 +2849,23 @@ Ext.define('Uni.controller.history.Router', {
     },
 
     getQueryString: function () {
-        var token = Ext.util.History.getToken(),
+        var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
             queryStringIndex = token.indexOf('?');
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
+    getQueryStringValues: function () {
+        var queryString = this.getQueryString();
+        if (typeof queryString !== 'undefined') {
+            return Ext.Object.fromQueryString(this.getQueryString());
+        }
+        return {};
+    },
+
     queryParamsToString: function (obj) {
         return Ext.urlEncode(_.object(_.keys(obj), _.map(obj, function (i) {
-            return _.isString(i) ? i : Ext.JSON.encodeValue(i)
-        })))
+            return _.isString(i) ? i : Ext.JSON.encodeValue(i);
+        })));
     },
 
     /**
@@ -2924,7 +2960,7 @@ Ext.define('Uni.controller.history.Router', {
                     // fire the controller action with this route params as arguments
                     var controller = me.getController(config.controller);
 
-                    var dispatch = function() {
+                    var dispatch = function () {
                         me.fireEvent('routematch', me);
                         controller[action].apply(controller, routeArguments);
                     };
@@ -2933,7 +2969,7 @@ Ext.define('Uni.controller.history.Router', {
                     if (config.filter) {
                         Ext.ModelManager.getModel(config.filter).load(null, {
                             callback: function (record) {
-                                me.filter = record || new Dsh.model.Filter();
+                                me.filter = record || Ext.create(config.filter);
                                 dispatch();
                             }
                         });
@@ -3038,11 +3074,16 @@ Ext.define('Uni.controller.Navigation', {
         {
             ref: 'breadcrumbs',
             selector: 'breadcrumbTrail'
+        },
+        {
+            ref: 'searchButton',
+            selector: 'navigationHeader #globalSearch'
         }
     ],
 
     applicationTitle: 'Connexo Multi Sense',
     applicationTitleSeparator: '-',
+    searchEnabled: true,
 
     init: function () {
         var me = this;
@@ -3051,6 +3092,7 @@ Ext.define('Uni.controller.Navigation', {
             me.selectMenuItemByActiveToken();
         });
 
+        this.initApps();
         this.initMenuItems();
 
         this.control({
@@ -3059,6 +3101,9 @@ Ext.define('Uni.controller.Navigation', {
             },
             'navigationAppSwitcher': {
                 afterrender: this.resetAppSwitcherState
+            },
+            'navigationHeader #globalSearch': {
+                afterrender: this.initSearch
             }
         });
 
@@ -3068,6 +3113,10 @@ Ext.define('Uni.controller.Navigation', {
 
         this.getController('Uni.controller.history.Router').on('routematch', this.initBreadcrumbs, this);
         this.getController('Uni.controller.history.Router').on('routechange', this.initBreadcrumbs, this);
+    },
+
+    initApps: function () {
+        Uni.store.Apps.load();
     },
 
     initTitle: function (breadcrumbItem) {
@@ -3116,6 +3165,11 @@ Ext.define('Uni.controller.Navigation', {
 
         me.initTitle(breadcrumb);
         breadcrumbs.setBreadcrumbItem(breadcrumb);
+    },
+
+    initSearch: function () {
+        var me = this;
+        me.getSearchButton().setVisible(me.searchEnabled);
     },
 
     onAfterRenderNavigationMenu: function () {
@@ -3917,8 +3971,145 @@ Ext.define('Uni.view.form.field.Vtypes', {
 
 });
 
+Ext.define('Uni.view.panel.FilterToolbar', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.filter-toolbar',
+    titlePosition: 'left',
+    layout: {
+        type: 'hbox'
+    },
+    header: false,
+    ui: 'filter-toolbar',
+    showClearButton: true,
+
+    items: [
+        {
+            xtype: 'container',
+            itemId: 'itemsContainer',
+            defaults: {
+                margin: '0 8 0 0'
+            },
+            items: []
+        },
+        {
+            xtype: 'label',
+            itemId: 'emptyLabel',
+            hidden: true
+        },
+        {
+            xtype: 'component',
+            flex: 1,
+            html: '&nbsp;'
+        },
+        {
+            xtype: 'container',
+            itemId: 'toolsContainer',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            dock: 'left'
+        }
+    ],
+
+    dockedItems: [
+        {
+            xtype: 'header',
+            dock: 'left'
+        },
+        {
+            xtype: 'container',
+            dock: 'right',
+            minHeight: 150,
+            items: {
+                itemId: 'Reset',
+                xtype: 'button',
+                text: 'Clear all',
+                action: 'clear'
+            }
+        }
+    ],
+
+    updateContainer: function (container) {
+        var hasItems = container.items.getCount() ? true : false;
+
+        if (!this.emptyText) {
+            this.setVisible(hasItems);
+        } else {
+            this.getEmptyLabel().setVisible(!hasItems);
+            this.getClearButton().setDisabled(!hasItems);
+        }
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        this.dockedItems[0].title = me.title;
+        this.items[0].items = me.content;
+        this.items[1].text = me.emptyText;
+        this.items[3].items = me.tools;
+
+        this.callParent(arguments);
+
+        this.getClearButton().on('click', function () {
+            me.fireEvent('clearAllFilters');
+        });
+
+        if (!this.showClearButton) {
+            this.getClearButton().hide();
+        }
+
+        this.getContainer().on('afterlayout', 'updateContainer', this);
+    },
+
+    getContainer: function () {
+        return this.down('#itemsContainer')
+    },
+
+    getTools: function () {
+        return this.down('#toolsContainer')
+    },
+
+    getClearButton: function () {
+        return this.down('button[action="clear"]')
+    },
+
+    getEmptyLabel: function () {
+        return this.down('#emptyLabel')
+    }
+});
+
+/**
+ * todo: move out!
+ */
+Ext.define('Uni.component.filter.view.FilterTopPanel', {
+    extend: 'Uni.view.panel.FilterToolbar',
+    alias: 'widget.filter-top-panel',
+    title: 'Filters',
+    setFilter: function (key, name, value) {
+        var me = this,
+            btnsContainer = me.getContainer(),
+            btn = btnsContainer.down('button[name=' + key + ']');
+        if (!_.isEmpty(btn)) {
+            btn.setText(name + ': ' + value);
+        } else {
+            btnsContainer.add(Ext.create('Uni.view.button.TagButton', {
+                text: name + ': ' + value,
+                name: key,
+                listeners: {
+                    closeclick: function () {
+                        me.fireEvent('removeFilter', key);
+                    }
+                }
+            }));
+        }
+        me.updateContainer(btnsContainer);
+    }
+});
+
 /**
  * @class Uni.form.NestedForm
+ * TODO: Move functionality to Basic
  */
 Ext.define('Uni.form.NestedForm', {
     extend: 'Ext.form.Panel',
@@ -3937,15 +4128,30 @@ Ext.define('Uni.form.NestedForm', {
         return values;
     },
 
-    loadRecord: function (record) {
-        this.callParent(arguments);
+    setValues: function (data) {
+        this.form.setValues(data);
         this.items.each(function (item) {
-            if (!_.isEmpty(item.name) && _.has(record.getData(), item.name)) {
-                if (_.isFunction(item.setValues) && _.isObject(record.getData()[item.name])) {
-                    item.setValues(record.getData()[item.name]);
+            if (!_.isEmpty(item.name) && _.has(data, item.name)) {
+                if (_.isFunction(item.setValues) && _.isObject(data[item.name])) {
+                    item.setValues(data[item.name]);
                 }
             }
         });
+    },
+
+    loadRecord: function (record) {
+        this.form._record = record;
+        var data = this.form.hydrator ? this.form.hydrator.extract(record) : record.getData();
+        return this.setValues(data);
+    },
+
+    updateRecord: function (record) {
+        record = record || this.getRecord();
+        var data = this.getValues();
+        record.beginEdit();
+        this.form.hydrator ? this.form.hydrator.hydrate(data, record) : record.set(data);
+        record.endEdit();
+        return this;
     }
 });
 
@@ -3986,6 +4192,7 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Search',
 
         'Uni.view.form.field.Vtypes',
+        'Uni.component.filter.view.FilterTopPanel',
         'Uni.form.NestedForm',
 
         'Uni.override.ServerOverride',
@@ -4233,6 +4440,7 @@ Ext.define('Uni.component.filter.model.Filter', {
 
 /**
  * @class Uni.component.filter.store.Filterable
+ * @deprecated
  *
  * Filterable store is a mixin that allow you to bind Filter model (See: {@Link Uni.component.filter.model.Filter})
  * to the store, and retrieve plain (ready for sending via configured proxy) data from this model;
@@ -4274,6 +4482,7 @@ Ext.define('Uni.component.filter.store.Filterable', {
 
 /**
  * @class Uni.component.filter.view.Filter
+ * @deprecated
  *
  * Filter panel is an extension over Ext js form panel See {@link Ext.form.Panel}.
  *
@@ -4686,11 +4895,25 @@ Ext.define('Uni.controller.AppController', {
     applicationTitle: 'Connexo',
 
     /**
+     * @cfg {String} defaultToken
+     *
+     * The default history token the application needs to use.
+     */
+    defaultToken: '',
+
+    /**
+     * @cfg {Boolean} searchEnabled
+     *
+     * Whether the search button shows or not in the application header.
+     * True by default.
+     */
+    searchEnabled: true,
+
+    /**
      * @cfg {Object[]} packages
      *
      * The packages that need to be loaded in by the application.
      *
-
      */
     packages: [],
 
@@ -4700,7 +4923,10 @@ Ext.define('Uni.controller.AppController', {
         me.initCrossroads();
 
         me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
+        me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
+        me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
+        me.getApplication().on('sessionexpired', me.redirectToLogin, me);
 
         me.loadControllers();
         me.callParent(arguments);
@@ -4733,6 +4959,12 @@ Ext.define('Uni.controller.AppController', {
         this.getContentPanel().doComponentLayout();
     },
 
+    redirectToLogin: function () {
+        window.location = '/apps/login/index.html?expired&page='
+            + window.location.pathname
+            + window.location.hash;
+    },
+
     loadControllers: function () {
         for (var i = 0; i < this.controllers.length; i++) {
             var controller = this.controllers[i];
@@ -4740,7 +4972,7 @@ Ext.define('Uni.controller.AppController', {
             try {
                 this.getController(controller);
             } catch (ex) {
-                console.log('Could not load the \'' + controller + '\' controller.');
+                console.error('Could not load the \'' + controller + '\' controller.');
             }
         }
     }
@@ -4810,6 +5042,16 @@ Ext.define('Uni.controller.history.Settings', {
 });
 
 /**
+ * @deprecated
+ *
+ * @class Uni.data.model.Filter
+ * @use Ext.data.Model instead
+ */
+Ext.define('Uni.data.model.Filter', {
+    extend: 'Ext.data.Model'
+});
+
+/**
  * @class Uni.util.Application
  */
 Ext.define('Uni.util.Application', {
@@ -4873,14 +5115,43 @@ Ext.define('Uni.util.History', {
     }
 });
 
+/**
+ * @class Uni.data.proxy.QueryStringProxy
+ *
+ * Uses URL query string as data storage.
+ * The model is serialized and deserialized over JSON encode/decode
+
+ * # Example Usage
+ *
+ *     Ext.define('User', {
+ *         extend: 'Ext.data.Model',
+ *         fields: ['firstName', 'lastName'],
+ *         proxy: {
+ *             type: 'querystring',
+ *             root: 'filter'
+ *         }
+ *     });
+ */
 Ext.define('Uni.data.proxy.QueryStringProxy', {
     extend: 'Ext.data.proxy.Proxy',
+    alias: 'proxy.querystring',
+
+    /**
+     * @cfg {String} root
+     * The root from which to read and save data
+     */
     root: '',
+
     router: null,
 
     requires: [
         'Uni.util.History'
     ],
+
+    writer: {
+        type: 'json',
+        writeRecordId: false
+    },
 
     constructor: function (config) {
         config = config || {};
@@ -4899,32 +5170,36 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         this.setQueryParams.apply(this, arguments);
     },
 
+    /**
+     * Deserializes model from the URL via router
+     *
+     * @param operation
+     * @param callback
+     * @param scope
+     */
     read: function (operation, callback, scope) {
         var me = this,
             router = me.router,
-            Model = me.model,
-            id = operation.id;
+            Model = me.model;
 
         operation.setStarted();
 
         if (!_.isUndefined(router.queryParams[me.root])) {
-            var data = Ext.JSON.decode(router.queryParams[me.root]),
-                modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value')),
-                record;
+            var data = Ext.decode(router.queryParams[me.root], true);
 
             if (this.hydrator) {
-                record = new Model();
-                this.hydrator.hydrate(modelData, record);
-            } else {
-                record = new Model(modelData);
-            }
+                var record = Ext.create(Model);
+                this.hydrator.hydrate(data, record);
 
-            operation.resultSet = Ext.create('Ext.data.ResultSet', {
-                records: [record],
-                total: 1,
-                loaded: true,
-                success: true
-            });
+                operation.resultSet = Ext.create('Ext.data.ResultSet', {
+                    records: [record],
+                    total: 1,
+                    loaded: true,
+                    success: true
+                });
+            } else {
+                operation.resultSet = me.reader.read(data);
+            }
 
             operation.setSuccessful();
         }
@@ -4949,36 +5224,83 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         router.getRoute().forward();
     },
 
+    /**
+     * Serializes model to the URL via router
+     *
+     * @param operation
+     * @param callback
+     * @param model
+     */
     setQueryParams: function (operation, callback, model) {
         var router = this.router,
-            queryParams = {},
-            filter = []
-            ;
+            queryParams = {};
 
         operation.setStarted();
 
         var data = this.hydrator
             ? this.hydrator.extract(model)
-            : model.getData(model);
+            : this.writer.getRecordData(model);
 
-        _.map(data, function (item, key) {
-            if (!Ext.isEmpty(item)) {
-                filter.push({
-                    property: key,
-                    value: item
-                });
-            }
-        });
-
+        //todo: clean empty data!
         model.commit();
 
         operation.setCompleted();
         operation.setSuccessful();
 
-        queryParams[this.root] = filter;
+        queryParams[this.root] = Ext.encode(data);
         router.getRoute().forward(null, queryParams);
     }
 });
+
+/**
+ * Extend from this store if you want to use model for filtering
+ */
+Ext.define('Uni.data.store.Filterable', {
+    extend: 'Ext.data.Store',
+
+    remoteFilter: true,
+    hydrator: null,
+
+    /**
+     * Initialises filters from filter model
+     * @param config
+     */
+    constructor: function(config) {
+        var me = this;
+
+        this.callParent(arguments);
+        var router = this.router = config.router || Uni.util.History.getRouterController();
+        if (me.hydrator && Ext.isString(me.hydrator)) {
+            me.hydrator = Ext.create(me.hydrator);
+        }
+
+        router.on('routematch', function() {
+            if (router.filter) {
+                me.setFilterModel(router.filter);
+            }
+        });
+    },
+
+    /**
+     * returns data in a format of filter:
+     * [{property: key, value: item}]
+     */
+    setFilterModel: function(model) {
+        var me = this,
+            data = me.hydrator ? me.hydrator.extract(model) : model.getData(),
+            filters = [];
+
+        _.map(data, function (item, key) {
+            if (item) {
+                filters.push({property: key, value: item});
+            }
+        });
+
+        me.clearFilter(true);
+        me.addFilter(filters, false);
+    }
+});
+
 
 /**
  * @class Uni.form.field.DisplayFieldWithInfoIcon
@@ -5005,18 +5327,20 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
     ],
 
     deferredRenderer: function (value, field, tooltip) {
-        new Ext.button.Button({
-            renderTo: field.getEl().down('.x-form-display-field'),
-            tooltip: tooltip,
-            iconCls: 'icon-info-small',
-            cls: 'uni-btn-transparent',
-            style: {
-                display: 'inline-block',
-                "text-decoration": 'none !important'
-            }
-        });
+        if (!field.isDestroyed) {
+            new Ext.button.Button({
+                renderTo: field.getEl().down('.x-form-display-field'),
+                tooltip: tooltip,
+                iconCls: 'icon-info-small',
+                cls: 'uni-btn-transparent',
+                style: {
+                    display: 'inline-block',
+                    "text-decoration": 'none !important'
+                }
+            });
 
-        field.updateLayout();
+            field.updateLayout();
+        }
     },
 
     renderer: function (value, field) {
@@ -5150,18 +5474,20 @@ Ext.define('Uni.form.field.LastEventDateDisplay', {
     ],
 
     deferredRenderer: function (value, field, tooltip) {
-        new Ext.button.Button({
-            renderTo: field.getEl().down('.x-form-display-field'),
-            tooltip: tooltip,
-            iconCls: 'icon-info-small',
-            cls: 'uni-btn-transparent',
-            style: {
-                display: 'inline-block',
-                "text-decoration": 'none !important'
-            }
-        });
+        if (!field.isDestroyed) {
+            new Ext.button.Button({
+                renderTo: field.getEl().down('.x-form-display-field'),
+                tooltip: tooltip,
+                iconCls: 'icon-info-small',
+                cls: 'uni-btn-transparent',
+                style: {
+                    display: 'inline-block',
+                    "text-decoration": 'none !important'
+                }
+            });
 
-        field.updateLayout();
+            field.updateLayout();
+        }
     },
 
     renderer: function (value, field) {
@@ -5192,18 +5518,20 @@ Ext.define('Uni.form.field.LastEventTypeDisplay', {
     ],
 
     deferredRenderer: function (value, field, tooltip) {
-        new Ext.button.Button({
-            renderTo: field.getEl().down('.x-form-display-field'),
-            tooltip: tooltip,
-            iconCls: 'icon-info-small',
-            cls: 'uni-btn-transparent',
-            style: {
-                display: 'inline-block',
-                "text-decoration": 'none !important'
-            }
-        });
+        if (!field.isDestroyed) {
+            new Ext.button.Button({
+                renderTo: field.getEl().down('.x-form-display-field'),
+                tooltip: tooltip,
+                iconCls: 'icon-info-small',
+                cls: 'uni-btn-transparent',
+                style: {
+                    display: 'inline-block',
+                    "text-decoration": 'none !important'
+                }
+            });
 
-        field.updateLayout();
+            field.updateLayout();
+        }
     },
 
     renderer: function (data, field) {
@@ -5251,18 +5579,20 @@ Ext.define('Uni.form.field.LastReadingDisplay', {
     ],
 
     deferredRenderer: function (value, field, tooltip) {
-        new Ext.button.Button({
-            renderTo: field.getEl().down('.x-form-display-field'),
-            tooltip: tooltip,
-            iconCls: 'icon-info-small',
-            cls: 'uni-btn-transparent',
-            style: {
-                display: 'inline-block',
-                "text-decoration": 'none !important'
-            }
-        });
+        if (!field.isDestroyed) {
+            new Ext.button.Button({
+                renderTo: field.getEl().down('.x-form-display-field'),
+                tooltip: tooltip,
+                iconCls: 'icon-info-small',
+                cls: 'uni-btn-transparent',
+                style: {
+                    display: 'inline-block',
+                    "text-decoration": 'none !important'
+                }
+            });
 
-        field.updateLayout();
+            field.updateLayout();
+        }
     },
 
     renderer: function (value, field) {
@@ -5751,21 +6081,53 @@ Ext.define('Uni.grid.column.ValidationFlag', {
     renderer: function (value, metaData, record) {
         switch (record.get('validationResult')) {
             case 'validationStatus.notValidated':
-                return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>' + ' '
-                    + value + ' ' + record.get('unitOfMeasure') + '</span>';
+                return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
                 break;
             case 'validationStatus.ok':
-                return value + ' ' + record.get('unitOfMeasure');
+                return '<span class="validation-column-align"><span class="icon-validation"></span>';
                 break;
             case 'validationStatus.suspect':
-                return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>' + '  '
-                    + value + ' ' + record.get('unitOfMeasure') + '</span>';
+                return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
                 break;
             default:
-                return value + ' ' + record.get('unitOfMeasure');
+                return '';
                 break;
         }
     }
+});
+
+Ext.define('Uni.grid.plugin.DragDropWithoutIndication', {
+    extend: 'Ext.grid.plugin.DragDrop',
+    alias: 'plugin.gridviewdragdropwithoutindication',
+
+    onViewRender : function(view) {
+        var me = this,
+            scrollEl;
+
+        if (me.enableDrag) {
+            if (me.containerScroll) {
+                scrollEl = view.getEl();
+            }
+
+            me.dragZone = new Ext.view.DragZone({
+                view: view,
+                ddGroup: me.dragGroup || me.ddGroup,
+                dragText: me.dragText,
+                containerScroll: me.containerScroll,
+                scrollEl: scrollEl
+            });
+        }
+
+        if (me.enableDrop) {
+            me.dropZone = new Ext.grid.ViewDropZone({
+                indicatorHtml: '',
+                indicatorCls: '',
+                view: view,
+                ddGroup: me.dropGroup || me.ddGroup
+            });
+        }
+    }
+
 });
 
 /**
@@ -6496,12 +6858,14 @@ Ext.define('Uni.property.view.property.DateTime', {
     timeFormat: 'H:i:s',
 
     getEditCmp: function () {
-        var me = this;
-        var result = new Array()
+        var me = this,
+            result = [];
+
         result[0] = this.callParent(arguments);
         result[1] = {
             xtype: 'timefield',
-            name: this.getName() + '.time',
+            name: me.getName() + '.time',
+            margin: '0 0 0 16',
             itemId: me.key + 'timefield',
             format: me.timeFormat,
             width: me.width,
@@ -6520,8 +6884,8 @@ Ext.define('Uni.property.view.property.DateTime', {
     },
 
     setValue: function (value) {
-        var dateValue = null;
-        var timeValue = null;
+        var dateValue = null,
+            timeValue = null;
 
         if (value !== null && value !== '') {
             var date = new Date(value);
@@ -6538,17 +6902,16 @@ Ext.define('Uni.property.view.property.DateTime', {
     },
 
     getValue: function (value) {
-        var timeValue = this.getTimeField().getValue();
-        var dateValue = this.getDateField().getValue();
+        var timeValue = this.getTimeField().getValue(),
+            dateValue = this.getDateField().getValue();
 
         if (timeValue !== null && timeValue !== '' && dateValue !== null && dateValue !== '') {
             var newDate = new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(),
                 timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
             return newDate.getTime();
-        } else {
-            return null;
         }
 
+        return null;
     }
 });
 
@@ -6598,6 +6961,7 @@ Ext.define('Uni.property.view.property.Period', {
             },
             {
                 xtype: 'combobox',
+                margin: '0 0 0 16',
                 itemId: me.key + 'combobox',
                 name: this.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
@@ -6608,7 +6972,7 @@ Ext.define('Uni.property.view.property.Period', {
                 forceSelection: false,
                 required: me.required
             }
-        ]
+        ];
     },
 
     getComboCmp: function () {
@@ -6637,9 +7001,9 @@ Ext.define('Uni.property.view.property.Period', {
     },
 
     setValue: function (value) {
-        var unit = null;
-        var count = null;
-        var timeDuration = null;
+        var unit = null,
+            count = null,
+            timeDuration = null;
 
         if (value != null) {
             unit = value.timeUnit;
@@ -7888,6 +8252,82 @@ Ext.define('Uni.property.model.Property', {
     }
 });
 
+/**
+ * @class Uni.util.Common
+ *
+ * This class contains the commonly used functions.
+ */
+Ext.define('Uni.util.Common', {
+    singleton: true,
+
+    /**
+     * Performs a callback function after all required stores will be loaded. Example usage:
+     *
+     *     var me =this;
+     *
+     *     Uni.util.Common.loadNecessaryStores([
+     *          'Mdc.store.Domains',
+     *          'Mdc.store.Subdomains',
+     *          'Mdc.store.EventsOrActions'
+     *     ], function () {
+     *          me.getFilterForm().loadRecord(router.filter);
+     *          me.setFilterView();
+     *     }, false);
+     *
+     * @param {String/Array} stores The stores which must be loaded.
+     * @param {Function} callback The callback function.
+     * @param {Number} [timeout=30000 ms] Time after which the callback will be performed regardless stores loading.
+     * Pass `false` to wait until the stores will be loaded.
+     */
+    loadNecessaryStores: function (stores, callback, timeout) {
+        var me = this,
+            counter,
+            timeoutId,
+            check;
+
+        if (Ext.isString(stores)) {
+            stores = [stores];
+        }
+
+        counter = stores.length;
+
+        if (timeout !== false) {
+            timeoutId = setTimeout(function () {
+                counter = 0;
+                callback();
+            }, timeout || 30000);
+        }
+
+        check = function () {
+            counter--;
+            if (counter === 0) {
+                clearTimeout(timeoutId);
+                callback();
+            }
+        };
+
+        Ext.Array.each(stores, function (storeClass) {
+            try{
+                var store = Ext.getStore(storeClass),
+                    isLoading = store.isLoading();
+
+                if (!isLoading && store.getCount()) {
+                    check();
+                } else if (isLoading) {
+                    store.on('load', check, me, {single: true});
+                } else {
+                    store.load(function () {
+                        check();
+                    });
+                }
+            } catch(e) {
+                check();
+                console.error('\'' + storeClass + '\' not found');
+            }
+        });
+    }
+});
+
 Ext.define('Uni.util.FormErrorMessage', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.uni-form-error-message',
@@ -8184,7 +8624,7 @@ Ext.define('Uni.util.QueryString', {
     },
 
     getQueryString: function () {
-        var token = Ext.util.History.getToken(),
+        var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
             queryStringIndex = token.indexOf('?');
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
@@ -8343,7 +8783,9 @@ Ext.define('Uni.view.navigation.AppCenter', {
                 tpl: [
                     '<div class="handlebar"></div>',
                     '<tpl for=".">',
-                    '<a href="{url}">',
+                    '<a href="{url}"',
+                    '<tpl if="isExternal"> target="_blank"</tpl>',
+                    '>',
                     '<div class="app-item',
                     '<tpl if="isActive"> x-pressed</tpl>',
                     '">',
@@ -8526,7 +8968,8 @@ Ext.define('Uni.view.navigation.Header', {
             iconCls: 'icon-search',
             scale: 'small',
             action: 'search',
-            href: '#/search'
+            href: '#/search',
+            hidden: true
         },
         {
             xtype: 'userMenu'
@@ -8625,21 +9068,22 @@ Ext.define('Uni.view.navigation.Menu', {
     },
 
     selectMenuItem: function (model) {
-        var itemId = model.id;
+        var me = this,
+            itemId = model.id;
 
         this.items.items.forEach(function (item) {
             if (itemId === item.data.id) {
+                me.deselectAllMenuItems();
                 item.toggle(true, false);
             }
         });
     },
 
-    deselectAllMenuItems: function() {
+    deselectAllMenuItems: function () {
         this.items.items.forEach(function (item) {
             item.toggle(false, false);
         });
     }
-
 });
 
 /**
@@ -9746,12 +10190,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
         me.setGridVisible(!me.isAllSelected());
-
-        if (me.isAllSelected()) {
-            me.view.getSelectionModel().deselectAll();
-        } else if (!me.isAllSelected() && me.store.getCount() > 0) {
-            me.view.getSelectionModel().select(0);
-        }
     },
 
     setGridVisible: function (visible) {
@@ -9844,6 +10282,292 @@ Ext.define('Uni.view.grid.BulkSelection', {
     }
 });
 
+/**
+ * @class Uni.view.grid.ConnectedGrid
+ *
+ * This connected grid component is used when we have list of some items,
+ * and wanted to choose only several of them.
+ * Two grid panels are created, and we can move items from one grid to another using buttons, or drag'n'drop.
+ *
+ * Example:
+ *
+ * {
+ *   xtype: 'fieldcontainer',
+ *       fieldLabel: Uni.I18n.translate('comtask.messages', 'MDC', 'Messages'),
+ *   labelWidth: 200,
+ *   items:[
+ *     {
+ *       xtype: 'displayfield',
+ *       value: Uni.I18n.translate('comtask.messages.text', 'MDC', 'Send pending messages of these message categories every time this communication task executes')
+ *     },
+ *     {
+ *       xtype: 'connected-grid',
+ *       allItemsTitle: Uni.I18n.translate('comtask.message.cathegories', 'MDC', 'Message categories'),
+ *       allItemsStoreName: 'Mdc.store.MessageCategories',
+ *       selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.cathegories', 'MDC', 'Selected message categories'),
+ *       selectedItemsStoreName: 'Mdc.store.SelectedMessageCategories',
+ *       displayedColumn: 'name',
+ *       disableIndication: true,
+ *       enableSorting: true
+ *     }
+ *   ]
+ * },
+ *
+ */
+
+
+Ext.define('Uni.view.grid.ConnectedGrid', {
+    extend: 'Ext.container.Container',
+    xtype: 'connected-grid',
+
+    requires: [
+        'Uni.grid.plugin.DragDropWithoutIndication'
+    ],
+
+    layout: {
+        type: 'hbox'
+    },
+
+    allItemsTitle: null,
+
+    allItemsStoreName: null,
+
+    selectedItemsTitle: null,
+
+    selectedItemsStoreName: null,
+
+    displayedColumn: null,
+
+    disableIndication: false,
+
+    enableSorting: false,
+
+
+    initComponent: function () {
+        var me = this,
+            allItems = me.id + 'allItemsGrid',
+            selectedItems = me.id + 'selectedItemsGrid',
+            dragDropPlugin = 'gridviewdragdrop';
+
+        if (me.disableIndication) {
+            dragDropPlugin = 'gridviewdragdropwithoutindication'
+        }
+
+
+        if (Ext.isEmpty(me.displayedColumn)) {
+            me.displayedColumn = 'name';
+        }
+
+        me.items = [
+            {
+                xtype: 'gridpanel',
+                itemId: 'allItemsGrid',
+                store: me.allItemsStoreName,
+                title: me.allItemsTitle,
+                hideHeaders: true,
+                selModel: {
+                    mode: "MULTI"
+                },
+                columns: [
+                    {
+                        dataIndex: me.displayedColumn,
+                        flex: 1
+                    }
+                ],
+                viewConfig: {
+                    plugins: {
+                        ptype: dragDropPlugin,
+                        dragGroup: allItems,
+                        dropGroup: selectedItems
+                    },
+                    listeners: {
+                        drop: function (node, data, dropRec, dropPosition) {
+                            me.enableSorting && me.getAllItemsStore().sort(me.displayedColumn, 'ASC');
+                        }
+                    }
+                },
+                height: 400,
+                width: 200
+            },
+            {
+                xtype: 'container',
+                margin: '0 10',
+                layout: {
+                    type: 'vbox',
+                    align: 'center',
+                    pack: 'center'
+                },
+                defaults: {
+                    margin: '5'
+                },
+                items: [
+                    {
+                        xtype: 'container',
+                        height: 100
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'selectAllItems',
+                        width: 50,
+                        text: '>>',
+                        handler: function () {
+                            me.selectAllItems();
+                        }
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'selectItems',
+                        width: 50,
+                        text: '>',
+                        handler: function () {
+                            me.selectItems();
+                        }
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'deselectItems',
+                        width: 50,
+                        text: '<',
+                        handler: function () {
+                            me.deselectItems();
+
+                        }
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'deselectAllItems',
+                        width: 50,
+                        text: '<<',
+                        handler: function () {
+                            me.deselectAllItems();
+                        }
+                    }
+                ]
+            },
+            {
+                xtype: 'gridpanel',
+                itemId: 'selectedItemsGrid',
+                store: me.selectedItemsStoreName,
+                title: me.selectedItemsTitle,
+                hideHeaders: true,
+                selModel: {
+                    mode: "MULTI"
+                },
+                columns: [
+                    {
+                        dataIndex: me.displayedColumn,
+                        flex: 1
+                    }
+                ],
+                viewConfig: {
+                    plugins: {
+                        ptype: dragDropPlugin,
+                        dragGroup: selectedItems,
+                        dropGroup: allItems
+                    },
+                    listeners: {
+                        drop: function (node, data, dropRec, dropPosition) {
+                            me.enableSorting && me.getSelectedItemsStore().sort(me.displayedColumn, 'ASC');
+                        }
+                    }
+                },
+                height: 400,
+                width: 200
+            }
+        ];
+
+        me.callParent(arguments);
+    },
+
+    getAllItemsGrid: function () {
+        return this.down('#allItemsGrid');
+    },
+
+    getSelectedItemsGrid: function () {
+        return this.down('#selectedItemsGrid');
+    },
+
+    getAllItemsStore: function () {
+        var allItemsGrid = this.getAllItemsGrid();
+
+        if (allItemsGrid) {
+            return allItemsGrid.getStore();
+        } else {
+            return null;
+        }
+    },
+
+    getSelectedItemsStore: function () {
+        var selectedItemsGrid = this.getSelectedItemsGrid();
+
+        if (selectedItemsGrid) {
+            return selectedItemsGrid.getStore();
+        } else {
+            return null;
+        }
+    },
+
+    selectAllItems: function () {
+        var allItemsStore = this.getAllItemsStore(),
+            selectedItemsStore = this.getSelectedItemsStore();
+
+        if (allItemsStore && selectedItemsStore) {
+            allItemsStore.each(function (record) {
+                selectedItemsStore.add(record);
+            });
+            allItemsStore.removeAll();
+        }
+
+        this.enableSorting && selectedItemsStore.sort(this.displayedColumn, 'ASC');
+    },
+
+    selectItems: function () {
+        var allItemsGrid = this.getAllItemsGrid(),
+            selectedRecords = allItemsGrid.getSelectionModel().getSelection(),
+            allItemsStore = this.getAllItemsStore(),
+            selectedItemsStore = this.getSelectedItemsStore();
+
+        if (allItemsStore && selectedItemsStore) {
+            Ext.Array.each(selectedRecords, function (record) {
+                allItemsStore.remove(record);
+                selectedItemsStore.add(record);
+            });
+        }
+
+        this.enableSorting && selectedItemsStore.sort(this.displayedColumn, 'ASC');
+    },
+
+    deselectItems: function () {
+        var selectedItemsGrid = this.getSelectedItemsGrid(),
+            selectedRecords = selectedItemsGrid.getSelectionModel().getSelection(),
+            allItemsStore = this.getAllItemsStore(),
+            selectedItemsStore = this.getSelectedItemsStore();
+
+        if (allItemsStore && selectedItemsStore) {
+            Ext.Array.each(selectedRecords, function (record) {
+                allItemsStore.add(record);
+                selectedItemsStore.remove(record);
+            });
+        }
+
+        this.enableSorting && allItemsStore.sort(this.displayedColumn, 'ASC');
+    },
+
+    deselectAllItems: function () {
+        var allItemsStore = this.getAllItemsStore(),
+            selectedItemsStore = this.getSelectedItemsStore();
+
+        if (allItemsStore && selectedItemsStore) {
+            selectedItemsStore.each(function (record) {
+                allItemsStore.add(record);
+            });
+            selectedItemsStore.removeAll();
+        }
+
+        this.enableSorting && allItemsStore.sort(this.displayedColumn, 'ASC');
+    }
+});
+
 Ext.define('Uni.view.menu.NavigationItem', {
     extend: 'Ext.menu.Item',
     alias: 'widget.navigation-item',
@@ -9878,14 +10602,21 @@ Ext.define('Uni.view.menu.NavigationMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.navigation-menu',
     cls: 'x-navigation-menu',
+
+    requires: [
+        'Uni.view.menu.NavigationItem'
+    ],
+
     defaults: {
         xtype: 'navigation-item'
     },
+
     floating: false,
     hidden: false,
     activeStep: 1,
     jumpBack: true,
     jumpForward: false,
+
     listeners: {
         add: function (menu, item, index) {
             item.renderData.index = item.index = ++index;
@@ -10192,108 +10923,6 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         }
 
         return container;
-    }
-});
-
-Ext.define('Uni.view.panel.FilterToolbar', {
-    extend: 'Ext.panel.Panel',
-    alias: 'widget.filter-toolbar',
-    titlePosition: 'left',
-    layout: {
-        type: 'hbox',
-        align: 'stretch'
-    },
-    header: false,
-    ui: 'filter-toolbar',
-    showClearButton: true,
-
-    items: [
-        {
-            xtype: 'container',
-            itemId: 'itemsContainer',
-			defaults: {
-				margin: '0 8 0 0'
-			},
-            items: []
-        },
-        {
-            xtype: 'label',
-            itemId: 'emptyLabel',
-            hidden: true
-        },
-        {
-            xtype: 'component',
-            flex: 1,
-            html: '&nbsp;'
-        },
-        {
-            xtype: 'container',
-            itemId: 'toolsContainer',
-            layout: {
-                type: 'hbox',
-                align: 'stretch'
-            },
-            dock: 'left'
-        }
-    ],
-
-    dockedItems: [
-        {
-            xtype: 'header',
-            dock: 'left'
-        },
-        {	
-        	itemId : 'Reset',
-            xtype: 'button',
-            text: 'Clear all',
-            action: 'clear',
-            disabled: true,
-            dock: 'right'
-        }
-    ],
-
-    updateContainer: function(container) {
-        var count = container.items.getCount();
-
-        !count
-            ? this.getEmptyLabel().show()
-            : this.getEmptyLabel().hide()
-        ;
-        this.getClearButton().setDisabled(!count);
-    },
-
-    initComponent: function ()
-    {
-        var me = this;
-
-        this.dockedItems[0].title = me.title;
-        this.items[0].items =  me.content;
-        this.items[1].text = me.emptyText;
-        this.items[3].items = me.tools;
-
-        this.callParent(arguments);
-
-        if (!this.showClearButton) {
-            this.getClearButton().hide();
-        }
-
-        this.getContainer().on('afterlayout', 'updateContainer', this);
-    },
-
-    getContainer: function() {
-       return this.down('#itemsContainer')
-    },
-
-    getTools: function() {
-        return this.down('#toolsContainer')
-    },
-
-    getClearButton: function() {
-        return this.down('button[action="clear"]')
-    },
-
-    getEmptyLabel: function() {
-        return this.down('#emptyLabel')
     }
 });
 

@@ -1,11 +1,40 @@
+/**
+ * @class Uni.data.proxy.QueryStringProxy
+ *
+ * Uses URL query string as data storage.
+ * The model is serialized and deserialized over JSON encode/decode
+
+ * # Example Usage
+ *
+ *     Ext.define('User', {
+ *         extend: 'Ext.data.Model',
+ *         fields: ['firstName', 'lastName'],
+ *         proxy: {
+ *             type: 'querystring',
+ *             root: 'filter'
+ *         }
+ *     });
+ */
 Ext.define('Uni.data.proxy.QueryStringProxy', {
     extend: 'Ext.data.proxy.Proxy',
+    alias: 'proxy.querystring',
+
+    /**
+     * @cfg {String} root
+     * The root from which to read and save data
+     */
     root: '',
+
     router: null,
 
     requires: [
         'Uni.util.History'
     ],
+
+    writer: {
+        type: 'json',
+        writeRecordId: false
+    },
 
     constructor: function (config) {
         config = config || {};
@@ -24,32 +53,36 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         this.setQueryParams.apply(this, arguments);
     },
 
+    /**
+     * Deserializes model from the URL via router
+     *
+     * @param operation
+     * @param callback
+     * @param scope
+     */
     read: function (operation, callback, scope) {
         var me = this,
             router = me.router,
-            Model = me.model,
-            id = operation.id;
+            Model = me.model;
 
         operation.setStarted();
 
         if (!_.isUndefined(router.queryParams[me.root])) {
-            var data = Ext.JSON.decode(router.queryParams[me.root]),
-                modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value')),
-                record;
+            var data = Ext.decode(router.queryParams[me.root], true);
 
             if (this.hydrator) {
-                record = new Model();
-                this.hydrator.hydrate(modelData, record);
-            } else {
-                record = new Model(modelData);
-            }
+                var record = Ext.create(Model);
+                this.hydrator.hydrate(data, record);
 
-            operation.resultSet = Ext.create('Ext.data.ResultSet', {
-                records: [record],
-                total: 1,
-                loaded: true,
-                success: true
-            });
+                operation.resultSet = Ext.create('Ext.data.ResultSet', {
+                    records: [record],
+                    total: 1,
+                    loaded: true,
+                    success: true
+                });
+            } else {
+                operation.resultSet = me.reader.read(data);
+            }
 
             operation.setSuccessful();
         }
@@ -74,33 +107,30 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         router.getRoute().forward();
     },
 
+    /**
+     * Serializes model to the URL via router
+     *
+     * @param operation
+     * @param callback
+     * @param model
+     */
     setQueryParams: function (operation, callback, model) {
         var router = this.router,
-            queryParams = {},
-            filter = []
-            ;
+            queryParams = {};
 
         operation.setStarted();
 
         var data = this.hydrator
             ? this.hydrator.extract(model)
-            : model.getData(model);
+            : this.writer.getRecordData(model);
 
-        _.map(data, function (item, key) {
-            if (!Ext.isEmpty(item)) {
-                filter.push({
-                    property: key,
-                    value: item
-                });
-            }
-        });
-
+        //todo: clean empty data!
         model.commit();
 
         operation.setCompleted();
         operation.setSuccessful();
 
-        queryParams[this.root] = filter;
+        queryParams[this.root] = Ext.encode(data);
         router.getRoute().forward(null, queryParams);
     }
 });

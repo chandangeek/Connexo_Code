@@ -23,18 +23,20 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
     ],
 
     deferredRenderer: function (value, field, tooltip) {
-        new Ext.button.Button({
-            renderTo: field.getEl().down('.x-form-display-field'),
-            tooltip: tooltip,
-            iconCls: 'icon-info-small',
-            cls: 'uni-btn-transparent',
-            style: {
-                display: 'inline-block',
-                "text-decoration": 'none !important'
-            }
-        });
+        if (!field.isDestroyed) {
+            new Ext.button.Button({
+                renderTo: field.getEl().down('.x-form-display-field'),
+                tooltip: tooltip,
+                iconCls: 'icon-info-small',
+                cls: 'uni-btn-transparent',
+                style: {
+                    display: 'inline-block',
+                    "text-decoration": 'none !important'
+                }
+            });
 
-        field.updateLayout();
+            field.updateLayout();
+        }
     },
 
     renderer: function (value, field) {

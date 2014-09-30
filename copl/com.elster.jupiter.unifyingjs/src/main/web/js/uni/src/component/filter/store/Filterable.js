@@ -1,5 +1,6 @@
 /**
  * @class Uni.component.filter.store.Filterable
+ * @deprecated
  *
  * Filterable store is a mixin that allow you to bind Filter model (See: {@Link Uni.component.filter.model.Filter})
  * to the store, and retrieve plain (ready for sending via configured proxy) data from this model;

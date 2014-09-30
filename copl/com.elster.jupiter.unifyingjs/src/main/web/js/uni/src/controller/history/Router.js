@@ -124,15 +124,23 @@ Ext.define('Uni.controller.history.Router', {
     },
 
     getQueryString: function () {
-        var token = Ext.util.History.getToken(),
+        var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
             queryStringIndex = token.indexOf('?');
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
+    getQueryStringValues: function () {
+        var queryString = this.getQueryString();
+        if (typeof queryString !== 'undefined') {
+            return Ext.Object.fromQueryString(this.getQueryString());
+        }
+        return {};
+    },
+
     queryParamsToString: function (obj) {
         return Ext.urlEncode(_.object(_.keys(obj), _.map(obj, function (i) {
-            return _.isString(i) ? i : Ext.JSON.encodeValue(i)
-        })))
+            return _.isString(i) ? i : Ext.JSON.encodeValue(i);
+        })));
     },
 
     /**
@@ -227,7 +235,7 @@ Ext.define('Uni.controller.history.Router', {
                     // fire the controller action with this route params as arguments
                     var controller = me.getController(config.controller);
 
-                    var dispatch = function() {
+                    var dispatch = function () {
                         me.fireEvent('routematch', me);
                         controller[action].apply(controller, routeArguments);
                     };
@@ -236,7 +244,7 @@ Ext.define('Uni.controller.history.Router', {
                     if (config.filter) {
                         Ext.ModelManager.getModel(config.filter).load(null, {
                             callback: function (record) {
-                                me.filter = record || new Dsh.model.Filter();
+                                me.filter = record || Ext.create(config.filter);
                                 dispatch();
                             }
                         });

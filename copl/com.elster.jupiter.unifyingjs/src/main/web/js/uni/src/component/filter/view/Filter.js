@@ -1,5 +1,6 @@
 /**
  * @class Uni.component.filter.view.Filter
+ * @deprecated
  *
  * Filter panel is an extension over Ext js form panel See {@link Ext.form.Panel}.
  *

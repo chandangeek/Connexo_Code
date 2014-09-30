@@ -42,7 +42,7 @@ Ext.define('Uni.util.QueryString', {
     },
 
     getQueryString: function () {
-        var token = Ext.util.History.getToken(),
+        var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
             queryStringIndex = token.indexOf('?');
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
