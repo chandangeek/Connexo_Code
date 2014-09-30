@@ -1,27 +1,16 @@
 package com.elster.jupiter.bpm.extjs;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import com.elster.jupiter.http.whiteboard.impl.HttpActivator;
 
-import com.elster.jupiter.http.whiteboard.*;
+public class Activator extends HttpActivator {
 
-import java.util.Arrays;
+    public static final String HTTP_RESOURCE_ALIAS = "/bpm";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/bpm";
 
-
-public class Activator implements BundleActivator {
-
-    private volatile ServiceRegistration<HttpResource> registration;
-
-    public void start(BundleContext bundleContext) throws Exception {
-        String alias = "/bpm";
-        DefaultStartPage bpm = new DefaultStartPage("Bpm", "", "/index.html", "Bpm.controller.Main",null, Arrays.asList("BPM"));
-        HttpResource resource = new HttpResource(alias, "/js/bpm" , new BundleResolver(bundleContext), bpm);
-        registration = bundleContext.registerService(HttpResource.class, resource , null);
-    }
-
-    public void stop(BundleContext bundleContext) throws Exception {
-        registration.unregister();
+    public Activator() {
+        super(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME);
+        // EXAMPLE: Below is how to enable local development mode.
+//        super(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.bpm.extjs/src/main/web/js/bpm", true);
     }
 
 }
