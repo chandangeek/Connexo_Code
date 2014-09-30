@@ -266,7 +266,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private Date defaultStart(com.elster.jupiter.metering.Channel channel, ReadingType readingType) {
-        return getEvaluator().getLastChecked(fetchKoreMeter(), readingType).or(channel.getMeterActivation().getInterval().getStart());
+        return getEvaluator().getLastChecked(fetchKoreMeter(), readingType).or(() -> channel.getMeterActivation().getInterval().getStart());
     }
 
     private Date clippedStart(com.elster.jupiter.metering.Channel channel, Date from) {
