@@ -13,7 +13,7 @@
     <artifactId>time</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>Time</name>
+    <name>[Jupiter] com.elster.jupiter.time</name>
 
     <dependencies>
         <dependency>
