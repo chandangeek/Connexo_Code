@@ -223,13 +223,13 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 } else if (wakeUpWhiteList) {
                     setWakeUpWhiteList(messageHandler);
                 } else if (changeHLSSecret) {
-                    changeHLSSecret();
-                } else if (changeAuthkey) {
-                    changeAuthenticationKey();
-                } else if (changeGlobalkey) {
-                    changeGlobalKey();
+                    changeHLSSecret(messageHandler);
                 } else if (changeLLSSecret) {
-                    changeLLSSecret();
+                    changeLLSSecret(messageHandler);
+                } else if (changeAuthkey) {
+                    changeAuthenticationKey(messageHandler);
+                } else if (changeGlobalkey) {
+                    changeGlobalKey(messageHandler);
                 } else if (activateSMS) {
                     activateSms();
                 } else if (deActivateSMS) {
@@ -493,12 +493,12 @@ public class Dsmr23MessageExecutor extends MessageParser {
         return msgResult;
     }
 
-    private void changeLLSSecret() throws IOException {
+    private void changeLLSSecret(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change LLS secret.");
         // changing the LLS secret in LN_referencing is a set of an attribute
         if (this.dlmsSession.getReference() == ProtocolLink.LN_REFERENCE) {
             AssociationLN aln = getCosemObjectFactory().getAssociationLN();
-            aln.writeSecret(OctetString.fromByteArray(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWLLSSecret()));
+            aln.writeSecret(OctetString.fromByteArray(messageHandler.getLLSSecret()));
 
             // changing the LLS secret in SN_referencing is the same action as for the HLS secret
         } else if (this.dlmsSession.getReference() == ProtocolLink.SN_REFERENCE) {
@@ -507,49 +507,49 @@ public class Dsmr23MessageExecutor extends MessageParser {
             // We just return the byteArray because it is possible that the berEncoded octetString contains
             // extra check bits ...
             //TODO low lever security should set the value directly to the secret attribute of the SNAssociation
-            asn.changeSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
+            asn.changeSecret(messageHandler.getLLSSecret());
         }
     }
 
-    private void changeGlobalKey() throws IOException {
+    private void changeGlobalKey(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change global encryption key.");
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: global unicast encryption key
-        keyData.addDataType(OctetString.fromByteArray(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWGlobalKey()));
+        keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewEncryptionKey()));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
         ss.transferGlobalKey(globalKeyArray);
     }
 
-    private void changeAuthenticationKey() throws IOException {
+    private void changeAuthenticationKey(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change global authentication key.");
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWAuthenticationKey()));
+        keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewAuthenticationKey()));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
         ss.transferGlobalKey(globalKeyArray);
     }
 
-    private void changeHLSSecret() throws IOException {
+    private void changeHLSSecret(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change HLS secret.");
         if (this.dlmsSession.getReference() == ProtocolLink.LN_REFERENCE) {
             AssociationLN aln = getCosemObjectFactory().getAssociationLN();
 
             // We just return the byteArray because it is possible that the berEncoded octetString contains
             // extra check bits ...
-            aln.changeHLSSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
+            aln.changeHLSSecret(messageHandler.getHLSSecret());
         } else if (this.dlmsSession.getReference() == ProtocolLink.SN_REFERENCE) {
             AssociationSN asn = getCosemObjectFactory().getAssociationSN();
 
             // We just return the byteArray because it is possible that the berEncoded octetString contains
             // extra check bits ...
             //TODO low lever security should set the value directly to the secret attribute of the SNAssociation
-            asn.changeSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
+            asn.changeSecret(messageHandler.getHLSSecret());
         }
     }
 

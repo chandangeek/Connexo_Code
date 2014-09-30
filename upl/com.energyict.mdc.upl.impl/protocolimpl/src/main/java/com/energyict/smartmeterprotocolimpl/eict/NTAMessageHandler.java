@@ -19,8 +19,10 @@ public class NTAMessageHandler extends MessageHandler {
 
         if (RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY.equals(qName)) {
             setType(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
+            handleChangeAuthenticationKey(attrbs);
         } else if (RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY.equals(qName)) {
             setType(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
+            handleChangeEncryptionKey(attrbs);
         } else if (RtuMessageConstant.RESET_ALARM_REGISTER.equals(qName)) {
             setType(RtuMessageConstant.RESET_ALARM_REGISTER);
         } else if (RtuMessageConstant.RESET_ERROR_REGISTER.equals(qName)) {

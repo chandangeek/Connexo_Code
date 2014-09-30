@@ -270,6 +270,8 @@ public class RtuMessageConstant {
     public static final String AEE_DISABLE_AUTHENTICATION_LEVEL_P3 = "Disable_authentication_level_P3";
     public static final String AEE_SECURITYLEVEL = "SecurityLevel";
     public static final String AEE_AUTHENTICATIONLEVEL = "AuthenticationLevel";
+    public static final String AEE_NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
+    public static final String AEE_NEW_ENCRYPTION_KEY = "NewEncryptionKey";
 
     //Cryptoserver messages
     public static final String SERVICEKEY_HLSSECRET = "ServiceKeyHLSSecret";

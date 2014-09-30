@@ -3,21 +3,63 @@ package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
-import com.energyict.protocolimpl.generic.MessageParser;
-import com.energyict.protocolimpl.generic.ParseUtils;
-import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
-import com.energyict.protocolimpl.generic.messages.MessageHandler;
-import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
-import com.energyict.protocolimpl.generic.csvhandling.TestObject;
-import com.energyict.mdw.core.*;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AssociationSN;
+import com.energyict.dlms.cosem.AutoConnect;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.Lookup;
+import com.energyict.mdw.core.LookupEntry;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
+import com.energyict.protocolimpl.generic.csvhandling.TestObject;
+import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -25,7 +67,11 @@ import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -748,7 +794,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     Array globalKeyArray = new Array();
                     Structure keyData = new Structure();
                     keyData.addDataType(new TypeEnum(0));    // 0 means keyType: global unicast encryption key
-                    keyData.addDataType(OctetString.fromByteArray(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWGlobalKey()));
+                    keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewEncryptionKey()));
                     globalKeyArray.addDataType(keyData);
 
                     SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -760,7 +806,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     Array globalKeyArray = new Array();
                     Structure keyData = new Structure();
                     keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-                    keyData.addDataType(OctetString.fromByteArray(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWAuthenticationKey()));
+                    keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewAuthenticationKey()));
                     globalKeyArray.addDataType(keyData);
 
                     SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -774,14 +820,14 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                         // We just return the byteArray because it is possible that the berEncoded octetString contains
                         // extra check bits ...
-                        aln.changeHLSSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
+                        aln.changeHLSSecret(messageHandler.getHLSSecret());
                     } else if (this.protocol.getDlmsSession().getReference() == ProtocolLink.SN_REFERENCE) {
                         AssociationSN asn = getCosemObjectFactory().getAssociationSN();
 
                         // We just return the byteArray because it is possible that the berEncoded octetString contains
                         // extra check bits ...
                         //TODO low lever security should set the value directly to the secret attribute of the SNAssociation
-                        asn.changeSecret(this.protocol.getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
+                        asn.changeSecret(messageHandler.getHLSSecret());
                     }
                     success = true;
                 } else if (activateSMS) {

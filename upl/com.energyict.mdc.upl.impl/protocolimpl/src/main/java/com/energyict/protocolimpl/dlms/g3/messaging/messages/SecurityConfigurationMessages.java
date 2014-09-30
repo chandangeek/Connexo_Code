@@ -49,14 +49,22 @@ public interface SecurityConfigurationMessages {
     @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change encryption key", tag = "ChangeEncryptionKey")
     interface ChangeEncryptionKeyMessage extends AnnotatedMessage {
 
-        //No attributes, key is in properties
+        @RtuMessageAttribute(tag = "NewEncryptionKey", required = true)
+        String getNewEncryptionKey();
+
+        @RtuMessageAttribute(tag = "NewWrappedEncryptionKey", required = true)
+        String getNewWrappedEncryptionKey();
 
     }
 
     @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change authentication key", tag = "ChangeAuthenticationKey")
     interface ChangeAuthenticationKeyMessage extends AnnotatedMessage {
 
-        //No attributes, key is in properties
+        @RtuMessageAttribute(tag = "NewAuthenticationKey", required = true)
+        String getNewAuthenticationKey();
+
+        @RtuMessageAttribute(tag = "NewWrappedAuthenticationKey", required = true)
+        String getNewWrappedAuthenticationKey();
 
     }
 }

@@ -46,7 +46,7 @@ public class IskraMx372MessageConverter extends AbstractMessageConverter {
 
     static {
         // Authentication and encryption
-        registry.put(SecurityMessage.CHANGE_LLS_SECRET, new OneTagMessageEntry("Change_LLS_Secret"));
+        registry.put(SecurityMessage.CHANGE_LLS_SECRET_HEX, new MultipleAttributeMessageEntry("Change_LLS_Secret", "LLSSecret'"));
 
         // Basic messages
         registry.put(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS, new MultipleAttributeMessageEntry("GPRS_modem_credentials", "Username", "Password"));

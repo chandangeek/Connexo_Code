@@ -307,9 +307,6 @@ public class G3B extends AbstractDLMSProtocol {
         optionalKeys.add(LocalSecurityProvider.DATATRANSPORTKEY);
         optionalKeys.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optionalKeys.add(LocalSecurityProvider.MASTERKEY);
-        optionalKeys.add(LocalSecurityProvider.NEW_GLOBAL_KEY);
-        optionalKeys.add(LocalSecurityProvider.NEW_AUTHENTICATION_KEY);
-        optionalKeys.add(LocalSecurityProvider.NEW_HLS_SECRET);
         return optionalKeys;
     }
 

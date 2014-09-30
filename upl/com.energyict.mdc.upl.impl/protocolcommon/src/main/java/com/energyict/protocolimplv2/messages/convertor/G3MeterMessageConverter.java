@@ -1,13 +1,21 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cbo.HexString;
+import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDaysMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
@@ -91,10 +99,10 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         registry.put(ClockDeviceMessage.SET_TIME, new MultipleAttributeMessageEntry("WriteClockDateTime", "DateTime"));
 
         registry.put(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL, new MultipleAttributeMessageEntry("ChangeAuthenticationLevel", "Authentication_level"));
-        registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new MultipleAttributeMessageEntry(RtuMessageConstant.AEE_ACTIVATE_SECURITY, "Security_level"));
-        registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY, new SimpleTagMessageEntry(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY));
-        registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY, new SimpleTagMessageEntry(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY));
-        registry.put(SecurityMessage.CHANGE_HLS_SECRET_HEX, new MultipleAttributeMessageEntry(RtuMessageConstant.AEE_CHANGE_HLS_SECRET, "HLS_Secret"));
+        registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new MultipleAttributeMessageEntry("ActivateSecurityLevel", "Security_level"));
+        registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS, new MultipleAttributeMessageEntry("ChangeAuthenticationKey", "NewAuthenticationKey", "NewWrappedAuthenticationKey"));
+        registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS, new MultipleAttributeMessageEntry("ChangeEncryptionKey", "NewEncryptionKey", "NewWrappedEncryptionKey"));
+        registry.put(SecurityMessage.CHANGE_HLS_SECRET_HEX, new MultipleAttributeMessageEntry("ChangeHLSSecret", "HLS_Secret"));
         registry.put(SecurityMessage.CHANGE_LLS_SECRET_HEX, new MultipleAttributeMessageEntry("ChangeLLSSecret", "LLS_Secret"));
         registry.put(SecurityMessage.WRITE_PSK, new MultipleAttributeMessageEntry("WritePlcPsk", "PSK"));
 
@@ -141,6 +149,11 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
                 || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return ((Boolean) messageAttribute).toString();
+        } else if (propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
+                propertySpec.getName().equals(newWrappedAuthenticationKeyAttributeName) ||
+                propertySpec.getName().equals(newEncryptionKeyAttributeName) ||
+                propertySpec.getName().equals(newWrappedEncryptionKeyAttributeName)) {
+            return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(disableDefaultRouting)
                 || propertySpec.getName().equals(adp_Blacklist_table_entry_TTL)
                 || propertySpec.getName().equals(adp_unicast_RREQ_gen_enable)

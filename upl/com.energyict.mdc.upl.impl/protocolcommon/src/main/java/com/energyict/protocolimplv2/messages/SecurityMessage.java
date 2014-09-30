@@ -31,7 +31,10 @@ public enum SecurityMessage implements DeviceMessageSpec {
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
-    CHANGE_ENCRYPTION_KEY(2),
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS(2,
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)
+    ),
     CHANGE_CLIENT_PASSWORDS(3,
             PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newReadingClientPasswordAttributeName, 8),
             PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newManagementClientPasswordAttributeName, 8),
@@ -39,14 +42,17 @@ public enum SecurityMessage implements DeviceMessageSpec {
     ),
     WRITE_PSK(4, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.pskAttributeName)),
     CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(5, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
-    CHANGE_AUTHENTICATION_KEY(6),
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS(6,
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)
+    ),
     CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(7, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)),
     CHANGE_PASSWORD(8),
     CHANGE_PASSWORD_WITH_NEW_PASSWORD(9, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
     CHANGE_LLS_SECRET(10),
-    CHANGE_LLS_SECRET_HEX(11, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
+    CHANGE_LLS_SECRET_HEX(11, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),          //Hex string
     CHANGE_HLS_SECRET(12),
-    CHANGE_HLS_SECRET_HEX(13, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
+    CHANGE_HLS_SECRET_HEX(13, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),          //Hex string
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(14,
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(
                     DeviceMessageConstants.keyTActivationStatusAttributeName,
@@ -112,9 +118,9 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
     ),
-    CHANGE_WEBPORTAL_PASSWORD1(29, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
+    CHANGE_WEBPORTAL_PASSWORD1(29, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),  //ASCII password
     CHANGE_WEBPORTAL_PASSWORD2(30, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),
-    CHANGE_HLS_SECRET_PASSWORD(31, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newPasswordAttributeName));               //Password field
+    CHANGE_HLS_SECRET_PASSWORD(31, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newPasswordAttributeName)); //Password field
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 

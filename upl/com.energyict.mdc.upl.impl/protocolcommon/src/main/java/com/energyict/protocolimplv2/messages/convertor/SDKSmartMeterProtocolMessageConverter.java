@@ -94,9 +94,9 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
         // security related
         registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new ActivateDlmsEncryptionMessageEntry(encryptionLevelAttributeName));
         registry.put(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL, new ChangeDlmsAuthenticationLevelMessageEntry(authenticationLevelAttributeName));
-        registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY, new ChangeNTADataTransportEncryptionKeyMessageEntry());
-        registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY, new ChangeNTADataTransportAuthenticationKeyMessageEntry());
-        registry.put(SecurityMessage.CHANGE_PASSWORD, new ChangeHLSSecretMessageEntry());
+        registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY, new ChangeNTADataTransportEncryptionKeyMessageEntry(newEncryptionKeyAttributeName));
+        registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY, new ChangeNTADataTransportAuthenticationKeyMessageEntry(newAuthenticationKeyAttributeName));
+        registry.put(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD, new ChangeHLSSecretMessageEntry(newPasswordAttributeName));
 
         // network and connectivity
         registry.put(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM, new ActivateNTASmsWakeUpMessageEntry());
@@ -161,7 +161,10 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(passwordAttributeName)) {
+        } else if (propertySpec.getName().equals(newEncryptionKeyAttributeName) ||
+                propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
+                propertySpec.getName().equals(newPasswordAttributeName) ||
+                propertySpec.getName().equals(passwordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
             return String.valueOf(((Lookup) messageAttribute).getId());

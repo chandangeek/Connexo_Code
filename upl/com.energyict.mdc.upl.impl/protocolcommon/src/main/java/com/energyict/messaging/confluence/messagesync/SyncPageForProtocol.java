@@ -1,6 +1,10 @@
 package com.energyict.messaging.confluence.messagesync;
 
-import com.energyict.messaging.confluence.messagesync.client.*;
+import com.energyict.messaging.confluence.messagesync.client.ConfluenceSoapService;
+import com.energyict.messaging.confluence.messagesync.client.ConfluenceSoapServiceServiceLocator;
+import com.energyict.messaging.confluence.messagesync.client.ConfluenceserviceV2SoapBindingStub;
+import com.energyict.messaging.confluence.messagesync.client.RemoteException;
+import com.energyict.messaging.confluence.messagesync.client.RemotePage;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -62,7 +66,7 @@ public class SyncPageForProtocol {
             soapService.storePage(token, protocolPage);
             logger.info("Successfully updated the page '" + protocolDescription + "'");
         }  else {
-            logger.info("No match for page ' " + protocolDescription + "'");
+            logger.info("No match for page '" + protocolDescription + "'");
         }
     }
 

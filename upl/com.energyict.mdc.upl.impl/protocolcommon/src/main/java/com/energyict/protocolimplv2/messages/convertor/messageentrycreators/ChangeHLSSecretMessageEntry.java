@@ -1,10 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 /**
@@ -17,9 +21,18 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  */
 public class ChangeHLSSecretMessageEntry implements MessageEntryCreator {
 
+    private final String newPasswordAttributeName;
+
+    public ChangeHLSSecretMessageEntry(String newPasswordAttributeName) {
+        this.newPasswordAttributeName = newPasswordAttributeName;
+    }
+
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
+        OfflineDeviceMessageAttribute msgAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, newPasswordAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
+        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_HLS_SECRET, msgAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

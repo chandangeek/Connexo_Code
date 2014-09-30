@@ -35,7 +35,9 @@ public class DeviceMessageConstants {
     public static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
     public static final String authenticationLevelAttributeName = "SecurityMessage.dlmsauthentication.authenticationlevel";
     public static final String newEncryptionKeyAttributeName = "SecurityMessage.new.encryptionkey";
+    public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
+    public static final String newWrappedAuthenticationKeyAttributeName = "SecurityMessage.new.wrapped.authenticationkey";
     public static final String pskAttributeName = "SecurityMessage.psk";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String newHexPasswordAttributeName = "SecurityMessage.newhexpassword";

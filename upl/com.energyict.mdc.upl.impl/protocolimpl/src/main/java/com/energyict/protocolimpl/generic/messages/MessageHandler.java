@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.generic.messages;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -130,10 +131,6 @@ public class MessageHandler extends DefaultHandler{
             setType(RtuMessageConstant.WAKEUP_DEACTIVATE);
 		} else if(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
-		} else if(RtuMessageConstant.AEE_CHANGE_HLS_SECRET.equals(qName)){
-			setType(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
-		} else if(RtuMessageConstant.AEE_CHANGE_LLS_SECRET.equals(qName)){
-			setType(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
 		} else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
 		} else if(RtuMessageConstant.AEE_ACTIVATE_SECURITY.equals(qName)){
@@ -161,6 +158,18 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3.equals(qName)){
             setType(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3);
             handleChangeAuthentication(attrbs);
+        } else if (RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY.equals(qName)) {
+            setType(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
+            handleChangeAuthenticationKey(attrbs);
+        } else if (RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY.equals(qName)) {
+            setType(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
+            handleChangeEncryptionKey(attrbs);
+        } else if (RtuMessageConstant.AEE_CHANGE_HLS_SECRET.equals(qName)) {
+            setType(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
+            handleChangeHLSSecret(attrbs);
+        } else if (RtuMessageConstant.AEE_CHANGE_LLS_SECRET.equals(qName)) {
+            setType(RtuMessageConstant.AEE_LLS_SECRET);
+            handleChangeLLSSecret(attrbs);
         } else if(RtuMessageConstant.CHANGE_HAN_SAS.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.CHANGE_HAN_SAS);
             handleChangeHanSas(attrbs);
@@ -664,7 +673,51 @@ public class MessageHandler extends DefaultHandler{
         }
     }
 
-    /* Mbus installation related messages
+    /* Change the authentication key */
+
+    private byte[] authenticationKey = new byte[0];
+    protected void handleChangeAuthenticationKey(Attributes attrbs){
+        this.authenticationKey = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_NEW_AUTHENTICATION_KEY));
+    }
+
+    public byte[] getNewAuthenticationKey() {
+        return authenticationKey;
+    }
+
+     /* Change the encryption key */
+
+    private byte[] encryptionKey = new byte[0];
+    protected void handleChangeEncryptionKey(Attributes attrbs){
+        this.encryptionKey = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_NEW_ENCRYPTION_KEY));
+    }
+
+    public byte[] getNewEncryptionKey() {
+        return encryptionKey;
+    }
+
+     /* Change the HLS secret */
+
+    private byte[] hlsSecret = new byte[0];
+    protected void handleChangeHLSSecret(Attributes attrbs){
+        this.hlsSecret = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_HLS_SECRET));
+    }
+
+    public byte[] getHLSSecret() {
+        return hlsSecret;
+    }
+
+    /* Change the LLS secret */
+
+    private byte[] llsSecret = new byte[0];
+    protected void handleChangeLLSSecret(Attributes attrbs){
+        this.llsSecret = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_LLS_SECRET));
+    }
+
+    public byte[] getLLSSecret() {
+        return llsSecret;
+    }
+
+/* Mbus installation related messages
     */
 
     private String mbusEquipmentId = "";

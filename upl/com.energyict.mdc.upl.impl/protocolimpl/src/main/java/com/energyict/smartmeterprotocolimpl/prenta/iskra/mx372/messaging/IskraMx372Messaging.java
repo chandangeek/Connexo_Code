@@ -296,7 +296,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             try {
                 if (isItThisMessage(messageEntry, RtuMessageConstant.AEE_CHANGE_LLS_SECRET)) {
                     infoLog("Sending Change_LLS_Secret message for meter with serialnumber: " + messageEntry.getSerialNumber());
-                    changeLLSSecret();
+                    changeLLSSecret(messageEntry);
                     infoLog("Change_LLS_Secret message successful.");
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.GPRS_MODEM_CREDENTIALS)) {
                     infoLog("Sending GPRS_modem_credentials message for meter with serialnumber: " + messageEntry.getSerialNumber());
@@ -493,8 +493,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     }
 
 
-    private void changeLLSSecret() throws IOException {
-        String newLLSSecret = getProperties().getNewLLSSecret();
+    private void changeLLSSecret(MessageEntry messageEntry) throws IOException {
+        String newLLSSecret = getMessageAttribute(messageEntry.getContent(), RtuMessageConstant.AEE_LLS_SECRET);
         if (newLLSSecret == null) {
             throw new InvalidPropertyException("Invalid new LLS secret property.");
         } else if (newLLSSecret.length() > 16) {
@@ -502,13 +502,13 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         } else {
             try {
                 Data authKeyData = protocol.getCosemObjectFactory().getData(llsSecretObisCode4);
-                authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
+                authKeyData.setValueAttr(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(newLLSSecret, "")));
                 authKeyData = protocol.getCosemObjectFactory().getData(llsSecretObisCode3);
-                authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
+                authKeyData.setValueAttr(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(newLLSSecret, "")));
                 authKeyData = protocol.getCosemObjectFactory().getData(llsSecretObisCode2);
-                authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
+                authKeyData.setValueAttr(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(newLLSSecret, "")));
                 authKeyData = protocol.getCosemObjectFactory().getData(llsSecretObisCode1);
-                authKeyData.setValueAttr(OctetString.fromString(newLLSSecret));
+                authKeyData.setValueAttr(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(newLLSSecret, "")));
             } catch (IOException e) {
                 throw new IOException("Could not write all the necessary LLS keys.");
             }

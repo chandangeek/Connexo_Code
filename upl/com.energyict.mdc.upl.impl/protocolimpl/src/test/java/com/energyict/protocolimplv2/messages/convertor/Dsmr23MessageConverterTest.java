@@ -779,54 +779,6 @@ public class Dsmr23MessageConverterTest {
     }
 
     @Test
-    public void changeDataTransportEncryptionKeyTest() {
-        Messaging smartMeterProtocol = new WebRTUKP();
-        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
-        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
-        OfflineDeviceMessage changeDataTransportEncryptionKey = mock(OfflineDeviceMessage.class);
-        when(changeDataTransportEncryptionKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_ENCRYPTION_KEY.getPrimaryKey().getValue());
-
-        // business method
-        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeDataTransportEncryptionKey);
-
-        // asserts
-        assertNotNull(messageEntry);
-        assertThat(messageEntry.getContent()).isEqualTo("<Change_DataTransportEncryptionKey/>");
-    }
-
-    @Test
-    public void changeDataTransportAuthenticationKeyTest() {
-        Messaging smartMeterProtocol = new WebRTUKP();
-        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
-        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
-        OfflineDeviceMessage changeDataTransportAuthenticationKey = mock(OfflineDeviceMessage.class);
-        when(changeDataTransportAuthenticationKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_AUTHENTICATION_KEY.getPrimaryKey().getValue());
-
-        // business method
-        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeDataTransportAuthenticationKey);
-
-        // asserts
-        assertNotNull(messageEntry);
-        assertThat(messageEntry.getContent()).isEqualTo("<Change_DataTransportAuthenticationKey/>");
-    }
-
-    @Test
-    public void changeHlsSecretTest() {
-        Messaging smartMeterProtocol = new WebRTUKP();
-        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
-        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
-        OfflineDeviceMessage changeHlsSecret = mock(OfflineDeviceMessage.class);
-        when(changeHlsSecret.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_PASSWORD.getPrimaryKey().getValue());
-
-        // business method
-        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeHlsSecret);
-
-        // asserts
-        assertNotNull(messageEntry);
-        assertThat(messageEntry.getContent()).isEqualTo("<Change_HLS_Secret/>");
-    }
-
-    @Test
     public void activateSmsWakeUpMechanismTest() {
         Messaging smartMeterProtocol = new WebRTUKP();
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
@@ -1164,5 +1116,71 @@ public class Dsmr23MessageConverterTest {
         // asserts
         assertNotNull(messageEntry);
         assertThat(messageEntry.getContent()).isEqualTo(expectedMessageContent);
+    }
+
+    @Test
+    public void changeEncryptionKeyTest(){
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
+
+        OfflineDeviceMessage changeEncryptionKeyMessage = mock(OfflineDeviceMessage.class);
+        OfflineDeviceMessageAttribute newEncryptionKeyAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(newEncryptionKeyAttribute.getName()).thenReturn(newEncryptionKeyAttributeName);
+        when(newEncryptionKeyAttribute.getDeviceMessageAttributeValue()).thenReturn("00112233445566778899");
+
+        when(changeEncryptionKeyMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(newEncryptionKeyAttribute));
+        when(changeEncryptionKeyMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.getPrimaryKey().getValue());
+
+        // business method
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeEncryptionKeyMessage);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Change_DataTransportEncryptionKey NewEncryptionKey=\"00112233445566778899\"> </Change_DataTransportEncryptionKey>");
+    }
+
+    @Test
+    public void changeAuthenticationKeyTest(){
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
+
+        OfflineDeviceMessage changeAuthenticationKeyMessage = mock(OfflineDeviceMessage.class);
+        OfflineDeviceMessageAttribute newAuthenticationKeyAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(newAuthenticationKeyAttribute.getName()).thenReturn(newAuthenticationKeyAttributeName);
+        when(newAuthenticationKeyAttribute.getDeviceMessageAttributeValue()).thenReturn("00112233445566778899");
+
+        when(changeAuthenticationKeyMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(newAuthenticationKeyAttribute));
+        when(changeAuthenticationKeyMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.getPrimaryKey().getValue());
+
+        // business method
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeAuthenticationKeyMessage);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Change_DataTransportAuthenticationKey NewAuthenticationKey=\"00112233445566778899\"> </Change_DataTransportAuthenticationKey>");
+    }
+
+    @Test
+    public void changeHLSSecretTest(){
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
+
+        OfflineDeviceMessage changePasswordMessage = mock(OfflineDeviceMessage.class);
+        OfflineDeviceMessageAttribute newAuthenticationKeyAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(newAuthenticationKeyAttribute.getName()).thenReturn(newHexPasswordAttributeName);
+        when(newAuthenticationKeyAttribute.getDeviceMessageAttributeValue()).thenReturn("00112233445566778899");
+
+        when(changePasswordMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(newAuthenticationKeyAttribute));
+        when(changePasswordMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD.getPrimaryKey().getValue());
+
+        // business method
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changePasswordMessage);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Change_HLS_Secret HLSSecret=\"00112233445566778899\"> </Change_HLS_Secret>");
     }
 }

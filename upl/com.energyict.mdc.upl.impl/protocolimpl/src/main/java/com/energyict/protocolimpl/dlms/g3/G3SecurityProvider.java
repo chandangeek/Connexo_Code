@@ -1,10 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
-
-import java.io.IOException;
 
 /**
  * Extension on the Dsmr40SecurityProvider, with extra functionality for immediate key changing.
@@ -18,7 +15,6 @@ import java.io.IOException;
  */
 public class G3SecurityProvider extends Dsmr40SecurityProvider {
 
-    private static final String SEPARATOR = ",";
     private long frameCounter = -1;
     private G3Properties g3Properties;
     private String hlsSecret;
@@ -55,49 +51,6 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
             byteWord[i] = (byte) this.hlsSecret.charAt(i);
         }
         return byteWord;
-    }
-
-    /**
-     * String array containing the original key and the wrapped key
-     */
-    @Override
-    public String[] getNEWAuthenticationKeys() throws IOException {
-        if (getProperties().containsKey(NEW_DATATRANSPORT_AUTHENTICATION_KEY)) {
-            String keys = getProperties().getProperty(NEW_DATATRANSPORT_AUTHENTICATION_KEY);   //Comma separated keys
-            return splitKeys(keys, NEW_DATATRANSPORT_AUTHENTICATION_KEY);                      //Array of original and wrapped key
-        }
-        throw new IllegalArgumentException("New authenticationKey is not correctly filled in.");
-    }
-
-    /**
-     * String array containing the original key and the wrapped key
-     */
-    @Override
-    public String[] getNEWGlobalKeys() throws IOException {
-        if (getProperties().containsKey(NEW_DATATRANSPORT_ENCRYPTION_KEY)) {
-            String keys = getProperties().getProperty(NEW_DATATRANSPORT_ENCRYPTION_KEY);
-            return splitKeys(keys, NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        }
-        throw new IllegalArgumentException("New encryptionKey is not correctly filled in.");
-    }
-
-    @Override
-    public void changeEncryptionKey() throws IOException {
-        setEncryptionKey(ProtocolTools.getBytesFromHexString(getNEWGlobalKeys()[0], ""));    //First key is the original (not wrapped) key
-    }
-
-    @Override
-    public void changeAuthenticationKey() throws IOException {
-        setAuthenticationKey(ProtocolTools.getBytesFromHexString(getNEWAuthenticationKeys()[0], ""));
-    }
-
-    public String[] splitKeys(String keys, String propertyName) {
-        String[] splitKeys = keys.split(SEPARATOR);
-        if (splitKeys.length == 2) {
-            return splitKeys;
-        } else {
-            throw new IllegalArgumentException("Invalid property '" + propertyName + "': should contain the original key and the wrapped key, comma separated");
-        }
     }
 
     @Override

@@ -1,10 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 /**
@@ -17,9 +21,18 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  */
 public class ChangeNTADataTransportAuthenticationKeyMessageEntry implements MessageEntryCreator {
 
+    private final String newAuthenticationKeyAttributeName;
+
+    public ChangeNTADataTransportAuthenticationKeyMessageEntry(String newAuthenticationKeyAttributeName) {
+        this.newAuthenticationKeyAttributeName = newAuthenticationKeyAttributeName;
+    }
+
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
+        OfflineDeviceMessageAttribute msgAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, newAuthenticationKeyAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
+        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_NEW_AUTHENTICATION_KEY, msgAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

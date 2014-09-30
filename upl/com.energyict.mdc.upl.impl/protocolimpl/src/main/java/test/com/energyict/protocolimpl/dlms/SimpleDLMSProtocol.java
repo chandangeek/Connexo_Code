@@ -1024,9 +1024,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         optionalKeys.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
         optionalKeys.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optionalKeys.add(NTASecurityProvider.MASTERKEY);
-        optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
-        optionalKeys.add(NTASecurityProvider.NEW_HLS_SECRET);
         return optionalKeys;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

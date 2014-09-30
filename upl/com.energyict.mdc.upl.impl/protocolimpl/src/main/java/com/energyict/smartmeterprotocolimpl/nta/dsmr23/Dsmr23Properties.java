@@ -2,11 +2,11 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +51,6 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
         optional.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optional.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-        optional.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        optional.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
-        optional.add(NTASecurityProvider.NEW_HLS_SECRET);
         optional.add(OLD_MBUS_DISCOVERY);
         optional.add(FIX_MBUS_HEX_SHORT_ID);
         optional.add(DlmsProtocolProperties.WAKE_UP);

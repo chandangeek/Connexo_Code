@@ -3,8 +3,20 @@ package com.energyict.protocolimpl.dlms.g3.messaging;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -17,7 +29,19 @@ import com.energyict.protocolimpl.dlms.g3.G3Clock;
 import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.dlms.g3.events.G3Events;
-import com.energyict.protocolimpl.dlms.g3.messaging.messages.*;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.ContactorMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.ForceSyncClockMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.LoadProfileMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.LogObjectListMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.LogbookMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.PlcOfdmMacSetupMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.SecurityConfigurationMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.SixLoWPanMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WriteClockMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WriteConsumerProducerModeMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WritePlcG3TimeoutMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WritePlcPskMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WriteProfileIntervalMessage;
 import com.energyict.protocolimpl.dlms.idis.IDISMessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -31,7 +55,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -530,7 +558,7 @@ public class G3Messaging extends AnnotatedMessaging {
 
     @RtuMessageHandler
     public final MessageResult changeEncryptionKey(SecurityConfigurationMessages.ChangeEncryptionKeyMessage message) throws IOException {
-        String wrappedEncryptionKeyString = session.getProperties().getSecurityProvider().getNEWGlobalKeys()[1];
+        String wrappedEncryptionKeyString = message.getNewWrappedEncryptionKey();
         String oldGlobalKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
         byte[] wrappedEncryptionKey = ProtocolTools.getBytesFromHexString(wrappedEncryptionKeyString, "");
         getLogger().info("Received [ChangeEncryptionKeyMessage], wrapped key is '" + wrappedEncryptionKeyString + "'");
@@ -543,10 +571,10 @@ public class G3Messaging extends AnnotatedMessaging {
         getSecuritySetup().transferGlobalKey(encryptionKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        session.getProperties().getSecurityProvider().changeEncryptionKey();
+        session.getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(message.getNewEncryptionKey(), ""));
 
         //Reset frame counter, only if a different key has been written
-        if (!oldGlobalKey.equalsIgnoreCase(session.getProperties().getSecurityProvider().getNEWGlobalKeys()[0])) {
+        if (!oldGlobalKey.equalsIgnoreCase(message.getNewEncryptionKey())) {
             session.getAso().getSecurityContext().setFrameCounter(1);
         }
 
@@ -559,19 +587,19 @@ public class G3Messaging extends AnnotatedMessaging {
 
     @RtuMessageHandler
     public final MessageResult changeAuthenticationKey(SecurityConfigurationMessages.ChangeAuthenticationKeyMessage message) throws IOException {
-        String wrappedAuthenticationKeyString = session.getProperties().getSecurityProvider().getNEWAuthenticationKeys()[1];
-        byte[] authenticationKeysBytes = ProtocolTools.getBytesFromHexString(wrappedAuthenticationKeyString, "");
+        String wrappedAuthenticationKeyString = message.getNewWrappedAuthenticationKey();
+        byte[] wrappedAuthenticationKeysBytes = ProtocolTools.getBytesFromHexString(wrappedAuthenticationKeyString, "");
         getLogger().info("Received [ChangeAuthenticationKeyMessage], wrapped key is '" + wrappedAuthenticationKeyString + "'");
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(authenticationKeysBytes));
+        keyData.addDataType(OctetString.fromByteArray(wrappedAuthenticationKeysBytes));
         globalKeyArray.addDataType(keyData);
 
         getSecuritySetup().transferGlobalKey(globalKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        session.getProperties().getSecurityProvider().changeAuthenticationKey();
+        session.getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(message.getNewAuthenticationKey(), ""));
 
         return MessageResult.createSuccess(message.getMessageEntry());
     }
