@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
 //    extend: 'Uni.view.grid.BulkSelection',
     alias: 'widget.schedules-selection-grid',
     itemId: 'schedulesgrid',
+    height: 300,
 
     store: 'Mdc.store.CommunicationSchedulesWithoutPaging',
 
