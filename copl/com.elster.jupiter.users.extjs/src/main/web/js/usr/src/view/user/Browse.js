@@ -7,6 +7,7 @@ Ext.define('Usr.view.user.Browse', {
     requires: [
         'Usr.view.user.List',
         'Usr.view.user.Details',
+        'Usr.view.user.UserActionMenu',
         'Ext.panel.Panel',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'

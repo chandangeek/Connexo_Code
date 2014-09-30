@@ -18,18 +18,10 @@ Ext.define('Usr.controller.Main', {
         'Usr.store.Users'
     ],
 
-    config: {
-        navigationController: null
-    },
-
     refs: [
         {
             ref: 'viewport',
             selector: 'viewport'
-        },
-        {
-            ref: 'contentPanel',
-            selector: 'viewport > #contentPanel'
         }
     ],
 
@@ -37,17 +29,11 @@ Ext.define('Usr.controller.Main', {
         var me = this,
             historian = me.getController('Usr.controller.history.UserManagement'); // Forces route registration.
 
-        me.initNavigation();
         me.initMenu();
     },
 
-    initNavigation: function () {
-        var controller = this.getController('Uni.controller.Navigation');
-        this.setNavigationController(controller);
-    },
-
     initMenu: function () {
-        if (Uni.Auth.hasPrivilege('privilege.view.user') || Uni.Auth.hasPrivilege('privilege.view.group')) {
+        if (Uni.Auth.hasPrivilege('privilege.view.userAndRole')) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'USR', 'Administration'),
                 glyph: 'settings',
@@ -59,7 +45,7 @@ Ext.define('Usr.controller.Main', {
 
             var usersItems = [];
 
-            if (Uni.Auth.hasPrivilege('privilege.view.user')) {
+            if (Uni.Auth.hasPrivilege('privilege.view.userAndRole')) {
                 usersItems.push(
                     {
                         text: Uni.I18n.translate('general.users', 'USR', 'Users'),
@@ -68,7 +54,7 @@ Ext.define('Usr.controller.Main', {
                 );
             }
 
-            if (Uni.Auth.hasPrivilege('privilege.view.group')) {
+            if (Uni.Auth.hasPrivilege('privilege.view.userAndRole')) {
                 usersItems.push(
                     {
                         text: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
@@ -90,13 +76,10 @@ Ext.define('Usr.controller.Main', {
         }
     },
 
+    /**
+     * @deprecated Fire an event instead, as shown below.
+     */
     showContent: function (widget) {
-        this.clearContentPanel();
-        this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
-    },
-
-    clearContentPanel: function () {
-        this.getContentPanel().removeAll(false);
+        this.getApplication().fireEvent('changecontentevent', widget);
     }
 });
