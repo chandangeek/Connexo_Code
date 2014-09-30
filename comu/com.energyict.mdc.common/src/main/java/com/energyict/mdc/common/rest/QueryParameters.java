@@ -73,4 +73,8 @@ public class QueryParameters {
         String value = queryParameters.getFirst(name);
         return Boolean.parseBoolean(value);
     }
+
+    public MultivaluedMap<String, String> getQueryParameters() {
+        return queryParameters;
+    }
 }
