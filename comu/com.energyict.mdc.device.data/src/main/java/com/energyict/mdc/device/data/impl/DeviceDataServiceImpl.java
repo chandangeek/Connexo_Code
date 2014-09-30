@@ -117,8 +117,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -1537,7 +1540,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         /* For clarity's sake, here is the formatted SQL when atLeastOneFailingComTask = false:
            SELECT ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*)
              FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastcomession = cs.id
-            WHERE NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte
+            WHERE ct.status = 0
+              AND NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte
                                WHERE cte.COMSESSION = cs.id
                                  AND cte.SUCCESSINDICATOR > 0)
             GROUP BY ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator;
@@ -1545,7 +1549,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
            when atLeastOneFailingComTask = false:
            SELECT ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*)
              FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastcomession = cs.id
-            WHERE cs.successindicator = 0
+            WHERE ct.status = 0
+              AND cs.successindicator = 0
               AND EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte
                            WHERE cte.COMSESSION = cs.id
                              AND cte.SUCCESSINDICATOR > 0)
@@ -1555,7 +1560,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
         this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
-        sqlBuilder.append(" where ");
+        sqlBuilder.append(" where ct.status = 0 and ");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
         sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
@@ -1568,10 +1573,17 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     private Map<ConnectionTypePluggableClass, List<Long>> buildConnectionTypeHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
-        Map<ConnectionTypePluggableClass, List<Long>> heatMap = new HashMap<>();
-        Set<Long> allConnectionTypePluggableClassIds = this.union(partialCounters.keySet(), remainingCounters.keySet());
-        for (Long connectionTypePluggableClassId : allConnectionTypePluggableClassIds) {
-            ConnectionTypePluggableClass connectionTypePluggableClass = this.protocolPluggableService.findConnectionTypePluggableClass(connectionTypePluggableClassId);
+        Map<Long, ConnectionTypePluggableClass> connectionTypePluggableClasses =
+                this.protocolPluggableService.findAllConnectionTypePluggableClasses().
+                        stream().
+                        collect(Collectors.toMap(ConnectionTypePluggableClass::getId, Function.identity()));
+        Map<ConnectionTypePluggableClass, List<Long>> heatMap =
+                connectionTypePluggableClasses.values().stream().collect(
+                        Collectors.toMap(
+                                Function.identity(),
+                                this::missingSuccessIndicatorCounters));
+        for (Long connectionTypePluggableClassId : this.union(partialCounters.keySet(), remainingCounters.keySet())) {
+            ConnectionTypePluggableClass connectionTypePluggableClass = connectionTypePluggableClasses.get(connectionTypePluggableClassId);
             heatMap.put(connectionTypePluggableClass, this.orderSuccessIndicatorCounters(partialCounters.get(connectionTypePluggableClassId), remainingCounters.get(connectionTypePluggableClassId)));
         }
         return heatMap;
@@ -1594,12 +1606,27 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" dev on cte.device = dev.id group by dev.devicetype, ctes.highestPrioCompletionCode");
         Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
-        Map<DeviceType, List<Long>> heatMap = new HashMap<>();
+        return this.buildDeviceTypeHeatMap(partialCounters);
+    }
+
+    private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<CompletionCode, Long>> partialCounters) {
+        Map<Long, DeviceType> deviceTypes = this.deviceConfigurationService.findAllDeviceTypes().find().
+                stream().
+                collect(Collectors.toMap(DeviceType::getId, Function.identity()));
+        Map<DeviceType, List<Long>> heatMap =
+                deviceTypes.values().stream().collect(
+                        Collectors.toMap(
+                                Function.identity(),
+                                this::missingCompletionCodeCounters));
         for (Long deviceTypeId : partialCounters.keySet()) {
-            DeviceType deviceType = this.deviceConfigurationService.findDeviceType(deviceTypeId);
+            DeviceType deviceType = deviceTypes.get(deviceTypeId);
             heatMap.put(deviceType, this.orderedCompletionCodeCounters(partialCounters.get(deviceTypeId)));
         }
         return heatMap;
+    }
+
+    private List<Long> missingCompletionCodeCounters(DeviceType deviceType) {
+        return Stream.of(CompletionCode.values()).map(code -> 0L).collect(Collectors.toList());
     }
 
     private List<Long> orderedCompletionCodeCounters(Map<CompletionCode, Long> completionCodeCounters) {
@@ -1658,7 +1685,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
              FROM DDC_CONNECTIONTASK ct
              JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
              JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
-            WHERE NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
+            WHERE ct.status = 0
+              AND NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
                                WHERE ctes.COMSESSION = cs.id
                                  AND ctes.SUCCESSINDICATOR > 0)
             GROUP BY dev.DEVICETYPE, cs.successIndicator
@@ -1668,8 +1696,9 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
              FROM DDC_CONNECTIONTASK ct
              JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
              JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
-            WHERE cs.successindicator = 0
-              and EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
+            WHERE ct.status = 0
+              AND cs.successindicator = 0
+              AND EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
                                WHERE ctes.COMSESSION = cs.id
                                  AND ctes.SUCCESSINDICATOR > 0)
             GROUP BY dev.DEVICETYPE, cs.successIndicator
@@ -1680,7 +1709,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
         sqlBuilder.append(" join ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" dev on ct.device = dev.id where ");
+        sqlBuilder.append(" dev on ct.device = dev.id where ct.status = 0 and ");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
         sqlBuilder.append(" group by dev.devicetype, cs.successIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
@@ -1699,10 +1728,16 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
-        Map<DeviceType, List<Long>> heatMap = new HashMap<>();
-        Set<Long> allDeviceTypeIds = this.union(partialCounters.keySet(), remainingCounters.keySet());
-        for (Long deviceTypeId : allDeviceTypeIds) {
-            DeviceType deviceType = this.deviceConfigurationService.findDeviceType(deviceTypeId);
+        Map<Long, DeviceType> deviceTypes = this.deviceConfigurationService.findAllDeviceTypes().find().
+                stream().
+                collect(Collectors.toMap(DeviceType::getId, Function.identity()));
+        Map<DeviceType, List<Long>> heatMap =
+                deviceTypes.values().stream().collect(
+                        Collectors.toMap(
+                                Function.identity(),
+                                this::missingCompletionCodeCounters));
+        for (Long deviceTypeId : this.union(partialCounters.keySet(), remainingCounters.keySet())) {
+            DeviceType deviceType = deviceTypes.get(deviceTypeId);
             heatMap.put(deviceType, this.orderSuccessIndicatorCounters(partialCounters.get(deviceTypeId), remainingCounters.get(deviceTypeId)));
         }
         return heatMap;
@@ -1719,7 +1754,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         /* For clarity's sake, here is the formatted SQL when atLeastOneFailingComTask == false:
            SELECT ct.COMPORTPOOL, cs.successIndicator, COUNT(*)
              FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
-            WHERE NOT EXISTS (
+            WHERE ct.status = 0
+              AND NOT EXISTS (
                       SELECT *
                         FROM DDC_COMTASKEXECSESSION ctes
                        WHERE ctes.COMSESSION = cs.id
@@ -1729,7 +1765,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
            when attemptLockComTaskExecution == true
            SELECT ct.COMPORTPOOL, cs.successIndicator, COUNT(*)
              FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
-            WHERE cs.successindicator = 0
+            WHERE ct.status = 0
+              AND cs.successindicator = 0
               AND EXISTS (
                       SELECT *
                         FROM DDC_COMTASKEXECSESSION ctes
@@ -1741,17 +1778,25 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
         this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
-        sqlBuilder.append(" where ");
+        sqlBuilder.append(" where ct.status = 0 and ");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
         sqlBuilder.append(" group by ct.comportpool, cs.successIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
     }
 
     private Map<ComPortPool, List<Long>> buildComPortPoolHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
-        Map<ComPortPool, List<Long>> heatMap = new HashMap<>();
-        Set<Long> allComPortPoolIds = this.union(partialCounters.keySet(), remainingCounters.keySet());
-        for (Long comPortPoolId : allComPortPoolIds) {
-            ComPortPool comPortPool = this.engineModelService.findComPortPool(comPortPoolId);
+        Map<Long, ComPortPool> comPortPools =
+                this.engineModelService.findAllComPortPools().
+                        stream().
+                        collect(Collectors.toMap(
+                                ComPortPool::getId,
+                                Function.identity()));
+        Map<ComPortPool, List<Long>> heatMap =
+                comPortPools.values().stream().collect(Collectors.toMap(
+                        Function.identity(),
+                        this::missingSuccessIndicatorCounters));
+        for (Long comPortPoolId : this.union(partialCounters.keySet(), remainingCounters.keySet())) {
+            ComPortPool comPortPool = comPortPools.get(comPortPoolId);
             heatMap.put(comPortPool, this.orderSuccessIndicatorCounters(partialCounters.get(comPortPoolId), remainingCounters.get(comPortPoolId)));
         }
         return heatMap;
@@ -1763,13 +1808,30 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         return union;
     }
 
+    private List<Long> missingSuccessIndicatorCounters(ConnectionTypePluggableClass connectionTypePluggableClass) {
+        return this.orderSuccessIndicatorCounters(null, null);
+    }
+
+    private List<Long> missingSuccessIndicatorCounters(ComPortPool comPortPool) {
+        return this.orderSuccessIndicatorCounters(null, null);
+    }
+
     private List<Long> orderSuccessIndicatorCounters(Map<ComSession.SuccessIndicator, Long> successIndicatorCounters, Map<ComSession.SuccessIndicator, Long> failingTaskCounters) {
         List<Long> counters = new ArrayList<>(ComSession.SuccessIndicator.values().length + 1);
-        counters.add(failingTaskCounters.get(ComSession.SuccessIndicator.Success));
-        counters.add(successIndicatorCounters.get(ComSession.SuccessIndicator.Success));
-        counters.add(successIndicatorCounters.get(ComSession.SuccessIndicator.SetupError));
-        counters.add(successIndicatorCounters.get(ComSession.SuccessIndicator.Broken));
+        this.addSuccessIndicatorCounter(counters, failingTaskCounters, ComSession.SuccessIndicator.Success);
+        this.addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Success);
+        this.addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.SetupError);
+        this.addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Broken);
         return counters;
+    }
+
+    private void addSuccessIndicatorCounter(List<Long> targetCounters, Map<ComSession.SuccessIndicator, Long> sourceCounters, ComSession.SuccessIndicator successIndicator) {
+        if (sourceCounters != null) {
+            targetCounters.add(sourceCounters.get(successIndicator));
+        }
+        else {
+            targetCounters.add(0L);
+        }
     }
 
     private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchConnectionTypeHeatMapCounters(SqlBuilder builder) {
