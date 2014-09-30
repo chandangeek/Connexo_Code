@@ -1,9 +1,5 @@
-package com.elster.jupiter.http.whiteboard.impl;
+package com.elster.jupiter.http.whiteboard;
 
-import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.FileResolver;
-import com.elster.jupiter.http.whiteboard.HttpResource;
-import com.elster.jupiter.http.whiteboard.Resolver;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
