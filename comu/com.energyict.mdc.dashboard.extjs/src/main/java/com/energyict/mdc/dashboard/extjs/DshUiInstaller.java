@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard.extjs;
 
-import com.elster.jupiter.install.impl.UiInstallService;
+import com.elster.jupiter.install.UiInstallService;
 import com.elster.jupiter.orm.callback.InstallService;
 import org.osgi.service.component.annotations.Component;
 
