@@ -2,12 +2,7 @@ Ext.define('Cfg.controller.Main', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.controller.Navigation',
-        'Cfg.controller.history.Validation',
-        'Cfg.controller.history.EventType',
-        'Cfg.controller.Administration',
-        'Cfg.controller.Validation',
-        'Cfg.controller.EventType'
+        'Uni.controller.Navigation'
     ],
 
     controllers: [
@@ -18,18 +13,10 @@ Ext.define('Cfg.controller.Main', {
         'Cfg.controller.EventType'
     ],
 
-    config: {
-        navigationController: null
-    },
-
     refs: [
         {
             ref: 'viewport',
             selector: 'viewport'
-        },
-        {
-            ref: 'contentPanel',
-            selector: 'viewport > #contentPanel'
         }
     ],
 
@@ -60,36 +47,15 @@ Ext.define('Cfg.controller.Main', {
             portalItem1
         );
 
-        this.initNavigation();
-        this.initDefaultHistoryToken();
         this.getApplication().on('cfginitialized', function () {
             this.getController('Cfg.controller.Validation').mdcIsActive = true;
         });
     },
 
-    initNavigation: function () {
-        var controller = this.getController('Uni.controller.Navigation');
-        this.setNavigationController(controller);
-    },
-
-    initDefaultHistoryToken: function () {
-        var controller = this.getController('Cfg.controller.history.Validation'),
-            eventBus = this.getController('Uni.controller.history.EventBus'),
-            defaultToken = controller.tokenizeShowOverview();
-
-        eventBus.setDefaultToken(defaultToken);
-    },
-
+    /**
+     * @deprecated Fire an event instead, as shown below.
+     */
     showContent: function (widget) {
-        this.clearContentPanel();
-        this.getContentPanel().add(widget);
-        this.getContentPanel().doComponentLayout();
-    },
-
-    clearContentPanel: function () {
-        var widget;
-        while (widget = this.getContentPanel().items.first()) {
-            this.getContentPanel().remove(widget, true);
-        }
+        this.getApplication().fireEvent('changecontentevent', widget);
     }
 });
