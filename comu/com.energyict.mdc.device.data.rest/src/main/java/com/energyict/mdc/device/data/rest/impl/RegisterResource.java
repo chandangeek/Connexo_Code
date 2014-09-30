@@ -154,7 +154,7 @@ public class RegisterResource {
     }
 
     private Interval lastYear() {
-        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.of("UTC")).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusYears(1);
         return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
     }
