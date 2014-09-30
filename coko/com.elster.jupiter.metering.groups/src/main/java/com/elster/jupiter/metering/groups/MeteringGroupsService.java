@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.groups;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.services.Finder;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -35,8 +34,10 @@ public interface MeteringGroupsService {
 
     void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider);
 
+    Query<EndDeviceGroup> getEndDeviceGroupQuery();
+
     List<EndDeviceGroup> findEndDeviceGroups();
 
-    Finder<EndDeviceGroup> findAllEndDeviceGroups();
+    //Finder<EndDeviceGroup> findAllEndDeviceGroups();
 
 }

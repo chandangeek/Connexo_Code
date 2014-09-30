@@ -9,8 +9,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.energyict.mdc.common.services.DefaultFinder;
-import com.energyict.mdc.common.services.Finder;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.*;
@@ -18,6 +16,8 @@ import org.osgi.service.component.annotations.*;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringGroupsService.class, InstallService.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
 public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService {
@@ -122,9 +122,15 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
         return dataModel.mapper(QueryEndDeviceGroup.class).getOptional(id);
     }
 
-    @Override
+    /*@Override
     public Finder<EndDeviceGroup> findAllEndDeviceGroups() {
         return DefaultFinder.of(EndDeviceGroup.class, dataModel).defaultSortColumn("lower(name)");
+    }*/
+
+    @Override
+    public Query<EndDeviceGroup> getEndDeviceGroupQuery() {
+        Query<EndDeviceGroup> ruleSetQuery = queryService.wrap(dataModel.query(EndDeviceGroup.class));
+        return ruleSetQuery;
     }
 
     @Override
