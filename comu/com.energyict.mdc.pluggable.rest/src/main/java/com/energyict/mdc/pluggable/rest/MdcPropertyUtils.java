@@ -1,12 +1,6 @@
 package com.energyict.mdc.pluggable.rest;
 
-import com.energyict.mdc.common.Password;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.rest.FieldValidationException;
-import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
-import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
-
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -17,14 +11,20 @@ import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValidationRule;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
-
-import javax.ws.rs.core.UriInfo;
+import com.energyict.mdc.common.Password;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.rest.FieldValidationException;
+import com.energyict.mdc.pluggable.rest.impl.MessageSeeds;
+import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
+import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Serves as a utility class to create proper PropertyInfo objects for a set of Properties
@@ -135,20 +135,16 @@ public class MdcPropertyUtils {
 
     //find propertyValue in info
     public Object findPropertyValue(PropertySpec<?> propertySpec, PropertyInfo[] propertyInfos) {
-        try {
-            for (PropertyInfo propertyInfo : propertyInfos) {
-                if (propertyInfo.key.equals(propertySpec.getName())) {
-                    if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null && !propertyInfo.getPropertyValueInfo().getValue().equals("")) {
-                        return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
-                    } else {
-                        return null;
-                    }
+        for (PropertyInfo propertyInfo : propertyInfos) {
+            if (propertyInfo.key.equals(propertySpec.getName())) {
+                if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null && !propertyInfo.getPropertyValueInfo().getValue().equals("")) {
+                    return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
+                } else {
+                    return null;
                 }
             }
-            return null;
-        } catch (Exception e) {
-            throw new FieldValidationException(e.getLocalizedMessage(), propertySpec.getName());
         }
+        return null;
     }
 
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec<?> propertySpec, Object value) {
@@ -160,6 +156,9 @@ public class MdcPropertyUtils {
         } else if (propertySpec.getValueFactory().getValueType() == TimeDuration.class) {
             Integer count = (Integer) ((LinkedHashMap<String, Object>) value).get("count");
             String timeUnit = (String) ((LinkedHashMap<String, Object>) value).get("timeUnit");
+            if (!TimeDuration.isValidTimeUnitDescription(timeUnit)) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, propertySpec.getName());
+            }
             return new TimeDuration(""+count+" "+timeUnit);
         } else if (propertySpec.getValueFactory().getValueType() == String.class) {
             return value;
