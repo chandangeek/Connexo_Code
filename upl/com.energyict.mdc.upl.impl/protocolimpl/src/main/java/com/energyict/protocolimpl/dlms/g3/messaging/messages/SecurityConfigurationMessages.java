@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.messaging.messages;
 
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
 import com.energyict.protocolimpl.messaging.RtuMessageDescription;
@@ -13,14 +14,13 @@ public interface SecurityConfigurationMessages {
 
     String SECURITY_CONFIGURATION = "Security configuration";
 
-    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change HLS secret", tag = "ChangeHLSSecret")
+    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change HLS secret", tag = RtuMessageConstant.AEE_CHANGE_HLS_SECRET)
     interface ChangeHLSSecretMessage extends AnnotatedMessage {
 
         @RtuMessageAttribute(tag = "HLS_Secret", required = true)
         String getHLSSecret();
 
     }
-
 
     @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change LLS secret", tag = "ChangeLLSSecret")
     interface ChangeLLSSecretMessage extends AnnotatedMessage {
@@ -38,7 +38,7 @@ public interface SecurityConfigurationMessages {
 
     }
 
-    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Activate security level", tag = "ActivateSecurityLevel")
+    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Activate security level", tag = RtuMessageConstant.AEE_ACTIVATE_SECURITY)
     interface ActivateSecurityLevelMessage extends AnnotatedMessage {
 
         @RtuMessageAttribute(tag = "Security_level", required = true)
@@ -46,7 +46,7 @@ public interface SecurityConfigurationMessages {
 
     }
 
-    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change encryption key", tag = "ChangeEncryptionKey")
+    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change encryption key", tag = RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY)
     interface ChangeEncryptionKeyMessage extends AnnotatedMessage {
 
         @RtuMessageAttribute(tag = "NewEncryptionKey", required = true)
@@ -57,7 +57,7 @@ public interface SecurityConfigurationMessages {
 
     }
 
-    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change authentication key", tag = "ChangeAuthenticationKey")
+    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change authentication key", tag = RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY)
     interface ChangeAuthenticationKeyMessage extends AnnotatedMessage {
 
         @RtuMessageAttribute(tag = "NewAuthenticationKey", required = true)

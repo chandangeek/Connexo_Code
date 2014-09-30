@@ -7,6 +7,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
@@ -99,10 +100,10 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         registry.put(ClockDeviceMessage.SET_TIME, new MultipleAttributeMessageEntry("WriteClockDateTime", "DateTime"));
 
         registry.put(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL, new MultipleAttributeMessageEntry("ChangeAuthenticationLevel", "Authentication_level"));
-        registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new MultipleAttributeMessageEntry("ActivateSecurityLevel", "Security_level"));
-        registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS, new MultipleAttributeMessageEntry("ChangeAuthenticationKey", "NewAuthenticationKey", "NewWrappedAuthenticationKey"));
-        registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS, new MultipleAttributeMessageEntry("ChangeEncryptionKey", "NewEncryptionKey", "NewWrappedEncryptionKey"));
-        registry.put(SecurityMessage.CHANGE_HLS_SECRET_HEX, new MultipleAttributeMessageEntry("ChangeHLSSecret", "HLS_Secret"));
+        registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new MultipleAttributeMessageEntry(RtuMessageConstant.AEE_ACTIVATE_SECURITY, "Security_level"));
+        registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS, new MultipleAttributeMessageEntry(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY, "NewAuthenticationKey", "NewWrappedAuthenticationKey"));
+        registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS, new MultipleAttributeMessageEntry(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY, "NewEncryptionKey", "NewWrappedEncryptionKey"));
+        registry.put(SecurityMessage.CHANGE_HLS_SECRET_HEX, new MultipleAttributeMessageEntry(RtuMessageConstant.AEE_CHANGE_HLS_SECRET, "HLS_Secret"));
         registry.put(SecurityMessage.CHANGE_LLS_SECRET_HEX, new MultipleAttributeMessageEntry("ChangeLLSSecret", "LLS_Secret"));
         registry.put(SecurityMessage.WRITE_PSK, new MultipleAttributeMessageEntry("WritePlcPsk", "PSK"));
 
