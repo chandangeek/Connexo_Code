@@ -101,6 +101,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
         when(rule1.getImplementation()).thenReturn("isPrime");
         when(rule1.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
+        when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
     }
 
     @Test
@@ -135,6 +136,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
     @Test
     public void testLoadProfileDataFiltered() {
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.VALID);
+        when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
 
         String json = target("devices/1/loadprofiles/1/data")
                 .queryParam("intervalStart", "1410774630000")

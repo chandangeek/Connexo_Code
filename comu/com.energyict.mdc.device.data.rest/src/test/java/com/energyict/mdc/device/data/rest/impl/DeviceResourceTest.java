@@ -39,6 +39,15 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,25 +57,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.assertj.core.data.MapEntry;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 6/19/14.
@@ -420,7 +416,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel2.getDevice()).thenReturn(device1);
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(device1.forValidation()).thenReturn(deviceValidation);
-        when(deviceValidation.getValidationStatus(any(), any())).thenReturn(Collections.emptyList());
+        when(deviceValidation.getValidationStatus(any(Channel.class), any())).thenReturn(Collections.emptyList());
 
         Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
         assertThat(response)
