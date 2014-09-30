@@ -22,4 +22,5 @@ public interface ValidationEvaluator {
 
     List<DataValidationStatus> getValidationStatus(Channel channel, Interval interval);
 
+    List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Interval interval);
 }

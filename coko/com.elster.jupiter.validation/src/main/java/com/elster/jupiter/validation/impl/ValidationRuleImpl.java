@@ -296,12 +296,10 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     public PropertySpec<?> getPropertySpec(final String name) {
-        return Iterables.find(getValidator().getPropertySpecs(), new Predicate<PropertySpec>() {
-            @Override
-            public boolean apply(PropertySpec input) {
-                return name.equals(input.getName());
-            }
-        });
+        return getValidator().getPropertySpecs().stream()
+                .filter(p -> name.equals(p.getName()))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -333,9 +331,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(getImplementation()).append(' ').append(getAction().name()).append(' ').append(isActive());
-        for (ValidationRuleProperties property : properties) {
-            builder.append(property.toString()).append('\n');
-        }
+        properties.forEach( p -> builder.append(p.toString()).append('\n'));
         return builder.toString();
     }
 

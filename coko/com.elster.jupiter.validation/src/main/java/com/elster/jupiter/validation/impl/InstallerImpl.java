@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.MessageSeeds;
 import com.elster.jupiter.validation.ValidationService;
@@ -46,12 +47,12 @@ public class InstallerImpl {
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("SYS", "validationRule.validationRules", "validationRule.validationRules.description", new String[] {Privileges.CREATE_VALIDATION_RULE, Privileges.UPDATE_VALIDATION_RULE, Privileges.DELETE_VALIDATION_RULE, Privileges.VIEW_VALIDATION_RULE, Privileges.ACTIVATE_VALIDATION_RULE});
+        this.userService.createResourceWithPrivileges("MDC", "validationConfiguration.validationConfigurations", "validationConfiguration.validationConfigurations.description", new String[] {Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION});
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.VIEW_VALIDATION_RULE, Privileges.CREATE_VALIDATION_RULE, Privileges.UPDATE_VALIDATION_RULE, Privileges.DELETE_VALIDATION_RULE, Privileges.ACTIVATE_VALIDATION_RULE});
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_VALIDATION_RULE});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_VALIDATION_CONFIGURATION});
     }
 
     private void createEventTypes() {

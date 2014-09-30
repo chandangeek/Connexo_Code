@@ -26,6 +26,8 @@ public interface ValidationService {
 
     Optional<Date> getLastChecked(Channel channel);
 
+    boolean isValidationActive(Channel channel);
+
     Optional<ValidationRuleSet> getValidationRuleSet(long id);
 
     Optional<ValidationRuleSet> getValidationRuleSet(String name);
@@ -56,7 +58,11 @@ public interface ValidationService {
 
     void updateLastChecked(MeterActivation meterActivation, Date date);
 
+    void updateLastChecked(Channel channel, Date date);
+
     void validate(MeterActivation meterActivation, Interval interval);
+
+    void validate(MeterActivation meterActivation, String readingTypeCode, Interval interval);
 
     List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation);
 

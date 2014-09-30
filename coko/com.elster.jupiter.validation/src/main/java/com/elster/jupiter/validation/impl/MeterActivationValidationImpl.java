@@ -7,16 +7,13 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.comparators.NullSafeOrdering;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
@@ -27,19 +24,23 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.Predicates.notNull;
+import static java.util.Comparator.*;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
 
-    private static final Ordering<ChannelValidation> ORDER_BY_LASTCHECKED_NULL_IS_GREATEST_WITH_ACTIVE_RULES = new Ordering<ChannelValidation>() {
-        @Override
-        public int compare(ChannelValidation left, ChannelValidation right) {
-            return NullSafeOrdering.NULL_IS_GREATEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
-        }
-
-        private Date getLastChecked(ChannelValidation validation) {
-            return validation == null || !validation.hasActiveRules() ? null : validation.getLastChecked();
-        }
-    };
+//    private static final Ordering<ChannelValidation> ORDER_BY_LASTCHECKED_NULL_IS_GREATEST_WITH_ACTIVE_RULES = new Ordering<ChannelValidation>() {
+//        @Override
+//        public int compare(ChannelValidation left, ChannelValidation right) {
+//            return NullSafeOrdering.NULL_IS_GREATEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
+//        }
+//
+//        private Date getLastChecked(ChannelValidation validation) {
+//            return validation == null || !validation.hasActiveRules() ? null : validation.getLastChecked();
+//        }
+//    };
 
     private long id;
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
@@ -159,20 +160,29 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         if (!isActive()) {
             return;
         }
-        for (Channel channel : getMeterActivation().getChannels()) {
-            validateChannel(interval, channel);
-        }
+        getMeterActivation().getChannels().stream()
+                .forEach(c -> validateChannel(c, interval));
         lastRun = new UtcInstant(clock.now());
         save();
     }
 
-    private void validateChannel(Interval interval, Channel channel) {
+    @Override
+    public void validate(Interval interval, String readingTypeCode) {
+        if (!isActive()) {
+            return;
+        }
+        getMeterActivation().getChannels().stream()
+                .filter(c -> c.getReadingTypes().stream().map(ReadingType::getMRID).anyMatch(readingTypeCode::equals))
+                .forEach(c -> validateChannel(c, interval));
+    }
+
+    private void validateChannel(Channel channel, Interval interval) {
         Date earliestLastChecked = null;
-        Iterable<IValidationRule> activeRules = getActiveRules();
+        List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
+            Interval intervalToValidate = intervalToValidate(channelValidation, interval, channel);
             Date lastChecked = null;
-            Interval intervalToValidate = new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), interval.getEnd());
             for (IValidationRule validationRule : activeRules) {
                 lastChecked = validationRule.validateChannel(channel, intervalToValidate);
                 if (lastChecked != null) {
@@ -192,13 +202,13 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         }
     }
 
-    private boolean hasApplicableRules(Channel channel, Iterable<IValidationRule> activeRules) {
-        for (IValidationRule activeRule : activeRules) {
-            if (isApplicable(activeRule, channel)) {
-                return true;
-            }
-        }
-        return false;
+    private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval, Channel channel) {
+        return new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), getLatestDate(channel.getTimeSeries().getLastDateTime(), interval.getEnd()));
+    }
+
+    private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
+        return activeRules.stream()
+                .anyMatch(r -> isApplicable(r, channel));
     }
 
     private boolean isApplicable(IValidationRule activeRule, Channel channel) {
@@ -211,17 +221,19 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         return false;
     }
 
-    private Iterable<IValidationRule> getActiveRules() {
-        return Iterables.filter(getRuleSet().getRules(), new Predicate<IValidationRule>() {
-            @Override
-            public boolean apply(IValidationRule input) {
-                return input.isActive();
-            }
-        });
+    private List<IValidationRule> getActiveRules() {
+        return getRuleSet().getRules().stream()
+                .filter(IValidationRule::isActive)
+                .collect(Collectors.toList());
     }
 
     private Date getEarliestDate(Date first, Date second) {
         return first == null ? second : Ordering.natural().min(second, first);
+    }
+
+    private Date getLatestDate(Date first, Date second) {
+        Comparator<Date> comparator = nullsFirst(naturalOrder());
+        return Ordering.from(comparator).max(first, second);
     }
 
     private ChannelValidationImpl findOrAddValidationFor(final Channel channel) {
@@ -250,11 +262,11 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
             if (lastRun == null) {
                 return false;
             }
-            Comparator<Date> dateComparator = NullSafeOrdering.NULL_IS_GREATEST.get();
+            Comparator<? super Date> comparator = nullsLast(naturalOrder());
             for (ChannelValidation channelValidation : getChannelValidations()) {
                 Date lastDateTime = channelValidation.getChannel().getTimeSeries().getLastDateTime();
                 Date lastChecked = channelValidation.getLastChecked();
-                if (channelValidation.hasActiveRules() && dateComparator.compare(lastChecked, lastDateTime) < 0) {
+                if (channelValidation.hasActiveRules() && comparator.compare(lastChecked, lastDateTime) < 0) {
                     return false;
                 }
             }
@@ -265,7 +277,13 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     @Override
     public Date getMinLastChecked() {
         if (!getChannelValidations().isEmpty()) {
-            return ORDER_BY_LASTCHECKED_NULL_IS_GREATEST_WITH_ACTIVE_RULES.min(getChannelValidations()).getLastChecked();
+            return getChannelValidations().stream()
+                    .filter(notNull())
+                    .filter(ChannelValidation::hasActiveRules)
+                    .map(ChannelValidation::getLastChecked)
+                    .filter(notNull())
+                    .min(naturalOrder())
+                    .orElse(null);
         } else if (lastRun != null) {
             return lastRun.toDate();
         } else {

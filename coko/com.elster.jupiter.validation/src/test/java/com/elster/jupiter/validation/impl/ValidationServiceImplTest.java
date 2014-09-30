@@ -275,7 +275,7 @@ public class ValidationServiceImplTest {
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
         validationService.validate(meterActivation, Interval.sinceEpoch());
 
-        List<IMeterActivationValidation> meterActivationValidations = validationService.manageMeterActivationValidations(meterActivation);
+        List<IMeterActivationValidation> meterActivationValidations = validationService.getUpdatedMeterActivationValidations(meterActivation);
         assertThat(meterActivationValidations).hasSize(1);
         assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
         assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
@@ -286,20 +286,15 @@ public class ValidationServiceImplTest {
 
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
         validationService.validate(meterActivation, Interval.sinceEpoch());
-        meterActivationValidations = validationService.manageMeterActivationValidations(meterActivation);
+        meterActivationValidations = validationService.getUpdatedMeterActivationValidations(meterActivation);
         assertThat(meterActivationValidations).hasSize(2);
         assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
         assertThat(meterActivationValidations.get(1).getMeterActivation()).isEqualTo(meterActivation);
-        assertThat(FluentIterable.from(meterActivationValidations).transform(new Function<MeterActivationValidation, ValidationRuleSet>() {
-            @Override
-            public ValidationRuleSet apply(MeterActivationValidation input) {
-                return input.getRuleSet();
-            }
-        }).toSet()).contains(validationRuleSet, validationRuleSet2);
+        assertThat(FluentIterable.from(meterActivationValidations).transform(MeterActivationValidation::getRuleSet).toSet()).contains(validationRuleSet, validationRuleSet2);
 
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet2));
         validationService.validate(meterActivation, Interval.sinceEpoch());
-        meterActivationValidations = validationService.manageMeterActivationValidations(meterActivation);
+        meterActivationValidations = validationService.getUpdatedMeterActivationValidations(meterActivation);
         assertThat(meterActivationValidations).hasSize(1);
         assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
         assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet2);

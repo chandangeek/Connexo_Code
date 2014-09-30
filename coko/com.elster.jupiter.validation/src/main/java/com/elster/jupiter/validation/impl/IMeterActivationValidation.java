@@ -18,6 +18,8 @@ public interface IMeterActivationValidation extends MeterActivationValidation {
 
     void validate(Interval interval);
 
+    void validate(Interval interval, String readingTypeCode);
+
     void updateLastChecked(Date lastChecked);
 
     boolean isAllDataValidated();
