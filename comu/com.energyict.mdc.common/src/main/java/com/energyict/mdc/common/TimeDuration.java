@@ -281,6 +281,22 @@ public class TimeDuration implements Comparable, Serializable {
         return "";
     }
 
+    public static boolean isValidTimeUnitDescription(String timeUnit) {
+        switch (timeUnit) {
+            case MILLISECONDS_STRING:
+            case SECONDS_STRING:
+            case MINUTES_STRING:
+            case HOURS_STRING:
+            case DAYS_STRING:
+            case WEEKS_STRING:
+            case MONTHS_STRING:
+            case YEARS_STRING:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Returns a String representation of the receiver.
      *
