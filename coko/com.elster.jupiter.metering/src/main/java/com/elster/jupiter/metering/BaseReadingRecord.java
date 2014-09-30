@@ -25,4 +25,7 @@ public interface BaseReadingRecord extends BaseReading {
     @Override
     List<? extends ReadingQualityRecord> getReadingQualities();
     
+    default boolean edited() {
+    	return getProcesStatus().get(ProcessStatus.Flag.EDITED);
+    }
 }
