@@ -66,7 +66,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
     private Multimap<Channel, ChannelValidation> mapChannelToValidation;
     private Multimap<String, IValidationRule> mapQualityToRule;
 
-    private Optional<Boolean> isEnabled;
+    private Optional<Boolean> isEnabled = Optional.empty();
 
     ValidationEvaluatorForMeter(ValidationServiceImpl validationService, Meter meter, Interval interval) {
         this.validationService = validationService;
