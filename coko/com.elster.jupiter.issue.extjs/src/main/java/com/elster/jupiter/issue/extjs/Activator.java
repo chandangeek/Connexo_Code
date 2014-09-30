@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.extjs;
 
-import com.elster.jupiter.http.whiteboard.impl.HttpActivator;
+import com.elster.jupiter.http.whiteboard.HttpActivator;
 
 public class Activator extends HttpActivator {
 
