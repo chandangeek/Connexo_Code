@@ -36,6 +36,9 @@ public class A1800 extends AbstractDlmsSessionProtocol {
     private ProfileCache cache = new ProfileCache();
     private RegisterReader registerReader = null;
 
+    /**
+     * The protocol version
+     */
     public String getProtocolVersion() {
         return "$Date: 2014-06-27 13:00:00$";
     }
@@ -76,6 +79,11 @@ public class A1800 extends AbstractDlmsSessionProtocol {
                 getLogger().info("Skipping validation of meter serial number: No serial number found in EIServer.");
             }
         }
+    }
+
+    @Override
+    public void disconnect() throws IOException {
+         getSession().disconnect(true); // Release of the application association is not supported
     }
 
     protected A1800Properties getProperties() {

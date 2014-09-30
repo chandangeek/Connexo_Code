@@ -156,6 +156,8 @@ public class A1800Profile extends DLMSProfileHelper {
         long entriesToRead = ((a1800Time - fromTime) / interval) + 1;
         if (entriesToRead > profileEntries) {
             entriesToRead = profileEntries;
+        } else if (entriesToRead < 0) { // This is the case when fromTime is after a1800Time, in fact telling to read out the future...
+            entriesToRead = 1;          // Then read out only the last entry
         }
 
         byte[] bufferData = getProfileGeneric().getBufferData(0, (int) entriesToRead, 0, 0);
@@ -168,7 +170,7 @@ public class A1800Profile extends DLMSProfileHelper {
         A1800DLMSProfileIntervals intervals = new A1800DLMSProfileIntervals(bufferData, 0x0001, 0x0002, -1, 0x0004, null);
         try {
             intervals.setMultiplier(multiplier);
-            return intervals.parseIntervals(getProfileInterval());
+            return intervals.parseIntervals(getProfileInterval(), getSession().getTimeZone());
         } catch (ClassCastException e) {
             throw new IOException(e.getMessage());
         }

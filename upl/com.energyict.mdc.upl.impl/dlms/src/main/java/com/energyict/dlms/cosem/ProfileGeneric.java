@@ -233,7 +233,12 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new NestedIOException(e, "Could not calculate the number of channels");
+            String msg = "Could not calculate the number of channels";
+            if (e.getMessage() != null) {
+                msg += ": ";
+                msg += e.getMessage();
+            }
+            throw new NestedIOException(e, msg);
         }
         return count;
     }

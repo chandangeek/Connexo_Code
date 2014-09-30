@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * DLMSProfileIntervals class respecting the structure of the profiles of the a1800
@@ -42,7 +43,7 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
      * @param profileInterval the interval of the profile
      * @return a list of intervalData
      */
-    public List<IntervalData> parseIntervals(int profileInterval) throws IOException {
+    public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
         this.profileInterval = profileInterval;
         List<IntervalData> intervalList = new ArrayList<IntervalData>();
         Calendar cal = null;
@@ -57,7 +58,7 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
                 for (int d = 0; d < element.nrOfDataTypes(); d++) {
                     if (isClockIndex(d)) {
                         try {
-                            cal = constructIntervalCalendar(cal, element.getDataType(d));
+                            cal = constructIntervalCalendar(cal, element.getDataType(d), timeZone);
                         } catch (IOException e) {
                             throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                         }

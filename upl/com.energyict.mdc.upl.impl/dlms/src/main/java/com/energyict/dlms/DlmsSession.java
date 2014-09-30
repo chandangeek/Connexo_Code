@@ -2,12 +2,18 @@ package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocol.ProtocolException;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,8 +107,12 @@ public class DlmsSession implements ProtocolLink {
 
 
     public void disconnect() {
+        this.disconnect(true);
+    }
+
+    public void disconnect(boolean release) {
         try {
-            if ((this.aso != null) /*&& (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED)*/) {
+            if (release && (this.aso != null)) {
                 logger.fine("Releasing the application association");
                 this.aso.releaseAssociation();
             }
