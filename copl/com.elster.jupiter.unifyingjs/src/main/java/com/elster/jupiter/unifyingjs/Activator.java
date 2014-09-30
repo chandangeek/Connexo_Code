@@ -1,23 +1,16 @@
 package com.elster.jupiter.unifyingjs;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import com.elster.jupiter.http.whiteboard.impl.HttpActivator;
 
-import com.elster.jupiter.http.whiteboard.*;
+public class Activator extends HttpActivator {
 
+    public static final String HTTP_RESOURCE_ALIAS = "/uni";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/uni";
 
-public class Activator implements BundleActivator {
-
-	private volatile ServiceRegistration<HttpResource> registration;
-	
-	public void start(BundleContext bundleContext) throws Exception {
-        HttpResource resource = new HttpResource("/uni", "/js/uni" , new BundleResolver(bundleContext));
-		registration = bundleContext.registerService(HttpResource.class, resource , null);
-	}
-	
-	public void stop(BundleContext bundleContext) throws Exception {
-		registration.unregister();
-	}
+    public Activator() {
+        super(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME);
+        // EXAMPLE: Below is how to enable development mode.
+//        super(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.unifyingjs/src/main/web/js/uni", true);
+    }
 
 }
