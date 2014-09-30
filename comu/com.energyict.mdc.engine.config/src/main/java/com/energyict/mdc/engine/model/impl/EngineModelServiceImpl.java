@@ -343,7 +343,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ComPortPool findComPortPool(String name) {
-        return getComPortPoolDataMapper().getUnique("name", name).orNull();
+        Condition condition = Where.where("obsoleteDate").isNull().and(Where.where("name").isEqualTo(name));
+        List<ComPortPool> comPortPools = getComPortPoolDataMapper().select(condition);
+        return comPortPools.size()==1?comPortPools.get(0):null;
     }
 
     @Override
