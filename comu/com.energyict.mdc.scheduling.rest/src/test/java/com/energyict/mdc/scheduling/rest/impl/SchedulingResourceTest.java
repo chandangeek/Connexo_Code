@@ -1,10 +1,10 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
