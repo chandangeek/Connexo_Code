@@ -22,7 +22,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.DeviceValidation;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 
@@ -44,7 +44,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DeviceValidationResource {
@@ -141,37 +140,31 @@ public class DeviceValidationResource {
     @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+
         DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatus(device);
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
     }
 
     private DeviceValidationStatusInfo determineStatus(Device device) {
         Meter meter = getMeterFor(device);
-        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo(validationService.validationEnabled(meter), getLastChecked(meter), meter.hasData());
+        DeviceValidation deviceValidation = device.forValidation();
+        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo(deviceValidation.isValidationActive(), deviceValidation.getLastChecked().or(clock.now()), meter.hasData());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.now().toInstant(), clock.getTimeZone().toZoneId()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
-        collectRegisterData(device, meter, deviceValidationStatusInfo, end);
-        collectLoadProfileData(device, meter, deviceValidationStatusInfo, end);
+        collectRegisterData(device, deviceValidationStatusInfo, end);
+        collectLoadProfileData(device, deviceValidationStatusInfo, end);
 
         return deviceValidationStatusInfo;
     }
 
-    private void collectLoadProfileData(Device device, Meter meter, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
+    private void collectLoadProfileData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
         ZonedDateTime loadProfileStart = end.minusMonths(1);
         Interval loadProfileInterval = new Interval(Date.from(loadProfileStart.toInstant()), Date.from(end.toInstant()));
 
-        Set<String> channelTypes = device.getLoadProfiles().stream()
+        List<DataValidationStatus> statuses = device.getLoadProfiles().stream()
                 .flatMap(l -> l.getChannels().stream())
-                .map(com.energyict.mdc.device.data.Channel::getReadingType)
-                .map(ReadingType::getMRID)
-                .collect(Collectors.toSet());
-
-        List<DataValidationStatus> statuses = meter.getMeterActivations().stream()
-                .filter(m -> m.getInterval().overlaps(loadProfileInterval))
-                .flatMap(m -> m.getChannels().stream())
-                .filter(c -> intersect(channelTypes, c.getReadingTypes()))
-                .flatMap(c -> validationService.getEvaluator().getValidationStatus(c, c.getMeterActivation().getInterval().intersection(loadProfileInterval)).stream())
+                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), loadProfileInterval).stream())
                 .collect(Collectors.toList());
 
         deviceValidationStatusInfo.loadProfileSuspectCount = statuses.stream()
@@ -193,20 +186,12 @@ public class DeviceValidationResource {
                 .anyMatch(first::contains);
     }
 
-    private void collectRegisterData(Device device, Meter meter, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
+    private void collectRegisterData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
         ZonedDateTime registerStart = end.minusYears(1);
         Interval registerInterval = new Interval(Date.from(registerStart.toInstant()), Date.from(end.toInstant()));
 
-        Set<String> registerTypes = device.getRegisters().stream()
-                .map(Register::getReadingType)
-                .map(ReadingType::getMRID)
-                .collect(Collectors.toSet());
-
-        List<DataValidationStatus> statuses = meter.getMeterActivations().stream()
-                .filter(m -> m.getInterval().overlaps(registerInterval))
-                .flatMap(m -> m.getChannels().stream())
-                .filter(c -> intersect(registerTypes, c.getReadingTypes()))
-                .flatMap(c -> validationService.getEvaluator().getValidationStatus(c, c.getMeterActivation().getInterval().intersection(registerInterval)).stream())
+        List<DataValidationStatus> statuses = device.getRegisters().stream()
+                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), registerInterval).stream())
                 .collect(Collectors.toList());
 
         deviceValidationStatusInfo.registerSuspectCount = statuses.stream()
@@ -221,16 +206,6 @@ public class DeviceValidationResource {
             deviceValidationStatusInfo.allDataValidated = statuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
         }
-    }
-
-    private Date getLastChecked(Meter meter) {
-        for (MeterActivation meterActivation : resourceHelper.getMeterActivationsMostCurrentFirst(meter)) {
-            Optional<Date> lastChecked = validationService.getLastChecked(meterActivation);
-            if (lastChecked.isPresent()) {
-                return lastChecked.get();
-            }
-        }
-        return clock.now();
     }
 
     @Path("/validationstatus")

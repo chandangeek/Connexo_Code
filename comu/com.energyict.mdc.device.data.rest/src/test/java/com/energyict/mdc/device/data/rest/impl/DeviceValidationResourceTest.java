@@ -12,9 +12,10 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.google.common.base.Optional;
@@ -33,6 +34,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -53,7 +57,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     private ValidationEvaluator evaluator;
 
     @Mock
-    private Device device;
+    private DeviceImpl device;
     @Mock
     private Meter meter;
     @Mock
@@ -76,6 +80,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     private LoadProfile loadProfile1;
     @Mock
     private com.energyict.mdc.device.data.Channel ch1, ch2;
+    @Mock
+    private DeviceValidation deviceValidation;
 
     @Before
     public void setUp1() {
@@ -85,8 +91,13 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(mdcAmrSystem.findMeter("" + DEVICE_ID)).thenReturn(Optional.of(meter));
         when(clock.now()).thenReturn(NOW);
         when(clock.getTimeZone()).thenReturn(TimeZone.getDefault());
+        when(device.forValidation()).thenReturn(deviceValidation);
+        when(ch1.getDevice()).thenReturn(device);
+        when(ch2.getDevice()).thenReturn(device);
+        when(register1.getDevice()).thenReturn(device);
 
         doModelStubbing();
+
     }
 
     @Test
@@ -158,6 +169,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         doReturn(Arrays.asList(channelReadingType1)).when(channel8).getReadingTypes();
         doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
         when(validationService.getEvaluator()).thenReturn(evaluator);
+        when(validationService.getEvaluator(eq(meter), any(Interval.class))).thenReturn(evaluator);
         when(suspect.getTypeCode()).thenReturn("3.0.1");
         when(notSuspect.getTypeCode()).thenReturn("0");
 
@@ -166,6 +178,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         Date toNow = Date.from(ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
         Interval regInterval2 = new Interval(Date.from(to.toInstant()), toNow);
         when(evaluator.getValidationStatus(channel7, regInterval2)).thenReturn(Arrays.asList(validationStatus2, validationStatus3));
+        Interval wholeRegInterval = new Interval(Date.from(fromReg.toInstant()), toNow);
+        when(deviceValidation.getValidationStatus(eq(register1), anyList(), eq(wholeRegInterval))).thenReturn(Arrays.asList(validationStatus1, validationStatus2, validationStatus3));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus1).getReadingQualities();
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus2).getReadingQualities();
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus3).getReadingQualities();
@@ -177,10 +191,14 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         Interval chInterval2 = new Interval(Date.from(to.toInstant()), toNow);
         when(evaluator.getValidationStatus(channel8, chInterval2)).thenReturn(Collections.emptyList());
         when(evaluator.getValidationStatus(channel9, chInterval2)).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
+        Interval wholeInterval = new Interval(Date.from(fromCh.toInstant()), toNow);
+        when(deviceValidation.getValidationStatus(eq(ch1), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus4));
+        when(deviceValidation.getValidationStatus(eq(ch2), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus4).getReadingQualities();
         doReturn(Arrays.asList(suspect, notSuspect)).when(validationStatus5).getReadingQualities();
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus6).getReadingQualities();
 
+        when(deviceValidation.getLastChecked()).thenReturn(Optional.<Date>absent());
     }
 
 }

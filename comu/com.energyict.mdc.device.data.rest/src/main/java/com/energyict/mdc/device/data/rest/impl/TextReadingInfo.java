@@ -4,7 +4,7 @@ import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.data.TextReading;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class TextReadingInfo extends ReadingInfo<TextReading, TextualRegisterSpec> {
+public class TextReadingInfo extends ReadingInfo {
     @JsonProperty("value")
     public String value;
 

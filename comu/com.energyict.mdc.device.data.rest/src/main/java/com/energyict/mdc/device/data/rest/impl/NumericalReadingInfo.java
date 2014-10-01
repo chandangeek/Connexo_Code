@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.UnitAdapter;
@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.util.Set;
 
-public class NumericalReadingInfo extends ReadingInfo<NumericalReading, NumericalRegisterSpec> {
+public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
@@ -39,7 +39,7 @@ public class NumericalReadingInfo extends ReadingInfo<NumericalReading, Numerica
 
     public NumericalReadingInfo() {}
 
-    public NumericalReadingInfo(NumericalReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive, DataValidationStatus dataValidationStatus, ValidationEvaluator validationEvaluator) {
+    public NumericalReadingInfo(NumericalReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive, DataValidationStatus dataValidationStatus) {
         super(reading);
         this.value = reading.getQuantity().getValue();
         this.rawValue = reading.getQuantity().getValue();
@@ -54,7 +54,7 @@ public class NumericalReadingInfo extends ReadingInfo<NumericalReading, Numerica
         this.validationStatus = isValidationStatusActive;
         if(dataValidationStatus != null) {
             this.dataValidated = dataValidationStatus.completelyValidated();
-            this.validationResult = ValidationStatus.forResult(validationEvaluator.getValidationResult(dataValidationStatus.getReadingQualities()));
+            this.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(dataValidationStatus.getReadingQualities()));
             this.suspectReason = ValidationRuleInfo.from(dataValidationStatus);
         }
     }

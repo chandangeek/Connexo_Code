@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
@@ -15,8 +16,9 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import javax.ws.rs.core.Application;
 import org.mockito.Mock;
+
+import javax.ws.rs.core.Application;
 
 /**
  * Created by bvn on 9/19/14.
@@ -48,7 +50,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     MeteringGroupsService meteringGroupService;
     @Mock
     MeteringService meteringService;
-
+    @Mock
+    RestQueryService restQueryService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -73,6 +76,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setMeteringService(meteringService);
         application.setSchedulingService(schedulingService);
         application.setValidationService(validationService);
+        application.setRestQueryService(restQueryService);
         return application;
     }
 }

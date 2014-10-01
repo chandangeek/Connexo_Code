@@ -4,13 +4,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -35,6 +34,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -49,17 +49,13 @@ public class ChannelResource {
 
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
-    private final ValidationEvaluator evaluator;
-    private final ValidationService validationService;
     private final Clock clock;
 
     @Inject
-    public ChannelResource(ResourceHelper resourceHelper, Thesaurus thesaurus, ValidationService validationService, Clock clock) {
+    public ChannelResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
-        this.validationService = validationService;
         this.clock = clock;
-        this.evaluator = validationService.getEvaluator();
     }
 
     @GET
@@ -81,7 +77,7 @@ public class ChannelResource {
 
     private void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
         List<DataValidationStatus> states =
-                channel.getDevice().forValidation().getValidationStatus(channel, lastMonth());
+                channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());
         channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, lastChecked(channel));
     }
 
@@ -106,7 +102,7 @@ public class ChannelResource {
     }
 
     private Interval lastMonth() {
-        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.of("UTC")).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
         return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
     }
@@ -117,10 +113,11 @@ public class ChannelResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
-        boolean isValidationActive = channel.getDevice().forValidation().isValidationActive(channel, clock.now());
+        DeviceValidation deviceValidation = channel.getDevice().forValidation();
+        boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.now());
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> channelData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
-            List<ChannelDataInfo> infos = ChannelDataInfo.from(channelData, isValidationActive, thesaurus, evaluator);
+            List<ChannelDataInfo> infos = ChannelDataInfo.from(channelData, isValidationActive, thesaurus, deviceValidation);
             infos = filter(infos, uriInfo.getQueryParameters());
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", paginatedChannelData, queryParameters);

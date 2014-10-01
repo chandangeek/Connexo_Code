@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -36,6 +35,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -59,8 +59,6 @@ public class LoadProfileResource {
     private final Thesaurus thesaurus;
     private final Provider<ChannelResource> channelResourceProvider;
     private final Clock clock;
-    private final ValidationEvaluator evaluator;
-    private final ValidationService validationService;
 
     @Inject
     public LoadProfileResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus, Provider<ChannelResource> channelResourceProvider, ValidationService validationService, Clock clock) {
@@ -69,8 +67,6 @@ public class LoadProfileResource {
         this.thesaurus = thesaurus;
         this.channelResourceProvider = channelResourceProvider;
         this.clock = clock;
-        this.evaluator = validationService.getEvaluator();
-        this.validationService = validationService;
     }
 
     @GET
@@ -104,7 +100,7 @@ public class LoadProfileResource {
 
     private void addValidationInfo(LoadProfile loadProfile, LoadProfileInfo loadProfileInfo) {
         List<DataValidationStatus> states = loadProfile.getChannels().stream()
-                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, lastMonth()).stream())
+                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), lastMonth()).stream())
                 .collect(Collectors.toList());
 
         loadProfileInfo.validationInfo = new DetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
@@ -126,7 +122,7 @@ public class LoadProfileResource {
     }
 
     private Interval lastMonth() {
-        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.of("UTC")).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
         return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
     }
@@ -149,7 +145,7 @@ public class LoadProfileResource {
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
-            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(device, loadProfileData, thesaurus, clock, evaluator);
+            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(device, loadProfileData, thesaurus, clock);
             infos = filter(infos, uriInfo.getQueryParameters());
             List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", paginatedLoadProfileData, queryParameters);

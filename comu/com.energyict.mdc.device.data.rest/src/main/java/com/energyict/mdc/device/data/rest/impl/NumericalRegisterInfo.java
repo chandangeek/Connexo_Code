@@ -1,17 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.NumericalRegister;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
 
 public class NumericalRegisterInfo extends RegisterInfo<NumericalRegister, NumericalReading> {
     @JsonProperty("numberOfDigits")
@@ -26,8 +20,8 @@ public class NumericalRegisterInfo extends RegisterInfo<NumericalRegister, Numer
 
     public NumericalRegisterInfo() {}
 
-    public NumericalRegisterInfo(NumericalRegister register, DetailedValidationInfo registerValidationInfo, ValidationEvaluator evaluator) {
-        super(register, evaluator);
+    public NumericalRegisterInfo(NumericalRegister register, DetailedValidationInfo registerValidationInfo) {
+        super(register);
         NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)register.getRegisterSpec();
         this.numberOfDigits = registerSpec.getNumberOfDigits();
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
