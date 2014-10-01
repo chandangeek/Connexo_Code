@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;

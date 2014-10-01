@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
@@ -17,7 +17,7 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpda
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;

@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 
 /**
  * Models a {@link ComTaskExecutionUpdater} for a {@link ManuallyScheduledComTaskExecution}.

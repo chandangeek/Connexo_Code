@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.ComTaskEnablement;
