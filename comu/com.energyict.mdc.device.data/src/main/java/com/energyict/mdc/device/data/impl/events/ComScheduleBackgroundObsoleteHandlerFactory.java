@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.Installer;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -18,7 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 public class ComScheduleBackgroundObsoleteHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile EventService eventService;
-    private volatile DeviceDataServiceImpl deviceDataService;
+    private volatile ServerCommunicationTaskService communicationTaskService;
 
     @Reference
     public void setJsonService(JsonService jsonService) {
@@ -31,13 +30,13 @@ public class ComScheduleBackgroundObsoleteHandlerFactory implements MessageHandl
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = (DeviceDataServiceImpl) deviceDataService;
+    public void setCommunicationTaskService(ServerCommunicationTaskService deviceService) {
+        this.communicationTaskService = deviceService;
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new ComScheduleBackgroundObsoleteHandler(this.jsonService, this.eventService, this.deviceDataService);
+        return new ComScheduleBackgroundObsoleteHandler(this.jsonService, this.eventService, this.communicationTaskService);
     }
 
 }

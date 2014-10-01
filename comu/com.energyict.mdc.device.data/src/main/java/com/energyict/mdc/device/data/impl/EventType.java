@@ -4,7 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 
 /**
  * Models the different event types that are produced by this "device data bundle".
@@ -59,7 +59,7 @@ public enum EventType {
     void install(EventService eventService) {
         EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
-                .component(DeviceDataService.COMPONENTNAME)
+                .component(DeviceService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
                 .shouldPublish();

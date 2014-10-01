@@ -19,7 +19,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration test of the {@link DeviceDataServiceImpl} component.
+ * Integration test of the {@link DeviceServiceImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-25 (09:32)
@@ -30,7 +30,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void testGetComTaskExecutionStatusCount() {
         // Business method
-        Map<TaskStatus, Long> statusCount = inMemoryPersistence.getDeviceDataService().getComTaskExecutionStatusCount();
+        Map<TaskStatus, Long> statusCount = inMemoryPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount();
 
         // Assertts
         assertThat(statusCount).isNotNull();
@@ -47,7 +47,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
         filter.deviceTypes.add(deviceType);
 
         // Business method
-        Map<TaskStatus, Long> statusCount = inMemoryPersistence.getDeviceDataService().getComTaskExecutionStatusCount(filter);
+        Map<TaskStatus, Long> statusCount = inMemoryPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount(filter);
 
         // Assertts
         assertThat(statusCount).isNotNull();
@@ -77,7 +77,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
         filter.comSchedules.add(comSchedule);
 
         // Business method
-        Map<TaskStatus, Long> statusCount = inMemoryPersistence.getDeviceDataService().getComTaskExecutionStatusCount(filter);
+        Map<TaskStatus, Long> statusCount = inMemoryPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount(filter);
 
         // Assertts
         assertThat(statusCount).isNotNull();
@@ -97,7 +97,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
         filter.comTasks.add(comTask);
 
         // Business method
-        Map<TaskStatus, Long> statusCount = inMemoryPersistence.getDeviceDataService().getComTaskExecutionStatusCount(filter);
+        Map<TaskStatus, Long> statusCount = inMemoryPersistence.getCommunicationTaskService().getComTaskExecutionStatusCount(filter);
 
         // Assertts
         assertThat(statusCount).isNotNull();
@@ -110,7 +110,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void countConnectionTasksLastComSessionsWithAtLeastOneFailedTaskDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getDeviceDataService().countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
+        inMemoryPersistence.getConnectionTaskService().countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
 
         // Asserts: should not cause any SQLExceptions
     }
@@ -119,7 +119,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTaskDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getDeviceDataService().countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
+        inMemoryPersistence.getConnectionTaskService().countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
 
         // Asserts: should not cause any SQLExceptions
     }
@@ -128,7 +128,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void getConnectionTaskLastComSessionSuccessIndicatorCountDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getDeviceDataService().getConnectionTaskLastComSessionSuccessIndicatorCount();
+        inMemoryPersistence.getConnectionTaskService().getConnectionTaskLastComSessionSuccessIndicatorCount();
 
         // Asserts: should not cause any SQLExceptions
     }
@@ -137,7 +137,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void getComTaskLastComSessionHighestPriorityCompletionCodeCountDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getDeviceDataService().getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+        inMemoryPersistence.getCommunicationTaskService().getComTaskLastComSessionHighestPriorityCompletionCodeCount();
 
         // Asserts: should not cause any SQLExceptions
     }
@@ -146,7 +146,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void getConnectionTypeHeatMapDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getDeviceDataService().getConnectionTypeHeatMap();
+        inMemoryPersistence.getConnectionTaskService().getConnectionTypeHeatMap();
 
         // Asserts: should not cause any SQLExceptions
     }
@@ -155,7 +155,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void getConnectionsDeviceTypeHeatMapDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getDeviceDataService().getConnectionsDeviceTypeHeatMap();
+        inMemoryPersistence.getConnectionTaskService().getConnectionsDeviceTypeHeatMap();
 
         // Asserts: should not cause any SQLExceptions
     }
@@ -164,7 +164,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void getComTasksDeviceTypeHeatMapDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getDeviceDataService().getComTasksDeviceTypeHeatMap();
+        inMemoryPersistence.getCommunicationTaskService().getComTasksDeviceTypeHeatMap();
 
         // Asserts: should not cause any SQLExceptions
     }
@@ -173,7 +173,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void getConnectionsComPortPoolHeatMapDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getDeviceDataService().getConnectionsComPortPoolHeatMap();
+        inMemoryPersistence.getConnectionTaskService().getConnectionsComPortPoolHeatMap();
 
         // Asserts: should not cause any SQLExceptions
     }

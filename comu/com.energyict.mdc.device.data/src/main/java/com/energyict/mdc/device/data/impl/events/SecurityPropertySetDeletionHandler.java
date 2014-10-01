@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.events;
 
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -24,7 +24,7 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/device/config/securitypropertyset/VALIDATE_DELETE";
 
-    private volatile ServerDeviceDataService deviceDataService;
+    private volatile ServerDeviceService deviceDataService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile Thesaurus thesaurus;
 
@@ -33,7 +33,7 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
     }
 
     // For testing purposes only
-    SecurityPropertySetDeletionHandler(ProtocolPluggableService protocolPluggableService, ServerDeviceDataService deviceDataService) {
+    SecurityPropertySetDeletionHandler(ProtocolPluggableService protocolPluggableService, ServerDeviceService deviceDataService) {
         this();
         this.setDeviceDataService(deviceDataService);
         this.setProtocolPluggableService(protocolPluggableService);
@@ -41,11 +41,11 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
+    public void setDeviceDataService(DeviceService deviceService) {
+        this.setDeviceDataService((ServerDeviceService) deviceService);
     }
 
-    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
+    private void setDeviceDataService(ServerDeviceService deviceDataService) {
         this.deviceDataService = deviceDataService;
         this.thesaurus = deviceDataService.getThesaurus();
     }

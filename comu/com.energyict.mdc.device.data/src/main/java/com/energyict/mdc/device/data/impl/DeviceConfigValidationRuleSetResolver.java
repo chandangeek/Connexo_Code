@@ -6,7 +6,8 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -21,12 +22,12 @@ import java.util.List;
 @Component(name = "com.energyict.mdc.device.config.validationruleSetResolver", service = ValidationRuleSetResolver.class)
 public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetResolver {
 
-    private volatile DeviceDataService deviceDataService;
+    private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
@@ -37,7 +38,7 @@ public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetR
     @Override
     public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
         if (hasMdcMeter(meterActivation)) {
-            Device device = deviceDataService.findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()));
+            Device device = deviceService.findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()));
             if (device != null) {
                 return device.getDeviceConfiguration().getValidationRuleSets();
             }

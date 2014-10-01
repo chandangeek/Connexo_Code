@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -8,9 +11,6 @@ import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
@@ -28,7 +28,7 @@ public abstract class ComTaskEnablementMessageHandlerFactory implements MessageH
 
     private volatile JsonService jsonService;
     private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile ServerDeviceDataService deviceDataService;
+    private volatile ServerCommunicationTaskService communicationTaskService;
     private volatile MessageService messageService;
     private volatile TransactionService transactionService;
 
@@ -55,17 +55,13 @@ public abstract class ComTaskEnablementMessageHandlerFactory implements MessageH
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    protected ServerDeviceDataService getDeviceDataService() {
-        return deviceDataService;
+    protected ServerCommunicationTaskService getCommunicationTaskService() {
+        return communicationTaskService;
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
-    }
-
-    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setCommunicationTaskService(ServerCommunicationTaskService deviceDataService) {
+        this.communicationTaskService = deviceDataService;
     }
 
     @Reference

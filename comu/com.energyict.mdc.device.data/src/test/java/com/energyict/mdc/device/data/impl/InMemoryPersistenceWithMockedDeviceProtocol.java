@@ -119,7 +119,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
-    private DeviceDataServiceImpl deviceService;
+    private DeviceServiceImpl deviceService;
     private TaskService taskService;
     private SchedulingService schedulingService;
     private ValidationService validationService;
@@ -190,7 +190,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     }
 
     private DataModel createNewDeviceDataService(Injector injector) {
-        deviceService = injector.getInstance(DeviceDataServiceImpl.class);
+        deviceService = injector.getInstance(DeviceServiceImpl.class);
         return deviceService.getDataModel();
     }
 
@@ -261,7 +261,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         return applicationContext;
     }
 
-    public DeviceDataServiceImpl getDeviceService() {
+    public DeviceServiceImpl getDeviceService() {
         return deviceService;
     }
 

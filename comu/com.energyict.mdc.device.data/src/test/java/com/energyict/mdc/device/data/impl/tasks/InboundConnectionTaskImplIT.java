@@ -71,7 +71,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         InboundConnectionTask inboundConnectionTask = createSimpleInboundConnectionTask();
 
         // Business method
-        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(inboundConnectionTask);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(inboundConnectionTask);
 
         // Asserts
         //verify(this.manager).defaultConnectionTaskChanged(this.device, inboundConnectionTask);
@@ -197,7 +197,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     // Todo: Wait for ComTaskExecution to be moved to this bundle and then create one that explicitly uses the InboundConnectionTaskImpl
     public void testCannotDeleteDefaultTaskThatIsInUse() {
         InboundConnectionTaskImpl connectionTask = createSimpleInboundConnectionTask();
-        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
 
         // Business method
         connectionTask.delete();
@@ -211,7 +211,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     // Todo: Wait for ComTaskExecution to be moved to this bundle and then create one that simple uses the default
     public void testDeletedAndSetComTaskToNoConnectionTask() {
         InboundConnectionTaskImpl connectionTask = createSimpleInboundConnectionTask();
-        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
         ComTaskExecutionImpl obsoleteComTask = mock(ComTaskExecutionImpl.class);
         comTaskExecutions.add(obsoleteComTask);
@@ -222,7 +222,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         verify(obsoleteComTask).connectionTaskRemoved();
-        assertThat(inMemoryPersistence.getDeviceDataService().findConnectionTask(connectionTask.getId()).isPresent()).isFalse();
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionTask(connectionTask.getId()).isPresent()).isFalse();
     }
 
     @Test
@@ -231,7 +231,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
 
         // Business method
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Asserts
         assertThat(locked).isNotNull();
@@ -242,10 +242,10 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testUnlock () {
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Business method
-        inMemoryPersistence.getDeviceDataService().unlockConnectionTask(locked);
+        inMemoryPersistence.getConnectionTaskService().unlockConnectionTask(locked);
 
         // Asserts
         assertThat(locked.getExecutingComServer()).isNull();
@@ -255,10 +255,10 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testAttemptLockWillFailWhenAlreadyLockedByTheSameComServer () {
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Business method
-        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Asserts
         assertThat(lockedForSecondTime).isNull();
@@ -269,11 +269,11 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testAttemptLockTwiceWillFail() {
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         /* Business method: here the test is a little different from testAttemptLockWillFailWhenAlreadyLockedByTheSameComServer
          *                  because we are locking on the already locked ConnectionTask instead of the original connectionTask that is not locked in memory. */
-        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(locked, this.getOnlineComServer());
+        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(locked, this.getOnlineComServer());
 
         // Asserts
         assertThat(lockedForSecondTime).isNull();
@@ -285,10 +285,10 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testAttemptLockWillFailWhenAlreadyLockedByAnotherComServer () {
         OnlineComServer otherComServer = this.createComServer("Other");
         InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
 
         // Business method
-        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getDeviceDataService().attemptLockConnectionTask(connectionTask, otherComServer);
+        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, otherComServer);
 
         // Asserts
         assertThat(lockedForSecondTime).isNull();
@@ -582,7 +582,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         connectionTask.delete();
 
         // Asserts
-        assertFalse(inMemoryPersistence.getDeviceDataService().findConnectionTask(id).isPresent());
+        assertFalse(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).isPresent());
     }
 
     @Test
@@ -595,7 +595,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         connectionTask.delete();
 
         // Asserts
-        assertFalse(inMemoryPersistence.getDeviceDataService().findConnectionTask(id).isPresent());
+        assertFalse(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).isPresent());
         RelationAttributeType connectionMethodAttributeType = inboundIpConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
@@ -634,17 +634,17 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testSwitchFromOutboundDefault () throws SQLException, BusinessException {
         ScheduledConnectionTaskImpl outboundDefault = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testSwitchFromOutboundDefault");
-        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(outboundDefault);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(outboundDefault);
 
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations();
 
         // Business method
-        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
 
         // Asserts
         assertThat(connectionTask.isDefault()).isTrue();
         // Reload the outbound default
-        ScheduledConnectionTask oldDefault = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(outboundDefault.getId()).get();
+        ScheduledConnectionTask oldDefault = inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(outboundDefault.getId()).get();
         assertThat(oldDefault.isDefault()).isFalse();
     }
 
@@ -654,7 +654,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations();
 
         // Business method
-        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
 
         // Asserts
         assertThat(connectionTask.isDefault()).isTrue();
@@ -665,13 +665,13 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testUnsetAsDefaultWithOtherConnectionTasks () throws SQLException, BusinessException {
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations(false);
         ScheduledConnectionTask outboundDefault = this.createOutboundWithIpPropertiesWithoutViolations("testUnsetAsDefaultWithOtherConnectionTasks");
-        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(outboundDefault);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(outboundDefault);
 
         // Business method
-        inMemoryPersistence.getDeviceDataService().clearDefaultConnectionTask(connectionTask.getDevice());
+        inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(connectionTask.getDevice());
 
         // Need to reload the outbound default as the changes are done in the background
-        ScheduledConnectionTask reloadedOutboundDefault = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(outboundDefault.getId()).get();
+        ScheduledConnectionTask reloadedOutboundDefault = inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(outboundDefault.getId()).get();
 
         // Asserts
         assertThat(connectionTask.isDefault()).isFalse();
@@ -684,7 +684,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations(false);
 
         // Business method
-        inMemoryPersistence.getDeviceDataService().clearDefaultConnectionTask(connectionTask.getDevice());
+        inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(connectionTask.getDevice());
 
         // Asserts
         assertThat(connectionTask.isDefault()).isFalse();
@@ -725,7 +725,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         this.setIpConnectionProperties(inboundConnectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
         inboundConnectionTask.save();
         if (defaultState) {
-            inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(inboundConnectionTask);
+            inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(inboundConnectionTask);
         }
         return inboundConnectionTask;
     }

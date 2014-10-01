@@ -5,8 +5,8 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
@@ -67,7 +67,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
                     MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR, ManuallyScheduledComTaskExecutionImpl.class);
 
     private final Clock clock;
-    private final DeviceDataService deviceDataService;
+    private final ServerConnectionTaskService connectionTaskService;
+    private final CommunicationTaskService communicationTaskService;
     private final SchedulingService schedulingService;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED + "}")
@@ -100,10 +101,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private boolean ignoreNextExecutionSpecsForInbound;
 
     @Inject
-    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, SchedulingService schedulingService) {
+    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
         this.clock = clock;
-        this.deviceDataService = deviceDataService;
+        this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
     }
 
@@ -198,7 +200,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
         if (this.useDefaultConnectionTask) {
-            this.setConnectionTask(this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()));
+            this.setConnectionTask(this.connectionTaskService.findDefaultConnectionTaskForDevice(getDevice()));
         }
     }
 
@@ -225,7 +227,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      * We are already in a Transaction so we don't wrap it again.
      */
     private void reloadMyselfForObsoleting() {
-        ComTaskExecution updatedVersionOfMyself = this.deviceDataService.findComTaskExecution(this.getId());
+        ComTaskExecution updatedVersionOfMyself = this.communicationTaskService.findComTaskExecution(this.getId());
         if (updatedVersionOfMyself != null) {
             this.comPort.set(updatedVersionOfMyself.getExecutingComPort());
             this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate();
@@ -241,9 +243,9 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
 
         if (this.useDefaultConnectionTask) {
-            ConnectionTask<?, ?> defaultConnectionTaskForDevice = this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice());
+            ConnectionTask<?, ?> defaultConnectionTaskForDevice = this.connectionTaskService.findDefaultConnectionTaskForDevice(getDevice());
             if (defaultConnectionTaskForDevice != null && defaultConnectionTaskForDevice.getExecutingComServer() != null) {
-                throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.deviceDataService.findDefaultConnectionTaskForDevice(getDevice()).getExecutingComServer());
+                throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.connectionTaskService.findDefaultConnectionTaskForDevice(getDevice()).getExecutingComServer());
             }
         } else if (this.connectionTask.isPresent() && this.connectionTask.get().getExecutingComServer() != null) {
             throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.connectionTask.get().getExecutingComServer());

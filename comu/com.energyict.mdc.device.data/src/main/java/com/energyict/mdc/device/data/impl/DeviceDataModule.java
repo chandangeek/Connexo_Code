@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -40,7 +40,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(SchedulingService.class);
 
         bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
-        bind(DeviceDataService.class).to(DeviceDataServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DeviceService.class).to(DeviceServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

@@ -1,38 +1,25 @@
-package com.energyict.mdc.device.data.impl;
+package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.base.Optional;
 
 /**
- * Adds behavior to {@link DeviceDataService} that is specific
+ * Adds behavior to {@link CommunicationTaskService} that is specific
  * to server side components.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-04-28 (11:24)
+ * @since 2014-10-01 (13:48)
  */
-public interface ServerDeviceDataService extends DeviceDataService {
-
-    public Thesaurus getThesaurus();
-
-    /**
-     * Tests if the specified {@link ComPortPool} is used
-     * by at least one {@link ConnectionTask}.
-     *
-     * @param comPortPool The ComPortPool
-     * @return A flag that indicates if the ComPortPool is used or not
-     */
-    public boolean hasConnectionTasks(ComPortPool comPortPool);
+public interface ServerCommunicationTaskService extends CommunicationTaskService {
 
     /**
      * Tests if the specified {@link ComTaskEnablement} is used
@@ -42,6 +29,15 @@ public interface ServerDeviceDataService extends DeviceDataService {
      * @return A flag that indicates if the ComTaskEnablement is used or not
      */
     public boolean hasComTaskExecutions(ComTaskEnablement comTaskEnablement);
+
+    /**
+     * Tests if the specified {@link ComSchedule} is used
+     * by at least one {@link ComTaskExecution}.
+     *
+     * @param comSchedule The ComSchedule
+     * @return A flag that indicates if the ComSchedule is used or not
+     */
+    public boolean hasComTaskExecutions(ComSchedule comSchedule);
 
     /**
      * Gets the {@link ScheduledComTaskExecutionIdRange range} of IDs
@@ -62,24 +58,6 @@ public interface ServerDeviceDataService extends DeviceDataService {
      * @param idRange The ScheduledComTaskExecutionIdRange
      */
     public void obsoleteComTaskExecutionsInRange(ScheduledComTaskExecutionIdRange idRange);
-
-    /**
-     * Tests if the specified {@link ComSchedule} is used
-     * by at least one {@link ComTaskExecution}.
-     *
-     * @param comSchedule The ComSchedule
-     * @return A flag that indicates if the ComSchedule is used or not
-     */
-    public boolean hasComTaskExecutions(ComSchedule comSchedule);
-
-    /**
-     * Tests if the specified {@link PartialConnectionTask} is used
-     * by at least one {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
-     *
-     * @param partialConnectionTask The PartialConnectionTask
-     * @return A flag that indicates if the PartialConnectionTask is used or not
-     */
-    public boolean hasConnectionTasks(PartialConnectionTask partialConnectionTask);
 
     /**
      * Disconnects all the executions of the specified {@link ComTask}

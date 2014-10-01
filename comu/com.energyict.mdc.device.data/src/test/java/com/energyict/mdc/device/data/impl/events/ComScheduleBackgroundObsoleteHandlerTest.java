@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.events;
 
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import com.elster.jupiter.events.EventService;
@@ -45,7 +45,7 @@ public class ComScheduleBackgroundObsoleteHandlerTest {
     @Mock
     private EventService eventService;
     @Mock
-    private ServerDeviceDataService deviceDataService;
+    private ServerCommunicationTaskService communicationTaskService;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -62,7 +62,7 @@ public class ComScheduleBackgroundObsoleteHandlerTest {
 
     @Before
     public void createEventHandler () {
-        this.eventHandler = new ComScheduleBackgroundObsoleteHandler(this.jsonService, this.eventService, this.deviceDataService);
+        this.eventHandler = new ComScheduleBackgroundObsoleteHandler(this.jsonService, this.eventService, this.communicationTaskService);
     }
 
     private void createStartMessage() {
@@ -86,14 +86,14 @@ public class ComScheduleBackgroundObsoleteHandlerTest {
     @Test
     public void testWithoutComTaskExecutions () {
         this.createStartMessage();
-        when(this.deviceDataService.getScheduledComTaskExecutionIdRange(anyLong())).thenReturn(Optional.<ScheduledComTaskExecutionIdRange>absent());
+        when(this.communicationTaskService.getScheduledComTaskExecutionIdRange(anyLong())).thenReturn(Optional.<ScheduledComTaskExecutionIdRange>absent());
 
         // Business method
         this.eventHandler.process(this.message);
 
         // Asserts
         verify(this.message).getPayload();
-        verify(this.deviceDataService).getScheduledComTaskExecutionIdRange(COM_SCHEDULE_ID);
+        verify(this.communicationTaskService).getScheduledComTaskExecutionIdRange(COM_SCHEDULE_ID);
         verifyZeroInteractions(this.eventService);
     }
 
@@ -103,14 +103,14 @@ public class ComScheduleBackgroundObsoleteHandlerTest {
         int firstComTaskExecutionId = 1;
         int lastComTaskExecutionId = 10;
         ScheduledComTaskExecutionIdRange idRange = new ScheduledComTaskExecutionIdRange(COM_SCHEDULE_ID, firstComTaskExecutionId, lastComTaskExecutionId);
-        when(this.deviceDataService.getScheduledComTaskExecutionIdRange(anyLong())).thenReturn(Optional.of(idRange));
+        when(this.communicationTaskService.getScheduledComTaskExecutionIdRange(anyLong())).thenReturn(Optional.of(idRange));
 
         // Business method
         this.eventHandler.process(this.message);
 
         // Asserts
         verify(this.message).getPayload();
-        verify(this.deviceDataService).getScheduledComTaskExecutionIdRange(COM_SCHEDULE_ID);
+        verify(this.communicationTaskService).getScheduledComTaskExecutionIdRange(COM_SCHEDULE_ID);
         verify(this.eventService).postEvent(ComScheduleBackgroundObsoleteHandler.RANGE_OBSOLETE_TOPIC, new ScheduledComTaskExecutionIdRange(idRange.comScheduleId, firstComTaskExecutionId, lastComTaskExecutionId));
     }
 
@@ -120,14 +120,14 @@ public class ComScheduleBackgroundObsoleteHandlerTest {
         int firstComTaskExecutionId = 1;
         int lastComTaskExecutionId = ComScheduleBackgroundObsoleteHandler.RECALCULATION_BATCH_SIZE * 2 + 10;
         ScheduledComTaskExecutionIdRange idRange = new ScheduledComTaskExecutionIdRange(COM_SCHEDULE_ID, firstComTaskExecutionId, lastComTaskExecutionId);
-        when(this.deviceDataService.getScheduledComTaskExecutionIdRange(anyLong())).thenReturn(Optional.of(idRange));
+        when(this.communicationTaskService.getScheduledComTaskExecutionIdRange(anyLong())).thenReturn(Optional.of(idRange));
 
         // Business method
         this.eventHandler.process(this.message);
 
         // Asserts
         verify(this.message).getPayload();
-        verify(this.deviceDataService).getScheduledComTaskExecutionIdRange(COM_SCHEDULE_ID);
+        verify(this.communicationTaskService).getScheduledComTaskExecutionIdRange(COM_SCHEDULE_ID);
         InOrder inOrder = inOrder(this.eventService);
         inOrder.verify(this.eventService).postEvent(ComScheduleBackgroundObsoleteHandler.RANGE_OBSOLETE_TOPIC, new ScheduledComTaskExecutionIdRange(idRange.comScheduleId, 1, 1000));
         inOrder.verify(this.eventService).postEvent(ComScheduleBackgroundObsoleteHandler.RANGE_OBSOLETE_TOPIC, new ScheduledComTaskExecutionIdRange(idRange.comScheduleId, 1001, 2000));
@@ -146,7 +146,7 @@ public class ComScheduleBackgroundObsoleteHandlerTest {
 
         // Asserts
         verify(this.message).getPayload();
-        verify(this.deviceDataService).obsoleteComTaskExecutionsInRange(idRange);
+        verify(this.communicationTaskService).obsoleteComTaskExecutionsInRange(idRange);
         verifyNoMoreInteractions(this.eventService);
     }
 

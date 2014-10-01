@@ -1,24 +1,26 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.EventType;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.google.common.base.Optional;
+import org.osgi.service.event.EventConstants;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.event.EventConstants;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -46,7 +48,7 @@ public class ComTaskEnablementStatusMessageHandlerTest {
     @Mock
     private ComTaskEnablement comTaskEnablement;
     @Mock
-    private ServerDeviceDataService deviceDataService;
+    private ServerCommunicationTaskService communicationTaskService;
 
     private JsonService jsonService = new JsonServiceImpl();
 
@@ -94,7 +96,7 @@ public class ComTaskEnablementStatusMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).suspendAll(this.comTask, this.deviceConfiguration);
+        verify(this.communicationTaskService).suspendAll(this.comTask, this.deviceConfiguration);
     }
 
     @Test
@@ -111,7 +113,7 @@ public class ComTaskEnablementStatusMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).resumeAll(this.comTask, this.deviceConfiguration);
+        verify(this.communicationTaskService).resumeAll(this.comTask, this.deviceConfiguration);
     }
 
     private JsonService getJsonService () {
@@ -119,7 +121,7 @@ public class ComTaskEnablementStatusMessageHandlerTest {
     }
 
     private ComTaskEnablementStatusMessageHandler newHandler () {
-        return new ComTaskEnablementStatusMessageHandler(this.getJsonService(), this.deviceConfigurationService, this.deviceDataService);
+        return new ComTaskEnablementStatusMessageHandler(this.getJsonService(), this.deviceConfigurationService, this.communicationTaskService);
     }
 
 }

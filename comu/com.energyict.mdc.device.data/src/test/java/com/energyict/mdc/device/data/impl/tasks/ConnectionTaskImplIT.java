@@ -11,7 +11,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
+import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
@@ -297,7 +297,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return ipComPortPool;
     }
 
-    protected DeviceDataServiceImpl getDeviceDataService() {
+    protected DeviceServiceImpl getDeviceDataService() {
         return inMemoryPersistence.getDeviceDataService();
     }
 

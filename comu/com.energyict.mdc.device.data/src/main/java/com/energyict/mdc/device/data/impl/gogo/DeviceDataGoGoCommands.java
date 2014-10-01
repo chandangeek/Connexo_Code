@@ -1,20 +1,21 @@
 package com.energyict.mdc.device.data.impl.gogo;
 
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+
+import com.elster.jupiter.transaction.TransactionService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * Provides useful gogo commands that will support device related operations
@@ -33,23 +34,23 @@ import org.osgi.service.component.annotations.Reference;
  * @since 2014-06-06 (13:44)
  */
 @Component(name = "com.energyict.mdc.device.data.gogo", service = DeviceDataGoGoCommands.class,
-        property = {"osgi.command.scope=" + DeviceDataService.COMPONENTNAME, "osgi.command.function=enableOutboundCommunication"}, immediate = true)
+        property = {"osgi.command.scope=" + DeviceService.COMPONENTNAME, "osgi.command.function=enableOutboundCommunication"}, immediate = true)
 public class DeviceDataGoGoCommands {
 
     private volatile TransactionService transactionService;
-    private volatile DeviceDataService deviceDataService;
+    private volatile DeviceService deviceService;
 
     private enum ScheduleFrequency {
         DAILY {
             @Override
-            public void enableOutboundCommunication(TransactionService transactionService, DeviceDataService deviceDataService, String scheduleOption, List<Device> devices) {
-                new EnableDailyCommunicationTransaction(transactionService, deviceDataService, devices).execute();
+            public void enableOutboundCommunication(TransactionService transactionService, DeviceService deviceService, String scheduleOption, List<Device> devices) {
+                new EnableDailyCommunicationTransaction(transactionService, devices).execute();
             }
         },
 
         NONE {
             @Override
-            public void enableOutboundCommunication(TransactionService transactionService, DeviceDataService deviceDataService, String scheduleOption, List<Device> deviceMRIDs) {
+            public void enableOutboundCommunication(TransactionService transactionService, DeviceService deviceService, String scheduleOption, List<Device> deviceMRIDs) {
                 // This enum value represents no scheduling frequency so we will not enable anything on the devices
             }
         };
@@ -63,13 +64,14 @@ public class DeviceDataGoGoCommands {
             }
         }
 
-        public abstract void enableOutboundCommunication(TransactionService transactionService, DeviceDataService deviceDataService, String scheduleOption, List<Device> devices);
+        public abstract void enableOutboundCommunication(TransactionService transactionService, DeviceService deviceService, String scheduleOption, List<Device> devices);
 
     }
 
+    @SuppressWarnings("unused")
     public void enableOutboundCommunication (String scheduleFrequency, String scheduleOption, String... deviceMRIDs) {
         try {
-            ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(this.transactionService, this.deviceDataService, scheduleOption, this.findDevices(deviceMRIDs));
+            ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(this.transactionService, this.deviceService, scheduleOption, this.findDevices(deviceMRIDs));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -84,7 +86,7 @@ public class DeviceDataGoGoCommands {
     }
 
     private void addDeviceIfExists(String deviceMRID, List<Device> devices) {
-        Device device = this.deviceDataService.findByUniqueMrid(deviceMRID);
+        Device device = this.deviceService.findByUniqueMrid(deviceMRID);
         if (device != null) {
             devices.add(device);
         }
@@ -99,19 +101,17 @@ public class DeviceDataGoGoCommands {
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     private static class EnableDailyCommunicationTransaction {
         private final TransactionService transactionService;
-        private final DeviceDataService deviceDataService;
         private final List<Device> devices;
 
-        private EnableDailyCommunicationTransaction(TransactionService transactionService, DeviceDataService deviceDataService, List<Device> devices) {
+        private EnableDailyCommunicationTransaction(TransactionService transactionService, List<Device> devices) {
             super();
             this.transactionService = transactionService;
-            this.deviceDataService = deviceDataService;
             this.devices = devices;
         }
 
@@ -122,17 +122,14 @@ public class DeviceDataGoGoCommands {
         }
 
         private void execute(final Device device) {
-            this.transactionService.execute(new Transaction<Object>() {
-                @Override
-                public Object perform() {
-                    addScheduledConnectionTasks(device);
-                    List<ComTaskExecution> comTaskExecutions = addComTaskExecutions(device);
-                    device.save();
-                    if (comTaskExecutions.isEmpty()) {
-                        System.out.printf("No communication tasks were scheduled for device " + device.getmRID() + " because not tasks were enabled on the device configuration: " + device.getDeviceConfiguration().getName());
-                    }
-                    return null;
+            this.transactionService.execute(() -> {
+                addScheduledConnectionTasks(device);
+                List<ComTaskExecution> comTaskExecutions = addComTaskExecutions(device);
+                device.save();
+                if (comTaskExecutions.isEmpty()) {
+                    System.out.printf("No communication tasks were scheduled for device " + device.getmRID() + " because not tasks were enabled on the device configuration: " + device.getDeviceConfiguration().getName());
                 }
+                return null;
             });
         }
 

@@ -7,10 +7,11 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
+import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -76,7 +77,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the method of the {@link DeviceDataServiceImpl} component
+ * Tests the method of the {@link DeviceServiceImpl} component
  * that counts the number of communication errors in a device communication topology.
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -106,7 +107,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     private EventService eventService;
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
-    private DeviceDataService deviceDataService;
+    private CommunicationTaskService communicationTaskService;
+    private DeviceService deviceService;
 
     private ConnectionTypePluggableClass connectionTypePluggableClass;
     private DeviceType deviceType;
@@ -163,7 +165,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.eventService = injector.getInstance(EventService.class);
             this.ormService = this.injector.getInstance(OrmService.class);
-            this.deviceDataService = this.injector.getInstance(DeviceDataService.class);
+            this.communicationTaskService = this.injector.getInstance(CommunicationTaskService.class);
+            this.deviceService = this.injector.getInstance(DeviceService.class);
             this.deviceConfigurationService = this.injector.getInstance(DeviceConfigurationService.class);
             this.protocolPluggableService = this.injector.getInstance(ProtocolPluggableService.class);
             this.deviceConfigurationService = this.injector.getInstance(DeviceConfigurationService.class);
@@ -195,7 +198,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             this.configDialectProps = this.deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new TestDialect());
             this.deviceConfiguration.save();
             this.deviceConfiguration.activate();
-            this.device = this.deviceDataService.newDevice(this.deviceConfiguration, "SimpleDevice", "mrid");
+            this.device = this.deviceService.newDevice(this.deviceConfiguration, "SimpleDevice", "mrid");
             this.device.save();
             this.connectionTypePluggableClass = this.protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
             this.connectionTypePluggableClass.save();
@@ -211,7 +214,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     @Test
     public void testConnectionSetupFailure () {
         // Business method
-        int numberOfDevices = this.deviceDataService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.CONNECTION_SETUP_FAILURE, this.device, Interval.sinceEpoch());
+        int numberOfDevices = this.communicationTaskService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.CONNECTION_SETUP_FAILURE, this.device, Interval.sinceEpoch());
 
         // Asserts: validates mostly that no SQLExceptions have occurred
         assertThat(numberOfDevices).isZero();
@@ -220,7 +223,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     @Test
     public void testCommunicationFailure () {
         // Business method
-        int numberOfDevices = this.deviceDataService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.COMMUNICATION_FAILURE, this.device, Interval.sinceEpoch());
+        int numberOfDevices = this.communicationTaskService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.COMMUNICATION_FAILURE, this.device, Interval.sinceEpoch());
 
         // Asserts: validates mostly that no SQLExceptions have occurred
         assertThat(numberOfDevices).isZero();
@@ -229,7 +232,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     @Test
     public void testConnectionFailure () {
         // Business method
-        int numberOfDevices = this.deviceDataService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.CONNECTION_FAILURE, this.device, Interval.sinceEpoch());
+        int numberOfDevices = this.communicationTaskService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.CONNECTION_FAILURE, this.device, Interval.sinceEpoch());
 
         // Asserts: validates mostly that no SQLExceptions have occurred
         assertThat(numberOfDevices).isZero();

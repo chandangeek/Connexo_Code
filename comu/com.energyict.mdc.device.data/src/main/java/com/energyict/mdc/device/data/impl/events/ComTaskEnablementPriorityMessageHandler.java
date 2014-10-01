@@ -1,14 +1,16 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
-import java.util.Map;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.event.EventConstants;
+
+import java.util.Map;
 
 /**
  * Handles events that are being sent when the priority of a {@link ComTaskEnablement} changes.
@@ -22,13 +24,13 @@ public class ComTaskEnablementPriorityMessageHandler implements MessageHandler {
 
     private final JsonService jsonService;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final ServerDeviceDataService deviceDataService;
+    private final ServerCommunicationTaskService communicationTaskService;
 
-    public ComTaskEnablementPriorityMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerDeviceDataService deviceDataService) {
+    public ComTaskEnablementPriorityMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerCommunicationTaskService communicationTaskService) {
         super();
         this.jsonService = jsonService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceDataService = deviceDataService;
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Override
@@ -42,7 +44,7 @@ public class ComTaskEnablementPriorityMessageHandler implements MessageHandler {
             DeviceConfiguration deviceConfiguration = comTaskEnablement.getDeviceConfiguration();
             Integer oldPriority = this.getInteger("oldPriority", messageProperties);
             Integer newPriority = this.getInteger("newPriority", messageProperties);
-            this.deviceDataService.preferredPriorityChanged(comTaskEnablement.getComTask(), deviceConfiguration, oldPriority, newPriority);
+            this.communicationTaskService.preferredPriorityChanged(comTaskEnablement.getComTask(), deviceConfiguration, oldPriority, newPriority);
         }
     }
 

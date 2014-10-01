@@ -12,8 +12,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -119,7 +120,9 @@ public class InMemoryIntegrationPersistence {
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private TaskService taskService;
-    private DeviceDataServiceImpl deviceDataService;
+    private ServerConnectionTaskService connectionTaskService;
+    private ServerCommunicationTaskService communicationTaskService;
+    private DeviceServiceImpl deviceDataService;
     private SchedulingService schedulingService;
     private InMemoryBootstrapModule bootstrapModule;
     private PropertySpecService propertySpecService;
@@ -202,7 +205,9 @@ public class InMemoryIntegrationPersistence {
             this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.schedulingService = injector.getInstance(SchedulingService.class);
-            this.deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
+            this.connectionTaskService = injector.getInstance(ServerConnectionTaskService.class);
+            this.communicationTaskService = injector.getInstance(ServerCommunicationTaskService.class);
+            this.deviceDataService = injector.getInstance(DeviceServiceImpl.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.dataModel = this.deviceDataService.getDataModel();
             initializeFactoryProviders();
@@ -212,14 +217,11 @@ public class InMemoryIntegrationPersistence {
     }
 
     private void initializeFactoryProviders() {
-        getPropertySpecService().addFactoryProvider(new ReferencePropertySpecFinderProvider() {
-            @Override
-            public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-                List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-                finders.add(new ConnectionTaskFinder(dataModel));
-                finders.add(new ProtocolDialectPropertiesFinder(dataModel));
-                return finders;
-            }
+        getPropertySpecService().addFactoryProvider(() -> {
+            List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+            finders.add(new ConnectionTaskFinder(dataModel));
+            finders.add(new ProtocolDialectPropertiesFinder(dataModel));
+            return finders;
         });
     }
 
@@ -312,7 +314,15 @@ public class InMemoryIntegrationPersistence {
         return applicationContext;
     }
 
-    public DeviceDataServiceImpl getDeviceDataService() {
+    public ServerConnectionTaskService getConnectionTaskService() {
+        return connectionTaskService;
+    }
+
+    public ServerCommunicationTaskService getCommunicationTaskService() {
+        return communicationTaskService;
+    }
+
+    public DeviceServiceImpl getDeviceDataService() {
         return deviceDataService;
     }
 

@@ -2,12 +2,11 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,15 +22,15 @@ public class DeviceConfigurationDeactivationHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/device/config/deviceconfiguration/VALIDATEDEACTIVATE";
 
-    private volatile ServerDeviceDataService deviceDataService;
+    private volatile ServerDeviceService deviceDataService;
     private Thesaurus thesaurus;
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
+    public void setDeviceDataService(DeviceService deviceService) {
+        this.setDeviceDataService((ServerDeviceService) deviceService);
     }
 
-    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
+    private void setDeviceDataService(ServerDeviceService deviceDataService) {
         this.deviceDataService = deviceDataService;
         this.thesaurus = deviceDataService.getThesaurus();
     }

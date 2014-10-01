@@ -232,7 +232,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private ApplicationContext applicationContext;
         private ProtocolPluggableService protocolPluggableService;
         private MdcReadingTypeUtilService readingTypeUtilService;
-        private DeviceDataServiceImpl deviceService;
+        private DeviceServiceImpl deviceService;
         private Clock clock = new DefaultClock();
         private RelationService relationService;
         private EngineModelService engineModelService;
@@ -295,7 +295,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.relationService = injector.getInstance(RelationService.class);
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.schedulingService = injector.getInstance(SchedulingService.class);
-                this.deviceService = injector.getInstance(DeviceDataServiceImpl.class);
+                this.deviceService = injector.getInstance(DeviceServiceImpl.class);
                 this.dataModel = this.deviceService.getDataModel();
                 ctx.commit();
             }
@@ -353,7 +353,7 @@ public class DeviceImplDoSomethingWithEventsTest {
             return applicationContext;
         }
 
-        public DeviceDataServiceImpl getDeviceService() {
+        public DeviceServiceImpl getDeviceService() {
             return deviceService;
         }
 

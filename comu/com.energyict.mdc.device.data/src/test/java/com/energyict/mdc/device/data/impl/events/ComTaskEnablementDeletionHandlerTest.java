@@ -5,7 +5,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 import org.junit.Before;
@@ -40,13 +41,14 @@ public class ComTaskEnablementDeletionHandlerTest {
     @Mock
     private ComTaskEnablement comTaskEnablement;
     @Mock
-    private ServerDeviceDataService deviceDataService;
+    private DeviceDataModelService deviceDataModelService;
+    @Mock
+    private ServerCommunicationTaskService communicationTaskService;
     @Mock
     private Thesaurus thesaurus;
 
     @Before
     public void initializeMocks () {
-        when(this.deviceDataService.getThesaurus()).thenReturn(this.thesaurus);
         when(this.deviceConfiguration.getName()).thenReturn(ComTaskEnablementDeletionHandlerTest.class.getSimpleName());
         when(this.deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(this.comTask.getId()).thenReturn(COMTASK_ID);
@@ -55,6 +57,8 @@ public class ComTaskEnablementDeletionHandlerTest {
         when(this.comTaskEnablement.getComTask()).thenReturn(this.comTask);
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.deviceConfigurationService.findComTaskEnablement(COMTASK_ENABLEMENT_ID)).thenReturn(Optional.of(this.comTaskEnablement));
+        when(this.deviceDataModelService.communicationTaskService()).thenReturn(this.communicationTaskService);
+        when(this.deviceDataModelService.thesaurus()).thenReturn(this.thesaurus);
     }
 
     @Test
@@ -69,7 +73,7 @@ public class ComTaskEnablementDeletionHandlerTest {
         this.newHandler().handle(localEvent);
 
         // Asserts
-        verify(this.deviceDataService).hasComTaskExecutions(this.comTaskEnablement);
+        verify(this.communicationTaskService).hasComTaskExecutions(this.comTaskEnablement);
     }
 
     @Test(expected = VetoDeleteComTaskEnablementException.class)
@@ -79,7 +83,7 @@ public class ComTaskEnablementDeletionHandlerTest {
         when(eventType.getTopic()).thenReturn(ComTaskEnablementDeletionHandler.TOPIC);
         when(localEvent.getType()).thenReturn(eventType);
         when(localEvent.getSource()).thenReturn(this.comTaskEnablement);
-        when(this.deviceDataService.hasComTaskExecutions(this.comTaskEnablement)).thenReturn(true);
+        when(this.communicationTaskService.hasComTaskExecutions(this.comTaskEnablement)).thenReturn(true);
 
         // Business method
         this.newHandler().handle(localEvent);
@@ -88,7 +92,7 @@ public class ComTaskEnablementDeletionHandlerTest {
     }
 
     private ComTaskEnablementDeletionHandler newHandler() {
-        return new ComTaskEnablementDeletionHandler(this.deviceDataService);
+        return new ComTaskEnablementDeletionHandler(this.deviceDataModelService);
     }
 
 }

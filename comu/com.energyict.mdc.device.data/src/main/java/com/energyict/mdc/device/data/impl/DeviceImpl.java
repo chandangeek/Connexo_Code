@@ -1,5 +1,77 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.CommunicationTopologyEntry;
+import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.exceptions.StillGatewayException;
+import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.BaseChannel;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
@@ -33,75 +105,6 @@ import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.CommunicationTopologyEntry;
-import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.device.data.exceptions.StillGatewayException;
-import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.scheduling.TemporalExpression;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -143,7 +146,9 @@ public class DeviceImpl implements Device {
     private final Clock clock;
     private final MeteringService meteringService;
     private final ValidationService validationService;
-    private final DeviceDataService deviceDataService;
+    private final ServerConnectionTaskService connectionTaskService;
+    private final ServerCommunicationTaskService communicationTaskService;
+    private final DeviceService deviceService;
     private final SecurityPropertyService securityPropertyService;
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
@@ -198,7 +203,9 @@ public class DeviceImpl implements Device {
                 Clock clock,
                 MeteringService meteringService,
                 ValidationService validationService,
-                DeviceDataService deviceDataService,
+                ServerConnectionTaskService connectionTaskService,
+                ServerCommunicationTaskService communicationTaskService,
+                DeviceService deviceService,
                 SecurityPropertyService securityPropertyService,
                 Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
                 Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
@@ -211,7 +218,9 @@ public class DeviceImpl implements Device {
         this.clock = clock;
         this.meteringService = meteringService;
         this.validationService = validationService;
-        this.deviceDataService = deviceDataService;
+        this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
+        this.deviceService = deviceService;
         this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
@@ -353,7 +362,7 @@ public class DeviceImpl implements Device {
     }
 
     private void deleteComTaskExecutions() {
-        for (ComTaskExecution comTaskExecution : this.deviceDataService.findAllComTaskExecutionsIncludingObsoleteForDevice(this)) {
+        for (ComTaskExecution comTaskExecution : this.communicationTaskService.findAllComTaskExecutionsIncludingObsoleteForDevice(this)) {
             ((ComTaskExecutionImpl) comTaskExecution).delete();
         }
     }
@@ -526,7 +535,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public List<Device> getPhysicalConnectedDevices() {
-        return this.deviceDataService.findPhysicalConnectedDevicesFor(this);
+        return this.deviceService.findPhysicalConnectedDevicesFor(this);
     }
 
     @Override
@@ -544,7 +553,7 @@ public class DeviceImpl implements Device {
     }
 
     private void topologyChanged() {
-        List<ComTaskExecution> comTasksForDefaultConnectionTask = this.deviceDataService.findComTasksByDefaultConnectionTask(this);
+        List<ComTaskExecution> comTasksForDefaultConnectionTask = this.communicationTaskService.findComTasksByDefaultConnectionTask(this);
         Device gateway = this.getPhysicalGateway();
         if (gateway != null) {
             updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
@@ -636,12 +645,12 @@ public class DeviceImpl implements Device {
 
     @Override
     public List<Device> getCommunicationReferencingDevices() {
-        return this.deviceDataService.findCommunicationReferencingDevicesFor(this);
+        return this.deviceService.findCommunicationReferencingDevicesFor(this);
     }
 
     @Override
     public List<Device> getCommunicationReferencingDevices(Date timestamp) {
-        return this.deviceDataService.findCommunicationReferencingDevicesFor(this, timestamp);
+        return this.deviceService.findCommunicationReferencingDevicesFor(this, timestamp);
     }
 
     @Override
@@ -681,7 +690,7 @@ public class DeviceImpl implements Device {
      * @return The CommunicationTopology
      */
     private CommunicationTopology buildCommunicationTopology(Device root, Interval interval) {
-        List<CommunicationTopologyEntry> firstLevelTopologyEntries = this.deviceDataService.findCommunicationReferencingDevicesFor(root, interval);
+        List<CommunicationTopologyEntry> firstLevelTopologyEntries = this.deviceService.findCommunicationReferencingDevicesFor(root, interval);
         Interval spanningInterval = this.intervalSpanOf(firstLevelTopologyEntries);
         CommunicationTopology topology = new CommunicationTopologyImpl(root, interval.intersection(spanningInterval));
         for (CommunicationTopologyEntry firstLevelTopologyEntry : firstLevelTopologyEntries) {
@@ -942,7 +951,7 @@ public class DeviceImpl implements Device {
 
     private void addDeviceProperty(String name, String propertyValue) {
         if (propertyValue != null) {
-            InfoType infoType = this.deviceDataService.findInfoType(name);
+            InfoType infoType = this.deviceService.findInfoType(name);
             DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, infoType, propertyValue);
             Save.CREATE.validate(dataModel, deviceProtocolProperty);
             this.deviceProperties.add(deviceProtocolProperty);
@@ -1006,8 +1015,7 @@ public class DeviceImpl implements Device {
     Meter findOrCreateKoreMeter(AmrSystem amrSystem) {
         Optional<Meter> holder = this.findKoreMeter(amrSystem);
         if (!holder.isPresent()) {
-            Meter meter = createKoreMeter(amrSystem);
-            return meter;
+            return createKoreMeter(amrSystem);
         } else {
             return holder.get();
         }
@@ -1079,7 +1087,7 @@ public class DeviceImpl implements Device {
                 Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval, meter.get());
                 meterHasData = this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
                 if (meterHasData) {
-                    loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+                    loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
                 }
             }
         }
@@ -1148,10 +1156,11 @@ public class DeviceImpl implements Device {
 
     /**
      * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value), just a list of placeholders for each reading
-     * interval within the requestInterval for all datetimes that occur with the bounds of a meter activation and load profile's last reading
-     * @param loadProfile
+     * interval within the requestInterval for all datetimes that occur with the bounds of a meter activation and load profile's last reading.
+     *
+     * @param loadProfile The LoadProfile
      * @param requestInterval interval over which user wants to see readings
-     * @param meter
+     * @param meter The Meter
      * @return
      */
     private Map<Date, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval requestInterval, Meter meter) {
@@ -1348,7 +1357,7 @@ public class DeviceImpl implements Device {
 
     private void loadConnectionTasks() {
         List<ConnectionTaskImpl<?, ?>> connectionTaskImpls = new ArrayList<>();
-        for (ConnectionTask connectionTask : this.deviceDataService.findConnectionTasksByDevice(this)) {
+        for (ConnectionTask connectionTask : this.connectionTaskService.findConnectionTasksByDevice(this)) {
             connectionTaskImpls.add((ConnectionTaskImpl<?, ?>) connectionTask);
         }
         this.connectionTasks = connectionTaskImpls;
@@ -1422,7 +1431,7 @@ public class DeviceImpl implements Device {
 
     private void loadComTaskExecutions() {
         List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
-        for (ComTaskExecution comTaskExecution : this.deviceDataService.findComTaskExecutionsByDevice(this)) {
+        for (ComTaskExecution comTaskExecution : this.communicationTaskService.findComTaskExecutionsByDevice(this)) {
             comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
         }
         this.comTaskExecutions = comTaskExecutionImpls;
