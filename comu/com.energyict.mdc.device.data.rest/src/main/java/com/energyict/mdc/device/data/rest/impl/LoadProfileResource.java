@@ -167,7 +167,9 @@ public class LoadProfileResource {
     }
 
     private void validateLoadProfile(LoadProfile loadProfile, Date start) {
-        loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile, start, clock.now());
+        if (loadProfile.getLastReading() != null && (start == null || loadProfile.getLastReading().after(start))) {
+            loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile, start, loadProfile.getLastReading());
+        }
     }
 
     private boolean hasSuspects(LoadProfileDataInfo info) {
