@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -45,7 +45,7 @@ public class CollectedDeviceCacheCommandTest {
     @Mock
     private DeviceCommand.ExecutionLogger executionLogger;
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private EngineService engineService;
     @Mock
@@ -102,7 +102,7 @@ public class CollectedDeviceCacheCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
         CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache);
 

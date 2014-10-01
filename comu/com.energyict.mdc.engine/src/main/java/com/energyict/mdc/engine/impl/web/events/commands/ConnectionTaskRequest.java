@@ -1,9 +1,10 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.impl.events.EventPublisher;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
+
 import com.google.common.base.Optional;
 
 import java.util.ArrayList;
@@ -22,16 +23,16 @@ import static java.util.Collections.singleton;
  */
 public class ConnectionTaskRequest extends IdBusinessObjectRequest {
 
-    private final DeviceDataService deviceDataService;
+    private final ConnectionTaskService connectionTaskService;
     private List<ConnectionTask> connectionTasks;
 
-    public ConnectionTaskRequest(DeviceDataService deviceDataService, long connectionTaskId) {
-        this(deviceDataService, singleton(connectionTaskId));
+    public ConnectionTaskRequest(ConnectionTaskService connectionTaskService, long connectionTaskId) {
+        this(connectionTaskService, singleton(connectionTaskId));
     }
 
-    public ConnectionTaskRequest(DeviceDataService deviceDataService, Set<Long> connectionTaskIds) {
+    public ConnectionTaskRequest(ConnectionTaskService connectionTaskService, Set<Long> connectionTaskIds) {
         super(connectionTaskIds);
-        this.deviceDataService = deviceDataService;
+        this.connectionTaskService = connectionTaskService;
         this.validateConnectionTaskIds();
     }
 
@@ -43,7 +44,7 @@ public class ConnectionTaskRequest extends IdBusinessObjectRequest {
     }
 
     private ConnectionTask findConnectionTask (long connectionTaskId) {
-        Optional<ConnectionTask> connectionTask = deviceDataService.findConnectionTask(connectionTaskId);
+        Optional<ConnectionTask> connectionTask = this.connectionTaskService.findConnectionTask(connectionTaskId);
         if (connectionTask.isPresent()) {
             return connectionTask.get();
         }

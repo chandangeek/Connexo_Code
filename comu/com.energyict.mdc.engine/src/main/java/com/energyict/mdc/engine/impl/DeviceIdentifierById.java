@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 /**
@@ -15,19 +15,19 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 public final class DeviceIdentifierById implements DeviceIdentifier<Device> {
 
     private final long id;
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private Device device;
 
-    public DeviceIdentifierById(long id, DeviceDataService deviceDataService) {
+    public DeviceIdentifierById(long id, DeviceService deviceService) {
         super();
         this.id = id;
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
     }
 
     // used for reflection
-    public DeviceIdentifierById(String id, DeviceDataService deviceDataService) {
+    public DeviceIdentifierById(String id, DeviceService deviceService) {
         super();
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
         this.id = Long.parseLong(id);
     }
 
@@ -35,7 +35,7 @@ public final class DeviceIdentifierById implements DeviceIdentifier<Device> {
     public Device findDevice() {
         // lazyload the device
         if (this.device == null) {
-            this.device = this.deviceDataService.findDeviceById(this.id);
+            this.device = this.deviceService.findDeviceById(this.id);
             if (device == null) {
                 throw new NotFoundException("Device with id " + this.id + " not found");
             }

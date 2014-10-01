@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -21,23 +21,23 @@ import static java.util.Collections.singleton;
  */
 public class DeviceRequest extends IdBusinessObjectRequest {
 
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private List<BaseDevice> devices;
 
-    public DeviceRequest(DeviceDataService deviceDataService, long deviceId) {
-        this(deviceDataService, singleton(deviceId));
+    public DeviceRequest(DeviceService deviceService, long deviceId) {
+        this(deviceService, singleton(deviceId));
     }
 
-    public DeviceRequest(DeviceDataService deviceDataService, Set<Long> deviceIds) {
+    public DeviceRequest(DeviceService deviceService, Set<Long> deviceIds) {
         super(deviceIds);
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
         this.validateDeviceIds();
     }
 
     private void validateDeviceIds () {
         this.devices = new ArrayList<>(this.getBusinessObjectIds().size());
         for (Long deviceId : this.getBusinessObjectIds()) {
-            this.devices.add(new DeviceIdentifierById(deviceId, deviceDataService).findDevice());
+            this.devices.add(new DeviceIdentifierById(deviceId, deviceService).findDevice());
         }
     }
 

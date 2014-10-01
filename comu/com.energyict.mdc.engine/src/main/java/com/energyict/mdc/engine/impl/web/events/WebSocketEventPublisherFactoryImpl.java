@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.web.events;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.engine.model.EngineModelService;
 
@@ -16,7 +18,9 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.energyict.mdc.engine.eventapi.publisher.factory", service = WebSocketEventPublisherFactory.class, immediate = true)
 public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublisherFactory {
 
-    private volatile DeviceDataService deviceDataService;
+    private volatile ConnectionTaskService connectionTaskService;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile DeviceService deviceService;
     private volatile EngineModelService engineModelService;
 
     @Override
@@ -25,8 +29,18 @@ public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublish
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
@@ -35,9 +49,20 @@ public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublish
     }
 
     private class ServiceProvider implements RequestParser.ServiceProvider {
+
         @Override
-        public DeviceDataService deviceDataService() {
-            return deviceDataService;
+        public ConnectionTaskService connectionTaskService() {
+            return connectionTaskService;
+        }
+
+        @Override
+        public CommunicationTaskService communicationTaskService() {
+            return communicationTaskService;
+        }
+
+        @Override
+        public DeviceService deviceDataService() {
+            return deviceService;
         }
 
         @Override

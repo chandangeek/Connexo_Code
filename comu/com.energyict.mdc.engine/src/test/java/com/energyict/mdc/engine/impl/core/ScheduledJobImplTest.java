@@ -9,8 +9,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -128,7 +128,7 @@ public class ScheduledJobImplTest {
     @Mock(extraInterfaces = OfflineDeviceContext.class)
     private StatusInformationTask statusInformationTask;
     @Mock
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
     @Mock
     private ComSessionBuilder comSessionBuilder;
     @Mock
@@ -165,12 +165,12 @@ public class ScheduledJobImplTest {
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setTransactionService(this.transactionService);
-        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setEngineService(engineService);
         this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
-        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
+        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
                 thenReturn(comSessionBuilder);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.<ComTaskEnablement>absent());
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
@@ -9,7 +8,6 @@ import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import com.elster.jupiter.util.time.Clock;
@@ -30,22 +28,18 @@ public class EventPublisherImpl implements EventPublisher {
     private static EventPublisherImpl soleInstance;
 
     private final Clock clock;
-    private final EngineModelService engineModelService;
-    private final DeviceDataService deviceDataService;
     private final RunningComServer comServer;
     private FilteringEventReceiverFactory factory;
     private List<FilteringEventReceiver> filters = new LinkedList<>();
 
-    public EventPublisherImpl(RunningComServer comServer, Clock clock, EngineModelService engineModelService, DeviceDataService deviceDataService) {
-        this(comServer, clock, engineModelService, deviceDataService, new FilteringEventReceiverFactoryImpl());
+    public EventPublisherImpl(RunningComServer comServer, Clock clock) {
+        this(comServer, clock, new FilteringEventReceiverFactoryImpl());
     }
 
-    public EventPublisherImpl (RunningComServer comServer, Clock clock, EngineModelService engineModelService, DeviceDataService deviceDataService, FilteringEventReceiverFactory factory) {
+    public EventPublisherImpl(RunningComServer comServer, Clock clock, FilteringEventReceiverFactory factory) {
         super();
         this.comServer = comServer;
         this.clock = clock;
-        this.engineModelService = engineModelService;
-        this.deviceDataService = deviceDataService;
         this.factory = factory;
         /* Todo: Every RunningComServer should have its own publisher
          *       so avoid setting the one and only publisher.
@@ -241,7 +235,6 @@ public class EventPublisherImpl implements EventPublisher {
         public Clock clock() {
             return clock;
         }
-
     }
 
 }

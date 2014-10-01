@@ -5,8 +5,10 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -80,7 +82,11 @@ public abstract class JobExecution implements ScheduledJob {
 
         public DeviceConfigurationService deviceConfigurationService();
 
-        public DeviceDataService deviceDataService();
+        public ConnectionTaskService connectionTaskService();
+
+        public LogBookService logBookService();
+
+        public DeviceService deviceDataService();
 
         public EngineService engineService();
 
@@ -530,7 +536,12 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         @Override
-        public DeviceDataService deviceDataService() {
+        public LogBookService logBookService() {
+            return JobExecution.this.serviceProvider.logBookService();
+        }
+
+        @Override
+        public DeviceService deviceDataService() {
             return JobExecution.this.serviceProvider.deviceDataService();
         }
 

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -72,7 +72,7 @@ public class DeviceProtocolCommandCreatorTest {
     @Mock
     private Clock clock;
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
         return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNON, ComTaskExecutionConnectionSteps.SIGNOFF);
@@ -89,13 +89,13 @@ public class DeviceProtocolCommandCreatorTest {
     @Before
     public void initBefore() {
         serviceProvider.setClock(clock);
-        serviceProvider.setDeviceDataService(this.deviceDataService);
+        serviceProvider.setDeviceService(this.deviceService);
     }
 
     @After
     public void initAfter() {
         serviceProvider.setClock(null);
-        serviceProvider.setDeviceDataService(null);
+        serviceProvider.setDeviceService(null);
     }
 
     @Test

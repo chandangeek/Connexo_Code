@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
@@ -48,7 +50,11 @@ public class RequestApplyToTest {
     private static final long COM_PORT_POOL_ID = COM_PORT_ID + 1;
 
     @Mock
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private DeviceService deviceService;
     @Mock
     private EngineModelService engineModelService;
 
@@ -68,7 +74,7 @@ public class RequestApplyToTest {
     @Test
     public void testDeviceRequest () {
         BaseDevice device = this.mockDevice();
-        DeviceRequest request = new DeviceRequest(deviceDataService, DEVICE1_ID);
+        DeviceRequest request = new DeviceRequest(deviceService, DEVICE1_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method
@@ -83,7 +89,7 @@ public class RequestApplyToTest {
     @Test
     public void testConnectionTaskRequest () {
         ConnectionTask connectionTask = this.mockConnectionTask();
-        ConnectionTaskRequest request = new ConnectionTaskRequest(deviceDataService, CONNECTION_TASK_ID);
+        ConnectionTaskRequest request = new ConnectionTaskRequest(connectionTaskService, CONNECTION_TASK_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method
@@ -98,7 +104,7 @@ public class RequestApplyToTest {
     @Test
     public void testComTaskExecutionRequest () {
         ComTaskExecution comTaskExecution = this.mockComTaskExecution();
-        ComTaskExecutionRequest comTaskExecutionRequest = new ComTaskExecutionRequest(deviceDataService, COM_TASK_EXECUTION_ID);
+        ComTaskExecutionRequest comTaskExecutionRequest = new ComTaskExecutionRequest(this.communicationTaskService, COM_TASK_EXECUTION_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method
@@ -143,21 +149,21 @@ public class RequestApplyToTest {
     private BaseDevice mockDevice () {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE1_ID);
-        when(this.deviceDataService.findDeviceById(DEVICE1_ID)).thenReturn(device);
+        when(this.deviceService.findDeviceById(DEVICE1_ID)).thenReturn(device);
         return device;
     }
 
     private ConnectionTask mockConnectionTask () {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
-        when(this.deviceDataService.findConnectionTask(CONNECTION_TASK_ID)).thenReturn(Optional.of(connectionTask));
+        when(this.connectionTaskService.findConnectionTask(CONNECTION_TASK_ID)).thenReturn(Optional.of(connectionTask));
         return connectionTask;
     }
 
     private ComTaskExecution mockComTaskExecution () {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
-        when(this.deviceDataService.findComTaskExecution(COM_TASK_EXECUTION_ID)).thenReturn(comTaskExecution);
+        when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION_ID)).thenReturn(comTaskExecution);
         return comTaskExecution;
     }
 

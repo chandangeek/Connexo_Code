@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -55,8 +55,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.swing.text.html.Option;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -89,7 +87,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     @Mock
     private Clock clock;
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
 
     private Clock frozenClock;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -98,7 +96,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     @Before
     public void setup(){
         serviceProvider.setClock(clock);
-        serviceProvider.setDeviceDataService(this.deviceDataService);
+        serviceProvider.setDeviceService(this.deviceService);
         List<CollectedData> collectedDataList = new ArrayList<>();
         collectedDataList.add(deviceLoadProfile);
         when(loadProfileCommand.getCollectedData()).thenReturn(collectedDataList);
@@ -115,7 +113,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     @After
     public void initAfter() {
         serviceProvider.setClock(null);
-        serviceProvider.setDeviceDataService(null);
+        serviceProvider.setDeviceService(null);
     }
 
     private void initializeDeviceLoadProfileWith(int intervalStateBit) {

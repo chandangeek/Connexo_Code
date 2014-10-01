@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -69,7 +70,9 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         public IssueService issueService();
 
-        public DeviceDataService deviceDataService();
+        public ConnectionTaskService connectionTaskService();
+
+        public DeviceService deviceDataService();
 
     }
 
@@ -103,7 +106,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.comPort = comPort;
         this.connectionTask = connectionTask;
         this.serviceProvider = serviceProvider;
-        this.sessionBuilder = serviceProvider.deviceDataService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, serviceProvider.clock().now());
+        this.sessionBuilder = serviceProvider.connectionTaskService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, serviceProvider.clock().now());
         if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addConnectionPropertiesAsJournalEntries();
         }

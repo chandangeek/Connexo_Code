@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -176,7 +177,12 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         }
 
         @Override
-        public DeviceDataService deviceDataService() {
+        public LogBookService logBookService() {
+            return serviceProvider.logBookService();
+        }
+
+        @Override
+        public DeviceService deviceDataService() {
             return serviceProvider.deviceDataService();
         }
 

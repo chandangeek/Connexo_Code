@@ -4,12 +4,11 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -58,7 +57,7 @@ public class ComServerDAOImplInboundTest {
     @Mock
     private DeviceIdentifier deviceIdentifier;
     @Mock
-    private DeviceDataService deviceDataService;
+    private CommunicationTaskService communicationTaskService;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private TransactionService transactionService;
@@ -68,7 +67,7 @@ public class ComServerDAOImplInboundTest {
     public void setupServiceProvider () {
         this.transactionService = new FakeTransactionService();
         this.serviceProvider.setTransactionService(this.transactionService);
-        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
     }
 
     @Before
@@ -117,7 +116,7 @@ public class ComServerDAOImplInboundTest {
     @Test
     public void testGetDeviceProtocolSecurityPropertiesWithoutConnectionTasks () {
         Device device = mock(Device.class);
-        when(device.getInboundConnectionTasks()).thenReturn(new ArrayList<InboundConnectionTask>(0));
+        when(device.getInboundConnectionTasks()).thenReturn(new ArrayList<>(0));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundComPort comPort = mock(InboundComPort.class);
@@ -195,10 +194,10 @@ public class ComServerDAOImplInboundTest {
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
-        when(this.deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(Arrays.asList(comTaskExecution));
+        when(this.communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(Arrays.asList(comTaskExecution));
 
         // Business method
-        List<SecurityProperty> actualSecurityProperties = this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
+        this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
 
         // Asserts
         verify(device).getSecurityProperties(securityPropertySet);
@@ -218,7 +217,7 @@ public class ComServerDAOImplInboundTest {
     @Test
     public void testGetDeviceConnectionTypePropertiesWithoutConnectionTasks () {
         Device device = mock(Device.class);
-        when(device.getInboundConnectionTasks()).thenReturn(new ArrayList<InboundConnectionTask>(0));
+        when(device.getInboundConnectionTasks()).thenReturn(new ArrayList<>(0));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundComPort comPort = mock(InboundComPort.class);

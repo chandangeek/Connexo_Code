@@ -80,14 +80,14 @@ public enum QueryMethod {
             if (comTaskExecutionId != null) {
                 Long comportId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMPORT);
                 ComPort comPort = ServiceProvider.instance.get().engineModelService().findComPort(comportId);
-                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().deviceDataService().findComTaskExecution(comTaskExecutionId);
+                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.executionStarted(comServerDAO, comPort, comTaskExecution);
             }
             else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
-                ConnectionTask connectionTask = ServiceProvider.instance.get().deviceDataService().findConnectionTask(connectionTaskId).get();
+                ConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findConnectionTask(connectionTaskId).get();
                 Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
                 if (comServer.isPresent()) {
                     this.executionStarted(comServerDAO, connectionTask, comServer.get());
@@ -103,14 +103,14 @@ public enum QueryMethod {
             if (comTaskExecutionId != null) {
                 Long comportId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMPORT);
                 ComPort comPort = ServiceProvider.instance.get().engineModelService().findComPort(comportId);
-                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().deviceDataService().findComTaskExecution(comTaskExecutionId);
+                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.attemptLock(comServerDAO, comPort, comTaskExecution);
             }
             else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
-                OutboundConnectionTask connectionTask = ServiceProvider.instance.get().deviceDataService().findOutboundConnectionTask(connectionTaskId).get();
+                OutboundConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findOutboundConnectionTask(connectionTaskId).get();
                 Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
                 if (comServer.isPresent()) {
                     this.attemptLock(comServerDAO, connectionTask, comServer.get());
@@ -124,13 +124,13 @@ public enum QueryMethod {
         protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comTaskExecutionId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
             if (comTaskExecutionId != null) {
-                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().deviceDataService().findComTaskExecution(comTaskExecutionId);
+                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.unlock(comServerDAO, comTaskExecution);
             }
             else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
-                OutboundConnectionTask connectionTask = ServiceProvider.instance.get().deviceDataService().findOutboundConnectionTask(connectionTaskId).get();
+                OutboundConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findOutboundConnectionTask(connectionTaskId).get();
                 this.unlock(comServerDAO, connectionTask);
             }
             return null;
@@ -141,13 +141,13 @@ public enum QueryMethod {
         protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comTaskExecutionId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
             if (comTaskExecutionId != null) {
-                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().deviceDataService().findComTaskExecution(comTaskExecutionId);
+                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.executionCompleted(comServerDAO, comTaskExecution);
             }
             else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
-                ConnectionTask connectionTask = ServiceProvider.instance.get().deviceDataService().findConnectionTask(connectionTaskId).get();
+                ConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findConnectionTask(connectionTaskId).get();
                 this.executionCompleted(comServerDAO, connectionTask);
             }
             return null;
@@ -158,13 +158,13 @@ public enum QueryMethod {
         protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comTaskExecutionId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
             if (comTaskExecutionId != null) {
-                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().deviceDataService().findComTaskExecution(comTaskExecutionId);
+                ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.executionFailed(comServerDAO, comTaskExecution);
             }
             else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
-                ConnectionTask connectionTask = ServiceProvider.instance.get().deviceDataService().findConnectionTask(connectionTaskId).get();
+                ConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findConnectionTask(connectionTaskId).get();
                 this.executionFailed(comServerDAO, connectionTask);
             }
             return null;
@@ -175,7 +175,7 @@ public enum QueryMethod {
         protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
             Integer maxNrOfTries = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.MAX_NR_OF_TRIES);
-            ScheduledConnectionTask connectionTask = ServiceProvider.instance.get().deviceDataService().findScheduledConnectionTask(connectionTaskId).get();
+            ScheduledConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findScheduledConnectionTask(connectionTaskId).get();
             this.setMaxNrOfTries(comServerDAO, connectionTask, maxNrOfTries);
             return null;
         }

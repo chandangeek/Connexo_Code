@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.common;
 
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
@@ -37,7 +37,7 @@ public class DeviceProtocolUpdateCacheCommand extends SimpleComCommand {
         addCollectedDataItem(updatedDeviceCache);
     }
 
-    private DeviceDataService getDeviceDataService() {
+    private DeviceService getDeviceDataService() {
         return getCommandRoot().getServiceProvider().deviceDataService();
     }
 

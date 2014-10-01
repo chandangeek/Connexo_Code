@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 
 import java.util.Set;
 
@@ -13,10 +13,10 @@ import java.util.Set;
  */
 public class ConnectionTaskRequestType extends IdBusinessObjectRequestType {
 
-    private final DeviceDataService deviceDataService;
+    private final ConnectionTaskService connectionTaskService;
 
-    public ConnectionTaskRequestType(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public ConnectionTaskRequestType(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ConnectionTaskRequestType extends IdBusinessObjectRequestType {
 
     @Override
     protected Request newRequestFor (Set<Long> ids) {
-        return new ConnectionTaskRequest(deviceDataService, ids);
+        return new ConnectionTaskRequest(this.connectionTaskService, ids);
     }
 
 }

@@ -7,7 +7,7 @@ import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
@@ -77,7 +77,7 @@ public class WebSocketQueryApiServiceTest {
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static DataModel dataModel;
     private static EngineModelService engineModelService;
-    private static DeviceDataService deviceDataService;
+    private static DeviceService deviceService;
     private static TransactionService transactionService;
     private static ServiceProvider serviceProvider;
 
@@ -122,9 +122,9 @@ public class WebSocketQueryApiServiceTest {
     }
 
     private static void initializeMocks() {
-        deviceDataService = mock(DeviceDataService.class);
+        deviceService = mock(DeviceService.class);
         serviceProvider = mock(ServiceProvider.class);
-        when(serviceProvider.deviceDataService()).thenReturn(deviceDataService);
+        when(serviceProvider.deviceDataService()).thenReturn(deviceService);
         ServiceProvider.instance.set(serviceProvider);
     }
 
@@ -483,7 +483,7 @@ public class WebSocketQueryApiServiceTest {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-            bind(DeviceDataService.class).toInstance(deviceDataService);
+            bind(DeviceService.class).toInstance(deviceService);
         }
     }
 
