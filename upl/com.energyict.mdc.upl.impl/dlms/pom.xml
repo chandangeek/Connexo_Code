@@ -19,6 +19,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdwimpl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>connectiontypes</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

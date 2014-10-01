@@ -6,8 +6,8 @@
 
 package com.energyict.dlms;
 
-import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCacheXmlMarshallAdapter;
+import com.energyict.mdc.protocol.ServerDeviceProtocolCache;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
@@ -17,7 +17,7 @@ import java.io.Serializable;
  * @author  Koen
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
-public class DLMSCache implements DeviceProtocolCache, Serializable {
+public class DLMSCache implements ServerDeviceProtocolCache, Serializable {
     UniversalObject[] objectList;
     int confProgChange;
     boolean changed;
@@ -58,5 +58,10 @@ public class DLMSCache implements DeviceProtocolCache, Serializable {
     @Override
     public boolean contentChanged() {
         return changed;
+    }
+
+    @Override
+    public void setContentChanged(boolean contentChanged) {
+        this.changed = contentChanged;
     }
 }
