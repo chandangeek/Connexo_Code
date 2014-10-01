@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.model;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.util.Date;
 import java.util.List;

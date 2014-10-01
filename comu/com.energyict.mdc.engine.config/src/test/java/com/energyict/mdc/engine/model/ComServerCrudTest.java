@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.model;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.google.common.base.Optional;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.net.URI;
