@@ -1,13 +1,12 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 
-import com.google.common.base.Optional;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;

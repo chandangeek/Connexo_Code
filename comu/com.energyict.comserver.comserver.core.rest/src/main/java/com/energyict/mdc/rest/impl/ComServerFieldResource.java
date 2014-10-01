@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;

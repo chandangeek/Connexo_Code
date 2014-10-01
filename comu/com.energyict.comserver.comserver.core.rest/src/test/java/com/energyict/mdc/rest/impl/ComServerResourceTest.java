@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.Finder;

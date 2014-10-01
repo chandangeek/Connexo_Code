@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.rest.impl.MdcApplication;
 import java.util.logging.Level;
 

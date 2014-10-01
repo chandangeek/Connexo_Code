@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
