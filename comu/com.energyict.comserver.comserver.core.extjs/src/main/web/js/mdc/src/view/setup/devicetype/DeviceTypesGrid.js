@@ -9,10 +9,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
         'Mdc.store.DeviceTypes',
         'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
     ],
-    store: 'DeviceTypes',
+    store: 'Mdc.store.DeviceTypes',
     initComponent: function () {
         var me = this;
-        this.columns = [
+        me.store = Ext.getStore(me.store) || Ext.create(me.store);
+        me.columns = [
             {
                 header: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
                 dataIndex: 'name',
@@ -32,10 +33,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             }
         ];
 
-        this.dockedItems = [
+        me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: this.store,
+                store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('devicetype.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} device types'),
                 displayMoreMsg: Uni.I18n.translate('devicetype.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} device types'),
@@ -52,12 +53,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: this.store,
+                store: me.store,
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('devicetype.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Device types per page')
             }
         ];
 
-        this.callParent();
+        me.callParent();
     }
 });
