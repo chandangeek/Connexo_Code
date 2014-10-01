@@ -1,8 +1,6 @@
 package com.energyict.mdc.masterdata;
 
-import com.energyict.mdc.common.TimeDuration;
-
-import java.util.List;
+import com.elster.jupiter.time.TimeDuration;
 
 /**
  * Copyrights EnergyICT

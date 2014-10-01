@@ -2,7 +2,7 @@ package com.energyict.mdc.masterdata;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;

@@ -2,11 +2,11 @@ package com.energyict.mdc.masterdata.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
 
 /**
- * Models the exceptional situation that occurs when an {@link com.energyict.mdc.common.TimeDuration}
+ * Models the exceptional situation that occurs when an {@link com.elster.jupiter.time.TimeDuration}
  * is specified that cannot be supported.
  * The following are examples that are NOT supported:
  * <ul>

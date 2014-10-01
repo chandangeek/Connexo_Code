@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
@@ -30,10 +30,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Copyrights EnergyICT
