@@ -121,14 +121,16 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
         me.columns.push({
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
-                flex: 1
-            },
+                flex: 0.5
+            }
+            /* Commented because of JP-5861
+            ,
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
                     xtype: 'deviceLoadProfileChannelDataActionMenu'
                 }
-            });
+            }*/);
 
         me.callParent(arguments);
     }
