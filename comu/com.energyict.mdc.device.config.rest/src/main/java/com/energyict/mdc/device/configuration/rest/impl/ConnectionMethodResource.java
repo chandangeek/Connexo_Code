@@ -11,7 +11,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -50,18 +50,18 @@ public class ConnectionMethodResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final ConnectionMethodInfoFactory connectionMethodInfoFactory;
     private final MdcPropertyUtils mdcPropertyUtils;
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, ConnectionMethodInfoFactory connectionMethodInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceDataService deviceDataService, ExceptionFactory exceptionFactory) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, ConnectionMethodInfoFactory connectionMethodInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceService deviceService, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.protocolPluggableService = protocolPluggableService;
         this.engineModelService = engineModelService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -79,7 +79,7 @@ public class ConnectionMethodResource {
         List<ConnectionMethodInfo<?>> connectionMethodInfos = new ArrayList<>();
         List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
         if (available!=null) {
-            Device device = deviceDataService.findByUniqueMrid(mrId);
+            Device device = deviceService.findByUniqueMrid(mrId);
             if (device==null) {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE);
             }
