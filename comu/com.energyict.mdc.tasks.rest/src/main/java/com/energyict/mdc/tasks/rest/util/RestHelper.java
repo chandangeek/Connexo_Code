@@ -1,6 +1,6 @@
 package com.energyict.mdc.tasks.rest.util;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 public class RestHelper {
     public String titleize(String s) {
