@@ -82,7 +82,10 @@ Ext.define('Dsh.view.widget.Breakdown', {
         me.down('#summaries-0').removeAll(true);
         me.down('#summaries-1').removeAll(true);
         store.each(function (item, idx) {
-            item.counters().sort({ property: 'total', direction: 'DESC' });
+            item.counters().sort([
+                {property: 'total', direction: 'DESC'},
+                {property: 'displayName', direction: 'ASC'}
+            ]);
             var panel = Ext.create('Ext.panel.Panel', {
                 tbar: {
                     xtype: 'container',
