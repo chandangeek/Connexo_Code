@@ -1,47 +1,16 @@
 package com.elster.jupiter.extjs;
 
-import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.DefaultStartPage;
-import com.elster.jupiter.http.whiteboard.HttpResource;
-import com.elster.jupiter.http.whiteboard.Script;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import com.elster.jupiter.http.whiteboard.HttpActivator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class Activator implements BundleActivator {
+public class Activator extends HttpActivator {
 
     public static final String HTTP_RESOURCE_ALIAS = "/ext";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/ext";
 
-    private volatile ServiceRegistration<HttpResource> registration;
-
-    public void start(BundleContext bundleContext) throws Exception {
-        List<Script> scripts = new ArrayList<>();
-        Map<String, String> dependencies = new HashMap<>();
-
-        dependencies.put("Skyline", "/packages/uni-theme-skyline/src");
-
-        DefaultStartPage startPage = new DefaultStartPage(
-                "Ext",
-                "",
-                "",
-                "",
-                scripts,
-                null,
-                null,
-                dependencies
-        );
-
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/ext", new BundleResolver(bundleContext), startPage);
-        registration = bundleContext.registerService(HttpResource.class, resource, null);
-    }
-
-    public void stop(BundleContext bundleContext) throws Exception {
-        registration.unregister();
+    public Activator() {
+        super(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME);
+        // EXAMPLE: Below is how to enable development mode.
+//        super(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.extjs/src/main/web/js/ext", true);
     }
 
 }
