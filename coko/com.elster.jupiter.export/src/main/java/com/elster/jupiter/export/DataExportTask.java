@@ -9,4 +9,6 @@ public interface DataExportTask extends HasName {
     void activate();
 
     void deactivate();
+
+    void save();
 }

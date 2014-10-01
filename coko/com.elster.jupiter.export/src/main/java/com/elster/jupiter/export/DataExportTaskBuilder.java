@@ -2,10 +2,11 @@ package com.elster.jupiter.export;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.util.cron.CronExpression;
 
 public interface DataExportTaskBuilder {
 
-    DataExportTaskBuilder setCronExpression(String expression);
+    DataExportTaskBuilder setCronExpression(CronExpression cronExpression);
 
     DataExportTaskBuilder scheduleImmediately();
 
