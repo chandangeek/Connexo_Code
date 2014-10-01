@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.impl.SecurityLevelInfo;
@@ -45,7 +47,13 @@ public class SecurityPropertySetInfoFactory {
             }
 
             securityPropertySetInfo.properties = new ArrayList<>();
-            mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs() , typedProperties, securityPropertySetInfo.properties, securityPropertySetInfo.userHasViewPrivilege);
+            mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs() , typedProperties, securityPropertySetInfo.properties);
+            if (!securityPropertySetInfo.userHasViewPrivilege) {
+                securityPropertySetInfo.properties.stream().forEach(p->p.propertyValueInfo=new PropertyValueInfo<>());
+                if (!securityPropertySetInfo.userHasEditPrivilege) {
+                    securityPropertySetInfo.properties.stream().forEach(p->p.propertyTypeInfo=new PropertyTypeInfo());
+                }
+            }
             securityPropertySetInfos.add(securityPropertySetInfo);
         }
         return securityPropertySetInfos;
