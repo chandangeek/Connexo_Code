@@ -3,7 +3,7 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.masterdata.LoadProfileType;
