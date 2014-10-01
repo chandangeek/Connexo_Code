@@ -72,25 +72,7 @@ public class DeviceValidationImpl implements DeviceValidation {
             return false;
         }
         Optional<com.elster.jupiter.metering.Channel> found = findKoreChannel(channel, when);
-        return found.isPresent() && evaluator.isValidationEnabled(found.get());
-    }
-
-    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Date when) {
-        return findKoreChannel(channel.getReadingType(), when);
-    }
-
-    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Date when) {
-        ReadingType readingType = register.getReadingType();
-        return findKoreChannel(readingType, when);
-    }
-
-    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(ReadingType readingType, Date when) {
-        com.elster.jupiter.metering.Channel koreChannel = fetchKoreMeter().getMeterActivations().stream()
-                .filter(m -> m.getInterval().contains(when, Interval.EndpointBehavior.CLOSED_CLOSED)) // TODO verify with Karel
-                .flatMap(m -> m.getChannels().stream())
-                .filter(c -> c.getReadingTypes().contains(readingType))
-                .findFirst().orElse(null);
-        return Optional.fromNullable(koreChannel);
+        return found.isPresent() ? evaluator.isValidationEnabled(found.get()) : hasActiveRules(channel);
     }
 
     @Override
@@ -99,20 +81,13 @@ public class DeviceValidationImpl implements DeviceValidation {
             return false;
         }
         Optional<com.elster.jupiter.metering.Channel> found = findKoreChannel(register, when);
-        return found.isPresent() && evaluator.isValidationEnabled(found.get());
+        return found.isPresent() ? evaluator.isValidationEnabled(found.get()) : hasActiveRules(register);
     }
 
     @Override
     public boolean allDataValidated(Channel channel, Date when) {
         Optional<com.elster.jupiter.metering.Channel> found = device.findKoreChannel(channel, when);
         return found.isPresent() && getEvaluator().isAllDataValidated(found.get().getMeterActivation());
-    }
-
-    private ValidationEvaluator getEvaluator() {
-        if (evaluator == null) {
-            evaluator = validationService.getEvaluator(fetchKoreMeter(), Interval.endAt(clock.now()));
-        }
-        return evaluator;
     }
 
     @Override
@@ -126,26 +101,6 @@ public class DeviceValidationImpl implements DeviceValidation {
         return getLastChecked(fetchKoreMeter());
     }
 
-    private Optional<Date> getLastChecked(Meter meter) {
-        for (MeterActivation meterActivation : getMeterActivationsMostRecentFirst(meter)) {
-            Optional<Date> lastChecked = validationService.getLastChecked(meterActivation);
-            if (lastChecked.isPresent()) {
-                return lastChecked;
-            }
-        }
-        return Optional.absent();
-    }
-
-    private Iterable<MeterActivation> getMeterActivationsMostRecentFirst(Meter meter) {
-        TreeSet<MeterActivation> meterActivations = new TreeSet<>(byInterval());
-        meterActivations.addAll(meter.getMeterActivations());
-        return meterActivations;
-    }
-
-    private Comparator<MeterActivation> byInterval() {
-        return (m1, m2)-> IntermittentInterval.IntervalComparators.FROM_COMPARATOR.compare(m1.getInterval(), m2.getInterval());
-    }
-
     @Override
     public Optional<Date> getLastChecked(Channel channel) {
         return getLastChecked(channel.getReadingType());
@@ -154,10 +109,6 @@ public class DeviceValidationImpl implements DeviceValidation {
     @Override
     public Optional<Date> getLastChecked(Register<?> register) {
         return getLastChecked(register.getReadingType());
-    }
-
-    private Optional<Date> getLastChecked(ReadingType readingType) {
-        return getEvaluator().getLastChecked(fetchKoreMeter(), readingType);
     }
 
     @Override
@@ -193,12 +144,6 @@ public class DeviceValidationImpl implements DeviceValidation {
         return getValidationStatus(register, readings, interval(readings));
     }
 
-    private Interval interval(List<? extends BaseReading> readings) {
-        Date min = readings.stream().map(BaseReading::getTimeStamp).min(naturalOrder()).get();
-        Date max = readings.stream().map(BaseReading::getTimeStamp).max(naturalOrder()).get();
-        return new Interval(min, max);
-    }
-
 
     @Override
     public void validateLoadProfile(LoadProfile loadProfile, Date start, Date until) {
@@ -226,6 +171,68 @@ public class DeviceValidationImpl implements DeviceValidation {
     public boolean hasData(Register<?> register) {
         return getDevice().findKoreChannels(register).stream()
                 .anyMatch(c -> c.hasData());
+    }
+
+    private boolean hasActiveRules(Channel channel) {
+        return hasActiveRules(channel.getReadingType());
+    }
+
+    private boolean hasActiveRules(Register<?> register) {
+        return hasActiveRules(register.getReadingType());
+    }
+
+    private boolean hasActiveRules(ReadingType readingType) {
+        return device.getDeviceConfiguration().getValidationRuleSets().stream()
+                .flatMap(s -> s.getRules().stream())
+                .anyMatch(r -> r.getReadingTypes().contains(readingType));
+    }
+
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Date when) {
+        return findKoreChannel(channel.getReadingType(), when);
+    }
+
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Date when) {
+        ReadingType readingType = register.getReadingType();
+        return findKoreChannel(readingType, when);
+    }
+
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(ReadingType readingType, Date when) {
+        com.elster.jupiter.metering.Channel koreChannel = fetchKoreMeter().getMeterActivations().stream()
+                .filter(m -> m.getInterval().contains(when, Interval.EndpointBehavior.CLOSED_CLOSED)) // TODO verify with Karel
+                .flatMap(m -> m.getChannels().stream())
+                .filter(c -> c.getReadingTypes().contains(readingType))
+                .findFirst().orElse(null);
+        return Optional.fromNullable(koreChannel);
+    }
+
+    private Optional<Date> getLastChecked(Meter meter) {
+        for (MeterActivation meterActivation : getMeterActivationsMostRecentFirst(meter)) {
+            Optional<Date> lastChecked = validationService.getLastChecked(meterActivation);
+            if (lastChecked.isPresent()) {
+                return lastChecked;
+            }
+        }
+        return Optional.absent();
+    }
+
+    private Optional<Date> getLastChecked(ReadingType readingType) {
+        return getEvaluator().getLastChecked(fetchKoreMeter(), readingType);
+    }
+
+    private Iterable<MeterActivation> getMeterActivationsMostRecentFirst(Meter meter) {
+        TreeSet<MeterActivation> meterActivations = new TreeSet<>(byInterval());
+        meterActivations.addAll(meter.getMeterActivations());
+        return meterActivations;
+    }
+
+    private Comparator<MeterActivation> byInterval() {
+        return (m1, m2)-> IntermittentInterval.IntervalComparators.FROM_COMPARATOR.compare(m1.getInterval(), m2.getInterval());
+    }
+
+    private Interval interval(List<? extends BaseReading> readings) {
+        Date min = readings.stream().map(BaseReading::getTimeStamp).min(naturalOrder()).get();
+        Date max = readings.stream().map(BaseReading::getTimeStamp).max(naturalOrder()).get();
+        return new Interval(min, max);
     }
 
     private void validateReadingType(ReadingType readingType, Date start, Date until) {
@@ -278,6 +285,13 @@ public class DeviceValidationImpl implements DeviceValidation {
             meter = device.findOrCreateKoreMeter(amrSystem);
         }
         return meter;
+    }
+
+    private ValidationEvaluator getEvaluator() {
+        if (evaluator == null) {
+            evaluator = validationService.getEvaluator(fetchKoreMeter(), Interval.endAt(clock.now()));
+        }
+        return evaluator;
     }
 
 
