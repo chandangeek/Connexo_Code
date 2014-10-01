@@ -1,12 +1,12 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -19,16 +19,10 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -38,6 +32,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 @Path("/connections")
 public class ConnectionResource {
@@ -50,14 +53,17 @@ public class ConnectionResource {
     public static final LongAdapter LONG_ADAPTER = new LongAdapter();
 
     private final ConnectionTaskService connectionTaskService;
+    private final CommunicationTaskService communicationTaskService;
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory) {
+        super();
         this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
         this.engineModelService = engineModelService;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -90,7 +96,7 @@ public class ConnectionResource {
         List<ConnectionTaskInfo> connectionTaskInfos = new ArrayList<>(connectionTasksByFilter.size());
         for (ConnectionTask<?,?> connectionTask : connectionTasksByFilter) {
             Optional<ComSession> lastComSession = connectionTask.getLastComSession();
-            List<ComTaskExecution> comTaskExecutions = connectionTaskService.findComTaskExecutionsByConnectionTask(connectionTask);
+            List<ComTaskExecution> comTaskExecutions = communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask);
             Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
             connectionTaskInfos.add(connectionTaskInfoFactory.from(connectionTask, lastComSession, comTaskExecutions));
         }
