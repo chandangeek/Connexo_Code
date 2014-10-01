@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.DateAdapter;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
@@ -8,7 +7,7 @@ import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
@@ -18,7 +17,16 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -26,12 +34,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
 
 @Path("/communications")
 public class CommunicationResource {
@@ -41,15 +43,15 @@ public class CommunicationResource {
     public static final LongAdapter LONG_ADAPTER = new LongAdapter();
     public static final DateAdapter DATE_ADAPTER = new DateAdapter();
 
-    private final DeviceDataService deviceDataService;
+    private final CommunicationTaskService communicationTaskService;
     private final SchedulingService schedulingService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
     private final ComTaskExecutionInfoFactory comTaskExecutionInfoFactory;
 
     @Inject
-    public CommunicationResource(DeviceDataService deviceDataService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory) {
-        this.deviceDataService = deviceDataService;
+    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory) {
+        this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
@@ -63,10 +65,10 @@ public class CommunicationResource {
         if (queryParameters.getStart()==null || queryParameters.getLimit()==null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<ComTaskExecution> communicationTasksByFilter = deviceDataService.findComTaskExecutionsByFilter(filter, queryParameters.getStart(), queryParameters.getLimit() + 1);
+        List<ComTaskExecution> communicationTasksByFilter = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart(), queryParameters.getLimit() + 1);
         List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(communicationTasksByFilter.size());
         for (ComTaskExecution comTaskExecution : communicationTasksByFilter) {
-            Optional<ComTaskExecutionSession> lastSession = deviceDataService.findLastSessionFor(comTaskExecution);
+            Optional<ComTaskExecutionSession> lastSession = communicationTaskService.findLastSessionFor(comTaskExecution);
             ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
             if (connectionTask!=null) {
                 comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastSession, connectionTask));

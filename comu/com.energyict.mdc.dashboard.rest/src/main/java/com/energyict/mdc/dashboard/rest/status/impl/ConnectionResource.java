@@ -7,7 +7,7 @@ import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -49,15 +49,15 @@ public class ConnectionResource {
     private static final ConnectionTaskSuccessIndicatorAdapter CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER = new ConnectionTaskSuccessIndicatorAdapter();
     public static final LongAdapter LONG_ADAPTER = new LongAdapter();
 
-    private final DeviceDataService deviceDataService;
+    private final ConnectionTaskService connectionTaskService;
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
 
     @Inject
-    public ConnectionResource(DeviceDataService deviceDataService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory) {
-        this.deviceDataService = deviceDataService;
+    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory) {
+        this.connectionTaskService = connectionTaskService;
         this.engineModelService = engineModelService;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -86,11 +86,11 @@ public class ConnectionResource {
         if (queryParameters.getStart()==null || queryParameters.getLimit()==null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<ConnectionTask> connectionTasksByFilter = deviceDataService.findConnectionTasksByFilter(filter, queryParameters.getStart(), queryParameters.getLimit()+1);
+        List<ConnectionTask> connectionTasksByFilter = connectionTaskService.findConnectionTasksByFilter(filter, queryParameters.getStart(), queryParameters.getLimit()+1);
         List<ConnectionTaskInfo> connectionTaskInfos = new ArrayList<>(connectionTasksByFilter.size());
         for (ConnectionTask<?,?> connectionTask : connectionTasksByFilter) {
             Optional<ComSession> lastComSession = connectionTask.getLastComSession();
-            List<ComTaskExecution> comTaskExecutions = deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask);
+            List<ComTaskExecution> comTaskExecutions = connectionTaskService.findComTaskExecutionsByConnectionTask(connectionTask);
             Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
             connectionTaskInfos.add(connectionTaskInfoFactory.from(connectionTask, lastComSession, comTaskExecutions));
         }
