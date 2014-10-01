@@ -2,7 +2,7 @@ package com.energyict.mdc.dynamic;
 
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

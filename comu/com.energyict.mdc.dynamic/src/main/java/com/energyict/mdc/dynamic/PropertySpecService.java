@@ -5,10 +5,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 /**
  * Provides services to build {@link PropertySpec}s.
