@@ -5,16 +5,48 @@ Ext.define('Uni.form.field.DateTime', {
     },
     alias: 'widget.date-time',
     layout: 'vbox',
+    requires: [
+        'Ext.form.field.Date',
+        'Ext.form.field.Number',
+        'Ext.container.Container'
+    ],
+    dateConfig: null,
+    hoursConfig: null,
+    separatorConfig: null,
+    minutesConfig: null,
+
     initComponent: function () {
-        var me = this;
-        me.items = [
-            Ext.apply({
+        var me = this,
+            dateField = {
                 xtype: 'datefield',
                 itemId: 'date-time-field-date',
                 submitValue: false,
-                width: '100%'
-            }, me.dateConfig),
-            {
+                width: '100%',
+                listeners: {
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
+                    }
+                }
+            },
+            hoursField = {
+                itemId: 'date-time-field-hours',
+                flex: 1,
+                maxValue: 23,
+                minValue: 0
+            },
+            minutesField = {
+                itemId: 'date-time-field-minutes',
+                flex: 1,
+                maxValue: 59,
+                minValue: 0
+            },
+            separator = {
+                xtype: 'component',
+                html: ':',
+                margin: '0 5 0 5'
+            },
+            container = {
                 xtype: 'container',
                 width: '100%',
                 layout: {
@@ -23,54 +55,55 @@ Ext.define('Uni.form.field.DateTime', {
                 },
                 defaults: {
                     xtype: 'numberfield',
-                    itemId: 'minuteField',
                     allowDecimals: false,
                     submitValue: false,
                     value: 0,
-                    valueToRaw: function (value) {
-                        var result = '00';
-
-                        if (value) {
-                            if (value < 10 && value > 0) {
-                                result = '0' + value;
-                            } else if (value > 10) {
-                                result = value;
-                            }
-                        }
-                        return result;
-                    },
+                    valueToRaw: me.formatDisplayOfTime,
                     listeners: {
+                        change: {
+                            fn: me.onItemChange,
+                            scope: me
+                        },
                         blur: me.numberFieldValidation
                     }
-                },
-                items: [
-                    Ext.apply({
-                        itemId: 'date-time-field-hours',
-                        flex: 1,
-                        maxValue: 23,
-                        minValue: 0
-                    }, me.hoursConfig),
-                    Ext.apply({
-                        xtype: 'component',
-                        html: ':',
-                        margin: '0 10 0 10'
-                    }, me.separatorConfig),
-                    Ext.apply({
-                        itemId: 'date-time-field-minutes',
-                        flex: 1,
-                        maxValue: 59,
-                        minValue: 0
-                    }, me.minutesConfig)
-                ]
-            }
-        ];
+                }
+            };
+
+        if (me.layout === 'hbox') {
+            delete container.width;
+            dateField.width = 130;
+            hoursField.width = 80;
+            minutesField.width = 80;
+        }
+
+        Ext.apply(dateField, me.dateConfig);
+        Ext.apply(hoursField, me.hoursConfig);
+        Ext.apply(minutesField, me.minutesConfig);
+        Ext.apply(separator, me.separatorConfig);
+
+        container.items = [hoursField, separator, minutesField];
+        me.items = [dateField, container];
+
         me.callParent(arguments);
+    },
+
+    formatDisplayOfTime: function (value) {
+        var result = '00';
+
+        if (value) {
+            if (value < 10 && value > 0) {
+                result = '0' + value;
+            } else if (value >= 10) {
+                result = value;
+            }
+        }
+        return result;
     },
 
     numberFieldValidation: function (field) {
         var value = field.getValue();
 
-        if(Ext.isEmpty(value) || value < field.minValue) {
+        if (Ext.isEmpty(value) || value < field.minValue) {
             field.setValue(field.minValue);
         } else if (value > field.maxValue) {
             field.setValue(field.maxValue);
@@ -78,10 +111,25 @@ Ext.define('Uni.form.field.DateTime', {
     },
 
     setValue: function (value) {
-        if (Ext.isDate(value) || Ext.isDate(new Date(value))) {
-            this.down('#date-time-field-date').setValue(moment(value).startOf('day').toDate());
-            this.down('#date-time-field-hours').setValue(moment(value).hours());
-            this.down('#date-time-field-minutes').setValue(moment(value).minutes());
+        var me = this,
+            dateField = me.down('#date-time-field-date'),
+            hoursField = me.down('#date-time-field-hours'),
+            minutesField = me.down('#date-time-field-minutes');
+        if (Ext.isDate(value) || moment(new Date(value)).isValid()) {
+            me.eachItem(function (item) {
+                item.suspendEvent('change');
+            });
+            dateField.setValue(moment(value).startOf('day').toDate());
+            hoursField.setValue(moment(value).hours());
+            minutesField.setValue(moment(value).minutes());
+            me.fireEvent('change', me, value);
+            me.eachItem(function (item) {
+                item.resumeEvent('change');
+            });
+        } else if (value === undefined || value === null) {
+            dateField.reset();
+            hoursField.reset();
+            minutesField.reset();
         } else {
             //<debug>
             console.error('\'' + value + '\' is not a date');
@@ -108,6 +156,23 @@ Ext.define('Uni.form.field.DateTime', {
         date = new Date(date);
 
         return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
+    },
+
+    markInvalid: function(fields){
+        this.eachItem(function(field){
+            field.markInvalid('');
+        });
+        this.items.items[0].markInvalid(fields);
+    },
+
+    eachItem: function(fn, scope) {
+        if(this.items && this.items.each){
+            this.items.each(fn, scope || this);
+        }
+    },
+
+    onItemChange: function () {
+        this.fireEvent('change', this, this.getValue());
     }
 });
 
