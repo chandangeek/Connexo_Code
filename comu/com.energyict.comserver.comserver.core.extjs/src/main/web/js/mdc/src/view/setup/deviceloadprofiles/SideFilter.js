@@ -1,79 +1,67 @@
 Ext.define('Mdc.view.setup.deviceloadprofiles.SideFilter', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Uni.component.filter.view.Filter',
-        'Uni.form.NestedForm',
-        'Mdc.widget.DateTimeField',
-        'Mdc.store.LoadProfileDataDurations',
-        'Mdc.view.setup.deviceloadprofiles.SideFilterDateTime',
-        'Mdc.view.setup.deviceloadprofiles.SideFilterDuration'
+        'Uni.form.field.DateTime',
+        'Mdc.store.LoadProfileDataDurations'
     ],
     alias: 'widget.deviceLoadProfileDataSideFilter',
     itemId: 'deviceLoadProfileDataSideFilter',
     ui: 'medium',
+    width: 150,
     cls: 'filter-form',
-    width: 250,
     title: Uni.I18n.translate('connection.widget.sideFilter.title', 'DSH', 'Filter'),
     items: {
-        xtype: 'nested-form',
+        xtype: 'form',
         itemId: 'deviceLoadProfileDataFilterForm',
         ui: 'filter',
-        layout: {
-            type: 'vbox',
-            align: 'stretch'
-        },
         items: [
             {
-                xtype: 'side-filter-date-time-profiles',
-                itemId: 'endOfInterval',
-                name: 'endOfInterval',
-                wTitle: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval')
+                xtype: 'fieldcontainer',
+                itemId: 'dateContainer',
+                fieldLabel: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
+                labelAlign: 'top',
+                defaults: {
+                    width: '100%'
+                },
+                items: [
+                    {
+                        xtype: 'date-time',
+                        itemId: 'endOfInterval',
+                        name: 'intervalStart',
+                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From'),
+                        labelAlign: 'top',
+                        labelStyle: 'font-weight: normal'
+                    }
+                ]
             },
-//            {
-//                xtype: 'component',
-//                html: '<h4>' + Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval') + '</h4>'
-//            },
-//            {
-//                xtype: 'dateTimeField',
-//                name: 'intervalStart',
-//                fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From'),
-//                labelAlign: 'top',
-//                dateCfg: {
-//                    flex: 1,
-//                    editable: false,
-//                    maxValue: new Date()
-//                },
-//                hourCfg: {
-//                    width: 57,
-//                    valueToRaw: function (value) {
-//                        return (value < 10 ? '0' : '') + value;
-//                    }
-//                },
-//                minuteCfg: {
-//                    width: 57,
-//                    valueToRaw: function (value) {
-//                        return (value < 10 ? '0' : '') + value;
-//                    }
-//                }
-//            },
             {
-                xtype: 'side-filter-duration',
+                xtype: 'combobox',
                 itemId: 'sideFilterDuration',
                 name: 'duration',
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.duration', 'MDC', 'Duration'),
                 labelAlign: 'top',
                 store: 'Mdc.store.LoadProfileDataDurations',
                 displayField: 'localizeValue',
-                valueField: 'id'
+                valueField: 'id',
+                queryMode: 'local',
+                anchor: '100%'
             },
-//            {
-//                xtype: 'component',
-//                html: '<h4>' + Uni.I18n.translate('deviceregisterconfiguration.validation.result', 'MDC', 'Validation result') + '</h4>'
-//            },
-//            {
-//                xtype: 'checkbox',
-//                fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From')
-//            }
+            {
+                xtype: 'fieldcontainer',
+                itemId: 'suspectContainer',
+                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validation.result', 'MDC', 'Validation result'),
+                labelAlign: 'top',
+                defaultType: 'checkboxfield',
+                items: [
+                    {
+                        itemId: 'suspect',
+                        inputValue: 'suspect',
+                        name: 'onlySuspect',
+                        boxLabel: Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect'),
+                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                    }
+                ]
+            }
         ],
         dockedItems: [
             {
@@ -88,8 +76,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SideFilter', {
                     },
                     {
                         itemId: 'deviceLoadProfileDataFilterResetBtn',
-                        text: Uni.I18n.translate('connection.widget.sideFilter.clearAll', 'DSH', 'Clear all'),
-                        action: 'clearfilter'
+                        text: Uni.I18n.translate('general.reset', 'MDC', 'Reset'),
+                        action: 'resetfilter'
                     }
                 ]
             }

@@ -966,7 +966,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: 'Load profile data',
                                             route: 'data',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileData',
-                                            action: 'showOverview'
+                                            action: 'showOverview',
+                                            filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
                                         },
                                         validation: {
                                             title: 'Load profile validation',
