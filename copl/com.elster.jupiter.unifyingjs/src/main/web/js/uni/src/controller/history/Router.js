@@ -258,10 +258,19 @@ Ext.define('Uni.controller.history.Router', {
         // handle child items
         if (config.items) {
             _.each(config.items, function (item, itemKey) {
-                if (typeof item.authorized === 'undefined' || item.authorized) {
-                    var path = key + '/' + itemKey;
-                    me.initRoute(path, item, route);
+                if (Ext.isArray(item.privileges)) {
+                    for (var i = 0; i < item.privileges.length; i++) {
+                        var privilege = item.privileges[i];
+
+                        // Continue the loop if the user is not privileged.
+                        if (!Uni.Auth.hasPrivilege(privilege)) {
+                            return;
+                        }
+                    }
                 }
+
+                var path = key + '/' + itemKey;
+                me.initRoute(path, item, route);
             });
         }
     },
