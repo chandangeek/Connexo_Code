@@ -2,7 +2,9 @@ package com.elster.jupiter.ids;
 
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -25,4 +27,8 @@ public interface TimeSeries {
     List<TimeSeriesEntry> getEntriesOnOrBefore(Date when,int entryCount);
 	boolean isValidDateTime(Date date);
 	TimeZone getTimeZone();
+	void removeEntries(Range<Instant> range);
+	default void removeEntry(Instant instant) {
+		removeEntries(Range.closed(instant, instant));
+	}
 }

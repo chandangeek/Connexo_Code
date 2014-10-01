@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
+import com.google.common.collect.Range;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -21,6 +22,7 @@ import org.joda.time.DateTimeZone;
 
 import javax.inject.Inject;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -296,5 +298,10 @@ public final class TimeSeriesImpl implements TimeSeries {
 	@Override
 	public List<TimeSeriesEntry> getEntriesOnOrBefore(Date when, int entryCount) {
 		return getVault().getEntriesBefore(this,when,entryCount,true);
+	}
+	
+	@Override
+	public void removeEntries(Range<Instant> range) {
+		getVault().removeEntries(this, range);
 	}
 }

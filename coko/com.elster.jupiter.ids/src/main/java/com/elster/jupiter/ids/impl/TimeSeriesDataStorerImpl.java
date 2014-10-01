@@ -177,7 +177,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		String journalSql() {
-			return vault.journalSql();
+			return vault.journalSql(recordSpec);
 		}
 		
 		void updateTimeSeries(Map<Long,TimeSeriesImpl> timeSeriesMap) {

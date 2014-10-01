@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,17 +18,20 @@ import javax.inject.Inject;
 
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
 import com.google.inject.Provider;
 
 @LiteralSql
@@ -206,9 +210,9 @@ public class VaultImpl implements Vault {
 		}
 		builder.append(",CONSTRAINT ");
 		builder.append(getTablePrimaryKeyConstraintName(journal));
-		builder.append(" PRIMARY KEY(TIMESERIESID,UTCSTAMP");
+		builder.append(" PRIMARY KEY(TIMESERIESID, UTCSTAMP");
 		if (journal) {
-			builder.append(",VERSIONCOUNT");
+			builder.append(", JOURNALTIME, VERSIONCOUNT");
 		}
 		builder.append("))");
         if (isOracle()) {
@@ -320,43 +324,67 @@ public class VaultImpl implements Vault {
 		return builder;
 	}
 	
-	String journalSql() {
+	private StringBuilder baseJournalSql(RecordSpecImpl recordSpec) {
 		StringBuilder builder = new StringBuilder("insert into ");
 		builder.append(getJournalTableName());
 		builder.append("(TIMESERIESID,UTCSTAMP,VERSIONCOUNT,RECORDTIME,JOURNALTIME");
 		if (hasLocalTime()) {
 			builder.append(",LOCALDATE");
 		}
-		for (int i = 0 ; i < getSlotCount() ; i++) {
-			builder.append(",SlOT");
-			builder.append(i);
-		}
+		recordSpec.columnNames().forEach(column -> builder.append(", " + column));
 		builder.append(") (SELECT TIMESERIESID,UTCSTAMP,VERSIONCOUNT,RECORDTIME,?");
 		if (hasLocalTime()) {
 			builder.append(",LOCALDATE");
 		}
-		for (int i = 0 ; i < getSlotCount() ; i++) {
-			builder.append(",SlOT");
-			builder.append(i);
-		}
+		recordSpec.columnNames().forEach(column -> builder.append(", " + column));
 		builder.append(" FROM ");
 		builder.append(getTableName());
+		return builder;
+	}
+	
+	String journalSql(RecordSpecImpl recordSpec) {
+		StringBuilder builder = baseJournalSql(recordSpec);
 		builder.append(" WHERE TIMESERIESID = ? AND UTCSTAMP = ?)");
 		return builder.toString();
 	}
 	
-	void journal(TimeSeries timeSeries, long when,long now) throws SQLException {
-		try (Connection connection = getConnection(true)) {
-			try (PreparedStatement statement = connection.prepareStatement(journalSql())) {
-				int offset = 1;
-				statement.setLong(offset++, now);
-				statement.setLong(offset++,timeSeries.getId());
-				statement.setLong(offset++, when);
-				statement.executeUpdate();
+	private void appendWhereClause(SqlBuilder builder, Range<Instant> range) {
+		if (range.hasLowerBound()) {
+			builder.append(" AND UTCSTAMP >");
+			if (range.lowerBoundType() == BoundType.CLOSED) {
+				builder.append("=");
 			}
-		}	
+			builder.addLong(range.lowerEndpoint().toEpochMilli());
+		}
+		if (range.hasUpperBound()) {
+			builder.append(" AND UTCSTAMP <");
+			if (range.upperBoundType() == BoundType.CLOSED) {
+				builder.append("=");
+			}
+			builder.addLong(range.upperEndpoint().toEpochMilli());
+		}
 	}
-
+	
+	SqlBuilder journalSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
+		SqlBuilder builder = new SqlBuilder(baseJournalSql(timeSeries.getRecordSpec()).toString());
+		builder.add(new SqlFragment() {
+			@Override
+			public String getText() {
+				return "";
+			}
+			@Override
+			public int bind(PreparedStatement statement, int position) throws SQLException {
+				statement.setLong(position++,System.currentTimeMillis());
+				return position;
+			}
+		});
+		builder.append(" WHERE TIMESERIESID = ");
+		builder.addLong(timeSeries.getId());
+		appendWhereClause(builder, range);
+		builder.append(")");
+		return builder;
+	}
+	
 	List<TimeSeriesEntry> getEntries(TimeSeriesImpl timeSeries, Interval interval) {
 		try {
 			return doGetEntries(timeSeries, interval);
@@ -534,4 +562,29 @@ public class VaultImpl implements Vault {
 		builder.append(") where ROWNUM <= ? ");
 		return builder.toString();
 	}
+	
+	void removeEntries(TimeSeriesImpl timeSeries, Range<Instant> range) {
+		try (Connection connection = getConnection(true)) {
+			if (journal) {
+				try (PreparedStatement statement = journalSql(timeSeries, range).prepare(connection)) {
+					statement.executeUpdate();
+				}
+			}
+			try (PreparedStatement statement = deleteSql(timeSeries,range).prepare(connection)) {
+				statement.executeUpdate();
+			}
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
+	
+	SqlBuilder deleteSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
+		SqlBuilder builder = new SqlBuilder("DELETE FROM ");
+		builder.append(getTableName());
+		builder.append(" WHERE TIMESERIESID = ");
+		builder.addLong(timeSeries.getId());
+		appendWhereClause(builder, range);
+		return builder;
+	}
+	
 }
