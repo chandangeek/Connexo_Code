@@ -58,7 +58,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             },
             '#deviceconfigurationsgrid actioncolumn': {
                 editDeviceConfiguration: this.editDeviceConfigurationHistory,
-                deleteDeviceConfiguration: this.deleteTheDeviceConfiguration,
+                deleteDeviceConfiguration: this.deleteTheDeviceConfiguration
             },
             '#deviceConfigurationPreview menuitem[action=editDeviceConfiguration]': {
                 click: this.editDeviceConfigurationHistoryFromPreview
