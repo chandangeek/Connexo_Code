@@ -1,7 +1,7 @@
 package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.rest.impl.MessageSeeds;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;

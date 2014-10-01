@@ -1,7 +1,7 @@
 package com.energyict.mdc.masterdata.rest;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MeasurementType;
