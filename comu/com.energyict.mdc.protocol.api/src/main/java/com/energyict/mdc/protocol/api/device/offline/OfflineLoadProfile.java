@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.api.device.offline;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
