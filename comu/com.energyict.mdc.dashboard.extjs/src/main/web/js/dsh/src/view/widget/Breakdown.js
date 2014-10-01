@@ -71,7 +71,8 @@ Ext.define('Dsh.view.widget.Breakdown', {
         me.add({
             xtype: 'heat-map',
             itemId: 'heatmap',
-            router: me.router
+            router: me.router,
+            parent: me.parent
         });
 
     },
