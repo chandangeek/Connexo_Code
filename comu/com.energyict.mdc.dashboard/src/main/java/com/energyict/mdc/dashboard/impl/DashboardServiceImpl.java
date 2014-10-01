@@ -15,7 +15,8 @@ import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -52,7 +53,8 @@ public class DashboardServiceImpl implements DashboardService {
 
     private volatile EngineModelService engineModelService;
     private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile DeviceDataService deviceDataService;
+    private volatile ConnectionTaskService connectionTaskService;
+    private volatile CommunicationTaskService communicationTaskService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile TaskService taskService;
     private volatile SchedulingService schedulingService;
@@ -62,20 +64,21 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Inject
-    public DashboardServiceImpl(TaskService taskService, SchedulingService schedulingService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService) {
+    public DashboardServiceImpl(TaskService taskService, SchedulingService schedulingService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setTaskService(taskService);
         this.setSchedulingService(schedulingService);
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
-        this.setDeviceDataService(deviceDataService);
+        this.setConnectionTaskService(connectionTaskService);
+        this.setCommunicationTaskService(communicationTaskService);
         this.setProtocolPluggableService(protocolPluggableService);
     }
 
     @Override
     public TaskStatusOverview getConnectionTaskStatusOverview() {
         TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
-        Map<TaskStatus, Long> statusCounters = this.deviceDataService.getConnectionTaskStatusCount();
+        Map<TaskStatus, Long> statusCounters = this.connectionTaskService.getConnectionTaskStatusCount();
         for (TaskStatus taskStatus : TaskStatus.values()) {
             overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
         }
@@ -84,8 +87,8 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview() {
-        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(this.deviceDataService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
-        Map<ComSession.SuccessIndicator, Long> successIndicatorCount = this.deviceDataService.getConnectionTaskLastComSessionSuccessIndicatorCount();
+        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(this.connectionTaskService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
+        Map<ComSession.SuccessIndicator, Long> successIndicatorCount = this.connectionTaskService.getConnectionTaskLastComSessionSuccessIndicatorCount();
         for (ComSession.SuccessIndicator successIndicator : ComSession.SuccessIndicator.values()) {
             overview.add(new CounterImpl<>(successIndicator, successIndicatorCount.get(successIndicator)));
         }
@@ -100,7 +103,7 @@ public class DashboardServiceImpl implements DashboardService {
             filter.useLastComSession = true;
             filter.taskStatuses = this.breakdownStatusses();
             filter.comPortPools.add(comPortPool);
-            Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
+            Map<TaskStatus, Long> statusCount = this.connectionTaskService.getConnectionTaskStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(comPortPool, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
         return breakdown;
@@ -118,7 +121,7 @@ public class DashboardServiceImpl implements DashboardService {
             filter.useLastComSession = true;
             filter.taskStatuses = this.breakdownStatusses();
             filter.connectionTypes.add(connectionTypePluggableClass);
-            Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
+            Map<TaskStatus, Long> statusCount = this.connectionTaskService.getConnectionTaskStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(connectionTypePluggableClass, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
         return breakdown;
@@ -136,7 +139,7 @@ public class DashboardServiceImpl implements DashboardService {
             filter.useLastComSession = true;
             filter.taskStatuses = this.breakdownStatusses();
             filter.deviceTypes.add(deviceType);
-            Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
+            Map<TaskStatus, Long> statusCount = this.connectionTaskService.getConnectionTaskStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
         return breakdown;
@@ -153,7 +156,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public ConnectionTypeHeatMap getConnectionTypeHeatMap() {
         ConnectionTypeHeatMapImpl heatMap = new ConnectionTypeHeatMapImpl();
-        Map<ConnectionTypePluggableClass, List<Long>> rawData = this.deviceDataService.getConnectionTypeHeatMap();
+        Map<ConnectionTypePluggableClass, List<Long>> rawData = this.connectionTaskService.getConnectionTypeHeatMap();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : rawData.keySet()) {
             List<Long> counters = rawData.get(connectionTypePluggableClass);
             ConnectionTaskHeatMapRowImpl<ConnectionTypePluggableClass> heatMapRow = new ConnectionTaskHeatMapRowImpl<>(connectionTypePluggableClass);
@@ -166,7 +169,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap() {
         ConnectionTaskDeviceTypeHeatMapImpl heatMap = new ConnectionTaskDeviceTypeHeatMapImpl();
-        Map<DeviceType, List<Long>> rawData = this.deviceDataService.getConnectionsDeviceTypeHeatMap();
+        Map<DeviceType, List<Long>> rawData = this.connectionTaskService.getConnectionsDeviceTypeHeatMap();
         for (DeviceType deviceType : rawData.keySet()) {
             List<Long> counters = rawData.get(deviceType);
             ConnectionTaskHeatMapRowImpl<DeviceType> heatMapRow = new ConnectionTaskHeatMapRowImpl<>(deviceType);
@@ -179,7 +182,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap() {
         ComPortPoolHeatMapImpl heatMap = new ComPortPoolHeatMapImpl();
-        Map<ComPortPool, List<Long>> rawData = this.deviceDataService.getConnectionsComPortPoolHeatMap();
+        Map<ComPortPool, List<Long>> rawData = this.connectionTaskService.getConnectionsComPortPoolHeatMap();
         for (ComPortPool comPortPool : rawData.keySet()) {
             List<Long> counters = rawData.get(comPortPool);
             ConnectionTaskHeatMapRowImpl<ComPortPool> heatMapRow = new ConnectionTaskHeatMapRowImpl<>(comPortPool);
@@ -201,7 +204,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public TaskStatusOverview getCommunicationTaskStatusOverview() {
         TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
-        Map<TaskStatus, Long> statusCounters = this.deviceDataService.getComTaskExecutionStatusCount();
+        Map<TaskStatus, Long> statusCounters = this.communicationTaskService.getComTaskExecutionStatusCount();
         for (TaskStatus taskStatus : TaskStatus.values()) {
             overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
         }
@@ -215,7 +218,7 @@ public class DashboardServiceImpl implements DashboardService {
             ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
             filter.taskStatuses = this.breakdownStatusses();
             filter.deviceTypes.add(deviceType);
-            Map<TaskStatus, Long> statusCount = this.deviceDataService.getComTaskExecutionStatusCount(filter);
+            Map<TaskStatus, Long> statusCount = this.communicationTaskService.getComTaskExecutionStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
         return breakdown;
@@ -228,7 +231,7 @@ public class DashboardServiceImpl implements DashboardService {
             ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
             filter.taskStatuses = this.breakdownStatusses();
             filter.comSchedules.add(comSchedule);
-            Map<TaskStatus, Long> statusCount = this.deviceDataService.getComTaskExecutionStatusCount(filter);
+            Map<TaskStatus, Long> statusCount = this.communicationTaskService.getComTaskExecutionStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(comSchedule, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
         return breakdown;
@@ -241,7 +244,7 @@ public class DashboardServiceImpl implements DashboardService {
             ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
             filter.taskStatuses = this.breakdownStatusses();
             filter.comTasks.add(comTask);
-            Map<TaskStatus, Long> statusCount = this.deviceDataService.getComTaskExecutionStatusCount(filter);
+            Map<TaskStatus, Long> statusCount = this.communicationTaskService.getComTaskExecutionStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(comTask, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
         return breakdown;
@@ -250,7 +253,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview() {
         ComCommandCompletionCodeOverviewImpl overview = new ComCommandCompletionCodeOverviewImpl();
-        Map<CompletionCode, Long> completionCodeCount = this.deviceDataService.getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+        Map<CompletionCode, Long> completionCodeCount = this.communicationTaskService.getComTaskLastComSessionHighestPriorityCompletionCodeCount();
         for (CompletionCode completionCode : CompletionCode.values()) {
             overview.add(new CounterImpl<>(completionCode, completionCodeCount.get(completionCode)));
         }
@@ -260,7 +263,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public CommunicationTaskHeatMap getCommunicationTasksHeatMap() {
         CommunicationTaskHeatMapImpl heatMap = new CommunicationTaskHeatMapImpl();
-        Map<DeviceType, List<Long>> rawData = this.deviceDataService.getComTasksDeviceTypeHeatMap();
+        Map<DeviceType, List<Long>> rawData = this.communicationTaskService.getComTasksDeviceTypeHeatMap();
         for (DeviceType deviceType : rawData.keySet()) {
             List<Long> counters = rawData.get(deviceType);
             CommunicationTaskHeatMapRowImpl heatMapRow = new CommunicationTaskHeatMapRowImpl(deviceType);
@@ -348,8 +351,13 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference

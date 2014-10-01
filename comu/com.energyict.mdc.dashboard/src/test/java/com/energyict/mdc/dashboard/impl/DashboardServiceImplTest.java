@@ -12,7 +12,8 @@ import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -65,7 +66,9 @@ public class DashboardServiceImplTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
-    private DeviceDataService deviceDataService;
+    private ServerConnectionTaskService connectionTaskService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
     @Mock
@@ -77,7 +80,7 @@ public class DashboardServiceImplTest {
 
     @Before
     public void setupService () {
-        this.dashboardService = new DashboardServiceImpl(this.taskService, this.schedulingService, this.engineModelService, this.deviceConfigurationService, this.deviceDataService, this.protocolPluggableService);
+        this.dashboardService = new DashboardServiceImpl(this.taskService, this.schedulingService, this.engineModelService, this.deviceConfigurationService, this.connectionTaskService, this.communicationTaskService, this.protocolPluggableService);
     }
 
     @Test
@@ -86,13 +89,13 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getConnectionTaskStatusCount()).thenReturn(statusCounters);
+        when(this.connectionTaskService.getConnectionTaskStatusCount()).thenReturn(statusCounters);
 
         // Business methods
         TaskStatusOverview overview = this.dashboardService.getConnectionTaskStatusOverview();
 
         // Asserts
-        verify(this.deviceDataService).getConnectionTaskStatusCount();
+        verify(this.connectionTaskService).getConnectionTaskStatusCount();
         assertThat(overview).isNotNull();
         Set<TaskStatus> missingTaskStatusses = EnumSet.allOf(TaskStatus.class);
         for (Counter<TaskStatus> taskStatusCounter : overview) {
@@ -108,16 +111,16 @@ public class DashboardServiceImplTest {
         for (ComSession.SuccessIndicator successIndicator : ComSession.SuccessIndicator.values()) {
             counters.put(successIndicator, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getConnectionTaskLastComSessionSuccessIndicatorCount()).thenReturn(counters);
-        when(this.deviceDataService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask()).thenReturn(EXPECTED_STATUS_COUNT_VALUE);
+        when(this.connectionTaskService.getConnectionTaskLastComSessionSuccessIndicatorCount()).thenReturn(counters);
+        when(this.connectionTaskService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask()).thenReturn(EXPECTED_STATUS_COUNT_VALUE);
 
         // Business methods
         ComSessionSuccessIndicatorOverview overview = this.dashboardService.getComSessionSuccessIndicatorOverview();
 
         // Asserts
         assertThat(overview).isNotNull();
-        verify(this.deviceDataService).countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
-        verify(this.deviceDataService).getConnectionTaskLastComSessionSuccessIndicatorCount();
+        verify(this.connectionTaskService).countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
+        verify(this.connectionTaskService).getConnectionTaskLastComSessionSuccessIndicatorCount();
         assertThat(overview.iterator().hasNext()).isTrue();
         for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : overview) {
             assertThat(successIndicatorCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
@@ -134,7 +137,7 @@ public class DashboardServiceImplTest {
         ComPortPoolBreakdown breakdown = this.dashboardService.getComPortPoolBreakdown();
 
         // Asserts
-        verify(this.deviceDataService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
+        verify(this.connectionTaskService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -151,14 +154,14 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
+        when(this.connectionTaskService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
         ComPortPoolBreakdown breakdown = this.dashboardService.getComPortPoolBreakdown();
 
         // Asserts
         ArgumentCaptor<ConnectionTaskFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(this.deviceDataService).getConnectionTaskStatusCount(filterCaptor.capture());
+        verify(this.connectionTaskService).getConnectionTaskStatusCount(filterCaptor.capture());
         assertThat(filterCaptor.getValue().comPortPools).hasSize(1);
         assertThat(filterCaptor.getValue().comPortPools.iterator().next()).isEqualTo(comPortPool);
         assertThat(breakdown).isNotNull();
@@ -177,7 +180,7 @@ public class DashboardServiceImplTest {
         ConnectionTypeBreakdown breakdown = this.dashboardService.getConnectionTypeBreakdown();
 
         // Asserts
-        verify(this.deviceDataService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
+        verify(this.connectionTaskService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -194,13 +197,13 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
+        when(this.connectionTaskService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
         ConnectionTypeBreakdown breakdown = this.dashboardService.getConnectionTypeBreakdown();
 
         // Asserts
-        verify(this.deviceDataService).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
+        verify(this.connectionTaskService).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
@@ -220,7 +223,7 @@ public class DashboardServiceImplTest {
         DeviceTypeBreakdown breakdown = this.dashboardService.getConnectionTasksDeviceTypeBreakdown();
 
         // Asserts
-        verify(this.deviceDataService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
+        verify(this.connectionTaskService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -239,14 +242,14 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
+        when(this.connectionTaskService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
         DeviceTypeBreakdown breakdown = this.dashboardService.getConnectionTasksDeviceTypeBreakdown();
 
         // Asserts
         ArgumentCaptor<ConnectionTaskFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(this.deviceDataService).getConnectionTaskStatusCount(filterCaptor.capture());
+        verify(this.connectionTaskService).getConnectionTaskStatusCount(filterCaptor.capture());
         assertThat(filterCaptor.getValue().deviceTypes).hasSize(1);
         assertThat(filterCaptor.getValue().deviceTypes.iterator().next()).isEqualTo(deviceType);
         assertThat(breakdown).isNotNull();
@@ -264,13 +267,13 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getComTaskExecutionStatusCount()).thenReturn(statusCounters);
+        when(this.communicationTaskService.getComTaskExecutionStatusCount()).thenReturn(statusCounters);
 
         // Business methods
         TaskStatusOverview overview = this.dashboardService.getCommunicationTaskStatusOverview();
 
         // Asserts
-        verify(this.deviceDataService).getComTaskExecutionStatusCount();
+        verify(this.communicationTaskService).getComTaskExecutionStatusCount();
         assertThat(overview).isNotNull();
         Set<TaskStatus> missingTaskStatusses = EnumSet.allOf(TaskStatus.class);
         for (Counter<TaskStatus> taskStatusCounter : overview) {
@@ -290,7 +293,7 @@ public class DashboardServiceImplTest {
         DeviceTypeBreakdown breakdown = this.dashboardService.getCommunicationTasksDeviceTypeBreakdown();
 
         // Asserts
-        verify(this.deviceDataService, never()).getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class));
+        verify(this.communicationTaskService, never()).getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -309,14 +312,14 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
+        when(this.communicationTaskService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
         DeviceTypeBreakdown breakdown = this.dashboardService.getCommunicationTasksDeviceTypeBreakdown();
 
         // Asserts
         ArgumentCaptor<ComTaskExecutionFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
-        verify(this.deviceDataService).getComTaskExecutionStatusCount(filterCaptor.capture());
+        verify(this.communicationTaskService).getComTaskExecutionStatusCount(filterCaptor.capture());
         assertThat(filterCaptor.getValue().deviceTypes).hasSize(1);
         assertThat(filterCaptor.getValue().deviceTypes.iterator().next()).isEqualTo(deviceType);
         assertThat(breakdown).isNotNull();
@@ -340,7 +343,7 @@ public class DashboardServiceImplTest {
         ComTaskBreakdown breakdown = this.dashboardService.getCommunicationTasksBreakdown();
 
         // Asserts
-        verify(this.deviceDataService, never()).getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class));
+        verify(this.communicationTaskService, never()).getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -364,14 +367,14 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
+        when(this.communicationTaskService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
         ComTaskBreakdown breakdown = this.dashboardService.getCommunicationTasksBreakdown();
 
         // Asserts
         ArgumentCaptor<ComTaskExecutionFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
-        verify(this.deviceDataService).getComTaskExecutionStatusCount(filterCaptor.capture());
+        verify(this.communicationTaskService).getComTaskExecutionStatusCount(filterCaptor.capture());
         assertThat(filterCaptor.getValue().comTasks).hasSize(1);
         assertThat(filterCaptor.getValue().comTasks.iterator().next()).isEqualTo(comTask);
         assertThat(breakdown).isNotNull();
@@ -392,7 +395,7 @@ public class DashboardServiceImplTest {
         ComScheduleBreakdown breakdown = this.dashboardService.getCommunicationTasksComScheduleBreakdown();
 
         // Asserts
-        verify(this.deviceDataService, never()).getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class));
+        verify(this.communicationTaskService, never()).getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -411,14 +414,14 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
+        when(this.communicationTaskService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
         ComScheduleBreakdown breakdown = this.dashboardService.getCommunicationTasksComScheduleBreakdown();
 
         // Asserts
         ArgumentCaptor<ComTaskExecutionFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
-        verify(this.deviceDataService).getComTaskExecutionStatusCount(filterCaptor.capture());
+        verify(this.communicationTaskService).getComTaskExecutionStatusCount(filterCaptor.capture());
         assertThat(filterCaptor.getValue().comSchedules).hasSize(1);
         assertThat(filterCaptor.getValue().comSchedules.iterator().next()).isEqualTo(comSchedule);
         assertThat(breakdown).isNotNull();
@@ -436,14 +439,14 @@ public class DashboardServiceImplTest {
         for (CompletionCode completionCode : CompletionCode.values()) {
             counters.put(completionCode, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.deviceDataService.getComTaskLastComSessionHighestPriorityCompletionCodeCount()).thenReturn(counters);
+        when(this.communicationTaskService.getComTaskLastComSessionHighestPriorityCompletionCodeCount()).thenReturn(counters);
 
         // Business methods
         ComCommandCompletionCodeOverview overview = this.dashboardService.getCommunicationTaskCompletionResultOverview();
 
         // Asserts
         assertThat(overview).isNotNull();
-        verify(this.deviceDataService).getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+        verify(this.communicationTaskService).getComTaskLastComSessionHighestPriorityCompletionCodeCount();
         assertThat(overview.iterator().hasNext()).isTrue();
         for (Counter<CompletionCode> completionCodeCounter : overview) {
             assertThat(completionCodeCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
