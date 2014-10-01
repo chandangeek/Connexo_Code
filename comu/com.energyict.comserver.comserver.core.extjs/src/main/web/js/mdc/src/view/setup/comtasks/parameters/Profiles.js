@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                     xtype: 'radiogroup',
                     itemId: 'radioIntervals',
                     fieldLabel: 'Mark intervals as bad time ',
-                    afterLabelTextTpl: '<img src="../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png">',
+                    afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png">',
                     labelWidth: 350,
                     width: 400,
                     defaults: {
@@ -97,7 +97,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
             xtype: 'radiogroup',
             itemId: 'radioEvents',
             fieldLabel: 'Meter events from status flag ',
-            afterLabelTextTpl: '<img src="../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png">',
+            afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png">',
             labelWidth: 350,
             width: 400,
             defaults: {
@@ -113,7 +113,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
             xtype: 'radiogroup',
             itemId: 'radioFail',
             fieldLabel: "Fail if profile configuration doesn't match ",
-            afterLabelTextTpl: '<img src="../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png">',
+            afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png">',
             labelWidth: 350,
             width: 400,
             defaults: {

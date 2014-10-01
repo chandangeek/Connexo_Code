@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
 
     channels: null,
 
+    /* Commented for now because of JP-5561
     tools: [
         {
             xtype: 'button',
@@ -22,6 +23,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
             }
         }
     ],
+    */
 
     initComponent: function () {
         var me = this,
@@ -35,6 +37,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                 labelAlign: 'top',
                 labelWidth: 400,
                 layout: 'vbox',
+                margin: '35 0 0 0',
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 200
@@ -42,8 +45,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                 items: [
                     {
                         fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                        itemId: 'channelValue' + channel.id,
-                        margin: '5 0 0 0'
+                        itemId: 'channelValue' + channel.id
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),

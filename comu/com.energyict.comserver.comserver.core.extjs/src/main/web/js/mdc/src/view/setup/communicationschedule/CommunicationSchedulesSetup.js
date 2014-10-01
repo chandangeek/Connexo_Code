@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('communicationschedule.communicationSchedules', 'MDC', 'Communication schedules'),
+            title: Uni.I18n.translate('communicationschedule.communicationSchedules', 'MDC', 'Shared communication schedules'),
             items: [
                 {
                     xtype: 'preview-container',
@@ -22,13 +22,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('communicationschedule.empty.title', 'MDC', 'No communication schedules found'),
+                        title: Uni.I18n.translate('communicationschedule.empty.title', 'MDC', 'No shared communication schedules found'),
                         reasons: [
-                            Uni.I18n.translate('communicationschedule.empty.list.item1', 'MDC', 'No communication schedules have been created yet.')
+                            Uni.I18n.translate('communicationschedule.empty.list.item1', 'MDC', 'No shared communication schedules have been created yet.')
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add communication schedule'),
+                                text: Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add shared communication schedule'),
                                 action: 'createCommunicationSchedule'
                             }
                         ]

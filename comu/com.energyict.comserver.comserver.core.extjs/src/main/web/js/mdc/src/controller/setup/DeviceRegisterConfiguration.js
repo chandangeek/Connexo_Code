@@ -21,7 +21,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     refs: [
         {ref: 'deviceRegisterConfigurationGrid', selector: '#deviceRegisterConfigurationGrid'},
-        {ref: 'deviceRegisterConfigurationSetup', selector: '#deviceRegisterConfigurationSetup'}
+        {ref: 'deviceRegisterConfigurationSetup', selector: '#deviceRegisterConfigurationSetup'},
+        {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'}
     ],
 
     init: function () {
@@ -40,10 +41,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 click: me.onDetailActionMenuViewDataClick
             },
             '#detailActionMenu menu menuitem[action=validate]': {
-                click: me.onDetailActionMenuValidateClick
+                click: me.onGridPreviewActionMenuValidateClick
             },
             '#deviceRegisterConfigurationGrid uni-actioncolumn': {
-                viewdata: me.onGridPreviewActionMenuViewDataClick
+                viewdata: me.onGridPreviewActionMenuViewDataClick,
+                validate: me.onGridPreviewActionMenuValidateClick
             }
         });
     },
@@ -73,12 +75,19 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {router: me.getController('Uni.controller.history.Router')}),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
             previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer');
+        me.registerId = record.get('id');
+        me.registerName = record.get('name');
 
         form.loadRecord(record);
         widget.setTitle(record.get('name'));
 
         previewContainer.removeAll();
         previewContainer.add(widget);
+        if(!record.data.detailedValidationInfo) {
+            me.hideValidationActionMenuItems();
+        } else if(!record.data.detailedValidationInfo.validationActive) {
+            me.hideValidationActionMenuItems();
+        }
     },
 
     showDeviceRegisterConfigurationDetailsView: function (mRID, registerId) {
@@ -126,24 +135,41 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         router.getRoute('devices/device/registers/register/data').forward();
     },
 
-    // TODO complete the functionality below
-    onGridPreviewActionMenuValidateClick: function () {
+    onGridPreviewActionMenuValidateClick: function (menu) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            grid = me.getDeviceRegisterConfigurationGrid(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
 
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'validateNowRegisterConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'MDC', 'Validate'),
                 confirmation: function () {
-                    //me.activateDataValidation(lastSelected, this);
+                    if(menu.text) {
+                        me.activateDataValidation(menu.record, this);
+                    } else{
+                        me.activateDataValidation(menu, this);
+                    }
+
                 }
             });
-        confirmationWindow.add(me.getValidationContent(lastSelected));
-        confirmationWindow.show({
-            title: Uni.I18n.translatePlural('deviceregisterconfiguration.validation.validateNow', me.mRID, 'MDC', 'Validate data of register {0}?'),
-            msg: ''
+
+        var text = Uni.I18n.translatePlural('deviceregisterconfiguration.validation.validateNow.statment', me.mRID, 'MDC', 'Validate data of register {0}')
+            + '<br><br>' + Uni.I18n.translate('deviceregisterconfiguration.validation.noData', 'MDC', 'There is currently no data for the register');
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + me.mRID + '/registers/' + me.registerId + '/validationstatus',
+            method: 'GET',
+            success: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+                if (res.hasValidation) {
+                    me.dataValidationLastChecked = res.lastChecked;
+                    confirmationWindow.add(me.getValidationContent());
+                    confirmationWindow.show({
+                        title: Uni.I18n.translatePlural('deviceregisterconfiguration.validation.validateNow', me.mRID, 'MDC', 'Validate data of register {0}?'),
+                        msg: ''
+                    });
+                } else {
+                    me.getApplication().fireEvent('acknowledge', text);
+                }
+            }
         });
         confirmationWindow.on('close', function () {
             this.destroy();
@@ -151,12 +177,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     },
 
-    onDetailActionMenuValidateClick: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-    },
-
-    getValidationContent: function (lastSelected) {
+    getValidationContent: function () {
         var me = this;
         return Ext.create('Ext.container.Container', {
             defaults: {
@@ -169,8 +190,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     itemId: 'validateRegisterFromDate',
                     editable: false,
                     showToday: false,
-                    value: new Date(lastSelected.data.detailedValidationInfo.lastChecked),
-                    fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validation.item1', 'MDC', 'The data of this register will be validated starting from'),
+                    value: new Date(me.dataValidationLastChecked),
+                    fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validation.item1', 'MDC', 'The data of the register will be validated starting from'),
                     labelWidth: 400,
                     labelPad: 0.5
                 },
@@ -195,31 +216,46 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         });
     },
 
-    validateRegisterData: function(lastSelected) {
+    activateDataValidation: function (record, confWindow) {
         var me = this;
 
         Ext.Ajax.request({
-                url: '../../api/ddr/devices/' + me.mRID + '/registers/' + lastSelected.data.registerId + 'validate',
-                method: 'PUT',
-                timeout: 600000,
-                success: function () {
-                    me.destroyConfirmationWindow();
-                    me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation on device {0} was completed successfully'));
-                },
-                failure: function (response) {
-                    if (confWindow) {
-                        var res = Ext.JSON.decode(response.responseText);
-                        confWindow.down('#validationProgress').removeAll(true);
-                        me.showValidationActivationErrors(res.errors[0].msg);
-                        me.confirmationWindowButtonsDisable(false);
-                    }
-                },
-                callback: function () {
-                    Ext.Ajax.resumeEvent('requestexception');
+            url: '../../api/ddr/devices/' + me.mRID + '/registers/' + me.registerId + '/validate',
+            method: 'PUT',
+            jsonData: {
+                lastChecked: confWindow.down('#validateRegisterFromDate').getValue().getTime()
+            },
+            success: function () {
+                confWindow.removeAll(true);
+                confWindow.destroy();
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translatePlural('deviceregisterconfiguration.validation.completed', me.registerName, 'MDC', 'Data validation on register {0} was completed successfully'));
+                Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].getSelectionModel(), record);
+            },
+            failure: function (response) {
+                if (confWindow) {
+                    var res = Ext.JSON.decode(response.responseText);
+                    me.showValidationActivationErrors(res.errors[0].msg);
                 }
-            });
-        }
+            },
+            callback: function () {
+                Ext.Ajax.resumeEvent('requestexception');
+            }
+        });
+    },
 
+    showValidationActivationErrors: function (errors) {
+        if (Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0]) {
+            Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').update(errors);
+            Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').setVisible(true);
+        }
+    },
+
+    hideValidationActionMenuItems: function () {
+        var me=this;
+        me.getDeviceRegisterConfigurationPreview().down('#gridPreviewActionMenu menu menuitem[action=validate]').hide();
+        // Ext.ComponentQuery.query('#detailActionMenu menu menuitem[action=validate]')[0].hide();
+        // Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid uni-actioncolumn menu menuitem[action=validate]')[0].hide();
+    }
 });
 

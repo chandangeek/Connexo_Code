@@ -360,11 +360,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 me.operation = currentCmp.down('#searchitemsactionselect').getValue().operation;
                 break;
             case 'selectSchedules':
-                if (me.getSchedulesGrid().isAllSelected()) {
-                    me.schedules = me.getSchedulesGrid().store.data.items
-                } else {
-                    me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
-                }
+                me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
                 errorPanel = currentCmp.down('#step3-errors');
                 validation = me.schedules.length;
                 break;
@@ -410,8 +406,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             title;
         if (me.operation) {
             var items = Ext.ComponentQuery.query('#searchitemsbulkactiontitle');
-            (me.operation == 'add') && (title = Uni.I18n.translate('searchItems.bulk.addActionTitle', 'MDC', 'Add communication schedules'));
-            (me.operation == 'remove') && (title = Uni.I18n.translate('searchItems.bulk.removeActionTitle', 'MDC', 'Remove communication schedules'));
+            (me.operation == 'add') && (title = Uni.I18n.translate('searchItems.bulk.addActionTitle', 'MDC', 'Add shared communication schedules'));
+            (me.operation == 'remove') && (title = Uni.I18n.translate('searchItems.bulk.removeActionTitle', 'MDC', 'Remove shared communication schedules'));
             (items.length > 0) && Ext.each(items, function (item) {
                 item.setTitle(title);
             })
@@ -428,7 +424,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             scheduleList = '',
             unit,
             deviceCount = (me.allDevices ? Uni.I18n.translate('searchItems.bulk.all', 'MDC', 'all') : false) || me.devices.length;
-        scheduleWord = Uni.I18n.translatePlural('searchItems.bulk.comSchedules', parseInt(me.schedules.length), 'MDC', 'communication schedules');
+        scheduleWord = Uni.I18n.translatePlural('searchItems.bulk.comSchedules', parseInt(me.schedules.length), 'MDC', 'shared communication schedules');
         deviceWord = Uni.I18n.translatePlural('searchItems.bulk.devices', parseInt(Ext.isString(deviceCount) ? 0 : deviceCount), 'MDC', 'devices');
         if (me.schedules.length === 1) {
             scheduleList = '\'' + me.schedules[0].get('name') + '\'';
@@ -440,12 +436,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         switch (me.operation) {
             case 'add':
                 startStr = Uni.I18n.translate('general.add', 'MDC', 'Add');
-                finishStr = Uni.I18n.translate('searchItems.bulk.addMsg', 'MDC', 'The selected devices will execute the chosen communication schedules');
+                finishStr = Uni.I18n.translate('searchItems.bulk.addMsg', 'MDC', 'The selected devices will execute the chosen shared communication schedules');
                 unit = Uni.I18n.translate('general.unitTo', 'MDC', 'to');
                 break;
             case 'remove':
                 startStr = Uni.I18n.translate('general.remove', 'MDC', 'Remove');
-                finishStr = Uni.I18n.translate('searchItems.bulk.removeMsg', 'MDC', 'The selected devices will not execute the chosen communication schedules');
+                finishStr = Uni.I18n.translate('searchItems.bulk.removeMsg', 'MDC', 'The selected devices will not execute the chosen shared communication schedules');
                 unit = Uni.I18n.translate('general.unitFrom', 'MDC', 'from');
                 break;
         }

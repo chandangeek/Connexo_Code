@@ -18,6 +18,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             allowBlank: false,
             name: 'numberOfSimultaneousConnections',
             minValue: 1,
+            stripCharsRe: /\D/,
             listeners: {
                 blur: {
                     fn: function(field){
@@ -37,6 +38,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             allowBlank: false,
             name: 'portNumber',
             minValue: 0,
+            stripCharsRe: /\D/,
             listeners: {
                 blur: {
                     fn: function(field){

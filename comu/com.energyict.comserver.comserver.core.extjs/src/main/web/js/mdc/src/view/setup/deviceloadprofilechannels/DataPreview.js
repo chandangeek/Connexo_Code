@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
     title: '',
     frame: true,
 
+    /* Commented because of JP-5861
     tools: [
         {
             xtype: 'button',
@@ -17,6 +18,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
             iconCls: 'x-uni-action-iconD'
         }
     ],
+    */
 
     items: {
         xtype: 'form',

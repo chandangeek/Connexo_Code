@@ -83,7 +83,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
                         url: url,
                         method: 'DELETE',
                         success: function () {
-                            self.getApplication().fireEvent('acknowledge', 'Successfully removed');
+                            self.getApplication().fireEvent('acknowledge', 'Logbook configuration removed');
                             grid.getStore().load({
                                     callback: function () {
                                         var gridView = grid.getView(),

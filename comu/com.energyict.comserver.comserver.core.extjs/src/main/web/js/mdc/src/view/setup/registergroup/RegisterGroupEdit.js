@@ -179,7 +179,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                     {
                                         xtype: 'image',
                                         margin: '0 10 0 0',
-                                        src: '../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png',
+                                        src: '../sky/build/resources/images/shared/icon-info-small.png',
                                         height: 20,
                                         width: 20
                                     },

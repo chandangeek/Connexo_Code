@@ -99,8 +99,6 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                                         xtype: 'button',
                                         itemId: 'restoreAllButton',
                                         action: 'restoreAll',
-                                        //iconCls: 'x-uni-action-iconD',
-                                        //icon: '../ext/packages/uni-theme-skyline/resources/images/form/restore.png',
                                         margin: '0 0 0 10',
                                         disabled: true
                                     },

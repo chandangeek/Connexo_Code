@@ -69,7 +69,10 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 align: 'stretch'
                             },
                             defaults: {
-                                labelWidth: 250
+                                labelWidth: 250,
+                                renderer: function(value){
+                                    return value?value:'-';
+                                }
                             },
                             items: [
                                 {
@@ -84,8 +87,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'connectionMethod',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.connectionMethod', 'MDC', 'Connection method')
-
+                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.connectionMethod', 'MDC', 'Connection method'),
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -101,7 +103,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                         if (value) {
                                             return new Date(value).toLocaleString();
                                         } else {
-                                            return '';
+                                            return '-';
                                         }
                                     }
 
@@ -114,7 +116,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                         if (value) {
                                             return new Date(value).toLocaleString();
                                         } else {
-                                            return '';
+                                            return '-';
                                         }
                                     }
 
@@ -149,7 +151,10 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 align: 'stretch'
                             },
                             defaults: {
-                                labelWidth: 250
+                                labelWidth: 250,
+                                renderer: function(value){
+                                    return value?value:'-';
+                                }
                             },
                             items: [
                                 {
@@ -160,7 +165,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                         if(value){
                                             return Mdc.util.ScheduleToStringConverter.convert(value);
                                         } else {
-                                            return '';
+                                            return '-';
                                         }
                                     }
                                 },
@@ -182,7 +187,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                         if (value) {
                                             return new Date(value).toLocaleString();
                                         } else {
-                                            return '';
+                                            return '-';
                                         }
                                     }
                                 }

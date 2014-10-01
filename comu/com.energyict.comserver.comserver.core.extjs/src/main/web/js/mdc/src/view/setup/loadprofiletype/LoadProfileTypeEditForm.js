@@ -55,12 +55,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             fieldLabel: 'Measurement types',
             itemId: 'measurement-types-fieldcontainer',
             required: true,
+            msgTarget: 'under',
             items: [
                 {
                     xtype: 'gridpanel',
                     itemId: 'measurement-types-grid',
                     hideHeaders: true,
                     store: 'Mdc.store.SelectedMeasurementTypesForLoadProfileType',
+                    padding: 0,
                     columns: [
                         {
                             text: 'Name',
@@ -91,14 +93,24 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                     ]
                 },
                 {
-                    name: 'measurementTypesErrors',
-                    layout: 'hbox',
+                    xtype: 'component',
+                    itemId: 'measurement-types-errors',
+                    cls: 'x-form-invalid-under',
                     hidden: true,
-                    defaults: {
-                        xtype: 'container'
-                    }
+                    height: 36
                 }
-            ]
+            ],
+            markInvalid: function (msg) {
+                var errorComponent = this.down('#measurement-types-errors');
+
+                errorComponent.update(msg);
+                errorComponent.show();
+                this.down('#measurement-types-grid').setUI('wrong-data');
+            },
+            clearInvalid: function () {
+                this.down('#measurement-types-errors').hide();
+                this.down('#measurement-types-grid').setUI('default');
+            }
         },
         {
             xtype: 'fieldcontainer',

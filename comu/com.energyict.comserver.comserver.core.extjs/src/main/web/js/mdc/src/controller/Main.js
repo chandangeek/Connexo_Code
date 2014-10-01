@@ -76,7 +76,8 @@ Ext.define('Mdc.controller.Main', {
     ],
 
     init: function () {
-        var me = this;
+        var me = this,
+            historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
         if (Uni.Auth.hasPrivilege('privilege.administrate.device') ||
            (Uni.Auth.hasPrivilege('privilege.view.device'))) {
@@ -171,7 +172,7 @@ Ext.define('Mdc.controller.Main', {
                     route: 'devicecommunicationprotocols'
                 },
                 {
-                    text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Communication schedules'),
+                    text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
                     href: '#/administration/communicationschedules',
                     route: 'communicationschedules'
                 },
