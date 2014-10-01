@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.rest;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class TimeDurationAdapter extends XmlAdapter<String, TimeDuration> {

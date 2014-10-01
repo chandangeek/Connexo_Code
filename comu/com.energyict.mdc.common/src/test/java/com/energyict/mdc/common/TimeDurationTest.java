@@ -1,5 +1,6 @@
 package com.energyict.mdc.common;
 
+import com.elster.jupiter.time.TimeDuration;
 import org.junit.*;
 
 import java.util.Calendar;

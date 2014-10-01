@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.rest;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 public class TimeDurationInfo {
     public int count;

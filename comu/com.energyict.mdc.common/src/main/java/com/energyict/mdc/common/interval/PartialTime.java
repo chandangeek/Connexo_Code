@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.interval;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import org.joda.time.DateTimeConstants;
 
 import java.text.ChoiceFormat;

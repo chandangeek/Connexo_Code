@@ -1,5 +1,6 @@
 package com.energyict.mdc.common;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
 import org.joda.time.DateTimeConstants;
 import org.junit.*;
