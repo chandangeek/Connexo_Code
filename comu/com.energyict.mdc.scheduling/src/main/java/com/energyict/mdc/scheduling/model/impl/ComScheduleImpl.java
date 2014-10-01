@@ -11,7 +11,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.Global;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
 import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.events.UpdateEventType;

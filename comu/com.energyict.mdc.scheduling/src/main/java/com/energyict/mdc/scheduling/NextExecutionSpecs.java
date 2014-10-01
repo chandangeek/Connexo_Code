@@ -1,10 +1,12 @@
 package com.energyict.mdc.scheduling;
 
+import com.elster.jupiter.time.TemporalExpression;
+
 /**
  * Models the specifications that will allow a component
  * to calculate the next execution timestamp of a task.
  * <p/>
- * The calucation is based on a {@link TemporalExpression}.
+ * The calucation is based on a {@link com.elster.jupiter.time.TemporalExpression}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @see NextExecutionCalculator
@@ -20,7 +22,7 @@ public interface NextExecutionSpecs extends NextExecutionCalculator {
     public long getId ();
 
     /**
-     * Gets the {@link TemporalExpression} that specifies
+     * Gets the {@link com.elster.jupiter.time.TemporalExpression} that specifies
      * the recurring time of the execution of a task.
      *
      * @return The recurring time

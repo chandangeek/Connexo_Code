@@ -1,7 +1,7 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TemporalExpression;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 

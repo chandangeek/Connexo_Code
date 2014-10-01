@@ -1,7 +1,8 @@
 package com.energyict.mdc.scheduling;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;

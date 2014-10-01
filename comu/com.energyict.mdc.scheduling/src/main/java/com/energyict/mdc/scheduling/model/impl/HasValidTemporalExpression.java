@@ -8,7 +8,7 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * Models the validation constraints for a {@link com.energyict.mdc.scheduling.TemporalExpression}.
+ * Models the validation constraints for a {@link com.elster.jupiter.time.TemporalExpression}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-06 (08:51)

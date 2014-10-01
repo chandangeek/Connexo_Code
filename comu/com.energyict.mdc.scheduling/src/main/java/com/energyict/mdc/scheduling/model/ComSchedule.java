@@ -5,7 +5,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 import java.util.Calendar;
 import java.util.Date;

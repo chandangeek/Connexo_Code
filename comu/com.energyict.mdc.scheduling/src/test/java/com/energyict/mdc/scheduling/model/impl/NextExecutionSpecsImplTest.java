@@ -4,10 +4,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
