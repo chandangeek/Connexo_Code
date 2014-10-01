@@ -1,10 +1,18 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -14,15 +22,6 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.DeviceValidation;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 
@@ -40,7 +39,6 @@ import javax.ws.rs.core.Response;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -50,16 +48,14 @@ public class DeviceValidationResource {
     private final ResourceHelper resourceHelper;
     private final ValidationService validationService;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final DeviceDataService deviceDataService;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
 
     @Inject
-    public DeviceValidationResource(ResourceHelper resourceHelper, ValidationService validationService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
+    public DeviceValidationResource(ResourceHelper resourceHelper, ValidationService validationService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.validationService = validationService;
-        this.deviceDataService = deviceDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
@@ -178,12 +174,6 @@ public class DeviceValidationResource {
             deviceValidationStatusInfo.allDataValidated &= statuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
         }
-    }
-
-    private boolean intersect(Collection<String> first, Collection<? extends ReadingType> second) {
-        return second.stream()
-                .map(ReadingType::getMRID)
-                .anyMatch(first::contains);
     }
 
     private void collectRegisterData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {

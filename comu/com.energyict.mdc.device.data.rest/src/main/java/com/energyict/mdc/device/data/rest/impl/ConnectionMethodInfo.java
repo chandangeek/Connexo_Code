@@ -1,14 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStateAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -16,14 +13,15 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This Info element represents the PartialConnectionTask in the domain model
@@ -67,7 +65,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     }
 
 
-    protected void writeTo(T connectionTask, PartialConnectionTask partialConnectionTask, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
+    protected void writeTo(T connectionTask, PartialConnectionTask partialConnectionTask, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
         if (this.properties !=null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
@@ -81,5 +79,6 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     }
 
 
-    public abstract ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
+    public abstract ConnectionTask<?,?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
+
 }

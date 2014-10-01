@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -11,16 +8,19 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import java.util.Calendar;
-import java.util.List;
+
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.util.conditions.Condition;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -37,11 +37,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Calendar;
+import java.util.List;
 
 @Path("/devices")
 public class DeviceResource {
     private final DeviceImportService deviceImportService;
-    private final DeviceDataService deviceDataService;
+    private final ConnectionTaskService connectionTaskService;
+    private final DeviceService deviceService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
@@ -62,7 +65,8 @@ public class DeviceResource {
     public DeviceResource(
             ResourceHelper resourceHelper,
             DeviceImportService deviceImportService,
-            DeviceDataService deviceDataService,
+            ConnectionTaskService connectionTaskService,
+            DeviceService deviceService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
             ConnectionMethodInfoFactory connectionMethodInfoFactory,
@@ -76,12 +80,12 @@ public class DeviceResource {
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
-            Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
-            Thesaurus thesaurus) {
+            Provider<DeviceComTaskResource> deviceComTaskResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
-        this.deviceDataService = deviceDataService;
+        this.connectionTaskService = connectionTaskService;
+        this.deviceService = deviceService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
@@ -99,13 +103,13 @@ public class DeviceResource {
     }
 
 
-	
+
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params) {
         Condition condition = resourceHelper.getQueryConditionForDevice(params);
-        Finder<Device> allDevicesFinder = deviceDataService.findAllDevices(condition);
+        Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
         List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
         return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
@@ -122,7 +126,7 @@ public class DeviceResource {
         }
 
         Calendar calendar = Calendar.getInstance();
-        Device newDevice = deviceDataService.newDevice(deviceConfiguration, info.mRID, info.mRID);
+        Device newDevice = deviceService.newDevice(deviceConfiguration, info.mRID, info.mRID);
         newDevice.setSerialNumber(info.serialNumber);
         calendar.set(Integer.parseInt(info.yearOfCertification), 1, 1);
         newDevice.setYearOfCertification(calendar.getTime());
@@ -162,7 +166,7 @@ public class DeviceResource {
         List<ConnectionMethodInfo<?>> connectionMethodInfos = connectionMethodInfoFactory.asInfoList(connectionTasks, uriInfo);
         return Response.ok(PagedInfoList.asJson("connectionMethods", connectionMethodInfos, queryParameters)).build();
     }
-	
+
     @POST
     @Path("/{mRID}/connectionmethods")
     @Produces(MediaType.APPLICATION_JSON)
@@ -170,9 +174,9 @@ public class DeviceResource {
     public Response createConnectionMethod(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils, partialConnectionTask);
+        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineModelService, device, mdcPropertyUtils, partialConnectionTask);
         if (connectionMethodInfo.isDefault) {
-            deviceDataService.setDefaultConnectionTask(task);
+            connectionTaskService.setDefaultConnectionTask(task);
         }
 
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
@@ -205,13 +209,13 @@ public class DeviceResource {
         boolean wasConnectionTaskDefault = task.isDefault();
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
 
-        connectionMethodInfo.writeTo(task, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
+        connectionMethodInfo.writeTo(task, partialConnectionTask, engineModelService, mdcPropertyUtils);
         task.save();
         pauseOrResumeTask(connectionMethodInfo, task);
         if (connectionMethodInfo.isDefault) {
-            deviceDataService.setDefaultConnectionTask(task);
+            connectionTaskService.setDefaultConnectionTask(task);
         } else if (wasConnectionTaskDefault) {
-            deviceDataService.clearDefaultConnectionTask(device);
+            connectionTaskService.clearDefaultConnectionTask(device);
         }
 
         device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -267,7 +271,7 @@ public class DeviceResource {
     public LoadProfileResource getLoadProfileResource() {
         return loadProfileResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/logbooks")
     public LogBookResource getLogBookResource() {
         return logBookResourceProvider.get();

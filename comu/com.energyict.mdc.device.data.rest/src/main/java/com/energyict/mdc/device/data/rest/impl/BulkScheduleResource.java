@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -28,18 +28,18 @@ import java.util.Map;
 public class BulkScheduleResource {
     private static final String LOAD_ALL_DEVICES = "all";
 
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private final ResourceHelper resourceHelper;
     private final SchedulingService schedulingService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public BulkScheduleResource(DeviceDataService deviceDataService, ResourceHelper resourceHelper, SchedulingService schedulingService, Thesaurus thesaurus) {
-        this.deviceDataService = deviceDataService;
+    public BulkScheduleResource(DeviceService deviceService, ResourceHelper resourceHelper, SchedulingService schedulingService, Thesaurus thesaurus) {
+        this.deviceService = deviceService;
         this.resourceHelper = resourceHelper;
         this.schedulingService = schedulingService;
         this.thesaurus = thesaurus;
-        DeviceHolder.deviceDataService = deviceDataService;
+        DeviceHolder.deviceService = deviceService;
     }
 
     @PUT
@@ -112,7 +112,7 @@ public class BulkScheduleResource {
         String loadAllDevicesAsStr = queryParameters.getFirst(LOAD_ALL_DEVICES);
         if(Boolean.parseBoolean(loadAllDevicesAsStr)) {
             Condition condition = resourceHelper.getQueryConditionForDevice(queryParameters);
-            Finder<Device> allDevicesFinder = deviceDataService.findAllDevices(condition);
+            Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
             List<Device> allDevices = allDevicesFinder.find();
             for(Device device : allDevices) {
                 deviceMap.put(device.getmRID(), new DeviceHolder(device));
@@ -143,7 +143,7 @@ public class BulkScheduleResource {
     }
 
     private static final class DeviceHolder {
-        private static DeviceDataService deviceDataService;
+        private static DeviceService deviceService;
 
         private Device device;
         private boolean obsolete;
@@ -163,7 +163,7 @@ public class BulkScheduleResource {
         }
 
         private void reload(){
-            device = deviceDataService.findByUniqueMrid(device.getmRID());
+            device = deviceService.findByUniqueMrid(device.getmRID());
             obsolete = false;
         }
 
