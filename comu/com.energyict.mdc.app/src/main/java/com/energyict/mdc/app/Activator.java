@@ -1,29 +1,16 @@
 package com.energyict.mdc.app;
 
-import com.elster.jupiter.http.whiteboard.App;
-import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.DefaultStartPage;
-import com.elster.jupiter.http.whiteboard.HttpResource;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import com.elster.jupiter.http.whiteboard.HttpActivator;
 
-
-public class Activator implements BundleActivator {
+public class Activator extends HttpActivator {
 
     public static final String HTTP_RESOURCE_ALIAS = "/multisense";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/mdc";
 
-    private volatile ServiceRegistration<App> registration;
-
-    public void start(BundleContext bundleContext) throws Exception {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/mdc", new BundleResolver(bundleContext), new DefaultStartPage("MultiSense App"));
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.energyict.mdc.app/src/main/web/js/mdc", new FileResolver(), new DefaultStartPage("Multi Sense App"));
-        App mdcApp = new App("Connexo MultiSense", "connexo", HTTP_RESOURCE_ALIAS, resource);
-        registration = bundleContext.registerService(App.class, mdcApp, null);
-    }
-
-    public void stop(BundleContext bundleContext) throws Exception {
-        registration.unregister();
+    public Activator() {
+        super(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME);
+        // EXAMPLE: Below is how to enable development mode.
+//        super(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.energyict.mdc.app/src/main/web/js/mdc", true);
     }
 
 }
