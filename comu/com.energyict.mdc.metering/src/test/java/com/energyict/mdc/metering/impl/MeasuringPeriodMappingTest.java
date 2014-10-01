@@ -2,7 +2,7 @@ package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;

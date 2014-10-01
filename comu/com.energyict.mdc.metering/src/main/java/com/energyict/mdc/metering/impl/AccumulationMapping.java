@@ -2,7 +2,7 @@ package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
 import com.energyict.mdc.metering.impl.matchers.Matcher;
 import com.energyict.mdc.metering.impl.matchers.Range;

@@ -2,7 +2,7 @@ package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 /**
  * Defines a mapping between an ObisCode + TimeDuration and a CIM MeasuringPeriod(TimeAttribute).

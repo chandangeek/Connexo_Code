@@ -1,7 +1,7 @@
 package com.energyict.mdc.metering.impl;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.metering.ReadingTypeInformation;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
