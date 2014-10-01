@@ -13,7 +13,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
