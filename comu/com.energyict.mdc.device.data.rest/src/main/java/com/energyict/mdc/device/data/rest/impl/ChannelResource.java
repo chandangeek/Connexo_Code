@@ -191,7 +191,9 @@ public class ChannelResource {
     }
 
     private void validateLoadProfile(Channel channel, Date start) {
-        channel.getDevice().forValidation().validateChannel(channel, start, clock.now());
+        if (channel.getLastReading() != null && (start == null || channel.getLastReading().after(start))) {
+            channel.getDevice().forValidation().validateChannel(channel, start, channel.getLastReading());
+        }
     }
 
 
