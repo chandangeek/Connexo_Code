@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.core.Application;
 
+import com.elster.jupiter.rest.util.*;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -27,11 +28,6 @@ import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -76,6 +72,7 @@ public class DeviceApplication extends Application implements InstallService{
     private volatile ValidationService validationService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile RestQueryService restQueryService;
     private volatile Clock clock;
 
     @Override
@@ -188,6 +185,11 @@ public class DeviceApplication extends Application implements InstallService{
     }
 
     @Reference
+    public void setRestQueryService(RestQueryService restQueryService) {
+        this.restQueryService = restQueryService;
+    }
+
+    @Reference
     public void setClockService(Clock clock) {
         this.clock = clock;
     }
@@ -251,6 +253,7 @@ public class DeviceApplication extends Application implements InstallService{
             bind(validationService).to(ValidationService.class);
             bind(meteringService).to(MeteringService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
+            bind(restQueryService).to(RestQueryService.class);
             bind(clock).to(Clock.class);
             bind(DeviceComTaskInfoFactory.class).to(DeviceComTaskInfoFactory.class);
             bind(ChannelResource.class).to(ChannelResource.class);

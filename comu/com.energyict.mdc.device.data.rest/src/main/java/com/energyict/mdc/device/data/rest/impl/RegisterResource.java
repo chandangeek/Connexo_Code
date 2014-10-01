@@ -94,7 +94,9 @@ public class RegisterResource {
     }
 
     private void validateRegister(Register<?> register, Date start) {
-        register.getDevice().forValidation().validateRegister(register, start, clock.now());
+        if (register.getLastReadingDate().isPresent() && register.getLastReadingDate().get().after(start)) {
+            register.getDevice().forValidation().validateRegister(register, start, register.getLastReadingDate().get());
+        }
     }
 
     private Register<?> doGetRegister(String mRID, long registerId) {
@@ -154,7 +156,7 @@ public class RegisterResource {
     }
 
     private Interval lastYear() {
-        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.of("UTC")).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusYears(1);
         return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
     }
