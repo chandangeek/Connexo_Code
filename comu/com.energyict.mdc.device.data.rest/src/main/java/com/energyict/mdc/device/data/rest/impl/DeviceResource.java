@@ -56,6 +56,7 @@ public class DeviceResource {
     private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
     private final Provider<DeviceScheduleResource> deviceScheduleResourceProvider;
     private final Provider<DeviceComTaskResource> deviceComTaskResourceProvider;
+    private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
@@ -77,7 +78,7 @@ public class DeviceResource {
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
             Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
-            Thesaurus thesaurus) {
+            Thesaurus thesaurus, Provider<SecurityPropertySetResource> securityPropertySetResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -96,6 +97,7 @@ public class DeviceResource {
         this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
         this.deviceScheduleResourceProvider = deviceScheduleResourceProvider;
         this.deviceComTaskResourceProvider = deviceComTaskResourceProvider;
+        this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
     }
 
 
@@ -285,4 +287,10 @@ public class DeviceResource {
 
     @Path("/{mRID}/comtasks")
     public DeviceComTaskResource getComTaskResource(){return deviceComTaskResourceProvider.get();}
+
+    @Path("/{mRID}/securityproperties")
+    public SecurityPropertySetResource getSecurityPropertySetResource() {
+        return securityPropertySetResourceProvider.get();
+    }
+
 }

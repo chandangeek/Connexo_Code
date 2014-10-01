@@ -97,7 +97,8 @@ public class DeviceApplication extends Application implements InstallService{
                 LogBookResource.class,
                 DeviceFieldResource.class,
                 ChannelResource.class,
-                DeviceGroupResource.class
+                DeviceGroupResource.class,
+                SecurityPropertySetResource.class
         );
     }
 
@@ -245,6 +246,7 @@ public class DeviceApplication extends Application implements InstallService{
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(clock).to(Clock.class);
             bind(DeviceComTaskInfoFactory.class).to(DeviceComTaskInfoFactory.class);
+            bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
             bind(ChannelResource.class).to(ChannelResource.class);
             bind(ValidationInfoHelper.class).to(ValidationInfoHelper.class);
         }
