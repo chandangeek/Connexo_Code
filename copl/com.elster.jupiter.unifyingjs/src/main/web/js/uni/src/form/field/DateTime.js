@@ -1,3 +1,29 @@
+/**
+ * @class Uni.form.field.DateTime
+ *
+ * This class contains the DateTime field.
+ *
+ *     Ext.create('Uni.form.field.DateTime', {
+ *       itemId: 'endOfInterval',
+ *       name: 'intervalStart',
+ *       fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From'),
+ *       labelAlign: 'top',
+ *       dateConfig: {
+ *         width: 100,
+ *         submitValue: true,
+ *       }
+ *       hoursConfig: {
+ *         maxValue: 20
+ *       }
+ *       minutesConfig: {
+ *         minValue: 0
+ *       }
+ *       separatorConfig: {
+ *         html: ':',
+ *       }
+ *     });
+ *
+ */
 Ext.define('Uni.form.field.DateTime', {
     extend: 'Ext.form.FieldContainer',
     mixins: {
@@ -10,9 +36,29 @@ Ext.define('Uni.form.field.DateTime', {
         'Ext.form.field.Number',
         'Ext.container.Container'
     ],
+
+    /**
+     * @cfg {Object} dateConfig
+     * Configuration for dateField allows you override or add any property of this field.
+     */
     dateConfig: null,
+
+    /**
+     * @cfg {Object} hoursConfig
+     * Configuration for hoursField allows you override or add any property of this field.
+     */
     hoursConfig: null,
+
+    /**
+     * @cfg {Object} separatorConfig
+     * Configuration for separatorField allows you override or add any property of this field.
+     */
     separatorConfig: null,
+
+    /**
+     * @cfg {Object} minutesConfig
+     * Configuration for minutesField allows you override or add any property of this field.
+     */
     minutesConfig: null,
 
     initComponent: function () {
