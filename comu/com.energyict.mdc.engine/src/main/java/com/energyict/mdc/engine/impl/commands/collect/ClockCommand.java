@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.tasks.ClockTask;
 
 /**

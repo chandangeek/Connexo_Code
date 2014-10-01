@@ -1,9 +1,8 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Models the operational statistics that are gathered by the process

@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.tools;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 /**
  * Provides tools to handle {@link TimeDuration TimeDurations}

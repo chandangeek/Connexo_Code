@@ -13,8 +13,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;

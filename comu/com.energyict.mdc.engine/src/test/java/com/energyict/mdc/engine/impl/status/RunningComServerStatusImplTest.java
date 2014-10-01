@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.status;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatistics;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;

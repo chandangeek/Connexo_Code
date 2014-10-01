@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;

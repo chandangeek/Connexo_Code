@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.data.DeviceDataService;

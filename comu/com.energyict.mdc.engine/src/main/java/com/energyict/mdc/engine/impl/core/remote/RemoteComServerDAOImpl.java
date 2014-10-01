@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.remote;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;

@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.tools;
 
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.impl.tools.TimeDurations;
+import com.elster.jupiter.time.TimeDuration;
 import org.junit.*;
 
 import static org.junit.Assert.*;
