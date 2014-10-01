@@ -32,18 +32,14 @@ import javax.ws.rs.core.UriInfo;
  */
 public class MdcPropertyUtils {
 
-    public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, List<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
+    public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
         for (PropertySpec<?> propertySpec : propertySpecs) {
-            PropertyInfo propertyInfo = createPropertyInfo(uriInfo, properties, propertySpec);
+            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
+            SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
+            PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType);
+            PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
-    }
-
-    private PropertyInfo createPropertyInfo(UriInfo uriInfo, TypedProperties properties, PropertySpec<?> propertySpec) {
-        PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
-        SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
-        PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType);
-        return new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }
 
     private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec) {
