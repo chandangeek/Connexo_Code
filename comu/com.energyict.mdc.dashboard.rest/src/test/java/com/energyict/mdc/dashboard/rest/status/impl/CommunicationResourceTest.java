@@ -2,7 +2,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -24,7 +24,7 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
