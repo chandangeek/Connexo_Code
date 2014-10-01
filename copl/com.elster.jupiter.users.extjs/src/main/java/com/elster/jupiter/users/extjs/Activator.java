@@ -1,27 +1,16 @@
 package com.elster.jupiter.users.extjs;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import com.elster.jupiter.http.whiteboard.HttpActivator;
 
-import com.elster.jupiter.http.whiteboard.*;
+public class Activator extends HttpActivator {
 
-import java.util.Arrays;
+    public static final String HTTP_RESOURCE_ALIAS = "/usr";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/usr";
 
-
-public class Activator implements BundleActivator {
-
-	private volatile ServiceRegistration<HttpResource> registration;
-	
-	public void start(BundleContext bundleContext) throws Exception {
-		String alias = "/usr";
-		DefaultStartPage usr = new DefaultStartPage("Usr", "", "/index.html", "Usr.controller.Main",null, Arrays.asList("USR"));
-        HttpResource resource = new HttpResource(alias, "/js/usr" , new BundleResolver(bundleContext), usr);
-        registration = bundleContext.registerService(HttpResource.class, resource , null);
-	}
-	
-	public void stop(BundleContext bundleContext) throws Exception {
-		registration.unregister();
-	}
+    public Activator() {
+        super(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME);
+        // EXAMPLE Below is how to enable development mode.
+//        super(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.users.extjs/src/main/web/js/usr", true);
+    }
 
 }
