@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.channels.serial.modem;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 

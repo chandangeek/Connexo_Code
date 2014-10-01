@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.util.Date;
 

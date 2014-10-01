@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 

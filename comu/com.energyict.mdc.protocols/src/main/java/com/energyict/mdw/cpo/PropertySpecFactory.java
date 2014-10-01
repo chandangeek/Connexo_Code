@@ -1,7 +1,7 @@
 package com.energyict.mdw.cpo;
 
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueFactory;
 

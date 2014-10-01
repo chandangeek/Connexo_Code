@@ -1,7 +1,7 @@
 package com.energyict.mdw.dynamicattributes;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeType;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Seed;

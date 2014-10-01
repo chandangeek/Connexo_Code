@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.channels.serial.modem;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
