@@ -2,7 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
