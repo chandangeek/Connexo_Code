@@ -394,4 +394,9 @@ public final class ChannelImpl implements ChannelContract {
 		storer.addReading(this, reading, processStatus);
 		storer.execute();			
 	}
+	
+	@Override
+	public void removeReadings(List<? extends BaseReadingRecord> readings) {
+		readings.forEach(reading -> timeSeries.get().removeEntry(reading.getTimeStamp().toInstant()));
+	}
 }

@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 public interface Channel {
 	long getId();
 	MeterActivation getMeterActivation();
+	@Deprecated
 	TimeSeries getTimeSeries();
     List<? extends ReadingType> getReadingTypes();
     List<IntervalReadingRecord> getIntervalReadings(Interval interval);
@@ -40,4 +41,5 @@ public interface Channel {
 	boolean hasMacroPeriod();
     boolean hasData();
 	void editReadings(List<? extends BaseReading> readings);
+	void removeReadings(List<? extends BaseReadingRecord> readings);
 }

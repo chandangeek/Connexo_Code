@@ -199,11 +199,15 @@ public class MeterReadingStorerTest {
         	ProfileStatus status = ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW);
         	block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100),status));
         	meter.store(meterReading);
-            List<BaseReadingRecord> readings = meter.getMeterActivations().get(0).getChannels().get(0).getReadings(new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()));
+        	Channel channel = meter.getMeterActivations().stream().flatMap(ma -> ma.getChannels().stream()).findFirst().get();
+            List<BaseReadingRecord> readings = channel.getReadings(new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()));
             assertThat(readings).hasSize(2);
             assertThat(readings.get(0).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1000));
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1100));
             assertThat(((IntervalReadingRecord) readings.get(1)).getProfileStatus()).isEqualTo(status);
+            Interval interval = new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate());
+            channel.removeReadings(readings);
+            assertThat(channel.getReadings(interval)).isEmpty();
             ctx.commit();
         }
     }
