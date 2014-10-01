@@ -1,7 +1,9 @@
 package com.elster.jupiter.util.time;
 
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 
@@ -28,7 +30,7 @@ public final class Interval {
         if (this.start > this.end) {
             throw new IllegalArgumentException("Start cannot be later than end.");
         }
-	}
+	} 
 
     private Interval(long start, long end) {
         this.start = start;
@@ -38,6 +40,10 @@ public final class Interval {
         }
     }
 
+    public static Interval of(Instant start, Instant end) {
+    	return new Interval(start == null ? null : Date.from(start), end == null ? null : Date.from(end));
+    }
+    
     /**
      * Static factory method to create an infinite Interval that starts at the given Date.
      * @param start
@@ -86,7 +92,38 @@ public final class Interval {
 		return this.overlaps(interval);
 	}
 	
- 
+	public Range<Instant> toOpenClosedRange() {
+		return (start == -ETERNITY) ?
+			(end == ETERNITY ? Range.all() : Range.lessThan(Instant.ofEpochMilli(end))) :
+			(end == ETERNITY ? 
+					Range.atLeast(Instant.ofEpochMilli(start)) :
+					Range.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(this.end)));
+	}
+	
+	public Range<Instant> toClosedOpenRange() {
+		return (start == -ETERNITY) ?
+			(end == ETERNITY ? Range.all() : Range.atMost(Instant.ofEpochMilli(end))) :
+			(end == ETERNITY ? 
+					Range.greaterThan(Instant.ofEpochMilli(start)) :
+					Range.closedOpen(Instant.ofEpochMilli(start), Instant.ofEpochMilli(this.end)));
+	}
+	
+	public Range<Instant> toClosedRange() {
+		return (start == -ETERNITY) ?
+			(end == ETERNITY ? Range.all() : Range.atMost(Instant.ofEpochMilli(end))) :
+			(end == ETERNITY ? 
+					Range.atLeast(Instant.ofEpochMilli(start)) :
+					Range.closed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(this.end)));
+	}
+	
+	public Range<Instant> toOpenRange() {
+		return (start == -ETERNITY) ?
+			(end == ETERNITY ? Range.all() : Range.lessThan(Instant.ofEpochMilli(end))) :
+			(end == ETERNITY ? 
+					Range.greaterThan(Instant.ofEpochMilli(start)) :
+					Range.open(Instant.ofEpochMilli(start), Instant.ofEpochMilli(this.end)));
+	}
+	
     private boolean contains(long when,EndpointBehavior behavior) {
     	return behavior.contains(this,when);
     }

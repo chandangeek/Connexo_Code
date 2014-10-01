@@ -157,22 +157,34 @@ public class IntervalTest extends EqualsContractTest {
     	for (Interval.EndpointBehavior each : Interval.EndpointBehavior.values()) {
     		assertThat(new Interval(date2, date4).contains(date3,each)).isTrue();
     	}
+    	assertThat(new Interval(date2,date4).toClosedOpenRange().contains(date3.toInstant())).isTrue();
+    	assertThat(new Interval(date2,date4).toOpenRange().contains(date3.toInstant())).isTrue();
+    	assertThat(new Interval(date2,date4).toClosedRange().contains(date3.toInstant())).isTrue();
+    	assertThat(new Interval(date2,date4).toOpenClosedRange().contains(date3.toInstant())).isTrue();
     }
 
     @Test
     public void testFiniteIntervalAtStart() {
         assertThat(new Interval(date2, date4).contains(date2,CLOSED_OPEN)).isTrue();
+        assertThat(new Interval(date2, date4).toClosedOpenRange().contains(date2.toInstant())).isTrue();
         assertThat(new Interval(date2, date4).contains(date2,CLOSED_CLOSED)).isTrue();
+        assertThat(new Interval(date2, date4).toClosedRange().contains(date2.toInstant())).isTrue();
         assertThat(new Interval(date2, date4).contains(date2,OPEN_CLOSED)).isFalse();
+        assertThat(new Interval(date2, date4).toOpenClosedRange().contains(date2.toInstant())).isFalse();
         assertThat(new Interval(date2, date4).contains(date2,OPEN_OPEN)).isFalse();
+        assertThat(new Interval(date2, date4).toOpenClosedRange().contains(date2.toInstant())).isFalse();
     }
 
     @Test
     public void testFiniteIntervalAtEnd() {
         assertThat(new Interval(date2, date4).contains(date4,CLOSED_OPEN)).isFalse();
+        assertThat(new Interval(date2, date4).toClosedOpenRange().contains(date4.toInstant())).isFalse();
         assertThat(new Interval(date2, date4).contains(date4,OPEN_OPEN)).isFalse();
+        assertThat(new Interval(date2, date4).toOpenRange().contains(date4.toInstant())).isFalse();
         assertThat(new Interval(date2, date4).contains(date4,CLOSED_CLOSED)).isTrue();
+        assertThat(new Interval(date2, date4).toClosedRange().contains(date4.toInstant())).isTrue();
         assertThat(new Interval(date2, date4).contains(date4,OPEN_CLOSED)).isTrue();
+        assertThat(new Interval(date2, date4).toOpenClosedRange().contains(date4.toInstant())).isTrue();
     }
 
     @Test
@@ -180,14 +192,22 @@ public class IntervalTest extends EqualsContractTest {
     	for (Interval.EndpointBehavior each : Interval.EndpointBehavior.values()) {
     		assertThat(new Interval(null, null).contains(date3,each)).isTrue();
     	}
+    	assertThat(new Interval(null,null).toClosedOpenRange().contains(date3.toInstant())).isTrue();
+    	assertThat(new Interval(null,null).toOpenRange().contains(date3.toInstant())).isTrue();
+    	assertThat(new Interval(null,null).toClosedRange().contains(date3.toInstant())).isTrue();
+    	assertThat(new Interval(null,null).toOpenClosedRange().contains(date3.toInstant())).isTrue();
     }
 
     @Test
     public void testEmptyInterval() {
         assertThat(new Interval(date2, date2).contains(date2,CLOSED_OPEN)).isFalse();
+        assertThat(new Interval(date2,date2).toClosedOpenRange().contains(date2.toInstant())).isFalse();
         assertThat(new Interval(date2, date2).contains(date2,OPEN_CLOSED)).isFalse();
+        assertThat(new Interval(date2,date2).toOpenClosedRange().contains(date2.toInstant())).isFalse();
         assertThat(new Interval(date2, date2).contains(date2,OPEN_OPEN)).isFalse();
+        //assertThat(new Interval(date2,date2).open().contains(date2.toInstant())).isFalse();
         assertThat(new Interval(date2, date2).contains(date2,CLOSED_CLOSED)).isTrue();
+        assertThat(new Interval(date2,date2).toClosedRange().contains(date2.toInstant())).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)

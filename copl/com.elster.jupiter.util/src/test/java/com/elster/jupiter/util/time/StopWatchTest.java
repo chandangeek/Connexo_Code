@@ -46,7 +46,7 @@ public class StopWatchTest {
     	stopWatch2.stop();
     	try {
     		Thread.sleep(10L);
-    		for (int i = 0 ; i < 1000000 ; i++) {
+    		for (int i = 0 ; i < 10000000 ; i++) {
     			Math.pow(i, 7);
     		}
     	} catch (InterruptedException ex) {
