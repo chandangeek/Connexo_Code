@@ -9,6 +9,7 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
@@ -79,6 +80,11 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     @Override
     public String getIdentifier() {
         return Integer.toString(id);
+    }
+
+    @Override
+    public DeviceIdentifierType getDeviceIdentifierType() {
+        return DeviceIdentifierType.DataBaseId;
     }
 
     private DeviceFactory getDeviceFactory() {

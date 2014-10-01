@@ -6,6 +6,7 @@ import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
@@ -90,6 +91,11 @@ public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     @Override
     public String getIdentifier() {
         return callHomeID;
+    }
+
+    @Override
+    public DeviceIdentifierType getDeviceIdentifierType() {
+        return DeviceIdentifierType.CallHomeId;
     }
 
     @Override
