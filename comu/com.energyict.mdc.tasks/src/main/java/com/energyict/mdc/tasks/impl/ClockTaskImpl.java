@@ -2,7 +2,7 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;

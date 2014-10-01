@@ -1,6 +1,6 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 /**
  * Models the {@link com.energyict.mdc.tasks.ProtocolTask} which serves basic functionality.

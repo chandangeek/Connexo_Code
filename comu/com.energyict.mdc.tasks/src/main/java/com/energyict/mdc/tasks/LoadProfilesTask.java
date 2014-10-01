@@ -1,6 +1,6 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import java.util.List;
 

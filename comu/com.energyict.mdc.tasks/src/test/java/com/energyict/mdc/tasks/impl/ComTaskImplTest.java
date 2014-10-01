@@ -3,7 +3,7 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.BasicCheckTask;
