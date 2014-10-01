@@ -8,8 +8,10 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
@@ -28,7 +30,8 @@ public abstract class AbstractEvent implements IssueEvent {
 
     private final IssueService issueService;
     private final MeteringService meteringService;
-    private final DeviceDataService deviceDataService;
+    private final CommunicationTaskService communicationTaskService;
+    private final DeviceService deviceService;
     private final Thesaurus thesaurus;
 
     private Device device;
@@ -36,15 +39,16 @@ public abstract class AbstractEvent implements IssueEvent {
     private IssueStatus status;
     private DataCollectionEventDescription eventDescription;
 
-    protected AbstractEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus) {
+    protected AbstractEvent(IssueService issueService, MeteringService meteringService, CommunicationTaskService communicationTaskService, DeviceService deviceService, Thesaurus thesaurus) {
         this.issueService = issueService;
         this.meteringService = meteringService;
-        this.deviceDataService = deviceDataService;
+        this.communicationTaskService = communicationTaskService;
+        this.deviceService = deviceService;
         this.thesaurus = thesaurus;
     }
 
-    public AbstractEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
-        this(issueService, meteringService, deviceDataService, thesaurus);
+    public AbstractEvent(IssueService issueService, MeteringService meteringService, CommunicationTaskService communicationTaskService, DeviceService deviceService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
+        this(issueService, meteringService, communicationTaskService, deviceService, thesaurus);
         init(rawEvent);
     }
 
@@ -85,7 +89,7 @@ public abstract class AbstractEvent implements IssueEvent {
             id = Long.valueOf(amrId);
         } catch (NumberFormatException e) {
         }
-        return getDeviceDataService().findDeviceById(id);
+        return getDeviceService().findDeviceById(id);
     }
 
     public EndDevice findEndDeviceByDevice() {
@@ -105,8 +109,12 @@ public abstract class AbstractEvent implements IssueEvent {
         return meteringService;
     }
 
-    protected DeviceDataService getDeviceDataService() {
-        return deviceDataService;
+    protected CommunicationTaskService getCommunicationTaskService() {
+        return communicationTaskService;
+    }
+
+    protected DeviceService getDeviceService() {
+        return deviceService;
     }
 
     protected DataCollectionEventDescription getDescription() {

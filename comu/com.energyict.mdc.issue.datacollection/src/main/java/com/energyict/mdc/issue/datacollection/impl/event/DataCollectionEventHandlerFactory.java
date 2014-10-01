@@ -10,7 +10,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.DeviceDataService;
+
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -23,12 +25,13 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     private volatile IssueCreationService issueCreationService;
     private volatile IssueService issueService;
     private volatile MeteringService meteringService;
-    private volatile DeviceDataService deviceDataService;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile DeviceService deviceService;
     private volatile Thesaurus thesaurus;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new DataCollectionEventHandler(jsonService, issueService, issueCreationService, meteringService, deviceDataService, thesaurus);
+        return new DataCollectionEventHandler(jsonService, issueService, issueCreationService, meteringService, communicationTaskService, deviceService, thesaurus);
     }
 
     @Reference
@@ -52,12 +55,18 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     }
 
     @Reference
-    public final void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public final void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public final void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(ModuleConstants.COMPONENT_NAME, Layer.DOMAIN);
     }
+
 }

@@ -1,17 +1,19 @@
 package com.energyict.mdc.issue.datacollection;
 
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.issue.datacollection.impl.AbstractEvent;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
+import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.issue.datacollection.impl.AbstractEvent;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.google.common.base.Optional;
 
 import java.util.Arrays;
@@ -23,12 +25,12 @@ public class MeterIssueEvent extends AbstractEvent {
     private String endDeviceEventType;
     private EndDeviceEventRecord eventRecord;
 
-    protected MeterIssueEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus) {
-        super(issueService, meteringService, deviceDataService, thesaurus);
+    protected MeterIssueEvent(IssueService issueService, MeteringService meteringService, CommunicationTaskService communicationTaskService, DeviceService deviceService, Thesaurus thesaurus) {
+        super(issueService, meteringService, communicationTaskService, deviceService, thesaurus);
     }
 
-    public MeterIssueEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
-        super(issueService, meteringService, deviceDataService, thesaurus, rawEvent);
+    public MeterIssueEvent(IssueService issueService, MeteringService meteringService, CommunicationTaskService communicationTaskService, DeviceService deviceService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
+        super(issueService, meteringService, communicationTaskService, deviceService, thesaurus, rawEvent);
     }
 
     @Override
@@ -53,7 +55,7 @@ public class MeterIssueEvent extends AbstractEvent {
         Meter meter = meterRef.get();
         setEndDevice(meter);
 
-        Device device = getDeviceDataService().findDeviceById(Long.valueOf(meter.getAmrId()));
+        Device device = getDeviceService().findDeviceById(Long.valueOf(meter.getAmrId()));
         if (device == null) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, meter.getAmrId());
         }
@@ -67,7 +69,7 @@ public class MeterIssueEvent extends AbstractEvent {
 
     @Override
     protected AbstractEvent cloneInternal() {
-        MeterIssueEvent event = new MeterIssueEvent(getIssueService(), getMeteringService(), getDeviceDataService(), getThesaurus());
+        MeterIssueEvent event = new MeterIssueEvent(getIssueService(), getMeteringService(), getCommunicationTaskService(), getDeviceService(), getThesaurus());
         event.endDeviceEventType = endDeviceEventType;
         event.eventRecord = eventRecord;
         return event;
@@ -78,4 +80,5 @@ public class MeterIssueEvent extends AbstractEvent {
         Date start = getLastSuccessfulCommunicationEnd(concentrator);
         return concentrator.countNumberOfEndDeviceEvents(Arrays.asList(eventRecord.getEventType()), Interval.startAt(start));
     }
+
 }

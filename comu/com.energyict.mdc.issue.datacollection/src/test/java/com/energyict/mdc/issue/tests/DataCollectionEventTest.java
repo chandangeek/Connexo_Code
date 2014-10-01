@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import org.junit.Test;
@@ -29,11 +29,11 @@ public class DataCollectionEventTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, topic);
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
 
-        DeviceDataService deviceDataService = getDeviceDataService();
+        DeviceService deviceService = getDeviceDataService();
         MeteringService meteringService = mock(MeteringService.class);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceDataService.findDeviceById(1)).thenReturn(device);
+        when(deviceService.findDeviceById(1)).thenReturn(device);
 
         Meter meter = mock(Meter.class);
         Query<Meter> meterQuery = mock(Query.class);
@@ -41,7 +41,7 @@ public class DataCollectionEventTest extends BaseTest {
         when(meteringService.getMeterQuery()).thenReturn(meterQuery);
         when(meterQuery.select(Matchers.any(Condition.class))).thenReturn(Collections.singletonList(meter));
 
-        DataCollectionEvent event = new DataCollectionEvent(getIssueService(), meteringService, deviceDataService, getThesaurus(), messageMap);
+        DataCollectionEvent event = new DataCollectionEvent(getIssueService(), meteringService, getCommunicationTaskService(), deviceService, getThesaurus(), messageMap);
 
         assertThat(event.getEventType()).isEqualTo(topic);
         assertThat(event.getDevice().getAmrId()).isEqualTo("test");
