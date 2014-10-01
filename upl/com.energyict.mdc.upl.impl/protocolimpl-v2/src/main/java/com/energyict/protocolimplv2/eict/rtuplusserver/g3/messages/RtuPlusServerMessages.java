@@ -66,14 +66,14 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
             supportedMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
             supportedMessages.add(PLCConfigurationDeviceMessage.SetMetricType);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetCoordShortAddress);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetDisableDefaultRouting);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetDeviceType);
+            //supportedMessages.add(PLCConfigurationDeviceMessage.SetCoordShortAddress);
+            //supportedMessages.add(PLCConfigurationDeviceMessage.SetDisableDefaultRouting);
+            //supportedMessages.add(PLCConfigurationDeviceMessage.SetDeviceType);
 
-            supportedMessages.add(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters);
+            //supportedMessages.add(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters);
 
             supportedMessages.add(PLCConfigurationDeviceMessage.SetPanId);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetToneMaskAttributeName);
+            //supportedMessages.add(PLCConfigurationDeviceMessage.SetToneMaskAttributeName);
             supportedMessages.add(PLCConfigurationDeviceMessage.SetTMRTTL);
             supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
             supportedMessages.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
