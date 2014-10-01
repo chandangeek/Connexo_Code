@@ -20,8 +20,6 @@ import java.util.TimeZone;
  */
 public interface DeviceService {
 
-    public static String COMPONENTNAME = "DDC";
-
     /**
      * Tests if there are {@link Device} that were created
      * from the specified {@link DeviceConfiguration}.

@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Component(name = "com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider", service = {EndDeviceQueryProvider.class}, property = "name=" + DeviceService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider", service = {EndDeviceQueryProvider.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
 public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
 
     private volatile MeteringGroupsService meteringGroupsService;

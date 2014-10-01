@@ -5,6 +5,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -34,7 +35,7 @@ import java.util.List;
  * @since 2014-06-06 (13:44)
  */
 @Component(name = "com.energyict.mdc.device.data.gogo", service = DeviceDataGoGoCommands.class,
-        property = {"osgi.command.scope=" + DeviceService.COMPONENTNAME, "osgi.command.function=enableOutboundCommunication"}, immediate = true)
+        property = {"osgi.command.scope=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.function=enableOutboundCommunication"}, immediate = true)
 public class DeviceDataGoGoCommands {
 
     private volatile TransactionService transactionService;

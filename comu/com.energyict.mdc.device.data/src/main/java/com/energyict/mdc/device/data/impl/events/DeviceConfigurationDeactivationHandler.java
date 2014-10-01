@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -22,17 +21,13 @@ public class DeviceConfigurationDeactivationHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/device/config/deviceconfiguration/VALIDATEDEACTIVATE";
 
-    private volatile ServerDeviceService deviceDataService;
+    private volatile DeviceDataModelService deviceDataModelService;
     private Thesaurus thesaurus;
 
     @Reference
-    public void setDeviceDataService(DeviceService deviceService) {
-        this.setDeviceDataService((ServerDeviceService) deviceService);
-    }
-
-    private void setDeviceDataService(ServerDeviceService deviceDataService) {
-        this.deviceDataService = deviceDataService;
-        this.thesaurus = deviceDataService.getThesaurus();
+    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
+        this.deviceDataModelService = deviceDataModelService;
+        this.thesaurus = deviceDataModelService.thesaurus();
     }
 
     /**
@@ -43,7 +38,7 @@ public class DeviceConfigurationDeactivationHandler implements TopicHandler {
      * @param deviceConfiguration The ComTaskEnablement that is about to be deleted
      */
     private void validateNotUsedByDevice(DeviceConfiguration deviceConfiguration) {
-        if (this.deviceDataService.hasDevices(deviceConfiguration)) {
+        if (this.deviceDataModelService.deviceService().hasDevices(deviceConfiguration)) {
             throw new VetoDeactivateDeviceConfigurationException(this.thesaurus, deviceConfiguration);
         }
     }

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -40,6 +41,8 @@ public interface DeviceDataModelService {
     public ServerConnectionTaskService connectionTaskService();
 
     public ServerCommunicationTaskService communicationTaskService();
+
+    public ServerDeviceService deviceService();
 
     public void executeUpdate(SqlBuilder sqlBuilder);
 

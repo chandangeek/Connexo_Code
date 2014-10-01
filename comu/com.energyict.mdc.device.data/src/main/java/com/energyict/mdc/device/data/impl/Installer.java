@@ -11,7 +11,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.device.data.DeviceService;
+
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.security.Privileges;
 
@@ -108,7 +109,7 @@ public class Installer {
         List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
             try {
-                SimpleNlsKey nlsKey = SimpleNlsKey.key(DeviceService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
+                SimpleNlsKey nlsKey = SimpleNlsKey.key(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
             catch (Exception e) {

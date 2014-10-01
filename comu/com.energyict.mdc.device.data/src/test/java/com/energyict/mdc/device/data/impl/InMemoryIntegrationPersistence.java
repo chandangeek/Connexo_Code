@@ -46,6 +46,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -120,9 +121,7 @@ public class InMemoryIntegrationPersistence {
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private TaskService taskService;
-    private ServerConnectionTaskService connectionTaskService;
-    private ServerCommunicationTaskService communicationTaskService;
-    private DeviceServiceImpl deviceDataService;
+    private DeviceDataModelService deviceDataModelService;
     private SchedulingService schedulingService;
     private InMemoryBootstrapModule bootstrapModule;
     private PropertySpecService propertySpecService;
@@ -205,11 +204,9 @@ public class InMemoryIntegrationPersistence {
             this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.schedulingService = injector.getInstance(SchedulingService.class);
-            this.connectionTaskService = injector.getInstance(ServerConnectionTaskService.class);
-            this.communicationTaskService = injector.getInstance(ServerCommunicationTaskService.class);
-            this.deviceDataService = injector.getInstance(DeviceServiceImpl.class);
+            this.deviceDataModelService = injector.getInstance(DeviceDataModelService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
-            this.dataModel = this.deviceDataService.getDataModel();
+            this.dataModel = this.deviceDataModelService.dataModel();
             initializeFactoryProviders();
             createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
@@ -315,19 +312,27 @@ public class InMemoryIntegrationPersistence {
     }
 
     public ServerConnectionTaskService getConnectionTaskService() {
-        return connectionTaskService;
+        return this.deviceDataModelService.connectionTaskService();
     }
 
     public ServerCommunicationTaskService getCommunicationTaskService() {
-        return communicationTaskService;
+        return this.deviceDataModelService.communicationTaskService();
     }
 
-    public DeviceServiceImpl getDeviceDataService() {
-        return deviceDataService;
+    public ServerDeviceService getDeviceDataService() {
+        return this.deviceDataModelService.deviceService();
     }
 
     public SchedulingService getSchedulingService() {
         return schedulingService;
+    }
+
+    public DataModel getDataModel () {
+        return this.deviceDataModelService.dataModel();
+    }
+
+    public Thesaurus getThesaurus () {
+        return this.deviceDataModelService.thesaurus();
     }
 
     public Clock getClock() {

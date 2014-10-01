@@ -47,6 +47,7 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
 
 import java.sql.PreparedStatement;
@@ -83,6 +84,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private final DeviceDataModelService deviceDataModelService;
 
+    @Inject
     public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService) {
         super();
         this.deviceDataModelService = deviceDataModelService;

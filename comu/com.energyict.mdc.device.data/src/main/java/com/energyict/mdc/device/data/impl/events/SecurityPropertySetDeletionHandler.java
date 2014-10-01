@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.impl.events;
 
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -24,7 +23,7 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/device/config/securitypropertyset/VALIDATE_DELETE";
 
-    private volatile ServerDeviceService deviceDataService;
+    private volatile DeviceDataModelService deviceDataModelService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile Thesaurus thesaurus;
 
@@ -33,21 +32,16 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
     }
 
     // For testing purposes only
-    SecurityPropertySetDeletionHandler(ProtocolPluggableService protocolPluggableService, ServerDeviceService deviceDataService) {
+    SecurityPropertySetDeletionHandler(ProtocolPluggableService protocolPluggableService, DeviceDataModelService deviceDataModelService) {
         this();
-        this.setDeviceDataService(deviceDataService);
+        this.setDeviceDataModelService(deviceDataModelService);
         this.setProtocolPluggableService(protocolPluggableService);
-        this.thesaurus = deviceDataService.getThesaurus();
     }
 
     @Reference
-    public void setDeviceDataService(DeviceService deviceService) {
-        this.setDeviceDataService((ServerDeviceService) deviceService);
-    }
-
-    private void setDeviceDataService(ServerDeviceService deviceDataService) {
-        this.deviceDataService = deviceDataService;
-        this.thesaurus = deviceDataService.getThesaurus();
+    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
+        this.deviceDataModelService = deviceDataModelService;
+        this.thesaurus = deviceDataModelService.thesaurus();
     }
 
     @Reference

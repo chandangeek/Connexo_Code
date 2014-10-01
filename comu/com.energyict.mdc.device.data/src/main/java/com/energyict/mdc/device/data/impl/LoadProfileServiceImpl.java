@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.impl.finders.LoadProfileFinder;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 
 import com.google.common.base.Optional;
+import com.google.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class LoadProfileServiceImpl implements LoadProfileService, ReferenceProp
 
     private final DeviceDataModelService deviceDataModelService;
 
+    @Inject
     public LoadProfileServiceImpl(DeviceDataModelService deviceDataModelService) {
         super();
         this.deviceDataModelService = deviceDataModelService;

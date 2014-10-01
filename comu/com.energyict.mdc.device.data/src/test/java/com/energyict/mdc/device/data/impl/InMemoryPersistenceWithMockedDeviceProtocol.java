@@ -119,14 +119,14 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
-    private DeviceServiceImpl deviceService;
+    private DeviceDataModelServiceImpl deviceDataModelService;
     private TaskService taskService;
     private SchedulingService schedulingService;
     private ValidationService validationService;
 
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
-        this.clock = new DefaultClock();
+        this(new DefaultClock());
     }
 
     public InMemoryPersistenceWithMockedDeviceProtocol(Clock clock) {
@@ -134,7 +134,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         this.clock = clock;
     }
 
-    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createMasterData) {
+    public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
         InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
@@ -190,17 +190,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     }
 
     private DataModel createNewDeviceDataService(Injector injector) {
-        deviceService = injector.getInstance(DeviceServiceImpl.class);
-        return deviceService.getDataModel();
-    }
-
-    public void run(DataModelInitializer... dataModelInitializers) {
-        try (TransactionContext ctx = this.transactionService.getContext()) {
-            for (DataModelInitializer initializer : dataModelInitializers) {
-                initializer.initializeDataModel(this.dataModel);
-            }
-            ctx.commit();
-        }
+        deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
+        return deviceDataModelService.dataModel();
     }
 
     private void initializeMocks(String testName) {
@@ -261,8 +252,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         return applicationContext;
     }
 
-    public DeviceServiceImpl getDeviceService() {
-        return deviceService;
+    public ServerDeviceService getDeviceService() {
+        return deviceDataModelService.deviceService();
     }
 
     public EventService getEventService() {
@@ -271,6 +262,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public SchedulingService getSchedulingService() {
         return schedulingService;
+    }
+
+    public DataModel getDataModel () {
+        return this.deviceDataModelService.dataModel();
     }
 
     private class MockModule extends AbstractModule {

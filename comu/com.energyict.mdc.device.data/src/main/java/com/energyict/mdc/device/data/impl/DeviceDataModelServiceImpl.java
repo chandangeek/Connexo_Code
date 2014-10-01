@@ -4,6 +4,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
@@ -61,7 +62,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, InstallService.class}, property = "name=" + DeviceService.COMPONENTNAME, immediate = true)
+@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, InstallService.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
 public class DeviceDataModelServiceImpl implements DeviceDataModelService, InstallService {
 
     private volatile BundleContext bundleContext;
@@ -83,7 +84,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
-    private DeviceService deviceService;
+    private ServerDeviceService deviceService;
     private LoadProfileService loadProfileService;
     private LogBookService logBookService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
@@ -118,7 +119,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(DeviceService.COMPONENTNAME, "Device data");
+        DataModel dataModel = ormService.newDataModel(DeviceDataServices.COMPONENT_NAME, "Device data");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
@@ -137,7 +138,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DeviceService.COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Override
@@ -229,6 +230,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         return this.communicationTaskService;
     }
 
+    @Override
+    public ServerDeviceService deviceService() {
+        return this.deviceService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -252,7 +258,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(ServerConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(ServerCommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(DeviceService.class).toInstance(deviceService);
+                bind(ServerDeviceService.class).toInstance(deviceService);
                 bind(LoadProfileService.class).toInstance(loadProfileService);
                 bind(LogBookService.class).toInstance(logBookService);
             }
@@ -262,17 +270,40 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     @Activate
     public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+        this.createAndRegisterConnectionTaskService(bundleContext);
+        this.createAndRegisterCommunicationTaskService(bundleContext);
+        this.createAndRegisterDeviceService(bundleContext);
+        this.createAndRegisterLoadProfileService(bundleContext);
+        this.createAndRegisterLogBookService(bundleContext);
+        this.dataModel.register(this.getModule());
+    }
+
+    private void createAndRegisterConnectionTaskService(BundleContext bundleContext) {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this);
         this.serviceRegistrations.add(bundleContext.registerService(ConnectionTaskService.class, this.connectionTaskService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerConnectionTaskService.class, this.connectionTaskService, null));
+    }
+
+    private void createAndRegisterCommunicationTaskService(BundleContext bundleContext) {
         this.communicationTaskService = new CommunicationTaskServiceImpl(this);
         this.serviceRegistrations.add(bundleContext.registerService(CommunicationTaskService.class, this.communicationTaskService, null));
+        this.serviceRegistrations.add(bundleContext.registerService(ServerCommunicationTaskService.class, this.communicationTaskService, null));
+    }
+
+    private void createAndRegisterDeviceService(BundleContext bundleContext) {
+        this.deviceService = new DeviceServiceImpl(this);
         this.serviceRegistrations.add(bundleContext.registerService(DeviceService.class, deviceService, null));
-        this.loadProfileService = new LoadProfileServiceImpl(this);
-        this.serviceRegistrations.add(bundleContext.registerService(LoadProfileService.class, this.loadProfileService, null));
+        this.serviceRegistrations.add(bundleContext.registerService(ServerDeviceService.class, deviceService, null));
+    }
+
+    private void createAndRegisterLogBookService(BundleContext bundleContext) {
         this.logBookService = new LogBookServiceImpl(this);
         this.serviceRegistrations.add(bundleContext.registerService(LogBookService.class, this.logBookService, null));
-        this.dataModel.register(this.getModule());
+    }
+
+    private void createAndRegisterLoadProfileService(BundleContext bundleContext) {
+        this.loadProfileService = new LoadProfileServiceImpl(this);
+        this.serviceRegistrations.add(bundleContext.registerService(LoadProfileService.class, this.loadProfileService, null));
     }
 
     @Deactivate
