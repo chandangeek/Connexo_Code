@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;

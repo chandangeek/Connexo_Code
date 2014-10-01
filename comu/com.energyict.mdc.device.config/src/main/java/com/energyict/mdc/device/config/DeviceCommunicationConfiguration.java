@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;

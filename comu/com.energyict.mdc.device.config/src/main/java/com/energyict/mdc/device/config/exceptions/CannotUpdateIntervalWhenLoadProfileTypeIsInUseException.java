@@ -6,7 +6,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 
 /**
  * Models the exceptional situation that occurs when an attempt
- * is made to update the {@link com.energyict.mdc.common.TimeDuration}
+ * is made to update the {@link com.elster.jupiter.time.TimeDuration}
  * of a {@link LoadProfileType} that is in use.
  *
  * @author Rudi Vankeirsbilck (rudi)

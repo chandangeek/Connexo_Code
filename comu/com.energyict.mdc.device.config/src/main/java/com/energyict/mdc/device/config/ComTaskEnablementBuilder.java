@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 
 /**

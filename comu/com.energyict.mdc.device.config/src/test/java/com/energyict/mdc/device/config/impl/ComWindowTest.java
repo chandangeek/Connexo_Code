@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
 import org.joda.time.DateTimeConstants;
 import org.junit.Test;

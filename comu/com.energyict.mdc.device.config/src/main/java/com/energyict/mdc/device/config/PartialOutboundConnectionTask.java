@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 
 /**
  * Partial version of a OutboundConnectionTask.
