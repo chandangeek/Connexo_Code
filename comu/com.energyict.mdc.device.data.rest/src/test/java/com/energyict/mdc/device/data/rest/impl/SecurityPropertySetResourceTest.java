@@ -171,10 +171,6 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         Visibility(boolean b) {
             this.bool = b;
         }
-
-        public boolean value() {
-            return bool;
-        }
     }
 
     enum Editability {
@@ -184,10 +180,6 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
 
         Editability(boolean b) {
             this.bool = b;
-        }
-
-        public boolean value() {
-            return bool;
         }
     }
 }
