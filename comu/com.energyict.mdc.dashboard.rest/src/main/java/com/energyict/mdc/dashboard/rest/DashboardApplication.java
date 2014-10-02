@@ -102,6 +102,7 @@ public class DashboardApplication extends Application implements InstallService 
         this.connectionTaskService = connectionTaskService;
     }
 
+    @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
     }
@@ -180,6 +181,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(nlsService).to(NlsService.class);
             bind(dashboardService).to(DashboardService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(connectionTaskService).to(ConnectionTaskService.class);
             bind(deviceService).to(DeviceService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
