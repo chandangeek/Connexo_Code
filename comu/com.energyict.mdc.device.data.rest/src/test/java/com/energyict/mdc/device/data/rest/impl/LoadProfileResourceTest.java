@@ -71,7 +71,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
 
     @Before
     public void setUpStubs() {
-        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
         when(loadProfile.getId()).thenReturn(1L);
         Interval interval = new Interval(new Date(intervalStart), new Date(intervalEnd));

@@ -85,7 +85,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
     @Before
     public void setUp1() {
-        when(deviceDataService.findByUniqueMrid("MRID")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("MRID")).thenReturn(device);
         when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(mdcAmrSystem));
         when(device.getId()).thenReturn(DEVICE_ID);
         when(mdcAmrSystem.findMeter("" + DEVICE_ID)).thenReturn(Optional.of(meter));
