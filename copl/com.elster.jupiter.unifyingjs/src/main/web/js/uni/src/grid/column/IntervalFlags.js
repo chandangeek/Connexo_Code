@@ -26,8 +26,6 @@ Ext.define('Uni.grid.column.IntervalFlags', {
         cmp.setHTML('');
         field.setValue(value);
         field.render(cmp);
-
-        Ext.defer(view.updateLayout, 10, view);
     },
 
     renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
