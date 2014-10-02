@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -56,6 +58,8 @@ public class ComTaskExecutionComCommandImplTest {
     private Clock clock;
     @Mock
     private DeviceService deviceService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ConnectionTaskService connectionTaskService;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
     @Mock
@@ -64,6 +68,7 @@ public class ComTaskExecutionComCommandImplTest {
     @Before
     public void initializeMocks () {
         serviceProvider.setClock(clock);
+        serviceProvider.setConnectionTaskService(this.connectionTaskService);
         serviceProvider.setDeviceService(this.deviceService);
         when(this.comTask.getName()).thenReturn(ComTaskExecutionComCommandImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);

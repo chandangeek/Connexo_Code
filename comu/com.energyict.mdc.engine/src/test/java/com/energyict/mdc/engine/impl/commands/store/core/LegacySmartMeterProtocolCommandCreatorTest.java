@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -39,6 +40,7 @@ import java.util.logging.Logger;
 
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -69,11 +71,14 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
     private Clock clock;
     @Mock
     private DeviceService deviceService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ConnectionTaskService connectionTaskService;
 
     @Before
     public void initBefore() {
         serviceProvider.setClock(clock);
         serviceProvider.setDeviceService(this.deviceService);
+        serviceProvider.setConnectionTaskService(this.connectionTaskService);
     }
 
     @After

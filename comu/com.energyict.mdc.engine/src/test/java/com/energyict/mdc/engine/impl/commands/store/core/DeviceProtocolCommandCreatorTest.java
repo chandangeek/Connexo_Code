@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -15,11 +16,11 @@ import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolInitial
 import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolSetCacheCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolTerminateCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolUpdateCacheCommand;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -37,6 +38,7 @@ import java.util.logging.Logger;
 
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -65,7 +67,6 @@ public class DeviceProtocolCommandCreatorTest {
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
 
     @Mock
     private IssueService issueService;
@@ -73,6 +74,8 @@ public class DeviceProtocolCommandCreatorTest {
     private Clock clock;
     @Mock
     private DeviceService deviceService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ConnectionTaskService connectionTaskService;
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
         return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNON, ComTaskExecutionConnectionSteps.SIGNOFF);
@@ -89,6 +92,7 @@ public class DeviceProtocolCommandCreatorTest {
     @Before
     public void initBefore() {
         serviceProvider.setClock(clock);
+        serviceProvider.setConnectionTaskService(this.connectionTaskService);
         serviceProvider.setDeviceService(this.deviceService);
     }
 

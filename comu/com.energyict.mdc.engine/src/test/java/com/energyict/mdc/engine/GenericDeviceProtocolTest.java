@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine;
 
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -55,6 +56,8 @@ public class GenericDeviceProtocolTest {
     private FakeServiceProvider serviceProvider;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DeviceService deviceService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ConnectionTaskService connectionTaskService;
 
     @Before
     public void initMock() {
@@ -69,6 +72,7 @@ public class GenericDeviceProtocolTest {
 
         serviceProvider = new FakeServiceProvider();
         serviceProvider.setClock(new ProgrammableClock());
+        serviceProvider.setConnectionTaskService(connectionTaskService);
         serviceProvider.setDeviceService(deviceService);
         CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(this.serviceProvider), this.serviceProvider);
         root.addCommand(readRegistersCommand, null);
