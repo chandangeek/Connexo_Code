@@ -225,19 +225,19 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 jsonData: {active: activeChange},
                 success: function () {
                     record.set('active', activeChange);
+                    record.commit();
                     if (grid) {
-                        record.commit();
                         gridView.refresh();
+                        form.loadRecord(record);
                     } else {
                         menu.record = record;
                         form.loadRecord(record);
                     }
-
                     var msg = activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
                         Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated');
                     me.getApplication().fireEvent('acknowledge', msg);
                 },
-                callback: function() {
+                callback: function () {
                     viewport.setLoading(false);
                 }
             });
