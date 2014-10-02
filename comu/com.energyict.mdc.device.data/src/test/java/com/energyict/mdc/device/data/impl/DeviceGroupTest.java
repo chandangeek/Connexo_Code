@@ -161,7 +161,6 @@ public class DeviceGroupTest {
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(UserService.class).toInstance(userService);
-            bind(SecurityPropertyService.class).toInstance(securityPropertyService);
         }
     }
 
@@ -170,7 +169,7 @@ public class DeviceGroupTest {
         when(principal.getName()).thenReturn("Ernie");
         this.inMemoryBootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
-                new ThreadSecurityModule(this.principal),
+                new ThreadSecurityModule(principal),
                 this.inMemoryBootstrapModule,
                 new OrmModule(),
                 new EventsModule(),
@@ -196,6 +195,7 @@ public class DeviceGroupTest {
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TasksModule(),
+                new DeviceDataModule(),
                 new MockModule(),
                 new MeteringGroupsModule()
         );
@@ -205,7 +205,6 @@ public class DeviceGroupTest {
             injector.getInstance(ValidationService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(DeviceConfigurationService.class);
-            injector.getInstance(DeviceServiceImpl.class);
             injector.getInstance(SecurityPropertyServiceImpl.class);
 
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
