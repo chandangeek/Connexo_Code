@@ -1,11 +1,11 @@
 package com.elster.jupiter.kpi.impl;
 
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.orm.DataModel;
 
 import java.math.BigDecimal;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -15,7 +15,7 @@ class KpiBuilderImpl implements KpiBuilder {
     private String name;
     private List<KpiMemberBuilderImpl> members = new ArrayList<>();
     private TimeZone timeZone = TimeZone.getTimeZone("UTC");
-    private IntervalLength intervalLength;
+    private TemporalAmount intervalLength;
 
     private final DataModel dataModel;
 
@@ -45,7 +45,7 @@ class KpiBuilderImpl implements KpiBuilder {
     }
 
     @Override
-    public KpiBuilder interval(IntervalLength interval) {
+    public KpiBuilder interval(TemporalAmount interval) {
         this.intervalLength = interval;
         return this;
     }

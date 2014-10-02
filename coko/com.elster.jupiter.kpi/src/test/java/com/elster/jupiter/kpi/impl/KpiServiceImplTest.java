@@ -2,7 +2,6 @@ package com.elster.jupiter.kpi.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.kpi.Kpi;
@@ -10,6 +9,7 @@ import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.google.common.base.Optional;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -23,6 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
+import java.time.Period;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,7 +79,7 @@ public class KpiServiceImplTest {
     @Test
     public void testBuildingAKpi() {
 
-        Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+        Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                 .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                 .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
                 .build();

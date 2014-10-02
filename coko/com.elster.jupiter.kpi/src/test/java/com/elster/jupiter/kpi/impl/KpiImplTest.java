@@ -3,10 +3,10 @@ package com.elster.jupiter.kpi.impl;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -17,6 +17,7 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Duration;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +49,7 @@ public class KpiImplTest {
     public void setUp() {
         kpi = new KpiImpl(dataModel, idsService, kpiService, eventService);
 
-        kpi.init("name", UTC, IntervalLength.ofMinutes(30));
+        kpi.init("name", UTC, Duration.ofMinutes(30));
 
         when(kpiService.getVault()).thenReturn(vault);
         when(kpiService.getRecordSpec()).thenReturn(recordSpec);
@@ -71,7 +72,7 @@ public class KpiImplTest {
 
     @Test
     public void testIntervalLength() {
-        assertThat(kpi.getIntervalLength()).isEqualTo(IntervalLength.ofMinutes(30));
+        assertThat(kpi.getIntervalLength()).isEqualTo(Duration.ofMinutes(30));
     }
 
     @Test
@@ -79,7 +80,7 @@ public class KpiImplTest {
         kpi.dynamicMaximum("max");
         kpi.save();
 
-        verify(vault).createRegularTimeSeries(recordSpec, UTC, IntervalLength.ofMinutes(30), 0);
+        verify(vault).createRegularTimeSeries(recordSpec, UTC, Duration.ofMinutes(30), 0);
     }
 
 

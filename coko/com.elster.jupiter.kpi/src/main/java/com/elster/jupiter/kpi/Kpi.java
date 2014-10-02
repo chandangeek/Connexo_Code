@@ -1,8 +1,8 @@
 package com.elster.jupiter.kpi;
 
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.util.HasName;
 
+import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -29,7 +29,7 @@ public interface Kpi extends HasName {
     /**
      * @return the IntervalLength between each recording of a kpi score.
      */
-    IntervalLength getIntervalLength();
+    TemporalAmount getIntervalLength();
 
     /**
      * Saves this Kpi to DB.

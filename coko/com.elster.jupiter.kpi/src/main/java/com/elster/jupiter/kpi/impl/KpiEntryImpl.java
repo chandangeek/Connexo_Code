@@ -19,7 +19,7 @@ public class KpiEntryImpl implements KpiEntry {
 
     @Override
     public Date getTimestamp() {
-        return timeSeriesEntry.getTimeStamp();
+        return Date.from(timeSeriesEntry.getTimeStamp());
     }
 
     @Override

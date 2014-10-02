@@ -9,7 +9,7 @@ import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.TargetStorer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
@@ -61,10 +62,10 @@ public class KpiMemberImplTest {
         kpiMember.setStatictarget(TARGET);
 
         when(idsService.createStorer(true)).thenReturn(storer);
-        when(timeSeries.getEntry(TIMESTAMP)).thenReturn(Optional.of(timeSeriesEntry));
+        when(timeSeries.getEntry(TIMESTAMP.toInstant())).thenReturn(Optional.of(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(0)).thenReturn(SCORE);
         when(timeSeriesEntry.getBigDecimal(1)).thenReturn(TARGET);
-        when(timeSeriesEntry.getTimeStamp()).thenReturn(TIMESTAMP);
+        when(timeSeriesEntry.getTimeStamp()).thenReturn(TIMESTAMP.toInstant());
     }
 
     @After
@@ -76,7 +77,7 @@ public class KpiMemberImplTest {
     public void testScore() {
         kpiMember.score(TIMESTAMP, SCORE);
 
-        verify(storer).add(timeSeries, TIMESTAMP, SCORE, TARGET);
+        verify(storer).add(timeSeries, TIMESTAMP.toInstant(), SCORE, TARGET);
     }
 
     @Test
@@ -104,7 +105,7 @@ public class KpiMemberImplTest {
         targetStorer.execute();
 
         InOrder order = inOrder(storer);
-        order.verify(storer).add(timeSeries, TIMESTAMP, null, TARGET);
+        order.verify(storer).add(timeSeries, TIMESTAMP.toInstant(), null, TARGET);
         order.verify(storer).execute();
 
     }

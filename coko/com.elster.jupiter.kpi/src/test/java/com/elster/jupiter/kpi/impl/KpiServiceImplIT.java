@@ -7,7 +7,6 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiEntry;
@@ -33,6 +32,7 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.assertj.core.api.Assertions;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -51,6 +51,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
+import java.time.Period;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.List;
@@ -133,7 +134,7 @@ public class KpiServiceImplIT {
     public void testCreateKpi() {
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
-            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
                     .build();
@@ -169,7 +170,7 @@ public class KpiServiceImplIT {
     public void testStoreKpiValue() {
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
-            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
                     .build();
@@ -215,7 +216,7 @@ public class KpiServiceImplIT {
 
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
-            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
                     .build();
@@ -242,7 +243,7 @@ public class KpiServiceImplIT {
 
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
-            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
                     .build();
@@ -273,7 +274,7 @@ public class KpiServiceImplIT {
     public void testUpdateStaticTargetOnDynamicMemberShouldFail() {
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
-            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
                     .build();
@@ -300,7 +301,7 @@ public class KpiServiceImplIT {
     public void testUpdateStaticTarget() {
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
-            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
                     .build();
@@ -337,7 +338,7 @@ public class KpiServiceImplIT {
 
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
-            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
                     .build();

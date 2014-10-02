@@ -93,7 +93,7 @@ class KpiMemberImpl implements IKpiMember {
     @Override
     public void score(Date date, BigDecimal bigDecimal) {
         TimeSeriesDataStorer storer = idsService.createStorer(true);
-        storer.add(getTimeSeries(), date, bigDecimal, getTarget(date));
+        storer.add(getTimeSeries(), date.toInstant(), bigDecimal, getTarget(date));
         storer.execute();
         KpiEntry kpiEntry = getScore(date).get();
         if (!kpiEntry.meetsTarget()) {
@@ -103,7 +103,7 @@ class KpiMemberImpl implements IKpiMember {
 
     @Override
     public Optional<KpiEntry> getScore(Date date) {
-        Optional<TimeSeriesEntry> entry = getTimeSeries().getEntry(date);
+        java.util.Optional<TimeSeriesEntry> entry = getTimeSeries().getEntry(date.toInstant());
         if (entry.isPresent()) {
             return Optional.<KpiEntry>of(new KpiEntryImpl(this, entry.get()));
         }
@@ -145,7 +145,7 @@ class KpiMemberImpl implements IKpiMember {
 
             @Override
             public TargetStorer add(Date timestamp, BigDecimal target) {
-                storer.add(getTimeSeries(), timestamp, null, target);
+                storer.add(getTimeSeries(), timestamp.toInstant(), null, target);
                 return this;
             }
 
@@ -179,7 +179,7 @@ class KpiMemberImpl implements IKpiMember {
 
         @Override
         public BigDecimal get(Date date) {
-            Optional<TimeSeriesEntry> entry = timeSeries.getEntry(date);
+            java.util.Optional<TimeSeriesEntry> entry = timeSeries.getEntry(date.toInstant());
             if (entry.isPresent()) {
                 return entry.get().getBigDecimal(1);
             }

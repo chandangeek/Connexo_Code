@@ -1,8 +1,7 @@
 package com.elster.jupiter.kpi;
 
-import com.elster.jupiter.ids.IntervalLength;
-
 import java.math.BigDecimal;
+import java.time.temporal.TemporalAmount;
 import java.util.TimeZone;
 
 /**
@@ -38,7 +37,7 @@ public interface KpiBuilder {
      * @param interval the IntervalLength this Kpi will need to register results
      * @return the builder to chain on
      */
-    KpiBuilder interval(IntervalLength interval);
+    KpiBuilder interval(TemporalAmount interval);
 
     /**
      * Intermediate builder for KpiMembers.

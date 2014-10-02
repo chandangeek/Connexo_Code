@@ -2,7 +2,6 @@ package com.elster.jupiter.kpi.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
@@ -11,7 +10,9 @@ import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
+
 import java.math.BigDecimal;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +25,7 @@ class KpiImpl implements Kpi {
     private List<IKpiMember> members = new ArrayList<>();
 
     private transient TimeZone timeZone;
-    private transient IntervalLength intervalLength;
+    private transient TemporalAmount intervalLength;
 
     private final DataModel dataModel;
     private final IdsService idsService;
@@ -39,14 +40,14 @@ class KpiImpl implements Kpi {
         this.eventService = eventService;
     }
 
-    KpiImpl init(String name, TimeZone timeZone, IntervalLength intervalLength) {
+    KpiImpl init(String name, TimeZone timeZone, TemporalAmount intervalLength) {
         this.name = name;
         this.timeZone = timeZone;
         this.intervalLength = intervalLength;
         return this;
     }
 
-    static KpiImpl from(DataModel dataModel, String name, TimeZone timeZone, IntervalLength intervalLength) {
+    static KpiImpl from(DataModel dataModel, String name, TimeZone timeZone, TemporalAmount intervalLength) {
         return dataModel.getInstance(KpiImpl.class).init(name, timeZone, intervalLength);
     }
 
@@ -77,15 +78,15 @@ class KpiImpl implements Kpi {
 
     public TimeZone getTimeZone() {
         if (timeZone == null) {
-            timeZone = members.get(0).getTimeSeries().getTimeZone();
+            timeZone = TimeZone.getTimeZone(members.get(0).getTimeSeries().getZoneId());
         }
         return timeZone;
     }
 
     @Override
-    public IntervalLength getIntervalLength() {
+    public TemporalAmount getIntervalLength() {
         if (intervalLength == null) {
-            intervalLength = members.get(0).getTimeSeries().getIntervalLength();
+            intervalLength = members.get(0).getTimeSeries().interval();
         }
         return intervalLength;
     }
