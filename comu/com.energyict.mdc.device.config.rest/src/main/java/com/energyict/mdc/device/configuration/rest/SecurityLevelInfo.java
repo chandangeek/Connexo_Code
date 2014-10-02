@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.configuration.rest.impl;
+package com.energyict.mdc.device.configuration.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
