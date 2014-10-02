@@ -95,7 +95,8 @@ public class DeviceApplication extends Application implements InstallService{
                 DeviceFieldResource.class,
                 ChannelResource.class,
                 DeviceGroupResource.class,
-                SecurityPropertySetResource.class
+                SecurityPropertySetResource.class,
+                ConnectionMethodResource.class
         );
     }
 
