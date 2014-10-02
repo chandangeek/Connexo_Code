@@ -357,13 +357,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
                             me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook type');
+                            me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook types');
                             widget.setLoading(false);
                         }
                     });
-                    var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-types toolbar label[name=LogBookCount]')[0],
-                        grid = Ext.ComponentQuery.query('add-logbook-types grid')[0];
-                    numberOfLogbooksLabel.setText('No logbook types selected');
+                    //var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-types toolbar label[name=LogBookCount]')[0],
+                    var grid = Ext.ComponentQuery.query('add-logbook-types grid')[0];
+                    //numberOfLogbooksLabel.setText('No logbook types selected');
                     if (self.getCount() < 1) {
                         grid.hide();
                         grid.next().show();

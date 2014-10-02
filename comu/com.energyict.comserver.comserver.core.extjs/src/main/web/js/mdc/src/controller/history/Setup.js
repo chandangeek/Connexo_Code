@@ -78,7 +78,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showDeviceTypeLogbookTypesView',
                                     items: {
                                         add: {
-                                            title: 'Add logbook type',
+                                            title: 'Add logbook types',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.DeviceTypes',
                                             action: 'showAddLogbookTypesView'
@@ -92,7 +92,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showDeviceTypeLoadProfileTypesView',
                                     items: {
                                         add: {
-                                            title: 'Add load profile',
+                                            title: 'Add load profiles',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
                                             action: 'showDeviceTypeLoadProfileTypesAddView'
@@ -374,7 +374,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showRegisterMappings',
                                     items: {
                                         add: {
-                                            title: 'Add register type',
+                                            title: 'Add register types',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.RegisterMappings',
                                             action: 'addRegisterMappings'

@@ -1,14 +1,19 @@
-Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
+Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.loadProfileTypeGrid',
-    itemId: 'loadProfileTypeGrid',
+    alias: 'widget.loadProfileTypeOnDeviceTypeGrid',
+    overflowY: 'auto',
+    itemId: 'loadProfileTypeOnDeviceTypeGrid',
+    deviceTypeId: null,
     requires: [
         'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu',
         'Uni.grid.column.Action',
         'Uni.grid.column.Obis',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Mdc.store.LoadProfileTypesOnDeviceType'
     ],
+
+    store: 'LoadProfileTypesOnDeviceType',
     columns: {
         items: [
             {
@@ -49,19 +54,23 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
                     itemId: 'addLoadProfileType',
                     xtype: 'button',
                     action: 'addloadprofiletypeaction',
-                    hrefTarget: '',
-                    href: '#/administration/loadprofiletypes/create'
+                    hrefTarget: '_self',
+                    href: '#/administration/devicetypes/' + this.deviceTypeId + '/loadprofiles/add'
                 }
             ]
         },
         {
             xtype: 'pagingtoolbarbottom',
+            store: this.store,
+            params: [
+                {deviceType: this.deviceTypeId}
+            ],
             dock: 'bottom',
             itemsPerPageMsg: Uni.I18n.translate('loadProfileTypes.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Load profile types per page')
         }
-    ],
+    ]
 
-    initComponent: function () {
+  /*  initComponent: function () {
         var store = this.store,
             pagingToolbarTop = Ext.Array.findBy(this.dockedItems, function (item) {
                 return item.xtype == 'pagingtoolbartop';
@@ -74,5 +83,5 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
         pagingToolbarBottom && (pagingToolbarBottom.store = store);
 
         this.callParent(arguments);
-    }
+    }*/
 });

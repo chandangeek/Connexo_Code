@@ -208,7 +208,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         executionLevelsTitle.show();
         executionLevelscontainer.show();
 
-        this.getExecutionLevelsForSecuritySettingPreview().setTitle(record.getData().name + ' ' + Uni.I18n.translate('executionLevel.gridTitle', 'MDC', 'privileges'));
+        this.getExecutionLevelsForSecuritySettingPreview().setTitle(Ext.String.format(Uni.I18n.translate('executionLevel.gridTitle', 'MDC', 'Privileges of {0}'), record.getData().name));
 
         executionLevelsgrid.down('pagingtoolbartop').store = record.executionLevels();
         executionLevelsgrid.down('pagingtoolbartop').store.totalCount = record.executionLevels().getCount();

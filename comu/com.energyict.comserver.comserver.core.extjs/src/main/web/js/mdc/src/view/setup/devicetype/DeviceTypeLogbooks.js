@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                     {
                                         xtype: 'button',
                                         margin: '10 0 0 0',
-                                        text: Uni.I18n.translate('logbooktype.addLogbookType', 'MDC', 'Add logbook type'),
+                                        text: Uni.I18n.translate('logbooktype.addLogbookType', 'MDC', 'Add logbook types'),
                                         action: 'add',
                                         listeners: {
                                             click: {
@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('logbooktype.addLogbookType', 'MDC', 'Add logbook type'),
+                                text: Uni.I18n.translate('logbooktype.addLogbookType', 'MDC', 'Add logbook types'),
                                 action: 'add',
                                 listeners: {
                                     click: {

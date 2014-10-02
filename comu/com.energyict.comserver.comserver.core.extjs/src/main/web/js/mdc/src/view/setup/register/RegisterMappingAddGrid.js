@@ -1,77 +1,53 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
-    extend: 'Ext.grid.Panel',
+    extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.registerMappingAddGrid',
     overflowY: 'auto',
-    itemId: 'registermappingaddgrid',
-
-    selModel: {
-        mode: 'MULTI',
-        checkOnly: true
-    },
-
-    selType: 'checkboxmodel',
-
-    requires: [
-        'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.AvailableRegisterTypes',
-        'Uni.grid.column.Obis',
-        'Uni.grid.column.ReadingType'
-    ],
-
-    nbrOfSelectedItems: 0,
-
-    listeners: {
-        selectionchange: function (view, selections, options) {
-            this.nbrOfSelectedItems = selections.length;
-            this.down('#pagingt').displayMsg = this.nbrOfSelectedItems + ' ' + Uni.I18n.translatePlural('registerMappingsAdd.pagingtoolbartop.displayMsg', this.nbrOfSelectedItems, 'MDC', 'register types selected');
-            this.down('#pagingt').onLoad();
-        }
-    },
-
-    plugins: {
-        ptype: 'bufferedrenderer'
-    },
-
-    height: 400,
+    height: 300,
     store: 'AvailableRegisterTypes',
 
-    columns: [
-        {
-            header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
-            dataIndex: 'name',
-            flex: 3,
-            sortable: false,
-            fixed: true,
-            hideable: false
-        },
-        {
-            xtype: 'reading-type-column',
-            dataIndex: 'readingType'
-        },
-        {
-            xtype: 'obis-column',
-            dataIndex: 'obisCode'
-        },
-        {
-            header: Uni.I18n.translate('registerMappings.type', 'MDC', 'Type'),
-            renderer: function (value, metaData, record) {
-                return '<div style="float:left; font-size: 13px; line-height: 1em;">'
-                    + record.getReadingType().get('measurementKind')
-                    + '</div>'
-            },
-            flex: 1,
-            sortable: false,
-            fixed: true,
-            hideable: false
-        }
-    ],
+    counterTextFn: function (count) {
+        return Uni.I18n.translatePlural(
+            'registerTypes.selectedItems',
+            count,
+            'MDC',
+            '{0} register types selected'
+        );
+    },
 
-    tbar: {
-        xtype: 'pagingtoolbartop',
-        store: this.store,
-        itemId: 'pagingt',
-        displayMsg: this.nbrOfSelectedItems + ' ' + Uni.I18n.translatePlural('registerMappingsAdd.pagingtoolbartop.displayMsg', this.nbrOfSelectedItems, 'MDC', ' register types selected'),
+    columns: {
+        items: [
+            {
+                header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
+                dataIndex: 'name',
+                flex: 3
+            },
+            {
+                xtype: 'reading-type-column',
+                dataIndex: 'readingType'
+            },
+            {
+                xtype: 'obis-column',
+                dataIndex: 'obisCode'
+            },
+            {
+                header: Uni.I18n.translate('registerMappings.type', 'MDC', 'Type'),
+                renderer: function (value, metaData, record) {
+                    return '<div style="float:left; font-size: 13px; line-height: 1em;">'
+                        + record.getReadingType().get('measurementKind')
+                        + '</div>'
+                },
+                flex: 1
+            }
+        ]
+    },
+
+    extraTopToolbarComponent: {
+        xtype: 'container',
+        layout: {
+            type: 'hbox',
+            align: 'right'
+        },
+        flex: 1,
         items: [
             {
                 xtype: 'component',
@@ -79,33 +55,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             },
             {
                 xtype: 'button',
-                text: Uni.I18n.translate('registerMappings.manageRegisterTypes', 'MDC', 'Manage register types'),
+                text: Uni.I18n.translate('registertype.manageregistertypes', 'MDC', 'Manage register types'),
                 ui: 'link',
-                listeners: {
-                    click: {
-                        fn: function () {
-                            window.location.href = '#/administration/registertypes';
-                        }
-                    }
-                }
+                href: '#/administration/registertypes',
+                hrefTarget: '_blank'
             }
         ]
-    },
-
-    initComponent: function () {
-        var store = Ext.data.StoreManager.lookup('AvailableRegisterTypes');
-        store.getProxy().setExtraParam('filter', Ext.encode([
-            {
-                property: 'available',
-                value: true
-            }
-        ]));
-
-        this.callParent();
     }
-});
 
-
-
-
-
+})
+;
