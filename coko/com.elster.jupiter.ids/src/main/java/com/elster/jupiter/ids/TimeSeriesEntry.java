@@ -1,17 +1,17 @@
 package com.elster.jupiter.ids;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
 public interface TimeSeriesEntry {
 
     TimeSeries getTimeSeries();
 
-    Date getTimeStamp();
+    Instant getTimeStamp();
 
-    Date getRecordDateTime();
+    Instant getRecordDateTime();
 
-    Date getDate(int offset);
+    Instant getInstant(int offset);
 
     BigDecimal getBigDecimal(int offset);
 

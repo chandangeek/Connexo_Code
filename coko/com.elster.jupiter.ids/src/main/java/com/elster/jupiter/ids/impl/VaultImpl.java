@@ -5,18 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.TimeZone;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
@@ -29,7 +27,6 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
@@ -46,8 +43,8 @@ public class VaultImpl implements Vault {
 	private String componentName;
 	private long id;
 	private String description;
-	private UtcInstant minTime;
-	private UtcInstant maxTime;
+	private Instant minTime;
+	private Instant maxTime;
 	private int slotCount;
 	private int textSlotCount;
 	private boolean localTime;
@@ -81,7 +78,7 @@ public class VaultImpl implements Vault {
 		this.journal = true;
 		this.partition = false;
 		this.active = false;		
-		this.minTime = new UtcInstant(0);
+		this.minTime = Instant.ofEpochMilli(0);
 		return this;
 	}
 
@@ -95,12 +92,12 @@ public class VaultImpl implements Vault {
 		return id;
 	}
 
-	public Date getCreateDate() {
-		return createTime == null ? null : createTime.toDate();
+	public Instant getCreateDate() {
+		return createTime.toInstant();
 	}
 	
-	public Date getModDate() {
-		return modTime == null ? null : modTime.toDate();
+	public Instant getModDate() {
+		return modTime.toInstant();
 	}
 	
 	@Override
@@ -121,13 +118,13 @@ public class VaultImpl implements Vault {
 
 	
 	@Override
-	public Date getMinDate() {
-		return minTime.toDate();
+	public Instant getMinDate() {
+		return minTime;
 	}
 	
 	@Override
-	public Date getMaxDate() {
-		return maxTime == null ? null : maxTime.toDate();
+	public Instant getMaxDate() {
+		return maxTime;
 	}
 
 	@Override
@@ -166,18 +163,18 @@ public class VaultImpl implements Vault {
 	}
 
 	@Override
-	public void activate(Date to) {
+	public void activate(Instant to) {
 		try {
-			doActivate(to);
+			doActivate(Objects.requireNonNull(to));
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 		this.active = true;
-		this.maxTime = new UtcInstant(to);
+		this.maxTime = to;
 		dataModel.update(this,"active","maxTime");
 	}
 	
-	private void doActivate(Date to) throws SQLException {
+	private void doActivate(Instant to) throws SQLException {
 		try (Connection connection = getConnection(true)) {	
 			try (Statement statement = connection.createStatement()) {
 				statement.execute(createTableDdl(to,false));
@@ -188,7 +185,7 @@ public class VaultImpl implements Vault {
 		}		
 	}
 		
-	private String createTableDdl(Date to , boolean journal) {
+	private String createTableDdl(Instant to , boolean journal) {
 		StringBuilder builder = new StringBuilder("create table ");
 		builder.append(getTableName(journal));
 		builder.append("(TIMESERIESID NUMBER NOT NULL,UTCSTAMP NUMBER NOT NULL,VERSIONCOUNT NUMBER NOT NULL,RECORDTIME NUMBER NOT NULL");
@@ -225,7 +222,7 @@ public class VaultImpl implements Vault {
 			builder.append("PARTITION BY RANGE(utcstamp) (PARTITION ");
 			builder.append(getPartitionName(to));
 			builder.append(" VALUES LESS THAN (");
-			builder.append(to.getTime() + 1L);
+			builder.append(to.toEpochMilli() + 1L);
 			builder.append("))");
 		}
 		return builder.toString();			
@@ -251,15 +248,13 @@ public class VaultImpl implements Vault {
 	}
 		
 	
-	private String getPartitionName(Date to) {
-		DateFormat df = new  SimpleDateFormat("'P'yyyy_MM_dd'T'HH_mm'Z'");
-		df.setTimeZone(TimeZone.getTimeZone("UTC"));
-		return df.format(to);
+	private String getPartitionName(Instant to) {
+		return "P" + to;
 	}	
 	
 	@Override
-	public void addPartition(Date to) {
-		if (!isActive() || !to.after(getMaxDate())) {
+	public void addPartition(Instant to) {
+		if (!isActive() || !Objects.requireNonNull(to).isAfter(getMaxDate())) {
 			throw new IllegalArgumentException();
 		}
 		if (isPartitioned()) {
@@ -269,11 +264,11 @@ public class VaultImpl implements Vault {
 				throw new UnderlyingSQLFailedException(ex);
 			}
 		}
-		this.maxTime = new UtcInstant(to);
+		this.maxTime = to;
 		dataModel.update(this,"maxTime");
 	}
 	
-	private void doAddPartition(Date to) throws SQLException {	
+	private void doAddPartition(Instant to) throws SQLException {	
 		try (Connection connection = getConnection(true)) {	
 			try (Statement statement = connection.createStatement()) {
 				statement.execute(addTablePartitionDdl(to, getTableName()));
@@ -285,38 +280,35 @@ public class VaultImpl implements Vault {
 	}
 	
 	
-	private String addTablePartitionDdl(Date to , String table) {
+	private String addTablePartitionDdl(Instant to , String table) {
 		StringBuilder builder = new StringBuilder("alter table ");
 		builder.append(table);
 		builder.append(" add partition ");
 		builder.append(getPartitionName(to));
 		builder.append(" values less than (");
-		builder.append(to.getTime() + 1L);
+		builder.append(to.toEpochMilli() + 1L);
 		builder.append(")");		
 		return builder.toString();		
 	}
 
 	@Override
-	public TimeSeriesImpl createRegularTimeSeries(RecordSpec spec, TimeZone timeZone, IntervalLength intervalLength, int hourOffset) {
-		TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec,timeZone, intervalLength , hourOffset);
+	public TimeSeriesImpl createRegularTimeSeries(RecordSpec spec, ZoneId zoneId, TemporalAmount interval, int hourOffset) {
+		TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec, zoneId, interval , hourOffset);
 		timeSeries.persist();		
 		return timeSeries;
 	}
 
 	@Override
-	public TimeSeriesImpl createIrregularTimeSeries(RecordSpec spec, TimeZone timeZone) {
-		TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec,timeZone);
+	public TimeSeriesImpl createIrregularTimeSeries(RecordSpec spec, ZoneId zoneId) {
+		TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec, zoneId);
 		timeSeries.persist();		
 		return timeSeries;
 	}
 	
 	@Override
-	public boolean isValidDateTime(Date date) {
-		long when = date.getTime();
-		return isActive() && this.minTime.getTime() < when && when <= this.maxTime.getTime();
+	public boolean isValidInstant(Instant instant) {
+		return isActive() && minTime.isBefore(instant) && !maxTime.isBefore(instant);
 	}
-
-
 	
 	private StringBuilder selectSql(TimeSeriesImpl timeSeries) {
 		StringBuilder builder = selectSql(timeSeries.getRecordSpec());
@@ -393,9 +385,9 @@ public class VaultImpl implements Vault {
 		}
 	}
 	
-	Optional<TimeSeriesEntry> getEntry(TimeSeriesImpl timeSeries,Date when) {
+	Optional<TimeSeriesEntry> getEntry(TimeSeriesImpl timeSeries,Instant when) {
 		try {
-			return Optional.fromNullable(doGetEntry(timeSeries,when));
+			return Optional.ofNullable(doGetEntry(timeSeries,when));
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -442,11 +434,11 @@ public class VaultImpl implements Vault {
 		return result;
 	}
 	
-	private TimeSeriesEntry doGetEntry(TimeSeriesImpl timeSeries, Date when) throws SQLException {
+	private TimeSeriesEntry doGetEntry(TimeSeriesImpl timeSeries, Instant when) throws SQLException {
 		try (Connection connection = getConnection(false)) {
 			try (PreparedStatement statement = connection.prepareStatement(entrySql(timeSeries))) {
 				statement.setLong(ID_COLUMN_INDEX,timeSeries.getId());
-				statement.setLong(WHEN_COLUMN_INDEX, when.getTime());
+				statement.setLong(WHEN_COLUMN_INDEX, when.toEpochMilli());
 				try (ResultSet rs = statement.executeQuery()) {
 					return rs.next() ? new TimeSeriesEntryImpl(timeSeries, rs) : null;					
 				}
@@ -527,7 +519,7 @@ public class VaultImpl implements Vault {
 		return dataModel.getSqlDialect().equals(SqlDialect.ORACLE);
 	}
 
-	List<TimeSeriesEntry> getEntriesBefore(TimeSeriesImpl timeSeries, Date when, int entryCount , boolean includeBoundary) {
+	List<TimeSeriesEntry> getEntriesBefore(TimeSeriesImpl timeSeries, Instant when, int entryCount , boolean includeBoundary) {
 		try {
 			return doGetEntriesBefore(timeSeries,when,entryCount, includeBoundary);
 		} catch (SQLException ex) {
@@ -535,12 +527,12 @@ public class VaultImpl implements Vault {
 		}
 	}
 	
-	private List<TimeSeriesEntry> doGetEntriesBefore(TimeSeriesImpl timeSeries, Date when, int entryCount, boolean includeBoundary) throws SQLException {
+	private List<TimeSeriesEntry> doGetEntriesBefore(TimeSeriesImpl timeSeries, Instant when, int entryCount, boolean includeBoundary) throws SQLException {
 		List<TimeSeriesEntry> result = new ArrayList<>();
 		try (Connection connection = getConnection(false)) {
 			try (PreparedStatement statement = connection.prepareStatement(entriesBeforeSql(timeSeries,includeBoundary))) {
 				statement.setLong(ID_COLUMN_INDEX,timeSeries.getId());
-				statement.setLong(WHEN_COLUMN_INDEX, when.getTime());
+				statement.setLong(WHEN_COLUMN_INDEX, when.toEpochMilli());
 				statement.setInt(3, entryCount);
 				try (ResultSet rs = statement.executeQuery()) {
 					while (rs.next()) {

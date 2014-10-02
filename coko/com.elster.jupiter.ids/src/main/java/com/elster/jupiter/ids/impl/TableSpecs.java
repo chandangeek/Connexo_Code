@@ -27,8 +27,8 @@ public enum TableSpecs {
 			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
 			Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
 			table.column("DESCRIPTION").varChar(NAME_LENGTH).notNull().map("description").add();
-			table.column("MINTIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("minTime").add();
-			table.column("MAXTIME").type("number").conversion(NUMBER2UTCINSTANT).map("maxTime").add();
+			table.column("MINTIME").type("number").notNull().conversion(NUMBER2INSTANT).map("minTime").add();
+			table.column("MAXTIME").type("number").conversion(NUMBER2INSTANT).map("maxTime").add();
 			table.column("SLOTCOUNT").type("number").conversion(NUMBER2INT).map("slotCount").add();
 			table.column("TEXTSLOTCOUNT").type("number").conversion(NUMBER2INT).map("textSlotCount").add();
 			table.column("LOCALTIME").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("localTime").add();
@@ -82,9 +82,9 @@ public enum TableSpecs {
 			Column vaultIdColumn = table.column("VAULTID").type("number").notNull().conversion(NUMBER2LONG).add();
 			Column recordSpecComponent = table.column("RECORDSPECCOMPONENT").type("varchar2(3)").notNull().add();
 			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).add();
-			table.column("FIRSTTIME").type("number").conversion(NUMBER2UTCINSTANT).map("firstTime").add();
-			table.column("LASTTIME").type("number").conversion(NUMBER2UTCINSTANT).map("lastTime").add();
-			table.column("LOCKTIME").type("number").conversion(NUMBER2UTCINSTANT).map("lockTime").add();
+			table.column("FIRSTTIME").type("number").conversion(NUMBER2INSTANT).map("firstTime").add();
+			table.column("LASTTIME").type("number").conversion(NUMBER2INSTANT).map("lastTime").add();
+			table.column("LOCKTIME").type("number").conversion(NUMBER2INSTANT).map("lockTime").add();
 			table.column("TIMEZONENAME").varChar(NAME_LENGTH).notNull().map("timeZoneName").add();
 			table.column("REGULAR").type("CHAR(1)").notNull().conversion(CHAR2BOOLEAN).map("regular").add();
 			table.column("INTERVALLENGTH").type("number").conversion(NUMBER2INTNULLZERO).map("intervalLength").add();

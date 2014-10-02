@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Date;
+import java.time.Instant;
 
 public enum FieldType {
 	NUMBER {
@@ -20,20 +20,20 @@ public enum FieldType {
 			statement.setObject(offset, object);
 		}
 	},
-	DATE {
+	INSTANT {
 		@Override
 		public Object getValue(ResultSet resultSet, int i) throws SQLException {
 			long value = resultSet.getLong(i);
-			return resultSet.wasNull() ? null : new Date(value);
+			return resultSet.wasNull() ? null : Instant.ofEpochMilli(value);
 		}
 		
 		@Override
 		public void bind(PreparedStatement statement, int offset, Object object) throws SQLException {
-			assert(object == null || object instanceof Date);
+			assert(object == null || object instanceof Instant);
 			if (object == null) {
 				statement.setNull(offset, Types.NUMERIC);
 			} else {
-				statement.setLong(offset , ((Date) object).getTime());
+				statement.setLong(offset , ((Instant) object).toEpochMilli());
 			}
 		}
 	},

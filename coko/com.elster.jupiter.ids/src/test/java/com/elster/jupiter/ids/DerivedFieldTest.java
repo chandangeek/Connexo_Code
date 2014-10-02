@@ -13,7 +13,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateTime;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,9 +24,10 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,6 +47,8 @@ public class DerivedFieldTest {
     }
     
     private static final boolean printSql = true;
+    
+    private ZoneId defaultZone = ZoneId.systemDefault();
 
     @BeforeClass
     public static void setUp() throws SQLException {
@@ -78,23 +81,23 @@ public class DerivedFieldTest {
         	recordSpec.addDerivedFieldSpec("Delta", "Total" , FieldType.NUMBER , FieldDerivationRule.DELTAFROMPREVIOUS);
         	recordSpec.persist();
         	Vault vault = idsService.getVault("IDS", 1).get();
-	        ts = vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), IntervalLengthUnit.MINUTE.withLength(15), 0);
+	        ts = vault.createRegularTimeSeries(recordSpec, defaultZone, Duration.ofMinutes(15), 0);
 	        TimeSeriesDataStorer storer = idsService.createStorer(true);
-	        DateTime dateTime = new DateTime(2014, 1, 1, 0, 0,0);
-	        storer.add(ts, dateTime.toDate(), null, BigDecimal.valueOf(10));
-	        Date date = new DateTime(2014,1,1,0,45,0).toDate();
-	        storer.add(ts, date, null, BigDecimal.valueOf(500));
+	        ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultZone);
+	        storer.add(ts, dateTime, null, BigDecimal.valueOf(10));
+	        ZonedDateTime last = dateTime.plusMinutes(45);
+	        storer.add(ts, last, null, BigDecimal.valueOf(500));
 	        storer.execute();
 	        storer = idsService.createStorer(true);
-	        dateTime = dateTime.plus(15*60000L);
-	        storer.add(ts, dateTime.toDate(), null, BigDecimal.valueOf(100));
-	        dateTime = dateTime.plus(15*60000L);
-	        storer.add(ts, dateTime.toDate(), null, BigDecimal.valueOf(200));
+	        dateTime = dateTime.plus(ts.interval());
+	        storer.add(ts, dateTime, null, BigDecimal.valueOf(100));
+	        dateTime = dateTime.plus(ts.interval());
+	        storer.add(ts, dateTime, null, BigDecimal.valueOf(200));
 	        storer.execute();
 	        ctx.commit();
         }
-        DateTime dateTime = new DateTime(2014,1,1,0,0);
-        List<TimeSeriesEntry> entries = ts.getEntries(new Interval(dateTime.minus(15*60000L).toDate(),dateTime.plus(60*60000L).toDate()));
+        ZonedDateTime dateTime = ZonedDateTime.of(2014,1,1,0,0,0,0,defaultZone);
+        List<TimeSeriesEntry> entries = ts.getEntries(Interval.of(dateTime.minusMinutes(15).toInstant(),dateTime.plusMinutes(60).toInstant()));
         assertThat(entries).hasSize(4);
         assertThat(entries.get(0).getBigDecimal(0)).isNull();
         assertThat(entries.get(1).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(90));
@@ -103,10 +106,9 @@ public class DerivedFieldTest {
         assertThat(entries.get(3).getVersion()).isEqualTo(2);
         try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	TimeSeriesDataStorer storer = idsService.createStorer(true);
-	        dateTime = new DateTime(2014, 1, 1, 0, 0,0);
-	        dateTime = dateTime.plus(15*60000L);
-	        storer.add(ts, dateTime.toDate(), null, BigDecimal.valueOf(50));
-	        dateTime = dateTime.plus(15*60000L);
+            dateTime = dateTime.plusMinutes(15);
+	        storer.add(ts, dateTime, null, BigDecimal.valueOf(50));
+	        dateTime = dateTime.plusMinutes(15);
 	        storer.execute();
 	        ctx.commit();
         }

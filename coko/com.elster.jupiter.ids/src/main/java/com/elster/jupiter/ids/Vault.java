@@ -1,14 +1,17 @@
 package com.elster.jupiter.ids;
 
-import java.util.*;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
+import java.util.TimeZone;
 
 public interface Vault {
 	String getComponentName();
 	long getId();	
 	String getDescription();
 	void setDescription(String description);
-	Date getMinDate();
-	Date getMaxDate();
+	Instant getMinDate();
+	Instant getMaxDate();
 	boolean isRegular();
 	boolean hasJournal();
 	int getSlotCount();
@@ -16,10 +19,16 @@ public interface Vault {
 	boolean hasLocalTime();
 	boolean isPartitioned();
 	boolean isActive();
-	void activate(Date to);
-	void addPartition(Date to);
-	TimeSeries createRegularTimeSeries(RecordSpec spec , TimeZone timeZone , IntervalLength intervalLength , int hourOffset);
-	TimeSeries createIrregularTimeSeries(RecordSpec spec, TimeZone timeZone);
-	boolean isValidDateTime(Date date);
+	void activate(Instant to);
+	void addPartition(Instant to);
+	default TimeSeries createRegularTimeSeries(RecordSpec spec , TimeZone timeZone , TemporalAmount interval , int hourOffset) {
+		return createRegularTimeSeries(spec, timeZone.toZoneId(), interval, hourOffset);
+	}
+	default TimeSeries createIrregularTimeSeries(RecordSpec spec, TimeZone timeZone) {
+		return createIrregularTimeSeries(spec, timeZone.toZoneId());
+	}
+	TimeSeries createRegularTimeSeries(RecordSpec spec , ZoneId zoneId , TemporalAmount interval , int hourOffset);
+	TimeSeries createIrregularTimeSeries(RecordSpec spec, ZoneId zoneId);
+	boolean isValidInstant(Instant instant);
 	void persist();
 }

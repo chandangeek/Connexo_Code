@@ -16,9 +16,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +47,8 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	}
 
 	@Override
-	public void add(TimeSeries timeSeries, Date timeStamp, Object... values) {
-		if (!timeSeries.isValidDateTime(timeStamp)) {
+	public void add(TimeSeries timeSeries, Instant timeStamp, Object... values) {
+		if (!timeSeries.isValidInstant(timeStamp)) {
 			throw new IllegalArgumentException();
 		}
 		if (values.length != timeSeries.getRecordSpec().getFieldSpecs().size()) {
@@ -256,10 +256,10 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	}
 
 	private static class SingleTimeSeriesStorer {
-		private final SortedMap<Date,TimeSeriesEntryImpl> newEntries = new TreeMap<>(); 
-		private final SortedMap<Date,TimeSeriesEntryImpl> oldEntries = new TreeMap<>();
-		private Date minDate;
-		private Date maxDate;
+		private final SortedMap<Instant, TimeSeriesEntryImpl> newEntries = new TreeMap<>(); 
+		private final SortedMap<Instant, TimeSeriesEntryImpl> oldEntries = new TreeMap<>();
+		private Instant minDate;
+		private Instant maxDate;
 		private int insertCount = 0;
 		private int updateCount = 0;
 		private TimeSeriesImpl timeSeries;
@@ -270,11 +270,11 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		void add(TimeSeriesEntryImpl entry) {
-			Date date = entry.getTimeStamp();
-            if (newEntries.containsKey(date)) {
+			Instant instant = entry.getTimeStamp();
+            if (newEntries.containsKey(instant)) {
                 throw new IllegalArgumentException("Duplicate date in timeSeries " + entry.getTimeSeries() );
             }
-			newEntries.put(date,entry);
+			newEntries.put(instant,entry);
 		}
 		
 		void updateTimeSeries(TimeSeriesImpl timeSeries) {
@@ -290,15 +290,15 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		int bindWhere(PreparedStatement statement,int offset) throws SQLException {
-			Date first = newEntries.firstKey();
-			Date last = newEntries.lastKey();
+			Instant first = newEntries.firstKey();
+			Instant last = newEntries.lastKey();
 			if (timeSeries.isRegular() && timeSeries.getRecordSpec().derivedFieldCount() > 0) {
 				first = timeSeries.next(first, -1);
 				last = timeSeries.next(last,1);
 			}
 			statement.setLong(offset++,getTimeSeries().getId());
-			statement.setLong(offset++,first.getTime());
-			statement.setLong(offset++,last.getTime());
+			statement.setLong(offset++,first.toEpochMilli());
+			statement.setLong(offset++,last.toEpochMilli());
 			return offset;
 		}
 	
@@ -352,7 +352,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		private TimeSeriesEntryImpl previous(TimeSeriesEntryImpl current, TimeSeriesEntryImpl guess) {
-			Date when = timeSeries.next(current.getTimeStamp(), -1);
+			Instant when = timeSeries.next(current.getTimeStamp(), -1);
 			if (guess != null && guess.getTimeStamp().equals(when)) {
 				return guess;
 			}
@@ -387,10 +387,10 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 					insertCount++;
 					statement.addBatch();
 				}
-				if (minDate == null || entry.getTimeStamp().before(minDate)) {
+				if (minDate == null || entry.getTimeStamp().isBefore(minDate)) {
 					minDate = entry.getTimeStamp();
 				}
-				if (maxDate == null || entry.getTimeStamp().after(maxDate)) {
+				if (maxDate == null || entry.getTimeStamp().isAfter(maxDate)) {
 					maxDate = entry.getTimeStamp();
 				}
 			}			

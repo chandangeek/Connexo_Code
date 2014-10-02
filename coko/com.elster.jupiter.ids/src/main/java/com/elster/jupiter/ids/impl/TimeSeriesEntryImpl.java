@@ -8,9 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class TimeSeriesEntryImpl implements TimeSeriesEntry {
@@ -33,9 +33,9 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
         }
     }
 
-    TimeSeriesEntryImpl(TimeSeriesImpl timeSeries, Date timeStamp, Object[] values) {
+    TimeSeriesEntryImpl(TimeSeriesImpl timeSeries, Instant timeStamp, Object[] values) {
         this.timeSeries = timeSeries;
-        this.timeStamp = timeStamp.getTime();
+        this.timeStamp = timeStamp.toEpochMilli();
         this.version = 1;
         this.recordTime = 0;
         this.values = Arrays.copyOf(values, values.length);
@@ -55,8 +55,8 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
     }
 
     @Override
-    public Date getTimeStamp() {
-        return new Date(timeStamp);
+    public Instant getTimeStamp() {
+        return Instant.ofEpochMilli(timeStamp);
     }
 
     @Override
@@ -65,13 +65,13 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
     }
 
     @Override
-    public Date getRecordDateTime() {
-        return new Date(recordTime);
+    public Instant getRecordDateTime() {
+        return Instant.ofEpochMilli(recordTime);
     }
 
     @Override
-    public Date getDate(int offset) {
-        return (Date) values[offset];
+    public Instant getInstant(int offset) {
+        return (Instant) values[offset];
     }
 
     @Override

@@ -42,9 +42,9 @@ public class InstallerImpl {
 		cal.set(Calendar.MINUTE,0);
 		cal.set(Calendar.SECOND,0);
 		cal.set(Calendar.MILLISECOND, 0);
-		newVault.activate(cal.getTime());
+		newVault.activate(cal.getTime().toInstant());
 		cal.add(Calendar.MONTH,1);
-		newVault.addPartition(cal.getTime());		
+		newVault.addPartition(cal.getTime().toInstant());		
 	}
 	
 	private void createRecordSpecs() {

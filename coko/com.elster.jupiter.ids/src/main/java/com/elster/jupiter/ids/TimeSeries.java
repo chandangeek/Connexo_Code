@@ -1,32 +1,32 @@
 package com.elster.jupiter.ids;
 
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
 import java.util.List;
-import java.util.TimeZone;
+import java.util.Optional;
 
 public interface TimeSeries {
 	long getId();
-	Date getFirstDateTime();
-	Date getLastDateTime();
-	Date getLockDateTime();
+	Instant getFirstDateTime();
+	Instant getLastDateTime();
+	Instant getLockDateTime();
 	boolean isRegular();
-	IntervalLength getIntervalLength();
+	TemporalAmount interval();
 	// offset in calendar hours (excluding DST transition hour).
 	int getOffset();	
 	Vault getVault();
 	RecordSpec getRecordSpec();
-	boolean add(Date dateTime , boolean overrule , Object... values);
+	boolean add(Instant dateTime , boolean overrule , Object... values);
     List<TimeSeriesEntry> getEntries(Interval interval);
-    Optional<TimeSeriesEntry> getEntry(Date when);
-    List<TimeSeriesEntry> getEntriesBefore(Date when,int entryCount);
-    List<TimeSeriesEntry> getEntriesOnOrBefore(Date when,int entryCount);
-	boolean isValidDateTime(Date date);
-	TimeZone getTimeZone();
+    Optional<TimeSeriesEntry> getEntry(Instant when);
+    List<TimeSeriesEntry> getEntriesBefore(Instant when,int entryCount);
+    List<TimeSeriesEntry> getEntriesOnOrBefore(Instant when, int entryCount);
+	boolean isValidInstant(Instant instant);
+	ZoneId getZoneId();
 	void removeEntries(Range<Instant> range);
 	default void removeEntry(Instant instant) {
 		removeEntries(Range.closed(instant, instant));
