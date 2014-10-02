@@ -1199,7 +1199,7 @@ public class DeviceImpl implements Device {
         for (MeterActivation meterActivation : this.getSortedMeterActivations(meter)) {
             java.util.Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
             if (channel.isPresent()) {
-                Date lastReadingDate = channel.get().getTimeSeries().getLastDateTime();
+                Date lastReadingDate = channel.get().getLastDateTime();
                 if (lastReadingDate != null) {
                     return this.getLast(channel.get().getRegisterReadings(new Interval(lastReadingDate, lastReadingDate)));
                 }
