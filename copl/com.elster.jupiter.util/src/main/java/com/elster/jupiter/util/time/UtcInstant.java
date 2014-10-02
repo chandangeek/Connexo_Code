@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.time;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -45,6 +46,10 @@ public final class UtcInstant implements Comparable<UtcInstant> {
 		return new Date(ms);
 	}
 
+	public Instant toInstant() {
+		return Instant.ofEpochMilli(ms);
+	}
+	
     @Override
     public boolean equals(Object o) {
         if (this == o) {
