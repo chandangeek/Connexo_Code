@@ -29,6 +29,18 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         {
             ref: 'readingsCount',
             selector: 'deviceLoadProfilesData #readingsCount'
+        },
+        {
+            ref: 'sideFilter',
+            selector: 'deviceLoadProfilesData #deviceLoadProfileDataSideFilter'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: 'deviceLoadProfilesData #deviceLoadProfileDataFilterForm'
+        },
+        {
+            ref: 'filterPanel',
+            selector: 'deviceLoadProfilesData filter-top-panel'
         }
     ],
 
@@ -48,20 +60,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             'deviceLoadProfilesData #deviceLoadProfileDataFilterApplyBtn': {
                 click: this.applyFilter
             },
-            'deviceLoadProfilesData #deviceLoadProfileDataFilterForm #hourField': {
-                blur: this.filterTimeFieldBlurHandler
-            },
-            'deviceLoadProfilesData #deviceLoadProfileDataFilterForm #minuteField': {
-                blur: this.filterTimeFieldBlurHandler
-            },
             'deviceLoadProfilesData #deviceLoadProfileDataFilterResetBtn': {
-                click: this.setDefaults
-            },
-            'deviceLoadProfilesData #deviceLoadProfileDataTopFilter #Reset': {
-                click: this.setDefaults
+                click: this.clearFilter
             },
             'deviceLoadProfilesData #deviceLoadProfilesGraphView': {
                 resize: this.onGraphResize
+            },
+            'deviceLoadProfilesData #deviceloadprofilesdatafilterpanel': {
+                removeFilter: this.removeFilterItem,
+                clearAllFilters: this.clearFilter
             }
         });
     },
@@ -70,6 +77,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         var me = this,
             loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
+            router = me.getController('Uni.controller.history.Router'),
             widget;
 
         dataStore.getProxy().setUrl({
@@ -85,15 +93,18 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         loadProfileModel.getProxy().setUrl(mRID);
         loadProfileModel.load(loadProfileId, {
             success: function (record) {
+                var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
+                    durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+                durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
                 widget = Ext.widget('deviceLoadProfilesData', {
                     router: me.getController('Uni.controller.history.Router'),
                     channels: record.get('channels')
                 });
                 me.loadProfileModel = record;
-
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
+                widget.setLoading();
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
                         me.showReadingsCount(dataStore);
@@ -102,9 +113,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                         widget.setLoading(false);
                     }
                 }, me);
-
-                me.setDefaults();
-
+                if (Ext.isEmpty(router.filter.data.intervalStart)) {
+                    me.setDefaults(dataIntervalAndZoomLevels);
+                }
+                dataStore.setFilterModel(router.filter);
+                me.getSideFilterForm().loadRecord(router.filter);
+                me.setFilterView();
+                dataStore.load();
             }
         });
     },
@@ -246,47 +261,53 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     },
 
     applyFilter: function () {
-        var filterModel = Ext.create('Mdc.model.LoadProfilesOfDeviceDataFilter'),
-            page = this.getPage(),
-            dataStore = this.getStore('Mdc.store.LoadProfilesOfDeviceData'),
-            dataStoreProxy = dataStore.getProxy();
-
-        page.down('#deviceLoadProfileDataFilterForm').updateRecord(filterModel);
-
-        dataStoreProxy.extraParams = {};
-
-        Ext.iterate(filterModel.getFilterQueryParams(), function (key, value) {
-            value && dataStoreProxy.setExtraParam(key, value);
-        });
-
-        page.down('#deviceLoadProfilesGraphView').isVisible() && page.setLoading(true);
-        page.down('#deviceLoadProfileDataTopFilter').addButtons(filterModel);
-        dataStore.load();
+        var filterForm = this.getSideFilterForm();
+        filterForm.updateRecord();
+        filterForm.getRecord().save();
     },
 
-    filterTimeFieldBlurHandler: function (field) {
-        var value = field.getValue();
-
-        ((!value && value !== 0) || value > field.maxValue || value < field.minValue) && field.setValue(0);
+    clearFilter: function () {
+        this.getSideFilterForm().getRecord().getProxy().destroy();
     },
 
-    setDefaults: function () {
+    removeFilterItem: function (key) {
+        var router = this.getController('Uni.controller.history.Router'),
+            record = router.filter;
+
+        if (key === 'onlySuspect') {
+            record.set(key, false);
+        }
+        record.save();
+    },
+
+    setDefaults: function (dataIntervalAndZoomLevels) {
         var me = this,
-            page = me.getPage(),
-            filterModel = Ext.create('Mdc.model.LoadProfilesOfDeviceDataFilter'),
-            interval = me.loadProfileModel.get('interval'),
-            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(interval),
+            router = me.getController('Uni.controller.history.Router'),
             all = dataIntervalAndZoomLevels.get('all'),
-            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime())),
-            durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
+        router.filter = Ext.create('Mdc.model.LoadProfilesOfDeviceDataFilter');
+        router.filter.set('intervalStart', intervalStart);
+        router.filter.set('duration', all.count + all.timeUnit);
+        router.filter.set('onlySuspect', true);
+        me.getPage().down('#suspect').setValue(true);
+    },
 
-
-
-        durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
-
-        filterModel.set('intervalStart', intervalStart);
-        filterModel.setDuration(durationsStore.getById(all.count + all.timeUnit));
-        page.down('#deviceLoadProfileDataFilterForm').loadRecord(filterModel);
-        me.applyFilter();
+    setFilterView: function () {
+        var filterForm = this.getSideFilterForm(),
+            filterView = this.getFilterPanel(),
+            intervalStartField = filterForm.down('[name=intervalStart]'),
+            intervalEndField = filterForm.down('[name=duration]'),
+            suspectField = filterForm.down('#suspect'),
+            intervalStart = intervalStartField.getValue(),
+            intervalEnd = intervalEndField.getRawValue(),
+            suspect = suspectField.boxLabel,
+            eventDateText = '';
+        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
+                    + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y') + ' ';
+        filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
+        filterView.down('#Reset').setText('Reset');
+        if (suspectField.getValue()) {
+            filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
+        }
     }
 });

@@ -762,14 +762,12 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('deviceGroups.title', 'MDC', 'Device groups'),
                     route: 'devicegroups',
                     controller: 'Mdc.controller.setup.DeviceGroups',
-                    authorized: Uni.Auth.hasPrivilege('privilege.administrate.device') || Uni.Auth.hasPrivilege('privilege.view.device'),
                     action: 'showDeviceGroups'
                 },
                 add: {
                     title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
                     route: 'add',
                     controller: 'Mdc.controller.setup.Devices',
-                    authorized: Uni.Auth.hasPrivilege('privilege.create.inventoryManagement'),
                     action: 'showAddDevice'
                 },
                 device: {
@@ -966,7 +964,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: 'Load profile data',
                                             route: 'data',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileData',
-                                            action: 'showOverview'
+                                            action: 'showOverview',
+                                            filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
                                         },
                                         validation: {
                                             title: 'Load profile validation',
