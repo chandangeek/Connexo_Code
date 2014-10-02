@@ -64,19 +64,7 @@ import static java.util.Comparator.nullsFirst;
 public final class ValidationServiceImpl implements ValidationService, InstallService {
 
     private static final Upcast<IValidationRuleSet, ValidationRuleSet> UPCAST = new Upcast<>();
-    private static final Function<IMeterActivationValidation, Date> METER_ACTIVATION_MIN_LAST_CHECKED = new Function<IMeterActivationValidation, Date>() {
-        @Override
-        public Date apply(IMeterActivationValidation input) {
-            return (input == null ? null : input.getMinLastChecked());
-        }
-    };
-    private static final Function<ChannelValidation, Date> CHANNEL_VALIDATION_LAST_CHECKED = new Function<ChannelValidation, Date>() {
-        @Override
-        public Date apply(ChannelValidation input) {
-            return (input == null ? null : input.getLastChecked());
-        }
-    };
-    private static final Date ETERNITY = new Date(Long.MAX_VALUE);
+    private static final Function<IMeterActivationValidation, Date> METER_ACTIVATION_MIN_LAST_CHECKED = input -> input == null ? null : input.getMinLastChecked();
 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
@@ -365,6 +353,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         meterActivationValidation.getChannelValidations().stream()
                 .map(ChannelValidation::getChannel)
                 .flatMap(c -> c.findReadingQuality(interval).stream())
+                .filter(IS_VALIDATION_QUALITY)
                 .forEach(ReadingQualityRecord::delete);
     }
 

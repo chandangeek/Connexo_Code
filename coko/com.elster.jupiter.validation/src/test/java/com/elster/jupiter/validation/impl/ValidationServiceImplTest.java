@@ -285,6 +285,9 @@ public class ValidationServiceImplTest {
         when(channelValidation2.getChannel()).thenReturn(channel2);
         when(channel1.findReadingQuality(Interval.sinceEpoch())).thenReturn(Arrays.asList(readingQuality1));
         when(channel2.findReadingQuality(Interval.sinceEpoch())).thenReturn(Arrays.asList(readingQuality2, readingQuality3));
+        when(readingQuality1.getTypeCode()).thenReturn("3.6.1");
+        when(readingQuality2.getTypeCode()).thenReturn("1.0.0");
+        when(readingQuality3.getTypeCode()).thenReturn("3.6.2");
 
         ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
 
@@ -299,7 +302,6 @@ public class ValidationServiceImplTest {
         verify(channelValidation2).setLastChecked(new Date(0L));
         verify(meterActivationValidation).save();
         verify(readingQuality1).delete();
-        verify(readingQuality2).delete();
         verify(readingQuality3).delete();
     }
 
