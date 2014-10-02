@@ -169,7 +169,7 @@ public class DeviceValidationResource {
 
         deviceValidationStatusInfo.loadProfileSuspectCount = statuses.stream()
                 .flatMap(d -> d.getReadingQualities().stream())
-                .filter(q -> q.getTypeCode().startsWith("3."))
+                .filter(ValidationService.IS_VALIDATION_QUALITY)
                 .count();
         if (statuses.isEmpty()) {
             deviceValidationStatusInfo.allDataValidated &= device.getRegisters().stream()
@@ -196,7 +196,7 @@ public class DeviceValidationResource {
 
         deviceValidationStatusInfo.registerSuspectCount = statuses.stream()
                 .flatMap(d -> d.getReadingQualities().stream())
-                .filter(q -> q.getTypeCode().startsWith("3."))
+                .filter(ValidationService.IS_VALIDATION_QUALITY)
                 .count();
         if (statuses.isEmpty()) {
             deviceValidationStatusInfo.allDataValidated &= device.getLoadProfiles().stream()
