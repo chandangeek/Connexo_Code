@@ -17,13 +17,12 @@ Ext.define('Dsh.view.ConnectionOverview', {
         align: 'stretch'
     },
     style: {
-        padding: '15px'
+        padding: '20px'
     },
     defaults: {
         style: {
-            marginTop: '30px',
-            paddingTop: '30px',
-            borderTop: '3px dotted grey'
+            marginBottom: '20px',
+            padding: 0
         }
     },
     initComponent: function () {
@@ -35,42 +34,37 @@ Ext.define('Dsh.view.ConnectionOverview', {
                 style: 'none'
             },
             {
-                layout: 'hbox',
-                style: {
-                    marginTop: '30px',
-                    border: 'none'
+                xtype: 'panel',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
                 },
                 defaults: {
                     style: {
-                        paddingRight: '50px'
-                    }
+                        marginRight: '20px',
+                        padding: '20px'
+                    },
+                    flex: 1
                 },
                 items: [
                     {
                         xtype: 'summary',
-                        flex: 3,
+                        flex: 2,
                         wTitle: Uni.I18n.translate('connection.widget.summary.title', 'DSH', 'Connection summary'),
                         router: me.router,
-                        parent: 'connections',
-                        style: {
-                            paddingRight: '150px'
-                        }
+                        parent: 'connections'
                     },
                     {
                         xtype: 'communication-servers',
                         itemId: 'communication-servers',
-                        router: me.router,
-                        flex: 1,
-                        style: {
-                            borderRight: '3px dotted grey'
-                        }
+                        router: me.router
                     },
                     {
                         xtype: 'quick-links',
                         itemId: 'quick-links',
-                        flex: 1,
                         style: {
-                            paddingLeft: '50px'
+                            marginRight: '0',
+                            padding: '20px'
                         },
                         data: [
                             {

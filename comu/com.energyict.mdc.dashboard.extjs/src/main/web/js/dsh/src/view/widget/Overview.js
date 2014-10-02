@@ -5,9 +5,6 @@ Ext.define('Dsh.view.widget.Overview', {
     itemId: 'overview',
     title: Uni.I18n.translate('overview.widget.overview.title', 'DSH', 'Overview'),
     ui: 'medium',
-    style: {
-        paddingTop: 0
-    },
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
@@ -15,12 +12,7 @@ Ext.define('Dsh.view.widget.Overview', {
         type: 'hbox',
         align: 'stretch'
     },
-    defaults: {
-        flex: 1,
-        style: {
-            paddingRight: '20px'
-        }
-    },
+    defaults: {flex: 1},
     total: 0,
 
     bindStore: function (store) {
@@ -32,6 +24,8 @@ Ext.define('Dsh.view.widget.Overview', {
                 {property: 'displayName', direction: 'ASC'}
             ]);
             var panel = Ext.create('Ext.panel.Panel', {
+                style: {padding: '20px', marginRight: !(idx % 2) ? '20px' : 0},
+                ui: 'tile',
                 tbar: {
                     xtype: 'container',
                     itemId: 'title',
@@ -80,6 +74,7 @@ Ext.define('Dsh.view.widget.Overview', {
                     }
                 }
             });
+
             me.add(panel);
         });
         me.mixins.bindable.bindStore.apply(this, arguments);
