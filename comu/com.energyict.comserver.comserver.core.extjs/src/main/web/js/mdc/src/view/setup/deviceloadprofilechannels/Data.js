@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
         'Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofilechannels.TableView',
         'Mdc.view.setup.deviceloadprofilechannels.GraphView',
-        'Mdc.view.setup.deviceloadprofilechannels.TopFilter',
         'Mdc.view.setup.deviceloadprofilechannels.SideFilter'
     ],
 
@@ -41,7 +40,9 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
             ],
             items: [
                 {
-                    xtype: 'deviceLoadProfileChannelDataTopFilter'
+                    xtype: 'filter-top-panel',
+                    itemId: 'deviceloadprofileschanneldatafilterpanel',
+                    emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
                 },
                 {
                     tbar: {

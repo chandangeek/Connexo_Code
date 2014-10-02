@@ -949,7 +949,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
                                                             route: 'data',
                                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
-                                                            action: 'showOverview'
+                                                            action: 'showOverview',
+                                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                                         },
                                                         validation: {
                                                             title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),

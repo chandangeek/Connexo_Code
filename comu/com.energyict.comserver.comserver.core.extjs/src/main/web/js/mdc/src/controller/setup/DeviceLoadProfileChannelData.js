@@ -31,7 +31,19 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             ref: 'readingsCount',
             selector: 'deviceLoadProfileChannelData #readingsCount'
         },
-        {ref: 'deviceLoadProfileChannelDataPreview', selector: '#deviceLoadProfileChannelDataPreview'}
+        {ref: 'deviceLoadProfileChannelDataPreview', selector: '#deviceLoadProfileChannelDataPreview'},
+        {
+            ref: 'sideFilter',
+            selector: 'deviceLoadProfileChannelData #deviceLoadProfileChannelDataSideFilter'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: 'deviceLoadProfileChannelData #deviceLoadProfileChannelDataFilterForm'
+        },
+        {
+            ref: 'filterPanel',
+            selector: 'deviceLoadProfileChannelData filter-top-panel'
+        }
     ],
 
     channelModel: null,
@@ -50,20 +62,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             'deviceLoadProfileChannelData #deviceLoadProfileDataFilterApplyBtn': {
                 click: this.applyFilter
             },
-            'deviceLoadProfileChannelData #deviceLoadProfileChannelDataFilterForm #hourField': {
-                blur: this.filterTimeFieldBlurHandler
-            },
-            'deviceLoadProfileChannelData #deviceLoadProfileChannelDataFilterForm #minuteField': {
-                blur: this.filterTimeFieldBlurHandler
-            },
             'deviceLoadProfileChannelData #deviceLoadProfileDataFilterResetBtn': {
-                click: this.setDefaults
-            },
-            'deviceLoadProfileChannelData #deviceLoadProfileChannelDataTopFilter #Reset': {
-                click: this.setDefaults
+                click: this.clearFilter
             },
             'deviceLoadProfileChannelData #deviceLoadProfileChannelGraphView': {
                 resize: this.onGraphResize
+            },
+            'deviceLoadProfileChannelData #deviceloadprofileschanneldatafilterpanel': {
+                removeFilter: this.removeFilterItem,
+                clearAllFilters: this.clearFilter
             }
         });
     },
@@ -76,6 +83,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 channel: me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice')
             },
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
+            router = me.getController('Uni.controller.history.Router'),
             widget;
 
         dataStore.getProxy().setUrl({
@@ -104,6 +112,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
 
         models.channel.load(channelId, {
             success: function (record) {
+                var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
+                    durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+                durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
                 widget = Ext.widget('deviceLoadProfileChannelData', {
                     router: me.getController('Uni.controller.history.Router'),
                     channel: record
@@ -112,7 +123,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(mRID, loadProfileId, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
-
+                widget.setLoading();
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
                         me.showReadingsCount(dataStore);
@@ -121,8 +132,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                         widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfileChannelTableView').isVisible() && dataStore.count());
                     }
                 }, me);
-
-                me.setDefaults();
+                if (Ext.isEmpty(router.filter.data.intervalStart)) {
+                    me.setDefaults(dataIntervalAndZoomLevels);
+                }
+                dataStore.setFilterModel(router.filter);
+                me.getSideFilterForm().loadRecord(router.filter);
+                me.setFilterView();
+                dataStore.load();
             }
         });
     },
@@ -229,44 +245,53 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
     },
 
     applyFilter: function () {
-        var filterModel = Ext.create('Mdc.model.LoadProfilesOfDeviceDataFilter'),
-            page = this.getPage(),
-            dataStore = this.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
-            dataStoreProxy = dataStore.getProxy();
-
-        page.down('#deviceLoadProfileChannelDataFilterForm').updateRecord(filterModel);
-
-        dataStoreProxy.extraParams = {};
-
-        Ext.iterate(filterModel.getFilterQueryParams(), function (key, value) {
-            value && dataStoreProxy.setExtraParam(key, value);
-        });
-
-        page.down('#deviceLoadProfileChannelGraphView').isVisible() && page.setLoading(true);
-        page.down('#deviceLoadProfileChannelDataTopFilter').addButtons(filterModel);
-        dataStore.load();
+        var filterForm = this.getSideFilterForm();
+        filterForm.updateRecord();
+        filterForm.getRecord().save();
     },
 
-    filterTimeFieldBlurHandler: function (field) {
-        var value = field.getValue();
-
-        ((!value && value !== 0) || value > field.maxValue || value < field.minValue) && field.setValue(0);
+    clearFilter: function () {
+        this.getSideFilterForm().getRecord().getProxy().destroy();
     },
 
-    setDefaults: function () {
+    removeFilterItem: function (key) {
+        var router = this.getController('Uni.controller.history.Router'),
+            record = router.filter;
+
+        if (key === 'onlySuspect') {
+            record.set(key, false);
+        }
+        record.save();
+    },
+
+    setDefaults: function (dataIntervalAndZoomLevels) {
         var me = this,
-            filterModel = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'),
-            interval = me.channelModel.get('interval'),
-            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(interval),
+            router = me.getController('Uni.controller.history.Router'),
             all = dataIntervalAndZoomLevels.get('all'),
-            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.channelModel.get('lastReading') || new Date().getTime())),
-            durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.channelModel.get('lastReading') || new Date().getTime()));
+        router.filter = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter');
+        router.filter.set('intervalStart', intervalStart);
+        router.filter.set('duration', all.count + all.timeUnit);
+        router.filter.set('onlySuspect', true);
+        me.getPage().down('#suspect').setValue(true);
+    },
 
-        durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
-
-        filterModel.set('intervalStart', intervalStart);
-        filterModel.setDuration(durationsStore.getById(all.count + all.timeUnit));
-        me.getPage().down('#deviceLoadProfileChannelDataFilterForm').loadRecord(filterModel);
-        me.applyFilter();
+    setFilterView: function () {
+        var filterForm = this.getSideFilterForm(),
+            filterView = this.getFilterPanel(),
+            intervalStartField = filterForm.down('[name=intervalStart]'),
+            intervalEndField = filterForm.down('[name=duration]'),
+            suspectField = filterForm.down('#suspect'),
+            intervalStart = intervalStartField.getValue(),
+            intervalEnd = intervalEndField.getRawValue(),
+            suspect = suspectField.boxLabel,
+            eventDateText = '';
+        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
+            + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y') + ' ';
+        filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
+        filterView.down('#Reset').setText('Reset');
+        if (suspectField.getValue()) {
+            filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
+        }
     }
 });
