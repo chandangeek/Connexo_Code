@@ -173,6 +173,22 @@ public class DeviceValidationImpl implements DeviceValidation {
                 .anyMatch(c -> c.hasData());
     }
 
+    @Override
+    public void setLastChecked(Channel channel, Date start) {
+        getDevice().findKoreChannels(channel).stream()
+                .forEach(c -> {
+                    validationService.updateLastChecked(c, start);
+                });
+    }
+
+    @Override
+    public void setLastChecked(Register<?> register, Date start) {
+        getDevice().findKoreChannels(register).stream()
+                .forEach(c -> {
+                    validationService.updateLastChecked(c, start);
+                });
+    }
+
     private boolean hasActiveRules(Channel channel) {
         return hasActiveRules(channel.getReadingType());
     }

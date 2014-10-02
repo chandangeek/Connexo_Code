@@ -53,4 +53,8 @@ public interface DeviceValidation {
     boolean hasData(Channel c);
 
     boolean hasData(Register<?> register);
+
+    void setLastChecked(Channel c, Date start);
+
+    void setLastChecked(Register<?> c, Date start);
 }
