@@ -3,7 +3,6 @@ Ext.define('Dsh.view.widget.Overview', {
     requires: [ 'Dsh.view.widget.common.Bar' ],
     alias: 'widget.overview',
     itemId: 'overview',
-    title: Uni.I18n.translate('overview.widget.overview.title', 'DSH', 'Overview'),
     ui: 'medium',
     mixins: {
         bindable: 'Ext.util.Bindable'
@@ -14,7 +13,18 @@ Ext.define('Dsh.view.widget.Overview', {
     },
     defaults: {flex: 1},
     total: 0,
-
+    dockedItems: [{
+        xtype: 'toolbar',
+        dock: 'top',
+        style: {padding: 0},
+        items: [
+            {
+                xtype: 'container',
+                itemId: 'title',
+                html: '<h2>' + Uni.I18n.translate('overview.widget.overview.title', 'DSH', 'Overview') + '</h2>'
+            }
+        ]
+    }],
     bindStore: function (store) {
         var me = this;
         me.removeAll(true);

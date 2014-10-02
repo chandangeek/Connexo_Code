@@ -2,7 +2,7 @@ Ext.define('Dsh.view.widget.common.StackedBar', {
     alias: 'widget.stacked-bar',
     extend: 'Dsh.view.widget.common.Bar',
 
-    tooltipTpl: '<table><tpl foreach="."><tr><td>{[xkey]}</td><td>{.}</td></tr></tpl></table>',
+    tooltipTpl: '<table><tpl foreach="."><tr><td>{[Uni.I18n.translate("overview.widget.breakdown." + xkey, "DSH", xkey)]}</td><td>{.}</td></tr></tpl></table>',
     trackTpl: [
         '<div data-qtip="{tooltip}">',
         '<tpl foreach="count">',
