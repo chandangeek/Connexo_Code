@@ -276,19 +276,13 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public Date getMinLastChecked() {
-        if (!getChannelValidations().isEmpty()) {
-            return getChannelValidations().stream()
-                    .filter(notNull())
-                    .filter(ChannelValidation::hasActiveRules)
-                    .map(ChannelValidation::getLastChecked)
-                    .filter(notNull())
-                    .min(naturalOrder())
-                    .orElse(null);
-        } else if (lastRun != null) {
-            return lastRun.toDate();
-        } else {
-            return clock.now();
-        }
+        return getChannelValidations().stream()
+                .filter(notNull())
+                .filter(ChannelValidation::hasActiveRules)
+                .map(ChannelValidation::getLastChecked)
+                .filter(notNull())
+                .min(naturalOrder())
+                .orElse(null);
     }
 
     @Override
