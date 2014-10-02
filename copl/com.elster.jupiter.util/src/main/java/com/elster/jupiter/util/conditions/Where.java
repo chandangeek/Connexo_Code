@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
 
 public final class Where {
 	
@@ -129,6 +131,19 @@ public final class Where {
 	
 	public Condition in(List<?> values) {
 		return ListOperator.IN.contains(field, values);
+	}
+	
+	public Condition in(Range<?> range) {
+		Condition result = Condition.TRUE;
+		if (range.hasLowerBound()) {
+			boolean open = range.lowerBoundType().equals(BoundType.OPEN);
+			result = result.and(open ? isGreaterThan(range.lowerEndpoint()) : isGreaterThanOrEqual(range.lowerEndpoint()));
+		}
+		if (range.hasUpperBound()) {
+			boolean open = range.upperBoundType().equals(BoundType.OPEN);
+			result = result.and(open ? isLessThan(range.upperEndpoint()) : isLessThanOrEqual(range.upperEndpoint()));			
+		}
+		return result;
 	}
 	
 	@Deprecated
