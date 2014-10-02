@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -29,6 +31,9 @@ import java.io.IOException;
 public class G3GatewayRegisters {
 
     private static final ObisCode GSM_FIELD_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
+    private static final ObisCode FW_APPLICATION = ObisCode.fromString("1.0.0.2.0.255");
+    private static final ObisCode FW_UPPER_MAC = ObisCode.fromString("1.1.0.2.0.255");
+    private static final ObisCode FW_LOWER_MAC = ObisCode.fromString("1.2.0.2.0.255");
 
     private final RegisterMapping[] registerMappings;
     private final CustomRegisterMapping[] customRegisterMappings;
@@ -53,6 +58,10 @@ public class G3GatewayRegisters {
         };
     }
 
+    private boolean isFirmwareRegister(ObisCode obisCode) {
+        return obisCode.equals(FW_APPLICATION) || obisCode.equals(FW_UPPER_MAC) || obisCode.equals(FW_LOWER_MAC);
+    }
+
     public CollectedRegister readRegister(OfflineRegister register) {
         ObisCode obisCode = register.getObisCode();
 
@@ -63,6 +72,15 @@ public class G3GatewayRegisters {
                 Quantity quantityValue = session.getCosemObjectFactory().getRegister(obisCode).getQuantityValue();
                 RegisterValue registerValue = new RegisterValue(obisCode, quantityValue);
                 return createCollectedRegister(registerValue, register);
+            } else if (isFirmwareRegister(obisCode)) {
+                AbstractDataType valueAttr = session.getCosemObjectFactory().getData(obisCode).getValueAttr();
+                OctetString octetString = valueAttr.getOctetString();
+                if (octetString == null) {
+                    throw new IOException("Unexpected data type while reading out firmware version, expected OctetString");
+                } else {
+                    RegisterValue registerValue = new RegisterValue(obisCode, octetString.stringValue());
+                    return createCollectedRegister(registerValue, register);
+                }
             }
 
             for (CustomRegisterMapping customRegisterMapping : customRegisterMappings) {
