@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.Predicates.notNull;
 import static java.util.Comparator.*;
@@ -152,7 +153,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public Set<ChannelValidation> getChannelValidations() {
-        return Collections.unmodifiableSet(new HashSet<ChannelValidation>(doGetChannelValidations()));
+        return Collections.unmodifiableSet(new HashSet<>(doGetChannelValidations()));
     }
 
     @Override
@@ -276,13 +277,24 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public Date getMinLastChecked() {
+        return lastCheckedStream()
+                .min(naturalOrder())
+                .orElse(null);
+    }
+
+    @Override
+    public Date getMaxLastChecked() {
+        return lastCheckedStream()
+                .max(naturalOrder())
+                .orElse(null);
+    }
+
+    private Stream<Date> lastCheckedStream() {
         return getChannelValidations().stream()
                 .filter(notNull())
                 .filter(ChannelValidation::hasActiveRules)
                 .map(ChannelValidation::getLastChecked)
-                .filter(notNull())
-                .min(naturalOrder())
-                .orElse(null);
+                .filter(notNull());
     }
 
     @Override

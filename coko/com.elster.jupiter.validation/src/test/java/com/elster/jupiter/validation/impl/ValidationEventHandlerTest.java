@@ -83,8 +83,8 @@ public class ValidationEventHandlerTest {
     public void testOnEvent() {
         handler.handle(localEvent);
 
-        verify(validationService).validate(meterActivation1, interval(date1, date5));
-        verify(validationService).validate(meterActivation2, interval(date4, date5));
+        verify(validationService).validateForNewData(meterActivation1, interval(date1, date5));
+        verify(validationService).validateForNewData(meterActivation2, interval(date4, date5));
     }
 
 

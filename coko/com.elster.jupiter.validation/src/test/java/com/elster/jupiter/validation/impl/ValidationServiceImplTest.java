@@ -40,6 +40,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -117,6 +118,12 @@ public class ValidationServiceImplTest {
     private QueryService queryService;
     @Mock
     private Query<IValidationRule> allValidationRuleQuery;
+    @Mock
+    private IMeterActivationValidation meterActivationValidation;
+    @Mock
+    private IChannelValidation channelValidation1, channelValidation2;
+    @Mock
+    private ReadingQualityRecord readingQuality1, readingQuality2, readingQuality3;
 
     @Before
     public void setUp() {
@@ -254,6 +261,46 @@ public class ValidationServiceImplTest {
             }
         }).toSet()).contains(channel1);
 
+    }
+
+    @Test
+    public void testApplyRuleSetWithChannelsAndOverwrite() {
+        when(meterActivation.getId()).thenReturn(ID);
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(meter.getId()).thenReturn(ID);
+        when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
+        when(channel1.getId()).thenReturn(1001L);
+        ReadingType readingType = mock(ReadingType.class);
+        doReturn(Arrays.asList(readingType)).when(channel1).getReadingTypes();
+        when(channel2.getId()).thenReturn(1002L);
+        when(channel1.getMeterActivation()).thenReturn(meterActivation);
+        when(channel2.getMeterActivation()).thenReturn(meterActivation);
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
+        when(meterValidation.getActivationStatus()).thenReturn(false);
+        when(queryExecutor.select(any(Condition.class))).thenReturn(Arrays.asList(meterActivationValidation));
+        when(meterActivationValidation.getMinLastChecked()).thenReturn(new Date (5000L));
+        when(meterActivationValidation.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation1, channelValidation2));
+        when(channelValidation1.getLastChecked()).thenReturn(new Date (-5000));
+        when(channelValidation2.getLastChecked()).thenReturn(new Date (5000L));        when(channelValidation1.getChannel()).thenReturn(channel1);
+        when(channelValidation2.getChannel()).thenReturn(channel2);
+        when(channel1.findReadingQuality(Interval.sinceEpoch())).thenReturn(Arrays.asList(readingQuality1));
+        when(channel2.findReadingQuality(Interval.sinceEpoch())).thenReturn(Arrays.asList(readingQuality2, readingQuality3));
+
+        ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
+
+        when(meterActivationValidation.getRuleSet()).thenReturn(validationRuleSet);
+
+        ValidationRule validationRule = mock(IValidationRule.class);
+        doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
+        doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
+        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
+        validationService.validateForNewData(meterActivation, Interval.sinceEpoch());
+
+        verify(channelValidation2).setLastChecked(new Date(0L));
+        verify(meterActivationValidation).save();
+        verify(readingQuality1).delete();
+        verify(readingQuality2).delete();
+        verify(readingQuality3).delete();
     }
 
     @Test
