@@ -762,12 +762,14 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('deviceGroups.title', 'MDC', 'Device groups'),
                     route: 'devicegroups',
                     controller: 'Mdc.controller.setup.DeviceGroups',
+                    privileges: ['privilege.view.device', 'privilege.administrate.device'],
                     action: 'showDeviceGroups'
                 },
                 add: {
                     title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
                     route: 'add',
                     controller: 'Mdc.controller.setup.Devices',
+                    privileges: ['privilege.create.inventoryManagement'],
                     action: 'showAddDevice'
                 },
                 device: {
