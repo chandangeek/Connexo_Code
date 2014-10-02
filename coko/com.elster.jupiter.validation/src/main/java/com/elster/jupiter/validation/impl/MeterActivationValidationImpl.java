@@ -203,7 +203,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval, Channel channel) {
-        return new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), getLatestDate(channel.getTimeSeries().getLastDateTime(), interval.getEnd()));
+        return new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), getLatestDate(channel.getLastDateTime(), interval.getEnd()));
     }
 
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
@@ -264,7 +264,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
             }
             Comparator<? super Date> comparator = nullsLast(naturalOrder());
             for (ChannelValidation channelValidation : getChannelValidations()) {
-                Date lastDateTime = channelValidation.getChannel().getTimeSeries().getLastDateTime();
+                Date lastDateTime = channelValidation.getChannel().getLastDateTime();
                 Date lastChecked = channelValidation.getLastChecked();
                 if (channelValidation.hasActiveRules() && comparator.compare(lastChecked, lastDateTime) < 0) {
                     return false;

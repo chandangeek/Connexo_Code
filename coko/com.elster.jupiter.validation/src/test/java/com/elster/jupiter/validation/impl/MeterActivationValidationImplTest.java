@@ -114,7 +114,7 @@ public class MeterActivationValidationImplTest {
     public void testValidateOneRuleAppliesToOneChannel() throws Exception {
         doReturn(Collections.singleton(readingType1)).when(rule1).getReadingTypes();
         when(rule1.validateChannel(channel1, INTERVAL)).thenReturn(DATE4);
-        when(channel1.getTimeSeries().getLastDateTime()).thenReturn(DATE4);
+        when(channel1.getLastDateTime()).thenReturn(DATE4);
 
         meterActivationValidation.validate(INTERVAL);
 
@@ -133,8 +133,8 @@ public class MeterActivationValidationImplTest {
         when(rule1.validateChannel(channel2, INTERVAL)).thenReturn(DATE2);
         when(rule2.validateChannel(channel1, INTERVAL)).thenReturn(DATE2);
         when(rule2.validateChannel(channel2, INTERVAL)).thenReturn(DATE4);
-        when(channel1.getTimeSeries().getLastDateTime()).thenReturn(DATE4);
-        when(channel2.getTimeSeries().getLastDateTime()).thenReturn(DATE4);
+        when(channel1.getLastDateTime()).thenReturn(DATE4);
+        when(channel2.getLastDateTime()).thenReturn(DATE4);
 
         meterActivationValidation.validate(INTERVAL);
 
