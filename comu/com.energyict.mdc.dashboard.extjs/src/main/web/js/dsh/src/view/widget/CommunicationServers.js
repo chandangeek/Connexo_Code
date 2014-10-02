@@ -38,6 +38,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                         view.store.load();
                     },
                     itemmouseenter: function (view, record) {
+                        console.log(record);
                         Ext.create('Ext.tip.ToolTip', {
                             itemId: 'communication-servers-tooltip',
                             target: view.el,
@@ -56,10 +57,10 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                                         '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.onlineRemote', 'DSH', 'Online/Remote') + '</td>',
                                         '<td>' + record.get('comServerType') + '</td>',
                                     '</tr>',
-                                    '<tpl if="blockedSince">',
+                                    '<tpl if="blockTime">',
                                         '<tr>',
                                             '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.downSince', 'DSH', 'Down since') + '</td>',
-                                            '<td>' + (record.get('blockedSince') ? Ext.util.Format.date(new Date(record.get('blockedSince')), 'D M j, Y G:i') : null) + '</td>',
+                                            '<td>' + (record.get('blockTime') ? Ext.util.Format.date(new Date(record.get('blockTime')), 'D M j, Y G:i') : null) + '</td>',
                                         '</tr>',
                                     '</tpl>',
                                 '</table>'
