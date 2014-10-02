@@ -1,0 +1,303 @@
+package com.energyict.mdc.device.data.rest.impl;
+
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+import com.energyict.mdc.tasks.ComTask;
+import com.google.common.base.Optional;
+import org.junit.Test;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyTest {
+
+    @Test
+    public void testGetComTaskExecutionsForComTaskExecutionWithoutEnablement() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
+        assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
+        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        assertThat(schedules).hasSize(0);
+    }
+
+    @Test
+    public void testGetComTaskExecutionsForEnablement() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        ComTask comTask = mock(ComTask.class);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
+        assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
+        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        assertThat(schedules).hasSize(1);
+        assertThat(schedules.get(0))
+                .containsKey("name")
+                .containsKey("id")
+                .containsKey("masterScheduleId")
+                .containsKey("schedule")
+                .containsKey("plannedDate")
+                .containsKey("nextCommunication")
+                .containsKey("comTaskInfos")
+                .containsKey("type");
+    }
+
+    @Test
+    public void testGetComTaskExecutionsForEnablementWhichHasAdHocExecution() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        ComTask comTask = mock(ComTask.class);
+
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.isAdHoc()).thenReturn(true);
+
+        Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
+        assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
+        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        assertThat(schedules).hasSize(1);
+        assertThat(schedules.get(0).get("type")).isEqualTo("ADHOC");
+        assertThat(schedules.get(0))
+                .containsKey("name")
+                .containsKey("id")
+                .containsKey("masterScheduleId")
+                .containsKey("schedule")
+                .containsKey("plannedDate")
+                .containsKey("nextCommunication")
+                .containsKey("comTaskInfos")
+                .containsKey("type");
+    }
+
+    @Test
+    public void testGetComTaskExecutionsForEnablementWhichHasManualExecution() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        ComTask comTask = mock(ComTask.class);
+
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.isScheduledManually()).thenReturn(true);
+        NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
+
+        Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
+        assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
+        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        assertThat(schedules).hasSize(1);
+        assertThat(schedules.get(0).get("type")).isEqualTo("INDIVIDUAL");
+        assertThat(schedules.get(0))
+                .containsKey("name")
+                .containsKey("id")
+                .containsKey("masterScheduleId")
+                .containsKey("schedule")
+                .containsKey("plannedDate")
+                .containsKey("nextCommunication")
+                .containsKey("comTaskInfos")
+                .containsKey("type");
+    }
+
+    @Test
+    public void testGetComTaskExecutionsForEnablementWhichHasScheduledExecution() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ScheduledComTaskExecution comTaskExecution = mock(ScheduledComTaskExecution.class);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        ComTask comTask = mock(ComTask.class);
+
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
+        when(comTaskExecution.getComSchedule()).thenReturn(mock(ComSchedule.class));
+        NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
+
+        Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
+        assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
+        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        assertThat(schedules).hasSize(1);
+        assertThat(schedules.get(0).get("type")).isEqualTo("SCHEDULED");
+        assertThat(schedules.get(0))
+                .containsKey("name")
+                .containsKey("id")
+                .containsKey("masterScheduleId")
+                .containsKey("schedule")
+                .containsKey("plannedDate")
+                .containsKey("nextCommunication")
+                .containsKey("comTaskInfos")
+                .containsKey("type");
+    }
+
+    @Test
+    public void testCreateScheduledComTaskExecutionFromEnablement() throws Exception {
+        SchedulingInfo schedulingInfo = new SchedulingInfo();
+        schedulingInfo.id = 111;
+        schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+
+        ComTask comTask = mock(ComTask.class);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTask.getId()).thenReturn(111L);
+
+
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+        ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
+        when(device.newManuallyScheduledComTaskExecution(comTaskEnablement,protocolDialectConfigurationProperties,schedulingInfo.schedule.asTemporalExpression())).thenReturn(comTaskExecutionBuilder);
+
+        Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(comTaskExecutionBuilder, times(1)).add();
+        verify(device,times(1)).newManuallyScheduledComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties, schedulingInfo.schedule.asTemporalExpression());
+    }
+
+    @Test
+    public void testChangeScheduleOnManuallyScheduledComTaskExecution() throws Exception {
+        SchedulingInfo schedulingInfo = new SchedulingInfo();
+        schedulingInfo.id = 111;
+        schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        ComTask comTask = mock(ComTask.class);
+        when(comTaskExecution.getId()).thenReturn(111L);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.isScheduledManually()).thenReturn(true);
+        NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
+
+        ManuallyScheduledComTaskExecutionUpdater scheduledComTaskExecutionUpdater = mock(ManuallyScheduledComTaskExecutionUpdater.class);
+        when(comTaskExecution.getUpdater()).thenReturn(scheduledComTaskExecutionUpdater);
+        when(scheduledComTaskExecutionUpdater.scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression())).thenReturn(scheduledComTaskExecutionUpdater);
+
+        Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(scheduledComTaskExecutionUpdater,times(1)).scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression());
+        verify(scheduledComTaskExecutionUpdater,times(1)).update();
+    }
+
+    @Test
+    public void testRemoveScheduleOnManuallyScheduledComTaskExecution() throws Exception {
+        SchedulingInfo schedulingInfo = new SchedulingInfo();
+        schedulingInfo.id = 111;
+
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        ComTask comTask = mock(ComTask.class);
+        when(comTaskExecution.getId()).thenReturn(111L);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.isScheduledManually()).thenReturn(true);
+        NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
+
+
+        Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(device,times(1)).removeComTaskExecution(comTaskExecution);
+    }
+
+    @Test
+    public void testRunAdHocComTaskFromEnablement() throws Exception{
+        SchedulingInfo schedulingInfo = new SchedulingInfo();
+        schedulingInfo.id = 111;
+
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("1")).thenReturn(device);
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+
+        ComTask comTask = mock(ComTask.class);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTask.getId()).thenReturn(111L);
+
+
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+        ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
+        when(device.newAdHocComTaskExecution(comTaskEnablement,protocolDialectConfigurationProperties)).thenReturn(comTaskExecutionBuilder);
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
+        when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
+
+        Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(comTaskExecutionBuilder, times(1)).add();
+        verify(comTaskExecution,times(1)).scheduleNow();
+    }
+}

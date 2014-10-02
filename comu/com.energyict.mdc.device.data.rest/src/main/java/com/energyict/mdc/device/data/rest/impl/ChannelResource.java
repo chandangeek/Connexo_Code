@@ -185,13 +185,17 @@ public class ChannelResource {
     public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
 
         Date start = validationInfo.lastChecked == null ? null : new Date(validationInfo.lastChecked);
-        validateLoadProfile(doGetChannel(mrid, loadProfileId, channelId), start);
+        validateChannel(doGetChannel(mrid, loadProfileId, channelId), start);
 
         return Response.status(Response.Status.OK).build();
     }
 
-    private void validateLoadProfile(Channel channel, Date start) {
-        channel.getDevice().forValidation().validateChannel(channel, start, clock.now());
+    private void validateChannel(Channel channel, Date start) {
+        if (channel.getLastReading() != null && (start == null || channel.getLastReading().after(start))) {
+            channel.getDevice().forValidation().validateChannel(channel, start, channel.getLastReading());
+        } else if (start != null) {
+            channel.getDevice().forValidation().setLastChecked(channel, start);
+        }
     }
 
 
