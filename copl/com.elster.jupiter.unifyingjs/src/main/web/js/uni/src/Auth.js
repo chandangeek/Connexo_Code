@@ -34,5 +34,17 @@ Ext.define('Uni.Auth', {
 
     hasNoPrivilege: function (privilege) {
         return !this.hasPrivilege(privilege);
+    },
+
+    hasAnyPrivilege: function (privileges) {
+        if (Ext.isArray(privileges)) {
+            for (var i = 0; i < privileges.length; i++) {
+                var privilege = privileges[i];
+                if (this.hasPrivilege(privilege)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 });
