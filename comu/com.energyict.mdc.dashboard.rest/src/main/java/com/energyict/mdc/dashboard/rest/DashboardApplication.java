@@ -4,6 +4,7 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.dashboard.DashboardService;
+import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
@@ -197,6 +198,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(SummaryInfoFactory.class).to(SummaryInfoFactory.class);
             bind(ConnectionOverviewInfoFactory.class).to(ConnectionOverviewInfoFactory.class);
             bind(CommunicationOverviewInfoFactory.class).to(CommunicationOverviewInfoFactory.class);
+            bind(ComServerStatusInfoFactory.class).to(ComServerStatusInfoFactory.class);
         }
     }
 
