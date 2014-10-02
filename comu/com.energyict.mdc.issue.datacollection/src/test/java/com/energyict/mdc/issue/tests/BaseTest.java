@@ -53,8 +53,7 @@ import javax.validation.MessageInterpolator;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore("Base functionality for all tests")
-public class BaseTest {
+public abstract class BaseTest {
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -68,6 +67,7 @@ public class BaseTest {
             bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class));
             bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class));
             bind(DeviceService.class).toInstance(mock(DeviceService.class));
+            bind(CommunicationTaskService.class).toInstance(mock(CommunicationTaskService.class));
 
             Thesaurus thesaurus = mock(Thesaurus.class);
             bind(Thesaurus.class).toInstance(thesaurus);

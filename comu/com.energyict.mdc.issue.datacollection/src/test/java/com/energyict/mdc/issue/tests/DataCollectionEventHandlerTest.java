@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DataCollectionEventHandlerTest extends BaseTest {
+
     @Test
     public void testSuccessfullProcess() {
         Map messageMap = new HashMap<>();
