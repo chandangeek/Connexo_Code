@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -73,6 +74,7 @@ public abstract class AbstractComCommandExecuteTest {
         ProgrammableClock clock = new ProgrammableClock();
         serviceProvider.setClock(clock);
         serviceProvider.setIssueService(new IssueServiceImpl(clock));
+        serviceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
         serviceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
         ServiceProvider.instance.set(serviceProvider);
     }

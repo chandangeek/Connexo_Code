@@ -91,7 +91,8 @@ public class EngineServiceImpl implements EngineService, InstallService {
     public EngineServiceImpl(
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineModelService engineModelService, IssueService issueService,
-            DeviceService deviceService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
+            MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
+            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory, EmbeddedWebServerFactory embeddedWebServerFactory,
             WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory, WebSocketEventPublisherFactory webSocketEventPublisherFactory,
@@ -106,7 +107,10 @@ public class EngineServiceImpl implements EngineService, InstallService {
         setEngineModelService(engineModelService);
         setThreadPrincipalService(threadPrincipalService);
         setIssueService(issueService);
-        setDeviceService(deviceService);
+        this.setDeviceService(deviceService);
+        this.setConnectionTaskService(connectionTaskService);
+        this.setCommunicationTaskService(communicationTaskService);
+        this.setLogBookService(logBookService);
         setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         setUserService(userService);
         setDeviceConfigurationService(deviceConfigurationService);
@@ -255,10 +259,6 @@ public class EngineServiceImpl implements EngineService, InstallService {
     @Reference
     public void setSerialComponentService(SerialComponentService serialComponentService) {
         this.serialComponentService = serialComponentService;
-    }
-
-    DataModel getDataModel() {
-        return dataModel;
     }
 
     Thesaurus getThesaurus() {

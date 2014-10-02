@@ -110,7 +110,7 @@ public class FakeServiceProvider
 
     @Override
     public CommunicationTaskService communicationTaskService() {
-        return this.communicationTaskService();
+        return this.communicationTaskService;
     }
 
     @Override
