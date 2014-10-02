@@ -169,6 +169,9 @@ public class LoadProfileResource {
     private void validateLoadProfile(LoadProfile loadProfile, Date start) {
         if (loadProfile.getLastReading() != null && (start == null || loadProfile.getLastReading().after(start))) {
             loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile, start, loadProfile.getLastReading());
+        } else if (start != null) {
+            loadProfile.getChannels().stream()
+                    .forEach(c -> loadProfile.getDevice().forValidation().setLastChecked(c, start));
         }
     }
 

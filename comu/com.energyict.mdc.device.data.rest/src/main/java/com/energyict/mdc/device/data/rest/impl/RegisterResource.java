@@ -96,6 +96,8 @@ public class RegisterResource {
     private void validateRegister(Register<?> register, Date start) {
         if (register.getLastReadingDate().isPresent() && register.getLastReadingDate().get().after(start)) {
             register.getDevice().forValidation().validateRegister(register, start, register.getLastReadingDate().get());
+        } else if (start != null) {
+            register.getDevice().forValidation().setLastChecked(register, start);
         }
     }
 
