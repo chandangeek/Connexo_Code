@@ -1,6 +1,5 @@
 package com.elster.jupiter.issue.rest;
 
-import com.elster.jupiter.issue.rest.resource.*;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptionMapper;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;
@@ -20,6 +19,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
 import com.google.common.base.Optional;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -101,15 +101,6 @@ public class Mocks extends JerseyTest {
         enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(
                 IssueResource.class,
-                AssigneeResource.class,
-                RuleResource.class,
-                HelpResource.class,
-                ReasonResource.class,
-                StatusResource.class,
-                CreationRuleResource.class,
-                MeterResource.class,
-                IssueTypeResource.class,
-                ActionResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedExceptionMapper.class,
                 CreationRuleValidationExceptionMapper.class,

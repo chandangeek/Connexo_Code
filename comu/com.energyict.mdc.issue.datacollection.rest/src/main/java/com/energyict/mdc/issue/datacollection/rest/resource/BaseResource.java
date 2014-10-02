@@ -2,12 +2,14 @@ package com.energyict.mdc.issue.datacollection.rest.resource;
 
 
 
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -16,8 +18,9 @@ import javax.ws.rs.core.Response;
 public abstract class BaseResource {
     private RestQueryService queryService;
     private TransactionService transactionService;
-
+    private IssueDataCollectionService issueDataCollectionService;
     private IssueService issueService;
+    private IssueActionService issueActionService;
 
     private UserService userService;
     private MeteringService meteringService;
@@ -40,6 +43,20 @@ public abstract class BaseResource {
     }
     protected IssueService getIssueService() {
         return issueService;
+    }
+    protected IssueDataCollectionService getIssueDataCollectionService() {
+        return issueDataCollectionService;
+    }
+    @Inject
+    protected void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
+        this.issueDataCollectionService = issueDataCollectionService;
+    }
+    protected IssueActionService getIssueActionService() {
+        return issueActionService;
+    }
+    @Inject
+    public void setIssueActionService(IssueActionService issueActionService) {
+        this.issueActionService = issueActionService;
     }
     @Inject
     public void setTransactionService(TransactionService transactionService) {
