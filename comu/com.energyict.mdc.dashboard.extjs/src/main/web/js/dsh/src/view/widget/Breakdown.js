@@ -51,15 +51,12 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     xtype: 'panel',
                     itemId: 'summaries-0',
                     style: {
-                        marginRight: '10px'
+                        marginRight: '20px'
                     }
                 },
                 {
                     xtype: 'panel',
-                    itemId: 'summaries-1',
-                    style: {
-                        marginLeft: '10px'
-                    }
+                    itemId: 'summaries-1'
                 }
             ]
         }
@@ -82,8 +79,13 @@ Ext.define('Dsh.view.widget.Breakdown', {
         me.down('#summaries-0').removeAll(true);
         me.down('#summaries-1').removeAll(true);
         store.each(function (item, idx) {
-            item.counters().sort({ property: 'total', direction: 'DESC' });
+            item.counters().sort([
+                {property: 'total', direction: 'DESC'},
+                {property: 'displayName', direction: 'ASC'}
+            ]);
             var panel = Ext.create('Ext.panel.Panel', {
+                ui: 'tile',
+                style: {padding: '20px'},
                 tbar: {
                     xtype: 'container',
                     itemId: 'title',
@@ -162,8 +164,8 @@ Ext.define('Dsh.view.widget.Breakdown', {
     summaryMoreLess: function (panel) {
         var view = panel.down('dataview');
         panel.down('button').setText(view.collapsed ?
-            Uni.I18n.translate('overview.widget.breakdown.showLess', 'DSH', 'show less') :
-            Uni.I18n.translate('overview.widget.breakdown.showMore', 'DSH', 'show more'));
+            Uni.I18n.translate('overview.widget.breakdown.showLess', 'DSH', 'Show less') :
+            Uni.I18n.translate('overview.widget.breakdown.showMore', 'DSH', 'Show more'));
         view.animate({
             duration: 300,
             to: {

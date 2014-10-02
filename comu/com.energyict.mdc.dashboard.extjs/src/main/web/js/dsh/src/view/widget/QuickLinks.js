@@ -1,5 +1,6 @@
 Ext.define('Dsh.view.widget.QuickLinks', {
     extend: 'Ext.panel.Panel',
+    ui: 'tile',
     alias: 'widget.quick-links',
     data: [],
     items: [
