@@ -38,7 +38,6 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                         view.store.load();
                     },
                     itemmouseenter: function (view, record) {
-                        console.log(record);
                         Ext.create('Ext.tip.ToolTip', {
                             itemId: 'communication-servers-tooltip',
                             target: view.el,
