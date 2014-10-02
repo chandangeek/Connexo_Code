@@ -164,10 +164,10 @@ public class InstallerImpl {
         startOfMonth.setMillisOfDay(0);
         startOfMonth.setMonthOfYear(1);
         startOfMonth.setDayOfMonth(1);
-        vault.activate(startOfMonth.toDate());
+        vault.activate(startOfMonth.toDate().toInstant());
         for (int i = 0; i < MONTHS_PER_YEAR; i++) {
             startOfMonth.addMonths(1);
-            vault.addPartition(startOfMonth.toDate());
+            vault.addPartition(startOfMonth.toDate().toInstant());
         }
     }
 

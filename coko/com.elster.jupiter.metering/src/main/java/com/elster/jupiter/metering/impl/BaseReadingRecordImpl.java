@@ -36,12 +36,12 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
 
     @Override
     public Date getTimeStamp() {
-        return entry.getTimeStamp();
+        return Date.from(entry.getTimeStamp());
     }
 
     @Override
     public Date getReportedDateTime() {
-        return entry.getRecordDateTime();
+        return Date.from(entry.getRecordDateTime());
     }
 
     abstract int getReadingTypeOffset();

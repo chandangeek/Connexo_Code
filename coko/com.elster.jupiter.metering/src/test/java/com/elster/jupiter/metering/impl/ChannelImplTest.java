@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
@@ -18,6 +17,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -30,6 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -106,7 +107,7 @@ public class ChannelImplTest extends EqualsContractTest {
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, 4)).thenReturn(Optional.of(recordSpec));
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, 5)).thenReturn(Optional.of(recordSpec));
         when(vault.createIrregularTimeSeries(recordSpec, TIME_ZONE)).thenReturn(timeSeries);
-        when(vault.createRegularTimeSeries(recordSpec, TIME_ZONE, IntervalLength.ofDay(), 0)).thenReturn(regularTimeSeries);
+        when(vault.createRegularTimeSeries(recordSpec, TIME_ZONE, Period.ofDays(1), 0)).thenReturn(regularTimeSeries);
         when(timeSeries.getId()).thenReturn(TIMESERIES_ID);
         when(regularTimeSeries.getId()).thenReturn(TIMESERIES_ID);
 
@@ -196,7 +197,7 @@ public class ChannelImplTest extends EqualsContractTest {
         assertThat(channel.getReadingTypes()).hasSize(2)
                 .contains(readingType1)
                 .contains(readingType2);
-        assertThat(channel.getIntervalLength()).isEqualTo(Optional.of(IntervalLength.ofDay()));
+        assertThat(channel.getIntervalLength()).isEqualTo(Optional.of(Period.ofDays(1)));
         assertThat(channel.getTimeSeries()).isEqualTo(regularTimeSeries);
     }
 

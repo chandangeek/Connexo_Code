@@ -76,8 +76,8 @@ public abstract class AbstractBaseReadingImplTest {
     public void setUp() {
     	when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
     	when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec)); 
-        when(entry.getTimeStamp()).thenReturn(DATE);
-        when(entry.getRecordDateTime()).thenReturn(RECORD_DATE);
+        when(entry.getTimeStamp()).thenReturn(DATE.toInstant());
+        when(entry.getRecordDateTime()).thenReturn(RECORD_DATE.toInstant());
         when(entry.getBigDecimal(anyInt())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {

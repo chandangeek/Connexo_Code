@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
@@ -141,7 +140,7 @@ public class MeterActivationImplTest {
 
     @Test
     public void testCreateChannel() {
-        when(vault.createRegularTimeSeries(eq(recordSpec), eq(timeZone), any(IntervalLength.class), anyInt())).thenReturn(timeSeries);
+        when(vault.createRegularTimeSeries(eq(recordSpec), eq(timeZone), any(), anyInt())).thenReturn(timeSeries);
 
         Channel channel = meterActivation.createChannel(readingType1, readingType3);
 

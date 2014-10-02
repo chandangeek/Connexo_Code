@@ -13,7 +13,6 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.metering.IllegalCurrencyCodeException;
 import com.elster.jupiter.metering.IllegalMRIDFormatException;
 import com.elster.jupiter.metering.ReadingType;
@@ -28,6 +27,9 @@ import com.google.common.base.Optional;
 import javax.inject.Inject;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Period;
+import java.time.temporal.TemporalAmount;
 import java.util.Currency;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
@@ -263,19 +265,19 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         dataModel.mapper(ReadingType.class).persist(this);
 	}
 
-	Optional<IntervalLength> getIntervalLength() {
+	Optional<TemporalAmount> getIntervalLength() {
         switch (getMacroPeriod()) {
             case MONTHLY:
-                return Optional.of(IntervalLength.ofMonth());
+                return Optional.of(Period.ofMonths(1));
             case DAILY:
-                return Optional.of(IntervalLength.ofDay());
+                return Optional.of(Period.ofDays(1));
             default:
         }
         if (getMeasuringPeriod() == TimeAttribute.HOUR24) {
-            return Optional.of(IntervalLength.ofDay());
+            return Optional.of(Period.ofDays(1));
         }
         int minutes = getMeasuringPeriod().getMinutes();
-        return minutes == 0 ? Optional.<IntervalLength>absent() : Optional.of(IntervalLength.ofMinutes(minutes));
+        return minutes == 0 ? Optional.absent() : Optional.of(Duration.ofMinutes(minutes));
     }
 
 	boolean hasMacroPeriod() {

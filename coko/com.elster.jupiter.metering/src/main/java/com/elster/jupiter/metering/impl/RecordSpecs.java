@@ -1,11 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.ids.FieldType.DATE;
+import static com.elster.jupiter.ids.FieldType.INSTANT;
 import static com.elster.jupiter.ids.FieldType.LONGINTEGER;
 import static com.elster.jupiter.ids.FieldType.NUMBER;
 import static com.elster.jupiter.ids.FieldType.TEXT;
 
 import com.elster.jupiter.ids.FieldDerivationRule;
+import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.metering.MeteringService;
@@ -91,8 +92,8 @@ public enum RecordSpecs {
 		void addFieldSpecs(RecordSpec recordSpec) {
 			 recordSpec.addFieldSpec("Value", NUMBER);
 			 recordSpec.addFieldSpec("Text", TEXT);
-			 recordSpec.addFieldSpec("From Time", DATE);
-			 recordSpec.addFieldSpec("To Time", DATE);
+			 recordSpec.addFieldSpec("From Time", INSTANT);
+			 recordSpec.addFieldSpec("To Time", INSTANT);
 		}
 		
 		@Override

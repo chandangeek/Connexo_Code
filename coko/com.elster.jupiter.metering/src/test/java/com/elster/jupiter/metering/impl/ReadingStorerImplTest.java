@@ -66,7 +66,7 @@ public class ReadingStorerImplTest {
         BaseReading reading = new ReadingImpl("", BigDecimal.valueOf(1), dateTime);
         when(channel.toArray(reading, ProcessStatus.of())).thenReturn(new Object[] { 0L, 0L, reading.getValue() } );
         readingStorer.addReading(channel, reading);
-        verify(storer).add(timeSeries, dateTime, 0L , 0L, BigDecimal.valueOf(1));
+        verify(storer).add(timeSeries, dateTime.toInstant(), 0L , 0L, BigDecimal.valueOf(1));
     }
 
 

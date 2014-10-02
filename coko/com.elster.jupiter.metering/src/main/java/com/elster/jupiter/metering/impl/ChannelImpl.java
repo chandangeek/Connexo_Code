@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -14,7 +16,6 @@ import javax.inject.Inject;
 
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
@@ -106,17 +107,21 @@ public final class ChannelImpl implements ChannelContract {
 		return meterActivation.get();
 	}
 	
-	@Override
 	public TimeSeries getTimeSeries() {
 		return timeSeries.get();
 	}
 	
-	Optional<IntervalLength> getIntervalLength() {
+	public Date getLastDateTime() {
+		Instant instant = timeSeries.get().getLastDateTime();
+		return instant == null ? null : Date.from(instant);
+	}
+	
+	Optional<TemporalAmount> getIntervalLength() {
 		Iterator<ReadingTypeImpl> it = getReadingTypes().iterator();
-		Optional<IntervalLength> result = ((ReadingTypeImpl) it.next()).getIntervalLength();
+		Optional<TemporalAmount> result = ((ReadingTypeImpl) it.next()).getIntervalLength();
 		while (it.hasNext()) {
 			ReadingTypeImpl readingType = (ReadingTypeImpl) it.next();
-			Optional<IntervalLength> intervalLength = readingType.getIntervalLength();
+			Optional<TemporalAmount> intervalLength = readingType.getIntervalLength();
 			if (!intervalLength.equals(result)) {
 				throw new IllegalArgumentException();
 			}
@@ -202,7 +207,7 @@ public final class ChannelImpl implements ChannelContract {
 
 	
 	public Optional<BaseReadingRecord> getReading(Date when) {
-		Optional<TimeSeriesEntry> entryHolder = getTimeSeries().getEntry(when);
+		java.util.Optional<TimeSeriesEntry> entryHolder = getTimeSeries().getEntry(when.toInstant());
 		if (entryHolder.isPresent()) {
 			return Optional.of(createReading(isRegular(), entryHolder.get()));
 		} else {
@@ -350,7 +355,7 @@ public final class ChannelImpl implements ChannelContract {
 	@Override
 	public List<BaseReadingRecord> getReadingsBefore(Date when, int readingCount) {
 		boolean regular = isRegular();
-		List<TimeSeriesEntry> entries = getTimeSeries().getEntriesBefore(when,readingCount);
+		List<TimeSeriesEntry> entries = getTimeSeries().getEntriesBefore(when.toInstant(),readingCount);
 		ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
 			builder.add(createReading(regular,entry));
@@ -361,7 +366,7 @@ public final class ChannelImpl implements ChannelContract {
 	@Override
 	public List<BaseReadingRecord> getReadingsOnOrBefore(Date when, int readingCount) {
 		boolean regular = isRegular();
-		List<TimeSeriesEntry> entries = getTimeSeries().getEntriesOnOrBefore(when,readingCount);
+		List<TimeSeriesEntry> entries = getTimeSeries().getEntriesOnOrBefore(when.toInstant(),readingCount);
 		ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
 			builder.add(createReading(regular,entry));
