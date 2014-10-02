@@ -62,7 +62,7 @@ public class ComServerStatusSummaryResourceTest extends DashboardApplicationJers
         assertThat(comServerStatusInfo).isNotNull();
         assertThat(comServerStatusInfo.comServerId).isEqualTo(comServerId);
         assertThat(comServerStatusInfo.comServerName).isEqualTo(comServerName);
-        assertThat(comServerStatusInfo.comServerType).isEqualTo(ComServerType.ONLINE);
+        assertThat(comServerStatusInfo.comServerType).isEqualTo("Online");
         assertThat(comServerStatusInfo.running).isFalse();
         assertThat(comServerStatusInfo.blocked).isFalse();
     }

@@ -42,11 +42,13 @@ public class ComServerStatusSummaryResource {
     private static final Logger LOGGER = Logger.getLogger(ComServerStatusSummaryResource.class.getName());
 
     private final EngineModelService engineModelService;
+    private final ComServerStatusInfoFactory comServerStatusInfoFactory;
 
     @Inject
-    public ComServerStatusSummaryResource(EngineModelService engineModelService) {
+    public ComServerStatusSummaryResource(EngineModelService engineModelService, ComServerStatusInfoFactory comServerStatusInfoFactory) {
         super();
         this.engineModelService = engineModelService;
+        this.comServerStatusInfoFactory = comServerStatusInfoFactory;
     }
 
     @GET
@@ -107,13 +109,7 @@ public class ComServerStatusSummaryResource {
              * most likely because the ComServer is not running. */
             LOGGER.info("ComServer " + comServerName + " is mostly likely not running");
             LOGGER.log(Level.FINE, "ComServer " + comServerName + " is mostly likely not running", e);
-            ComServerStatusInfo statusInfo = new ComServerStatusInfo();
-            statusInfo.comServerId = comServerId;
-            statusInfo.comServerName = comServerName;
-            statusInfo.defaultUri = defaultUri;
-            statusInfo.comServerType = comServerType;
-            statusInfo.blocked = false;
-            statusInfo.running = false;
+            ComServerStatusInfo statusInfo = comServerStatusInfoFactory.from(comServerId, comServerName, defaultUri, comServerType);
             statusSummaryInfo.comServerStatusInfos.add(statusInfo);
         }
     }

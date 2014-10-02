@@ -50,6 +50,9 @@ public enum MessageSeeds implements MessageSeed {
     FAILURE(41, "Failure", "Failure"),
     NOT_APPLICABLE(42, "NotApplicable", "Not applicable"),
     NO_RESTRICTIONS(43, "NoRestrictions", "No restrictions"),
+    ONLINE(44, "Online", "Online"),
+    REMOTE(45, "Remote", "Remote"),
+    MOBILE(46, "Mobile", "Mobile"),
     ;
 
 
