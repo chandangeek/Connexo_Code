@@ -12,4 +12,6 @@ public interface ConnectionTaskHeatMapRow<T> extends Iterable<ComSessionSuccessI
 
     public T getTarget();
 
+    public long getTotalCount();
+
 }

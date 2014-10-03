@@ -18,14 +18,11 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
@@ -51,11 +48,9 @@ import java.util.Set;
 @Component(name = "com.energyict.mdc.dashboard", service = {DashboardService.class}, property = "name=DBS")
 public class DashboardServiceImpl implements DashboardService {
 
-    private volatile EngineModelService engineModelService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
-    private volatile ProtocolPluggableService protocolPluggableService;
     private volatile TaskService taskService;
     private volatile SchedulingService schedulingService;
 
@@ -64,15 +59,13 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Inject
-    public DashboardServiceImpl(TaskService taskService, SchedulingService schedulingService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
+    public DashboardServiceImpl(TaskService taskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService) {
         this();
         this.setTaskService(taskService);
         this.setSchedulingService(schedulingService);
-        this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setConnectionTaskService(connectionTaskService);
         this.setCommunicationTaskService(communicationTaskService);
-        this.setProtocolPluggableService(protocolPluggableService);
     }
 
     @Override
@@ -98,49 +91,47 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public ComPortPoolBreakdown getComPortPoolBreakdown() {
         ComPortPoolBreakdownImpl breakdown = new ComPortPoolBreakdownImpl();
-        for (ComPortPool comPortPool : this.availableComPortPools()) {
-            ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
-            filter.useLastComSession = true;
-            filter.taskStatuses = this.breakdownStatusses();
-            filter.comPortPools.add(comPortPool);
-            Map<TaskStatus, Long> statusCount = this.connectionTaskService.getConnectionTaskStatusCount(filter);
-            breakdown.add(new TaskStatusBreakdownCounterImpl<>(comPortPool, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
+        Map<ComPortPool, Map<TaskStatus, Long>> rawData = this.connectionTaskService.getComPortPoolBreakdown(this.breakdownStatusses());
+        for (ComPortPool comPortPool : rawData.keySet()) {
+            Map<TaskStatus, Long> statusCount = rawData.get(comPortPool);
+            breakdown.add(
+                new TaskStatusBreakdownCounterImpl<>(
+                        comPortPool,
+                        this.successCount(statusCount),
+                        this.failedCount(statusCount),
+                        this.pendingCount(statusCount)));
         }
         return breakdown;
-    }
-
-    private List<ComPortPool> availableComPortPools () {
-        return this.engineModelService.findAllComPortPools();
     }
 
     @Override
     public ConnectionTypeBreakdown getConnectionTypeBreakdown() {
         ConnectionTypeBreakdownImpl breakdown = new ConnectionTypeBreakdownImpl();
-        for (ConnectionTypePluggableClass connectionTypePluggableClass : this.availableConnectionTypes()) {
-            ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
-            filter.useLastComSession = true;
-            filter.taskStatuses = this.breakdownStatusses();
-            filter.connectionTypes.add(connectionTypePluggableClass);
-            Map<TaskStatus, Long> statusCount = this.connectionTaskService.getConnectionTaskStatusCount(filter);
-            breakdown.add(new TaskStatusBreakdownCounterImpl<>(connectionTypePluggableClass, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
+        Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> rawData = this.connectionTaskService.getConnectionTypeBreakdown(this.breakdownStatusses());
+        for (ConnectionTypePluggableClass connectionTypePluggableClass : rawData.keySet()) {
+            Map<TaskStatus, Long> statusCount = rawData.get(connectionTypePluggableClass);
+            breakdown.add(
+                    new TaskStatusBreakdownCounterImpl<>(
+                            connectionTypePluggableClass,
+                            this.successCount(statusCount),
+                            this.failedCount(statusCount),
+                            this.pendingCount(statusCount)));
         }
         return breakdown;
-    }
-
-    private List<ConnectionTypePluggableClass> availableConnectionTypes () {
-        return this.protocolPluggableService.findAllConnectionTypePluggableClasses();
     }
 
     @Override
     public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown() {
         DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
-        for (DeviceType deviceType : this.availableDeviceTypes()) {
-            ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
-            filter.useLastComSession = true;
-            filter.taskStatuses = this.breakdownStatusses();
-            filter.deviceTypes.add(deviceType);
-            Map<TaskStatus, Long> statusCount = this.connectionTaskService.getConnectionTaskStatusCount(filter);
-            breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
+        Map<DeviceType, Map<TaskStatus, Long>> rawData = this.connectionTaskService.getDeviceTypeBreakdown(this.breakdownStatusses());
+        for (DeviceType deviceType : rawData.keySet()) {
+            Map<TaskStatus, Long> statusCount = rawData.get(deviceType);
+            breakdown.add(
+                    new TaskStatusBreakdownCounterImpl<>(
+                            deviceType,
+                            this.successCount(statusCount),
+                            this.failedCount(statusCount),
+                            this.pendingCount(statusCount)));
         }
         return breakdown;
     }
@@ -341,11 +332,6 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
-    }
-
-    @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -358,11 +344,6 @@ public class DashboardServiceImpl implements DashboardService {
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
-    }
-
-    @Reference
-    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
-        this.protocolPluggableService = protocolPluggableService;
     }
 
 }

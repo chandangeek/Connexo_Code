@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link ConnectionTaskHeatMapRow} interface.
@@ -42,6 +43,13 @@ public class ConnectionTaskHeatMapRowImpl<T> implements ConnectionTaskHeatMapRow
     @Override
     public T getTarget() {
         return this.target;
+    }
+
+    @Override
+    public long getTotalCount() {
+        return Stream.of(this).
+            map(ConnectionTaskHeatMapRow::getTotalCount).
+            reduce((runningSum, value) -> runningSum + value).orElse(0L);
     }
 
 }

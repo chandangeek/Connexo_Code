@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anySet;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -80,7 +82,7 @@ public class DashboardServiceImplTest {
 
     @Before
     public void setupService () {
-        this.dashboardService = new DashboardServiceImpl(this.taskService, this.schedulingService, this.engineModelService, this.deviceConfigurationService, this.connectionTaskService, this.communicationTaskService, this.protocolPluggableService);
+        this.dashboardService = new DashboardServiceImpl(this.taskService, this.schedulingService, this.deviceConfigurationService, this.connectionTaskService, this.communicationTaskService);
     }
 
     @Test
@@ -131,13 +133,13 @@ public class DashboardServiceImplTest {
 
     @Test
     public void testComPortPoolBreakdownWithoutComPortPools () {
-        when(this.engineModelService.findAllComPortPools()).thenReturn(Collections.<ComPortPool>emptyList());
+        when(this.connectionTaskService.getComPortPoolBreakdown(anySet())).thenReturn(new HashMap<ComPortPool, Map<TaskStatus, Long>>());
 
         // Business methods
         ComPortPoolBreakdown breakdown = this.dashboardService.getComPortPoolBreakdown();
 
         // Asserts
-        verify(this.connectionTaskService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
+        verify(this.connectionTaskService).getComPortPoolBreakdown(anySet());
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -154,33 +156,32 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.connectionTaskService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
+        Map<ComPortPool, Map<TaskStatus, Long>> mockedBreakdown = new HashMap<>();
+        mockedBreakdown.put(comPortPool, statusCounters);
+        when(this.connectionTaskService.getComPortPoolBreakdown(anySet())).thenReturn(mockedBreakdown);
 
         // Business methods
-        ComPortPoolBreakdown breakdown = this.dashboardService.getComPortPoolBreakdown();
+        ComPortPoolBreakdown actualBreakdown = this.dashboardService.getComPortPoolBreakdown();
 
         // Asserts
-        ArgumentCaptor<ConnectionTaskFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(this.connectionTaskService).getConnectionTaskStatusCount(filterCaptor.capture());
-        assertThat(filterCaptor.getValue().comPortPools).hasSize(1);
-        assertThat(filterCaptor.getValue().comPortPools.iterator().next()).isEqualTo(comPortPool);
-        assertThat(breakdown).isNotNull();
-        assertThat(breakdown.iterator().hasNext()).isTrue();
-        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        verify(this.connectionTaskService).getComPortPoolBreakdown(anySet());
+        assertThat(actualBreakdown).isNotNull();
+        assertThat(actualBreakdown.iterator().hasNext()).isTrue();
+        assertThat(actualBreakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(actualBreakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(actualBreakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(actualBreakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     @Test
     public void testConnectionTypeBreakdownWithoutConnectionTypes () {
-        when(this.protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Collections.<ConnectionTypePluggableClass>emptyList());
+        when(this.connectionTaskService.getConnectionTypeBreakdown(anySet())).thenReturn(new HashMap<>());
 
         // Business methods
         ConnectionTypeBreakdown breakdown = this.dashboardService.getConnectionTypeBreakdown();
 
         // Asserts
-        verify(this.connectionTaskService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
+        verify(this.connectionTaskService).getConnectionTypeBreakdown(anySet());
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -197,13 +198,15 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.connectionTaskService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
+        Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> mockedBreakdown = new HashMap<>();
+        mockedBreakdown.put(connectionTypePluggableClass, statusCounters);
+        when(this.connectionTaskService.getConnectionTypeBreakdown(anySet())).thenReturn(mockedBreakdown);
 
         // Business methods
         ConnectionTypeBreakdown breakdown = this.dashboardService.getConnectionTypeBreakdown();
 
         // Asserts
-        verify(this.connectionTaskService).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
+        verify(this.connectionTaskService).getConnectionTypeBreakdown(anySet());
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
@@ -215,15 +218,13 @@ public class DashboardServiceImplTest {
 
     @Test
     public void testConnectionTaskDeviceTypeBreakdownWithoutDeviceTypes () {
-        Finder<DeviceType> finder = mock(Finder.class);
-        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
-        when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+        when(this.connectionTaskService.getDeviceTypeBreakdown(anySet())).thenReturn(new HashMap<>());
 
         // Business methods
         DeviceTypeBreakdown breakdown = this.dashboardService.getConnectionTasksDeviceTypeBreakdown();
 
         // Asserts
-        verify(this.connectionTaskService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
+        verify(this.connectionTaskService).getDeviceTypeBreakdown(anySet());
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -242,16 +243,15 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.connectionTaskService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
+        Map<DeviceType, Map<TaskStatus, Long>> mockedBreakdown = new HashMap<>();
+        mockedBreakdown.put(deviceType, statusCounters);
+        when(this.connectionTaskService.getDeviceTypeBreakdown(anySet())).thenReturn(mockedBreakdown);
 
         // Business methods
         DeviceTypeBreakdown breakdown = this.dashboardService.getConnectionTasksDeviceTypeBreakdown();
 
         // Asserts
-        ArgumentCaptor<ConnectionTaskFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(this.connectionTaskService).getConnectionTaskStatusCount(filterCaptor.capture());
-        assertThat(filterCaptor.getValue().deviceTypes).hasSize(1);
-        assertThat(filterCaptor.getValue().deviceTypes.iterator().next()).isEqualTo(deviceType);
+        verify(this.connectionTaskService).getDeviceTypeBreakdown(anySet());
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
