@@ -88,9 +88,10 @@ Ext.define('Dsh.view.widget.Breakdown', {
                 {property: 'total', direction: 'DESC'},
                 {property: 'displayName', direction: 'ASC'}
             ]);
+
+            var total = item.counters().first().get('total');
             var panel = Ext.create('Ext.panel.Panel', {
                 ui: 'tile',
-                style: {padding: '20px'},
                 tbar: {
                     xtype: 'container',
                     itemId: 'title',
@@ -99,8 +100,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
                 buttonAlign: 'left',
                 buttons: [
                     {
-                        style: {marginTop: '10px'},
-                        text: Uni.I18n.translate('overview.widget.breakdown.showMore', 'DSH', 'show more'),
+                        text: Uni.I18n.translate('overview.widget.breakdown.showMore', 'DSH', 'Show more'),
                         hidden: item.counters().count() <= me.itemsInCollapsedMode,
                         handler: function () {
                             me.summaryMoreLess(panel);
@@ -113,16 +113,16 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     itemSelector: 'tbody.item',
                     total: item.get('total'),
                     store: item.counters(),
-                    tpl: '<table>' +
+                    tpl: '<table width="100%">' +
                             '<tpl for=".">' +
                                 '<tbody class="item item-{#}">' +
                                     '<tr>' +
-                                        '<td>' +
+                                        '<td width="50%"> ' +
                                             '<a>' +
-                                                '<div style="width: 200px; overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
+                                                '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
                                             '</a>' +
                                         '</td>' +
-                                        '<td width="100%" id="bar-{#}"></td>' +
+                                        '<td width="50%" id="bar-{#}"></td>' +
                                     '</tr>' +
                                 '</tbody>' +
                             '</tpl>' +
@@ -135,13 +135,13 @@ Ext.define('Dsh.view.widget.Breakdown', {
 
                                 var data = {
                                     failed: record.get('failedCount'),
-                                    ongoing: record.get('pendingCount'),
-                                    success: record.get('successCount')
+                                    success: record.get('successCount'),
+                                    ongoing: record.get('pendingCount')
                                 };
 
                                 var bar = Ext.widget('stacked-bar', {
                                     limit: record.get('total'),
-                                    total: item.get('total'),
+                                    total: total,
                                     count: data,
                                     label: record.get('total')
                                 });

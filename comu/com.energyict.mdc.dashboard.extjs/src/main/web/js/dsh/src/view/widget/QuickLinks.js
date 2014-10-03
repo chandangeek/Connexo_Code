@@ -7,9 +7,9 @@ Ext.define('Dsh.view.widget.QuickLinks', {
         {
             itemId: 'quicklinksTplPanel',
             tpl: new Ext.XTemplate(
-                '<div>',
+                '<div class="quick-links">',
                     '<h3>' + Uni.I18n.translate('overview.widget.quicklinks.title', 'DSH', 'Quick links') + '</h3>',
-                    '<ul style="list-style: none; padding: 0; margin-top: 5px">',
+                    '<ul>',
                         '<tpl for=".">',
                             '<li><a href="{href}">{link}</a></li>',
                         '</tpl>',

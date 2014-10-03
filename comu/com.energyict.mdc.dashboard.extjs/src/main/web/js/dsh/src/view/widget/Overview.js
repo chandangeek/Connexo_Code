@@ -48,16 +48,16 @@ Ext.define('Dsh.view.widget.Overview', {
                     total: item.get('total') || me.total,
                     store: item.counters(),
                     tpl:
-                        '<table>' +
+                        '<table width="100%">' +
                             '<tpl for=".">' +
                                 '<tbody class="item item-{#}">' +
                                 '<tr>' +
-                                    '<td>' +
-                                        '<div style="width: 200px; overflow: hidden; text-overflow: ellipsis; padding-right: 20px">' +
+                                    '<td width="50%">' +
+                                        '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">' +
                                             '<a href="#{id}">{displayName}</a>' +
                                         '</div>' +
                                     '</td>' +
-                                    '<td width="100%" id="bar-{#}"></td>' +
+                                    '<td width="50%" id="bar-{#}"></td>' +
                                 '</tr>' +
                             '</tbody>' +
                             '</tpl>' +
