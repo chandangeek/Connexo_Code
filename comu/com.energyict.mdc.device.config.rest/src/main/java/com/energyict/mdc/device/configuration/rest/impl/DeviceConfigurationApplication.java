@@ -22,7 +22,7 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -59,7 +59,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile ValidationService validationService;
-    private volatile DeviceDataService deviceDataService;
+    private volatile DeviceService deviceService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -155,8 +155,8 @@ public class DeviceConfigurationApplication extends Application implements Insta
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
@@ -229,7 +229,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(thesaurus).to(Thesaurus.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(validationService).to(ValidationService.class);
-            bind(deviceDataService).to(DeviceDataService.class);
+            bind(deviceService).to(DeviceService.class);
             bind(userService).to(UserService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);

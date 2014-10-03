@@ -68,11 +68,15 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
 
     protected void addPropertiesToPartialConnectionTask(PartialConnectionTaskBuilder<?, ?, ?> connectionTaskBuilder, ConnectionTypePluggableClass connectionTypePluggableClass) {
         if (this.properties !=null) {
-            for (PropertySpec propertySpec : connectionTypePluggableClass.getPropertySpecs()) {
-                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
-                if (propertyValue!=null) {
-                    connectionTaskBuilder.addProperty(propertySpec.getName(), propertyValue);
+            try {
+                for (PropertySpec propertySpec : connectionTypePluggableClass.getPropertySpecs()) {
+                    Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
+                    if (propertyValue != null) {
+                        connectionTaskBuilder.addProperty(propertySpec.getName(), propertyValue);
+                    }
                 }
+            } catch (LocalizedFieldValidationException e) {
+                throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
             }
         }
     }
