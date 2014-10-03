@@ -206,40 +206,155 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService, R
 
     @Override
     public Map<TaskStatus, Long> getConnectionTaskStatusCount() {
-        ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
-        filter.useLastComSession = false;
-        filter.taskStatuses= EnumSet.allOf(TaskStatus.class);
-        return this.getConnectionTaskStatusCount(filter);
-    }
-
-    @Override
-    public Map<TaskStatus, Long> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter) {
         ClauseAwareSqlBuilder sqlBuilder = null;
-        for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
+        for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(EnumSet.allOf(TaskStatus.class))) {
             // Check first pass
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
-                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
             }
             else {
                 sqlBuilder.unionAll();
-                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
             }
         }
         return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
     }
 
-    private Set<ServerConnectionTaskStatus> taskStatusesForCounting (ConnectionTaskFilterSpecification filter) {
-        Set<ServerConnectionTaskStatus> taskStatuses = EnumSet.noneOf(ServerConnectionTaskStatus.class);
-        for (TaskStatus taskStatus : filter.taskStatuses) {
-            taskStatuses.add(ServerConnectionTaskStatus.forTaskStatus(taskStatus));
+    private Set<ServerConnectionTaskStatus> taskStatusesForCounting (Set<TaskStatus> taskStatuses) {
+        Set<ServerConnectionTaskStatus> serverTaskStatuses = EnumSet.noneOf(ServerConnectionTaskStatus.class);
+        for (TaskStatus taskStatus : taskStatuses) {
+            serverTaskStatuses.add(ServerConnectionTaskStatus.forTaskStatus(taskStatus));
         }
-        return taskStatuses;
+        return serverTaskStatuses;
     }
 
-    public void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ConnectionTaskFilterSpecification filter, ServerConnectionTaskStatus taskStatus) {
-        ConnectionTaskFilterMatchCounterSqlBuilder countingFilter = new ConnectionTaskFilterMatchCounterSqlBuilder(taskStatus, filter, this.deviceDataModelService.clock());
+    private void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus) {
+        ConnectionTaskCurrentStateCounterSqlBuilder countingFilter = new ConnectionTaskCurrentStateCounterSqlBuilder(taskStatus, this.deviceDataModelService.clock());
         countingFilter.appendTo(sqlBuilder);
+    }
+
+    @Override
+    public Map<ComPortPool, Map<TaskStatus, Long>> getComPortPoolBreakdown(Set<TaskStatus> taskStatuses) {
+        ClauseAwareSqlBuilder sqlBuilder = null;
+        for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
+            // Check first pass
+            if (sqlBuilder == null) {
+                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                this.countByComPortPoolAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+            else {
+                sqlBuilder.unionAll();
+                this.countByComPortPoolAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+        }
+        return this.injectComPortPoolsAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
+    }
+
+    private void countByComPortPoolAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus) {
+        ConnectionTaskComPortPoolStatusCountSqlBuilder countingFilter = new ConnectionTaskComPortPoolStatusCountSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+        countingFilter.appendTo(sqlBuilder);
+    }
+
+    private Map<ComPortPool, Map<TaskStatus, Long>> injectComPortPoolsAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
+        Map<Long, ComPortPool> comPortPools = this.deviceDataModelService.engineModelService().findAllComPortPools().stream().collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
+        Map<ComPortPool, Map<TaskStatus, Long>> breakDownByComPortPool = this.emptyComPortPoolBreakdown(comPortPools);
+        for (Long comPortPoolId : statusBreakdown.keySet()) {
+            breakDownByComPortPool.put(comPortPools.get(comPortPoolId), statusBreakdown.get(comPortPoolId));
+        }
+        return breakDownByComPortPool;
+    }
+
+    private Map<ComPortPool, Map<TaskStatus, Long>> emptyComPortPoolBreakdown(Map<Long, ComPortPool> comPortPools) {
+        Map<ComPortPool, Map<TaskStatus, Long>> emptyBreakdown = new HashMap<>();
+        for (ComPortPool comPortPool : comPortPools.values()) {
+            Map<TaskStatus, Long> emptyCounters = new HashMap<>();
+            this.addMissingTaskStatusCounters(emptyCounters);
+            emptyBreakdown.put(comPortPool, emptyCounters);
+        }
+        return emptyBreakdown;
+    }
+
+    @Override
+    public Map<DeviceType, Map<TaskStatus, Long>> getDeviceTypeBreakdown(Set<TaskStatus> taskStatuses) {
+        ClauseAwareSqlBuilder sqlBuilder = null;
+        for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
+            // Check first pass
+            if (sqlBuilder == null) {
+                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+            else {
+                sqlBuilder.unionAll();
+                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+        }
+        return this.injectDeviceTypesAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
+    }
+
+    private void countByDeviceTypeAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus) {
+        ConnectionTaskDeviceTypeStatusCountSqlBuilder countingFilter = new ConnectionTaskDeviceTypeStatusCountSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+        countingFilter.appendTo(sqlBuilder);
+    }
+
+    private Map<DeviceType, Map<TaskStatus, Long>> injectDeviceTypesAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
+        Map<Long, DeviceType> deviceTypes = this.deviceDataModelService.deviceConfigurationService().findAllDeviceTypes().stream().collect(Collectors.toMap(DeviceType::getId, Function.identity()));
+        Map<DeviceType, Map<TaskStatus, Long>> breakDownByDeviceType = this.emptyDeviceTypeBreakdown(deviceTypes);
+        for (Long DeviceTypeId : statusBreakdown.keySet()) {
+            breakDownByDeviceType.put(deviceTypes.get(DeviceTypeId), statusBreakdown.get(DeviceTypeId));
+        }
+        return breakDownByDeviceType;
+    }
+
+    private Map<DeviceType, Map<TaskStatus, Long>> emptyDeviceTypeBreakdown(Map<Long, DeviceType> deviceTypes) {
+        Map<DeviceType, Map<TaskStatus, Long>> emptyBreakdown = new HashMap<>();
+        for (DeviceType deviceType : deviceTypes.values()) {
+            Map<TaskStatus, Long> emptyCounters = new HashMap<>();
+            this.addMissingTaskStatusCounters(emptyCounters);
+            emptyBreakdown.put(deviceType, emptyCounters);
+        }
+        return emptyBreakdown;
+    }
+
+    @Override
+    public Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> getConnectionTypeBreakdown(Set<TaskStatus> taskStatuses) {
+        ClauseAwareSqlBuilder sqlBuilder = null;
+        for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
+            // Check first pass
+            if (sqlBuilder == null) {
+                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                this.countByConnectionTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+            else {
+                sqlBuilder.unionAll();
+                this.countByConnectionTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+        }
+        return this.injectConnectionTypesAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
+    }
+
+    private void countByConnectionTypeAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus) {
+        ConnectionTaskConnectionTypeStatusCountSqlBuilder countingFilter = new ConnectionTaskConnectionTypeStatusCountSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+        countingFilter.appendTo(sqlBuilder);
+    }
+
+    private Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> injectConnectionTypesAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
+        Map<Long, ConnectionTypePluggableClass> connectionTypePluggableClasses = this.deviceDataModelService.protocolPluggableService().findAllConnectionTypePluggableClasses().stream().collect(Collectors.toMap(ConnectionTypePluggableClass::getId, Function.identity()));
+        Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> breakDownByConnectionType = this.emptyConnectionTypeBreakdown(connectionTypePluggableClasses);
+        for (Long ConnectionTypeId : statusBreakdown.keySet()) {
+            breakDownByConnectionType.put(connectionTypePluggableClasses.get(ConnectionTypeId), statusBreakdown.get(ConnectionTypeId));
+        }
+        return breakDownByConnectionType;
+    }
+
+    private Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> emptyConnectionTypeBreakdown(Map<Long, ConnectionTypePluggableClass> connectionTypePluggableClasses) {
+        Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> emptyBreakdown = new HashMap<>();
+        for (ConnectionTypePluggableClass connectionTypePluggableClass : connectionTypePluggableClasses.values()) {
+            Map<TaskStatus, Long> emptyCounters = new HashMap<>();
+            this.addMissingTaskStatusCounters(emptyCounters);
+            emptyBreakdown.put(connectionTypePluggableClass, emptyCounters);
+        }
+        return emptyBreakdown;
     }
 
     private Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder) {

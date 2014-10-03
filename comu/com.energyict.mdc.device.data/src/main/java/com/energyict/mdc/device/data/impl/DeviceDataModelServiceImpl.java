@@ -363,6 +363,35 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     @Override
+    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(ClauseAwareSqlBuilder builder) {
+        Map<Long, Map<TaskStatus, Long>> counters = new HashMap<>();
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
+            this.fetchTaskStatusBreakdown(stmnt, counters);
+        }
+        catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+        return counters;
+    }
+
+    private void fetchTaskStatusBreakdown(PreparedStatement statement, Map<Long, Map<TaskStatus, Long>> breakdown) throws SQLException {
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                String taskStatusName = resultSet.getString(1);
+                long breakdownId = resultSet.getLong(2);
+                long counter = resultSet.getLong(3);
+                Map<TaskStatus, Long> counters = breakdown.get(breakdownId);
+                if (counters == null) {
+                    counters = new HashMap<>();
+                    this.addMissingTaskStatusCounters(counters);
+                    breakdown.put(breakdownId, counters);
+                }
+                counters.put(TaskStatus.valueOf(taskStatusName), counter);
+            }
+        }
+    }
+
+    @Override
     public Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters) {
         for (TaskStatus missing : this.taskStatusComplement(counters.keySet())) {
             counters.put(missing, 0L);
