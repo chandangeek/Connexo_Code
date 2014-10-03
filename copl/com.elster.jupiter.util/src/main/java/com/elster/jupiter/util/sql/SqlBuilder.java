@@ -5,9 +5,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
 
 /**
  * Class that assists in building sql statements.
@@ -150,6 +155,36 @@ public final class SqlBuilder implements SqlFragment {
         return result;
     }
 
+    public boolean add(String field , Range<Instant> range, String lead) {
+    	boolean result = false;
+    	Objects.requireNonNull(range);
+    	if (range.hasLowerBound()) {
+    		space();
+			append(lead);
+			space();
+			append(field);
+			append(" >");
+			if (range.lowerBoundType() == BoundType.CLOSED) {
+				append("=");
+			}
+			addLong(range.lowerEndpoint().toEpochMilli());
+			result = true;
+		}
+		if (range.hasUpperBound()) {
+			space();
+			append(result ? "AND" : lead);
+			space();
+			append(field);
+			append(" <");
+			if (range.upperBoundType() == BoundType.CLOSED) {
+				append("=");
+			}
+			addLong(range.upperEndpoint().toEpochMilli());
+			result = true;
+		}
+		return result;
+    }
+    
     private abstract static class SimpleFragment implements SqlFragment {
         SimpleFragment() {
         }
