@@ -44,6 +44,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceRegisterConfiguration',
         'Mdc.controller.setup.DeviceRegisterData',
         'Mdc.controller.setup.Devices',
+        'Mdc.controller.setup.DevicesAddGroupController',
+        'Mdc.controller.setup.DevicesController',
+        'Mdc.controller.setup.DevicesSearchController',
         'Mdc.controller.setup.DeviceTypeLogbooks',
         'Mdc.controller.setup.DeviceTypes',
         'Mdc.controller.setup.EditLogbookConfiguration',
@@ -62,7 +65,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterTypes',
         'Mdc.controller.setup.RuleDeviceConfigurations',
         'Mdc.controller.setup.SearchItemsBulkAction',
-        'Mdc.controller.setup.SearchItems',
         'Mdc.controller.setup.SecuritySettings',
         'Mdc.controller.setup.SetupOverview',
         'Mdc.controller.setup.ValidationRuleSets'

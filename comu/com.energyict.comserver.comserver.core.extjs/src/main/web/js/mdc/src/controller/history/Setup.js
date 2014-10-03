@@ -1029,7 +1029,7 @@ Ext.define('Mdc.controller.history.Setup', {
         search: {
             title: 'Search',
             route: 'search',
-            controller: 'Mdc.controller.setup.SearchItems',
+            controller: 'Mdc.controller.setup.DevicesSearchController',
             action: 'showSearchItems',
             items: {
                 bulkAction: {
