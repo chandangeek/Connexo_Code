@@ -264,12 +264,7 @@ public class MeterReadingStorer {
     }
 
     private void addedReading(Channel channel, BaseReading reading) {
-    	Map<Date,BaseReading> readingMap = channelReadings.get(channel);
-    	if (readingMap == null) {
-    		readingMap = new HashMap<>();
-    		channelReadings.put(channel, readingMap);
-    	}
-    	readingMap.put(reading.getTimeStamp(),reading);
+    	channelReadings.computeIfAbsent(channel , key -> new HashMap<>()).put(reading.getTimeStamp(), reading);
     }
     
     private void storeReadingQualities() {
