@@ -12,7 +12,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -50,15 +50,15 @@ import javax.ws.rs.core.Response;
 public class SchedulingResource {
 
     private final SchedulingService schedulingService;
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private final Clock clock;
     private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
 
     @Inject
-    public SchedulingResource(SchedulingService schedulingService, DeviceDataService deviceDataService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
+    public SchedulingResource(SchedulingService schedulingService, DeviceService deviceService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
         this.schedulingService = schedulingService;
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
         this.clock = clock;
         this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
@@ -73,7 +73,7 @@ public class SchedulingResource {
         List<ComSchedule> comSchedules = new ArrayList<>();
         Calendar calendar = Calendar.getInstance(clock.getTimeZone());
         if(mrid!= null && available){
-            Device device = deviceDataService.findByUniqueMrid(mrid);
+            Device device = deviceService.findByUniqueMrid(mrid);
             List<ComSchedule> possibleComSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
             List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
             for(ComSchedule comSchedule:possibleComSchedules){
@@ -336,7 +336,7 @@ public class SchedulingResource {
     }
 
     private boolean isInUse(ComSchedule comSchedule) {
-        return this.deviceDataService.isLinkedToDevices(comSchedule);
+        return this.deviceService.isLinkedToDevices(comSchedule);
     }
 
 }
