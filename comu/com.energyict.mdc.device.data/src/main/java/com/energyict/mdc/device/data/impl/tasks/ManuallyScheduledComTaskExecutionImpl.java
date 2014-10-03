@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -55,8 +54,8 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
     @Inject
-    public ManuallyScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, schedulingService);
+    public ManuallyScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
+        super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, schedulingService);
     }
 
     public ManuallyScheduledComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {

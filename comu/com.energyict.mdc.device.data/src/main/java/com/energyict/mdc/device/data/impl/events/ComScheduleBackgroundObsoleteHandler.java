@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.Message;
@@ -30,13 +29,13 @@ public class ComScheduleBackgroundObsoleteHandler implements MessageHandler {
 
     private final JsonService jsonService;
     private final EventService eventService;
-    private final ServerDeviceDataService deviceDataService;
+    private final ServerCommunicationTaskService communicationTaskService;
 
-    ComScheduleBackgroundObsoleteHandler(JsonService jsonService, EventService eventService, ServerDeviceDataService deviceDataService) {
+    ComScheduleBackgroundObsoleteHandler(JsonService jsonService, EventService eventService, ServerCommunicationTaskService communicationTaskService) {
         super();
         this.jsonService = jsonService;
         this.eventService = eventService;
-        this.deviceDataService = deviceDataService;
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Override
@@ -54,7 +53,7 @@ public class ComScheduleBackgroundObsoleteHandler implements MessageHandler {
 
     private void startBackgroundObsoletion(Map<String, Object> messageProperties) {
         long comScheduleId = this.getLong("id", messageProperties);
-        Optional<ScheduledComTaskExecutionIdRange> idRange = this.deviceDataService.getScheduledComTaskExecutionIdRange(comScheduleId);
+        Optional<ScheduledComTaskExecutionIdRange> idRange = this.communicationTaskService.getScheduledComTaskExecutionIdRange(comScheduleId);
         if (idRange.isPresent()) {
             this.postBatchJobs(idRange.get());
         }
@@ -73,7 +72,7 @@ public class ComScheduleBackgroundObsoleteHandler implements MessageHandler {
         long comScheduleId = this.getLong("comScheduleId", messageProperties);
         long minId = this.getLong("minId", messageProperties);
         long maxId = this.getLong("maxId", messageProperties);
-        this.deviceDataService.obsoleteComTaskExecutionsInRange(new ScheduledComTaskExecutionIdRange(comScheduleId, minId, maxId));
+        this.communicationTaskService.obsoleteComTaskExecutionsInRange(new ScheduledComTaskExecutionIdRange(comScheduleId, minId, maxId));
     }
 
     private Long getLong(String key, Map<String, Object> messageProperties) {

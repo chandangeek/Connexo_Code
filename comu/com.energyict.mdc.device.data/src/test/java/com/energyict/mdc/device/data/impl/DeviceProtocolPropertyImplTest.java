@@ -226,6 +226,6 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.delete();
 
-        assertThat(inMemoryPersistence.getDeviceService().getDataModel().mapper(DeviceProtocolProperty.class).find()).isEmpty();
+        assertThat(inMemoryPersistence.getDataModel().mapper(DeviceProtocolProperty.class).find()).isEmpty();
     }
 }

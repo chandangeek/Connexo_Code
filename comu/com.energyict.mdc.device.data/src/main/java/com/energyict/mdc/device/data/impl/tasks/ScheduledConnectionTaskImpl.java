@@ -8,7 +8,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -75,14 +75,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private UpdateStrategy updateStrategy = new Noop();
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private final DeviceDataService deviceDataService;
+    private final ServerCommunicationTaskService communicationTaskService;
 
     @Inject
-    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService, RelationService relationService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, protocolPluggableService, relationService);
+    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService, RelationService relationService, SchedulingService schedulingService) {
+        super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, deviceService, protocolPluggableService, relationService);
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceDataService = deviceDataService;
+        this.communicationTaskService = communicationTaskService;
     }
 
     public void initializeWithAsapStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
@@ -132,7 +132,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
      * that a default ScheduledConnectionTask was created against the Device.
      */
     private void notifyComTaskExecutionsForDefaultConnectionTask() {
-        this.deviceDataService.setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(getDevice(), this);
+        this.communicationTaskService.setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(getDevice(), this);
     }
 
     @Override
@@ -641,7 +641,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public List<ComTaskExecution> getScheduledComTasks() {
-       return this.deviceDataService.findComTaskExecutionsByConnectionTask(this);
+       return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this);
     }
 
     private enum PostingMode {

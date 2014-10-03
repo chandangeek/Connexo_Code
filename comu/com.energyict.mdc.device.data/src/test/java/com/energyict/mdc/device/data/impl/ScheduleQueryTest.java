@@ -94,7 +94,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
-        Fetcher<ComTaskExecution> fetcher = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> fetcher = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(fetcher).isNotNull();
         Iterator<ComTaskExecution> plannedComTaskExecutions = fetcher.iterator();
@@ -112,7 +112,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
         connectionTask.deactivate();
-        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
     }
@@ -128,7 +128,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
         connectionTask.executionStarted(getOnlineComServer());
-        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
     }
@@ -144,7 +144,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
         comTaskExecution.makeObsolete();
-        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
     }
@@ -158,7 +158,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Date futureDate = freezeClock(2012, Calendar.JULY, 5); // make the task waiting
         OutboundComPort outboundComPort = createOutboundComPort();
-        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
     }
@@ -173,7 +173,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
         ((ServerComTaskExecution) comTaskExecution).executionStarted(outboundComPort);
-        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
     }
@@ -187,7 +187,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createComPortInOtherComPortPool();
-        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();
     }
@@ -202,7 +202,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         ComTaskExecution comTaskExecution2 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextTwo, comTaskEnablement2);
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
-        Fetcher<ComTaskExecution> fetcher = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> fetcher = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(fetcher).isNotNull();
         Iterator<ComTaskExecution> plannedComTaskExecutions = fetcher.iterator();
@@ -222,7 +222,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         ComTaskExecution comTaskExecution1 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextOne, comTaskEnablement1);
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
-        Fetcher<ComTaskExecution> fetcher = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> fetcher = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(fetcher).isNotNull();
         Iterator<ComTaskExecution> plannedComTaskExecutions = fetcher.iterator();
@@ -241,7 +241,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         ComTaskExecution comTaskExecution3 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask1, nextOne, comTaskEnablement3);
         final Date futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the tasks pending
         OutboundComPort outboundComPort = createOutboundComPort();
-        Fetcher<ComTaskExecution> fetcher = inMemoryPersistence.getDeviceDataService().getPlannedComTaskExecutionsFor(outboundComPort);
+        Fetcher<ComTaskExecution> fetcher = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(fetcher).isNotNull();
         Iterator<ComTaskExecution> plannedComTaskExecutions = fetcher.iterator();

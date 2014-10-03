@@ -6,7 +6,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -161,7 +161,6 @@ public class DeviceGroupTest {
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(UserService.class).toInstance(userService);
-            bind(SecurityPropertyService.class).toInstance(securityPropertyService);
         }
     }
 
@@ -170,7 +169,7 @@ public class DeviceGroupTest {
         when(principal.getName()).thenReturn("Ernie");
         this.inMemoryBootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
-                new ThreadSecurityModule(this.principal),
+                new ThreadSecurityModule(principal),
                 this.inMemoryBootstrapModule,
                 new OrmModule(),
                 new EventsModule(),
@@ -196,6 +195,7 @@ public class DeviceGroupTest {
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TasksModule(),
+                new DeviceDataModule(),
                 new MockModule(),
                 new MeteringGroupsModule()
         );
@@ -205,16 +205,15 @@ public class DeviceGroupTest {
             injector.getInstance(ValidationService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(DeviceConfigurationService.class);
-            injector.getInstance(DeviceDataServiceImpl.class);
             injector.getInstance(SecurityPropertyServiceImpl.class);
 
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
+            DeviceService deviceService = injector.getInstance(DeviceServiceImpl.class);
 
             DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
             endDeviceQueryProvider.setMeteringService(meteringService);
-            endDeviceQueryProvider.setDeviceDataService(deviceDataService);
+            endDeviceQueryProvider.setDeviceService(deviceService);
             meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
 
             return null;
@@ -245,8 +244,8 @@ public class DeviceGroupTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
 
-            DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
-            Device device = deviceDataService.newDevice(getDeviceConfiguration(), DEVICE_NAME1, ED_MRID);
+            DeviceService deviceService = injector.getInstance(DeviceServiceImpl.class);
+            Device device = deviceService.newDevice(getDeviceConfiguration(), DEVICE_NAME1, ED_MRID);
             device.save();
             endDevice = meteringService.findAmrSystem(1).get().newMeter(String.valueOf(device.getId()), ED_MRID);
             endDevice.save();
@@ -282,8 +281,8 @@ public class DeviceGroupTest {
         EndDevice endDevice;
         try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
-            Device device = deviceDataService.newDevice(getDeviceConfiguration(), DEVICE_NAME2, ED_MRID2);
+            DeviceService deviceService = injector.getInstance(DeviceServiceImpl.class);
+            Device device = deviceService.newDevice(getDeviceConfiguration(), DEVICE_NAME2, ED_MRID2);
             device.save();
             endDevice = meteringService.findAmrSystem(1).get().newMeter(String.valueOf(device.getId()), ED_MRID2);
             endDevice.save();

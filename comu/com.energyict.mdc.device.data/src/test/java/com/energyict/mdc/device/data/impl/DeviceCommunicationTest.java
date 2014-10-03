@@ -398,9 +398,9 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.delete();
 
-        assertThat(inMemoryPersistence.getDeviceDataService().findConnectionTask(connectionInitiationTask.getId()).orNull()).isNull();
-        assertThat(inMemoryPersistence.getDeviceDataService().findConnectionTask(scheduledConnectionTask.getId()).orNull()).isNull();
-        assertThat(inMemoryPersistence.getDeviceDataService().findConnectionTask(inboundConnectionTask.getId()).orNull()).isNull();
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionTask(connectionInitiationTask.getId()).orNull()).isNull();
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionTask(scheduledConnectionTask.getId()).orNull()).isNull();
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionTask(inboundConnectionTask.getId()).orNull()).isNull();
     }
 
     @Test

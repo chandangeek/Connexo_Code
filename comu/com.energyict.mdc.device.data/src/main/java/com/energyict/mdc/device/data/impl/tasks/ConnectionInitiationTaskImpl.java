@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -32,8 +32,8 @@ import java.util.List;
 public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<PartialConnectionInitiationTask> implements ConnectionInitiationTask {
 
     @Inject
-    protected ConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, protocolPluggableService, relationService);
+    protected ConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, DeviceService deviceService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
+        super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, deviceService, protocolPluggableService, relationService);
     }
 
     @Override

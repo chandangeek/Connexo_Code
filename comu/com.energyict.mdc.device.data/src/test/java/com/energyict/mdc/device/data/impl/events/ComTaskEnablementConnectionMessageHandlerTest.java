@@ -1,27 +1,29 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.impl.EventType;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.google.common.base.Optional;
+import org.osgi.service.event.EventConstants;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.event.EventConstants;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -30,7 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  * Tests the {@link ComTaskEnablementConnectionMessageHandler} component,
  * verifying mostly that the handler delegates to the correct
- * {@link DeviceDataService} methods.
+ * {@link DeviceService} methods.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-28 (16:20)
@@ -57,7 +59,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     @Mock
     private PartialConnectionTask partialConnectionTask2;
     @Mock
-    private ServerDeviceDataService deviceDataService;
+    private ServerCommunicationTaskService communicationTaskService;
 
     private JsonService jsonService = new JsonServiceImpl();
 
@@ -113,7 +115,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).switchOnDefault(this.comTask, this.deviceConfiguration);
+        verify(this.communicationTaskService).switchOnDefault(this.comTask, this.deviceConfiguration);
     }
 
     @Test
@@ -130,7 +132,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).switchOffDefault(this.comTask, this.deviceConfiguration);
+        verify(this.communicationTaskService).switchOffDefault(this.comTask, this.deviceConfiguration);
     }
 
     @Test
@@ -148,7 +150,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).switchFromDefaultConnectionTaskToPreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask1);
+        verify(this.communicationTaskService).switchFromDefaultConnectionTaskToPreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask1);
     }
 
     @Test
@@ -166,7 +168,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).switchFromPreferredConnectionTaskToDefault(this.comTask, this.deviceConfiguration, this.partialConnectionTask1);
+        verify(this.communicationTaskService).switchFromPreferredConnectionTaskToDefault(this.comTask, this.deviceConfiguration, this.partialConnectionTask1);
     }
 
     @Test
@@ -185,7 +187,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).preferredConnectionTaskChanged(this.comTask, this.deviceConfiguration, this.partialConnectionTask1, this.partialConnectionTask2);
+        verify(this.communicationTaskService).preferredConnectionTaskChanged(this.comTask, this.deviceConfiguration, this.partialConnectionTask1, this.partialConnectionTask2);
     }
 
     @Test
@@ -203,7 +205,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).switchFromDefaultConnectionTaskToPreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask2);
+        verify(this.communicationTaskService).switchFromDefaultConnectionTaskToPreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask2);
     }
 
     @Test
@@ -221,7 +223,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.deviceDataService).removePreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask2);
+        verify(this.communicationTaskService).removePreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask2);
     }
 
     private JsonService getJsonService () {
@@ -229,11 +231,11 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     private ComTaskEnablementConnectionMessageHandler newHandler () {
-        return new ComTaskEnablementConnectionMessageHandler(this.getJsonService(), this.deviceConfigurationService, this.deviceDataService);
+        return new ComTaskEnablementConnectionMessageHandler(this.getJsonService(), this.deviceConfigurationService, this.communicationTaskService);
     }
 
     private ComTaskEnablementConnectionMessageHandler newHandler (JsonService jsonService) {
-        return new ComTaskEnablementConnectionMessageHandler(jsonService, this.deviceConfigurationService, this.deviceDataService);
+        return new ComTaskEnablementConnectionMessageHandler(jsonService, this.deviceConfigurationService, this.communicationTaskService);
     }
 
 }

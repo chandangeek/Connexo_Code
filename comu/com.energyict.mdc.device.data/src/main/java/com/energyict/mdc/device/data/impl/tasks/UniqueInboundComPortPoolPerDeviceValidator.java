@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -20,12 +20,12 @@ import java.util.Set;
  */
 public class UniqueInboundComPortPoolPerDeviceValidator implements ConstraintValidator<UniqueInboundComPortPoolPerDevice, InboundConnectionTaskImpl> {
 
-    private final DeviceDataService deviceDataService;
+    private final ConnectionTaskService connectionTaskService;
 
     @Inject
-    public UniqueInboundComPortPoolPerDeviceValidator(DeviceDataService deviceDataService) {
+    public UniqueInboundComPortPoolPerDeviceValidator(ConnectionTaskService connectionTaskService) {
         super();
-        this.deviceDataService = deviceDataService;
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class UniqueInboundComPortPoolPerDeviceValidator implements ConstraintVal
     }
 
     private Set<Long> getOtherComPortPoolIds(InboundConnectionTaskImpl connectionTask) {
-        List<InboundConnectionTask> all = this.deviceDataService.findInboundConnectionTasksByDevice(connectionTask.getDevice());
+        List<InboundConnectionTask> all = this.connectionTaskService.findInboundConnectionTasksByDevice(connectionTask.getDevice());
         Set<Long> poolIds = new HashSet<>();
         for (InboundConnectionTask each : all) {
             if (each.getId() != connectionTask.getId()) {

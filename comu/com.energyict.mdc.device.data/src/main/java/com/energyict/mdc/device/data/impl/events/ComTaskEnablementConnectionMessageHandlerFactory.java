@@ -22,7 +22,7 @@ public class ComTaskEnablementConnectionMessageHandlerFactory extends ComTaskEna
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new ComTaskEnablementConnectionMessageHandler(this.getJsonService(), this.getDeviceConfigurationService(), this.getDeviceDataService());
+        return new ComTaskEnablementConnectionMessageHandler(this.getJsonService(), this.getDeviceConfigurationService(), this.getCommunicationTaskService());
     }
 
 }

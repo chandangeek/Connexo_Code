@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.impl.events;
 
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.nls.Thesaurus;
@@ -27,7 +26,7 @@ public class PartialConnectionTaskDeletionHandler extends EventHandler<LocalEven
 
     static final Pattern TOPIC = Pattern.compile("com/energyict/mdc/device/config/partial(.*)connectiontask/VALIDATE_DELETE");
 
-    private volatile ServerDeviceDataService deviceDataService;
+    private volatile DeviceDataModelService deviceDataModelService;
     private volatile Thesaurus thesaurus;
 
     public PartialConnectionTaskDeletionHandler() {
@@ -35,19 +34,15 @@ public class PartialConnectionTaskDeletionHandler extends EventHandler<LocalEven
     }
 
     @Inject
-    PartialConnectionTaskDeletionHandler(ServerDeviceDataService deviceDataService) {
+    PartialConnectionTaskDeletionHandler(DeviceDataModelService deviceDataModelService) {
         this();
-        this.deviceDataService = deviceDataService;
+        this.setDeviceDataModelService(deviceDataModelService);
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
-    }
-
-    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
-        this.thesaurus = deviceDataService.getThesaurus();
+    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
+        this.deviceDataModelService = deviceDataModelService;
+        this.thesaurus = deviceDataModelService.thesaurus();
     }
 
     @Override
@@ -69,7 +64,7 @@ public class PartialConnectionTaskDeletionHandler extends EventHandler<LocalEven
      * @param partialConnectionTask The PartialConnectionTask that is about to be deleted
      */
     private void validateNotUsedByDevice(PartialConnectionTask partialConnectionTask) {
-        if (this.deviceDataService.hasConnectionTasks(partialConnectionTask)) {
+        if (this.deviceDataModelService.connectionTaskService().hasConnectionTasks(partialConnectionTask)) {
             throw new VetoDeletePartialConnectionTaskException(this.thesaurus, partialConnectionTask);
         }
     }

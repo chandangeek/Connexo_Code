@@ -588,7 +588,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
-        inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
         inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
 
         // Business method

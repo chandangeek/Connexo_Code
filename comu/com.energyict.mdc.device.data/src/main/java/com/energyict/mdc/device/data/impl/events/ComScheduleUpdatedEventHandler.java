@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.events.VetoComTaskAdditionException;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -22,7 +22,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name="com.energyict.mdc.device.comschedule.addComTask.eventhandler", service = TopicHandler.class, immediate = true)
 public class ComScheduleUpdatedEventHandler implements TopicHandler {
 
-    private volatile ServerDeviceDataService deviceDataService;
+    private volatile ServerDeviceService deviceDataService;
 
     @Override
     public String getTopicMatcher() {
@@ -40,7 +40,7 @@ public class ComScheduleUpdatedEventHandler implements TopicHandler {
 
     @SuppressWarnings("unused")
     @Reference
-    public void setDeviceDataService(ServerDeviceDataService deviceDataService) {
+    public void setDeviceDataService(ServerDeviceService deviceDataService) {
         this.deviceDataService = deviceDataService;
     }
 

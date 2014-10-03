@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-06-02 (16:09)
- * @see DeviceDataService#findCommunicationReferencingDevicesFor(Device, Interval)
+ * @see DeviceService#findCommunicationReferencingDevicesFor(Device, Interval)
  */
 public final class SimpleCommunicationTopologyEntryImpl implements CommunicationTopologyEntry {
 

@@ -4,10 +4,10 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+
 import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
     @Mock
     private Meter meter;
     @Mock
@@ -53,7 +53,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
 
         when(meter.getAmrId()).thenReturn(Long.toString(DEVICE_ID));
-        when(deviceDataService.findDeviceById(eq(DEVICE_ID))).thenReturn(device);
+        when(deviceService.findDeviceById(eq(DEVICE_ID))).thenReturn(device);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getValidationRuleSets()).thenReturn(Arrays.asList(ruleSet));
 
@@ -62,7 +62,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
     @Test
     public void testResolveForDevice() {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
-        resolver.setDeviceDataService(deviceDataService);
+        resolver.setDeviceService(deviceService);
 
         List<ValidationRuleSet> setList = resolver.resolve(meterActivation);
         assertThat(setList).containsExactly(ruleSet);
@@ -70,9 +70,9 @@ public class DeviceConfigValidationRuleSetResolverTest {
 
     @Test
     public void testDeviceNotFound() {
-        when(deviceDataService.findDeviceById(DEVICE_ID)).thenReturn(null);
+        when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(null);
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
-        resolver.setDeviceDataService(deviceDataService);
+        resolver.setDeviceService(deviceService);
 
         List<ValidationRuleSet> setList = resolver.resolve(meterActivation);
         assertThat(setList).isEmpty();
@@ -82,7 +82,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
     public void testNotMdc() {
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(false);
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
-        resolver.setDeviceDataService(deviceDataService);
+        resolver.setDeviceService(deviceService);
 
         List<ValidationRuleSet> setList = resolver.resolve(meterActivation);
         assertThat(setList).isEmpty();
@@ -92,7 +92,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
     public void testNoMeter() {
         when(meterActivation.getMeter()).thenReturn(Optional.<Meter>absent());
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
-        resolver.setDeviceDataService(deviceDataService);
+        resolver.setDeviceService(deviceService);
 
         List<ValidationRuleSet> setList = resolver.resolve(meterActivation);
         assertThat(setList).isEmpty();

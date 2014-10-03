@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceFields;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -16,11 +16,11 @@ import javax.validation.ConstraintValidatorContext;
  */
 public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Device> {
 
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
 
     @Inject
-    public DeviceMridValidator(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public DeviceMridValidator(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Devi
 
     @Override
     public boolean isValid(Device device, ConstraintValidatorContext constraintValidatorContext) {
-        Device other = this.deviceDataService.findByUniqueMrid(device.getmRID());
+        Device other = this.deviceService.findByUniqueMrid(device.getmRID());
         if (other != null && other.getId() != device.getId()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate(constraintValidatorContext.getDefaultConstraintMessageTemplate()).addPropertyNode(DeviceFields.MRID.fieldName()).addConstraintViolation();

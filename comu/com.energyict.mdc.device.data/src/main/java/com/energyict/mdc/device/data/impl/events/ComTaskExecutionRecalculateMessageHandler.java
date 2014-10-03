@@ -1,19 +1,20 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import java.util.List;
-import java.util.Map;
 
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
+
+import java.util.List;
+import java.util.Map;
 
 @Component(name="com.energyict.mdc.device.data.comschedule.recalculate.messagehandler", service = MessageHandler.class, immediate = true)
 public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler {
@@ -21,7 +22,7 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
     private static final String TOPIC = "com/energyict/mdc/device/data/comschedule/UPDATED";
 
     private volatile JsonService jsonService;
-    private volatile DeviceDataService deviceDataService;
+    private volatile ServerCommunicationTaskService communicationTaskService;
     private volatile SchedulingService schedulingService;
 
     public ComTaskExecutionRecalculateMessageHandler() {
@@ -29,10 +30,10 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
     }
 
     // For testing purposes
-    ComTaskExecutionRecalculateMessageHandler(JsonService jsonService, DeviceDataService deviceDataService, SchedulingService schedulingService) {
+    ComTaskExecutionRecalculateMessageHandler(JsonService jsonService, ServerCommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
         this();
         this.setJsonService(jsonService);
-        this.setDeviceDataService(deviceDataService);
+        this.setCommunicationTaskService(communicationTaskService);
         this.setSchedulingService(schedulingService);
     }
 
@@ -47,8 +48,8 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setCommunicationTaskService(ServerCommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Override
@@ -61,7 +62,7 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
             long minId = this.getLong("minId", messageProperties);
             long maxId = this.getLong("maxId", messageProperties);
             Optional<ComSchedule> comSchedule = this.schedulingService.findSchedule(comScheduleId);
-            List<ComTaskExecution> comTaskExecutions = this.deviceDataService.findComTaskExecutionsByComScheduleWithinRange(comSchedule.get(), minId, maxId);
+            List<ComTaskExecution> comTaskExecutions = this.communicationTaskService.findComTaskExecutionsByComScheduleWithinRange(comSchedule.get(), minId, maxId);
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                 comTaskExecution.updateNextExecutionTimestamp();
                 comTaskExecution.getDevice().save();

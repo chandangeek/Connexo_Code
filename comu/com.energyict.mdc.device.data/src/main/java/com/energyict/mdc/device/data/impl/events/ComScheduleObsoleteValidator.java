@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
@@ -23,7 +22,7 @@ public class ComScheduleObsoleteValidator implements TopicHandler {
 
     static final String TOPIC = EventType.COMSCHEDULES_BEFORE_OBSOLETE.topic();
 
-    private volatile ServerDeviceDataService deviceDataService;
+    private volatile DeviceDataModelService deviceDataModelService;
     private volatile Thesaurus thesaurus;
 
     public ComScheduleObsoleteValidator() {
@@ -31,19 +30,15 @@ public class ComScheduleObsoleteValidator implements TopicHandler {
     }
 
     // For testing purposes only
-    ComScheduleObsoleteValidator(ServerDeviceDataService deviceDataService) {
+    ComScheduleObsoleteValidator(DeviceDataModelService deviceDataModelService) {
         this();
-        this.setDeviceDataService(deviceDataService);
+        this.setDeviceDataModelService(deviceDataModelService);
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
-    }
-
-    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
-        this.thesaurus = deviceDataService.getThesaurus();
+    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
+        this.deviceDataModelService = deviceDataModelService;
+        this.thesaurus = deviceDataModelService.thesaurus();
     }
 
     @Override
@@ -67,7 +62,7 @@ public class ComScheduleObsoleteValidator implements TopicHandler {
      * @param comSchedule The ComTaskEnablement that is about to be deleted
      */
     private void validateNotUsedByDevice(ComSchedule comSchedule) {
-        if (this.deviceDataService.hasComTaskExecutions(comSchedule)) {
+        if (this.deviceDataModelService.communicationTaskService().hasComTaskExecutions(comSchedule)) {
             throw new VetoObsoleteComScheduleException(this.thesaurus, comSchedule);
         }
     }

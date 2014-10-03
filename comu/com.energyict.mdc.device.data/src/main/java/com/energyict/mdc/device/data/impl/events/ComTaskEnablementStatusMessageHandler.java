@@ -5,7 +5,8 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -26,13 +27,13 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
 
     private final JsonService jsonService;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final ServerDeviceDataService deviceDataService;
+    private final ServerCommunicationTaskService communicationTaskService;
 
-    public ComTaskEnablementStatusMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerDeviceDataService deviceDataService) {
+    public ComTaskEnablementStatusMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerCommunicationTaskService communicationTaskService) {
         super();
         this.jsonService = jsonService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceDataService = deviceDataService;
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Override
@@ -45,7 +46,7 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
 
     private interface ServiceLocator {
         public DeviceConfigurationService deviceConfigurationService();
-        public ServerDeviceDataService deviceDataService();
+        public ServerCommunicationTaskService communicationTaskService();
     }
 
     private class ServiceLocatorImpl implements ComTaskEnablementStatusMessageHandler.ServiceLocator {
@@ -55,8 +56,8 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
         }
 
         @Override
-        public ServerDeviceDataService deviceDataService() {
-            return deviceDataService;
+        public ServerCommunicationTaskService communicationTaskService() {
+            return communicationTaskService;
         }
     }
 
@@ -65,7 +66,7 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
             @Override
             protected void process(Long comTaskEnablementId, ServiceLocator serviceLocator) {
                 ComTaskEnablement comTaskEnablement = serviceLocator.deviceConfigurationService().findComTaskEnablement(comTaskEnablementId).get();
-                serviceLocator.deviceDataService().suspendAll(comTaskEnablement.getComTask(), comTaskEnablement.getDeviceConfiguration());
+                serviceLocator.communicationTaskService().suspendAll(comTaskEnablement.getComTask(), comTaskEnablement.getDeviceConfiguration());
             }
         },
 
@@ -73,7 +74,7 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
             @Override
             protected void process(Long comTaskEnablementId, ServiceLocator serviceLocator) {
                 ComTaskEnablement comTaskEnablement = serviceLocator.deviceConfigurationService().findComTaskEnablement(comTaskEnablementId).get();
-                serviceLocator.deviceDataService().resumeAll(comTaskEnablement.getComTask(), comTaskEnablement.getDeviceConfiguration());
+                serviceLocator.communicationTaskService().resumeAll(comTaskEnablement.getComTask(), comTaskEnablement.getDeviceConfiguration());
             }
         },
 

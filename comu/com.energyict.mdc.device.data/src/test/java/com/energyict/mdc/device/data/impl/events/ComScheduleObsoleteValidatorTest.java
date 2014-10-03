@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import com.elster.jupiter.events.EventType;
@@ -26,7 +28,9 @@ import static org.mockito.Mockito.when;
 public class ComScheduleObsoleteValidatorTest {
 
     @Mock
-    private ServerDeviceDataService deviceDataService;
+    private DeviceDataModelService deviceDataModelService;
+    @Mock
+    private ServerCommunicationTaskService communicationTaskService;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -46,32 +50,33 @@ public class ComScheduleObsoleteValidatorTest {
 
     @Before
     public void createEventHandler () {
-        when(this.deviceDataService.getThesaurus()).thenReturn(this.thesaurus);
-        this.eventHandler = new ComScheduleObsoleteValidator(this.deviceDataService);
+        when(this.deviceDataModelService.thesaurus()).thenReturn(this.thesaurus);
+        when(this.deviceDataModelService.communicationTaskService()).thenReturn(this.communicationTaskService);
+        this.eventHandler = new ComScheduleObsoleteValidator(this.deviceDataModelService);
     }
 
     @Test
     public void testNotUsed() {
-        when(this.deviceDataService.hasComTaskExecutions(this.comSchedule)).thenReturn(false);
+        when(this.communicationTaskService.hasComTaskExecutions(this.comSchedule)).thenReturn(false);
 
         // Business method
         this.eventHandler.handle(this.event);
 
         // Asserts
         verify(this.event).getSource();
-        verify(this.deviceDataService).hasComTaskExecutions(this.comSchedule);
+        verify(this.communicationTaskService).hasComTaskExecutions(this.comSchedule);
     }
 
     @Test(expected = VetoObsoleteComScheduleException.class)
     public void testInUse() {
-        when(this.deviceDataService.hasComTaskExecutions(this.comSchedule)).thenReturn(true);
+        when(this.communicationTaskService.hasComTaskExecutions(this.comSchedule)).thenReturn(true);
 
         // Business method
         this.eventHandler.handle(this.event);
 
         // Asserts
         verify(this.event).getSource();
-        verify(this.deviceDataService).hasComTaskExecutions(this.comSchedule);
+        verify(this.communicationTaskService).hasComTaskExecutions(this.comSchedule);
     }
 
 }

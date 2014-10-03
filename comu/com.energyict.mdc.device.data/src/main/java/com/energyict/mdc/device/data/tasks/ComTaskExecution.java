@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.tasks;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -56,7 +56,7 @@ import java.util.List;
  * that captures all the details of the communication with the device.
  * That communication overview is very imported and should not be deleted easily.
  * Therefore, ComTaskExecutions are never deleted but made obsolete.
- * Obsolete ComTaskExecutions will not return from {@link DeviceDataService}
+ * Obsolete ComTaskExecutions will not return from {@link DeviceService}
  * finder methods.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -202,7 +202,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
 
     /**
      * Makes this ComTaskExecution obsolete, i.e. it will no longer execute
-     * nor will it be returned by {@link DeviceDataService} finder methods.
+     * nor will it be returned by {@link DeviceService} finder methods.
      *
      * Note: the call needs to run in a Transaction, no additional save() is required.
      */
