@@ -1036,7 +1036,8 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: 'Bulk action',
                     route: 'bulk',
                     controller: 'Mdc.controller.setup.SearchItemsBulkAction',
-                    action: 'showBulkAction'
+                    action: 'showBulkAction',
+                    filter: 'Mdc.model.DeviceFilter'
                 }
             }
         }
