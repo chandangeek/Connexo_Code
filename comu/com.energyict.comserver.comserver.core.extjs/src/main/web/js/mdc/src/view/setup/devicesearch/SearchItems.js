@@ -3,13 +3,15 @@ Ext.define('Mdc.view.setup.devicesearch.SearchItems', {
 
     requires: [
         'Mdc.view.setup.devicesearch.SearchResults',
+        'Mdc.view.setup.devicesearch.DevicesSideFilter',
         'Uni.component.filter.view.FilterTopPanel',
         'Uni.view.navigation.SubMenu'
     ],
 
-    // TODO Filter.
     side: [
-
+        {
+            xtype: 'mdc-search-results-side-filter'
+        }
     ],
 
     content: [
