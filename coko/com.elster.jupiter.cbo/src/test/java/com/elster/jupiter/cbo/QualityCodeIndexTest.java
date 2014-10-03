@@ -25,4 +25,13 @@ public class QualityCodeIndexTest {
     	}
     }
 
+    @Test
+    public void testUsageBelow() {
+    	assertThat(QualityCodeIndex.get(QualityCodeCategory.VALIDATION, 4).get()).isEqualTo(QualityCodeIndex.USAGEBELOW);
+    }
+    
+    @Test
+    public void testCustomValidation() {
+    	assertThat(QualityCodeIndex.get(QualityCodeCategory.VALIDATION, 1001).isPresent()).isFalse();
+    }
 }

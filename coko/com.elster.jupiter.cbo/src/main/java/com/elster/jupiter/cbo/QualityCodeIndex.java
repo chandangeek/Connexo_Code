@@ -2,6 +2,9 @@ package com.elster.jupiter.cbo;
 
 import static com.elster.jupiter.cbo.QualityCodeCategory.*;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 public enum QualityCodeIndex {
 	DATAVALID(VALID,0),
 	VALIDATED(VALID,1),
@@ -80,5 +83,12 @@ public enum QualityCodeIndex {
 	
 	public int index() {
 		return index;
+	}
+	
+	static Optional<QualityCodeIndex> get(QualityCodeCategory category, int index) {
+		return Arrays.stream(values())
+			.filter(codeIndex -> codeIndex.category == category)
+			.filter(codeIndex -> codeIndex.index == index)
+			.findFirst();
 	}
 }
