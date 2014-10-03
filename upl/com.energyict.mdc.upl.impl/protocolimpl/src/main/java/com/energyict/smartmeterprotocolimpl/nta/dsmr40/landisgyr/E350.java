@@ -1,14 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
@@ -24,8 +23,8 @@ import java.io.IOException;
  */
 public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
 
-    private LGLoadProfileBuilder loadProfileBuilder;
-    private Dsmr40Messaging messageProtocol;
+    protected LoadProfileBuilder loadProfileBuilder;
+    protected MessageProtocol messageProtocol;
 
     @Override
     public MessageProtocol getMessageProtocol() {
@@ -98,10 +97,10 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     }
 
     @Override
-    public LGLoadProfileBuilder getLoadProfileBuilder() {
+    public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
             this.loadProfileBuilder = new LGLoadProfileBuilder(this);
-            loadProfileBuilder.setCumulativeCaptureTimeChannel(((Dsmr40Properties) getProperties()).getCumulativeCaptureTimeChannel());
+            ((LGLoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(((Dsmr40Properties) getProperties()).getCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;
     }

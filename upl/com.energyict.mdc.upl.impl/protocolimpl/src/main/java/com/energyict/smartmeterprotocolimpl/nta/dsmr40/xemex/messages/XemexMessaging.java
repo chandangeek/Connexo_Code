@@ -63,7 +63,7 @@ public class XemexMessaging extends Dsmr40Messaging {
         return catConfigurationParameters;
     }
 
-    private MessageCategorySpec getConnectivityCategory() {
+    protected MessageCategorySpec getConnectivityCategory() {
         MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(
                 RtuMessageCategoryConstants.CHANGECONNECTIVITY);
         MessageSpec msgSpec = addChangeGPRSSetup(

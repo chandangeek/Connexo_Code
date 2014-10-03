@@ -77,7 +77,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     /**
      * The {@link DLMSCache} of the current RTU
      */
-    private DLMSCache dlmsCache;
+    protected DLMSCache dlmsCache;
 
     /**
      * Getter for the {@link DlmsProtocolProperties}

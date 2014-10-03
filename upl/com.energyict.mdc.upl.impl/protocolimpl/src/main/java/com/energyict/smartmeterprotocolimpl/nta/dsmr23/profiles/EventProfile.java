@@ -37,36 +37,36 @@ public class EventProfile {
             fromDate = ProtocolUtils.getClearLastMonthDate(getTimeZone());
         }
         fromCal.setTime(fromDate);
-        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + " from " + fromCal.getTime() + " to "+getToCalendar().getTime());
-        protocol.getLogger().log(Level.INFO, "StandardLogEvents :" + getMeterConfig().getEventLogObject().getObisCode());
+        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + ".");
         DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
-        protocol.getLogger().log(Level.INFO, "ControlLogEvents :" + getMeterConfig().getControlLogObject().getObisCode());
-        DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
-        protocol.getLogger().log(Level.INFO, "PowerFailureLogEvents :" + getMeterConfig().getPowerFailureLogObject().getObisCode());
         DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
-        protocol.getLogger().log(Level.INFO, "FraudDetectionLogEvents :" + getMeterConfig().getFraudDetectionLogObject().getObisCode());
         DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
-        protocol.getLogger().log(Level.INFO, "MbusLogEvents :" + getMeterConfig().getMbusEventLogObject().getObisCode());
         DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
 
-        EventsLog standardEvents = new EventsLog(dcEvent, this.protocol.getDateTimeDeviationType());
-        FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(dcFraudDetection, this.protocol.getDateTimeDeviationType());
-        DisconnectControlLog disconnectControl = new DisconnectControlLog(dcControlLog, this.protocol.getDateTimeDeviationType());
-        MbusLog mbusLogs = new MbusLog(dcMbusEventLog, this.protocol.getDateTimeDeviationType());
-        PowerFailureLog powerFailure = new PowerFailureLog(dcPowerFailure, this.protocol.getDateTimeDeviationType());
+        EventsLog standardEvents = getStandardEventsLog(dcEvent);
+        FraudDetectionLog fraudDetectionEvents = getFraudDetectionLog(dcFraudDetection);
+        MbusLog mbusLogs = getMbusLog(dcMbusEventLog);
+        PowerFailureLog powerFailure = getPowerFailureLog(dcPowerFailure);
 
         eventList.addAll(standardEvents.getMeterEvents());
         eventList.addAll(fraudDetectionEvents.getMeterEvents());
-        eventList.addAll(disconnectControl.getMeterEvents());
         eventList.addAll(mbusLogs.getMeterEvents());
         eventList.addAll(powerFailure.getMeterEvents());
+
+        if (protocol.hasBreaker()) {
+            DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
+            DisconnectControlLog disconnectControl = getDisconnectControlLog(dcControlLog);
+            eventList.addAll(disconnectControl.getMeterEvents());
+        }
 
         DataContainer dcMbusControlLog;
         MbusControlLog mbusControlLog;
         for (DeviceMapping mbusDevices : this.protocol.getMeterTopology().getMbusMeterMap()) {
+            if (protocol.hasBreaker()) {
             dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress()-1).getObisCode()).getBuffer(fromCal, getToCalendar());
             mbusControlLog = new MbusControlLog(dcMbusControlLog, this.protocol.getDateTimeDeviationType());
             eventList.addAll(mbusControlLog.getMeterEvents());
+            }
 
             UniversalObject mbusClient = getMeterConfig().getMbusClient(mbusDevices.getPhysicalAddress() - 1);
             long mbusStatus = getCosemObjectFactory().getGenericRead(new DLMSAttribute(mbusClient.getObisCode(), MbusClientAttributes.STATUS)).getValue();
@@ -76,6 +76,26 @@ public class EventProfile {
             }
         }
         return eventList;
+    }
+
+    protected PowerFailureLog getPowerFailureLog(DataContainer dcPowerFailure) {
+        return new PowerFailureLog(dcPowerFailure, this.protocol.getDateTimeDeviationType());
+    }
+
+    protected MbusLog getMbusLog(DataContainer dcMbusEventLog) {
+        return new MbusLog(dcMbusEventLog, this.protocol.getDateTimeDeviationType());
+    }
+
+    protected DisconnectControlLog getDisconnectControlLog(DataContainer dcControlLog) {
+        return new DisconnectControlLog(dcControlLog, this.protocol.getDateTimeDeviationType());
+    }
+
+    protected FraudDetectionLog getFraudDetectionLog(DataContainer dcFraudDetection) {
+        return new FraudDetectionLog(dcFraudDetection, this.protocol.getDateTimeDeviationType());
+    }
+
+    protected EventsLog getStandardEventsLog(DataContainer dcEvent) {
+        return new EventsLog(dcEvent, this.protocol.getDateTimeDeviationType());
     }
 
     protected CosemObjectFactory getCosemObjectFactory() {

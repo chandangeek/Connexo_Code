@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-//import com.energyict.mdw.core.CommunicationScheduler;
-
 /**
  * Copyrights EnergyICT
  * Date: 14-jul-2011
@@ -55,6 +53,13 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     protected Dsmr23Properties properties;
 
     /**
+     * Indicating if the meter has a breaker.
+     * This implies whether or not we can control the breaker and read the control logbook.
+     * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
+     */
+    private boolean hasBreaker = true;
+
+    /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo}
      */
     private ComposedMeterInfo meterInfo;
@@ -67,12 +72,12 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder}
      */
-    private LoadProfileBuilder loadProfileBuilder;
+    protected LoadProfileBuilder loadProfileBuilder;
 
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile}
      */
-    private EventProfile eventProfile;
+    protected EventProfile eventProfile;
 
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology}
@@ -440,5 +445,16 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      */
     protected void setLoadProfileBuilder(LoadProfileBuilder loadProfileBuilder) {
         this.loadProfileBuilder = loadProfileBuilder;
+    }
+
+    public boolean hasBreaker() {
+        return hasBreaker;
+    }
+
+    /**
+     * Setter is only called from the cryptoserver protocols to remove the breaker functionality
+     */
+    public void setHasBreaker(boolean hasBreaker) {
+        this.hasBreaker = hasBreaker;
     }
 }

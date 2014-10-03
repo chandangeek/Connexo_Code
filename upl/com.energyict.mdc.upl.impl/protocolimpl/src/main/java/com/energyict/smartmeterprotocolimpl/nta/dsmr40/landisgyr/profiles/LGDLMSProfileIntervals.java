@@ -25,7 +25,7 @@ public class LGDLMSProfileIntervals extends DLMSProfileIntervals {
      * </ul>
      *
      * @param encodedData the raw encoded data of the buffer of the {@link com.energyict.dlms.cosem.ProfileGeneric}
-     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
+     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
      * @throws java.io.IOException when encoding types are not as expected
      */
     public LGDLMSProfileIntervals(byte[] encodedData, ProfileIntervalStatusBits statusBits) throws IOException {
@@ -39,7 +39,7 @@ public class LGDLMSProfileIntervals extends DLMSProfileIntervals {
      * @param clockMask   the binary represented mask of the clock index
      * @param statusMask  the binary represented mask of all the status indexes
      * @param channelMask the binary represented mask of all the channel indexes
-     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
+     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
      * @throws java.io.IOException when encoding types are not as expected
      */
     public LGDLMSProfileIntervals(final byte[] encodedData, final int clockMask, final int statusMask, final int channelMask, final ProfileIntervalStatusBits statusBits) throws IOException {
@@ -55,7 +55,7 @@ public class LGDLMSProfileIntervals extends DLMSProfileIntervals {
      * @throws java.io.IOException when the dataType is not as expected or the calendar could not be constructed
      */
     @Override
-    protected Calendar constructIntervalCalendar(Calendar cal, final AbstractDataType dataType) throws IOException {
+    public Calendar constructIntervalCalendar(Calendar cal, final AbstractDataType dataType) throws IOException {
         if (dataType instanceof OctetString) {
             OctetString os = (OctetString) dataType;
             // check if the OctetString contains a date, otherwise just add the profileInterval to the current calendar

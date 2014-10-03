@@ -27,6 +27,7 @@ public class G3Properties extends DlmsProtocolProperties {
     public static final String AARQ_RETRIES = "AARQRetries";
     public static final String DEFAULT_AARQ_RETRIES = "2";
     public static final String AARQ_TIMEOUT = "AARQTimeout";
+    public static final String PSK = "PSK";
     public static final String DEFAULT_AARQ_TIMEOUT = "0";      //Means: not used
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
     public static final String PROP_LASTSEENDATE = "LastSeenDate";
@@ -84,6 +85,7 @@ public class G3Properties extends DlmsProtocolProperties {
         optional.add(AARQ_RETRIES);
         optional.add(VALIDATE_INVOKE_ID);
         optional.add(AARQ_TIMEOUT);
+        optional.add(PSK);
         return optional;
     }
 
@@ -112,7 +114,7 @@ public class G3Properties extends DlmsProtocolProperties {
     @Override
     public G3SecurityProvider getSecurityProvider() {
         if (g3SecurityProvider == null) {
-            g3SecurityProvider = new G3SecurityProvider(this);
+            g3SecurityProvider = new G3SecurityProvider(this.getProtocolProperties());
         }
         return g3SecurityProvider;
     }

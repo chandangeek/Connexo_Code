@@ -84,6 +84,10 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.Dsmr50Properties
+-keepnames class com.energyict.protocolimpl.dlms.g3.G3Properties
+-keepnames class com.energyict.protocolimpl.dlms.g3.G3SecurityProvider
+-keepnames class com.energyict.genericprotocolimpl.rtuplusserver.g3.G3RtuPlusServerProperties
 -keepnames class com.energyict.protocol.MessageProtocol
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging
@@ -92,6 +96,7 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MbusMessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler
 -keep public class com.energyict.protocolimpl.dlms.common.NTASecurityProvider {
 	public *;
@@ -102,6 +107,22 @@
 	protected *;
 }
 -keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350 {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540 {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.AM540Messaging {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.CX20009 {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemComMessaging {
 	public *;
 	protected *;
 }
@@ -163,6 +184,10 @@
 -keepnames class com.energyict.protocolimpl.iec1107.abba1500.ABBA1500
 
 -keepnames class com.energyict.protocolimpl.iec1107.ferranti.Ferranti
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.CX20009
 
 -keepnames class com.energyict.protocolimpl.iec1107.siemens7ED62.Siemens7ED62
 

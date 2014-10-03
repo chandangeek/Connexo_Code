@@ -7,6 +7,7 @@ import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,7 +34,15 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
     WriteCaptureDefinition(8,
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.dib),
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.vib)
-    );
+    ),
+    Commission_With_Channel(9, PropertySpecFactory.bigDecimalPropertySpecWithValues(
+            BigDecimal.valueOf(1),
+            DeviceMessageConstants.mbusChannel,
+            BigDecimal.valueOf(1),
+            BigDecimal.valueOf(2),
+            BigDecimal.valueOf(3),
+            BigDecimal.valueOf(4)
+    ));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_SETUP;
 

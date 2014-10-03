@@ -10,25 +10,25 @@ import java.util.List;
 public class EventsLog extends AbstractEvent {
 
     // Event log
-    private static final int EVENT_EVENT_LOG_CLEARED = 255;
-    private static final int EVENT_POWER_DOWN = 1;
-    private static final int EVENT_POWER_UP = 2;
-    private static final int EVENT_DAYLING_SAVING_TIME_CHANGE = 3;
-    private static final int EVENT_CLOCK_ADJUSTED_OLD = 4;
-    private static final int EVENT_CLOCK_ADJUSTED_NEW = 5;
-    private static final int EVENT_CLOCK_INVALID = 6;
-    private static final int EVENT_BATTERY_REPLACE = 7;
-    private static final int EVENT_BATTERY_VOLTAGE_LOW = 8;
-    private static final int EVENT_TOU_ACTIVATED = 9;
-    private static final int EVENT_ERROR_REGISTER_CLEARED = 10;
-    private static final int EVENT_ALARM_REGISTER_CLEARED = 11;
-    private static final int EVENT_PROGRAM_MEMORY_ERROR = 12;
-    private static final int EVENT_RAM_ERROR = 13;
-    private static final int EVENT_NV_MEMORY_ERROR = 14;
-    private static final int EVENT_WATCHDOG_ERROR = 15;
-    private static final int EVENT_MEASUREMENT_SYSTEM_ERROR = 16;
-    private static final int EVENT_FIRMWARE_READY_ACTIVATION = 17;
-    private static final int EVENT_FIRMWARE_ACTIVATED = 18;
+    protected static final int EVENT_EVENT_LOG_CLEARED = 255;
+    protected static final int EVENT_POWER_DOWN = 1;
+    protected static final int EVENT_POWER_UP = 2;
+    protected static final int EVENT_DAYLING_SAVING_TIME_CHANGE = 3;
+    protected static final int EVENT_CLOCK_ADJUSTED_OLD = 4;
+    protected static final int EVENT_CLOCK_ADJUSTED_NEW = 5;
+    protected static final int EVENT_CLOCK_INVALID = 6;
+    protected static final int EVENT_BATTERY_REPLACE = 7;
+    protected static final int EVENT_BATTERY_VOLTAGE_LOW = 8;
+    protected static final int EVENT_TOU_ACTIVATED = 9;
+    protected static final int EVENT_ERROR_REGISTER_CLEARED = 10;
+    protected static final int EVENT_ALARM_REGISTER_CLEARED = 11;
+    protected static final int EVENT_PROGRAM_MEMORY_ERROR = 12;
+    protected static final int EVENT_RAM_ERROR = 13;
+    protected static final int EVENT_NV_MEMORY_ERROR = 14;
+    protected static final int EVENT_WATCHDOG_ERROR = 15;
+    protected static final int EVENT_MEASUREMENT_SYSTEM_ERROR = 16;
+    protected static final int EVENT_FIRMWARE_READY_ACTIVATION = 17;
+    protected static final int EVENT_FIRMWARE_ACTIVATED = 18;
 
     public EventsLog(DataContainer dc, final AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);

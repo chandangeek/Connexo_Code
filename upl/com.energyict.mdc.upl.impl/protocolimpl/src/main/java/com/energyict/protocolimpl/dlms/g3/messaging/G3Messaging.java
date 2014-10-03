@@ -156,18 +156,12 @@ public class G3Messaging extends AnnotatedMessaging {
     private static final ObisCode PLC_G3_TIMEOUT_OBISCODE = ObisCode.fromString("0.0.94.33.10.255");
     private static final ObisCode PRODUCER_CONSUMER_MODE_OBISCODE = ObisCode.fromString("1.0.96.63.11.255");
 
-    private DlmsSession session;
+    protected DlmsSession session;
     private G3Properties properties;
 
-    public G3Messaging(Logger logger) {
-        super(logger, MESSAGES);
-        this.session = null;
-    }
-
     public G3Messaging(final DlmsSession session, G3Properties properties) {
-        this(session.getLogger());
+        this(session, MESSAGES);
         this.properties = properties;
-        this.session = session;
     }
 
     public G3Messaging(final DlmsSession session, final Class<? extends AnnotatedMessage>... messages) {
@@ -177,10 +171,14 @@ public class G3Messaging extends AnnotatedMessaging {
 
     @Override
     public List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> messageCategories = super.getMessageCategories();
+        List<MessageCategorySpec> messageCategories = getAnnotatedMessageCategories();
         messageCategories.add(new DummyGenericMessaging().getActivityCalendarCategory(PROVIDER));
         messageCategories.add(new DummyGenericMessaging().getActivityCalendarCategory(PUBLIC_NETWORK));
         return messageCategories;
+    }
+
+    protected List<MessageCategorySpec> getAnnotatedMessageCategories() {
+        return super.getMessageCategories();
     }
 
     @Override

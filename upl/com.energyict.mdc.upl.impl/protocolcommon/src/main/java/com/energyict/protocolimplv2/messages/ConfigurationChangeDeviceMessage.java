@@ -107,7 +107,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
                 PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.day, BigDecimal.valueOf(0), BigDecimal.valueOf(31)),
                 PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.hour, BigDecimal.valueOf(0), BigDecimal.valueOf(23))
         ),
-        ConfigureHolidayList(42,
+    ConfigureHolidayList(42,
                 PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord1AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
                 PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord2AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
                 PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord3AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
@@ -123,7 +123,10 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
                 PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord13AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
                 PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord14AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT),
                 PropertySpecFactory.datePropertySpec(DeviceMessageConstants.holidayRecord15AttributeName, Constants.DEFAULT_DATE, Constants.DATE_FORMAT)
-        );
+        ),
+    ENABLE_DISCOVERY_ON_POWER_UP(43),
+    DISABLE_DISCOVERY_ON_POWER_UP(44)
+    ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;

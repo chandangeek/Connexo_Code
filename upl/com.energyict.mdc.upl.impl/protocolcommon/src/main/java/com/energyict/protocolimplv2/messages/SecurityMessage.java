@@ -33,7 +33,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
     ),
     CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS(2,
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedEncryptionKeyAttributeName)
     ),
     CHANGE_CLIENT_PASSWORDS(3,
             PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newReadingClientPasswordAttributeName, 8),

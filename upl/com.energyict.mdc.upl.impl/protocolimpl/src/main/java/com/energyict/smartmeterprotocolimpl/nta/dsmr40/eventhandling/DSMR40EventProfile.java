@@ -33,30 +33,35 @@ public class DSMR40EventProfile extends EventProfile {
         fromCal.setTime(fromDate);
         protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + ".");
         DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
-        DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
         DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
         DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
         DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
 
         StandardEventLog standardEvents = new StandardEventLog(dcEvent, this.protocol.getDateTimeDeviationType());
         FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(dcFraudDetection, this.protocol.getDateTimeDeviationType());
-        DisconnectControlLog disconnectControl = new DisconnectControlLog(dcControlLog, this.protocol.getDateTimeDeviationType());
         MbusEventLog mbusLogs = new MbusEventLog(dcMbusEventLog, this.protocol.getDateTimeDeviationType());
         PowerFailureLog powerFailure = new PowerFailureLog(dcPowerFailure, this.protocol.getDateTimeDeviationType());
 
         eventList.addAll(standardEvents.getMeterEvents());
         eventList.addAll(fraudDetectionEvents.getMeterEvents());
-        eventList.addAll(disconnectControl.getMeterEvents());
         eventList.addAll(mbusLogs.getMeterEvents());
         eventList.addAll(powerFailure.getMeterEvents());
+
+        if (protocol.hasBreaker()) {
+            DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
+            DisconnectControlLog disconnectControl = new DisconnectControlLog(dcControlLog, this.protocol.getDateTimeDeviationType());
+            eventList.addAll(disconnectControl.getMeterEvents());
+        }
 
         DataContainer dcMbusControlLog;
         MbusControlLog mbusControlLog;
         try {
             for (DeviceMapping mbusDevices : this.protocol.getMeterTopology().getMbusMeterMap()) {
+                if (protocol.hasBreaker()) {
                 dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress() -1).getObisCode(), true).getBuffer(fromCal, getToCalendar());
                 mbusControlLog = new MbusControlLog(dcMbusControlLog, this.protocol.getDateTimeDeviationType());
                 eventList.addAll(mbusControlLog.getMeterEvents());
+                }
 
                 UniversalObject mbusClient = getMeterConfig().getMbusClient(mbusDevices.getPhysicalAddress() - 1);
                 long mbusStatus = getCosemObjectFactory().getGenericRead(new DLMSAttribute(mbusClient.getObisCode(), MbusClientAttributes.STATUS)).getValue();

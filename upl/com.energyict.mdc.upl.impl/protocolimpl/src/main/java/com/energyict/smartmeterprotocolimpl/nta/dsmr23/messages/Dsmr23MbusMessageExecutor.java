@@ -203,6 +203,10 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
     }
 
     private void setConnectMode(final MessageHandler messageHandler, final String serialNumber) throws IOException {
+        if (!protocol.hasBreaker()) {
+            throw new IOException("Cannot write connect mode, breaker is not supported!");
+        }
+
         log(Level.INFO, "Handling MbusMessage ConnectControl mode");
         String mode = messageHandler.getConnectControlMode();
 
@@ -227,7 +231,11 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
         }
     }
 
-    private void doDisconnectMessage(final MessageHandler messageHandler, final String serialNumber) throws IOException {
+    protected void doDisconnectMessage(final MessageHandler messageHandler, final String serialNumber) throws IOException {
+        if (!protocol.hasBreaker()) {
+            throw new IOException("Cannot execute disconnect message, breaker is not supported!");
+        }
+
         log(Level.INFO, "Handling MbusMessage Disconnect");
 
         if (!messageHandler.getDisconnectDate().equals("")) {    // use the disconnectControlScheduler
@@ -250,7 +258,11 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
         }
     }
 
-    private void doConnectMessage(MessageHandler messageHandler, String serialNumber) throws IOException {
+    protected void doConnectMessage(MessageHandler messageHandler, String serialNumber) throws IOException {
+        if (!protocol.hasBreaker()) {
+            throw new IOException("Cannot execute connect message, breaker is not supported!");
+        }
+
         log(Level.INFO, "Handling MbusMessage Connect");
 
         if (!messageHandler.getConnectDate().equals("")) {    // use the disconnectControlScheduler
@@ -406,11 +418,11 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
         }
     }
 
-    private DLMSMeterConfig getMeterConfig() {
+    protected DLMSMeterConfig getMeterConfig() {
         return this.dlmsSession.getMeterConfig();
     }
 
-    private CosemObjectFactory getCosemObjectFactory() {
+    protected CosemObjectFactory getCosemObjectFactory() {
         return this.dlmsSession.getCosemObjectFactory();
     }
 
@@ -427,7 +439,7 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
         this.dlmsSession.getLogger().log(level, msg);
     }
 
-    private int getMbusAddress(String serialNumber) {
+    protected int getMbusAddress(String serialNumber) {
         return this.protocol.getPhysicalAddressFromSerialNumber(serialNumber) - 1;
     }
 

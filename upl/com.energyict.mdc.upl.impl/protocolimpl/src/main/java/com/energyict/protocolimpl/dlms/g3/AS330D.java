@@ -166,7 +166,7 @@ public class AS330D extends AbstractDlmsSessionProtocol {
 
     public G3Messaging getMessaging() {
         if (this.messaging == null) {
-            this.messaging = new G3Messaging(getLogger());
+            this.messaging = new G3Messaging(getSession(), getProperties());
         }
         return messaging;
     }
@@ -215,7 +215,7 @@ public class AS330D extends AbstractDlmsSessionProtocol {
     public void setCache(Object cache) {
         if ((cache != null) && (cache instanceof G3Cache)) {
             this.cache = (G3Cache) cache;
-            this.getProperties().getSecurityProvider().setFrameCounter(this.cache.getFrameCounter());    //Get this from the last session
+            this.getProperties().getSecurityProvider().setInitialFrameCounter(this.cache.getFrameCounter());    //Get this from the last session
         }
     }
 

@@ -3,6 +3,8 @@ package com.energyict.protocolimpl.dlms.g3;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
 
+import java.util.Properties;
+
 /**
  * Extension on the Dsmr40SecurityProvider, with extra functionality for immediate key changing.
  * The NEWGlobalKey and NEWAuthenticationKey must contain the original and the wrapped key, comma separated.
@@ -15,7 +17,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
  */
 public class G3SecurityProvider extends Dsmr40SecurityProvider {
 
-    private long frameCounter = -1;
     private G3Properties g3Properties;
     private String hlsSecret;
 
@@ -24,17 +25,20 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
      *
      * @param properties - contains the keys for the authentication/encryption
      */
-    public G3SecurityProvider(G3Properties properties) {
-        super(properties.getProtocolProperties());
-        this.g3Properties = properties;
+    public G3SecurityProvider(Properties properties) {
+        super(properties);
+        this.g3Properties = new G3Properties(properties);
     }
 
-    public long getFrameCounter() {
-        return frameCounter;
+    /**
+     * @return the initial frameCounter
+     */
+    public long getInitialFrameCounter() {
+        if (initialFrameCounter != null) {
+            return initialFrameCounter;             //G3 way
+        } else {
+            return super.getInitialFrameCounter();  //DSMR 4.0 way
     }
-
-    public void setFrameCounter(long frameCounter) {
-        this.frameCounter = frameCounter;
     }
 
     @Override
@@ -51,10 +55,5 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
             byteWord[i] = (byte) this.hlsSecret.charAt(i);
         }
         return byteWord;
-    }
-
-    @Override
-    public long getInitialFrameCounter() {
-        return frameCounter == -1 ? 1 : frameCounter;
     }
 }

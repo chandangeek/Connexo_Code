@@ -127,10 +127,14 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
     }
 
     @Override
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> messages = super.getMessageCategories();
+        if (supportMeterReset) {
         messages.add(getRestoreFactorySettings());
+        }
+        if (supportMBus) {
         messages.add(getDiscoverySettingsCategory());
+        }
         messages.add(ProtocolMessageCategories.getChangeAdministrativeStatusCategory());
         return messages;
     }

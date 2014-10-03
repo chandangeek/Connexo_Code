@@ -29,6 +29,7 @@ public class NTASecurityProvider implements SecurityProvider {
     protected byte[] dedicatedKey;
     private byte[] masterKey;
     private String hlsSecret;
+    private int challengeLength;
     protected Properties properties;
     private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
@@ -44,8 +45,27 @@ public class NTASecurityProvider implements SecurityProvider {
      * Property name of the DataTransport AuthenticationKey
      */
     public static final String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
+    /**
+     * Property name of the length of the client to server challenge
+     */
+    public static final String CLIENT_TO_SERVER_CHALLENGE_LENGTH = "ChallengeLength";
 
-    Long initialFrameCounter;
+    public enum ChallengeLength {
+        LENGTH_8_BYTE(8),
+        LENGTH_16_BYTE(16);
+
+        private int length;
+
+        private ChallengeLength(int length) {
+            this.length = length;
+        }
+
+        public int getLength() {
+            return length;
+        }
+    }
+
+    protected Long initialFrameCounter;
 
     /**
      * Create a new instance of LocalSecurityProvider
@@ -240,6 +260,17 @@ public class NTASecurityProvider implements SecurityProvider {
 
     protected void setMasterKey(byte[] masterKey) {
         this.masterKey = masterKey;
+    }
+
+    public int getClientToServerChallengeLength() {
+        if (this.challengeLength == 0) {
+            this.challengeLength = Integer.parseInt(this.properties.getProperty(CLIENT_TO_SERVER_CHALLENGE_LENGTH, Integer.toString(ChallengeLength.LENGTH_16_BYTE.length)));
+        }
+        return this.challengeLength;
+    }
+
+    public void setClientToServerChallengeLength(ChallengeLength length) {
+        this.challengeLength = length.getLength();
     }
 
     protected Properties getProperties() {

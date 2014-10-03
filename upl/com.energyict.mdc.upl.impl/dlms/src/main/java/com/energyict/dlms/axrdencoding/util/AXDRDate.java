@@ -44,8 +44,15 @@ public final class AXDRDate {
         return OctetString.fromByteArray(result, result.length);
     }
 
+    public static Date toDate(OctetString octetString) throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(simpleDateFormat.parse(toDescription(octetString)));
+        return cal.getTime();
+    }
+
 	/**
-     * Convert to readable yyyyMMdd string
+     * Convert to readable yyyy/MM/dd string
      */
     public static String toDescription(OctetString date) {
         StringBuilder sb = new StringBuilder();

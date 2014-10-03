@@ -422,6 +422,18 @@ public abstract class GenericMessaging implements Messaging {
     }
 
     /**
+     * Creates a simpler message to install an MBus device, the only input is the channel ID.
+     */
+    public MessageCategorySpec getSimpleInstallMbusCategory() {
+        MessageCategorySpec categorySpec = new MessageCategorySpec(
+                RtuMessageCategoryConstants.MBUSSETUP);
+        MessageSpec msgSpec = addSimpleMbusInstallMessage(RtuMessageKeyIdConstants.MBUSINSTALL,
+                RtuMessageConstant.MBUS_INSTALL, false);
+        categorySpec.addMessageSpec(msgSpec);
+        return categorySpec;
+    }
+
+    /**
      * Creates a MessageSpec for specialDays functionality. It contains one field to enter the ID of the codeTable
      * which has the special days configured.
      *
@@ -640,6 +652,19 @@ public abstract class GenericMessaging implements Messaging {
         tagSpec.add(msgAttrSpec);
         msgAttrSpec = new MessageAttributeSpec(
                 RtuMessageConstant.MBUS_DEFAULT_ENCRYPTION_KEY, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    protected MessageSpec addSimpleMbusInstallMessage(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
         tagSpec.add(msgAttrSpec);
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);

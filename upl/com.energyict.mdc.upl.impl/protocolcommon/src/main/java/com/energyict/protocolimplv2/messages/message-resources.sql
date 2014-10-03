@@ -32,3 +32,7 @@ insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('storingCollectedData', 'Storing collected data', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('gettingPendingTasks', 'Getting pending tasks', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('loadingTasksFromFiles', 'Loading tasks from files', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.channel', 'MBus channel', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.Commission_With_Channel', 'Install MBus device', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ConfigurationChangeDeviceMessage.DISABLE_DISCOVERY_ON_POWER_UP', 'Disable discovery on power up', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ConfigurationChangeDeviceMessage.ENABLE_DISCOVERY_ON_POWER_UP', 'Enable discovery on power up', 'L', 'Y', 'N', 'MDW', sysdate);

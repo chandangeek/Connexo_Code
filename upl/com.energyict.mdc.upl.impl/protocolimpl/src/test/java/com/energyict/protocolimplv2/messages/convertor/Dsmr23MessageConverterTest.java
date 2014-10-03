@@ -26,16 +26,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import org.junit.Before;
 import org.junit.Test;
@@ -523,6 +514,27 @@ public class Dsmr23MessageConverterTest {
         // asserts
         assertNotNull(messageEntry);
         assertThat(messageEntry.getContent()).isEqualTo("<disconnectLoad> </disconnectLoad>");
+    }
+
+    @Test
+    public void installMBusMessageTest() {
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage installMBusMessage = mock(OfflineDeviceMessage.class);
+        OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(offlineDeviceMessageAttribute.getName()).thenReturn(DeviceMessageConstants.mbusChannel);
+        when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn("1");
+        when(installMBusMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
+        when(installMBusMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(MBusSetupDeviceMessage.Commission_With_Channel.getPrimaryKey().getValue());
+        when(installMBusMessage.getSpecification()).thenReturn(MBusSetupDeviceMessage.Commission_With_Channel);
+
+        // business method
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(installMBusMessage);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Mbus_Install Mbus_channel=\"1\"> </Mbus_Install>");
     }
 
     @Test

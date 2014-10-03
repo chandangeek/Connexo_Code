@@ -58,7 +58,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         return new LoadProfileToRegisterParser().parse(messageResult);
     }
 
-    protected void doFirmwareUpgrade(MessageHandler messageHandler) throws IOException, InterruptedException {
+    protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
@@ -74,6 +74,13 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         byte[] imageData = uf.loadFileInByteArray();
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+        if (isResume(messageEntry)) {
+            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                it.setStartIndex(lastTransferredBlockNumber - 1);
+            }
+        }
+
         it.setBooleanValue(getBooleanValue());
         it.setUsePollingVerifyAndActivate(true);    //Poll verification
         it.setPollingDelay(10000);
@@ -114,6 +121,13 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             Array dateArray = convertUnixToDateTimeArray(strDate);
             sas.writeExecutionTime(dateArray);
         }
+    }
+
+    /**
+     * Not supported in DSMR4.0, subclasses can override
+     */
+    protected boolean isResume(MessageEntry messageEntry) {
+        return false;
     }
 
     private boolean isTemporaryFailure(DataAccessResultException e) {
@@ -195,7 +209,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                 throw new IOException("No CodeTable defined with id '" + codeTable + "'");
             } else {
 
-                ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
+                ActivityCalendarMessage acm = getActivityCalendarParser(ct);
                 acm.parse();
 
                 ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
@@ -221,6 +235,10 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             // should never get here
             throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
         }
+    }
+
+    protected ActivityCalendarMessage getActivityCalendarParser(Code ct) {
+        return new ActivityCalendarMessage(ct, getMeterConfig());
     }
 
     @Override

@@ -50,6 +50,11 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
 
     /**
+     * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
+     */
+    private Map<LoadProfileReader, Integer> lpIntervals = new HashMap<LoadProfileReader, Integer>();
+
+    /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a list of {@link com.energyict.protocol.Register} which
      * will represent the 'data' channels of the Profile
      */
@@ -120,7 +125,9 @@ public class LoadProfileBuilder {
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
                 try {
-                    lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
+                    int profileInterval = readLoadProfileInterval(ccoLpConfigs, cpc);
+                    lpIntervals.put(lpr, profileInterval);
+                    lpc.setProfileInterval(profileInterval);
                     List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
                     int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
                     int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
@@ -138,6 +145,13 @@ public class LoadProfileBuilder {
             this.loadProfileConfigurationList.add(lpc);
         }
         return this.loadProfileConfigurationList;
+    }
+
+    /**
+     * Return the load profile interval, in seconds
+     */
+    protected int readLoadProfileInterval(ComposedCosemObject ccoLpConfigs, ComposedProfileConfig cpc) throws IOException {
+        return ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue();
     }
 
     /**
@@ -449,12 +463,20 @@ public class LoadProfileBuilder {
         return statusMasksMap;
     }
 
+    public Map<LoadProfileReader, Integer> getChannelMaskMap() {
+        return channelMaskMap;
+    }
+
     protected AbstractSmartNtaProtocol getMeterProtocol() {
         return meterProtocol;
     }
 
     protected Map<LoadProfileReader, ComposedProfileConfig> getLpConfigMap() {
         return lpConfigMap;
+    }
+
+    protected Map<LoadProfileReader, Integer> getLpIntervals() {
+        return lpIntervals;
     }
 
     protected Map<LoadProfileReader, List<CapturedRegisterObject>> getCapturedObjectRegisterListMap() {

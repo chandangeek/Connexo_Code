@@ -5,74 +5,19 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer32;
-import com.energyict.dlms.axrdencoding.Integer64;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterData;
-import com.energyict.protocol.MeterDataMessageResult;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
@@ -86,18 +31,9 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -109,6 +45,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     protected final DlmsSession dlmsSession;
     protected final AbstractSmartNtaProtocol protocol;
+    private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
 
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
@@ -121,8 +58,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
             //Execute messages for MBus device
-            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
-            return mbusMessageExecutor.executeMessageEntry(msgEntry);
+            return getMbusMessageExecutor().executeMessageEntry(msgEntry);
         } else {
 
             MessageResult msgResult = null;
@@ -176,6 +112,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 boolean isChangeAdministrativeStatus = messageHandler.getType().equals(RtuMessageConstant.CHANGE_ADMINISTRATIVE_STATUS);
                 boolean enableDiscoveryOnPowerUp = messageHandler.getType().equals(RtuMessageConstant.ENABLE_DISCOVERY_ON_POWER_UP);
                 boolean disableDiscoveryOnPowerUp = messageHandler.getType().equals(RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP);
+                boolean installMbus = messageHandler.getType().equals(RtuMessageConstant.MBUS_INSTALL);
 
                 /* All MbusMeter related messages */
                 if (xmlConfig) {
@@ -266,6 +203,8 @@ public class Dsmr23MessageExecutor extends MessageParser {
                     msgResult = changeDiscoveryOnPowerUp(msgEntry, 1);
                 } else if (disableDiscoveryOnPowerUp) {
                     msgResult = changeDiscoveryOnPowerUp(msgEntry, 0);
+                } else if (installMbus) {
+                    installMbus(messageHandler);
                 } else {
                     msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
                     log(Level.INFO, "Message not supported : " + content);
@@ -303,6 +242,16 @@ public class Dsmr23MessageExecutor extends MessageParser {
             }
             return msgResult;
         }
+    }
+
+    private void installMbus(MessageHandler messageHandler) throws IOException {
+        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) messageHandler.getMbusInstallChannel());
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
+        mbusClient.installSlave(0);     //Means: pick the next primary address that is available
+    }
+
+    protected Dsmr23MbusMessageExecutor getMbusMessageExecutor() {
+        return new Dsmr23MbusMessageExecutor(protocol);
     }
 
     //Cryptoserver protocol overrides this implemenation
@@ -368,7 +317,13 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        int rtuRegisterId = builder.getRtuRegisterIdForRegister(register);
+                        final RegisterValue registerValue;
+                        if (rtuRegisterId != -1) {
+                            registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), rtuRegisterId);
+                        } else {
+                            return MessageResult.createFailed(msgEntry, "Register with obiscode '" + register.getObisCode() + "' is not configured in EIServer on RTU with serial number '" + register.getSerialNumber() + "'");
+                        }
                         mrd.add(registerValue);
                     }
                 }
@@ -511,7 +466,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
     }
 
-    private void changeGlobalKey(MessageHandler messageHandler) throws IOException {
+    protected void changeGlobalKey(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change global encryption key.");
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
@@ -523,7 +478,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         ss.transferGlobalKey(globalKeyArray);
     }
 
-    private void changeAuthenticationKey(MessageHandler messageHandler) throws IOException {
+    protected void changeAuthenticationKey(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change global authentication key.");
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
@@ -846,7 +801,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
     }
 
-    private void upgradeSpecialDays(MessageHandler messageHandler) throws IOException {
+    protected void upgradeSpecialDays(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Set Special Days table");
 
         String codeTable = messageHandler.getSpecialDaysCodeTable();
@@ -1070,6 +1025,9 @@ public class Dsmr23MessageExecutor extends MessageParser {
     }
 
     private void setConnectMode(MessageHandler messageHandler) throws IOException {
+        if (!protocol.hasBreaker()) {
+            throw new IOException("Cannot write connect mode, breaker is not supported!");
+        }
 
         log(Level.INFO, "Handling message ConnectControl mode");
         String mode = messageHandler.getConnectControlMode();
@@ -1095,6 +1053,10 @@ public class Dsmr23MessageExecutor extends MessageParser {
     }
 
     private void doDisconnect(MessageHandler messageHandler) throws IOException {
+        if (!protocol.hasBreaker()) {
+            throw new IOException("Cannot execute disconnect message, breaker is not supported!");
+        }
+
         log(Level.INFO, "Handling message Disconnect");
 
         if (!messageHandler.getDisconnectDate().equals("")) { // use the disconnectControlScheduler
@@ -1118,6 +1080,10 @@ public class Dsmr23MessageExecutor extends MessageParser {
     }
 
     private void doConnect(MessageHandler messageHandler) throws IOException {
+        if (!protocol.hasBreaker()) {
+            throw new IOException("Cannot execute connect message, breaker is not supported!");
+        }
+
         log(Level.INFO, "Handling message Connect");
         if (!messageHandler.getConnectDate().equals("")) {    // use the disconnectControlScheduler
 
@@ -1426,6 +1392,10 @@ public class Dsmr23MessageExecutor extends MessageParser {
             throwable = throwable.getCause();
         }
         return throwable;
+    }
+
+    public AbstractSmartNtaProtocol getProtocol() {
+        return protocol;
     }
 
     /**

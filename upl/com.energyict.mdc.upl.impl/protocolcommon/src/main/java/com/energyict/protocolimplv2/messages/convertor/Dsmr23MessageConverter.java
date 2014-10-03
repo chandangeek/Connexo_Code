@@ -8,46 +8,9 @@ import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivateDlmsEncryptionMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivateNTASmsWakeUpMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarConfigMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarConfigWithActivationDateMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.AddPhoneNumbersToWhiteListMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ApnCredentialsMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ChangeDlmsAuthenticationLevelMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ChangeHLSSecretMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ChangeNTADataTransportAuthenticationKeyMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ChangeNTADataTransportEncryptionKeyMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ClearLoadLimitConfigurations;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConfigureLoadLimitParameters;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectControlModeMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadWithActivationDateMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConsumerMessageCodeToPortP1;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConsumerMessageTextToPortP1;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DeactivateNTASmsWakeUpMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadWithActivationDateMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GlobalMeterReset;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GprsUserCredentialsMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEmergencyProfileGroupIds;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetTimeMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDayTableMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfigMessageEntry;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.LoadProfileRegisterRequestMessageEntry;
@@ -139,6 +102,9 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
         // reset
         registry.put(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow, new MultipleAttributeMessageEntry(DEFAULT_RESET_WINDOW, DEFAULT_RESET_WINDOW));
         registry.put(DeviceActionMessage.ALARM_REGISTER_RESET, new OneTagMessageEntry(RESET_ALARM_REGISTER));
+
+        //MBus setup
+        registry.put(MBusSetupDeviceMessage.Commission_With_Channel, new MultipleAttributeMessageEntry(RtuMessageConstant.MBUS_INSTALL, RtuMessageConstant.MBUS_INSTALL_CHANNEL));
     }
 
     /**

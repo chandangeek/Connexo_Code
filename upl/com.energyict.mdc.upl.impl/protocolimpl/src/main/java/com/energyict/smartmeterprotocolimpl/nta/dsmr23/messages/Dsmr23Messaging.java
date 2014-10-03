@@ -21,6 +21,36 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
 
     private final Dsmr23MessageExecutor messageExecutor;
 
+    /**
+     * Boolean indicating whether or not to show the MBus related messages in EIServer
+     */
+    protected boolean supportMBus = true;
+
+    /**
+     * Boolean indicating whether or not to show the GPRS related messages in EIServer
+     */
+    protected boolean supportGPRS = true;
+
+    /**
+     * Boolean indicating whether or not to show the messages related to resetting the meter in EIServer
+     */
+    protected boolean supportMeterReset = true;
+
+    /**
+     * Boolean indicating whether or not to show the messages related to configuring the limiter in EIServer
+     */
+    protected boolean supportsLimiter = true;
+
+    /**
+     * Boolean indicating whether or not to show the message to reset the alarm window in EIServer
+     */
+    protected boolean supportResetWindow = true;
+
+    /**
+     * Boolean indicating whether or not to show the XML config message in EIServer
+     */
+    protected boolean supportXMLConfig = true;
+
     public Dsmr23Messaging(final MessageParser messageParser) {
         this.messageExecutor = (Dsmr23MessageExecutor) messageParser;
     }
@@ -49,42 +79,60 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
         return this.messageExecutor.executeMessageEntry(messageEntry);
     }
 
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList();
-        MessageCategorySpec catXMLConfig = getXmlConfigCategory();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
         MessageCategorySpec catFirmware = getFirmwareCategory();
         MessageCategorySpec catP1Messages = getP1Category();
-        MessageCategorySpec catDisconnect = getConnectControlCategory();
+        if (supportMBus) {
+            MessageCategorySpec installMbusCategory = getSimpleInstallMbusCategory();
+            categories.add(installMbusCategory);
+        }
+        if (supportsLimiter) {
         MessageCategorySpec catLoadLimit = getLoadLimitCategory();
+            categories.add(catLoadLimit);
+        }
         MessageCategorySpec catActivityCal = getActivityCalendarCategory();
         MessageCategorySpec catTime = getTimeCategory();
         MessageCategorySpec catMakeEntries = getDataBaseEntriesCategory();
         MessageCategorySpec catTestMessage = getTestCategory();
-        MessageCategorySpec catTestSecurityMessage = getTestSecurityCategory();
+        //MessageCategorySpec catTestSecurityMessage = getTestSecurityCategory();
+        if (supportMeterReset) {
         MessageCategorySpec catGlobalDisc = getGlobalResetCategory();
+            categories.add(catGlobalDisc);
+        }
         MessageCategorySpec catAuthEncrypt = getAuthEncryptCategory();
+        if (supportGPRS) {
         MessageCategorySpec catConnectivity = getConnectivityCategory();
-        MessageCategorySpec catResetParameters = getResetParametersCategory();
+            categories.add(catConnectivity);
+        }
+        MessageCategorySpec catResetParameters;
+        if (supportResetWindow) {
+            catResetParameters = getResetParametersCategory();
+        } else {
+            catResetParameters = getAlarmResetCategory();
+        }
 
+        if (supportXMLConfig) {
+            MessageCategorySpec catXMLConfig = getXmlConfigCategory();
         categories.add(catXMLConfig);
+        }
         categories.add(catFirmware);
         categories.add(catP1Messages);
-        categories.add(catDisconnect);
-        categories.add(catLoadLimit);
+        if (messageExecutor.getProtocol().hasBreaker()) {
+            categories.add(getConnectControlCategory());
+        }
         categories.add(catActivityCal);
         categories.add(catTime);
         categories.add(catMakeEntries);
         categories.add(catTestMessage);
         //categories.add(catTestSecurityMessage);         //TODO uncomment when functionality should be added
-        categories.add(catGlobalDisc);
-        categories.add(catConnectivity);
         categories.add(catAuthEncrypt);
         categories.add(catResetParameters);
 
         return categories;
     }
 
-    private MessageCategorySpec getConnectivityCategory() {
+    protected MessageCategorySpec getConnectivityCategory() {
         MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(
                 RtuMessageCategoryConstants.CHANGECONNECTIVITY);
         MessageSpec msgSpec = addChangeGPRSSetup(
@@ -106,7 +154,7 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
         return catGPRSModemSetup;
     }
 
-    private MessageCategorySpec getResetParametersCategory() {
+    protected MessageCategorySpec getResetParametersCategory() {
         MessageCategorySpec catResetParameters = new MessageCategorySpec(
                 RtuMessageCategoryConstants.RESET_PARAMETERS);
         MessageSpec msgSpec = addNoValueMsg(
@@ -117,6 +165,16 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
         msgSpec = addChangeDefaultResetWindowMsg(
                 RtuMessageKeyIdConstants.CHANGEDEFAULTRESETWINDOW,
                 RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW, false);
+        catResetParameters.addMessageSpec(msgSpec);
+        return catResetParameters;
+    }
+
+    protected MessageCategorySpec getAlarmResetCategory() {
+        MessageCategorySpec catResetParameters = new MessageCategorySpec(
+                RtuMessageCategoryConstants.RESET_PARAMETERS);
+        MessageSpec msgSpec = addNoValueMsg(
+                RtuMessageKeyIdConstants.RESETALARMREGISTER,
+                RtuMessageConstant.RESET_ALARM_REGISTER, false);
         catResetParameters.addMessageSpec(msgSpec);
         return catResetParameters;
     }
@@ -149,5 +207,29 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
                 RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL, true);
         catAuthEncrypt.addMessageSpec(msgSpec);
         return catAuthEncrypt;
+    }
+
+    public void setSupportMBus(boolean supportMBus) {
+        this.supportMBus = supportMBus;
+    }
+
+    public void setSupportGPRS(boolean supportGPRS) {
+        this.supportGPRS = supportGPRS;
+    }
+
+    public void setSupportMeterReset(boolean supportMeterReset) {
+        this.supportMeterReset = supportMeterReset;
+    }
+
+    public void setSupportsLimiter(boolean supportsLimiter) {
+        this.supportsLimiter = supportsLimiter;
+    }
+
+    public void setSupportResetWindow(boolean supportResetWindow) {
+        this.supportResetWindow = supportResetWindow;
+    }
+
+    public void setSupportXMLConfig(boolean supportXMLConfig) {
+        this.supportXMLConfig = supportXMLConfig;
     }
 }

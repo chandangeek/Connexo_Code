@@ -40,7 +40,7 @@ public class EDPActivityCalendarParser extends ActivityCalendarMessage {
     @Override
     protected Integer getSeasonProfileName(Map.Entry entry) {
         Integer value = (Integer) entry.getValue();
-        Map<Integer, Integer> seasonIds = (Map<Integer, Integer>) getSeasonIds();
+        Map<Integer, Integer> seasonIds = (Map<Integer, Integer>) super.seasonIds;
         return (Integer) seasonIds.get(value);
     }
 
