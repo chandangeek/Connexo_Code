@@ -6,16 +6,15 @@ import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
-import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
+import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -82,7 +81,7 @@ public class DashboardServiceImplTest {
 
     @Before
     public void setupService () {
-        this.dashboardService = new DashboardServiceImpl(this.taskService, this.schedulingService, this.deviceConfigurationService, this.connectionTaskService, this.communicationTaskService);
+        this.dashboardService = new DashboardServiceImpl(this.taskService, this.connectionTaskService, this.communicationTaskService);
     }
 
     @Test
@@ -312,16 +311,15 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.communicationTaskService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
+        Map<DeviceType, Map<TaskStatus, Long>> mockedBreakdown = new HashMap<>();
+        mockedBreakdown.put(deviceType, statusCounters);
+        when(this.communicationTaskService.getCommunicationTasksDeviceTypeBreakdown(anySet())).thenReturn(mockedBreakdown);
 
         // Business methods
         DeviceTypeBreakdown breakdown = this.dashboardService.getCommunicationTasksDeviceTypeBreakdown();
 
         // Asserts
-        ArgumentCaptor<ComTaskExecutionFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
-        verify(this.communicationTaskService).getComTaskExecutionStatusCount(filterCaptor.capture());
-        assertThat(filterCaptor.getValue().deviceTypes).hasSize(1);
-        assertThat(filterCaptor.getValue().deviceTypes.iterator().next()).isEqualTo(deviceType);
+        verify(this.communicationTaskService).getCommunicationTasksDeviceTypeBreakdown(anySet());
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
@@ -414,16 +412,15 @@ public class DashboardServiceImplTest {
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.communicationTaskService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
+        Map<ComSchedule, Map<TaskStatus, Long>> mockedBreakDown = new HashMap<>();
+        mockedBreakDown.put(comSchedule, statusCounters);
+        when(this.communicationTaskService.getCommunicationTasksComScheduleBreakdown(anySet())).thenReturn(mockedBreakDown);
 
         // Business methods
         ComScheduleBreakdown breakdown = this.dashboardService.getCommunicationTasksComScheduleBreakdown();
 
         // Asserts
-        ArgumentCaptor<ComTaskExecutionFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
-        verify(this.communicationTaskService).getComTaskExecutionStatusCount(filterCaptor.capture());
-        assertThat(filterCaptor.getValue().comSchedules).hasSize(1);
-        assertThat(filterCaptor.getValue().comSchedules.iterator().next()).isEqualTo(comSchedule);
+        verify(this.communicationTaskService).getCommunicationTasksComScheduleBreakdown(anySet());
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
