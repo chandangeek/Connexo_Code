@@ -51,7 +51,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                         style: {
                             lineHeight: 'none'
                         },
-                        iconCls: 'fa fa-refresh fa-lg' //TODO: set real img,
+                        icon: '/apps/sky/build/resources/images/form/restore.png'
                     }
                 ]
             }
