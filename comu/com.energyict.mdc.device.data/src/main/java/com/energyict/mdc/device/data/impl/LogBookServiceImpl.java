@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
@@ -20,7 +19,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (13:06)
  */
-public class LogBookServiceImpl implements LogBookService, ReferencePropertySpecFinderProvider {
+public class LogBookServiceImpl implements ServerLogBookService {
 
     private final DeviceDataModelService deviceDataModelService;
 

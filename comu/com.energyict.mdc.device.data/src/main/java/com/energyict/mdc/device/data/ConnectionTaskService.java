@@ -22,6 +22,7 @@ import com.google.common.base.Optional;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Provides services that relate to {@link ConnectionTask}s.
@@ -116,13 +117,34 @@ public interface ConnectionTaskService {
     public Map<TaskStatus, Long> getConnectionTaskStatusCount();
 
     /**
-     * Counts all {@link ConnectionTask}s that match the specified filter,
-     * grouping them by their respective {@link TaskStatus}.
+     * Counts all {@link ConnectionTask}s whose current status is
+     * in the Set of {@link TaskStatus} grouping them by
+     * {@link com.energyict.mdc.engine.model.ComPortPool}.
      *
-     * @param filter The ConnectionTaskFilter
-     * @return The numbers, broken down by TaskStatus
+     * @param taskStatuses The Set of TaskStatus
+     * @return The numbers, broken down by ComPortPool and TaskStatus
      */
-    public Map<TaskStatus, Long> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter);
+    public Map<ComPortPool, Map<TaskStatus, Long>> getComPortPoolBreakdown(Set<TaskStatus> taskStatuses);
+
+    /**
+     * Counts all {@link ConnectionTask}s whose current status is
+     * in the Set of {@link TaskStatus} grouping them by
+     * {@link com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass}.
+     *
+     * @param taskStatuses The Set of TaskStatus
+     * @return The numbers, broken down by DeviceType and TaskStatus
+     */
+    public Map<DeviceType, Map<TaskStatus, Long>> getDeviceTypeBreakdown(Set<TaskStatus> taskStatuses);
+
+    /**
+     * Counts all {@link ConnectionTask}s whose current status is
+     * in the Set of {@link TaskStatus} grouping them by
+     * {@link com.energyict.mdc.device.config.DeviceType}.
+     *
+     * @param taskStatuses The Set of TaskStatus
+     * @return The numbers, broken down by DeviceType and TaskStatus
+     */
+    public Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> getConnectionTypeBreakdown(Set<TaskStatus> taskStatuses);
 
     /**
      * Finds all {@link ConnectionTask}s that match the specified filter.

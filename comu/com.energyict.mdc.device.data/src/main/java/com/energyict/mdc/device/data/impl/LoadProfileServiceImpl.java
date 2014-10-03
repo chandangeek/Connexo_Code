@@ -5,7 +5,6 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.impl.finders.LoadProfileFinder;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
@@ -19,7 +18,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (13:06)
  */
-public class LoadProfileServiceImpl implements LoadProfileService, ReferencePropertySpecFinderProvider {
+public class LoadProfileServiceImpl implements ServerLoadProfileService {
 
     private final DeviceDataModelService deviceDataModelService;
 
