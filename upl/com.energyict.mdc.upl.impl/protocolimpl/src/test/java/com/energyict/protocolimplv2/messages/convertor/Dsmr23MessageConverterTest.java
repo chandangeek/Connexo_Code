@@ -1170,7 +1170,7 @@ public class Dsmr23MessageConverterTest {
 
         OfflineDeviceMessage changePasswordMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute newAuthenticationKeyAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(newAuthenticationKeyAttribute.getName()).thenReturn(newHexPasswordAttributeName);
+        when(newAuthenticationKeyAttribute.getName()).thenReturn(newPasswordAttributeName);
         when(newAuthenticationKeyAttribute.getDeviceMessageAttributeValue()).thenReturn("00112233445566778899");
 
         when(changePasswordMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(newAuthenticationKeyAttribute));
