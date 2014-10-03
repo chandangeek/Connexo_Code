@@ -104,6 +104,10 @@ public class LoadProfileResource {
                 .collect(Collectors.toList());
 
         loadProfileInfo.validationInfo = new DetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
+        if (states.isEmpty()) {
+            loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
+                    .allMatch(c -> c.getDevice().forValidation().allDataValidated(c, clock.now()));
+        }
     }
 
     private boolean isValidationActive(LoadProfile loadProfile) {
@@ -169,6 +173,9 @@ public class LoadProfileResource {
     private void validateLoadProfile(LoadProfile loadProfile, Date start) {
         if (loadProfile.getLastReading() != null && (start == null || loadProfile.getLastReading().after(start))) {
             loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile, start, loadProfile.getLastReading());
+        } else if (start != null) {
+            loadProfile.getChannels().stream()
+                    .forEach(c -> loadProfile.getDevice().forValidation().setLastChecked(c, start));
         }
     }
 
