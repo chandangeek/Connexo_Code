@@ -18,24 +18,29 @@ Ext.define('Dsh.view.widget.Breakdown', {
         bindable: 'Ext.util.Bindable'
     },
     itemsInCollapsedMode: 5,
-    tbar: [
-        {
-            xtype: 'container',
-            itemId: 'title',
-            html: '<h2>' + Uni.I18n.translate('overview.widget.breakdown.title', 'DSH', 'Breakdown') + '</h2>'
-        },
-        '->',
-        {
-            xtype: 'container',
-            html: '<div class="legend">' +
+    dockedItems: [{
+        xtype: 'toolbar',
+        dock: 'top',
+        style: {padding: 0},
+        items: [
+            {
+                xtype: 'container',
+                itemId: 'title',
+                html: '<h2>' + Uni.I18n.translate('overview.widget.breakdown.title', 'DSH', 'Breakdown') + '</h2>'
+            },
+            '->',
+            {
+                xtype: 'container',
+                html: '<div class="legend">' +
                     '<ul>' +
-                        '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
-                        '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
-                        '<li><span class="color pending"></span> ' + Uni.I18n.translate('overview.widget.breakdown.pending', 'DSH', 'Pending') + '</li>' +
+                    '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
+                    '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
+                    '<li><span class="color ongoing"></span> ' + Uni.I18n.translate('overview.widget.breakdown.ongoing', 'DSH', 'Ongoing') + '</li>' +
                     '</ul>' +
-                '</div>'
-        }
-    ],
+                    '</div>'
+            }
+        ]
+    }],
     items: [
         {
             xtype: 'panel',
@@ -91,11 +96,10 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     itemId: 'title',
                     html: '<h3>' + item.get('displayName') + '</h3>'
                 },
-                bbar: [
-                    '->',
+                buttonAlign: 'left',
+                buttons: [
                     {
-                        xtype: 'button',
-                        ui: 'link',
+                        style: {marginTop: '10px'},
                         text: Uni.I18n.translate('overview.widget.breakdown.showMore', 'DSH', 'show more'),
                         hidden: item.counters().count() <= me.itemsInCollapsedMode,
                         handler: function () {
@@ -131,9 +135,10 @@ Ext.define('Dsh.view.widget.Breakdown', {
 
                                 var data = {
                                     failed: record.get('failedCount'),
-                                    pending: record.get('pendingCount'),
+                                    ongoing: record.get('pendingCount'),
                                     success: record.get('successCount')
                                 };
+
                                 var bar = Ext.widget('stacked-bar', {
                                     limit: record.get('total'),
                                     total: item.get('total'),
