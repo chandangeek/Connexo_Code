@@ -1,21 +1,20 @@
 package com.energyict.mdc.scheduling.model;
 
-import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.time.UtcInstant;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration {
 
-    public long getId();
-
-    public String getName();
     public void setName(String name);
 
     public SchedulingStatus getSchedulingStatus();
