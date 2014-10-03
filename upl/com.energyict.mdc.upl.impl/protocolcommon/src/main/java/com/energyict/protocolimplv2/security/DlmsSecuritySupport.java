@@ -23,8 +23,10 @@ import java.util.List;
 public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
-    private final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
-    private final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
+    private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
+    private static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
+    private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
+    private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
     /**
      * Summarizes the used ID for the AuthenticationLevels.
@@ -130,12 +132,20 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
                     deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
                             ":" +
                             deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
-            typedProperties.setProperty("DataTransportEncryptionKey",
+            typedProperties.setProperty(getDataTransportEncryptionKeyLegacyPropertyName(),
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
-            typedProperties.setProperty("DataTransportAuthenticationKey",
+            typedProperties.setProperty(getDataTransportAuthenticationKeyLegacyPropertyname(),
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), ""));
         }
         return typedProperties;
+    }
+
+    protected String getDataTransportAuthenticationKeyLegacyPropertyname() {
+        return DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME;
+    }
+
+    protected String getDataTransportEncryptionKeyLegacyPropertyName() {
+        return DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME;
     }
 
     @Override
