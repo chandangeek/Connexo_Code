@@ -15,6 +15,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -39,15 +40,17 @@ public class ConnectionMethodResource {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final ConnectionTaskService connectionTaskService;
     private final ExceptionFactory exceptionFactory;
+    private final Provider<ComTaskExecutionResource> comTaskExecutionResourceProvider;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory, Provider<ComTaskExecutionResource> comTaskExecutionResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.engineModelService = engineModelService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.connectionTaskService = connectionTaskService;
         this.exceptionFactory = exceptionFactory;
+        this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
     }
 
     @GET
@@ -142,6 +145,10 @@ public class ConnectionMethodResource {
             }
         }
         throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getmRID(), connectionMethodId);
+    }
+
+    public ComTaskExecutionResource getComTaskExecutionResource() {
+        return comTaskExecutionResourceProvider.get();
     }
     
 }

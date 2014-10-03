@@ -97,7 +97,8 @@ public class DeviceApplication extends Application implements InstallService{
                 DeviceFieldResource.class,
                 ChannelResource.class,
                 DeviceGroupResource.class,
-                ConnectionMethodResource.class
+                ConnectionMethodResource.class,
+                ComTaskExecutionResource.class
         );
     }
 
