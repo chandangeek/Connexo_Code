@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -84,6 +85,11 @@ public class MeterActivationValidationImplTest {
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
         when(rule1.isActive()).thenReturn(true);
         when(rule2.isActive()).thenReturn(true);
+        when(channel1.getMainReadingType()).thenReturn(readingType1);
+        when(channel2.getMainReadingType()).thenReturn(readingType2);
+        when(readingType1.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType2.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(meterActivation.getInterval()).thenReturn(Interval.startAt(DATE1));
 
         meterActivationValidation = new MeterActivationValidationImpl(dataModel, clock).init(meterActivation);
         meterActivationValidation.setRuleSet(validationRuleSet);

@@ -17,6 +17,8 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -204,7 +206,14 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval, Channel channel) {
-        return new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), getLatestDate(channel.getLastDateTime(), interval.getEnd()));
+        Date lastChecked = getLatestDate(channelValidation.getLastChecked(), firstReadingTime(channelValidation));
+        return new Interval(getEarliestDate(lastChecked, interval.getStart()), getLatestDate(channel.getLastDateTime(), interval.getEnd()));
+    }
+
+    private Date firstReadingTime(ChannelValidationImpl channelValidation) {
+        int minutes = channelValidation.getChannel().getMainReadingType().getMeasuringPeriod().getMinutes();
+        Instant start = channelValidation.getChannel().getMeterActivation().getInterval().getStart().toInstant();
+        return Date.from(start.plus(minutes, ChronoUnit.MINUTES));
     }
 
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
