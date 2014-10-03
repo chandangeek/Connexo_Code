@@ -46,7 +46,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].counters")).isEmpty();
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
-        assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Pending')].count[0]")).isEqualTo(98);
+        assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Failed')].count[0]")).isEqualTo(56);
 
         assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].id")).containsExactly("Waiting");

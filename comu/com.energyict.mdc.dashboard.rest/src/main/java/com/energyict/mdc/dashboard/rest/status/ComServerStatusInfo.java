@@ -1,8 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.engine.status.ComServerStatus;
-import com.energyict.mdc.engine.status.ComServerType;
+import com.energyict.mdc.dashboard.rest.status.impl.ComServerTypeAdapter;
 import java.util.Date;
 
 /**
@@ -15,7 +14,7 @@ public class ComServerStatusInfo {
 
     public String comServerName;
     public long comServerId;
-    public ComServerType comServerType;
+    public String comServerType;
     public boolean running;
     public boolean blocked;
     public TimeDurationInfo blockTime;
@@ -26,18 +25,5 @@ public class ComServerStatusInfo {
         super();
     }
 
-    public ComServerStatusInfo(ComServerStatus status, String defaultUri) {
-        super();
-        this.comServerName = status.getComServerName();
-        this.comServerId=status.getComServerId();
-        this.comServerType = status.getComServerType();
-        this.running = status.isRunning();
-        this.blocked = status.isBlocked();
-        this.defaultUri = defaultUri;
-        if (this.blocked) {
-            this.blockTime = new TimeDurationInfo((int) status.getBlockTime().getStandardSeconds());
-            this.blockedSince = status.getBlockTimestamp();
-        }
-    }
 
 }

@@ -63,7 +63,9 @@ public class ConnectionOverviewInfoFactory {
 
         info.overviews=new ArrayList<>(2);
         info.overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.currentStates, taskStatusAdapter)); // JP-4278
-        info.overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResults, COM_SESSION_SUCCESS_INDICATOR_ADAPTER)); // JP-4280
+        TaskSummaryInfo perLatestResultOverview = overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResults, COM_SESSION_SUCCESS_INDICATOR_ADAPTER);
+        addAtLeastOntTaskFailedCounter(comSessionSuccessIndicatorOverview, perLatestResultOverview); // JP-5868
+        info.overviews.add(perLatestResultOverview); // JP-4280
         overviewFactory.sortAllOverviews(info.overviews);
 
         info.breakdowns=new ArrayList<>(3);
@@ -73,6 +75,15 @@ public class ConnectionOverviewInfoFactory {
         breakdownFactory.sortAllBreakdowns(info.breakdowns);
 
         return info;
+    }
+
+    private void addAtLeastOntTaskFailedCounter(ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, TaskSummaryInfo perLatestResultOverview) {
+        TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
+        taskCounterInfo.id = null; // Not filterable
+        taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.SOME_TASKS_FAILED.getKey(), MessageSeeds.SOME_TASKS_FAILED.getDefaultFormat());
+        taskCounterInfo.count = comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount();
+        perLatestResultOverview.total += taskCounterInfo.count;
+        perLatestResultOverview.counters.add(taskCounterInfo);
     }
 
 }

@@ -25,11 +25,13 @@ import javax.ws.rs.core.UriInfo;
 public class ComServerStatusResource {
 
     private final StatusService statusService;
+    private final ComServerStatusInfoFactory comServerStatusInfoFactory;
 
     @Inject
-    public ComServerStatusResource(StatusService statusService) {
+    public ComServerStatusResource(StatusService statusService, ComServerStatusInfoFactory comServerStatusInfoFactory) {
         super();
         this.statusService = statusService;
+        this.comServerStatusInfoFactory = comServerStatusInfoFactory;
     }
 
     @GET
@@ -39,7 +41,7 @@ public class ComServerStatusResource {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path(ComServerStatusResource.class).host("{host}");
         ComServerStatus status = this.statusService.getStatus();
         String defaultUri = uriBuilder.build(status.getComServerName()).toString();
-        return new ComServerStatusInfo(status, defaultUri);
+        return comServerStatusInfoFactory.from(status, defaultUri);
     }
 
 }

@@ -65,7 +65,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("deviceTypes", Arrays.asList(101L,102L,103L))).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().deviceTypes).contains(deviceType1).contains(deviceType2).contains(deviceType3).hasSize(3);
 
     }
@@ -83,7 +83,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("currentStates", Arrays.asList("Busy","OnHold"))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().taskStatuses).contains(TaskStatus.Busy).contains(TaskStatus.OnHold).hasSize(2);
 
     }
@@ -99,7 +99,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("comPortPools", Arrays.asList(1001L,1002L))).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().comPortPools).contains(comPortPool1).contains(comPortPool2).hasSize(2);
 
     }
@@ -114,7 +114,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("connectionTypes", Arrays.asList("2001","2002"))).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().connectionTypes).contains(connectionType1).contains(connectionType2).hasSize(2);
     }
 
@@ -123,7 +123,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("latestResults", Arrays.asList("Success","SetupError","Broken"))).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().latestResults).contains(ComSession.SuccessIndicator.Success).contains(ComSession.SuccessIndicator.Broken).contains(ComSession.SuccessIndicator.Broken).hasSize(3);
     }
 
@@ -132,7 +132,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("latestStates", Arrays.asList("Success","NotApplicable","Failure"))).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().latestStatuses).contains(ConnectionTask.SuccessIndicator.SUCCESS).contains(ConnectionTask.SuccessIndicator.FAILURE).contains(ConnectionTask.SuccessIndicator.NOT_APPLICABLE).hasSize(3);
     }
 
@@ -141,7 +141,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("startIntervalFrom", 1407916436000L)).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(new Date(1407916436000L));
         assertThat(captor.getValue().lastSessionStart.getEnd()).isNull();
         assertThat(captor.getValue().lastSessionEnd).isNull();
@@ -153,7 +153,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("startIntervalTo", 1407916436000L)).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(new Date(1407916436000L));
         assertThat(captor.getValue().lastSessionStart.getStart()).isNull();
         assertThat(captor.getValue().lastSessionEnd).isNull();
@@ -169,7 +169,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
                         .create()).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(new Date(1407916436000L));
         assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(new Date(1407916784000L));
         assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
@@ -181,7 +181,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("finishIntervalFrom", 1407916436000L)).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
         assertThat(captor.getValue().lastSessionEnd.getEnd()).isNull();
         assertThat(captor.getValue().lastSessionStart).isNull();
@@ -193,7 +193,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("finishIntervalTo", 1407916436000L)).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916436000L));
         assertThat(captor.getValue().lastSessionEnd.getStart()).isNull();
         assertThat(captor.getValue().lastSessionStart).isNull();
@@ -205,7 +205,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter().property("finishIntervalFrom", 1407916436000L).property("finishIntervalTo", 1407916784000L).create()).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
         assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916784000L));
         assertThat(captor.getValue().lastSessionStart).isNull();
@@ -218,7 +218,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Date endDate = now.plusHours(1).toDate();
         Date plannedNext = now.plusHours(2).toDate();
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        when(deviceDataService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
+        when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
         ComSession comSession = mock(ComSession.class);
         Optional<ComSession> comSessionOptional = Optional.of(comSession);
         when(connectionTask.getLastComSession()).thenReturn(comSessionOptional);
@@ -282,10 +282,10 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(new Date());
         when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(new Date());
         when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(new Date());
-        when(deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        when(communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
-        when(deviceDataService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
+        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
         String response = target("/connections").queryParam("start",0).queryParam("limit", 10).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);

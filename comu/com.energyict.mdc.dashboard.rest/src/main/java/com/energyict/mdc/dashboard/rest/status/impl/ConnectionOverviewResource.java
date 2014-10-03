@@ -6,8 +6,9 @@ import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.engine.model.security.Privileges;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -24,13 +25,13 @@ public class ConnectionOverviewResource {
 
     private final DashboardService dashboardService;
     private final ConnectionOverviewInfoFactory connectionOverviewInfoFactory;
-    private final DeviceDataService deviceDataService;
+    private final ConnectionTaskService connectionTaskService;
 
     @Inject
-    public ConnectionOverviewResource(DashboardService dashboardService, ConnectionOverviewInfoFactory connectionOverviewInfoFactory, DeviceDataService deviceDataService) {
+    public ConnectionOverviewResource(DashboardService dashboardService, ConnectionOverviewInfoFactory connectionOverviewInfoFactory, ConnectionTaskService connectionTaskService) {
         this.dashboardService = dashboardService;
         this.connectionOverviewInfoFactory = connectionOverviewInfoFactory;
-        this.deviceDataService = deviceDataService;
+        this.connectionTaskService = connectionTaskService;
     }
 
     @GET
@@ -43,7 +44,7 @@ public class ConnectionOverviewResource {
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
-        SummaryData summaryData = new SummaryData(taskStatusOverview, deviceDataService.countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
+        SummaryData summaryData = new SummaryData(taskStatusOverview, connectionTaskService.countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
 
             return connectionOverviewInfoFactory.from(summaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,
                     comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown);
