@@ -70,7 +70,7 @@ public class LoadProfileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
-        LoadProfileType loadProfileType = findLoadProfileByIdOrThrowException(loadProfileId);
+        LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
     }
 
@@ -96,7 +96,7 @@ public class LoadProfileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
-        LoadProfileType loadProfileType = findLoadProfileByIdOrThrowException(loadProfileId);
+        LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
         loadProfileType.setName(request.name);
         boolean isInUse = isLoadProfileTypeAlreadyInUse(loadProfileType);
         if (!isInUse){
@@ -119,12 +119,12 @@ public class LoadProfileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response deleteProfileType(@PathParam("id") long loadProfileId) {
-        findLoadProfileByIdOrThrowException(loadProfileId).delete();
+        findLoadProfileTypeByIdOrThrowException(loadProfileId).delete();
         return Response.ok().build();
     }
 
 
-    private LoadProfileType findLoadProfileByIdOrThrowException(long loadProfileId) {
+    private LoadProfileType findLoadProfileTypeByIdOrThrowException(long loadProfileId) {
         Optional<LoadProfileType> loadProfileTypeRef = masterDataService.findLoadProfileType(loadProfileId);
         if (!loadProfileTypeRef.isPresent()) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfileId);
