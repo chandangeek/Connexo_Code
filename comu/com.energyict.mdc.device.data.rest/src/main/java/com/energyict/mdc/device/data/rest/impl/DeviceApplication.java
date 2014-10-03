@@ -96,7 +96,8 @@ public class DeviceApplication extends Application implements InstallService{
                 LogBookResource.class,
                 DeviceFieldResource.class,
                 ChannelResource.class,
-                DeviceGroupResource.class
+                DeviceGroupResource.class,
+                ConnectionMethodResource.class
         );
     }
 
