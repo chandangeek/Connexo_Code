@@ -10,4 +10,5 @@ public interface TimeSeriesDataStorer {
 	}
 	boolean overrules();
 	StorerStats execute();
+	boolean processed(TimeSeries timeSeries, Instant instant);
 }
