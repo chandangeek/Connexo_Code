@@ -68,7 +68,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (09:01)
  */
-public class ConnectionTaskServiceImpl implements ServerConnectionTaskService, ReferencePropertySpecFinderProvider {
+public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     private final DeviceDataModelService deviceDataModelService;
 

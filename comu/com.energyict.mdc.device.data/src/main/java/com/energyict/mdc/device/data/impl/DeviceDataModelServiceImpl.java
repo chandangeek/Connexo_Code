@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -15,6 +17,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -55,6 +58,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DeviceDataModelService} interface.
@@ -62,8 +67,8 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, InstallService.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
-public class DeviceDataModelServiceImpl implements DeviceDataModelService, InstallService {
+@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
+public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService {
 
     private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
@@ -85,8 +90,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
     private ServerDeviceService deviceService;
-    private LoadProfileService loadProfileService;
-    private LogBookService logBookService;
+    private ServerLoadProfileService loadProfileService;
+    private ServerLogBookService logBookService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     public DeviceDataModelServiceImpl() {}
@@ -115,6 +120,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.setUserService(userService);
         this.activate(bundleContext);
         this.install(true);
+    }
+
+    @Override
+    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+        return Stream.of(this.connectionTaskService, this.deviceService, this.logBookService, this.loadProfileService).
+            flatMap(p -> p.finders().stream()).
+            collect(Collectors.toList());
     }
 
     @Reference
