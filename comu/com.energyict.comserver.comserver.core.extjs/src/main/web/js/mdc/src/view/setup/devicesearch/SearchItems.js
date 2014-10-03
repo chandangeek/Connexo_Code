@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.devicesearch.SearchItems', {
 
     requires: [
         'Mdc.view.setup.devicesearch.SearchResults',
+        'Uni.component.filter.view.FilterTopPanel',
         'Uni.view.navigation.SubMenu'
     ],
 
@@ -12,6 +13,9 @@ Ext.define('Mdc.view.setup.devicesearch.SearchItems', {
     ],
 
     content: [
+        {
+            xtype: 'filter-top-panel'
+        },
         {
             xtype: 'mdc-search-results'
         }
