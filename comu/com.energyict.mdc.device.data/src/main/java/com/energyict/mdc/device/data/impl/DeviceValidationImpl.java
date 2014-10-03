@@ -89,13 +89,13 @@ public class DeviceValidationImpl implements DeviceValidation {
     @Override
     public boolean allDataValidated(Channel channel, Date when) {
         Optional<com.elster.jupiter.metering.Channel> found = device.findKoreChannel(channel, when);
-        return found.isPresent() && getEvaluator().isAllDataValidated(found.get().getMeterActivation());
+        return !found.isPresent() || getEvaluator().isAllDataValidated(found.get().getMeterActivation());
     }
 
     @Override
     public boolean allDataValidated(Register<?> register, Date when) {
         Optional<com.elster.jupiter.metering.Channel> found = findKoreChannel(register, when);
-        return found.isPresent() && getEvaluator().isAllDataValidated(found.get().getMeterActivation());
+        return !found.isPresent() || getEvaluator().isAllDataValidated(found.get().getMeterActivation());
     }
 
     @Override
