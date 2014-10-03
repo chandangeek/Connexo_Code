@@ -100,7 +100,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     @Override
     public void daisyChainedLogOn() {
-        // Not the case
+        logOn();
     }
 
     @Override
@@ -110,7 +110,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     @Override
     public void daisyChainedLogOff() {
-        // Not the case
+        logOff();
     }
 
     @Override

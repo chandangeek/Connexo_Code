@@ -161,12 +161,12 @@ public class A1055 extends AbstractAbntProtocol {
 
     @Override
     public void daisyChainedLogOn() {
-        // Not the case
+        logOn();
     }
 
     @Override
     public void logOff() {
-        // No logoff required
+        logOff();
     }
 
     @Override
