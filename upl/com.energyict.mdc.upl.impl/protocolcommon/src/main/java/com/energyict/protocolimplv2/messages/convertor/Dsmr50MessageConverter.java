@@ -75,6 +75,11 @@ public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
         registry.remove(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST);
         registry.remove(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow);
         registry.remove(AdvancedTestMessage.XML_CONFIG);
+        registry.remove(ContactorDeviceMessage.CONTACTOR_OPEN);
+        registry.remove(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
+        registry.remove(ContactorDeviceMessage.CONTACTOR_CLOSE);
+        registry.remove(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
+        registry.remove(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
 
         //Messages to change the keys has changed (takes plain and wrapped key)
         registry.remove(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY);

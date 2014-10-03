@@ -209,6 +209,8 @@ public class RtuPlusServer implements DeviceProtocol {
             result.addSlaveDevice(new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName()));
         }
         return result;
+
+        //TODO update nodeaddress on meters ???
     }
 
     @Override
