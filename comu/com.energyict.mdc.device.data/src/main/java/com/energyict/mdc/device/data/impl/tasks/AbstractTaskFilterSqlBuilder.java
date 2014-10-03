@@ -69,16 +69,12 @@ public abstract class AbstractTaskFilterSqlBuilder {
         this.actualBuilder.addLong(bindValue);
     }
 
-    protected String connectionTaskTableName() {
-        return TableSpecs.DDC_CONNECTIONTASK.name();
-    }
-
     protected String connectionTaskAliasName() {
         return "ct";
     }
 
-    protected String comTaskExecutionTableName() {
-        return TableSpecs.DDC_COMTASKEXEC.name();
+    protected String communicationTaskAliasName() {
+        return "cte";
     }
 
     protected void appendInClause(String columnName, Set<? extends HasId> idBusinessObjects) {

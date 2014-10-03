@@ -183,14 +183,18 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private Set<ServerComTaskStatus> taskStatusesForCounting (ComTaskExecutionFilterSpecification filter) {
-        Set<ServerComTaskStatus> taskStatuses = EnumSet.noneOf(ServerComTaskStatus.class);
-        for (TaskStatus taskStatus : filter.taskStatuses) {
-            taskStatuses.add(ServerComTaskStatus.forTaskStatus(taskStatus));
-        }
-        return taskStatuses;
+        return taskStatusesForCounting(filter.taskStatuses);
     }
 
-    public void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ComTaskExecutionFilterSpecification filter, ServerComTaskStatus taskStatus) {
+    private Set<ServerComTaskStatus> taskStatusesForCounting (Set<TaskStatus> taskStatuses) {
+        Set<ServerComTaskStatus> serverTaskStatuses = EnumSet.noneOf(ServerComTaskStatus.class);
+        for (TaskStatus taskStatus : taskStatuses) {
+            serverTaskStatuses.add(ServerComTaskStatus.forTaskStatus(taskStatus));
+        }
+        return serverTaskStatuses;
+    }
+
+    private void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ComTaskExecutionFilterSpecification filter, ServerComTaskStatus taskStatus) {
         ComTaskExecutionFilterMatchCounterSqlBuilder countingFilter = new ComTaskExecutionFilterMatchCounterSqlBuilder(taskStatus, filter, this.deviceDataModelService.clock());
         countingFilter.appendTo(sqlBuilder);
     }
@@ -201,6 +205,82 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters) {
         return this.deviceDataModelService.addMissingTaskStatusCounters(counters);
+    }
+
+    @Override
+    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses) {
+        ClauseAwareSqlBuilder sqlBuilder = null;
+        for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
+            // Check first pass
+            if (sqlBuilder == null) {
+                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+            else {
+                sqlBuilder.unionAll();
+                this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+        }
+        return this.injectComSchedulesAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
+    }
+
+    private void countByComScheduleAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerComTaskStatus taskStatus) {
+        ComTaskExecutionComScheduleCounterSqlBuilder countingFilter = new ComTaskExecutionComScheduleCounterSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+        countingFilter.appendTo(sqlBuilder);
+    }
+
+    private Map<ComSchedule, Map<TaskStatus, Long>> injectComSchedulesAndAddMissing(Map<Long, Map<TaskStatus, Long>> breakdown) {
+        Map<Long, ComSchedule> comSchedules =
+                this.deviceDataModelService.schedulingService().findAllSchedules().stream().
+                        collect(Collectors.toMap(ComSchedule::getId, Function.identity()));
+        return this.injectBreakDownsAndAddMissing(breakdown, comSchedules);
+    }
+
+    @Override
+    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses) {
+        ClauseAwareSqlBuilder sqlBuilder = null;
+        for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
+            // Check first pass
+            if (sqlBuilder == null) {
+                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+            else {
+                sqlBuilder.unionAll();
+                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+            }
+        }
+        return this.injectDeviceTypesAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
+    }
+
+    private void countByDeviceTypeAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerComTaskStatus taskStatus) {
+        ComTaskExecutionDeviceTypeCounterSqlBuilder countingFilter = new ComTaskExecutionDeviceTypeCounterSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+        countingFilter.appendTo(sqlBuilder);
+    }
+
+    private Map<DeviceType, Map<TaskStatus, Long>> injectDeviceTypesAndAddMissing(Map<Long, Map<TaskStatus, Long>> breakdown) {
+        Map<Long, DeviceType> deviceTypes =
+                this.deviceDataModelService.deviceConfigurationService().findAllDeviceTypes().stream().
+                        collect(Collectors.toMap(DeviceType::getId, Function.identity()));
+        return this.injectBreakDownsAndAddMissing(breakdown, deviceTypes);
+    }
+
+    private <BDT> Map<BDT, Map<TaskStatus, Long>> injectBreakDownsAndAddMissing(Map<Long, Map<TaskStatus, Long>> breakdown, Map<Long, BDT> allBreakDowns) {
+        Map<BDT, Map<TaskStatus, Long>> breakDownByDeviceType = this.emptyBreakdown(allBreakDowns);
+        for (Long breakDownId : breakdown.keySet()) {
+            breakDownByDeviceType.put(allBreakDowns.get(breakDownId), breakdown.get(breakDownId));
+        }
+        return breakDownByDeviceType;
+    }
+
+    private <BDT> Map<BDT, Map<TaskStatus, Long>> emptyBreakdown(Map<Long, BDT> breakDowns) {
+        Map<BDT, Map<TaskStatus, Long>> emptyBreakdown = new HashMap<>();
+        for (BDT breakDown : breakDowns.values()) {
+            Map<TaskStatus, Long> emptyCounters = new HashMap<>();
+            this.addMissingTaskStatusCounters(emptyCounters);
+            emptyBreakdown.put(breakDown, emptyCounters);
+        }
+        return emptyBreakdown;
     }
 
     @Override

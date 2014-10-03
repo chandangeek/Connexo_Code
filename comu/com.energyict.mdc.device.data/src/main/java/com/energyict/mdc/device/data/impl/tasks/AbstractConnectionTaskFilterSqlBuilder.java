@@ -44,6 +44,10 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
 
     protected void appendWhereClause(ServerConnectionTaskStatus taskStatus) {
         taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock(), connectionTaskAliasName());
+        this.appendNonStatusWhereClauses();
+    }
+
+    protected void appendNonStatusWhereClauses() {
         this.appendConnectionTypeSql();
         this.appendComPortPoolSql();
         this.appendDeviceTypeSql();

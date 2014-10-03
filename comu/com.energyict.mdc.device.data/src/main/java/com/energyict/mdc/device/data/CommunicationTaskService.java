@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Provides services that relate to {@link ComTaskExecution}s.
@@ -73,6 +74,25 @@ public interface CommunicationTaskService {
      * @return The numbers, broken down by TaskStatus
      */
     public Map<TaskStatus, Long> getComTaskExecutionStatusCount(ComTaskExecutionFilterSpecification filter);
+
+    /**
+     * Counts all {@link ComTaskExecution}s for {@link ComSchedule}s,
+     * grouping them by their respective {@link TaskStatus}.
+     *
+     * @param taskStatuses The Set of TaskStatus
+     * @return The numbers, broken down by ComSchedule and TaskStatus
+     */
+    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses);
+
+    /**
+     * Counts all {@link ComTaskExecution}s for {@link ComSchedule}s,
+     * grouping them by the {@link com.energyict.mdc.device.config.DeviceType}
+     * of the related {@link com.energyict.mdc.device.data.Device}.
+     *
+     * @param taskStatuses The Set of TaskStatus
+     * @return The numbers, broken down by DeviceType and TaskStatus
+     */
+    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses);
 
     /**
      * Finds all {@link ConnectionTask}s that match the specified filter.

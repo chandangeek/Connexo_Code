@@ -24,7 +24,6 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -258,21 +257,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     private Map<ComPortPool, Map<TaskStatus, Long>> injectComPortPoolsAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
         Map<Long, ComPortPool> comPortPools = this.deviceDataModelService.engineModelService().findAllComPortPools().stream().collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
-        Map<ComPortPool, Map<TaskStatus, Long>> breakDownByComPortPool = this.emptyComPortPoolBreakdown(comPortPools);
-        for (Long comPortPoolId : statusBreakdown.keySet()) {
-            breakDownByComPortPool.put(comPortPools.get(comPortPoolId), statusBreakdown.get(comPortPoolId));
-        }
-        return breakDownByComPortPool;
-    }
-
-    private Map<ComPortPool, Map<TaskStatus, Long>> emptyComPortPoolBreakdown(Map<Long, ComPortPool> comPortPools) {
-        Map<ComPortPool, Map<TaskStatus, Long>> emptyBreakdown = new HashMap<>();
-        for (ComPortPool comPortPool : comPortPools.values()) {
-            Map<TaskStatus, Long> emptyCounters = new HashMap<>();
-            this.addMissingTaskStatusCounters(emptyCounters);
-            emptyBreakdown.put(comPortPool, emptyCounters);
-        }
-        return emptyBreakdown;
+        return this.injectBreakDownsAndAddMissing(statusBreakdown, comPortPools);
     }
 
     @Override
@@ -299,21 +284,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     private Map<DeviceType, Map<TaskStatus, Long>> injectDeviceTypesAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
         Map<Long, DeviceType> deviceTypes = this.deviceDataModelService.deviceConfigurationService().findAllDeviceTypes().stream().collect(Collectors.toMap(DeviceType::getId, Function.identity()));
-        Map<DeviceType, Map<TaskStatus, Long>> breakDownByDeviceType = this.emptyDeviceTypeBreakdown(deviceTypes);
-        for (Long DeviceTypeId : statusBreakdown.keySet()) {
-            breakDownByDeviceType.put(deviceTypes.get(DeviceTypeId), statusBreakdown.get(DeviceTypeId));
-        }
-        return breakDownByDeviceType;
-    }
-
-    private Map<DeviceType, Map<TaskStatus, Long>> emptyDeviceTypeBreakdown(Map<Long, DeviceType> deviceTypes) {
-        Map<DeviceType, Map<TaskStatus, Long>> emptyBreakdown = new HashMap<>();
-        for (DeviceType deviceType : deviceTypes.values()) {
-            Map<TaskStatus, Long> emptyCounters = new HashMap<>();
-            this.addMissingTaskStatusCounters(emptyCounters);
-            emptyBreakdown.put(deviceType, emptyCounters);
-        }
-        return emptyBreakdown;
+        return this.injectBreakDownsAndAddMissing(statusBreakdown, deviceTypes);
     }
 
     @Override
@@ -338,23 +309,27 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         countingFilter.appendTo(sqlBuilder);
     }
 
-    private Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> injectConnectionTypesAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
-        Map<Long, ConnectionTypePluggableClass> connectionTypePluggableClasses = this.deviceDataModelService.protocolPluggableService().findAllConnectionTypePluggableClasses().stream().collect(Collectors.toMap(ConnectionTypePluggableClass::getId, Function.identity()));
-        Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> breakDownByConnectionType = this.emptyConnectionTypeBreakdown(connectionTypePluggableClasses);
-        for (Long ConnectionTypeId : statusBreakdown.keySet()) {
-            breakDownByConnectionType.put(connectionTypePluggableClasses.get(ConnectionTypeId), statusBreakdown.get(ConnectionTypeId));
+    private <BDT> Map<BDT, Map<TaskStatus, Long>> injectBreakDownsAndAddMissing(Map<Long, Map<TaskStatus, Long>> breakdown, Map<Long, BDT> allBreakDowns) {
+        Map<BDT, Map<TaskStatus, Long>> breakDownByDeviceType = this.emptyBreakdown(allBreakDowns);
+        for (Long breakDownId : breakdown.keySet()) {
+            breakDownByDeviceType.put(allBreakDowns.get(breakDownId), breakdown.get(breakDownId));
         }
-        return breakDownByConnectionType;
+        return breakDownByDeviceType;
     }
 
-    private Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> emptyConnectionTypeBreakdown(Map<Long, ConnectionTypePluggableClass> connectionTypePluggableClasses) {
-        Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> emptyBreakdown = new HashMap<>();
-        for (ConnectionTypePluggableClass connectionTypePluggableClass : connectionTypePluggableClasses.values()) {
+    private <BDT> Map<BDT, Map<TaskStatus, Long>> emptyBreakdown(Map<Long, BDT> breakDowns) {
+        Map<BDT, Map<TaskStatus, Long>> emptyBreakdown = new HashMap<>();
+        for (BDT breakDown : breakDowns.values()) {
             Map<TaskStatus, Long> emptyCounters = new HashMap<>();
             this.addMissingTaskStatusCounters(emptyCounters);
-            emptyBreakdown.put(connectionTypePluggableClass, emptyCounters);
+            emptyBreakdown.put(breakDown, emptyCounters);
         }
         return emptyBreakdown;
+    }
+
+    private Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> injectConnectionTypesAndAddMissing(Map<Long, Map<TaskStatus, Long>> statusBreakdown) {
+        Map<Long, ConnectionTypePluggableClass> connectionTypePluggableClasses = this.deviceDataModelService.protocolPluggableService().findAllConnectionTypePluggableClasses().stream().collect(Collectors.toMap(ConnectionTypePluggableClass::getId, Function.identity()));
+        return this.injectBreakDownsAndAddMissing(statusBreakdown, connectionTypePluggableClasses);
     }
 
     private Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder) {
