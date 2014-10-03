@@ -50,7 +50,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ValidationPreview', {
                     {
                         xtype: 'displayfield',
                         name: 'lastChecked_formatted',
-                        margin: '3 0 0 0',
                         renderer: function (value, field) {
                             if (!Ext.isEmpty(value)) {
                                 field.up('#lastCheckedCont').show();
