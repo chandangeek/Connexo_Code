@@ -21,6 +21,8 @@ import com.energyict.mdc.device.data.Register;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -289,11 +291,17 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private Date defaultStart(com.elster.jupiter.metering.Channel channel, ReadingType readingType) {
-        return getEvaluator().getLastChecked(fetchKoreMeter(), readingType).or(() -> channel.getMeterActivation().getInterval().getStart());
+        return getEvaluator().getLastChecked(fetchKoreMeter(), readingType).or(() -> firstReading(channel));
     }
 
     private Date clippedStart(com.elster.jupiter.metering.Channel channel, Date from) {
-        return Ordering.<Date>from(nullsFirst(naturalOrder())).max(from, channel.getMeterActivation().getInterval().getStart());
+        return Ordering.<Date>from(nullsFirst(naturalOrder())).max(from, firstReading(channel));
+    }
+
+    private Date firstReading(com.elster.jupiter.metering.Channel channel) {
+        int minutes = channel.getMainReadingType().getMeasuringPeriod().getMinutes();
+        Instant start = channel.getMeterActivation().getInterval().getStart().toInstant();
+        return Date.from(start.plus(minutes, ChronoUnit.MINUTES));
     }
 
     private Meter fetchKoreMeter() {
