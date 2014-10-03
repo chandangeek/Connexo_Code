@@ -1517,6 +1517,18 @@ Ext.define('Uni.Auth', {
 
     hasNoPrivilege: function (privilege) {
         return !this.hasPrivilege(privilege);
+    },
+
+    hasAnyPrivilege: function (privileges) {
+        if (Ext.isArray(privileges)) {
+            for (var i = 0; i < privileges.length; i++) {
+                var privilege = privileges[i];
+                if (this.hasPrivilege(privilege)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 });
 
@@ -2983,10 +2995,12 @@ Ext.define('Uni.controller.history.Router', {
         // handle child items
         if (config.items) {
             _.each(config.items, function (item, itemKey) {
-                if (typeof item.authorized === 'undefined' || item.authorized) {
-                    var path = key + '/' + itemKey;
-                    me.initRoute(path, item, route);
+                if (Ext.isArray(item.privileges) && !Uni.Auth.hasAnyPrivilege(item.privileges)) {
+                    return;
                 }
+
+                var path = key + '/' + itemKey;
+                me.initRoute(path, item, route);
             });
         }
     },
@@ -4086,13 +4100,13 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
     extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.filter-top-panel',
     title: 'Filters',
-    setFilter: function (key, name, value) {
+    setFilter: function (key, name, value, hideIcon) {
         var me = this,
             btnsContainer = me.getContainer(),
             btn = btnsContainer.down('button[name=' + key + ']');
         if (!_.isEmpty(btn)) {
             btn.setText(name + ': ' + value);
-        } else {
+        } else if (!hideIcon) {
             btnsContainer.add(Ext.create('Uni.view.button.TagButton', {
                 text: name + ': ' + value,
                 name: key,
@@ -4102,8 +4116,14 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
                     }
                 }
             }));
+        } else {
+            btnsContainer.add(Ext.create('Ext.button.Button', {
+                text: name + ': ' + value,
+                name: key,
+                ui: 'tag'
+            }));
         }
-        me.updateContainer(btnsContainer);
+        this.updateContainer(this.getContainer());
     }
 });
 
@@ -5303,6 +5323,229 @@ Ext.define('Uni.data.store.Filterable', {
 
 
 /**
+ * @class Uni.form.field.DateTime
+ *
+ * This class contains the DateTime field.
+ *
+ *     Ext.create('Uni.form.field.DateTime', {
+ *       itemId: 'endOfInterval',
+ *       name: 'intervalStart',
+ *       fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From'),
+ *       labelAlign: 'top',
+ *       dateConfig: {
+ *         width: 100,
+ *         submitValue: true,
+ *       }
+ *       hoursConfig: {
+ *         maxValue: 20
+ *       }
+ *       minutesConfig: {
+ *         minValue: 0
+ *       }
+ *       separatorConfig: {
+ *         html: ':',
+ *       }
+ *     });
+ *
+ */
+Ext.define('Uni.form.field.DateTime', {
+    extend: 'Ext.form.FieldContainer',
+    mixins: {
+        field: 'Ext.form.field.Field'
+    },
+    alias: 'widget.date-time',
+    layout: 'vbox',
+    requires: [
+        'Ext.form.field.Date',
+        'Ext.form.field.Number',
+        'Ext.container.Container'
+    ],
+
+    /**
+     * @cfg {Object} dateConfig
+     * Configuration for dateField allows you override or add any property of this field.
+     */
+    dateConfig: null,
+
+    /**
+     * @cfg {Object} hoursConfig
+     * Configuration for hoursField allows you override or add any property of this field.
+     */
+    hoursConfig: null,
+
+    /**
+     * @cfg {Object} separatorConfig
+     * Configuration for separatorField allows you override or add any property of this field.
+     */
+    separatorConfig: null,
+
+    /**
+     * @cfg {Object} minutesConfig
+     * Configuration for minutesField allows you override or add any property of this field.
+     */
+    minutesConfig: null,
+
+    initComponent: function () {
+        var me = this,
+            dateField = {
+                xtype: 'datefield',
+                itemId: 'date-time-field-date',
+                submitValue: false,
+                width: '100%',
+                listeners: {
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
+                    }
+                }
+            },
+            hoursField = {
+                itemId: 'date-time-field-hours',
+                flex: 1,
+                maxValue: 23,
+                minValue: 0
+            },
+            minutesField = {
+                itemId: 'date-time-field-minutes',
+                flex: 1,
+                maxValue: 59,
+                minValue: 0
+            },
+            separator = {
+                xtype: 'component',
+                html: ':',
+                margin: '0 5 0 5'
+            },
+            container = {
+                xtype: 'container',
+                width: '100%',
+                layout: {
+                    type: 'hbox',
+                    align: 'middle'
+                },
+                defaults: {
+                    xtype: 'numberfield',
+                    allowDecimals: false,
+                    submitValue: false,
+                    value: 0,
+                    valueToRaw: me.formatDisplayOfTime,
+                    listeners: {
+                        change: {
+                            fn: me.onItemChange,
+                            scope: me
+                        },
+                        blur: me.numberFieldValidation
+                    }
+                }
+            };
+
+        if (me.layout === 'hbox') {
+            delete container.width;
+            dateField.width = 130;
+            hoursField.width = 80;
+            minutesField.width = 80;
+        }
+
+        Ext.apply(dateField, me.dateConfig);
+        Ext.apply(hoursField, me.hoursConfig);
+        Ext.apply(minutesField, me.minutesConfig);
+        Ext.apply(separator, me.separatorConfig);
+
+        container.items = [hoursField, separator, minutesField];
+        me.items = [dateField, container];
+
+        me.callParent(arguments);
+    },
+
+    formatDisplayOfTime: function (value) {
+        var result = '00';
+
+        if (value) {
+            if (value < 10 && value > 0) {
+                result = '0' + value;
+            } else if (value >= 10) {
+                result = value;
+            }
+        }
+        return result;
+    },
+
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        } else if (value > field.maxValue) {
+            field.setValue(field.maxValue);
+        }
+    },
+
+    setValue: function (value) {
+        var me = this,
+            dateField = me.down('#date-time-field-date'),
+            hoursField = me.down('#date-time-field-hours'),
+            minutesField = me.down('#date-time-field-minutes');
+        if (Ext.isDate(value) || moment(new Date(value)).isValid()) {
+            me.eachItem(function (item) {
+                item.suspendEvent('change');
+            });
+            dateField.setValue(moment(value).startOf('day').toDate());
+            hoursField.setValue(moment(value).hours());
+            minutesField.setValue(moment(value).minutes());
+            me.fireEvent('change', me, value);
+            me.eachItem(function (item) {
+                item.resumeEvent('change');
+            });
+        } else if (value === undefined || value === null) {
+            dateField.reset();
+            hoursField.reset();
+            minutesField.reset();
+        } else {
+            console.error('\'' + value + '\' is not a date');
+        }
+    },
+
+    getValue: function() {
+        var me = this,
+            date = me.down('#date-time-field-date').getValue(),
+            hours = me.down('#date-time-field-hours').getValue(),
+            minutes = me.down('#date-time-field-minutes').getValue();
+
+        if (date) {
+            date = date.getTime();
+            if (hours) {
+                date += hours * 3600000;
+            }
+            if (minutes) {
+                date += minutes * 60000;
+            }
+        }
+
+        date = new Date(date);
+
+        return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
+    },
+
+    markInvalid: function(fields){
+        this.eachItem(function(field){
+            field.markInvalid('');
+        });
+        this.items.items[0].markInvalid(fields);
+    },
+
+    eachItem: function(fn, scope) {
+        if(this.items && this.items.each){
+            this.items.each(fn, scope || this);
+        }
+    },
+
+    onItemChange: function () {
+        this.fireEvent('change', this, this.getValue());
+    }
+});
+
+
+/**
  * @class Uni.form.field.DisplayFieldWithInfoIcon
  */
 Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
@@ -5356,6 +5599,36 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
 
         me.infoTooltip && Ext.defer(this.deferredRenderer, 1, this, [value, field, me.infoTooltip]);
         return '<span style="display: inline-block; float: left; margin-right: 10px;">' + value + '</span>';
+    }
+});
+
+/**
+ * @class Uni.form.field.EditedDisplay
+ */
+Ext.define('Uni.form.field.EditedDisplay', {
+    extend: 'Ext.form.field.Display',
+    xtype: 'edited-displayfield',
+    name: 'editedDate',
+
+    deferredRenderer: function (field, icon) {
+        field.getEl().down('.x-form-display-field').appendChild(icon);
+        field.updateLayout();
+    },
+
+    renderer: function (value, field) {
+        var icon;
+
+        if (value) {
+            value = Ext.isDate(value) ? value : new Date(value);
+            icon = document.createElement('span');
+            icon.className = 'icon-edit';
+            Ext.create('Ext.tip.ToolTip', {
+                target: icon,
+                html: Uni.I18n.formatDate('editedDate.format',value, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+            });
+            Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
+        }
+        return '';
     }
 });
 
@@ -5422,40 +5695,33 @@ Ext.define('Uni.form.field.IntervalFlagsDisplay', {
     fieldLabel: Uni.I18n.translate('intervalFlags.label', 'UNI', 'Interval flags'),
     emptyText: '',
 
-    requires: [
-        'Ext.button.Button'
-    ],
-
-    deferredRenderer: function (value, field, tooltip) {
-        new Ext.button.Button({
-            renderTo: field.getEl().down('.x-form-display-field'),
-            tooltip: tooltip,
-            iconCls: 'icon-info-small',
-            cls: 'uni-btn-transparent',
-            style: {
-                display: 'inline-block',
-                "text-decoration": 'none !important'
-            }
-        });
-
+    deferredRenderer: function (field, icon) {
+        field.getEl().down('.x-form-display-field').appendChild(icon);
         field.updateLayout();
     },
 
     renderer: function (value, field) {
-        var result,
+        var icon,
             tooltip = '';
         if (!Ext.isArray(value) || !value.length) {
             return this.emptyText;
         }
 
-        result = value.length;
+
+        icon = document.createElement('span');
+        icon.className = 'icon-info-small';
+        icon.setAttribute('style', 'width: 16px; height: 16px');
         Ext.Array.each(value, function (value, index) {
             index++;
             tooltip += Uni.I18n.translate('intervalFlags.Flag', 'UNI', 'Flag') + ' ' + index + ': ' + value + '<br>';
         });
+        Ext.create('Ext.tip.ToolTip', {
+            target: icon,
+            html: tooltip
+        });
+        Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
 
-        Ext.defer(this.deferredRenderer, 1, this, [result, field, tooltip]);
-        return '<span style="display: inline-block; width: 20px; float: left;">' + result + '</span>';
+        return '<span style="display: inline-block; width: 20px; float: left;">' + value.length + '</span>';
     }
 });
 
@@ -5851,6 +6117,37 @@ Ext.define('Uni.grid.column.Default', {
     }
 });
 
+Ext.define('Uni.grid.column.Edited', {
+    extend: 'Ext.grid.column.Column',
+    xtype: 'edited-column',
+    header: Uni.I18n.translate('editedDate.header', 'UNI', 'Edited'),
+    minWidth: 100,
+    align: 'left',
+
+    requires: [
+        'Uni.form.field.EditedDisplay'
+    ],
+
+    deferredRenderer: function (value, record, view) {
+        try {
+            var me = this,
+                cmp = view.getCell(record, me).down('.x-grid-cell-inner'),
+                field = new Uni.form.field.EditedDisplay({
+                fieldLabel: false
+            });
+            cmp.setHTML('');
+            field.setValue(value);
+            field.render(cmp);
+        } catch (e) {}
+    },
+
+    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
+        var me = metaData.column;
+
+        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+    }
+});
+
 Ext.define('Uni.grid.column.IntervalFlags', {
     extend: 'Ext.grid.column.Column',
     xtype: 'interval-flags-column',
@@ -5879,8 +6176,6 @@ Ext.define('Uni.grid.column.IntervalFlags', {
         cmp.setHTML('');
         field.setValue(value);
         field.render(cmp);
-
-        Ext.defer(view.updateLayout, 10, view);
     },
 
     renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
@@ -6173,9 +6468,9 @@ Ext.define('Uni.model.Script', {
 Ext.define('Uni.property.view.DefaultButton', {
     extend: 'Ext.button.Button',
     xtype: 'uni-default-button',
+
     border: 0,
-    icon: '../ext/packages/uni-theme-skyline/resources/images/form/restore.png',
-   // style: 'padding: 5px 3px 2px 3px;',
+    icon: '../sky/build/resources/images/form/restore.png',
     height: 28,
     width: 28,
     scale: 'small',
