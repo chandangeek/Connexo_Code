@@ -82,12 +82,12 @@ public class MeterReadingStorer {
         		meter.getReadingQualities(interval.toClosedRange())
         			.stream()
         			.filter(this::isRelevant)
-        			.collect(Collectors.toList()));
+        			.collect(Collectors.<ReadingQualityRecord>toList()));
         }
         storeReadingQualities();
         eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getInterval().getStart().getTime(), facade.getInterval().getEnd().getTime()));
     }
-        
+
     private boolean isRelevant(ReadingQualityRecord readingQuality) {
     	Map<Date, BaseReading> readingMap = channelReadings.get(readingQuality.getChannel());
     	return readingMap != null && readingMap.containsKey(readingQuality.getReadingTimestamp());
@@ -266,28 +266,28 @@ public class MeterReadingStorer {
     private void addedReading(Channel channel, BaseReading reading) {
     	channelReadings.computeIfAbsent(channel , key -> new HashMap<>()).put(reading.getTimeStamp(), reading);
     }
-    
+
     private void storeReadingQualities() {
     	dataModel.mapper(ReadingQualityRecord.class).persist(
     		channelReadings.entrySet().stream()
     			.flatMap(entry -> buildReadingQualities(entry.getKey() , entry.getValue().values()))
     			.collect(Collectors.toList()));
     }
-    
+
     private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel , Collection<BaseReading> readings) {
     	return readings.stream().flatMap(reading -> buildReadingQualities(channel, reading));
     }
-    
+
     private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel, BaseReading reading) {
     	return reading.getReadingQualities().stream().map(readingQuality -> buildReadingQualityRecord(channel, reading, readingQuality));
     }
-    
+
     private ReadingQualityRecord buildReadingQualityRecord(Channel channel, BaseReading reading, ReadingQuality readingQuality) {
     	ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()),channel,reading.getTimeStamp());
 		newReadingQuality.setComment(readingQuality.getComment());
 		return newReadingQuality;
     }
-    
+
     private Optional<ReadingQualityRecordImpl> find(Date timeStamp, String typeCode, List<? extends ReadingQuality> candidates) {
     	for (ReadingQuality each : candidates) {
     		ReadingQualityRecordImpl readingQuality = (ReadingQualityRecordImpl)  each;
