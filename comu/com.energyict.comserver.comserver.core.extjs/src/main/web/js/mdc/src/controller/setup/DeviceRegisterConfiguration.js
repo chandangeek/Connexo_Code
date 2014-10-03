@@ -93,7 +93,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     showDeviceRegisterConfigurationDetailsView: function (mRID, registerId) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
@@ -104,8 +103,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     success: function (register) {
                         var type = register.get('type');
                         var widget = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: mRID, registerId: registerId, router: me.getController('Uni.controller.history.Router')});
-                        var form = widget.down('#deviceRegisterConfigurationDetailForm');
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        var form = widget.down('#deviceRegisterConfigurationDetailForm');
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         form.loadRecord(register);
                         widget.down('#stepsMenu').setTitle(register.get('name'));

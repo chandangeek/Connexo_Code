@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
     requires: [
         'Mdc.view.setup.deviceregisterconfiguration.ActionMenu',
         'Uni.form.field.ReadingTypeDisplay',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Mdc.view.setup.deviceregisterconfiguration.ValidationPreview'
     ],
 
     initComponent: function () {

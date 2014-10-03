@@ -10,9 +10,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
 
     initComponent: function () {
         var me = this;
-        me.defaults = {
+        me.fieldDefaults = {
             xtype: 'displayfield',
-            labelWidth: this.inputLabelWidth
+            labelWidth: me.inputLabelWidth
         };
         me.items = [
             {
