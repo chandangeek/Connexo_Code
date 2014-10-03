@@ -273,15 +273,11 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
                 return false;
             }
             Comparator<? super Date> comparator = nullsLast(naturalOrder());
-            for (ChannelValidation channelValidation : getChannelValidations()) {
-                Date lastDateTime = channelValidation.getChannel().getLastDateTime();
-                Date lastChecked = channelValidation.getLastChecked();
-                if (channelValidation.hasActiveRules() && comparator.compare(lastChecked, lastDateTime) < 0) {
-                    return false;
-                }
-            }
+            return getChannelValidations().stream()
+                    .noneMatch(c -> c.hasActiveRules() && comparator.compare(c.getLastChecked(), c.getChannel().getLastDateTime()) < 0);
         }
-        return true;
+        return getChannelValidations().stream()
+                .noneMatch(ChannelValidation::hasActiveRules);
     }
 
     @Override
