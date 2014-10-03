@@ -4,22 +4,31 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CannotDeleteMeter;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -132,5 +141,16 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
         }
 
         super.delete();
+    }
+    
+    @Override
+    public List<? extends ReadingQualityRecord> getReadingQualities(Range<Instant> range) {
+    	if (!range.hasLowerBound() && !range.hasUpperBound()) {
+    		throw new IllegalArgumentException();
+    	}
+    	QueryExecutor<ReadingQualityRecord> query = getDataModel().query(ReadingQualityRecord.class, Channel.class, MeterActivation.class);
+    	Condition condition = Where.where("channel.meterActivation.meter").isEqualTo(this);
+    	condition = condition.and(Where.where("readingTimestamp").in(range));
+    	return query.select(condition);
     }
 }

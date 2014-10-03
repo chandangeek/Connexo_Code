@@ -139,6 +139,11 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         dataModel.mapper(ReadingQualityRecord.class).remove(this);
         eventService.postEvent(EventType.READING_QUALITY_DELETED.topic(), new LocalEventSource(this));
     }
+    
+    @Override
+    public long getVersion() {
+    	return version;
+    }
 
     public class LocalEventSource {
         private final ReadingQualityRecordImpl readingQuality;
@@ -158,5 +163,6 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         public String getTypeCode() {
             return readingQuality.typeCode;
         }
+       
     }
 }

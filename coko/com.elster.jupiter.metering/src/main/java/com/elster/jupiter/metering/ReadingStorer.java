@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import java.time.Instant;
 import java.util.Map;
 
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -16,4 +17,6 @@ public interface ReadingStorer {
 	void addReading(Channel channel, BaseReading reading, ProcessStatus status);
 
     Map<Channel, Interval> getScope();
+    
+    boolean processed(Channel channel, Instant instant);
 }
