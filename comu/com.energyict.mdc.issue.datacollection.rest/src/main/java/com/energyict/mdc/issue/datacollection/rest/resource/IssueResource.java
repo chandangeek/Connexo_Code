@@ -65,7 +65,7 @@ public class IssueResource extends BaseResource {
         try (TransactionContext context = getTransactionService().getContext()) {
             IssueGroupFilter filter = new IssueGroupFilter();
             filter.using(getQueryApiClass(params)) // Issues, Historical Issues or Both
-                    .onlyGroupWithKey(params.getFirstLong(ID)) // Reason id
+                    .onlyGroupWithKey(params.getFirst(ID)) // Reason id
                     .withIssueType(params.getFirst(ISSUE_TYPE)) // Reasons only with specific issue type
                     .withStatuses(params.get(STATUS)) // All selected statuses
                     .withAssigneeType(params.getFirst(ASSIGNEE_TYPE)) // User, Group ot Role type of assignee
