@@ -30,8 +30,14 @@ Ext.define('Mdc.controller.setup.Messages', {
             },
             'button[name=messageInfoIcon]': {
                 click: this.onMessagesGridInfoIconClick
+            },
+            '#messages-categories-actionmenu': {
+                click: this.onMessagesCategoriesActionMenuClick
+            },
+            '#messages-actionmenu': {
+                click: this.onMessagesActionMenuClick
             }
-        })
+        });
     },
 
     showMessagesOverview: function (deviceTypeId, deviceConfigId) {
@@ -171,6 +177,125 @@ Ext.define('Mdc.controller.setup.Messages', {
 
     onMessagesGridInfoIconClick: function () {
         Ext.widget('privileges-info-panel');
+    },
+
+    onMessagesCategoriesActionMenuClick: function (menu, item) {
+        var messagesCategory = this.getMessagesCategoriesGrid().getSelectionModel().getSelection()[0];
+        if (messagesCategory) {
+            switch (item.action) {
+                case 'deactivateAll':
+                    this.deactivateAll(messagesCategory);
+                    break;
+                default:
+                    this.showSelectPrivilegesPanel(messagesCategory, item.action);
+            }
+        }
+    },
+
+    onMessagesActionMenuClick: function (menu, item) {
+        var message = this.getMessagesGrid().getSelectionModel().getSelection()[0];
+        if (message) {
+            switch (item.action) {
+                case 'deactivate':
+                    this.deactivate(message);
+                    break;
+                default:
+                    this.showSelectPrivilegesPanel(message, item.action);
+            }
+        }
+    },
+
+    showSelectPrivilegesPanel: function (record, action) {
+        var me = this,
+            isMessageCategory = !Ext.isEmpty(record.get('DeviceMessageCategory')),
+            recordName = isMessageCategory ? record.get('DeviceMessageCategory') : record.get('name'),
+
+            selectPrivilegesPanel = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                confirmation: function () {
+                    var privileges = this.down('checkboxgroup').getValues().privileges;
+                    me[action](record, privileges);
+                    this.close();
+                },
+                listeners: {
+                    close: function () {
+                        this.destroy()
+                    }
+                }
+            });
+
+        selectPrivilegesPanel.add(
+            Ext.create('Ext.container.Container', {
+                width: 400,
+                items: [
+                    {
+                        xtype: 'checkboxgroup',
+                        fieldLabel: Uni.I18n.translate('messages.selectPrivilegesPanel.label', 'MDC', 'Privileges'),
+                        labelAlign: 'left',
+                        labelStyle: 'padding-left: 53px',
+                        labelPad: 50,
+                        columns: 1,
+                        vertical: true,
+                        items: [
+                            { boxLabel: 'Level 1', name: 'privileges', inputValue: '1', checked: true },
+                            { boxLabel: 'Level 2', name: 'privileges', inputValue: '2', checked: true },
+                            { boxLabel: 'Level 3', name: 'privileges', inputValue: '3', checked: true },
+                            { boxLabel: 'Level 4', name: 'privileges', inputValue: '4' }
+                        ]
+                    }
+                ]
+            })
+        );
+
+        selectPrivilegesPanel.show({
+            title: isMessageCategory ?
+                Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of messages of '{0}'") :
+                Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for message '{0}'"),
+
+            msg: isMessageCategory ? Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the messages that weren`t already active.') : ''
+        });
+    },
+
+    activateAll: function (messagesCategory, privileges) {
+        // Should be integrated with REST when it will be ready
+        var inactiveEnablements = [];
+        Ext.each(messagesCategory.DeviceMessageEnablementsStore.getRange(), function (e) {
+            if (!e.get('active')) inactiveEnablements.push(e);
+        });
+        console.log('List of inactive messages for activation', inactiveEnablements, 'List of privileges', privileges);
+    },
+
+    deactivateAll: function (messagesCategory) {
+        // Should be integrated with REST when it will be ready
+        var activeEnablements = [];
+        Ext.each(messagesCategory.DeviceMessageEnablementsStore.getRange(), function (e) {
+            if (e.get('active')) activeEnablements.push(e);
+        });
+        console.log('List of active messages for deactivation', activeEnablements);
+    },
+
+    changePrivilegesForAll: function (messagesCategory, privileges) {
+        // Should be integrated with REST when it will be ready
+        var activeEnablements = [];
+        Ext.each(messagesCategory.DeviceMessageEnablementsStore.getRange(), function (e) {
+            if (e.get('active')) activeEnablements.push(e);
+        });
+        console.log('List of active messages for change privileges', activeEnablements, 'List of privileges', privileges);
+    },
+
+    activate: function (message, privileges) {
+        // Should be integrated with REST when it will be ready
+        console.log('Message for activation', message, 'List of privileges', privileges);
+    },
+
+    deactivate: function (message) {
+        // Should be integrated with REST when it will be ready
+        console.log('Message for deactivation', message);
+    },
+
+    changePrivileges: function (message, privileges) {
+        // Should be integrated with REST when it will be ready
+        console.log('Message for change privileges', message, 'List of privileges', privileges);
     }
 });
 

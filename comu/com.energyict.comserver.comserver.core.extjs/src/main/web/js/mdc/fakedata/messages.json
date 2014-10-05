@@ -50,8 +50,10 @@
                 },
                 {
                     "name": "Aprobator third",
-                    "active": "false",
-                    "privileges": []
+                    "active": "true",
+                    "privileges": [
+                        "level2"
+                    ]
                 }
             ]
         },

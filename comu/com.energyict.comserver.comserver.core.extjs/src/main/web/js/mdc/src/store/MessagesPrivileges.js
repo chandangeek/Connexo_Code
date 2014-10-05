@@ -14,5 +14,11 @@ Ext.define('Mdc.store.MessagesPrivileges', {
             type: 'json',
             root: 'privileges'
         }
-    }
+    },
+    sorters: [
+        {
+            property: 'name',
+            direction: 'ASC'
+        }
+    ]
 });
