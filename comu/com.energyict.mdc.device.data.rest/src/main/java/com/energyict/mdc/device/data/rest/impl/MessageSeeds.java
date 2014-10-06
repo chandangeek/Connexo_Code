@@ -27,7 +27,6 @@ public enum MessageSeeds implements MessageSeed {
     UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED(27,"updateDialectPropertiesNotAllowed" ,"Protocol dialect update not allowed"),
     UPDATE_CONNECTION_METHOD_NOT_ALLOWED(28,"updateConnectionMethodNotAllowed" ,"Connection method update not allowed"),
     RUN_COMTASK__NOT_ALLOWED(29,"runComTaskNotAllowed" ,"Running of this communication task is not allowed"),
-    NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD(30,"noSuchComSession" ,"No such communication session exists for this connection method"),
     POWERDOWN(31, ProfileStatus.Flag.POWERDOWN.name(), "Power down"),
     POWERUP(32, ProfileStatus.Flag.POWERUP.name(), "Power up"),
     SHORTLONG(33, ProfileStatus.Flag.SHORTLONG.name(), "Short long"),
@@ -75,6 +74,7 @@ public enum MessageSeeds implements MessageSeed {
     TIME_ERROR(85, "TimeError", "Time error"),
     UNEXPECTED_ERROR(86, "UnexpectedError", "Unexpected error"),
     INDIVIDUAL(87, "Individual", "Individual"),
+    NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD(88,"noSuchComSession" ,"No such communication session exists for this connection method"),
     ;
 
     private final int number;
