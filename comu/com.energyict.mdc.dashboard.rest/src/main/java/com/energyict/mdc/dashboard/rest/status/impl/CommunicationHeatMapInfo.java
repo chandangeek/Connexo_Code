@@ -5,6 +5,7 @@ import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
+import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import java.util.ArrayList;
 import java.util.Collections;

@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -71,7 +72,7 @@ public class ComTaskExecutionInfoFactory {
         }
         info.urgency = comTaskExecution.getExecutionPriority();
         info.currentState=new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
-        info.latestResult=comTaskExecutionSession.isPresent()?CompletionCodeInfo.from(comTaskExecutionSession.get().getHighestPriorityCompletionCode(), thesaurus):null;
+        info.latestResult=comTaskExecutionSession.isPresent()? CompletionCodeInfo.from(comTaskExecutionSession.get().getHighestPriorityCompletionCode(), thesaurus):null;
         info.startTime=comTaskExecution.getLastExecutionStartTimestamp();
         info.successfulFinishTime=comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication=comTaskExecution.getNextExecutionTimestamp();
