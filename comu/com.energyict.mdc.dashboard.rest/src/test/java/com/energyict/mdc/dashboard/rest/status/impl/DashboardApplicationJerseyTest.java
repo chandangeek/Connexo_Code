@@ -1,17 +1,22 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import javax.ws.rs.core.Application;
+
 import org.mockito.Mock;
 
 /**
@@ -22,7 +27,11 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Mock
     StatusService statusService;
     @Mock
-    DeviceDataService deviceDataService;
+    ConnectionTaskService connectionTaskService;
+    @Mock
+    CommunicationTaskService communicationTaskService;
+    @Mock
+    DeviceService deviceService;
     @Mock
     SchedulingService schedulingService;
     @Mock
@@ -46,7 +55,9 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         DashboardApplication dashboardApplication = new DashboardApplication();
         dashboardApplication.setDashboardService(dashboardService);
         dashboardApplication.setDeviceConfigurationService(deviceConfigurationService);
-        dashboardApplication.setDeviceDataService(deviceDataService);
+        dashboardApplication.setConnectionTaskService(connectionTaskService);
+        dashboardApplication.setCommunicationTaskService(communicationTaskService);
+        dashboardApplication.setDeviceService(deviceService);
         dashboardApplication.setEngineModelService(engineModelService);
         dashboardApplication.setNlsService(nlsService);
         dashboardApplication.setProtocolPluggableService(protocolPluggableService);

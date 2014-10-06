@@ -1,9 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -13,16 +12,17 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 
 /**
  * Created by bvn on 9/1/14.
@@ -32,13 +32,13 @@ public class ComTaskExecutionInfoFactory {
     private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new ComTaskExecutionComparator();
 
     private final Thesaurus thesaurus;
-    private final DeviceDataService deviceDataService;
+    private final CommunicationTaskService communicationTaskService;
     private final Provider<ConnectionTaskInfoFactory> connectionTaskInfoFactory;
 
     @Inject
-    public ComTaskExecutionInfoFactory(Thesaurus thesaurus, DeviceDataService deviceDataService, Provider<ConnectionTaskInfoFactory> connectionTaskInfoFactoryProvider) {
+    public ComTaskExecutionInfoFactory(Thesaurus thesaurus, CommunicationTaskService communicationTaskService, Provider<ConnectionTaskInfoFactory> connectionTaskInfoFactoryProvider) {
         this.thesaurus = thesaurus;
-        this.deviceDataService = deviceDataService;
+        this.communicationTaskService = communicationTaskService;
         this.connectionTaskInfoFactory = connectionTaskInfoFactoryProvider;
     }
 
@@ -90,7 +90,7 @@ public class ComTaskExecutionInfoFactory {
         List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(comTaskExecutions.size());
         Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            comTaskExecutionInfos.add(this.from(comTaskExecution, deviceDataService.findLastSessionFor(comTaskExecution)));
+            comTaskExecutionInfos.add(this.from(comTaskExecution, communicationTaskService.findLastSessionFor(comTaskExecution)));
         }
         return comTaskExecutionInfos;
     }

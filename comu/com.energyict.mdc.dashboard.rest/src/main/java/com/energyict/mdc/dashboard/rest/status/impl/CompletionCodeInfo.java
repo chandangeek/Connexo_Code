@@ -16,7 +16,9 @@ class CompletionCodeInfo {
     public static CompletionCodeInfo from(CompletionCode completionCode, Thesaurus thesaurus) throws Exception {
         CompletionCodeInfo info = new CompletionCodeInfo();
         info.id=completionCode;
-        info.displayValue=thesaurus.getString(COMPLETION_CODE_ADAPTER.marshal(completionCode),COMPLETION_CODE_ADAPTER.marshal(completionCode));
+        if (completionCode!=null) {
+            info.displayValue = thesaurus.getString(COMPLETION_CODE_ADAPTER.marshal(completionCode), COMPLETION_CODE_ADAPTER.marshal(completionCode));
+        }
         return info;
     }
 }
