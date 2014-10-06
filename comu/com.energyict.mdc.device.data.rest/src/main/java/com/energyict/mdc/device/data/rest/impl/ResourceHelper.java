@@ -10,7 +10,7 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.google.common.base.Optional;
@@ -24,20 +24,20 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class ResourceHelper {
 
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
     private final MeteringService meteringService;
 
     @Inject
-    public ResourceHelper(DeviceDataService deviceDataService, ExceptionFactory exceptionFactory, MeteringService meteringService) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, MeteringService meteringService) {
         super();
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
         this.meteringService = meteringService;
     }
 
     public Device findDeviceByMrIdOrThrowException(String mRID) {
-        Device device = deviceDataService.findByUniqueMrid(mRID);
+        Device device = deviceService.findByUniqueMrid(mRID);
         if (device == null) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mRID);
         }

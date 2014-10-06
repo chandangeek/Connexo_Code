@@ -29,7 +29,8 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -61,7 +62,8 @@ public class DeviceApplication extends Application implements InstallService {
 
     private volatile MasterDataService masterDataService;
 
-    private volatile DeviceDataService deviceDataService;
+    private volatile ConnectionTaskService connectionTaskService;
+    private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceImportService deviceImportService;
@@ -99,7 +101,8 @@ public class DeviceApplication extends Application implements InstallService {
                 LogBookResource.class,
                 DeviceFieldResource.class,
                 ChannelResource.class,
-                DeviceGroupResource.class
+                DeviceGroupResource.class,
+                ConnectionMethodResource.class
         );
     }
 
@@ -122,8 +125,13 @@ public class DeviceApplication extends Application implements InstallService {
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
@@ -204,6 +212,7 @@ public class DeviceApplication extends Application implements InstallService {
         return Arrays.asList("NLS");
     }
 
+
     private void createTranslations() {
         try {
             Map<String, Translation> translations = new HashMap<>();
@@ -236,7 +245,8 @@ public class DeviceApplication extends Application implements InstallService {
         @Override
         protected void configure() {
             bind(masterDataService).to(MasterDataService.class);
-            bind(deviceDataService).to(DeviceDataService.class);
+            bind(connectionTaskService).to(ConnectionTaskService.class);
+            bind(deviceService).to(DeviceService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(transactionService).to(TransactionService.class);

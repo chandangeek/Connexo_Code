@@ -1,15 +1,16 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
+import com.elster.jupiter.util.Checks;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -24,13 +25,13 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
     }
 
     @Override
-    protected void writeTo(InboundConnectionTask connectionTask, PartialConnectionTask partialConnectionTask, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
-        super.writeTo(connectionTask, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
+    protected void writeTo(InboundConnectionTask connectionTask, PartialConnectionTask partialConnectionTask, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
+        super.writeTo(connectionTask, partialConnectionTask, engineModelService, mdcPropertyUtils);
         connectionTask.setComPortPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (InboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
     }
 
     @Override
-    public ConnectionTask<?,?> createTask(DeviceDataService deviceDataService, EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask) {
+    public ConnectionTask<?,?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask) {
         if (!PartialInboundConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
             throw new WebApplicationException("Expected partial connection task to be 'Inbound'", Response.Status.BAD_REQUEST);
         }

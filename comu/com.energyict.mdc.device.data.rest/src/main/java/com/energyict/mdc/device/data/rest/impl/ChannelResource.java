@@ -79,6 +79,9 @@ public class ChannelResource {
         List<DataValidationStatus> states =
                 channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());
         channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, lastChecked(channel));
+        if (states.isEmpty()) {
+            channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.now());
+        }
     }
 
     @GET

@@ -10,7 +10,8 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -25,7 +26,9 @@ import javax.ws.rs.core.Application;
  */
 public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
-    DeviceDataService deviceDataService;
+    ConnectionTaskService connectionTaskService;
+    @Mock
+    DeviceService deviceService;
     @Mock
     DeviceImportService deviceImportService;
     @Mock
@@ -68,7 +71,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setJsonService(jsonService);
         application.setProtocolPluggableService(protocolPluggableService);
         application.setClockService(clock);
-        application.setDeviceDataService(deviceDataService);
+        application.setConnectionTaskService(connectionTaskService);
+        application.setDeviceService(deviceService);
         application.setDeviceImportService(deviceImportService);
         application.setEngineModelService(engineModelService);
         application.setIssueService(issueService);
