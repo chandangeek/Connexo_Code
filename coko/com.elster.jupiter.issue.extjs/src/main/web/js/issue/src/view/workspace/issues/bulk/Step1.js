@@ -6,7 +6,7 @@ Ext.define('Isu.view.workspace.issues.bulk.Step1', {
 
     requires: [
         'Isu.view.workspace.issues.List',
-        'Isu.util.FormErrorMessage',
+        'Uni.util.FormErrorMessage',
         'Isu.view.workspace.issues.bulk.IssuesSelectionGrid'
     ],
 
