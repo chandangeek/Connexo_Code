@@ -33,6 +33,16 @@ Ext.define('Dsh.view.widget.Overview', {
                 {property: 'count', direction: 'DESC'},
                 {property: 'displayName', direction: 'ASC'}
             ]);
+
+            item.counters().each(function (record) {
+                if (record.get('id')) {
+                    var filter = {};
+                    filter[item.get('alias')] = record.get('id');
+                    var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
+                    record.set('href', href);
+                }
+            });
+
             var panel = Ext.create('Ext.panel.Panel', {
                 style: {padding: '20px', marginRight: !(idx % 2) ? '20px' : 0},
                 ui: 'tile',
@@ -54,7 +64,11 @@ Ext.define('Dsh.view.widget.Overview', {
                                 '<tr>' +
                                     '<td width="50%">' +
                                         '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">' +
-                                            '<a href="#{id}">{displayName}</a>' +
+                                            '<tpl if="href">' +
+                                                '<a href="{href}">{displayName}</a>' +
+                                            '<tpl else>' +
+                                                '{displayName}' +
+                                            '</tpl>' +
                                         '</div>' +
                                     '</td>' +
                                     '<td width="50%" id="bar-{#}"></td>' +
@@ -74,13 +88,6 @@ Ext.define('Dsh.view.widget.Overview', {
                                     count: record.get('count'),
                                     label: record.get('count')
                                 }).render(view.getEl().down('#bar-' + pos));
-
-                                var filter = {};
-                                if (record.get('id')) {
-                                    filter[item.get('alias')] = record.get('id');
-                                    var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
-                                    view.getEl().down('.item-' + pos + ' > tr > td > div > a').set({ href: href });
-                                }
                             });
                         }
                     }
