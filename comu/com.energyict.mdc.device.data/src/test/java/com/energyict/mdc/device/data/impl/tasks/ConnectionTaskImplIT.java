@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -35,20 +38,17 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.time.UtcInstant;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Provides code reuse opportunities for test classes
@@ -115,7 +115,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
 
     @Before
-    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
+    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
         this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
     }
 
@@ -128,7 +128,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @BeforeClass
-    public static void registerConnectionTypePluggableClasses () {
+    public static void registerConnectionTypePluggableClasses() {
         inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -142,7 +142,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         });
     }
 
-    protected void refreshConnectionTypePluggableClasses () {
+    protected void refreshConnectionTypePluggableClasses() {
         outboundNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class);
         inboundNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(InboundNoParamsConnectionTypeImpl.class);
         inboundIpConnectionTypePluggableClass = refreshConnectionTypePluggableClass(InboundIpConnectionTypeImpl.class);
@@ -159,7 +159,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return connectionTypePluggableClass;
     }
 
-    private static <T extends ConnectionType> ConnectionTypePluggableClass refreshConnectionTypePluggableClass (Class<T> connectionTypeClass) {
+    private static <T extends ConnectionType> ConnectionTypePluggableClass refreshConnectionTypePluggableClass(Class<T> connectionTypeClass) {
         List<ConnectionTypePluggableClass> connectionTypePluggableClasses =
                 inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClassByClassName(connectionTypeClass.getName());
         return connectionTypePluggableClasses.get(0);
@@ -174,7 +174,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @AfterClass
-    public static void deleteConnectionTypePluggableClasses () {
+    public static void deleteConnectionTypePluggableClasses() {
         inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -195,7 +195,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @AfterClass
-    public static void deleteDiscoveryProtocolPluggableClasses () {
+    public static void deleteDiscoveryProtocolPluggableClasses() {
         inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -211,14 +211,14 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @BeforeClass
-    public static void createComPortPools () {
+    public static void createComPortPools() {
         registerDiscoveryProtocolPluggableClasses();
         createIpComPortPools();
         createModemComPortPools();
     }
 
     @AfterClass
-    public static void deleteComPortPools () {
+    public static void deleteComPortPools() {
         inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -302,7 +302,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @Before
-    public void setupComServers () {
+    public void setupComServers() {
         this.onlineComServer = createComServer("First");
         this.otherOnlineComServer = createComServer("Second");
     }
@@ -322,7 +322,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @Before
-    public void reloadConnectionTypePluggableClasses () {
+    public void reloadConnectionTypePluggableClasses() {
         outboundNoParamsConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(outboundNoParamsConnectionTypePluggableClass.getId());
         inboundNoParamsConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(inboundNoParamsConnectionTypePluggableClass.getId());
         inboundIpConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().findConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass.getId());
@@ -332,7 +332,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @Before
-    public void initializeMocks () {
+    public void initializeMocks() {
         super.initializeMocks();
         this.device = createSimpleDevice("First");
         this.otherDevice = createSimpleDevice("Second");
@@ -445,7 +445,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
     }
 
-    private ComTask createComTaskWithLogBooks(){
+    private ComTask createComTaskWithLogBooks() {
         ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME + 2);
         comTask.setStoreData(true);
         comTask.setMaxNrOfTries(maxNrOfTries);
@@ -454,7 +454,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
     }
 
-    private ComTask createComTaskWithRegisters(){
+    private ComTask createComTaskWithRegisters() {
         ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME + 3);
         comTask.setStoreData(true);
         comTask.setMaxNrOfTries(maxNrOfTries);
@@ -476,11 +476,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return comTaskExecution;
     }
 
-    protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(ConnectionTask<?, ?> connectionTask, Date nextExecutionTimeStamp){
+    protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(ConnectionTask<?, ?> connectionTask, Date nextExecutionTimeStamp) {
         return createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextExecutionTimeStamp, comTaskEnablement1);
     }
 
-    protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?,?> connectionTask, Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement){
+    protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?, ?> connectionTask, Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, this.protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.connectionTask(connectionTask);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();

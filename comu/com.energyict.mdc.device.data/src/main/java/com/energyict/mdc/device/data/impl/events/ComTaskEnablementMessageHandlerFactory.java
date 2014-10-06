@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -11,6 +8,8 @@ import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
@@ -86,8 +85,7 @@ public abstract class ComTaskEnablementMessageHandlerFactory implements MessageH
                     }
                 });
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -96,8 +94,7 @@ public abstract class ComTaskEnablementMessageHandlerFactory implements MessageH
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
         if (destinationSpec.isPresent()) {
             destinationSpec.get().subscribe(this.subscriberName);
-        }
-        else {
+        } else {
             throw new IllegalStateException("JUPITER_EVENTS destination is missing");
         }
     }

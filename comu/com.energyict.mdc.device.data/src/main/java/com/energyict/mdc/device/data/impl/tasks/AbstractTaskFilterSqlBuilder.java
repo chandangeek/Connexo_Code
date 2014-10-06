@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
-
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import org.joda.time.DateTimeConstants;
 
 import java.util.Collection;
@@ -57,15 +56,15 @@ public abstract class AbstractTaskFilterSqlBuilder {
         this.actualBuilder.appendWhereOrAnd();
     }
 
-    protected void addString (String bindValue) {
+    protected void addString(String bindValue) {
         this.actualBuilder.addObject(bindValue);
     }
 
-    protected void addInt (int bindValue) {
+    protected void addInt(int bindValue) {
         this.actualBuilder.addInt(bindValue);
     }
 
-    protected void addLong (long bindValue) {
+    protected void addLong(long bindValue) {
         this.actualBuilder.addLong(bindValue);
     }
 
@@ -82,8 +81,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(columnName);
             this.append(" = ");
             this.addLong(idBusinessObjects.iterator().next().getId());
-        }
-        else {
+        } else {
             List<List<? extends HasId>> chunksOfIdBusinessObjects = this.chopUp(idBusinessObjects);
             Iterator<List<? extends HasId>> chunkIterator = chunksOfIdBusinessObjects.iterator();
             while (chunkIterator.hasNext()) {
@@ -104,7 +102,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
      * @param idBusinessObjects The Set of HasId
      * @return The list of chunks
      */
-    protected List<List<? extends HasId>> chopUp (Set<? extends HasId> idBusinessObjects) {
+    protected List<List<? extends HasId>> chopUp(Set<? extends HasId> idBusinessObjects) {
         return Chopper.chopUp(idBusinessObjects).into(MAX_ELEMENTS_FOR_IN_CLAUSE);
     }
 
@@ -159,8 +157,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(" <");
             this.addLong(interval.getEnd().getTime() / DateTimeConstants.MILLIS_PER_SECOND);
             this.append(") ");
-        }
-        else {
+        } else {
             this.append(") ");
         }
     }

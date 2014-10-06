@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -13,15 +16,12 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.util.time.Interval;
+import org.assertj.core.api.Condition;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.List;
-
-import org.assertj.core.api.Condition;
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -40,7 +40,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
 
     @Before
-    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
+    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
         this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
     }
 

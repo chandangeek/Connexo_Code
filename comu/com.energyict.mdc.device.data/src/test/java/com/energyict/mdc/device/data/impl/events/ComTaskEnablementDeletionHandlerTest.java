@@ -15,9 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComTaskEnablementDeletionHandler} component.
@@ -48,7 +46,7 @@ public class ComTaskEnablementDeletionHandlerTest {
     private Thesaurus thesaurus;
 
     @Before
-    public void initializeMocks () {
+    public void initializeMocks() {
         when(this.deviceConfiguration.getName()).thenReturn(ComTaskEnablementDeletionHandlerTest.class.getSimpleName());
         when(this.deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(this.comTask.getId()).thenReturn(COMTASK_ID);
@@ -62,7 +60,7 @@ public class ComTaskEnablementDeletionHandlerTest {
     }
 
     @Test
-    public void testDeleteUnused () {
+    public void testDeleteUnused() {
         LocalEvent localEvent = mock(LocalEvent.class);
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(ComTaskEnablementDeletionHandler.TOPIC);
@@ -77,7 +75,7 @@ public class ComTaskEnablementDeletionHandlerTest {
     }
 
     @Test(expected = VetoDeleteComTaskEnablementException.class)
-    public void testDeleteUsed () {
+    public void testDeleteUsed() {
         LocalEvent localEvent = mock(LocalEvent.class);
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(ComTaskEnablementDeletionHandler.TOPIC);

@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -14,11 +18,6 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -69,17 +68,17 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
     }
 
     @Override
-    protected Class<PartialConnectionInitiationTask> getPartialConnectionTaskType () {
+    protected Class<PartialConnectionInitiationTask> getPartialConnectionTaskType() {
         return PartialConnectionInitiationTask.class;
     }
 
     @Override
-    public void scheduledComTaskRescheduled (ComTaskExecution comTask) {
+    public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         // No implementation required
     }
 
     @Override
-    public void scheduledComTaskChangedPriority (ComTaskExecution comTask) {
+    public void scheduledComTaskChangedPriority(ComTaskExecution comTask) {
         // No implementation required
     }
 

@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
@@ -9,16 +13,11 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
-
 /**
  * Provides an abstract implementation for the {@link OutboundConnectionTask} interface,
  * leaving a number of details to the expected subclasses that will deal
  * with scheduling and initiation.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 13/09/12
  * Time: 13:10
@@ -41,7 +40,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     }
 
     @Override
-    protected void doExecutionStarted (ComServer comServer) {
+    protected void doExecutionStarted(ComServer comServer) {
         super.doExecutionStarted(comServer);
         this.lastExecutionFailed = false;
     }
@@ -53,13 +52,12 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     }
 
     @Override
-    public void executionFailed () {
+    public void executionFailed() {
         this.setExecutingComServer(null);
         this.incrementCurrentRetryCount();
         if (doWeNeedToRetryTheConnectionTask()) {
             this.doExecutionAttemptFailed();
-        }
-        else {
+        } else {
             this.doExecutionFailed();
         }
         this.post();
@@ -69,11 +67,11 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
         return currentRetryCount < this.getMaxNumberOfTries();
     }
 
-    protected void doExecutionAttemptFailed () {
+    protected void doExecutionAttemptFailed() {
         this.lastExecutionFailed = true;
     }
 
-    protected void doExecutionFailed () {
+    protected void doExecutionFailed() {
         this.lastExecutionFailed = true;
     }
 
@@ -114,8 +112,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     protected TimeDuration getRescheduleRetryDelay() {
         if (this.getRescheduleDelay() == null || getRescheduleDelay().getSeconds() <= 0) {
             return new TimeDuration(DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS, TimeDuration.SECONDS);
-        }
-        else {
+        } else {
             return this.getRescheduleDelay();
         }
     }

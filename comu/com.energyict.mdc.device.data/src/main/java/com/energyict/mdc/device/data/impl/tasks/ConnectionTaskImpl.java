@@ -1,5 +1,16 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -42,18 +53,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
@@ -84,13 +83,13 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
         extends PersistentIdObject<ConnectionTask>
         implements
-            ConnectionTask<CPPT, PCTT>,
-            ConnectionTaskPropertyProvider,
-            CanLock,
-            DefaultRelationParticipant,
-            PropertyFactory<ConnectionType, ConnectionTaskProperty>,
-            HasLastComSession,
-            PersistenceAware {
+        ConnectionTask<CPPT, PCTT>,
+        ConnectionTaskPropertyProvider,
+        CanLock,
+        DefaultRelationParticipant,
+        PropertyFactory<ConnectionType, ConnectionTaskProperty>,
+        HasLastComSession,
+        PersistenceAware {
 
     public static final String INITIATOR_DISCRIMINATOR = "0";
     public static final String INBOUND_DISCRIMINATOR = "1";
@@ -162,7 +161,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.allowIncomplete = this.status.equals(ConnectionTaskLifecycleStatus.INCOMPLETE);
     }
 
-    boolean isAllowIncomplete(){
+    boolean isAllowIncomplete() {
         return this.allowIncomplete;
     }
 
@@ -235,7 +234,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     protected void deleteDependents() {
-            this.unRegisterConnectionTaskFromComTasks();
+        this.unRegisterConnectionTaskFromComTasks();
     }
 
     /**
@@ -256,12 +255,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.saveAllProperties();
     }
 
-    protected void saveAllProperties () {
+    protected void saveAllProperties() {
         if (this.cache.isDirty()) {
             if (this.getTypedProperties().localSize() == 0) {
                 this.removeAllProperties();
-            }
-            else {
+            } else {
                 this.saveAllProperties(
                         this.getAllProperties(),
                         new SimpleRelationTransactionExecutor<ConnectionType>(
@@ -278,8 +276,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         if (relation != null) {
             try {
                 relation.makeObsolete();
-            }
-            catch (BusinessException e) {
+            } catch (BusinessException e) {
                 throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName());
             }
             // Cannot collapse catch blocks because of the constructor
@@ -340,8 +337,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         for (Relation relation : relations) {
             try {
                 relation.makeObsolete();
-            }
-            catch (BusinessException | SQLException e) {
+            } catch (BusinessException | SQLException e) {
                 throw new RelationIsAlreadyObsoleteException(this.getThesaurus(), relation.getRelationType().getName());
             }
         }
@@ -483,8 +479,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
          * In that case, no relation type was created. */
         if (defaultRelation != null) {
             return this.toProperties(defaultRelation);
-        }
-        else {
+        } else {
             return new ArrayList<>(0);
         }
     }
@@ -669,8 +664,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                 this.lastSession.set(session);
                 this.post();
             }
-        }
-        else {
+        } else {
             this.lastSession.set(session);
             this.post();
         }
@@ -682,12 +676,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         if (lastComSession.isPresent()) {
             if (lastComSession.get().wasSuccessful()) {
                 return ConnectionTask.SuccessIndicator.SUCCESS;
-            }
-            else {
+            } else {
                 return ConnectionTask.SuccessIndicator.FAILURE;
             }
-        }
-        else {
+        } else {
             return ConnectionTask.SuccessIndicator.NOT_APPLICABLE;
         }
     }
@@ -697,8 +689,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         Optional<ComSession> lastComSession = this.getLastComSession();
         if (lastComSession.isPresent()) {
             return Optional.of(lastComSession.get().getSuccessIndicator());
-        }
-        else {
+        } else {
             return Optional.absent();
         }
     }
@@ -708,8 +699,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         Optional<ComSession> lastComSession = this.getLastComSession();
         if (lastComSession.isPresent()) {
             return Optional.<TaskExecutionSummary>of(lastComSession.get());
-        }
-        else {
+        } else {
             return Optional.absent();
         }
     }
@@ -841,7 +831,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         post();
     }
 
-    boolean isActive(){
+    boolean isActive() {
         return this.status.equals(ConnectionTaskLifecycleStatus.ACTIVE);
     }
 
@@ -898,7 +888,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      *
      * @return true if everything is valid, false otherwise
      */
-    boolean isValidConnectionTask(){
+    boolean isValidConnectionTask() {
         try {
             Save.CREATE.validate(this.getDataModel(), this, Save.Update.class);
         } catch (Exception e) {
@@ -951,8 +941,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         private void validate(ConnectionTaskProperty property) {
             try {
                 this.validate((ConnectionTaskPropertyImpl) property);
-            }
-            catch (ClassCastException e) {
+            } catch (ClassCastException e) {
                 // property is not of the correct class, cannot have been created by this connection task
                 throw illegalArgumentException(property);
             }

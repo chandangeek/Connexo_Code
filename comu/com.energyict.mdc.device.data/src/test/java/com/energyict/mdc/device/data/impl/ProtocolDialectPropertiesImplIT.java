@@ -1,5 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -42,17 +52,13 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -63,11 +69,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -110,7 +111,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     private DeviceProtocolDialect deviceProtocolDialect;
 
     @BeforeClass
-    public static void setupDeviceProtocolAndDeviceConfiguration () {
+    public static void setupDeviceProtocolAndDeviceConfiguration() {
         inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -130,7 +131,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         });
     }
 
-    public static void registerDeviceProtocol () {
+    public static void registerDeviceProtocol() {
         deviceProtocolPluggableClass = registerDeviceProtocol(TestProtocol.class);
     }
 
@@ -143,7 +144,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     }
 
     @AfterClass
-    public static void deleteDeviceProtocol () {
+    public static void deleteDeviceProtocol() {
         inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -153,7 +154,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     }
 
     @Before
-    public void refreshConfigurationProperties () {
+    public void refreshConfigurationProperties() {
         deviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
         DeviceCommunicationConfiguration communicationConfiguration = deviceConfiguration.getCommunicationConfiguration();
         protocolDialect1ConfigurationProperties = this.getProtocolDialectConfigurationPropertiesFromConfiguration(communicationConfiguration, DIALECT_1_NAME);
@@ -762,15 +763,15 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             }
         }
 
-        private PropertySpec<String> requiredPropertySpec () {
+        private PropertySpec<String> requiredPropertySpec() {
             return new PropertySpecServiceImpl().basicPropertySpec(REQUIRED_PROPERTY_NAME_D1, true, new StringFactory());
         }
 
-        private PropertySpec<String> optionalPropertySpec () {
+        private PropertySpec<String> optionalPropertySpec() {
             return new PropertySpecServiceImpl().stringPropertySpec(OPTIONAL_PROPERTY_NAME_D1, false, OPTIONAL_PROPERTY_VALUE);
         }
 
-        private PropertySpec<String> optionalWithLongNamePropertySpec () {
+        private PropertySpec<String> optionalWithLongNamePropertySpec() {
             return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, false, new StringFactory());
         }
 
@@ -811,11 +812,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             }
         }
 
-        private PropertySpec<String> requiredPropertySpec () {
+        private PropertySpec<String> requiredPropertySpec() {
             return RequiredPropertySpecFactory.newInstance().stringPropertySpec(REQUIRED_PROPERTY_NAME_D2);
         }
 
-        private PropertySpec<String> optionalPropertySpec () {
+        private PropertySpec<String> optionalPropertySpec() {
             return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_NAME_D2, false, new StringFactory());
         }
 
@@ -843,7 +844,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             return this.dialectName;
         }
 
-        private void addPropertyRelation (Relation relation) {
+        private void addPropertyRelation(Relation relation) {
             this.propertyRelations.add(relation);
         }
 
@@ -852,8 +853,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
             List<Relation> filteredByDate = this.filterByDate(this.propertyRelations, date);
             if (includeObsolete) {
                 return filteredByDate;
-            }
-            else {
+            } else {
                 return this.filterObsolete(filteredByDate);
             }
         }

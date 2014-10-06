@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.Installer;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.impl.Installer;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name="com.energyict.mdc.device.data.comschedule.obsolete.backgroundhandler",
+@Component(name = "com.energyict.mdc.device.data.comschedule.obsolete.backgroundhandler",
         service = MessageHandlerFactory.class,
         property = {"subscriber=" + Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME, "destination=" + Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME},
         immediate = true)

@@ -1,5 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -10,17 +15,11 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
-
 import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link InboundConnectionTask} interface.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 25/09/12
  * Time: 9:49
@@ -34,7 +33,7 @@ public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInbound
     }
 
     @Override
-    protected Class<PartialInboundConnectionTask> getPartialConnectionTaskType () {
+    protected Class<PartialInboundConnectionTask> getPartialConnectionTaskType() {
         return PartialInboundConnectionTask.class;
     }
 

@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.energyict.mdc.device.data.DeviceDataServices;
 
 import java.util.logging.Level;
@@ -49,10 +48,10 @@ public enum MessageSeeds implements MessageSeed {
     OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY(2015, Keys.OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_KEY, "The offset of the next execution scheduling specifications should not extend its frequency", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW(2016, Keys.OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications is not within the communication window", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW(2017, Keys.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications within a week or month, once calculated back to a daily offset is not within the communication window", Level.SEVERE),
-    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(2018, Keys.PHYSICAL_GATEWAY_STILL_IN_USE,"You can not remove device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
-    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(2019, Keys.COMMUNICATION_GATEWAY_STILL_IN_USE,"You can not remove device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
-    DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST(2020, Keys.INFOTYPE_DOESNT_EXIST,"The intotype for property value '{0}' does not exist.", Level.SEVERE),
-    DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(2021, Keys.PROPERTY_NOT_ON_DEVICE_PROTOCOL,"The property '{0}' is not defined by the device protocol '{1}' of device '{2}'", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(2018, Keys.PHYSICAL_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(2019, Keys.COMMUNICATION_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
+    DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST(2020, Keys.INFOTYPE_DOESNT_EXIST, "The intotype for property value '{0}' does not exist.", Level.SEVERE),
+    DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(2021, Keys.PROPERTY_NOT_ON_DEVICE_PROTOCOL, "The property '{0}' is not defined by the device protocol '{1}' of device '{2}'", Level.SEVERE),
     PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED(2022, Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY, "The protocol dialect configuration properties are required to add device protocol dialect properties", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2023, Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2024, Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of device dialect protocol ''{2}''", Level.SEVERE),
@@ -77,8 +76,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_COMTASK_SCHEDULING(2045, Keys.DUPLICATE_COMTASK_SCHEDULING, "One or more communication tasks in the communication schedule are already scheduled on the device with a master communication schedule", SEVERE),
     COMTASK_CONFIGURATION_INCONSISTENT(2046, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The communication tasks in the communication schedule doesn't have the same connection method, security set, protocol dialect and/or urgency", SEVERE),
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2047, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
-    COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2048, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device", Level.SEVERE),
-    ;
+    COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2048, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device", Level.SEVERE),;
     private final int number;
     private final String key;
     private final String defaultFormat;

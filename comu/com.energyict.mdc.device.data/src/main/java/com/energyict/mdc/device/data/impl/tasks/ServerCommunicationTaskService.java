@@ -9,7 +9,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.google.common.base.Optional;
 
 /**
@@ -68,8 +67,8 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
      * Note that this will cause the execution to be put on hold
      * because it will no longer show up in the comserver task query.
      *
-     * @param comTask The ComTask
-     * @param deviceConfiguration The DeviceConfiguration
+     * @param comTask               The ComTask
+     * @param deviceConfiguration   The DeviceConfiguration
      * @param partialConnectionTask The PartialConnectionTask
      */
     public void removePreferredConnectionTask(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask partialConnectionTask);
@@ -82,8 +81,8 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
      * {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
      * that relates to the {@link PartialConnectionTask}.
      *
-     * @param comTask The ComTask
-     * @param deviceConfiguration The DeviceConfiguration
+     * @param comTask               The ComTask
+     * @param deviceConfiguration   The DeviceConfiguration
      * @param partialConnectionTask The PartialConnectionTask
      */
     public void switchFromDefaultConnectionTaskToPreferredConnectionTask(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask partialConnectionTask);
@@ -94,7 +93,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
      * of the specified {@link DeviceConfiguration}
      * to use the default connection task from now on.
      *
-     * @param comTask The ComTask
+     * @param comTask             The ComTask
      * @param deviceConfiguration The DeviceConfiguration
      */
     public void switchOnDefault(ComTask comTask, DeviceConfiguration deviceConfiguration);
@@ -107,7 +106,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
      * Note that they will continue to use the one that they are connected to,
      * which coincidently may be the default ConnectionTask of the Device.
      *
-     * @param comTask The ComTask
+     * @param comTask             The ComTask
      * @param deviceConfiguration The DeviceConfiguration
      */
     public void switchOffDefault(ComTask comTask, DeviceConfiguration deviceConfiguration);
@@ -120,11 +119,11 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
      * that relates to the {@link PartialConnectionTask},
      * to use the default connection task from now on.
      *
-     * @param comTask The ComTask
-     * @param deviceConfiguration The DeviceConfiguration
+     * @param comTask                       The ComTask
+     * @param deviceConfiguration           The DeviceConfiguration
      * @param previousPartialConnectionTask The PartialConnectionTask
      */
-    public void switchFromPreferredConnectionTaskToDefault (ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask);
+    public void switchFromPreferredConnectionTaskToDefault(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask);
 
     /**
      * Updates the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
@@ -133,12 +132,12 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
      * of the specified {@link DeviceConfiguration} that have not overruled
      * the previous preferred connection task.
      *
-     * @param comTask The ComTask
-     * @param deviceConfiguration The DeviceConfiguration
+     * @param comTask                       The ComTask
+     * @param deviceConfiguration           The DeviceConfiguration
      * @param previousPartialConnectionTask The previous preferred {@link PartialConnectionTask}
-     * @param newPartialConnectionTask The new preferred PartialConnectionTask
+     * @param newPartialConnectionTask      The new preferred PartialConnectionTask
      */
-    public void preferredConnectionTaskChanged (ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask, PartialConnectionTask newPartialConnectionTask);
+    public void preferredConnectionTaskChanged(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask, PartialConnectionTask newPartialConnectionTask);
 
     /**
      * Updates the priority of all the executions of the specified {@link ComTask}
@@ -146,12 +145,12 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
      * of the specified {@link DeviceConfiguration} that have not overruled
      * the previous preferred priority.
      *
-     * @param comTask The ComTask
-     * @param deviceConfiguration The DeviceConfiguration
+     * @param comTask                   The ComTask
+     * @param deviceConfiguration       The DeviceConfiguration
      * @param previousPreferredPriority The previous preferred priority
-     * @param newPreferredPriority The new preferred priority
+     * @param newPreferredPriority      The new preferred priority
      */
-    public void preferredPriorityChanged (ComTask comTask, DeviceConfiguration deviceConfiguration, int previousPreferredPriority, int newPreferredPriority);
+    public void preferredPriorityChanged(ComTask comTask, DeviceConfiguration deviceConfiguration, int previousPreferredPriority, int newPreferredPriority);
 
     /**
      * Suspends the executions of the specified {@link ComTask}
@@ -163,10 +162,10 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
      * will not return <code>true</code>) because the planned next execution
      * timestamp is retained so the tasks can be resumed later.
      *
-     * @param comTask The ComTask
+     * @param comTask             The ComTask
      * @param deviceConfiguration The DeviceConfiguration
      */
-    public void suspendAll (ComTask comTask, DeviceConfiguration deviceConfiguration);
+    public void suspendAll(ComTask comTask, DeviceConfiguration deviceConfiguration);
 
     /**
      * Resumes the executions of the specified {@link ComTask}
@@ -174,9 +173,9 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
      * of the specified {@link DeviceConfiguration} that were suspended before.
      * This restores the planned next execution timestamp.
      *
-     * @param comTask The ComTask
+     * @param comTask             The ComTask
      * @param deviceConfiguration The DeviceConfiguration
      */
-    public void resumeAll (ComTask comTask, DeviceConfiguration deviceConfiguration);
+    public void resumeAll(ComTask comTask, DeviceConfiguration deviceConfiguration);
 
 }

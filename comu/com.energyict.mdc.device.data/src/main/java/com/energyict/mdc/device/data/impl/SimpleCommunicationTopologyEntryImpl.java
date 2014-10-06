@@ -4,6 +4,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,8 +14,8 @@ import java.util.List;
  * of querying the direct communication topology references.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-06-02 (16:09)
  * @see DeviceService#findCommunicationReferencingDevicesFor(Device, Interval)
+ * @since 2014-06-02 (16:09)
  */
 public final class SimpleCommunicationTopologyEntryImpl implements CommunicationTopologyEntry {
 
@@ -41,8 +42,7 @@ public final class SimpleCommunicationTopologyEntryImpl implements Communication
     public boolean equals(Object other) {
         if (other instanceof SimpleCommunicationTopologyEntryImpl) {
             return this.equals((SimpleCommunicationTopologyEntryImpl) other);
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -50,11 +50,9 @@ public final class SimpleCommunicationTopologyEntryImpl implements Communication
     public boolean equals(SimpleCommunicationTopologyEntryImpl other) {
         if (this == other) {
             return true;
-        }
-        else if (other == null) {
+        } else if (other == null) {
             return false;
-        }
-        else {
+        } else {
             return this.device.getId() == other.device.getId() && this.interval.equals(other.interval);
         }
 

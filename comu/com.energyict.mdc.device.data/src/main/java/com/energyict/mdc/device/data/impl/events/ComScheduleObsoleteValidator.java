@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.scheduling.events.EventType;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.scheduling.events.EventType;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -17,7 +16,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-03 (14:27)
  */
-@Component(name="com.energyict.mdc.device.data.comschedule.obsolete.validator", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.data.comschedule.obsolete.validator", service = TopicHandler.class, immediate = true)
 public class ComScheduleObsoleteValidator implements TopicHandler {
 
     static final String TOPIC = EventType.COMSCHEDULES_BEFORE_OBSOLETE.topic();

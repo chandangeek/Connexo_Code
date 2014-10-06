@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.Interval;
 
 import java.util.Date;
 import java.util.List;
@@ -34,7 +33,7 @@ public interface DeviceService {
      *
      * @param deviceConfiguration the deviceConfiguration which models the device
      * @param name                the name which should be used for the device
-     * @param mRID The new Device's master resource identifier
+     * @param mRID                The new Device's master resource identifier
      * @return the newly created Device
      */
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID);
@@ -77,7 +76,7 @@ public interface DeviceService {
      * Finds the devices which are linked on the specified timestamp
      * to the specified device for communication purposes.
      *
-     * @param device the device that arranges the communication
+     * @param device    the device that arranges the communication
      * @param timestamp The timestamp on which the devices are linked for communication purposes
      * @return a list of devices which use the given device for communication purposes
      */
@@ -87,7 +86,7 @@ public interface DeviceService {
      * Finds the devices which are linked on the specified timestamp
      * to the specified device for communication purposes.
      *
-     * @param device the device that arranges the communication
+     * @param device   the device that arranges the communication
      * @param interval The interval during which the devices are linked for communication purposes
      * @return a list of devices which use the given device for communication purposes
      */
@@ -152,6 +151,6 @@ public interface DeviceService {
      */
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
-    public Finder<Device>  findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration);
+    public Finder<Device> findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
 }

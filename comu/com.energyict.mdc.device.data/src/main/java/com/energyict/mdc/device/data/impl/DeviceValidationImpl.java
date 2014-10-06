@@ -244,7 +244,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private Comparator<MeterActivation> byInterval() {
-        return (m1, m2)-> IntermittentInterval.IntervalComparators.FROM_COMPARATOR.compare(m1.getInterval(), m2.getInterval());
+        return (m1, m2) -> IntermittentInterval.IntervalComparators.FROM_COMPARATOR.compare(m1.getInterval(), m2.getInterval());
     }
 
     private Interval interval(List<? extends BaseReading> readings) {

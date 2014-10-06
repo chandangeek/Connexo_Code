@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -21,15 +29,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -78,8 +77,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
         this.recalculateNextAndPlannedExecutionTimestamp();
         if (this.isAdHoc()) {
             Save.CREATE.save(this.getDataModel(), this, SaveAdHoc.class);
-        }
-        else {
+        } else {
             Save.CREATE.save(this.getDataModel(), this, SaveScheduled.class);
         }
     }
@@ -88,8 +86,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     protected void post() {
         if (this.isAdHoc()) {
             Save.UPDATE.save(this.getDataModel(), this, SaveAdHoc.class);
-        }
-        else {
+        } else {
             Save.UPDATE.save(this.getDataModel(), this, SaveScheduled.class);
         }
     }
@@ -134,16 +131,13 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
         if (temporalExpression == null) {
             if (!this.nextExecutionSpecs.isPresent()) {
                 // No change
-            }
-            else {
+            } else {
                 this.nextExecutionSpecs.setNull();
             }
-        }
-        else {
+        } else {
             if (this.nextExecutionSpecs.isPresent()) {
                 this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
-            }
-            else {
+            } else {
                 NextExecutionSpecs nextExecutionSpecs1 = this.getSchedulingService().newNextExecutionSpecs(temporalExpression);
                 nextExecutionSpecs1.save();
                 this.nextExecutionSpecs.set(nextExecutionSpecs1);
@@ -221,7 +215,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
         return isConfiguredToCollectDataOfClass(TopologyTask.class);
     }
 
-    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass (Class<T> protocolTaskClass) {
+    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass(Class<T> protocolTaskClass) {
         for (ProtocolTask protocolTask : this.getComTask().getProtocolTasks()) {
             if (protocolTaskClass.isAssignableFrom(protocolTask.getClass())) {
                 return true;
@@ -273,8 +267,8 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     }
 
     class ManuallyScheduledComTaskExecutionUpdaterImpl
-        extends AbstractComTaskExecutionUpdater<ManuallyScheduledComTaskExecutionUpdater, ManuallyScheduledComTaskExecution, ManuallyScheduledComTaskExecutionImpl>
-        implements ManuallyScheduledComTaskExecutionUpdater {
+            extends AbstractComTaskExecutionUpdater<ManuallyScheduledComTaskExecutionUpdater, ManuallyScheduledComTaskExecution, ManuallyScheduledComTaskExecutionImpl>
+            implements ManuallyScheduledComTaskExecutionUpdater {
 
         protected ManuallyScheduledComTaskExecutionUpdaterImpl(ManuallyScheduledComTaskExecutionImpl comTaskExecution) {
             super(comTaskExecution, ManuallyScheduledComTaskExecutionUpdater.class);
@@ -304,12 +298,14 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
      * Uses as a marker interface for javax.validation when
      * saving an ad-hoc manually scheduled task.
      */
-    private interface SaveAdHoc {}
+    private interface SaveAdHoc {
+    }
 
     /**
      * Uses as a marker interface for javax.validation when
      * saving a manually scheduled task.
      */
-    private interface SaveScheduled {}
+    private interface SaveScheduled {
+    }
 
 }

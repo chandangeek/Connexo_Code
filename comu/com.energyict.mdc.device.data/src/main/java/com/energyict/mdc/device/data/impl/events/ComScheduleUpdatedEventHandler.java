@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.events.VetoComTaskAdditionException;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComTaskComScheduleLink;
-
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -19,7 +18,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-29 (13:44)
  */
-@Component(name="com.energyict.mdc.device.comschedule.addComTask.eventhandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.comschedule.addComTask.eventhandler", service = TopicHandler.class, immediate = true)
 public class ComScheduleUpdatedEventHandler implements TopicHandler {
 
     private volatile ServerDeviceService deviceDataService;

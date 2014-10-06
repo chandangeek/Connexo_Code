@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.services.DefaultFinder;
@@ -15,12 +18,7 @@ import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.time.Interval;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;
@@ -58,7 +56,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public boolean hasDevices (DeviceConfiguration deviceConfiguration) {
+    public boolean hasDevices(DeviceConfiguration deviceConfiguration) {
         Condition condition = where(DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(deviceConfiguration);
         Finder<Device> page =
                 DefaultFinder.
@@ -117,8 +115,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
                 devices.add(communicationGatewayReference.getOrigin());
             }
             return devices;
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -142,8 +139,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
                                 communicationGatewayReference.getInterval()));
             }
             return entries;
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
