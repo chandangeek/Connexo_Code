@@ -42,27 +42,34 @@ public class ComSessionResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ConnectionHistoryInfo getConnectionMethodHistory(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @BeanParam QueryParameters queryParameters) {
+    public ComSessionsInfo getConnectionMethodHistory(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         List<ComSession> comSessions = connectionTaskService.findAllSessionsFor(connectionTask).stream().sorted((c1, c2) -> c1.getStartDate().compareTo(c2.getStartDate())).collect(toList());
         List<ComSessionInfo> comSessionsInPage = ListPager.of(comSessions).from(queryParameters).find().stream().map(comSessionInfoFactory::from).collect(toList());
         PagedInfoList pagedInfoList = PagedInfoList.asJson("comSessions", comSessionsInPage, queryParameters);
-        ConnectionHistoryInfo info = new ConnectionHistoryInfo();
+        ComSessionsInfo info = new ComSessionsInfo();
         info.connectionMethod = connectionTask.getName();
-        info.comSessions = (List<ComSessionInfo>) pagedInfoList.getInfos();
+        info.comSessions = pagedInfoList.getInfos();
         info.total = pagedInfoList.getTotal();
         return info;
     }
 
+    @GET
     @Path("{comSessionId}/comtaskexecutionsessions")
-    public PagedInfoList getComTaskExecutionSessionResource(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId, @BeanParam QueryParameters queryParameters) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComTaskExecutionSessionsInfo getComTaskExecutionSessions(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
         List<ComTaskExecutionSession> comTaskExecutionSessionsInPage = ListPager.of(comSession.getComTaskExecutionSessions()).from(queryParameters).find();
         List<ComTaskExecutionSessionInfo> comTaskExecutionSessionInfos = comTaskExecutionSessionsInPage.stream().map(comTaskExecutionSessionInfoFactory::from).collect(toList());
-        return PagedInfoList.asJson("comTaskExecutions", comTaskExecutionSessionInfos, queryParameters);
+        ComTaskExecutionSessionsInfo info = new ComTaskExecutionSessionsInfo();
+        PagedInfoList pagedInfoList = PagedInfoList.asJson("comTaskExecutionSessions", comTaskExecutionSessionInfos, queryParameters);
+        info.device=device.getName();
+        info.total=pagedInfoList.getTotal();
+        info.comTaskExecutionSessions= pagedInfoList.getInfos();
+        return info;
     }
 
     private ComSession getComSessionOrThrowException(long comSessionId, ConnectionTask<?, ?> connectionTask) {
@@ -75,9 +82,15 @@ public class ComSessionResource {
     }
 }
 
-class ConnectionHistoryInfo {
+class ComSessionsInfo {
     public String connectionMethod;
     public int total;
-    public List<ComSessionInfo> comSessions;
+    public List<?> comSessions;
+}
+
+class ComTaskExecutionSessionsInfo {
+    public String device;
+    public int total;
+    public List<?> comTaskExecutionSessions;
 }
 

@@ -72,30 +72,6 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
     }
 
-    @Test
-    public void testGetComTaskExecutionSession() throws Exception {
-        Device device = mock(Device.class);
-        ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
-        when(deviceService.findByUniqueMrid("XW1")).thenReturn(device);
-        when(connectionTask.getId()).thenReturn(7L);
-        when(connectionTask.isDefault()).thenReturn(true);
-        when(connectionTask.getName()).thenReturn("GPRS");
-        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
-        ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
-        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
-        ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
-        when(pluggeableClass.getName()).thenReturn("IPDIALER");
-        when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
-        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
-        ComSession comSession1 = mockComSession(connectionTask, 666L);
-        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
-
-        String response = target("/devices/XW1/connectionmethods/7/comsessions/666/comtaskexecutionsessions").request().get(String.class);
-
-    }
-
     private ComSession mockComSession(ConnectionTask<?, ?> connectionTask, Long id) {
         ComSession comSession = mock(ComSession.class);
         when(comSession.getId()).thenReturn(id);
