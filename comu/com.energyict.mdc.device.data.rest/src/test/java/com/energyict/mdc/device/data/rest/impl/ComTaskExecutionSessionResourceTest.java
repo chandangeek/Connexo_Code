@@ -124,7 +124,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         ComTask comTask2 = mock(ComTask.class);
         when(comTask2.getId()).thenReturn(1002L);
         when(comTask2.getName()).thenReturn("Set clock");
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask2, comTask1));
         when(comTaskExecutionSession.getComTaskExecution()).thenReturn(comTaskExecution);
         when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Failure);
         when(comTaskExecutionSession.getStartDate()).thenReturn(start);
