@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.add-logbook-types',
     deviceTypeId: null,
-    store: 'AvailableLogbookTypes',
+ //   store: 'AvailableLogbookTypes',
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
