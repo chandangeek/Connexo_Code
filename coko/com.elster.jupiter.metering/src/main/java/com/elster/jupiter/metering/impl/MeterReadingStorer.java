@@ -84,7 +84,7 @@ public class MeterReadingStorer {
 //        			.filter(this::isRelevant)
 //        			.collect(Collectors.<ReadingQualityRecord>toList()));
 //        }
-        storeReadingQualities();
+//        storeReadingQualities();
         eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getInterval().getStart().getTime(), facade.getInterval().getEnd().getTime()));
     }
 
