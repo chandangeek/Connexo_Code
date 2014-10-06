@@ -15,12 +15,16 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
-
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component(name = "com.elster.jupiter.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENTNAME, immediate = true)
@@ -60,13 +64,13 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Deactivate
     public void deactivate() {
-    	if (schedulerThread != null) {
-    		schedulerThread.interrupt();
-    		try {
-    			schedulerThread.join();
-    		} catch (InterruptedException e) {
-    			Thread.currentThread().interrupt();
-    		}
+        if (schedulerThread != null) {
+            schedulerThread.interrupt();
+            try {
+                schedulerThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -78,6 +82,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
     @Override
     public void install() {
         new InstallerImpl(dataModel).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM");
     }
 
     @Override
