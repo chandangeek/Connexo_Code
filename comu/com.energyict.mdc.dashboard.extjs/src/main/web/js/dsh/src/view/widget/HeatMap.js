@@ -2,10 +2,9 @@ Ext.define('Dsh.view.widget.HeatMap', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.heat-map',
     layout: 'fit',
-    minHeight: 450,
     items: {
-        xtype: 'box',
-        minHeight: 400,
+        xtype: 'panel',
+        ui: 'tile',
         itemId: 'heatmapchart'
     },
 
@@ -17,12 +16,14 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
     setXAxis: function (categories, title) {
         var me = this;
+        title = title[0].toUpperCase() + title.slice(1);
         me.chart.series[0].xAxis.update({title: {text: title}}, false);
         me.chart.series[0].xAxis.update({categories: categories}, false);
     },
 
     setYAxis: function (categories, title) {
         var me = this;
+        title = title[0].toUpperCase() + title.slice(1);
         me.chart.series[0].yAxis.update({title: {text: title}}, false);
         me.chart.series[0].yAxis.update({categories: categories}, false);
     },
@@ -35,7 +36,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
             Ext.each(rec.data.data, function (item) {
                 var count = item.count,
                     value = (count == 0 ? count.toString() : count);
-                data.push([x, y, value]);
+                data.push([y, x, value]);
                 ++y;
             });
             y = 0;
@@ -57,8 +58,8 @@ Ext.define('Dsh.view.widget.HeatMap', {
             Ext.each(store.getAt(0).data.data, function (item) {
                 ycat.push(item.displayName);
             });
-            me.setXAxis(xcat, xTitle);
-            me.setYAxis(ycat, 'Latest result');
+            me.setXAxis(ycat, 'Latest result');
+            me.setYAxis(xcat, xTitle);
             me.setChartData(me.storeToHighchartData(store));
         }
     },
@@ -67,12 +68,16 @@ Ext.define('Dsh.view.widget.HeatMap', {
         var me = this,
             xTitle = '',
             store = Ext.getStore('Dsh.store.ConnectionResultsStore');
+
         if (me.parent == 'connections') {
             me.tbar = [
-                '->',
+                {
+                    xtype: 'container',
+                    itemId: 'title',
+                    html: '<h2>' + Uni.I18n.translate('overview.widget.connections.heatmap.combineLabel', 'DSH', 'Combine latest result and') + '&nbsp;</h2>'
+                },
                 {
                     xtype: 'combobox',
-                    fieldLabel: Uni.I18n.translate('overview.widget.connections.heatmap.combineLabel', 'DSH', 'Combine latest result and'),
                     labelWidth: 200,
                     itemId: 'combine-combo',
                     displayField: 'localizedValue',
@@ -80,51 +85,55 @@ Ext.define('Dsh.view.widget.HeatMap', {
                     valueField: 'breakdown',
                     store: 'Dsh.store.CombineStore',
                     autoSelect: true
-                },
-                '->'
-            ];
+                }
+            ]
         } else if (me.parent == 'communications') {
             me.tbar = [
-                '->',
                 {
-                    xtype: 'label',
-                    text: Uni.I18n.translate('overview.widget.communications.heatmap.combineLabel', 'DSH', 'Combine latest result and device type')
-                },
-                '->'
+                    xtype: 'container',
+                    itemId: 'title',
+                    html: '<h2>' + Uni.I18n.translate('overview.widget.communications.heatmap.combineLabel', 'DSH', 'Combine latest result and device type') + '</h2>'
+                }
             ];
             xTitle = 'Device types'
         }
         this.callParent(arguments);
-        var cmp = me.down('#heatmapchart');
-        store.on('load', function () {
-            me.loadChart(store, xTitle)
-        });
+
         if (me.parent == 'connections') {
             var combo = me.getCombo();
             combo.getStore().on('load', function (store) {
                 if (store.getCount() > 0) {
                     var val = store.getAt(1);
                     combo.select(val);
-                    xTitle = val.get('localizedValue')
                 }
             });
             combo.on('change', function (combo, newValue) {
                 store.proxy.extraParams.filter = '[{"property":"breakdown","value": "' + newValue + '"}]';
+                xTitle = combo.getDisplayValue();
                 store.load();
             });
+
         } else if (me.parent == 'communications') {
             store.load();
         }
-        cmp.on('afterrender', function () {
-            Ext.defer(function () {
-                me.renderChart(cmp.getEl().dom);
-            }, 100);
-        });
 
+        store.on('load', function () {
+            var cmp = me.down('#heatmapchart');
+            if (store.count() && cmp) {
+                me.show();
+                cmp.setHeight(store.count() * 100);
+                me.renderChart(cmp.getEl().down('.x-panel-body').dom);
+                me.loadChart(store, xTitle);
+                cmp.doLayout();
+            } else {
+                me.hide();
+            }
+        });
     },
 
     renderChart: function (container) {
         var me = this;
+        var width = container.offsetWidth;
         this.chart = new Highcharts.Chart({
             chart: {
                 type: 'heatmap',
@@ -163,11 +172,14 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 height: '100%'
             },
             legend: {
-                align: 'right',
-                layout: 'vertical',
+                align: 'center',
                 margin: 0,
+                symbolPadding: 16,
+                layout: 'horisontal',
                 verticalAlign: 'top',
-                symbolHeight: 350
+                symbolWidth: width - 230,
+                width: width,
+                x: 230
             },
             tooltip: {
                 formatter: function () {

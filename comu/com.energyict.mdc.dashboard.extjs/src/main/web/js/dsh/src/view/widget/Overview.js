@@ -76,9 +76,11 @@ Ext.define('Dsh.view.widget.Overview', {
                                 }).render(view.getEl().down('#bar-' + pos));
 
                                 var filter = {};
-                                filter[item.get('alias')] = record.get('id');
-                                var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
-                                view.getEl().down('.item-' + pos + ' > tr > td > div > a').set({ href: href });
+                                if (record.get('id')) {
+                                    filter[item.get('alias')] = record.get('id');
+                                    var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
+                                    view.getEl().down('.item-' + pos + ' > tr > td > div > a').set({ href: href });
+                                }
                             });
                         }
                     }
