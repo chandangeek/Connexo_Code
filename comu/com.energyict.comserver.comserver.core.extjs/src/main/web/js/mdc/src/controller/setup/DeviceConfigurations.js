@@ -224,18 +224,25 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 method: 'PUT',
                 jsonData: {active: activeChange},
                 success: function () {
-                    record.set('active', activeChange);
-                    record.commit();
-                    if (grid) {
-                        gridView.refresh();
-                        form.loadRecord(record);
-                    } else {
-                        menu.record = record;
-                        form.loadRecord(record);
-                    }
-                    var msg = activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
-                        Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated');
-                    me.getApplication().fireEvent('acknowledge', msg);
+                    var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                    deviceConfigModel.getProxy().setExtraParam('deviceType', router.arguments['deviceTypeId']);
+                    Ext.ModelManager.getModel(deviceConfigModel).load(recordId, {
+                            callback: function (model) {
+                                record.set('active', activeChange);
+                                record.commit();
+                                if (grid) {
+                                    gridView.refresh();
+                                    form.loadRecord(model);
+                                } else {
+                                    menu.record = model;
+                                    form.loadRecord(model);
+                                }
+                                var msg = activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
+                                    Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated');
+                                me.getApplication().fireEvent('acknowledge', msg);
+                            }
+                        }
+                    )
                 },
                 callback: function () {
                     viewport.setLoading(false);
