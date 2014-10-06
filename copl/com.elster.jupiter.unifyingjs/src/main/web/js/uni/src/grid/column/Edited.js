@@ -14,12 +14,13 @@ Ext.define('Uni.grid.column.Edited', {
             var me = this,
                 cmp = view.getCell(record, me).down('.x-grid-cell-inner'),
                 field = new Uni.form.field.EditedDisplay({
-                fieldLabel: false
-            });
+                    fieldLabel: false
+                });
             cmp.setHTML('');
             field.setValue(value);
             field.render(cmp);
-        } catch (e) {}
+        } catch (e) {
+        }
     },
 
     renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
