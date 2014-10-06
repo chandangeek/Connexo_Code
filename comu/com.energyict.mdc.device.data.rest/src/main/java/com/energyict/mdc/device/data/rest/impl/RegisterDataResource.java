@@ -60,7 +60,7 @@ public class RegisterDataResource {
         Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
         List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
         Boolean validationStatusForRegister = false;
-        if(channelRef.isPresent()) {
+        if (channelRef.isPresent()) {
             validationStatusForRegister = device.forValidation().isValidationActive(register, clock.now());
             dataValidationStatuses = device.forValidation().getValidationStatus(register, readingRecords, interval);
         }
@@ -74,7 +74,7 @@ public class RegisterDataResource {
 
     private boolean hasSuspects(ReadingInfo info) {
         boolean result = true;
-        if(info.reading instanceof BillingReading) {
+        if (info.reading instanceof BillingReading) {
             BillingReadingInfo billingReadingInfo = BillingReadingInfo.class.cast(info);
             result = ValidationStatus.SUSPECT.equals(billingReadingInfo.validationResult);
         } else if (info.reading instanceof NumericalReading) {
