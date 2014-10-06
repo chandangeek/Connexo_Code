@@ -1,27 +1,18 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.MessageSeeds;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class Installer implements InstallService {
+class Installer {
 
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
     private static final String BATCH_EXECUTOR = "batch executor";
@@ -39,22 +30,21 @@ class Installer implements InstallService {
         this.thesaurus = thesaurus;
     }
 
-    @Override
     public void install() {
         createTables();
         createBatchExecutor();
         createAllServerTopic();
-        createTranslations();
+        //createTranslations();
     }
 
-    private void createTranslations() {
+   /* private void createTranslations() {
         List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
             SimpleNlsKey nlsKey = SimpleNlsKey.key(AppService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
             translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
         }
         thesaurus.addTranslations(translations);
-    }
+    }*/
 
     private void createAllServerTopic() {
         try {
