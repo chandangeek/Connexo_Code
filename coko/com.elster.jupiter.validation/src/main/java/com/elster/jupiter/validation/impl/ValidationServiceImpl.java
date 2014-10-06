@@ -46,6 +46,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -128,6 +129,12 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     @Override
     public void install() {
         new InstallerImpl(dataModel, eventService, thesaurus, userService).install(true, true);
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR");
+
     }
 
     @Reference
@@ -249,7 +256,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
                 .forEach(cv -> {
                     cv.setLastChecked(date);
                     cv.getMeterActivationValidation().save();
-                 });
+                });
     }
 
     private void saveLastChecked(IMeterActivationValidation validation, Date date) {
