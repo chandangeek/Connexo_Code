@@ -14,21 +14,20 @@ import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -88,7 +87,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         when(mock.isActive()).thenReturn(false);
         when(mock.getId()).thenReturn(1L);
         when(mock.getComPortType()).thenReturn(ComPortType.TCP);
-        when(mock.getTaskExecutionTimeout()).thenReturn(new TimeDuration(5, TimeDuration.MINUTES));
+        when(mock.getTaskExecutionTimeout()).thenReturn(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
 
         final Map<String, Object> response = target("/comportpools").request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).describedAs("Should contain field 'data'").containsKey("data").containsKey("total").hasSize(2);
@@ -139,7 +138,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         outboundComPortPoolInfo.active=true;
         outboundComPortPoolInfo.name="Updated";
         outboundComPortPoolInfo.description="description";
-        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.MINUTES));
+        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
         OutboundComPortInfo tcpOutboundComPortInfo1 = new TcpOutboundComPortInfo();
         tcpOutboundComPortInfo1.name="Port 1";
         tcpOutboundComPortInfo1.id=comPort1_id_to_be_kept;
@@ -187,7 +186,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         outboundComPortPoolInfo.active=true;
         outboundComPortPoolInfo.name="Updated";
         outboundComPortPoolInfo.description="description";
-        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.MINUTES));
+        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
 
         OutboundComPortPool outboundComPortPool = mock(OutboundComPortPool.class);
         when(engineModelService.newOutboundComPortPool()).thenReturn(outboundComPortPool);
@@ -209,7 +208,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         outboundComPortPoolInfo.active=true;
         outboundComPortPoolInfo.name="Created";
         outboundComPortPoolInfo.description="description";
-        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.MINUTES));
+        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
 
         Entity<ComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
 

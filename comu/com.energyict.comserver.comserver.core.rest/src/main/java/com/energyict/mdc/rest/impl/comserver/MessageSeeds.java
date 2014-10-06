@@ -7,14 +7,14 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    MILLISECONDS(1, TimeDuration.getTimeUnitDescription(TimeDuration.MILLISECONDS), "millisecond(s)"),
-    SECONDS(2, TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS), "second(s)"),
-    MINUTES(3, TimeDuration.getTimeUnitDescription(TimeDuration.MINUTES), "minute(s)"),
-    HOURS(4, TimeDuration.getTimeUnitDescription(TimeDuration.HOURS), "hour(s)"),
-    DAYS(5, TimeDuration.getTimeUnitDescription(TimeDuration.DAYS), "day(s)"),
-    WEEKS(6, TimeDuration.getTimeUnitDescription(TimeDuration.WEEKS), "week(s)"),
-    MONTHS(7, TimeDuration.getTimeUnitDescription(TimeDuration.MONTHS), "months(s)"),
-    YEARS(8, TimeDuration.getTimeUnitDescription(TimeDuration.YEARS), "year(s)"),
+    MILLISECONDS(1, TimeDuration.TimeUnit.MILLISECONDS.getDescription(), "millisecond(s)"),
+    SECONDS(2, TimeDuration.TimeUnit.SECONDS.getDescription(), "second(s)"),
+    MINUTES(3, TimeDuration.TimeUnit.MINUTES.getDescription(), "minute(s)"),
+    HOURS(4, TimeDuration.TimeUnit.HOURS.getDescription(), "hour(s)"),
+    DAYS(5, TimeDuration.TimeUnit.DAYS.getDescription(), "day(s)"),
+    WEEKS(6, TimeDuration.TimeUnit.WEEKS.getDescription(), "week(s)"),
+    MONTHS(7, TimeDuration.TimeUnit.MONTHS.getDescription(), "months(s)"),
+    YEARS(8, TimeDuration.TimeUnit.YEARS.getDescription(), "year(s)"),
     ;
 
     private final int number;
