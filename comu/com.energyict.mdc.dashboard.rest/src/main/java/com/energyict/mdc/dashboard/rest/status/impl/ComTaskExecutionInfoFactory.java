@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
@@ -12,8 +13,6 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 
@@ -48,21 +47,21 @@ public class ComTaskExecutionInfoFactory {
         for (ComTask comTask : comTaskExecution.getComTasks()) {
             info.comTasks.add(comTask.getName());
         }
-        info.name= Joiner.on(" + ").join(info.comTasks);
+        info.name = Joiner.on(" + ").join(info.comTasks);
         Device device = comTaskExecution.getDevice();
-        info.device=new IdWithNameInfo(device.getmRID(), device.getName());
-        info.deviceConfiguration=new IdWithNameInfo(device.getDeviceConfiguration());
-        info.deviceType=new IdWithNameInfo(device.getDeviceType());
+        info.device = new IdWithNameInfo(device.getmRID(), device.getName());
+        info.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration());
+        info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecution instanceof ScheduledComTaskExecution) {
             ComSchedule comSchedule = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule();
-            info.comScheduleName=comSchedule.getName();
-            if (comSchedule.getTemporalExpression()!=null) {
+            info.comScheduleName = comSchedule.getName();
+            if (comSchedule.getTemporalExpression() != null) {
                 info.comScheduleFrequency = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
             }
         } else {
             if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
                 Optional<NextExecutionSpecs> nextExecutionSpecs = comTaskExecution.getNextExecutionSpecs();
-                info.comScheduleName=thesaurus.getString(MessageSeeds.INDIVIDUAL.getKey(), MessageSeeds.INDIVIDUAL.getKey());
+                info.comScheduleName = thesaurus.getString(MessageSeeds.INDIVIDUAL.getKey(), MessageSeeds.INDIVIDUAL.getKey());
                 if (nextExecutionSpecs.isPresent()) {
                     info.comScheduleFrequency = TemporalExpressionInfo.from(nextExecutionSpecs.get().getTemporalExpression());
                 }
@@ -70,17 +69,17 @@ public class ComTaskExecutionInfoFactory {
             }
         }
         info.urgency = comTaskExecution.getExecutionPriority();
-        info.currentState=new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
-        info.latestResult=comTaskExecutionSession.isPresent()?CompletionCodeInfo.from(comTaskExecutionSession.get().getHighestPriorityCompletionCode(), thesaurus):null;
-        info.startTime=comTaskExecution.getLastExecutionStartTimestamp();
-        info.successfulFinishTime=comTaskExecution.getLastSuccessfulCompletionTimestamp();
-        info.nextCommunication=comTaskExecution.getNextExecutionTimestamp();
+        info.currentState = new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
+        info.latestResult = comTaskExecutionSession.isPresent() ? CompletionCodeInfo.from(comTaskExecutionSession.get().getHighestPriorityCompletionCode(), thesaurus) : null;
+        info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
+        info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
+        info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
 
         return info;
     }
 
-    public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession, ConnectionTask<?,?> connectionTask) throws Exception {
+    public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession, ConnectionTask<?, ?> connectionTask) throws Exception {
         ComTaskExecutionInfo comTaskExecutionInfo = this.from(comTaskExecution, comTaskExecutionSession);
         comTaskExecutionInfo.connectionTask = connectionTaskInfoFactory.get().from(connectionTask, connectionTask.getLastComSession(), Collections.<ComTaskExecution>emptyList());
         return comTaskExecutionInfo;

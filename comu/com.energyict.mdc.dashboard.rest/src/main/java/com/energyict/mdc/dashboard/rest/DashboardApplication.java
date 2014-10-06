@@ -1,5 +1,15 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -31,17 +41,6 @@ import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -60,7 +59,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.mdc.dashboard.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/dsr", "name=" + DashboardApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dsr", "name=" + DashboardApplication.COMPONENT_NAME})
 public class DashboardApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "DSR";

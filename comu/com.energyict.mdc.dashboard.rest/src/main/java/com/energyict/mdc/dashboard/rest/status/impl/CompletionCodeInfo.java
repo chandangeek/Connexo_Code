@@ -2,6 +2,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -15,8 +16,8 @@ class CompletionCodeInfo {
 
     public static CompletionCodeInfo from(CompletionCode completionCode, Thesaurus thesaurus) throws Exception {
         CompletionCodeInfo info = new CompletionCodeInfo();
-        info.id=completionCode;
-        if (completionCode!=null) {
+        info.id = completionCode;
+        if (completionCode != null) {
             info.displayValue = thesaurus.getString(COMPLETION_CODE_ADAPTER.marshal(completionCode), COMPLETION_CODE_ADAPTER.marshal(completionCode));
         }
         return info;
