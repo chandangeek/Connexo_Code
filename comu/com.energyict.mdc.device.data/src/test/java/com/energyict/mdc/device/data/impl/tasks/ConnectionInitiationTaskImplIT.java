@@ -200,7 +200,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         connectionInitiationTask.save();
 
         // Asserts
-        ConnectionInitiationTask updated = inMemoryPersistence.getDeviceDataService().findConnectionInitiationTask(connectionInitiationTask.getId()).get();
+        ConnectionInitiationTask updated = inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(connectionInitiationTask.getId()).get();
         assertThat(updated.getProperties()).hasSize(2);
         assertThat(updated.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isNotNull();
         assertThat(updated.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME).getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
@@ -231,7 +231,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
         // Business methods
         connectionInitiationTask.makeObsolete();
-        ConnectionInitiationTask reloaded = inMemoryPersistence.getDeviceDataService().findConnectionInitiationTask(id).get();
+        ConnectionInitiationTask reloaded = inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).get();
 
         // Asserts
         assertThat(reloaded).isNotNull();
@@ -270,7 +270,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         connectionInitiationTask.delete();
 
         // Asserts
-        assertThat(inMemoryPersistence.getDeviceDataService().findConnectionInitiationTask(id).isPresent()).isFalse();
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
     }
 
     @Test
@@ -287,7 +287,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         connectionInitiationTask.delete();
 
         // Asserts
-        assertThat(inMemoryPersistence.getDeviceDataService().findConnectionInitiationTask(id).isPresent()).isFalse();
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
         RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
         assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
@@ -311,7 +311,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
-        assertThat(inMemoryPersistence.getDeviceDataService().findConnectionInitiationTask(id).isPresent()).isFalse();
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
     }
 
     @Test
@@ -334,7 +334,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         connectionTask.delete();
 
-        List<ComTaskExecution> allComTaskExecutionsIncludingObsoleteForDevice = inMemoryPersistence.getDeviceDataService().findAllComTaskExecutionsIncludingObsoleteForDevice(device);
+        List<ComTaskExecution> allComTaskExecutionsIncludingObsoleteForDevice = inMemoryPersistence.getCommunicationTaskService().findAllComTaskExecutionsIncludingObsoleteForDevice(device);
         // Asserts
         assertThat(allComTaskExecutionsIncludingObsoleteForDevice).are(new Condition<ComTaskExecution>() {
             @Override
@@ -342,7 +342,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
                 return comTaskExecution.getConnectionTask() == null;
             }
         });
-        assertThat(inMemoryPersistence.getDeviceDataService().findConnectionInitiationTask(id).isPresent()).isFalse();
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
         RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete

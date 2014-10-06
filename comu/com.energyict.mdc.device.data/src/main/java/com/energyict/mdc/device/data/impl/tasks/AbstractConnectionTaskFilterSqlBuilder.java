@@ -26,6 +26,14 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     private Set<DeviceType> deviceTypes;
     private boolean appendLastComSessionJoinClause;
 
+    public AbstractConnectionTaskFilterSqlBuilder(Clock clock) {
+        super(clock);
+        this.connectionTypes = new HashSet<>();
+        this.comPortPools = new HashSet<>();
+        this.deviceTypes = new HashSet<>();
+        this.appendLastComSessionJoinClause = false;
+    }
+
     public AbstractConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock) {
         super(clock);
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
@@ -36,6 +44,10 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
 
     protected void appendWhereClause(ServerConnectionTaskStatus taskStatus) {
         taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock(), connectionTaskAliasName());
+        this.appendNonStatusWhereClauses();
+    }
+
+    protected void appendNonStatusWhereClauses() {
         this.appendConnectionTypeSql();
         this.appendComPortPoolSql();
         this.appendDeviceTypeSql();

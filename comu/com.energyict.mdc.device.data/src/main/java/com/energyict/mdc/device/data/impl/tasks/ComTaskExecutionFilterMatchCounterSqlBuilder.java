@@ -45,6 +45,8 @@ public class ComTaskExecutionFilterMatchCounterSqlBuilder extends AbstractComTas
     private void appendFromClause() {
         this.append(" from ");
         this.append(TableSpecs.DDC_COMTASKEXEC.name());
+        this.append(" ");
+        this.append(communicationTaskAliasName());
     }
 
     private void appendWhereClause() {

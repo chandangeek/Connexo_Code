@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.tasks;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -41,7 +41,7 @@ import java.util.List;
  * is created that captures all the details of the communication with the device.
  * That communication overview is very important and should not be deleted
  * easily. Therefore, ConnectionTasks are never deleted but made obsolete.
- * Obsolete ConnectionTasks will not return from {@link DeviceDataService} finder methods.
+ * Obsolete ConnectionTasks will not return from {@link DeviceService} finder methods.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (09:59)
@@ -206,7 +206,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
 
     /**
      * Makes this ConnectionTask obsolete, i.e. it will no longer execute
-     * nor will it be returned by {@link DeviceDataService} finder methods.
+     * nor will it be returned by {@link DeviceService} finder methods.
      */
     public void makeObsolete ();
 

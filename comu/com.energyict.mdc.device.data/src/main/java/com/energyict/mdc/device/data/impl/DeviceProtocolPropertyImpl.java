@@ -7,7 +7,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -26,7 +26,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Serializable {
 
     private final DataModel dataModel;
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private final Thesaurus thesaurus;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -35,9 +35,9 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
     private Reference<Device> device = ValueReference.absent();
 
     @Inject
-    public DeviceProtocolPropertyImpl(DataModel dataModel, DeviceDataService deviceDataService, Thesaurus thesaurus) {
+    public DeviceProtocolPropertyImpl(DataModel dataModel, DeviceService deviceService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
         this.thesaurus = thesaurus;
     }
 
@@ -54,7 +54,7 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
 
     @Override
     public String getName() {
-        InfoType infoType = this.deviceDataService.findInfoTypeById(infoTypeId);
+        InfoType infoType = this.deviceService.findInfoTypeById(infoTypeId);
         if (infoType != null) {
             return infoType.getName();
         }

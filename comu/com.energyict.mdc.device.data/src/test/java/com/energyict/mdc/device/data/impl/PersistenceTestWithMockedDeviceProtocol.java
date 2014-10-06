@@ -56,7 +56,7 @@ public abstract class PersistenceTestWithMockedDeviceProtocol {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistenceWithMockedDeviceProtocol();
-        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.device.data", false, false);
+        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.device.data", false);
     }
 
     @AfterClass

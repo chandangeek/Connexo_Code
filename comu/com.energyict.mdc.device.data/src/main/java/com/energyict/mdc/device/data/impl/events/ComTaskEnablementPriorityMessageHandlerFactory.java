@@ -22,7 +22,7 @@ public class ComTaskEnablementPriorityMessageHandlerFactory extends ComTaskEnabl
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new ComTaskEnablementPriorityMessageHandler(this.getJsonService(), this.getDeviceConfigurationService(), this.getDeviceDataService());
+        return new ComTaskEnablementPriorityMessageHandler(this.getJsonService(), this.getDeviceConfigurationService(), this.getCommunicationTaskService());
     }
 
 }

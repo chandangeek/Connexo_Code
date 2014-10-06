@@ -26,7 +26,6 @@ import java.util.Set;
  */
 public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
 
-    private static final String COM_TASK_EXECUTION_ALIAS_NAME = "cte";
     private static final String COM_TASK_EXECUTION_SESSION_ALIAS_NAME = "ctes";
     private static final String HIGHEST_PRIORITY_COMPLETION_CODE_ALIAS_NAME = "highestPrioCompletionCode";
 
@@ -71,7 +70,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
-        SqlBuilder sqlBuilder = dataMapper.builder(COM_TASK_EXECUTION_ALIAS_NAME);
+        SqlBuilder sqlBuilder = dataMapper.builder(communicationTaskAliasName());
         this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
         this.appendJoinedTables();
         String sqlStartClause = sqlBuilder.getText();
@@ -116,7 +115,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
         this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
         this.append(" on ");
-        this.append(COM_TASK_EXECUTION_ALIAS_NAME);
+        this.append(communicationTaskAliasName());
         this.append(".lastsession = ");
         this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
         this.append(".id");
@@ -155,7 +154,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.append(" cs, ");
             this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
             this.append(" ctes where ctes.comtaskexec = ");
-            this.append(COM_TASK_EXECUTION_ALIAS_NAME);
+            this.append(communicationTaskAliasName());
             this.append(".id and ctes.comsession = cs.id ");
             if (!this.isNull(this.lastSessionStart)) {
                 this.appendWhereOrAnd();

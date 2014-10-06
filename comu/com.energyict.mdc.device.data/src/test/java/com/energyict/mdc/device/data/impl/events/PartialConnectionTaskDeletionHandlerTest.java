@@ -2,7 +2,8 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
@@ -31,7 +32,9 @@ public class PartialConnectionTaskDeletionHandlerTest {
     private static final String TOPIC = "com/energyict/mdc/device/config/partialscheduledconnectiontask/VALIDATE_DELETE";
 
     @Mock
-    private ServerDeviceDataService deviceDataService;
+    private DeviceDataModelService deviceDataModelService;
+    @Mock
+    private ServerConnectionTaskService connectionTaskService;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -62,32 +65,33 @@ public class PartialConnectionTaskDeletionHandlerTest {
 
     @Before
     public void createEventHandler () {
-        when(this.deviceDataService.getThesaurus()).thenReturn(this.thesaurus);
-        this.eventHandler = new PartialConnectionTaskDeletionHandler(this.deviceDataService);
+        when(this.deviceDataModelService.thesaurus()).thenReturn(this.thesaurus);
+        when(this.deviceDataModelService.connectionTaskService()).thenReturn(this.connectionTaskService);
+        this.eventHandler = new PartialConnectionTaskDeletionHandler(this.deviceDataModelService);
     }
 
     @Test
     public void testNotUsed() {
-        when(this.deviceDataService.hasConnectionTasks(this.partialConnectionTask)).thenReturn(false);
+        when(this.connectionTaskService.hasConnectionTasks(this.partialConnectionTask)).thenReturn(false);
 
         // Business method
         this.eventHandler.onEvent(this.event);
 
         // Asserts
         verify(this.event).getSource();
-        verify(this.deviceDataService).hasConnectionTasks(this.partialConnectionTask);
+        verify(this.connectionTaskService).hasConnectionTasks(this.partialConnectionTask);
     }
 
     @Test(expected = VetoDeletePartialConnectionTaskException.class)
     public void testInUse() {
-        when(this.deviceDataService.hasConnectionTasks(this.partialConnectionTask)).thenReturn(true);
+        when(this.connectionTaskService.hasConnectionTasks(this.partialConnectionTask)).thenReturn(true);
 
         // Business method
         this.eventHandler.onEvent(this.event);
 
         // Asserts
         verify(this.event).getSource();
-        verify(this.deviceDataService).hasConnectionTasks(this.partialConnectionTask);
+        verify(this.connectionTaskService).hasConnectionTasks(this.partialConnectionTask);
     }
 
     @Test
@@ -102,7 +106,7 @@ public class PartialConnectionTaskDeletionHandlerTest {
 
         // Asserts
         verify(this.event, never()).getSource();
-        verifyZeroInteractions(this.deviceDataService);
+        verifyZeroInteractions(this.connectionTaskService);
     }
 
     @Test
@@ -117,7 +121,7 @@ public class PartialConnectionTaskDeletionHandlerTest {
 
         // Asserts
         verify(this.event, never()).getSource();
-        verifyZeroInteractions(this.deviceDataService);
+        verifyZeroInteractions(this.connectionTaskService);
     }
 
 }

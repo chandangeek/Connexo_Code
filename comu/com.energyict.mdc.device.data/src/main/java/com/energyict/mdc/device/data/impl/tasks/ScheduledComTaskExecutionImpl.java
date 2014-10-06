@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksInComScheduleMustHaveSameConfigurationSettings;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComSchedulePerDevice;
@@ -38,8 +36,8 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     private Reference<ComSchedule> comSchedule = ValueReference.absent();
 
     @Inject
-    public ScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, schedulingService);
+    public ScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
+        super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, schedulingService);
     }
 
     public ScheduledComTaskExecutionImpl initialize (Device device, ComSchedule comSchedule) {

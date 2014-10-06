@@ -285,12 +285,12 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column device = table.column("DEVICE").number().notNull().add();
-            Column comtask = table.column("COMTASK").number().add();
+            Column comTask = table.column("COMTASK").number().add();
             Column comSchedule = table.column("COMSCHEDULE").number().add();
             Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
             table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName()).add();
-            Column nextexecutiontimestamp = table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).add();
-            Column comport = table.column("COMPORT").number().add();
+            Column nextExecutionTimestamp = table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).add();
+            Column comPort = table.column("COMPORT").number().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map(ComTaskExecutionFields.MODIFICATIONDATE.fieldName()).add();
             Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
             Column priority = table.column("PRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()).add();
@@ -304,8 +304,8 @@ public enum TableSpecs {
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add();
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT").on(comport).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_COMTASK").on(comtask).references(TaskService.COMPONENT_NAME, "CTS_COMTASK").map(ComTaskExecutionFields.COMTASK.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT").on(comPort).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_COMTASK").on(comTask).references(TaskService.COMPONENT_NAME, "CTS_COMTASK").map(ComTaskExecutionFields.COMTASK.fieldName()).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMSCHEDULE").
                     on(comSchedule).
                     references(SchedulingService.COMPONENT_NAME, "SCH_COMSCHEDULE").
@@ -321,7 +321,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_COMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES").map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName()).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE").on(device).references(DDC_DEVICE.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();
             table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
-            table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextexecutiontimestamp, priority, connectionTask, obsoleteDate, comport).add();
+            table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
         }
     },
 

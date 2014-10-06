@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.impl.events;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
@@ -22,7 +21,7 @@ public class ComTaskEnablementDeletionHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/device/config/comtaskenablement/VALIDATEDELETE";
 
-    private volatile ServerDeviceDataService deviceDataService;
+    private volatile DeviceDataModelService deviceDataModelService;
     private volatile Thesaurus thesaurus;
 
     public ComTaskEnablementDeletionHandler() {
@@ -30,19 +29,15 @@ public class ComTaskEnablementDeletionHandler implements TopicHandler {
     }
 
     // For testing purposes only
-    ComTaskEnablementDeletionHandler (ServerDeviceDataService deviceDataService) {
+    ComTaskEnablementDeletionHandler (DeviceDataModelService deviceDataModelService) {
         this();
-        this.deviceDataService = deviceDataService;
+        this.deviceDataModelService = deviceDataModelService;
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
-    }
-
-    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
-        this.thesaurus = deviceDataService.getThesaurus();
+    public void setDeviceDataService(DeviceDataModelService deviceDataModelService) {
+        this.deviceDataModelService = deviceDataModelService;
+        this.thesaurus = deviceDataModelService.thesaurus();
     }
 
     @Override
@@ -65,7 +60,7 @@ public class ComTaskEnablementDeletionHandler implements TopicHandler {
      * @param comTaskEnablement The ComTaskEnablement that is about to be deleted
      */
     private void validateNotUsedByDevice(ComTaskEnablement comTaskEnablement) {
-        if (this.deviceDataService.hasComTaskExecutions(comTaskEnablement)) {
+        if (this.deviceDataModelService.communicationTaskService().hasComTaskExecutions(comTaskEnablement)) {
             throw new VetoDeleteComTaskEnablementException(this.thesaurus, comTaskEnablement);
         }
     }

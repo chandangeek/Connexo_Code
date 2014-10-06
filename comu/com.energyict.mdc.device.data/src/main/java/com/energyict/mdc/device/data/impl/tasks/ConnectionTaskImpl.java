@@ -4,7 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
@@ -121,17 +121,21 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Date modificationDate;
 
     private final Clock clock;
-    private final DeviceDataService deviceDataService;
+    private final ServerConnectionTaskService connectionTaskService;
+    private final ServerCommunicationTaskService communicationTaskService;
+    private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
     private final RelationService relationService;
 
     private boolean allowIncomplete = true;
 
-    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
+    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, DeviceService deviceService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
         super(ConnectionTask.class, dataModel, eventService, thesaurus);
         this.cache = new PropertyCache<>(this);
         this.clock = clock;
-        this.deviceDataService = deviceDataService;
+        this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
+        this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.relationService = relationService;
     }
@@ -170,7 +174,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private void validateConstraint(PCTT partialConnectionTask, Device device) {
-        Optional<ConnectionTask> result = this.deviceDataService.findConnectionTaskForPartialOnDevice(partialConnectionTask, device);
+        Optional<ConnectionTask> result = this.connectionTaskService.findConnectionTaskForPartialOnDevice(partialConnectionTask, device);
         if (result.isPresent()) {
             ConnectionTask connectionTaskWithSamePartialConnectionTaskDeviceCombination = result.get();
             if (this.getId() != connectionTaskWithSamePartialConnectionTaskDeviceCombination.getId()) {
@@ -318,7 +322,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      * We are already in a Transaction so we don't wrap it again.
      */
     private void reloadComServerAndObsoleteDate() {
-        ConnectionTask updatedVersionOfMyself = this.deviceDataService.findConnectionTask(this.getId()).get();
+        ConnectionTask updatedVersionOfMyself = this.connectionTaskService.findConnectionTask(this.getId()).get();
         this.comServer.set(updatedVersionOfMyself.getExecutingComServer());
         this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate();
     }
@@ -353,7 +357,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected Device findDevice(long deviceId) {
         if (deviceId != 0) {
-            return this.deviceDataService.findDeviceById(deviceId);
+            return this.deviceService.findDeviceById(deviceId);
         }
         return null;
     }
@@ -375,7 +379,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private List<ComTaskExecution> findDependentComTaskExecutions() {
-        return this.deviceDataService.findComTaskExecutionsByConnectionTask(this);
+        return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this);
     }
 
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
@@ -727,7 +731,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.isDefault;
     }
 
-    // To be used by the DeviceDataServiceImpl only that now has the responsibility to switch defaults
+    // To be used by the DeviceServiceImpl only that now has the responsibility to switch defaults
     public void setAsDefault() {
         this.doSetAsDefault();
         this.post();
@@ -737,7 +741,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.isDefault = true;
     }
 
-    // To be used by the DeviceDataServiceImpl only that now has the responsibility to switch defaults
+    // To be used by the DeviceServiceImpl only that now has the responsibility to switch defaults
     public void clearDefault() {
         this.isDefault = false;
         this.post();

@@ -22,7 +22,7 @@ public class ComTaskEnablementStatusMessageHandlerFactory extends ComTaskEnablem
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new ComTaskEnablementStatusMessageHandler(this.getJsonService(), this.getDeviceConfigurationService(), this.getDeviceDataService());
+        return new ComTaskEnablementStatusMessageHandler(this.getJsonService(), this.getDeviceConfigurationService(), this.getCommunicationTaskService());
     }
 
 }

@@ -1,18 +1,20 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.util.json.JsonService;
+import org.osgi.service.event.EventConstants;
+
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-import org.osgi.service.event.EventConstants;
 
 /**
  * Handles events that are being sent when connection related changes
@@ -27,13 +29,13 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
 
     private final JsonService jsonService;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final ServerDeviceDataService deviceDataService;
+    private final ServerCommunicationTaskService communicationTaskService;
 
-    public ComTaskEnablementConnectionMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerDeviceDataService deviceDataService) {
+    public ComTaskEnablementConnectionMessageHandler(JsonService jsonService, DeviceConfigurationService deviceConfigurationService, ServerCommunicationTaskService communicationTaskService) {
         super();
         this.jsonService = jsonService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceDataService = deviceDataService;
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Override
@@ -46,7 +48,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
 
     private interface ServiceLocator {
         public DeviceConfigurationService deviceConfigurationService();
-        public ServerDeviceDataService deviceDataService();
+        public ServerCommunicationTaskService communicationTaskService();
     }
 
     private class ServiceLocatorImpl implements ComTaskEnablementConnectionMessageHandler.ServiceLocator {
@@ -56,8 +58,8 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         }
 
         @Override
-        public ServerDeviceDataService deviceDataService() {
-            return deviceDataService;
+        public ServerCommunicationTaskService communicationTaskService() {
+            return communicationTaskService;
         }
     }
 
@@ -162,38 +164,38 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         SWITCH_ON_DEFAULT {
             @Override
             void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator) {
-                this.process(new SwitchOnUsingDefaultConnectionEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.deviceDataService());
+                this.process(new SwitchOnUsingDefaultConnectionEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.communicationTaskService());
             }
 
-            private void process(SwitchOnUsingDefaultConnectionEventData eventData, ServerDeviceDataService deviceDataService) {
+            private void process(SwitchOnUsingDefaultConnectionEventData eventData, ServerCommunicationTaskService communicationTaskService) {
                 ComTask comTask = eventData.getComTaskEnablement().getComTask();
                 DeviceConfiguration deviceConfiguration = eventData.getComTaskEnablement().getDeviceConfiguration();
-                deviceDataService.switchOnDefault(comTask, deviceConfiguration);
+                communicationTaskService.switchOnDefault(comTask, deviceConfiguration);
             }
         },
 
         SWITCH_OFF_DEFAULT {
             void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator) {
-                this.process(new SwitchOffUsingDefaultConnectionEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.deviceDataService());
+                this.process(new SwitchOffUsingDefaultConnectionEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.communicationTaskService());
             }
 
-            private void process(SwitchOffUsingDefaultConnectionEventData eventData, ServerDeviceDataService deviceDataService) {
+            private void process(SwitchOffUsingDefaultConnectionEventData eventData, ServerCommunicationTaskService communicationTaskService) {
                 ComTask comTask = eventData.getComTaskEnablement().getComTask();
                 DeviceConfiguration deviceConfiguration = eventData.getComTaskEnablement().getDeviceConfiguration();
-                deviceDataService.switchOffDefault(comTask, deviceConfiguration);
+                communicationTaskService.switchOffDefault(comTask, deviceConfiguration);
             }
         },
 
         SWITCH_FROM_DEFAULT_TO_TASK {
             @Override
             void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator) {
-                this.process(new SwitchFromDefaultConnectionToPartialConnectionTaskEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.deviceDataService());
+                this.process(new SwitchFromDefaultConnectionToPartialConnectionTaskEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.communicationTaskService());
             }
 
-            private void process(SwitchFromDefaultConnectionToPartialConnectionTaskEventData eventData, ServerDeviceDataService deviceDataService) {
+            private void process(SwitchFromDefaultConnectionToPartialConnectionTaskEventData eventData, ServerCommunicationTaskService communicationTaskService) {
                 ComTask comTask = eventData.getComTaskEnablement().getComTask();
                 DeviceConfiguration deviceConfiguration = eventData.getComTaskEnablement().getDeviceConfiguration();
-                deviceDataService.switchFromDefaultConnectionTaskToPreferredConnectionTask(
+                communicationTaskService.switchFromDefaultConnectionTaskToPreferredConnectionTask(
                         comTask,
                         deviceConfiguration,
                         eventData.getPartialConnectionTask());
@@ -203,13 +205,13 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         SWITCH_FROM_TASK_TO_DEFAULT {
             @Override
             void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator) {
-                this.process(new SwitchFromPartialConnectionTaskToDefaultConnectionEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.deviceDataService());
+                this.process(new SwitchFromPartialConnectionTaskToDefaultConnectionEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.communicationTaskService());
             }
 
-            private void process(SwitchFromPartialConnectionTaskToDefaultConnectionEventData eventData, ServerDeviceDataService deviceDataService) {
+            private void process(SwitchFromPartialConnectionTaskToDefaultConnectionEventData eventData, ServerCommunicationTaskService communicationTaskService) {
                 ComTask comTask = eventData.getComTaskEnablement().getComTask();
                 DeviceConfiguration deviceConfiguration = eventData.getComTaskEnablement().getDeviceConfiguration();
-                deviceDataService.switchFromPreferredConnectionTaskToDefault(
+                communicationTaskService.switchFromPreferredConnectionTaskToDefault(
                         comTask,
                         deviceConfiguration,
                         eventData.getPartialConnectionTask());
@@ -219,13 +221,13 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         SWITCH_BETWEEN_TASKS {
             @Override
             void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator) {
-                this.process(new SwitchBetweenPartialConnectionTasksEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.deviceDataService());
+                this.process(new SwitchBetweenPartialConnectionTasksEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.communicationTaskService());
             }
 
-            private void process(SwitchBetweenPartialConnectionTasksEventData eventData, ServerDeviceDataService deviceDataService) {
+            private void process(SwitchBetweenPartialConnectionTasksEventData eventData, ServerCommunicationTaskService communicationTaskService) {
                 ComTask comTask = eventData.getComTaskEnablement().getComTask();
                 DeviceConfiguration deviceConfiguration = eventData.getComTaskEnablement().getDeviceConfiguration();
-                deviceDataService.preferredConnectionTaskChanged(
+                communicationTaskService.preferredConnectionTaskChanged(
                         comTask,
                         deviceConfiguration,
                         eventData.getOldPartialConnectionTask(),
@@ -236,13 +238,13 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         USE_TASK {
             @Override
             void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator) {
-                this.process(new StartUsingPartialConnectionTaskEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.deviceDataService());
+                this.process(new StartUsingPartialConnectionTaskEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.communicationTaskService());
             }
 
-            private void process(StartUsingPartialConnectionTaskEventData eventData, ServerDeviceDataService deviceDataService) {
+            private void process(StartUsingPartialConnectionTaskEventData eventData, ServerCommunicationTaskService communicationTaskService) {
                 ComTask comTask = eventData.getComTaskEnablement().getComTask();
                 DeviceConfiguration deviceConfiguration = eventData.getComTaskEnablement().getDeviceConfiguration();
-                deviceDataService.switchFromDefaultConnectionTaskToPreferredConnectionTask(
+                communicationTaskService.switchFromDefaultConnectionTaskToPreferredConnectionTask(
                         comTask,
                         deviceConfiguration,
                         eventData.getPartialConnectionTask());
@@ -252,13 +254,13 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
         REMOVE_TASK {
             @Override
             void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator) {
-                this.process(new RemovePartialConnectionTaskEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.deviceDataService());
+                this.process(new RemovePartialConnectionTaskEventData(serviceLocator.deviceConfigurationService(), messageProperties), serviceLocator.communicationTaskService());
             }
 
-            private void process(RemovePartialConnectionTaskEventData eventData, ServerDeviceDataService deviceDataService) {
+            private void process(RemovePartialConnectionTaskEventData eventData, ServerCommunicationTaskService communicationTaskService) {
                 ComTask comTask = eventData.getComTaskEnablement().getComTask();
                 DeviceConfiguration deviceConfiguration = eventData.getComTaskEnablement().getDeviceConfiguration();
-                deviceDataService.removePreferredConnectionTask(
+                communicationTaskService.removePreferredConnectionTask(
                         comTask,
                         deviceConfiguration,
                         eventData.getPartialConnectionTask());

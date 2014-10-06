@@ -145,6 +145,6 @@ public class LogBookImplTest extends PersistenceIntegrationTest{
         Device reloadedDevice = getReloadedDevice(simpleDeviceWithLogBook);
         reloadedDevice.delete();
 
-        assertThat(inMemoryPersistence.getDeviceDataService().getDataModel().mapper(LogBook.class).find()).isEmpty();
+        assertThat(inMemoryPersistence.getDataModel().mapper(LogBook.class).find()).isEmpty();
     }
 }
