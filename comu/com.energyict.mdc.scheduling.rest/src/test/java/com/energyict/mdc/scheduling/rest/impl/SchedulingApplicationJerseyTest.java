@@ -6,7 +6,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import javax.ws.rs.core.Application;
@@ -22,7 +22,7 @@ public class SchedulingApplicationJerseyTest extends FelixRestApplicationJerseyT
     @Mock
     SchedulingService schedulingService;
     @Mock
-    DeviceDataService deviceDataService;
+    DeviceService deviceService;
     @Mock
     DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -46,7 +46,7 @@ public class SchedulingApplicationJerseyTest extends FelixRestApplicationJerseyT
         masterSchedulingApplication.setClock(clock);
         masterSchedulingApplication.setDeviceConfigurationService(deviceConfigurationService);
         masterSchedulingApplication.setJsonService(jsonService);
-        masterSchedulingApplication.setDeviceDataService(deviceDataService);
+        masterSchedulingApplication.setDeviceService(deviceService);
         masterSchedulingApplication.setMeteringService(meteringService);
         masterSchedulingApplication.setNlsService(nlsService);
         return masterSchedulingApplication;

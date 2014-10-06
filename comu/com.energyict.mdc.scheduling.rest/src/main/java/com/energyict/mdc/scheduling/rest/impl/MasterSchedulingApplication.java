@@ -16,7 +16,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
@@ -42,7 +42,7 @@ public class MasterSchedulingApplication extends Application implements InstallS
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile SchedulingService schedulingService;
-    private volatile DeviceDataService deviceDataService;
+    private volatile DeviceService deviceService;
     private volatile TaskService taskService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile Clock clock;
@@ -95,8 +95,8 @@ public class MasterSchedulingApplication extends Application implements InstallS
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
@@ -131,7 +131,7 @@ public class MasterSchedulingApplication extends Application implements InstallS
             bind(transactionService).to(TransactionService.class);
             bind(schedulingService).to(SchedulingService.class);
             bind(meteringService).to(MeteringService.class);
-            bind(deviceDataService).to(DeviceDataService.class);
+            bind(deviceService).to(DeviceService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
             bind(taskService).to(TaskService.class);
