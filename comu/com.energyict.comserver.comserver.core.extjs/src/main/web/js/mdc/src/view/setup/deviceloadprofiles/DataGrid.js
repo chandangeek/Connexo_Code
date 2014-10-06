@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 header: channel.name,
                 dataIndex: 'channelData',
                 align: 'right',
-                minWidth : 150,
+                minWidth: 150,
                 flex: 1,
                 renderer: function (data, metaData, record) {
                     var validationFlag = '';
@@ -59,13 +59,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
             });
         });
         /* Commented for now because of JP-5561
-        me.columns.push({
-            xtype: 'uni-actioncolumn',
-            menu: {
-                xtype: 'deviceLoadProfilesDataActionMenu'
-            }
-        });
-        */
+         me.columns.push({
+         xtype: 'uni-actioncolumn',
+         menu: {
+         xtype: 'deviceLoadProfilesDataActionMenu'
+         }
+         });
+         */
 
         me.callParent(arguments);
     }

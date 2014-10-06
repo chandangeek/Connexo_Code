@@ -1,7 +1,7 @@
 Ext.define('Mdc.store.LoadProfileTypesOnDeviceTypeAvailable', {
     extend: 'Ext.data.Store',
     //buffered: true,
-   // pageSize: 20,
+    // pageSize: 20,
     requires: [
         'Mdc.model.LoadProfileType'
     ],

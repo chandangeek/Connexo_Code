@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.ValidationPreview', {
                             return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect');
                             break;
                         case 'validationStatus.suspect':
-                            return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect')  + ' ' + '<span class="icon-validation icon-validation-red"></span>';
+                            return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + ' ' + '<span class="icon-validation icon-validation-red"></span>';
                             break;
                         default:
                             field.hide();

@@ -80,7 +80,7 @@ Ext.define('Mdc.controller.Main', {
         var me = this,
             historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device'])) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
                 href: '#/devices',

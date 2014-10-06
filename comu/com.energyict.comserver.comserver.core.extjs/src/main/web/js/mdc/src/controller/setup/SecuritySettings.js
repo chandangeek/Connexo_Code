@@ -213,7 +213,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         executionLevelsgrid.down('pagingtoolbartop').store = record.executionLevels();
         executionLevelsgrid.down('pagingtoolbartop').store.totalCount = record.executionLevels().getCount();
         executionLevelsgrid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', record.executionLevels().getCount(), 'MDC', '{2} privileges'),
-        executionLevelsgrid.down('pagingtoolbartop').updateInfo();
+            executionLevelsgrid.down('pagingtoolbartop').updateInfo();
 
         preloader.destroy();
     },
@@ -465,13 +465,13 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                             me.getApplication().fireEvent('changecontentevent', widget);
                                             me.getAddExecutionLevelPanel().setTitle(Uni.I18n.translate('executionlevels.addExecutionLevels', 'MDC', 'Add privileges'));
                                             store.fireEvent('load', store);
-                                          //  var numberOfExecutionLevelsLabel = Ext.ComponentQuery.query('add-execution-levels toolbar label[name=ExecutionLevelCount]')[0],
-                                                //var grid = Ext.ComponentQuery.query('add-execution-levels grid')[0];
+                                            //  var numberOfExecutionLevelsLabel = Ext.ComponentQuery.query('add-execution-levels toolbar label[name=ExecutionLevelCount]')[0],
+                                            //var grid = Ext.ComponentQuery.query('add-execution-levels grid')[0];
                                             //numberOfExecutionLevelsLabel.setText(Uni.I18n.translate('executionlevels.noExecutionLevelsSelected', 'MDC','No execution levels selected'));
-                                          //  if (self.getCount() < 1) {
-                                           //     grid.hide();
-                                           //     grid.next().show();
-                                           // }
+                                            //  if (self.getCount() < 1) {
+                                            //     grid.hide();
+                                            //     grid.next().show();
+                                            // }
                                         }
                                     });
                                 }
@@ -484,10 +484,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     },
 
     /*countSelectedExecutionLevels: function (grid) {
-        var textLabel = Ext.ComponentQuery.query('add-execution-levels label')[0],
-            chosenExecutionLevelsCount = grid.view.getSelectionModel().getSelection().length;
-        textLabel.setText(Ext.String.format(Uni.I18n.translatePlural('executionlevels.selectedItems', chosenExecutionLevelsCount, 'MDC', '{0} execution levels selected'),chosenExecutionLevelsCount));
-    },*/
+     var textLabel = Ext.ComponentQuery.query('add-execution-levels label')[0],
+     chosenExecutionLevelsCount = grid.view.getSelectionModel().getSelection().length;
+     textLabel.setText(Ext.String.format(Uni.I18n.translatePlural('executionlevels.selectedItems', chosenExecutionLevelsCount, 'MDC', '{0} execution levels selected'),chosenExecutionLevelsCount));
+     },*/
 
 
     addExecutionLevels: function (btn) {
@@ -501,8 +501,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             }),
             records = grid.getSelectionModel().getSelection(),
             ids = [];
-        if(records.length === 0){
-        self.showExecutionLevelsErrorPanel();
+        if (records.length === 0) {
+            self.showExecutionLevelsErrorPanel();
         } else {
             Ext.Array.each(records, function (item) {
                 ids.push(item.internalId);
