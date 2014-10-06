@@ -15,24 +15,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
             fieldLabel: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
             name: 'validationStatus',
             renderer: function (value) {
-                if (value) {
-                    return Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active');
-                } else {
-                    return Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
-                }
+                return value ? Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active') : Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive')
             }
         },
         {
             fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
             name: 'dataValidated',
             renderer: function (value) {
-                if (value == true) {
-                    return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
-                } else if (value == false) {
-                    return Uni.I18n.translate('general.no', 'MDC', 'No');
-                } else {
-                    return '';
-                }
+                return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                    : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
             }
         },
         {
@@ -43,16 +34,16 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                     field.show();
                     switch (value) {
                         case 'validationStatus.notValidated':
-                            return '<span class="icon-validation icon-validation-black"></span>&nbsp;&nbsp;' + ' ' + Uni.I18n.translate('device.registerData.notValidated', 'MDC', 'Not validated');
+                            field.hide();
                             break;
                         case 'validationStatus.ok':
-                            return Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect');
+                            return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect');
                             break;
                         case 'validationStatus.suspect':
-                            return '<span class="icon-validation icon-validation-red"></span>&nbsp;&nbsp;' + ' ' + Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect');
+                            return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect')  + ' ' + '<span class="icon-validation icon-validation-red"></span>';
                             break;
                         default:
-                            return '';
+                            field.hide();
                             break;
                     }
                 } else {

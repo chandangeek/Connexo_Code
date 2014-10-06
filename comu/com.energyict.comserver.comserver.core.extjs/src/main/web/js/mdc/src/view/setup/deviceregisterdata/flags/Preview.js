@@ -5,14 +5,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Preview', {
     title: '',
     frame: true,
 
-    tools: [
-        {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            iconCls: 'x-uni-action-iconD'
-        }
-    ],
-
     items: {
         xtype: 'form',
         defaults: {

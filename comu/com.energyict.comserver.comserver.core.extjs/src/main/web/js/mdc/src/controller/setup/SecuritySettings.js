@@ -464,13 +464,14 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                             var widget = Ext.widget('add-execution-levels', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigId, securitySettingId: securitySettingId})
                                             me.getApplication().fireEvent('changecontentevent', widget);
                                             me.getAddExecutionLevelPanel().setTitle(Uni.I18n.translate('executionlevels.addExecutionLevels', 'MDC', 'Add privileges'));
+                                            store.fireEvent('load', store);
                                           //  var numberOfExecutionLevelsLabel = Ext.ComponentQuery.query('add-execution-levels toolbar label[name=ExecutionLevelCount]')[0],
-                                                var grid = Ext.ComponentQuery.query('add-execution-levels grid')[0];
+                                                //var grid = Ext.ComponentQuery.query('add-execution-levels grid')[0];
                                             //numberOfExecutionLevelsLabel.setText(Uni.I18n.translate('executionlevels.noExecutionLevelsSelected', 'MDC','No execution levels selected'));
-                                            if (self.getCount() < 1) {
-                                                grid.hide();
-                                                grid.next().show();
-                                            }
+                                          //  if (self.getCount() < 1) {
+                                           //     grid.hide();
+                                           //     grid.next().show();
+                                           // }
                                         }
                                     });
                                 }

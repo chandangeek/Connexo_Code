@@ -1,12 +1,13 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerMappingAdd',
-    store: 'AvailableRegisterTypes',
+  //  store: 'AvailableRegisterTypes',
 
     requires: [
         'Mdc.view.setup.register.RegisterMappingAddGrid',
         'Mdc.view.setup.register.RegisterMappingsAddFilter',
-        'Uni.view.container.PreviewContainer'
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     deviceTypeId: null,

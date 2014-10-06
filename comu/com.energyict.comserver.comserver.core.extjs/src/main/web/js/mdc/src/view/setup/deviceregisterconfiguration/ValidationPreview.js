@@ -10,34 +10,35 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
 
     initComponent: function () {
         var me = this;
-        me.defaults = {
-            xtype: 'displayfield',
-            labelWidth: this.inputLabelWidth
+        me.fieldDefaults = {
+            labelWidth: me.inputLabelWidth
         };
         me.items = [
             {
+                xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
                 name: 'validationInfo_validationActive'
             },
             {
+                xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'MDC', 'All data validated'),
                 name: 'validationInfo_dataValidated'
             },
             {
+                xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validation.suspects', 'MDC', 'Suspects (last year)'),
                 name: 'detailedValidationInfo',
                 renderer: function (value, field) {
                     var result = '',
                         url;
-                    if (value.suspectReason) {
+                    if (!Ext.isEmpty(value.suspectReason)) {
                         field.show();
                         Ext.Array.each(value.suspectReason, function (rule) {
                             url = me.router.getRoute('administration/rulesets/overview/rules').buildUrl({ruleSetId: rule.key.ruleSet.id, ruleId: rule.key.id});
                             result += '<a href="' + url + '"> ' + rule.key.name + '</a>' + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                         });
                         return result;
-                    }
-                    if(Ext.isEmty(value.suspectReason)) {
+                    } else {
                         field.hide();
                     }
                 }
