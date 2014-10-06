@@ -20,6 +20,8 @@ Ext.define('Uni.view.grid.SelectionGrid', {
     overflowY: 'auto',
     maxHeight: 450,
 
+    extraTopToolbarComponent: undefined,
+
     plugins: [
         {
             ptype: 'bufferedrenderer',
@@ -103,6 +105,8 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
         me.getUncheckAllButton().on('click', me.onClickUncheckAllButton, me);
         me.on('selectionchange', me.onSelectionChange, me);
+
+        me.addComponentInToolbar();
     },
 
     onClickUncheckAllButton: function (button) {
@@ -131,5 +135,12 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
     getTopToolbarContainer: function () {
         return this.down('#topToolbarContainer');
+    },
+
+    addComponentInToolbar: function () {
+        var me = this;
+        me.getTopToolbarContainer().add(
+            me.extraTopToolbarComponent
+        )
     }
 });
