@@ -31,7 +31,9 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.DeviceDataService;
+
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.install.InstallServiceImpl;
 import com.google.inject.AbstractModule;
@@ -51,8 +53,7 @@ import javax.validation.MessageInterpolator;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore("Base functionality for all tests")
-public class BaseTest {
+public abstract class BaseTest {
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -65,7 +66,8 @@ public class BaseTest {
             bind(KieResources.class).toInstance(mock(KieResources.class));
             bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class));
             bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class));
-            bind(DeviceDataService.class).toInstance(mock(DeviceDataService.class));
+            bind(DeviceService.class).toInstance(mock(DeviceService.class));
+            bind(CommunicationTaskService.class).toInstance(mock(CommunicationTaskService.class));
 
             Thesaurus thesaurus = mock(Thesaurus.class);
             bind(Thesaurus.class).toInstance(thesaurus);
@@ -141,8 +143,11 @@ public class BaseTest {
     protected MeteringService getMeteringService() {
         return injector.getInstance(MeteringService.class);
     }
-    protected DeviceDataService getDeviceDataService(){
-        return injector.getInstance(DeviceDataService.class);
+    protected CommunicationTaskService getCommunicationTaskService(){
+        return injector.getInstance(CommunicationTaskService.class);
+    }
+    protected DeviceService getDeviceDataService(){
+        return injector.getInstance(DeviceService.class);
     }
     protected OrmService getOrmService(){
         return injector.getInstance(OrmService.class);

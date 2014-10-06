@@ -6,7 +6,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandler;
 import org.junit.Test;
@@ -22,17 +22,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DataCollectionEventHandlerTest extends BaseTest {
+
     @Test
     public void testSuccessfullProcess() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
 
-        DeviceDataService deviceDataService = getDeviceDataService();
+        DeviceService deviceService = getDeviceDataService();
         MeteringService meteringService = mock(MeteringService.class);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceDataService.findDeviceById(1)).thenReturn(device);
+        when(deviceService.findDeviceById(1)).thenReturn(device);
 
         Meter meter = mock(Meter.class);
         Query<Meter> meterQuery = mock(Query.class);
@@ -42,7 +43,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         String serializedMap = getJsonService().serialize(messageMap);
         Message message = getMockMessage(serializedMap);
         Boolean isProcessed = false;
-        DataCollectionEventHandler handler = new DataCollectionEventHandler(getJsonService(), getIssueService(), getMockIssueCreationService(), meteringService, deviceDataService, getThesaurus());
+        DataCollectionEventHandler handler = new DataCollectionEventHandler(getJsonService(), getIssueService(), getMockIssueCreationService(), meteringService, getCommunicationTaskService(), deviceService, getThesaurus());
         try {
             handler.process(message);
         } catch (DispatchCreationEventException ex) {
@@ -59,7 +60,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         String serializedMap = getJsonService().serialize(messageMap);
         Message message = getMockMessage(serializedMap);
         Boolean isProcessed = false;
-        DataCollectionEventHandler handler = new DataCollectionEventHandler(getJsonService(), getIssueService(), getMockIssueCreationService(), getMeteringService(), getDeviceDataService(), getThesaurus());
+        DataCollectionEventHandler handler = new DataCollectionEventHandler(getJsonService(), getIssueService(), getMockIssueCreationService(), getMeteringService(), getCommunicationTaskService(), getDeviceDataService(), getThesaurus());
         try {
             handler.process(message);
         } catch (DispatchCreationEventException ex) {
