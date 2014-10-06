@@ -37,16 +37,19 @@ public class ComSessionResource {
     public ConnectionHistoryInfo getConnectionMethodHistory(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
-        ConnectionHistoryInfo info = new ConnectionHistoryInfo();
-        info.connectionMethod = connectionTask.getName();
         List<ComSession> comSessions = connectionTaskService.findAllSessionsFor(connectionTask).stream().sorted((c1, c2) -> c1.getStartDate().compareTo(c2.getStartDate())).collect(toList());
         List<ComSessionInfo> comSessionsInPage = ListPager.of(comSessions).from(queryParameters).find().stream().map(comSessionInfoFactory::from).collect(toList());
-        info.comSessionPage = PagedInfoList.asJson("comSessions", comSessionsInPage, queryParameters);
+        PagedInfoList pagedInfoList = PagedInfoList.asJson("comSessions", comSessionsInPage, queryParameters);
+        ConnectionHistoryInfo info = new ConnectionHistoryInfo();
+        info.connectionMethod = connectionTask.getName();
+        info.comSessions = (List<ComSessionInfo>) pagedInfoList.getInfos();
+        info.total = pagedInfoList.getTotal();
         return info;
     }
 }
 
 class ConnectionHistoryInfo {
     public String connectionMethod;
-    public PagedInfoList comSessionPage;
+    public int total;
+    public List<ComSessionInfo> comSessions;
 }

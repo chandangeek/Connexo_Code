@@ -50,24 +50,24 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<String>get("$.connectionMethod")).isEqualTo("GPRS");
-        assertThat(jsonModel.<Integer>get("$.comSessionPage.total")).isEqualTo(2);
-        assertThat(jsonModel.<List>get("$.comSessionPage.comSessions")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.comSessionPage.comSessions[0].connectionMethod")).isEqualTo("GPRS");
-        assertThat(jsonModel.<Long>get("$.comSessionPage.comSessions[0].startedOn")).isEqualTo(start.getTime());
-        assertThat(jsonModel.<Long>get("$.comSessionPage.comSessions[0].finishedOn")).isEqualTo(end.getTime());
-        assertThat(jsonModel.<Integer>get("$.comSessionPage.comSessions[0].durationInSeconds")).isEqualTo(120);
-        assertThat(jsonModel.<String>get("$.comSessionPage.comSessions[0].direction")).isEqualTo("Inbound");
-        assertThat(jsonModel.<String>get("$.comSessionPage.comSessions[0].connectionType")).isEqualTo("IPDIALER");
-        assertThat(jsonModel.<Integer>get("$.comSessionPage.comSessions[0].comServer.id")).isEqualTo(1234654);
-        assertThat(jsonModel.<String>get("$.comSessionPage.comSessions[0].comServer.name")).isEqualTo("communication server alfa");
-        assertThat(jsonModel.<String>get("$.comSessionPage.comSessions[0].comPort")).isEqualTo("comPort 199812981212");
-        assertThat(jsonModel.<String>get("$.comSessionPage.comSessions[0].result.id")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.comSessionPage.comSessions[0].result.displayValue")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.comSessionPage.comSessions[0].status")).isEqualTo("Success");
-        assertThat(jsonModel.<Integer>get("$.comSessionPage.comSessions[0].comTaskCount.numberOfSuccessfulTasks")).isEqualTo(1001);
-        assertThat(jsonModel.<Integer>get("$.comSessionPage.comSessions[0].comTaskCount.numberOfFailedTasks")).isEqualTo(1002);
-        assertThat(jsonModel.<Integer>get("$.comSessionPage.comSessions[0].comTaskCount.numberOfIncompleteTasks")).isEqualTo(1003);
-        assertThat(jsonModel.<Boolean>get("$.comSessionPage.comSessions[0].isDefault")).isEqualTo(true);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<List>get("$.comSessions")).hasSize(2);
+        assertThat(jsonModel.<String>get("$.comSessions[0].connectionMethod")).isEqualTo("GPRS");
+        assertThat(jsonModel.<Long>get("$.comSessions[0].startedOn")).isEqualTo(start.getTime());
+        assertThat(jsonModel.<Long>get("$.comSessions[0].finishedOn")).isEqualTo(end.getTime());
+        assertThat(jsonModel.<Integer>get("$.comSessions[0].durationInSeconds")).isEqualTo(120);
+        assertThat(jsonModel.<String>get("$.comSessions[0].direction")).isEqualTo("Inbound");
+        assertThat(jsonModel.<String>get("$.comSessions[0].connectionType")).isEqualTo("IPDIALER");
+        assertThat(jsonModel.<Integer>get("$.comSessions[0].comServer.id")).isEqualTo(1234654);
+        assertThat(jsonModel.<String>get("$.comSessions[0].comServer.name")).isEqualTo("communication server alfa");
+        assertThat(jsonModel.<String>get("$.comSessions[0].comPort")).isEqualTo("comPort 199812981212");
+        assertThat(jsonModel.<String>get("$.comSessions[0].result.id")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.comSessions[0].result.displayValue")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.comSessions[0].status")).isEqualTo("Success");
+        assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfSuccessfulTasks")).isEqualTo(1001);
+        assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfFailedTasks")).isEqualTo(1002);
+        assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfIncompleteTasks")).isEqualTo(1003);
+        assertThat(jsonModel.<Boolean>get("$.comSessions[0].isDefault")).isEqualTo(true);
 
 
     }

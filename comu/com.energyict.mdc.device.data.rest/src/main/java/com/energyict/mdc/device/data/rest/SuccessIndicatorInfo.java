@@ -14,7 +14,7 @@ public class SuccessIndicatorInfo {
     public String displayValue;
     public Integer retries;
 
-    public SuccessIndicatorInfo(ComSession.SuccessIndicator successIndicator, Thesaurus thesaurus) throws Exception {
+    public SuccessIndicatorInfo(ComSession.SuccessIndicator successIndicator, Thesaurus thesaurus) throws RuntimeException {
         this.id=successIndicator;
         this.displayValue=thesaurus.getString(SUCCESS_INDICATOR_ADAPTER.marshal(successIndicator), SUCCESS_INDICATOR_ADAPTER.marshal(successIndicator));
     }

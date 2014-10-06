@@ -21,7 +21,7 @@ public class ComSessionInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public ComSessionInfo from(ComSession comSession) throws Exception {
+    public ComSessionInfo from(ComSession comSession) {
         ComSessionInfo info = new ComSessionInfo();
         ConnectionTask<?,?> connectionTask = comSession.getConnectionTask();
         PartialConnectionTask partialConnectionTask = connectionTask.getPartialConnectionTask();
