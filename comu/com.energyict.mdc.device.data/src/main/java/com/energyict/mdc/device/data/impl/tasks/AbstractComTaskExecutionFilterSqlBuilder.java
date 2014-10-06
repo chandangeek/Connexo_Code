@@ -23,6 +23,13 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     private Set<ComTask> comTasks;
     private Set<ComSchedule> comSchedules;
 
+    public AbstractComTaskExecutionFilterSqlBuilder(Clock clock) {
+        super(clock);
+        this.deviceTypes = new HashSet<>();
+        this.comTasks = new HashSet<>();
+        this.comSchedules = new HashSet<>();
+    }
+
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, ComTaskExecutionFilterSpecification filter) {
         super(clock);
         this.deviceTypes = new HashSet<>(filter.deviceTypes);
@@ -42,13 +49,13 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     }
 
     private void appendDeviceTypeSql() {
-        this.appendDeviceTypeSql(this.comTaskExecutionTableName(), this.deviceTypes);
+        this.appendDeviceTypeSql(this.communicationTaskAliasName(), this.deviceTypes);
     }
 
     private void appendComTaskSql() {
         if (!this.comTasks.isEmpty()) {
             this.appendWhereOrAnd();
-            this.append("(discriminator =");
+            this.append("((discriminator =");
             this.addString(ComTaskExecutionImpl.SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR);
             this.append("and comschedule in (select comschedule from SCH_COMTASKINCOMSCHEDULE where ");
             this.appendInClause("comtask", this.comTasks);
@@ -56,7 +63,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
             this.addString(ComTaskExecutionImpl.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
             this.append(" and ");
             this.appendInClause("comtask", this.comTasks);
-            this.append(")");
+            this.append("))");
         }
     }
 

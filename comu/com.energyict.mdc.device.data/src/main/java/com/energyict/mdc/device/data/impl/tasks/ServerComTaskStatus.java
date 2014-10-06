@@ -36,7 +36,7 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and nextExecutionTimestamp is null");
+            sqlBuilder.append("and cte.nextExecutionTimestamp is null");
         }
     },
 
@@ -59,13 +59,7 @@ public enum ServerComTaskStatus {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and ((comport is not null) or ((exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-            sqlBuilder.append(" ct where ct.comserver is not null and ct.id = ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(".connectiontask)) and ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(".nextExecutionTimestamp is not null and ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(".nextexecutiontimestamp <=");
+            sqlBuilder.append(" ct where ct.comserver is not null and ct.id = cte.connectiontask)) and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <=");
             sqlBuilder.addUtcInstant(now);
             sqlBuilder.append("))");
         }
@@ -93,9 +87,7 @@ public enum ServerComTaskStatus {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and comport is null and not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-            sqlBuilder.append(" ct where ct.comserver is not null and ct.id = ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(".connectiontask) and nextexecutiontimestamp <=");
+            sqlBuilder.append(" ct where ct.comserver is not null and ct.id = cte.connectiontask) and cte.nextexecutiontimestamp <=");
             sqlBuilder.addUtcInstant(now);
         }
     },
@@ -242,7 +234,7 @@ public enum ServerComTaskStatus {
     }
 
     protected void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date date) {
-        sqlBuilder.append("obsolete_date is null ");
+        sqlBuilder.append("cte.obsolete_date is null ");
     }
 
     /**

@@ -213,6 +213,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
+    public SchedulingService schedulingService() {
+        return this.schedulingService;
+    }
+
+    @Override
     public EngineModelService engineModelService() {
         return this.engineModelService;
     }

@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -31,6 +32,8 @@ public interface DeviceDataModelService {
     public Thesaurus thesaurus();
 
     public Clock clock();
+
+    public SchedulingService schedulingService();
 
     public EngineModelService engineModelService();
 

@@ -116,6 +116,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
             }
         }
         this.appendLastSessionStartWhereClause();
+        this.appendNonStatusWhereClauses();
         this.append(" order by lastcommunicationstart desc");
         return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize);
     }
