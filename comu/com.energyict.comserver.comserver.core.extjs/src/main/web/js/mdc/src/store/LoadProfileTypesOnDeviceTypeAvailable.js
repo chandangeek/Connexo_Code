@@ -1,7 +1,7 @@
 Ext.define('Mdc.store.LoadProfileTypesOnDeviceTypeAvailable', {
     extend: 'Ext.data.Store',
-    buffered: true,
-    pageSize: 20,
+    //buffered: true,
+   // pageSize: 20,
     requires: [
         'Mdc.model.LoadProfileType'
     ],
@@ -11,9 +11,9 @@ Ext.define('Mdc.store.LoadProfileTypesOnDeviceTypeAvailable', {
     proxy: {
         type: 'rest',
         url: '/api/dtc/devicetypes/{deviceType}/loadprofiletypes',
-        pageParam: false,
-        startParam: false,
-        limitParam: false,
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'data'
