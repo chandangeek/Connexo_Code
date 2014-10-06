@@ -26,9 +26,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
                     }
                 },
                 flex: 3
-            },
-            {
-                xtype: 'uni-actioncolumn'
             }
         ]
     },
