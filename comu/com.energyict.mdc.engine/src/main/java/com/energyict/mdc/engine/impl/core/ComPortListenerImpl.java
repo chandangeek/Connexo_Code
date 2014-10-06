@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
-    private static final TimeDuration WAIT_AFTER_COMMUNICATION_TIMEOUT = new TimeDuration(1, TimeDuration.MINUTES);
+    private static final TimeDuration WAIT_AFTER_COMMUNICATION_TIMEOUT = new TimeDuration(1, TimeDuration.TimeUnit.MINUTES);
 
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private InboundComPort comPort;

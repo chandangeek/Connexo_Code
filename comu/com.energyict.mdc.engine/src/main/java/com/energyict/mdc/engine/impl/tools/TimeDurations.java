@@ -19,14 +19,14 @@ public final class TimeDurations {
      * @return false if my own {@link TimeDuration#timeUnitCode} is {@link TimeDuration#MONTHS} or {@link TimeDuration#YEARS} and the compared timeDuration does not have the same {@link TimeDuration#timeUnitCode}, true otherwise
      */
     protected static boolean timeUnitCodeCheck(TimeDuration firstTimeDuration, TimeDuration durationToCompare) {
-        return !(oneTimeUnitCodeCheck(firstTimeDuration, durationToCompare, TimeDuration.MONTHS)
-                || oneTimeUnitCodeCheck(durationToCompare, firstTimeDuration, TimeDuration.MONTHS)
-                || oneTimeUnitCodeCheck(firstTimeDuration, durationToCompare, TimeDuration.YEARS)
-                || oneTimeUnitCodeCheck(durationToCompare, firstTimeDuration, TimeDuration.YEARS));
+        return !(oneTimeUnitCodeCheck(firstTimeDuration, durationToCompare, TimeDuration.TimeUnit.MONTHS)
+                || oneTimeUnitCodeCheck(durationToCompare, firstTimeDuration, TimeDuration.TimeUnit.MONTHS)
+                || oneTimeUnitCodeCheck(firstTimeDuration, durationToCompare, TimeDuration.TimeUnit.YEARS)
+                || oneTimeUnitCodeCheck(durationToCompare, firstTimeDuration, TimeDuration.TimeUnit.YEARS));
     }
 
-    private static boolean oneTimeUnitCodeCheck (TimeDuration first, TimeDuration second, int timeDurationField) {
-        return first.getTimeUnitCode() == timeDurationField && second.getTimeUnitCode() != timeDurationField;
+    private static boolean oneTimeUnitCodeCheck (TimeDuration first, TimeDuration second, TimeDuration.TimeUnit timeDurationField) {
+        return first.getTimeUnit() == timeDurationField && second.getTimeUnit() != timeDurationField;
     }
 
     /**

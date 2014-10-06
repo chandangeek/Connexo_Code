@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
@@ -8,13 +9,10 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.TimeDifferenceExceededException;
 import com.energyict.mdc.tasks.BasicCheckTask;
-
-import com.elster.jupiter.util.time.Clock;
 import org.joda.time.DateTime;
+import org.junit.Test;
 
 import java.util.Date;
-
-import org.junit.*;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -48,8 +46,8 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
         when(deviceProtocol.getTime()).thenReturn(meterTime);
         BasicCheckCommand basicCheckCommand = mock(BasicCheckCommand.class);
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
-        when(basicCheckCommand.getTimeDifference()).thenReturn(new TimeDuration(1, TimeDuration.HOURS));
-        when(basicCheckCommand.getBasicCheckTask()).thenReturn(basicCheckTask);        when(basicCheckTask.getMaximumClockDifference()).thenReturn(new TimeDuration(1, TimeDuration.SECONDS));
+        when(basicCheckCommand.getTimeDifference()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.HOURS));
+        when(basicCheckCommand.getBasicCheckTask()).thenReturn(basicCheckTask);        when(basicCheckTask.getMaximumClockDifference()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
         VerifyTimeDifferenceCommandImpl verifyTimeDifferenceCommand = new VerifyTimeDifferenceCommandImpl(basicCheckCommand, createCommandRoot());
         verifyTimeDifferenceCommand.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
     }

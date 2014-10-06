@@ -1,21 +1,20 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.model.ComServer;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
 import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.management.openmbean.CompositeData;
 import java.util.Date;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -43,8 +42,8 @@ public class ComServerOperationalStatisticsImplTest {
     @Before
     public void initializeMocks () {
         when(this.runningComServer.getComServer()).thenReturn(this.comServer);
-        when(this.comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(5, TimeDuration.MINUTES));
-        when(this.comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(5, TimeDuration.MINUTES));
+        when(this.comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
+        when(this.comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
         when(this.comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.WARN);
         when(this.comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
     }

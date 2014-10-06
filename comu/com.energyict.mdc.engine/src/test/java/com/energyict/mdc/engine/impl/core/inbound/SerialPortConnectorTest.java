@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.mdc.protocol.api.dialer.core.DialerException;
 import com.energyict.mdc.protocol.api.exceptions.ModemException;
 import com.energyict.mdc.protocol.api.services.HexService;
-
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentServiceImpl;
@@ -20,6 +19,12 @@ import com.energyict.protocols.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import org.joda.time.DateTimeConstants;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,17 +35,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link SerialPortConnector} component.
@@ -164,7 +161,7 @@ public class SerialPortConnectorTest {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
-        when(comPort.getDelayBeforeSend()).thenReturn(new TimeDuration(500, TimeDuration.MILLISECONDS));
+        when(comPort.getDelayBeforeSend()).thenReturn(new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS));
 
         serialComChannel.setResponses(Arrays.asList(
             "OK",      // Answer at modem hang up command

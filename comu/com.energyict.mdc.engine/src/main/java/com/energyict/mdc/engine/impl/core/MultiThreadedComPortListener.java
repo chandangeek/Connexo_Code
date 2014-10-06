@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MultiThreadedComPortListener extends ComChannelBasedComPortListenerImpl {
 
-    private static final TimeDuration RESOURCE_FREE_TIMEOUT = new TimeDuration(5, TimeDuration.SECONDS);
+    private static final TimeDuration RESOURCE_FREE_TIMEOUT = new TimeDuration(5, TimeDuration.TimeUnit.SECONDS);
     private final com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider;
 
     private ResourceManager resourceManager;

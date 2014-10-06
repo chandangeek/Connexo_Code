@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
@@ -7,17 +8,14 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.exceptions.ObisCodeParseException;
-
-import com.elster.jupiter.metering.readings.IntervalBlock;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -33,7 +31,7 @@ public class MeterDataFactoryTest {
 
     @Test
     public void convertToIntervalBlocksTest() {
-        TimeDuration interval = new TimeDuration(15, TimeDuration.MINUTES);
+        TimeDuration interval = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
         ChannelInfo channelInfo = new ChannelInfo(1, "1.0.1.8.0.255", Unit.get("kWh"));
         Date intervalDate = new Date(1385974800L);
         IntervalData intervalData = new IntervalData(intervalDate);
@@ -55,7 +53,7 @@ public class MeterDataFactoryTest {
 
     @Test(expected = ObisCodeParseException.class)
     public void channelInfoIsNotAnObisCode() {
-        TimeDuration interval = new TimeDuration(15, TimeDuration.MINUTES);
+        TimeDuration interval = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
         ChannelInfo channelInfo = new ChannelInfo(1, "NotAnObisCode", Unit.get("kWh"));
         CollectedLoadProfile collectedLoadProfile = mock(CollectedLoadProfile.class);
         when(collectedLoadProfile.getChannelInfo()).thenReturn(Arrays.asList(channelInfo));

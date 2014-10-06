@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class ServletInboundComPortListenerTest {
 
     private static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 3;
-    private static final TimeDuration INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.SECONDS);
+    private static final TimeDuration INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.TimeUnit.SECONDS);
 
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;

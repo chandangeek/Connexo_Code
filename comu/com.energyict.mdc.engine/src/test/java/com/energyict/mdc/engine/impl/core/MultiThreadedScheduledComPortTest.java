@@ -886,7 +886,7 @@ public class MultiThreadedScheduledComPortTest {
 
     private OutboundComPort mockComPort(int numberOfSimultaneousConnections, String name) {
         InboundCapableComServer comServer = mock(InboundCapableComServer.class);
-        when(comServer.getSchedulingInterPollDelay()).thenReturn(new TimeDuration(1, TimeDuration.SECONDS));
+        when(comServer.getSchedulingInterPollDelay()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
         OutboundComPort comPort = mock(OutboundComPort.class);

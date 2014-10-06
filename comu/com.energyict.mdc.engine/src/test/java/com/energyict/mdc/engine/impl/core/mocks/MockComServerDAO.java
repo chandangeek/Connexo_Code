@@ -79,8 +79,8 @@ public class MockComServerDAO implements ComServerDAO {
         comServer.setActive(true);
         comServer.setServerLogLevel(ComServer.LogLevel.INFO);
         comServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        comServer.setChangesInterPollDelay(new TimeDuration(CHANGES_DELAY_SECONDS, TimeDuration.SECONDS));
-        comServer.setSchedulingInterPollDelay(new TimeDuration(2, TimeDuration.HOURS));
+        comServer.setChangesInterPollDelay(new TimeDuration(CHANGES_DELAY_SECONDS, TimeDuration.TimeUnit.SECONDS));
+        comServer.setSchedulingInterPollDelay(new TimeDuration(2, TimeDuration.TimeUnit.HOURS));
     }
 
     public MockOnlineComServer addComServer (int activeOutboundComPorts, int activeInboundComPorts) throws BusinessException, SQLException {
@@ -366,7 +366,7 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public TimeDuration releaseTimedOutTasks (ComServer comServer) {
         this.comTaskExecutionLocking.clear();
-        return new TimeDuration(1, TimeDuration.DAYS);
+        return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     }
 
 //    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {

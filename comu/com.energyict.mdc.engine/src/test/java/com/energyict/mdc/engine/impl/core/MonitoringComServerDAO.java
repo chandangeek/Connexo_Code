@@ -446,7 +446,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public TimeDuration releaseTimedOutTasks (ComServer comServer) {
             // No implementation required
-            return new TimeDuration(1, TimeDuration.DAYS);
+            return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
         }
 
         @Override
@@ -545,7 +545,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public TimeDuration releaseTimedOutTasks (ComServer comServer) {
         // No need to release when in monitoring mode
-        return new TimeDuration(1, TimeDuration.DAYS);
+        return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     }
 
     @Override

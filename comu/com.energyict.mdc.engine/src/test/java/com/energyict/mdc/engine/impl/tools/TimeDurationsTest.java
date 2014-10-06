@@ -15,13 +15,13 @@ public class TimeDurationsTest {
 
     @Test
     public void timeUnitCodeCheckTest(){
-        TimeDuration tdDays = new TimeDuration(10, TimeDuration.DAYS);
-        TimeDuration tdHours = new TimeDuration(240, TimeDuration.HOURS);
-        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.MINUTES);
-        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdMonths2 = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdYears = new TimeDuration(3, TimeDuration.YEARS);
-        TimeDuration tdYears2 = new TimeDuration(3, TimeDuration.YEARS);
+        TimeDuration tdDays = new TimeDuration(10, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdHours = new TimeDuration(240, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdMonths2 = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdYears = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
+        TimeDuration tdYears2 = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
 
         assertTrue(TimeDurations.timeUnitCodeCheck(tdDays, tdHours));
         assertTrue(TimeDurations.timeUnitCodeCheck(tdDays, tdMinutes));
@@ -48,14 +48,14 @@ public class TimeDurationsTest {
 
     @Test
     public void hasLargerDurationThenTest(){
-        TimeDuration tdDays = new TimeDuration(10, TimeDuration.DAYS);
-        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.DAYS);
-        TimeDuration tdHours = new TimeDuration(240, TimeDuration.HOURS);
-        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.HOURS);
-        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.MINUTES);
-        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.MINUTES);
-        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdYears = new TimeDuration(3, TimeDuration.YEARS);
+        TimeDuration tdDays = new TimeDuration(10, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdHours = new TimeDuration(240, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdYears = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
 
         assertFalse(TimeDurations.hasLargerDurationThen(tdDays, tdHours, false));
         assertFalse(TimeDurations.hasLargerDurationThen(tdMinutes, tdHours, false));
@@ -89,14 +89,14 @@ public class TimeDurationsTest {
 
     @Test
     public void hasLargerDurationThenWithVariableTimeUnitCodeTest(){
-        TimeDuration tdDays = new TimeDuration(10, TimeDuration.DAYS);
-        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.DAYS);
-        TimeDuration tdHours = new TimeDuration(240, TimeDuration.HOURS);
-        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.HOURS);
-        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.MINUTES);
-        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.MINUTES);
-        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdYears = new TimeDuration(3, TimeDuration.YEARS);
+        TimeDuration tdDays = new TimeDuration(10, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdHours = new TimeDuration(240, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdYears = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
 
         assertFalse(TimeDurations.hasLargerDurationThen(tdDays, tdHours, true));
         assertFalse(TimeDurations.hasLargerDurationThen(tdMinutes, tdHours, true));
@@ -130,14 +130,14 @@ public class TimeDurationsTest {
 
     @Test
     public void hasLargerOrEqualDurationThenTest(){
-        TimeDuration tdDays = new TimeDuration(10, TimeDuration.DAYS);
-        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.DAYS);
-        TimeDuration tdHours = new TimeDuration(240, TimeDuration.HOURS);
-        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.HOURS);
-        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.MINUTES);
-        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.MINUTES);
-        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdYears = new TimeDuration(3, TimeDuration.YEARS);
+        TimeDuration tdDays = new TimeDuration(10, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdHours = new TimeDuration(240, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdYears = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
 
         assertTrue(TimeDurations.hasLargerOrEqualDurationThen(tdDays, tdHours, false));
         assertTrue(TimeDurations.hasLargerOrEqualDurationThen(tdMinutes, tdHours, false));
@@ -171,16 +171,16 @@ public class TimeDurationsTest {
 
     @Test
     public void hasLargerOrEqualDurationThenWithVariableTimeUnitCodeTest(){
-        TimeDuration tdDays = new TimeDuration(10, TimeDuration.DAYS);
-        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.DAYS);
-        TimeDuration tdHours = new TimeDuration(240, TimeDuration.HOURS);
-        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.HOURS);
-        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.MINUTES);
-        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.MINUTES);
-        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdMonths2 = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdYears = new TimeDuration(3, TimeDuration.YEARS);
-        TimeDuration tdYears2 = new TimeDuration(3, TimeDuration.YEARS);
+        TimeDuration tdDays = new TimeDuration(10, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdHours = new TimeDuration(240, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdMonths2 = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdYears = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
+        TimeDuration tdYears2 = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
 
         assertTrue(TimeDurations.hasLargerOrEqualDurationThen(tdDays, tdHours, true));
         assertTrue(TimeDurations.hasLargerOrEqualDurationThen(tdMinutes, tdHours, true));
@@ -216,14 +216,14 @@ public class TimeDurationsTest {
 
     @Test
     public void hasSmallerDurationThenTest(){
-        TimeDuration tdDays = new TimeDuration(10, TimeDuration.DAYS);
-        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.DAYS);
-        TimeDuration tdHours = new TimeDuration(240, TimeDuration.HOURS);
-        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.HOURS);
-        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.MINUTES);
-        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.MINUTES);
-        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdYears = new TimeDuration(3, TimeDuration.YEARS);
+        TimeDuration tdDays = new TimeDuration(10, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdHours = new TimeDuration(240, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdYears = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
 
         assertFalse(TimeDurations.hasSmallerDurationThen(tdDays, tdHours, false));
         assertFalse(TimeDurations.hasSmallerDurationThen(tdMinutes, tdHours, false));
@@ -257,16 +257,16 @@ public class TimeDurationsTest {
 
     @Test
     public void hasSmallerDurationThenWithVariableTimeUnitCodeTest(){
-        TimeDuration tdDays = new TimeDuration(10, TimeDuration.DAYS);
-        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.DAYS);
-        TimeDuration tdHours = new TimeDuration(240, TimeDuration.HOURS);
-        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.HOURS);
-        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.MINUTES);
-        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.MINUTES);
-        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdMonthsSmaller = new TimeDuration(12, TimeDuration.MONTHS);
-        TimeDuration tdYears = new TimeDuration(3, TimeDuration.YEARS);
-        TimeDuration tdYearsSmaller = new TimeDuration(1, TimeDuration.YEARS);
+        TimeDuration tdDays = new TimeDuration(10, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdHours = new TimeDuration(240, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdMonthsSmaller = new TimeDuration(12, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdYears = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
+        TimeDuration tdYearsSmaller = new TimeDuration(1, TimeDuration.TimeUnit.YEARS);
 
         assertFalse(TimeDurations.hasSmallerDurationThen(tdDays, tdHours, true));
         assertFalse(TimeDurations.hasSmallerDurationThen(tdMinutes, tdHours, true));
@@ -302,16 +302,16 @@ public class TimeDurationsTest {
 
     @Test
     public void hasSmallerOrEqualDurationThenWithVariableTimeUnitCodeTest(){
-        TimeDuration tdDays = new TimeDuration(10, TimeDuration.DAYS);
-        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.DAYS);
-        TimeDuration tdHours = new TimeDuration(240, TimeDuration.HOURS);
-        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.HOURS);
-        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.MINUTES);
-        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.MINUTES);
-        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdMonthsSmaller = new TimeDuration(12, TimeDuration.MONTHS);
-        TimeDuration tdYears = new TimeDuration(3, TimeDuration.YEARS);
-        TimeDuration tdYearsSmaller = new TimeDuration(1, TimeDuration.YEARS);
+        TimeDuration tdDays = new TimeDuration(10, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdHours = new TimeDuration(240, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdMonthsSmaller = new TimeDuration(12, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdYears = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
+        TimeDuration tdYearsSmaller = new TimeDuration(1, TimeDuration.TimeUnit.YEARS);
 
         assertTrue(TimeDurations.hasSmallerOrEqualDurationThen(tdDays, tdHours, true));
         assertTrue(TimeDurations.hasSmallerOrEqualDurationThen(tdMinutes, tdHours, true));
@@ -347,16 +347,16 @@ public class TimeDurationsTest {
 
     @Test
     public void hasSmallerOrEqualDurationThenTest(){
-        TimeDuration tdDays = new TimeDuration(10, TimeDuration.DAYS);
-        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.DAYS);
-        TimeDuration tdHours = new TimeDuration(240, TimeDuration.HOURS);
-        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.HOURS);
-        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.MINUTES);
-        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.MINUTES);
-        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.MONTHS);
-        TimeDuration tdMonthsSmaller = new TimeDuration(12, TimeDuration.MONTHS);
-        TimeDuration tdYears = new TimeDuration(3, TimeDuration.YEARS);
-        TimeDuration tdYearsSmaller = new TimeDuration(1, TimeDuration.YEARS);
+        TimeDuration tdDays = new TimeDuration(10, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdDaysSmaller = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        TimeDuration tdHours = new TimeDuration(240, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdHoursSmaller = new TimeDuration(24, TimeDuration.TimeUnit.HOURS);
+        TimeDuration tdMinutes = new TimeDuration(14400, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMinutesSmaller = new TimeDuration(1440, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration tdMonths = new TimeDuration(13, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdMonthsSmaller = new TimeDuration(12, TimeDuration.TimeUnit.MONTHS);
+        TimeDuration tdYears = new TimeDuration(3, TimeDuration.TimeUnit.YEARS);
+        TimeDuration tdYearsSmaller = new TimeDuration(1, TimeDuration.TimeUnit.YEARS);
 
         assertTrue(TimeDurations.hasSmallerOrEqualDurationThen(tdDays, tdHours, false));
         assertTrue(TimeDurations.hasSmallerOrEqualDurationThen(tdMinutes, tdHours, false));

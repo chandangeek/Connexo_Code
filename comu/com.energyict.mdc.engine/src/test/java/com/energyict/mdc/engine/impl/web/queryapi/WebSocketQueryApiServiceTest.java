@@ -1,10 +1,24 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.SqlBuilder;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.data.DeviceService;
@@ -24,21 +38,6 @@ import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.engine.model.impl.EngineModelServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -46,6 +45,13 @@ import org.joda.time.DateTimeConstants;
 import org.json.JSONException;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -54,11 +60,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -355,8 +356,8 @@ public class WebSocketQueryApiServiceTest {
             onlineComServer.setActive(true);
             onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
             onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.ERROR);
-            onlineComServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.HOURS));
-            onlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.MINUTES));
+            onlineComServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.HOURS));
+            onlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
             onlineComServer.setStoreTaskQueueSize(ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE);
             onlineComServer.setNumberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
             onlineComServer.setStoreTaskThreadPriority(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
@@ -381,8 +382,8 @@ public class WebSocketQueryApiServiceTest {
         remoteComServer.setActive(true);
         remoteComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
         remoteComServer.setCommunicationLogLevel(ComServer.LogLevel.ERROR);
-        remoteComServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.HOURS));
-        remoteComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.MINUTES));
+        remoteComServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.HOURS));
+        remoteComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         remoteComServer.save();
         return remoteComServer;
     }

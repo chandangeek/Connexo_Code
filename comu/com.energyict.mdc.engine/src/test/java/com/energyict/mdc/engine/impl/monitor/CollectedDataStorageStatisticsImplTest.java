@@ -36,8 +36,8 @@ public class CollectedDataStorageStatisticsImplTest {
     @Before
     public void initializeMocks () {
         when(this.runningComServer.getComServer()).thenReturn(this.comServer);
-        when(this.comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(5, TimeDuration.MINUTES));
-        when(this.comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(5, TimeDuration.MINUTES));
+        when(this.comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
+        when(this.comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
         when(this.comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.WARN);
         when(this.comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
         when(this.runningComServer.getCollectedDataStorageCapacity()).thenReturn(CAPACITY);

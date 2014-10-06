@@ -41,7 +41,7 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
         long halfRoundTrip = roundTripTimer.getRoundTrip();
         halfRoundTrip = halfRoundTrip / 2;
         long differenceInMillis = clock.now().getTime() - (meterTime.getTime() - halfRoundTrip);
-        this.timeDifference = new TimeDuration((int) differenceInMillis, TimeDuration.MILLISECONDS);
+        this.timeDifference = new TimeDuration((int) differenceInMillis, TimeDuration.TimeUnit.MILLISECONDS);
     }
 
     /**

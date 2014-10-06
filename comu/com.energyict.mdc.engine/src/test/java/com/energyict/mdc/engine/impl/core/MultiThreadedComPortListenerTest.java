@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.impl.DefaultClock;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
@@ -14,10 +15,14 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
-
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
 import com.energyict.protocols.mdc.services.SocketService;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -26,21 +31,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.MultiThreadedComPortListener} component.
@@ -53,7 +47,7 @@ public class MultiThreadedComPortListenerTest {
 
     private static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 3;
 
-    private static final TimeDuration INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.MINUTES);
+    private static final TimeDuration INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.TimeUnit.MINUTES);
 
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;

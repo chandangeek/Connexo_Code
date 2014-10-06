@@ -1,8 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.DeviceService;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
@@ -23,26 +25,20 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests how the {@link com.energyict.mdc.engine.impl.core.RunningComServerImpl} component picks up on changes
@@ -489,7 +485,7 @@ public class RunningComServerChangesTest {
         runningComServer.start();
 
         // Change the scheduling interpoll delay
-        TimeDuration newSchedulingInterPollDelay = new TimeDuration(5, TimeDuration.MINUTES);
+        TimeDuration newSchedulingInterPollDelay = new TimeDuration(5, TimeDuration.TimeUnit.MINUTES);
         comServerDAO.setSchedulingInterPollDelay(0, newSchedulingInterPollDelay);
 
         this.waitForComServerToPickupChanges(runningComServer);

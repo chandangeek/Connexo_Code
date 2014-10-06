@@ -46,8 +46,8 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
 
     @Test
     public void doExecuteWithLargerTimeDifferenceTest() {
-        final TimeDuration timeDifference = new TimeDuration(13, TimeDuration.MINUTES);
-        final TimeDuration minClockDiffBeforeBadTime = new TimeDuration(1, TimeDuration.MINUTES);
+        final TimeDuration timeDifference = new TimeDuration(13, TimeDuration.TimeUnit.MINUTES);
+        final TimeDuration minClockDiffBeforeBadTime = new TimeDuration(1, TimeDuration.TimeUnit.MINUTES);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
 
@@ -82,8 +82,8 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
 
     @Test
     public void doExecuteWithLowerTimeDifferenceTest() {
-        final TimeDuration timeDifference = new TimeDuration(1, TimeDuration.MINUTES);
-        final TimeDuration minClockDiffBeforeBadTime = new TimeDuration(5, TimeDuration.MINUTES);
+        final TimeDuration timeDifference = new TimeDuration(1, TimeDuration.TimeUnit.MINUTES);
+        final TimeDuration minClockDiffBeforeBadTime = new TimeDuration(5, TimeDuration.TimeUnit.MINUTES);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
 

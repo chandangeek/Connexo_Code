@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
 
-    private static final TimeDuration DEFAULT_WAIT_TIME = new TimeDuration(1, TimeDuration.DAYS);
+    private static final TimeDuration DEFAULT_WAIT_TIME = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private AtomicBoolean continueRunning;
     private ThreadFactory threadFactory;

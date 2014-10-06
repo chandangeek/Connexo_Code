@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
  */
 public class OfflineLoadProfileImplTest {
 
-    private static final TimeDuration PROFILE_INTERVAL = new TimeDuration(1, TimeDuration.DAYS);
+    private static final TimeDuration PROFILE_INTERVAL = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     private static final Date LAST_READING = new Date(1338381863000L);
     private static final long RTU_ID = 4565;
     private static final int LOAD_PROFILE_ID = 48564;

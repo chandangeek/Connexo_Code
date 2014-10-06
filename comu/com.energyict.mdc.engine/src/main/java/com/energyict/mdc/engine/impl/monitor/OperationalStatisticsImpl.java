@@ -54,7 +54,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     @Override
     public TimeDuration getRunningTime () {
         Date now = clock.now();
-        return new TimeDuration(this.asSeconds(now.getTime() - this.startTimestamp.getTime()), TimeDuration.SECONDS);
+        return new TimeDuration(this.asSeconds(now.getTime() - this.startTimestamp.getTime()), TimeDuration.TimeUnit.SECONDS);
     }
 
     private int asSeconds (long millis) {
