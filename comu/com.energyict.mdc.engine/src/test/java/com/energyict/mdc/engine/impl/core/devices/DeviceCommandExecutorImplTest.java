@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.devices;
 
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -34,6 +35,7 @@ import java.util.concurrent.ThreadFactory;
 
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -75,11 +77,14 @@ public class DeviceCommandExecutorImplTest {
     private User user;
     @Mock
     private EventPublisherImpl eventPublisher;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ConnectionTaskService connectionTaskService;
 
     @Before
     public void setupComServer() {
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
+        serviceProvider.setConnectionTaskService(this.connectionTaskService);
         when(userService.findUser(anyString())).thenReturn(Optional.of(user));
         EventPublisherImpl.setInstance(this.eventPublisher);
         when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
@@ -89,6 +94,7 @@ public class DeviceCommandExecutorImplTest {
     @After
     public void tearDown() {
         EventPublisherImpl.setInstance(null);
+        ServiceProvider.instance.set(null);
     }
 
     @Test
@@ -649,17 +655,14 @@ public class DeviceCommandExecutorImplTest {
                 deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
             }
 
-            Runnable delay = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        // Delay the triggering or commands a little bit
-                        Thread.sleep(50);
-                        // Triggering the start latch, kicks the executing command(s)
-                        startLatch.countDown();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
+            Runnable delay = () -> {
+                try {
+                    // Delay the triggering or commands a little bit
+                    Thread.sleep(50);
+                    // Triggering the start latch, kicks the executing command(s)
+                    startLatch.countDown();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
             };
 
@@ -680,7 +683,7 @@ public class DeviceCommandExecutorImplTest {
     /**
      * Tests that shutting down the DeviceCommandExecutorImpl
      * stops all running tasks and calls executeDuringShutdown on all others.
-     * Creates a 3 commands with a single thread so all commands will execute
+     * Creates 3 commands with a single thread so all commands will execute
      * one after the other.
      * Shutdown is only initiated after the first command completes
      * to make sure that the execution engine is working full force.

@@ -9,7 +9,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
@@ -86,7 +86,7 @@ public class OfflineDeviceImplTest {
     private static final TimeZone deviceTimeZone = TimeZone.getTimeZone("GMT+05");
 
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
     @Mock
     private DeviceMessageFactory deviceMessageFactory;
     @Mock

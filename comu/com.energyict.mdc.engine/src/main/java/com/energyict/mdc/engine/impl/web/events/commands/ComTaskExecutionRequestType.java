@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 
 import java.util.Set;
 
@@ -13,10 +13,10 @@ import java.util.Set;
  */
 public class ComTaskExecutionRequestType extends IdBusinessObjectRequestType {
 
-    private final DeviceDataService deviceDataService;
+    private final CommunicationTaskService communicationTaskService;
 
-    public ComTaskExecutionRequestType(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public ComTaskExecutionRequestType(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ComTaskExecutionRequestType extends IdBusinessObjectRequestType {
 
     @Override
     protected Request newRequestFor (Set<Long> ids) {
-        return new ComTaskExecutionRequest(deviceDataService, ids);
+        return new ComTaskExecutionRequest(this.communicationTaskService, ids);
     }
 
 }

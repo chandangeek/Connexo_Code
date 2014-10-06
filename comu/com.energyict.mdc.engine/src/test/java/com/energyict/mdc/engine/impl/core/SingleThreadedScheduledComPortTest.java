@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.events.EventService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
@@ -12,8 +11,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -55,6 +54,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -178,7 +178,7 @@ public class SingleThreadedScheduledComPortTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
     @Mock
     private EngineService engineService;
     @Mock
@@ -249,7 +249,7 @@ public class SingleThreadedScheduledComPortTest {
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setTransactionService(new FakeTransactionService());
-        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setEngineService(engineService);
         this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
@@ -259,7 +259,7 @@ public class SingleThreadedScheduledComPortTest {
         ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
         when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
-        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
+        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
             thenReturn(comSessionBuilder);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.<ComTaskEnablement>absent());
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());

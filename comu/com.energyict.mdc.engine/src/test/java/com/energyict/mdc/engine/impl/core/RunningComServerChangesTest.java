@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
@@ -61,7 +61,7 @@ public class RunningComServerChangesTest {
     @Mock
     private EngineService engineService;
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
     @Mock
     private ManagementBeanFactory managementBeanFactory;
     @Mock(extraInterfaces = ComServerMonitor.class)
@@ -77,7 +77,7 @@ public class RunningComServerChangesTest {
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setEngineService(this.engineService);
         this.serviceProvider.setEngineModelService(this.engineModelService);
-        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setDeviceService(this.deviceService);
         this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
         ServiceProvider.instance.set(this.serviceProvider);
     }
@@ -105,7 +105,7 @@ public class RunningComServerChangesTest {
     }
 
     public void initializeEventPublisher(RunningComServer comServer) {
-        EventPublisherImpl.setInstance(new EventPublisherImpl(comServer, this.clock, this.engineModelService, this.deviceDataService));
+        EventPublisherImpl.setInstance(new EventPublisherImpl(comServer, this.clock));
     }
 
     @After

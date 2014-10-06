@@ -175,7 +175,7 @@ public class InboundCommunicationHandler {
      */
     private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e){
         ComSessionBuilder comSessionBuilder =
-                serviceProvider.deviceDataService().
+                serviceProvider.connectionTaskService().
                         buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now()).
                         addJournalEntry(serviceProvider.clock().now(), ComServer.LogLevel.ERROR, e.getMessage(), e);
         return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError, serviceProvider.clock());

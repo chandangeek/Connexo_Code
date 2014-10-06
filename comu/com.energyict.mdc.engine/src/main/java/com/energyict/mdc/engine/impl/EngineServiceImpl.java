@@ -12,8 +12,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
@@ -62,7 +65,10 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile EngineModelService engineModelService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile IssueService issueService;
-    private volatile DeviceDataService deviceDataService;
+    private volatile ConnectionTaskService connectionTaskService;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile LogBookService logBookService;
+    private volatile DeviceService deviceService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile StatusService statusService;
     private volatile ManagementBeanFactory managementBeanFactory;
@@ -85,7 +91,8 @@ public class EngineServiceImpl implements EngineService, InstallService {
     public EngineServiceImpl(
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineModelService engineModelService, IssueService issueService,
-            DeviceDataService deviceDataService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
+            MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
+            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory, EmbeddedWebServerFactory embeddedWebServerFactory,
             WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory, WebSocketEventPublisherFactory webSocketEventPublisherFactory,
@@ -100,7 +107,10 @@ public class EngineServiceImpl implements EngineService, InstallService {
         setEngineModelService(engineModelService);
         setThreadPrincipalService(threadPrincipalService);
         setIssueService(issueService);
-        setDeviceDataService(deviceDataService);
+        this.setDeviceService(deviceService);
+        this.setConnectionTaskService(connectionTaskService);
+        this.setCommunicationTaskService(communicationTaskService);
+        this.setLogBookService(logBookService);
         setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         setUserService(userService);
         setDeviceConfigurationService(deviceConfigurationService);
@@ -137,8 +147,23 @@ public class EngineServiceImpl implements EngineService, InstallService {
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setLogBookService(LogBookService logBookService) {
+        this.logBookService = logBookService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
@@ -236,10 +261,6 @@ public class EngineServiceImpl implements EngineService, InstallService {
         this.serialComponentService = serialComponentService;
     }
 
-    DataModel getDataModel() {
-        return dataModel;
-    }
-
     Thesaurus getThesaurus() {
         return thesaurus;
     }
@@ -310,8 +331,23 @@ public class EngineServiceImpl implements EngineService, InstallService {
         }
 
         @Override
-        public DeviceDataService deviceDataService() {
-            return deviceDataService;
+        public ConnectionTaskService connectionTaskService() {
+            return connectionTaskService;
+        }
+
+        @Override
+        public CommunicationTaskService communicationTaskService() {
+            return communicationTaskService;
+        }
+
+        @Override
+        public LogBookService logBookService() {
+            return logBookService;
+        }
+
+        @Override
+        public DeviceService deviceDataService() {
+            return deviceService;
         }
 
         @Override

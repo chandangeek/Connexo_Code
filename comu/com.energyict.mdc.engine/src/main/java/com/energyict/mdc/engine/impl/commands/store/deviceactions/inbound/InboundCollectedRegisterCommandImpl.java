@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.RegisterCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
@@ -21,7 +21,7 @@ public class InboundCollectedRegisterCommandImpl extends RegisterCommandImpl {
 
     private final List<ServerCollectedData> collectedData;
 
-    public InboundCollectedRegisterCommandImpl(RegistersTask registersTask, OfflineDevice device, CommandRoot commandRoot, ComTaskExecution comTaskExecution, List<ServerCollectedData> collectedData, DeviceDataService deviceDataService) {
+    public InboundCollectedRegisterCommandImpl(RegistersTask registersTask, OfflineDevice device, CommandRoot commandRoot, ComTaskExecution comTaskExecution, List<ServerCollectedData> collectedData, DeviceService deviceService) {
         super(registersTask, device, commandRoot, comTaskExecution);
         this.collectedData = collectedData;
     }

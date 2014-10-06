@@ -92,7 +92,7 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
      * @param logBook the logBook to add
      */
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
-        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId(), getCommandRoot().getServiceProvider().deviceDataService());
+        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId(), getCommandRoot().getServiceProvider().logBookService());
         LogBookReader logBookReader =
                 new LogBookReader(
                         logBook.getObisCode(),

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactoryImpl;
@@ -49,7 +49,7 @@ public class EngineModule extends AbstractModule {
         requireBinding(EngineModelService.class);
         requireBinding(ThreadPrincipalService.class);
         requireBinding(IssueService.class);
-        requireBinding(DeviceDataService.class);
+        requireBinding(DeviceService.class);
         requireBinding(MdcReadingTypeUtilService.class);
         requireBinding(UserService.class);
         requireBinding(DeviceConfigurationService.class);

@@ -12,7 +12,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
@@ -82,12 +82,12 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     }
 
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
 
     @Test
     @Transactional
     public void testToJournalMessageDescriptionWithoutCollectedData() {
-        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceDataService)));
+        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceService)));
         CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand);
 
         // Business method
@@ -103,7 +103,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     public void testToJournalMessageDescriptionWithOneInterval() {
         Date now = new DateTime(2012, 12, 12, 12, 53, 5, 0, DateTimeZone.UTC).toDate();
         Clock frozenClock = new ProgrammableClock().frozenAt(now);
-        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceDataService)));
+        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceService)));
         List<IntervalData> intervalData = Arrays.asList(new IntervalData(now));
         List<ChannelInfo> channelInfo = Arrays.asList(new ChannelInfo(CHANNEL_INFO_ID, CHANNEL1_ID, "testToStringWithOneInterval", Unit.get("kWh")));
         deviceLoadProfile.setCollectedData(intervalData, channelInfo);
@@ -120,7 +120,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     @Test
     @Transactional
     public void testToJournalMessageDescriptionWithMultipleIntervalsFromOneChannel() {
-        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceDataService)));
+        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceService)));
         List<IntervalData> intervalData =
                 Arrays.asList(
                         new IntervalData(new DateTime(2012, 12, 12, 12, 45, 0, 0, DateTimeZone.UTC).toDate()),
@@ -148,7 +148,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     @Test
     @Transactional
     public void testToJournalMessageDescriptionWithIntervalsFromMultipleChannels() {
-        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceDataService)));
+        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceService)));
         List<IntervalData> intervalData =
                 Arrays.asList(
                         new IntervalData(new DateTime(2012, 12, 12, 12, 45, 0, 0, DateTimeZone.UTC).toDate()),

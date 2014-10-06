@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -83,7 +83,7 @@ public class RescheduleBehaviorForAsapTest {
     @Mock
     private IssueService issueService;
     @Mock
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
     private Clock clock = new ProgrammableClock().frozenAt(new DateTime(2014, 5, 20, 16, 16, 17, 222).toDate());
@@ -97,10 +97,10 @@ public class RescheduleBehaviorForAsapTest {
 //        ManagerFactory.setCurrent(this.manager);
         when(device.getId()).thenReturn(DEVICE_ID);
         when(connectionTask.getDevice()).thenReturn(device);
-        serviceProvider.setDeviceDataService(this.deviceDataService);
+        serviceProvider.setConnectionTaskService(this.connectionTaskService);
         serviceProvider.setIssueService(this.issueService);
         serviceProvider.setClock(clock);
-        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
+        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
     }
 
     @Test

@@ -16,7 +16,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
@@ -30,7 +30,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
-import org.junit.After;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +73,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     public void setUp() {
         this.deviceCreator = new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
-                getInjector().getInstance(DeviceDataService.class)
+                getInjector().getInstance(DeviceService.class)
         );
         initializeEnvironment();
     }
@@ -91,7 +91,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         Device device = this.deviceCreator.name("successfulStoreOfSingleRegisterTest").mRDI("successfulStoreOfSingleRegisterTest").create();
         long deviceId = device.getId();
 
-        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, getInjector().getInstance(DeviceDataService.class));
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, getInjector().getInstance(DeviceService.class));
         RegisterIdentifier registerIdentifier = new RegisterDataIdentifier(ObisCode.fromString(registerObisCode1), ObisCode.fromString(registerObisCode1), deviceIdentifier);
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 

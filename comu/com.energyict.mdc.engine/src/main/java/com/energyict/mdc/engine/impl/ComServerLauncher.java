@@ -1,13 +1,15 @@
 package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.RunningOnlineComServerImpl;
-import com.energyict.mdc.engine.impl.core.RunningRemoteComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServerImpl;
+import com.energyict.mdc.engine.impl.core.RunningRemoteComServerImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
@@ -186,7 +188,17 @@ public final class ComServerLauncher {
         }
 
         @Override
-        public DeviceDataService deviceDataService() {
+        public ConnectionTaskService connectionTaskService() {
+            return serviceProvider.connectionTaskService();
+        }
+
+        @Override
+        public CommunicationTaskService communicationTaskService() {
+            return serviceProvider.communicationTaskService();
+        }
+
+        @Override
+        public DeviceService deviceDataService() {
             return serviceProvider.deviceDataService();
         }
 

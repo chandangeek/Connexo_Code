@@ -1,7 +1,10 @@
 package com.energyict.mdc.engine;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
@@ -49,7 +52,10 @@ public class FakeServiceProvider
     private NlsService nlsService;
     private IssueService issueService;
     private HexService hexService;
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
+    private CommunicationTaskService communicationTaskService;
+    private LogBookService logBookService;
+    private DeviceService deviceService;
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private EngineService engineService;
     private UserService userService;
@@ -98,8 +104,23 @@ public class FakeServiceProvider
     }
 
     @Override
-    public DeviceDataService deviceDataService() {
-        return deviceDataService;
+    public ConnectionTaskService connectionTaskService() {
+        return connectionTaskService;
+    }
+
+    @Override
+    public CommunicationTaskService communicationTaskService() {
+        return this.communicationTaskService;
+    }
+
+    @Override
+    public LogBookService logBookService() {
+        return logBookService;
+    }
+
+    @Override
+    public DeviceService deviceDataService() {
+        return deviceService;
     }
 
     @Override
@@ -157,8 +178,20 @@ public class FakeServiceProvider
         this.hexService = hexService;
     }
 
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
+    }
+
+    public void setLogBookService(LogBookService logBookService) {
+        this.logBookService = logBookService;
+    }
+
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {

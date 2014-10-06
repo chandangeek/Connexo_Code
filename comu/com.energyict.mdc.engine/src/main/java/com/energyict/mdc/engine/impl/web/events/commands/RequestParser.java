@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.model.EngineModelService;
 
 import java.util.Arrays;
@@ -18,7 +20,11 @@ public class RequestParser {
 
     public interface ServiceProvider {
 
-        public DeviceDataService deviceDataService();
+        public ConnectionTaskService connectionTaskService();
+
+        public CommunicationTaskService communicationTaskService();
+
+        public DeviceService deviceDataService();
 
         public EngineModelService engineModelService();
 
@@ -66,8 +72,8 @@ public class RequestParser {
                         new DebugLoggingRequestType(),
                         new TraceLoggingRequestType(),
                         new DeviceRequestType(serviceProvider.deviceDataService()),
-                        new ConnectionTaskRequestType(serviceProvider.deviceDataService()),
-                        new ComTaskExecutionRequestType(serviceProvider.deviceDataService()),
+                        new ConnectionTaskRequestType(serviceProvider.connectionTaskService()),
+                        new ComTaskExecutionRequestType(serviceProvider.communicationTaskService()),
                         new ComPortRequestType(serviceProvider.engineModelService()),
                         new ComPortPoolRequestType(serviceProvider.engineModelService()));
     }

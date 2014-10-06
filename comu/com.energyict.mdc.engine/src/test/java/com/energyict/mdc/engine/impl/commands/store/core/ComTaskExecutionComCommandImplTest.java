@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -55,7 +57,9 @@ public class ComTaskExecutionComCommandImplTest {
     @Mock
     private Clock clock;
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ConnectionTaskService connectionTaskService;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
     @Mock
@@ -64,7 +68,8 @@ public class ComTaskExecutionComCommandImplTest {
     @Before
     public void initializeMocks () {
         serviceProvider.setClock(clock);
-        serviceProvider.setDeviceDataService(this.deviceDataService);
+        serviceProvider.setConnectionTaskService(this.connectionTaskService);
+        serviceProvider.setDeviceService(this.deviceService);
         when(this.comTask.getName()).thenReturn(ComTaskExecutionComCommandImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
@@ -83,7 +88,7 @@ public class ComTaskExecutionComCommandImplTest {
     @After
     public void initAfter() {
         serviceProvider.setClock(null);
-        serviceProvider.setDeviceDataService(null);
+        serviceProvider.setDeviceService(null);
     }
 
     @Test

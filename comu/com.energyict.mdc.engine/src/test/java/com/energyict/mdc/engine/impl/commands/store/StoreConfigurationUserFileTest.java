@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
@@ -36,11 +36,11 @@ public class StoreConfigurationUserFileTest {
     @Mock
     private DeviceCommand.ExecutionLogger executionLogger;
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
 
     @Test
     public void testExecute () {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData);
         command.logExecutionWith(this.executionLogger);
@@ -56,7 +56,7 @@ public class StoreConfigurationUserFileTest {
 
     @Test
     public void testToString () {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData);
 

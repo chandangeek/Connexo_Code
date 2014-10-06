@@ -4,7 +4,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.data.DeviceDataService;
+
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 
@@ -24,7 +25,7 @@ public enum TableSpecs {
             table.column("CONTENT").type("BLOB").conversion(ColumnConversion.BLOB2BYTE).map("simpleCache").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.primaryKey("PK_CES_DEVICECACHE").on(device).add();
-            table.foreignKey("FK_CES_DEVICECACHE_DEVICE").on(device).references(DeviceDataService.COMPONENTNAME, "DDC_DEVICE").map("device").add();
+            table.foreignKey("FK_CES_DEVICECACHE_DEVICE").on(device).references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").map("device").add();
         }
     },
     ;

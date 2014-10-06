@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+
+import com.google.common.base.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -28,14 +30,14 @@ public class LogBookIdentifierByIdImplTest {
     private static final long LOGBOOK_2_ID = 2;
 
     @Mock
-    private DeviceDataService deviceDataService;
+    private LogBookService logBookService;
 
     @Test(expected = NotFoundException.class)
     public void testLogBookDoesNotExist() {
-        when(this.deviceDataService.findLogBookById(LOGBOOK_ID)).thenReturn(null);
+        when(this.logBookService.findById(LOGBOOK_ID)).thenReturn(Optional.absent());
 
         // Business method
-        new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.deviceDataService).getLogBook();
+        new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.logBookService).getLogBook();
 
         // Expected a NotFoundException
     }
@@ -43,10 +45,10 @@ public class LogBookIdentifierByIdImplTest {
     @Test
     public void testOnlyOneLogBook() {
         LogBook logBook = mock(LogBook.class);
-        when(this.deviceDataService.findLogBookById(LOGBOOK_ID)).thenReturn(logBook);
+        when(this.logBookService.findById(LOGBOOK_ID)).thenReturn(Optional.of(logBook));
 
         // Business method
-        BaseLogBook returnedLogBook = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.deviceDataService).getLogBook();
+        BaseLogBook returnedLogBook = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.logBookService).getLogBook();
 
         // Asserts
         assertThat(logBook).isEqualTo(returnedLogBook);
@@ -54,8 +56,8 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testEquals() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.deviceDataService);
-        LogBookIdentifier identifier_B = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.deviceDataService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.logBookService);
+        LogBookIdentifier identifier_B = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.logBookService);
 
         // Asserts
         assertThat(identifier_A).isEqualTo(identifier_B);
@@ -63,8 +65,8 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testNotEquals() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.deviceDataService);
-        LogBookIdentifier identifier_B = new LogBookIdentifierByIdImpl(LOGBOOK_2_ID, this.deviceDataService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.logBookService);
+        LogBookIdentifier identifier_B = new LogBookIdentifierByIdImpl(LOGBOOK_2_ID, this.logBookService);
 
         // Asserts
         assertThat(identifier_A).isNotEqualTo(identifier_B);
@@ -72,7 +74,7 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testNotEqualsToString() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.deviceDataService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.logBookService);
 
         // Asserts
         assertThat(identifier_A).isNotEqualTo("identifier_B");
@@ -80,7 +82,7 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testNotEqualsToLong() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.deviceDataService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.logBookService);
 
         // Asserts
         assertThat(identifier_A).isNotEqualTo(Long.valueOf(LOGBOOK_2_ID));
@@ -88,7 +90,7 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testNotEqualsToNull() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.deviceDataService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.logBookService);
 
         // Asserts
         assertThat(identifier_A).isNotEqualTo(null);

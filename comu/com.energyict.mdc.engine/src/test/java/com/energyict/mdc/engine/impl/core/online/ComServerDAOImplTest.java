@@ -3,8 +3,9 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
@@ -70,7 +71,9 @@ public class ComServerDAOImplTest {
     @Mock
     private EngineModelService engineModelService;
     @Mock
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
+    @Mock
+    private ServerCommunicationTaskService communicationTaskService;
 
     private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private TransactionService transactionService;
@@ -85,11 +88,12 @@ public class ComServerDAOImplTest {
         this.transactionService = new FakeTransactionService();
         this.serviceProvider.setTransactionService(this.transactionService);
         this.serviceProvider.setEngineModelService(this.engineModelService);
-        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
+        this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
         when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(this.comPort);
-        when(this.deviceDataService.findComTaskExecution(SCHEDULED_COMTASK_ID)).thenReturn(this.scheduledComTask);
+        when(this.communicationTaskService.findComTaskExecution(SCHEDULED_COMTASK_ID)).thenReturn(this.scheduledComTask);
         when(this.comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.comPort.getId()).thenReturn(COMPORT_ID);
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
@@ -243,8 +247,8 @@ public class ComServerDAOImplTest {
         this.comServerDAO.releaseInterruptedTasks(this.comServer);
 
         // Asserts
-        verify(this.deviceDataService).releaseInterruptedConnectionTasks(this.comServer);
-        verify(this.deviceDataService).releaseInterruptedComTasks(this.comServer);
+        verify(this.connectionTaskService).releaseInterruptedConnectionTasks(this.comServer);
+        verify(this.communicationTaskService).releaseInterruptedComTasks(this.comServer);
     }
 
     @Test
@@ -253,8 +257,8 @@ public class ComServerDAOImplTest {
         this.comServerDAO.releaseTimedOutTasks(this.comServer);
 
         // Asserts
-        verify(this.deviceDataService).releaseTimedOutConnectionTasks(this.comServer);
-        verify(this.deviceDataService).releaseTimedOutComTasks(this.comServer);
+        verify(this.connectionTaskService).releaseTimedOutConnectionTasks(this.comServer);
+        verify(this.communicationTaskService).releaseTimedOutComTasks(this.comServer);
     }
 
     @Test
@@ -284,14 +288,14 @@ public class ComServerDAOImplTest {
     @Test
     public void testIsStillPendingDelegatesToComTaskExecutionFactory () {
         int id = 97;
-        when(this.deviceDataService.areComTasksStillPending(anyList())).thenReturn(true);
+        when(this.communicationTaskService.areComTasksStillPending(anyList())).thenReturn(true);
 
         // Business method
         boolean stillPending = this.comServerDAO.isStillPending(id);
 
         // Asserts
         assertThat(stillPending).isTrue();
-        verify(this.deviceDataService).areComTasksStillPending(anyList());
+        verify(this.communicationTaskService).areComTasksStillPending(anyList());
     }
 
     @Test
@@ -300,14 +304,14 @@ public class ComServerDAOImplTest {
         long id2 = 101;
         long id3 = 103;
         List<Long> comTaskExecutionIds = Arrays.asList(id1, id2, id3);
-        when(this.deviceDataService.areComTasksStillPending(comTaskExecutionIds)).thenReturn(true);
+        when(this.communicationTaskService.areComTasksStillPending(comTaskExecutionIds)).thenReturn(true);
 
         // Business method
         boolean stillPending = this.comServerDAO.areStillPending(comTaskExecutionIds);
 
         // Asserts
         assertThat(stillPending).isTrue();
-        verify(this.deviceDataService).areComTasksStillPending(comTaskExecutionIds);
+        verify(this.communicationTaskService).areComTasksStillPending(comTaskExecutionIds);
     }
 
     @Test

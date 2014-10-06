@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -39,9 +40,13 @@ import java.util.Date;
 import java.util.logging.Logger;
 
 import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.MockSettings;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -52,7 +57,7 @@ import static org.mockito.Mockito.when;
  * @author sva
  * @since 19/12/12 - 15:12
  */
-
+@RunWith(MockitoJUnitRunner.class)
 public class LegacyMeterProtocolCommandCreatorTest {
 
     private static final long COMPORT_POOL_ID = 1;
@@ -61,6 +66,8 @@ public class LegacyMeterProtocolCommandCreatorTest {
 
     @Mock
     private IssueService issueService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ConnectionTaskService connectionTaskService;
     private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
 
@@ -73,14 +80,15 @@ public class LegacyMeterProtocolCommandCreatorTest {
         Clock clock = mock(Clock.class);
         when(clock.now()).thenReturn(new Date());
         serviceProvider.setClock(clock);
-        DeviceDataService deviceDataService = mock(DeviceDataService.class);
-        serviceProvider.setDeviceDataService(deviceDataService);
+        DeviceService deviceService = mock(DeviceService.class);
+        serviceProvider.setDeviceService(deviceService);
+        serviceProvider.setConnectionTaskService(this.connectionTaskService);
     }
 
     @After
     public void initAfter() {
         serviceProvider.setClock(null);
-        serviceProvider.setDeviceDataService(null);
+        serviceProvider.setDeviceService(null);
     }
 
     @Test

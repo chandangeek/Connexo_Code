@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -18,7 +17,6 @@ import com.energyict.mdc.engine.impl.core.ScheduledComTaskExecutionJob;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
-import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -30,7 +28,6 @@ import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
-import com.elster.jupiter.transaction.impl.TransactionServiceImpl;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 import org.hamcrest.BaseMatcher;
@@ -38,7 +35,6 @@ import org.hamcrest.Description;
 
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -72,7 +68,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     @Mock
     private DeviceCommandExecutionToken token;
     @Mock
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
     @Mock
@@ -92,9 +88,9 @@ public class InboundCommunicationHandlerStatisticsTest {
         this.serviceProvider.setClock(clock);
         this.serviceProvider.setIssueService(new IssueServiceImpl(clock));
         this.serviceProvider.setHexService(new HexServiceImpl());
-        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
         this.serviceProvider.setTransactionService(new FakeTransactionService());
-        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
+        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 

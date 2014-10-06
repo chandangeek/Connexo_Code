@@ -6,8 +6,10 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
@@ -90,7 +92,11 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         public EngineModelService engineModelService();
 
-        public DeviceDataService deviceDataService();
+        public ConnectionTaskService connectionTaskService();
+
+        public CommunicationTaskService communicationTaskService();
+
+        public DeviceService deviceDataService();
 
         public EngineService engineService();
 
@@ -111,8 +117,16 @@ public class ComServerDAOImpl implements ComServerDAO {
         return this.serviceProvider.engineModelService();
     }
 
-    private DeviceDataService getDeviceDataService() {
+    private DeviceService getDeviceDataService() {
         return this.serviceProvider.deviceDataService();
+    }
+
+    private CommunicationTaskService getCommunicationTaskService() {
+        return this.serviceProvider.communicationTaskService();
+    }
+
+    private ConnectionTaskService getConnectionTaskService() {
+        return this.serviceProvider.connectionTaskService();
     }
 
     private Clock getClock() {
@@ -204,7 +218,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
-        try (Fetcher<ComTaskExecution> comTaskExecutions = getDeviceDataService().getPlannedComTaskExecutionsFor(comPort)) {
+        try (Fetcher<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().getPlannedComTaskExecutionsFor(comPort)) {
             ComJobFactory comJobFactoryFor = getComJobFactoryFor(comPort);
             return comJobFactoryFor.consume(comTaskExecutions.iterator());
         }
@@ -213,27 +227,22 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice offlineDevice, InboundComPort comPort) {
         Device device = getDeviceDataService().findDeviceById(offlineDevice.getId());
-        return getDeviceDataService().getPlannedComTaskExecutionsFor(comPort, device);
+        return getCommunicationTaskService().getPlannedComTaskExecutionsFor(comPort, device);
     }
 
     @Override
     public List<ConnectionTaskProperty> findProperties(final ConnectionTask connectionTask) {
-        return this.serviceProvider.transactionService().execute(new Transaction<List<ConnectionTaskProperty>>() {
-            @Override
-            public List<ConnectionTaskProperty> perform() {
-                return connectionTask.getProperties();
-            }
-        });
+        return this.serviceProvider.transactionService().execute(() -> connectionTask.getProperties());
     }
 
     @Override
     public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
-        return getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer);
+        return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer);
     }
 
     @Override
     public void unlock(ScheduledConnectionTask connectionTask) {
-        getDeviceDataService().unlockConnectionTask(connectionTask);
+        getConnectionTaskService().unlockConnectionTask(connectionTask);
     }
 
     @Override
@@ -330,21 +339,21 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
-        return getDeviceDataService().attemptLockConnectionTask(connectionTask, comServer) != null;
+        return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer) != null;
     }
 
     public void unlock(final OutboundConnectionTask connectionTask) {
-        getDeviceDataService().unlockConnectionTask(connectionTask);
+        getConnectionTaskService().unlockConnectionTask(connectionTask);
     }
 
     @Override
     public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
-        return getDeviceDataService().attemptLockComTaskExecution(comTaskExecution, comPort) != null;
+        return getCommunicationTaskService().attemptLockComTaskExecution(comTaskExecution, comPort) != null;
     }
 
     @Override
     public void unlock(final ComTaskExecution comTaskExecution) {
-        getDeviceDataService().unlockComTaskExecution(comTaskExecution);
+        getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
     }
 
     @Override
@@ -426,8 +435,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void releaseInterruptedTasks(final ComServer comServer) {
         this.executeTransaction(() -> {
-            getDeviceDataService().releaseInterruptedConnectionTasks(comServer);
-            getDeviceDataService().releaseInterruptedComTasks(comServer);
+            getConnectionTaskService().releaseInterruptedConnectionTasks(comServer);
+            getCommunicationTaskService().releaseInterruptedComTasks(comServer);
             return null;
         });
     }
@@ -435,8 +444,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public TimeDuration releaseTimedOutTasks(final ComServer comServer) {
         return this.executeTransaction(() -> {
-            getDeviceDataService().releaseTimedOutConnectionTasks(comServer);
-            return getDeviceDataService().releaseTimedOutComTasks(comServer);
+            getConnectionTaskService().releaseTimedOutConnectionTasks(comServer);
+            return getCommunicationTaskService().releaseTimedOutComTasks(comServer);
         });
     }
 
@@ -475,12 +484,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public boolean isStillPending(long comTaskExecutionId) {
-        return getDeviceDataService().areComTasksStillPending(Arrays.asList(comTaskExecutionId));
+        return getCommunicationTaskService().areComTasksStillPending(Arrays.asList(comTaskExecutionId));
     }
 
     @Override
     public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
-        return getDeviceDataService().areComTasksStillPending(comTaskExecutionIds);
+        return getCommunicationTaskService().areComTasksStillPending(comTaskExecutionIds);
     }
 
     @Override
@@ -623,7 +632,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * indicating that the Device is not ready for inbound communication
      */
     private ComTaskExecution getFirstComTaskExecution(InboundConnectionTask connectionTask) {
-        List<ComTaskExecution> comTaskExecutions = getDeviceDataService().findComTaskExecutionsByConnectionTask(connectionTask);
+        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().findComTaskExecutionsByConnectionTask(connectionTask);
         if (comTaskExecutions.isEmpty()) {
             return null;
         } else {

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
-    private final DeviceDataService deviceDataService;
+    private final ConnectionTaskService connectionTaskService;
 
     private Logger logger;
     private Cryptographer cryptographer;
@@ -43,19 +43,19 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private HttpServletRequest servletRequest;
     private HttpServletResponse servletResponse;
 
-    public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, DeviceDataService deviceDataService) {
+    public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, ConnectionTaskService connectionTaskService) {
         super();
         this.comPort = comPort;
         this.comChannel = comChannel;
-        this.deviceDataService = deviceDataService;
+        this.connectionTaskService = connectionTaskService;
     }
 
-    public InboundDiscoveryContextImpl(InboundComPort comPort, HttpServletRequest servletRequest, HttpServletResponse servletResponse, DeviceDataService deviceDataService) {
+    public InboundDiscoveryContextImpl(InboundComPort comPort, HttpServletRequest servletRequest, HttpServletResponse servletResponse, ConnectionTaskService connectionTaskService) {
         super();
         this.comPort = comPort;
         this.servletRequest = servletRequest;
         this.servletResponse = servletResponse;
-        this.deviceDataService = deviceDataService;
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Override
@@ -91,7 +91,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     public ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
-        sessionBuilder = deviceDataService.buildComSession(connectionTask, comPortPool, comPort, startTime);
+        sessionBuilder = this.connectionTaskService.buildComSession(connectionTask, comPortPool, comPort, startTime);
         this.journalEntryBacklog.createWith(sessionBuilder);
         return sessionBuilder;
     }

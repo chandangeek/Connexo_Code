@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -31,7 +32,12 @@ public class CommandRootServiceProviderAdapter implements CommandRoot.ServicePro
     }
 
     @Override
-    public DeviceDataService deviceDataService() {
+    public LogBookService logBookService() {
+        return delegate.logBookService();
+    }
+
+    @Override
+    public DeviceService deviceDataService() {
         return delegate.deviceDataService();
     }
 
