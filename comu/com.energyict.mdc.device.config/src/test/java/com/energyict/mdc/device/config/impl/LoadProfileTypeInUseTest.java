@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class LoadProfileTypeInUseTest extends PersistenceTest {
 
-    private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.MINUTES);
+    private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
     private static final ObisCode OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
 
     private ReadingType readingType;
@@ -82,7 +82,7 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         deviceType.save();
 
         // Business method
-        TimeDuration updatedInterval = new TimeDuration(1, TimeDuration.HOURS);
+        TimeDuration updatedInterval = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
         loadProfileType.setInterval(updatedInterval);
         loadProfileType.save();
 

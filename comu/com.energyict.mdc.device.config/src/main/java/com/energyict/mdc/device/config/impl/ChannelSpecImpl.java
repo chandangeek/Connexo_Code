@@ -8,9 +8,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -31,14 +31,15 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -216,13 +217,13 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
             if (getInterval().getCount() <= 0) {
                 throw UnsupportedIntervalException.intervalOfChannelSpecShouldBeLargerThanZero(this.thesaurus, getInterval().getCount());
             }
-            if ((getInterval().getTimeUnitCode() == TimeDuration.DAYS ||
-                    getInterval().getTimeUnitCode() == TimeDuration.MONTHS ||
-                    getInterval().getTimeUnitCode() == TimeDuration.YEARS) &&
+            if ((getInterval().getTimeUnit() == TimeDuration.TimeUnit.DAYS ||
+                    getInterval().getTimeUnit() == TimeDuration.TimeUnit.MONTHS ||
+                    getInterval().getTimeUnit() == TimeDuration.TimeUnit.YEARS) &&
                     getInterval().getCount() != 1) {
                 throw UnsupportedIntervalException.intervalOfChannelShouldBeOneIfUnitIsLargerThanOneHour(this.thesaurus, getInterval().getCount());
             }
-            if (getInterval().getTimeUnitCode() == TimeDuration.WEEKS) {
+            if (getInterval().getTimeUnit() == TimeDuration.TimeUnit.WEEKS) {
                 throw UnsupportedIntervalException.weeksAreNotSupportedForChannelSpecs(this.thesaurus, this);
             }
         }
