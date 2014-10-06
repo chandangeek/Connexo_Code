@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
@@ -29,13 +29,13 @@ public class DeviceIpAddressTest {
     private static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
 
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
     @Mock
     private IssueService issueService;
 
     @Test
     public void testConstructorDoesNotThrowExceptions () {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
 
         // Business method
         new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
@@ -45,7 +45,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testIsAlwaysConfiguredOnComTasks () {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
         DataCollectionConfiguration comTask = mock(DataCollectionConfiguration.class);
 
@@ -58,7 +58,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testToDeviceCommand () {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
@@ -70,7 +70,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testGetDeviceIdentifier () {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
@@ -82,7 +82,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testGetIpAddress () {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
@@ -94,7 +94,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testGetConnectionTypePropertyName () {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method

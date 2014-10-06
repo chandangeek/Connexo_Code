@@ -6,7 +6,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -50,15 +50,15 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
     });
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private final DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private final DeviceProtocol deviceProtocol;
     private DeviceBuilderForTesting state;
     private Device device;
 
-    public DeviceCreator(DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService) {
+    public DeviceCreator(DeviceConfigurationService deviceConfigurationService, DeviceService deviceService) {
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
         this.deviceProtocol = mock(DeviceProtocol.class);
         this.deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         initializeMocks();
@@ -139,7 +139,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         @Override
         public Device create() {
             DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
-            Device device = deviceDataService.newDevice(deviceConfiguration, name, mRDI);
+            Device device = deviceService.newDevice(deviceConfiguration, name, mRDI);
             device.save();
             return device;
         }

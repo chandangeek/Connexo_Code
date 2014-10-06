@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
+import com.energyict.mdc.device.data.LogBookService;
+
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.energyict.mdc.device.data.DeviceDataService;
-import org.junit.BeforeClass;
 
 import java.util.Arrays;
+
+import org.junit.*;
 
 import static org.mockito.Mockito.mock;
 
@@ -19,13 +21,13 @@ public class LogBookIdentifierByIdImplEqualityTest extends EqualsContractTest {
     private static final long LOGBOOK_ID_A = 1;
     private static final long LOGBOOK_ID_B = 2;
 
-    private static DeviceDataService deviceDataService;
+    private static LogBookService logBookService;
     private static LogBookIdentifierByIdImpl instanceA;
 
     @BeforeClass
     public static void setup () {
-        deviceDataService = mock(DeviceDataService.class);
-        instanceA = new LogBookIdentifierByIdImpl(LOGBOOK_ID_A, deviceDataService);
+        logBookService = mock(LogBookService.class);
+        instanceA = new LogBookIdentifierByIdImpl(LOGBOOK_ID_A, logBookService);
     }
 
     @Override
@@ -35,12 +37,12 @@ public class LogBookIdentifierByIdImplEqualityTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new LogBookIdentifierByIdImpl(LOGBOOK_ID_A, deviceDataService);
+        return new LogBookIdentifierByIdImpl(LOGBOOK_ID_A, logBookService);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return Arrays.asList(new LogBookIdentifierByIdImpl(LOGBOOK_ID_B, deviceDataService));
+        return Arrays.asList(new LogBookIdentifierByIdImpl(LOGBOOK_ID_B, logBookService));
     }
 
     @Override

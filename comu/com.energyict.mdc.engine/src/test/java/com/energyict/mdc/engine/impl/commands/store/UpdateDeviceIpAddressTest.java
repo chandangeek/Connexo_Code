@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
@@ -23,11 +23,11 @@ public class UpdateDeviceIpAddressTest {
     private final String ipAddress = "10.0.1.50:4059";
     private final String connectionTaskPropertyName = "connectionTaskPropertyName";
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
 
     @Test
     public void testToJournalMessageDescription() throws Exception {
-        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceDataService);
+        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         final DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, ipAddress, connectionTaskPropertyName);
         UpdateDeviceIpAddress command = new UpdateDeviceIpAddress(deviceIpAddress);
 

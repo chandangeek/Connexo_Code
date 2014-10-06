@@ -46,7 +46,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
     }
 
     private InboundDiscoveryContextImpl newInboundDiscoveryContext (ComPortRelatedComChannel comChannel) {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel, this.serviceProvider.deviceDataService());
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel, this.serviceProvider.connectionTaskService());
         // Todo: needs revision as soon as we get more experience with inbound protocols that need encryption
         context.setLogger(Logger.getAnonymousLogger());
         return context;

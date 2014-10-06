@@ -8,7 +8,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
@@ -54,7 +54,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
     public void setUp() {
         this.deviceCreator = new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
-                getInjector().getInstance(DeviceDataService.class)
+                getInjector().getInstance(DeviceService.class)
         );
         this.logBookType = createLogBookType();
         initializeEndDeviceEventTypeFactory();

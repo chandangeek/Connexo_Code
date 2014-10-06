@@ -4,7 +4,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
@@ -50,7 +50,7 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
         return ServiceProvider.instance.get().clock();
     }
 
-    protected DeviceDataService getDeviceDataService(){
+    protected DeviceService getDeviceDataService(){
         return ServiceProvider.instance.get().deviceDataService();
     }
 

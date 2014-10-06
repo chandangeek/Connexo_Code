@@ -5,7 +5,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
@@ -97,7 +97,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     public void setUp() {
         this.deviceCreator = new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
-                getInjector().getInstance(DeviceDataService.class)
+                getInjector().getInstance(DeviceService.class)
         );
         this.loadProfileType = createLoadProfileType();
     }

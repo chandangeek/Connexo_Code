@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -48,7 +50,11 @@ public class RequestParserTest {
     private static final long NON_EXISTING_COMPORT_POOL_ID = NON_EXISTING_COMPORT_ID - 1;
 
     @Mock
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private DeviceService deviceService;
     @Mock
     private EngineModelService engineModelService;
 
@@ -56,7 +62,9 @@ public class RequestParserTest {
 
     @Before
     public void initializeServiceProvider () {
-        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
+        this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
+        this.serviceProvider.setDeviceService(this.deviceService);
         this.serviceProvider.setEngineModelService(this.engineModelService);
     }
 
@@ -350,7 +358,7 @@ public class RequestParserTest {
     public void testNonExistingConnectionTask () throws RequestParseException {
         this.mockConnectionTasks();
         RequestParser parser = new RequestParser(serviceProvider);
-        when(this.deviceDataService.findConnectionTask(NON_EXISTING_CONNECTION_TASK_ID)).thenReturn(Optional.<ConnectionTask>absent());
+        when(this.connectionTaskService.findConnectionTask(NON_EXISTING_CONNECTION_TASK_ID)).thenReturn(Optional.<ConnectionTask>absent());
 
         //Business method
         parser.parse("Register request for connectionTask: " + NON_EXISTING_CONNECTION_TASK_ID);
@@ -616,8 +624,8 @@ public class RequestParserTest {
         when(device1.getId()).thenReturn(DEVICE1_ID);
         Device device2 = mock(Device.class);
         when(device2.getId()).thenReturn(DEVICE2_ID);
-        when(this.deviceDataService.findDeviceById(DEVICE1_ID)).thenReturn(device1);
-        when(this.deviceDataService.findDeviceById(DEVICE2_ID)).thenReturn(device2);
+        when(this.deviceService.findDeviceById(DEVICE1_ID)).thenReturn(device1);
+        when(this.deviceService.findDeviceById(DEVICE2_ID)).thenReturn(device2);
     }
 
     private void mockConnectionTasks () {
@@ -625,8 +633,8 @@ public class RequestParserTest {
         when(connectionTask1.getId()).thenReturn(CONNECTION_TASK1_ID);
         ConnectionTask connectionTask2 = mock(ConnectionTask.class);
         when(connectionTask2.getId()).thenReturn(CONNECTION_TASK2_ID);
-        when(this.deviceDataService.findConnectionTask(CONNECTION_TASK1_ID)).thenReturn(Optional.of(connectionTask1));
-        when(this.deviceDataService.findConnectionTask(CONNECTION_TASK2_ID)).thenReturn(Optional.of(connectionTask2));
+        when(this.connectionTaskService.findConnectionTask(CONNECTION_TASK1_ID)).thenReturn(Optional.of(connectionTask1));
+        when(this.connectionTaskService.findConnectionTask(CONNECTION_TASK2_ID)).thenReturn(Optional.of(connectionTask2));
     }
 
     private void mockComTaskExecutions () {
@@ -634,8 +642,8 @@ public class RequestParserTest {
         when(comTaskExecution1.getId()).thenReturn(COM_TASK_EXECUTION1_ID);
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
         when(comTaskExecution2.getId()).thenReturn(COM_TASK_EXECUTION2_ID);
-        when(this.deviceDataService.findComTaskExecution(COM_TASK_EXECUTION1_ID)).thenReturn(comTaskExecution1);
-        when(this.deviceDataService.findComTaskExecution(COM_TASK_EXECUTION2_ID)).thenReturn(comTaskExecution2);
+        when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION1_ID)).thenReturn(comTaskExecution1);
+        when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION2_ID)).thenReturn(comTaskExecution2);
     }
 
     private void mockComPorts () {

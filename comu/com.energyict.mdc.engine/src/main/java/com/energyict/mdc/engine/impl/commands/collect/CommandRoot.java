@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
@@ -34,7 +35,9 @@ public interface CommandRoot extends CompositeComCommand {
 
         public Clock clock();
 
-        public DeviceDataService deviceDataService();
+        public LogBookService logBookService();
+
+        public DeviceService deviceDataService();
 
         public MdcReadingTypeUtilService mdcReadingTypeUtilService();
 

@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -69,7 +70,9 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     @Mock
     private ComPort comPort;
     @Mock
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
+    @Mock
+    private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
 
@@ -92,8 +95,9 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         serviceProvider.setIssueService(new IssueServiceImpl(this.clock));
         this.hexService = new HexServiceImpl();
         serviceProvider.setHexService(this.hexService);
-        serviceProvider.setDeviceDataService(this.deviceDataService);
-        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
+        serviceProvider.setConnectionTaskService(this.connectionTaskService);
+        serviceProvider.setDeviceService(this.deviceService);
+        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 
@@ -455,7 +459,12 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         }
 
         @Override
-        public DeviceDataService deviceDataService() {
+        public ConnectionTaskService connectionTaskService() {
+            return serviceProvider.connectionTaskService();
+        }
+
+        @Override
+        public DeviceService deviceDataService() {
             return serviceProvider.deviceDataService();
         }
 

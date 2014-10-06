@@ -7,7 +7,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
@@ -67,7 +67,7 @@ public class CollectedRegisterListDeviceCommandTest {
     @Mock
     private DeviceCommand.ExecutionLogger executionLogger;
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
     @Mock
     private ServiceProvider serviceProvider;
 
@@ -133,7 +133,7 @@ public class CollectedRegisterListDeviceCommandTest {
     }
 
     private DeviceRegisterList getDeviceRegisterList() {
-        DeviceRegisterList deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(DEVICE_ID, deviceDataService));
+        DeviceRegisterList deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(DEVICE_ID, deviceService));
         deviceRegisterList.addCollectedRegister(collectedRegister);
         return deviceRegisterList;
     }

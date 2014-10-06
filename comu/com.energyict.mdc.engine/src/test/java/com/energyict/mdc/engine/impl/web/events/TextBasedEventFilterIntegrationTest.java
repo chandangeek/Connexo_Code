@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.Category;
@@ -58,7 +58,7 @@ public class TextBasedEventFilterIntegrationTest {
     @Mock
     private EngineModelService engineModelService;
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
     @Mock
     private OnlineComServer comServer;
     @Mock
@@ -346,7 +346,7 @@ public class TextBasedEventFilterIntegrationTest {
         private OutboundComPortPool comPortPool;
 
         private EventGenerator () {
-            super(runningComServer, clock, engineModelService, deviceDataService);
+            super(runningComServer, clock);
             this.device = mock(BaseDevice.class);
             this.connectionTask = mock(OutboundConnectionTask.class);
             this.comPort = mock(OutboundComPort.class);

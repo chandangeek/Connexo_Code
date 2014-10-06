@@ -9,8 +9,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -133,7 +134,9 @@ public class JobExecutionTest {
     @Mock
     private OfflineDevice offlineDevice;
     @Mock
-    private DeviceDataService deviceDataService;
+    private ConnectionTaskService connectionTaskService;
+    @Mock
+    private DeviceService deviceService;
     @Mock
     private EngineService engineService;
     @Mock
@@ -159,7 +162,8 @@ public class JobExecutionTest {
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setTransactionService(new FakeTransactionService());
-        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
+        this.serviceProvider.setDeviceService(this.deviceService);
         this.serviceProvider.setEngineService(this.engineService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setNlsService(this.nlsService);
@@ -192,7 +196,7 @@ public class JobExecutionTest {
         when(device.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        when(this.deviceDataService.findDeviceById(DEVICE_ID)).thenReturn(this.device);
+        when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(this.device);
         ConnectionTask ct = connectionTask;
         when(comTaskExecution.getConnectionTask()).thenReturn(ct);
         when(comTaskExecution.getDevice()).thenReturn(device);
@@ -208,7 +212,7 @@ public class JobExecutionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), eq(this.device), any(Date.class))).
             thenReturn(mock(ComTaskExecutionSessionBuilder.class));
-        when(this.deviceDataService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).
+        when(this.connectionTaskService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).
             thenReturn(comSessionBuilder);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(this.deviceConfiguration))).
             thenReturn(Optional.of(this.comTaskEnablement));

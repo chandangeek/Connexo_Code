@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.impl.events.EventPublisher;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,17 +21,17 @@ import static java.util.Collections.singleton;
  */
 public class ComTaskExecutionRequest extends IdBusinessObjectRequest {
 
-    private final DeviceDataService deviceDataService;
+    private final CommunicationTaskService communicationTaskService;
 
     private List<ComTaskExecution> comTaskExecutions;
 
-    public ComTaskExecutionRequest(DeviceDataService deviceDataService, long comTaskExecutionId) {
-        this(deviceDataService, singleton(comTaskExecutionId));
+    public ComTaskExecutionRequest(CommunicationTaskService communicationTaskService, long comTaskExecutionId) {
+        this(communicationTaskService, singleton(comTaskExecutionId));
     }
 
-    public ComTaskExecutionRequest(DeviceDataService deviceDataService, Set<Long> comTaskExecutionIds) {
+    public ComTaskExecutionRequest(CommunicationTaskService communicationTaskService, Set<Long> comTaskExecutionIds) {
         super(comTaskExecutionIds);
-        this.deviceDataService = deviceDataService;
+        this.communicationTaskService = communicationTaskService;
         this.validateComTaskExecutionIds();
     }
 
@@ -43,7 +43,7 @@ public class ComTaskExecutionRequest extends IdBusinessObjectRequest {
     }
 
     private ComTaskExecution findComTaskExecution (long comTaskExecutionId) {
-        ComTaskExecution comTaskExecution = deviceDataService.findComTaskExecution(comTaskExecutionId);
+        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecutionId);
         if (comTaskExecution == null) {
             throw new NotFoundException("ComTaskExecution with id " + comTaskExecutionId + " not found");
         }

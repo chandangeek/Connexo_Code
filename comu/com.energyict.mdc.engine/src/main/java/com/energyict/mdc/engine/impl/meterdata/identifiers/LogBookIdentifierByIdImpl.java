@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+
+import com.google.common.base.Optional;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -17,21 +19,22 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 public final class LogBookIdentifierByIdImpl implements LogBookIdentifier {
 
     private final long logBookId;
-    private final DeviceDataService deviceDataService;
+    private final LogBookService logBookService;
 
-    public LogBookIdentifierByIdImpl(long logBookId, DeviceDataService deviceDataService) {
+    public LogBookIdentifierByIdImpl(long logBookId, LogBookService logBookService) {
         super();
         this.logBookId = logBookId;
-        this.deviceDataService = deviceDataService;
+        this.logBookService = logBookService;
     }
 
     @Override
     public BaseLogBook getLogBook() {
-        LogBook logBook = this.deviceDataService.findLogBookById(this.logBookId);
-        if (logBook == null) {
+        Optional<LogBook> logBook = this.logBookService.findById(this.logBookId);
+        if (!logBook.isPresent()) {
             throw new NotFoundException("LogBook with id " + this.logBookId + " not found");
-        } else {
-            return logBook;
+        }
+        else {
+            return logBook.get();
         }
     }
 
@@ -61,7 +64,7 @@ public final class LogBookIdentifierByIdImpl implements LogBookIdentifier {
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         return Long.valueOf(this.logBookId).hashCode();
     }
 

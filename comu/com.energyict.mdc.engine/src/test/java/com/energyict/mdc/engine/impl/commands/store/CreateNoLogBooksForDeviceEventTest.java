@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
@@ -22,11 +22,11 @@ public class CreateNoLogBooksForDeviceEventTest {
     private static final long DEVICE_ID = 97;
 
     @Mock
-    private DeviceDataService deviceDataService;
+    private DeviceService deviceService;
 
     @Test
     public void testToJournalMessageDescription() throws Exception {
-        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, this.deviceDataService);
+        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, this.deviceService);
         NoLogBooksForDevice noLogBooksForDevice = new NoLogBooksForDevice(deviceIdentifier);
         CreateNoLogBooksForDeviceEvent command = new CreateNoLogBooksForDeviceEvent(noLogBooksForDevice);
 

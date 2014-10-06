@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -46,7 +46,7 @@ public class RegisterCommandImplTest {
     public void setupServiceProvider () {
         this.serviceProvider.setClock(new DefaultClock());
         this.serviceProvider.setIssueService(new IssueServiceImpl());
-        this.serviceProvider.setDeviceDataService(mock(DeviceDataService.class));
+        this.serviceProvider.setDeviceService(mock(DeviceService.class));
         ServiceProvider.instance.set(this.serviceProvider);
     }
 

@@ -842,7 +842,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         private EventMechanism() {
             super();
             this.eventMechanism = serviceProvider.embeddedWebServerFactory().findOrCreateEventWebServer(comServer);
-            this.eventPublisher = new EventPublisherImpl(RunningComServerImpl.this, serviceProvider.clock(), serviceProvider.engineModelService(), serviceProvider.deviceDataService());
+            this.eventPublisher = new EventPublisherImpl(RunningComServerImpl.this, serviceProvider.clock());
         }
 
         private void start() {
