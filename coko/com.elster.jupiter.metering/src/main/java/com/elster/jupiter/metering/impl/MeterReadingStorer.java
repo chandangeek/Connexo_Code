@@ -76,14 +76,14 @@ public class MeterReadingStorer {
         storeEvents(facade.getMeterReading().getEvents());
 
         readingStorer.execute();
-        Interval interval = facade.getInterval();
-        if (interval != null) {
-        	dataModel.mapper(ReadingQualityRecord.class).remove(
-        		meter.getReadingQualities(interval.toClosedRange())
-        			.stream()
-        			.filter(this::isRelevant)
-        			.collect(Collectors.<ReadingQualityRecord>toList()));
-        }
+//        Interval interval = facade.getInterval(); TODO make this not throw away all readingqualities just made by validate on store
+//        if (interval != null) {
+//        	dataModel.mapper(ReadingQualityRecord.class).remove(
+//        		meter.getReadingQualities(interval.toClosedRange())
+//        			.stream()
+//        			.filter(this::isRelevant)
+//        			.collect(Collectors.<ReadingQualityRecord>toList()));
+//        }
         storeReadingQualities();
         eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getInterval().getStart().getTime(), facade.getInterval().getEnd().getTime()));
     }
