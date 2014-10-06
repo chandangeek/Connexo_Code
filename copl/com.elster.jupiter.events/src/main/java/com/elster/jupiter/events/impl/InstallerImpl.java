@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.callback.InstallService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.events.EventService.JUPITER_EVENTS;
 
-public class InstallerImpl implements InstallService {
+public class InstallerImpl {
 
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
@@ -35,7 +34,6 @@ public class InstallerImpl implements InstallService {
         this.thesaurus = thesaurus;
     }
 
-    @Override
     public void install() {
         try {
             dataModel.install(true, true);

@@ -31,10 +31,11 @@ import org.osgi.service.event.EventAdmin;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Component(name = "com.elster.jupiter.events", service = {InstallService.class, EventService.class}, property = "name=" + EventService.COMPONENTNAME, immediate=true)
+@Component(name = "com.elster.jupiter.events", service = {InstallService.class, EventService.class}, property = "name=" + EventService.COMPONENTNAME, immediate = true)
 public class EventServiceImpl implements EventService, InstallService {
 
     private volatile Clock clock;
@@ -64,13 +65,18 @@ public class EventServiceImpl implements EventService, InstallService {
         setNlsService(nlsService);
         activate(bundleContext);
         if (!dataModel.isInstalled()) {
-        	install();
+            install();
         }
     }
 
     @Override
     public final void install() {
         new InstallerImpl(dataModel, messageService, thesaurus).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "MSG", "NLS");
     }
 
     @Reference
@@ -86,13 +92,13 @@ public class EventServiceImpl implements EventService, InstallService {
         }
     }
 
-    @Reference(cardinality=ReferenceCardinality.OPTIONAL,policy=ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public final void setEventAdmin(EventAdmin eventAdmin) {
         this.eventAdmin.set(eventAdmin);
     }
-    
+
     public final void unsetEventAdmin(EventAdmin eventAdmin) {
-    	this.eventAdmin.compareAndSet(eventAdmin, null);
+        this.eventAdmin.compareAndSet(eventAdmin, null);
     }
 
     @Reference
@@ -167,7 +173,7 @@ public class EventServiceImpl implements EventService, InstallService {
         publisher.publish(localEvent); // synchronous call, may throw an exception to prevent transaction commit should be prior to further propagating the event.
         EventAdmin eventAdmin = this.eventAdmin.get();
         if (eventAdmin != null) {
-        	eventAdmin.postEvent(localEvent.toOsgiEvent());
+            eventAdmin.postEvent(localEvent.toOsgiEvent());
         }
         if (eventType.shouldPublish()) {
             localEvent.publish();
@@ -183,8 +189,8 @@ public class EventServiceImpl implements EventService, InstallService {
     public List<EventType> getEventTypes() {
         return eventTypeFactory().find();
     }
-	
-	@Override
+
+    @Override
     public Optional<EventType> getEventType(String topic) {
         return eventTypeFactory().getOptional(topic);
     }
