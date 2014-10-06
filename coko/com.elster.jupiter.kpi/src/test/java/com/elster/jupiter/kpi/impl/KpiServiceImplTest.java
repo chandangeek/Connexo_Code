@@ -68,6 +68,7 @@ public class KpiServiceImplTest {
         doReturn(dataModel).when(ormService).newDataModel(anyString(), anyString());
         kpiService.setIdsService(idsService);
         kpiService.setOrmService(ormService);
+        kpiService.setEventService(eventService);
         kpiService.install();
     }
 
