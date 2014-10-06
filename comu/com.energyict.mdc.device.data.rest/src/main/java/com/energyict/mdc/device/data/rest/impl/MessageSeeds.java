@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.energyict.mdc.protocol.api.ConnectionType;
 import java.text.MessageFormat;
 import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
@@ -57,8 +58,14 @@ public enum MessageSeeds implements MessageSeed {
     NEVER_COMPLETED(68, "NeverCompleted", "Never completed"),
     WAITING(69, "Waiting", "Waiting"),
     DEFAULT(70, "Default", "Default"),
-    DEFAULT_NOT_DEFINED(71, "DefaultNotDefined", "Default (not defined yet)");
-
+    DEFAULT_NOT_DEFINED(71, "DefaultNotDefined", "Default (not defined yet)"),
+    INBOUND(72, ConnectionType.Direction.INBOUND.name(), "Inbound"),
+    OUTBOUND(73, ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
+    SUCCESS(74, "Success", "Success"),
+    BROKEN(75, "Broken", "Broken"),
+    SETUP_ERROR(76, "SetupError", "Setup error"),
+    FAILURE(77, "Failure", "Failure"),
+    ;
 
     private final int number;
     private final String key;

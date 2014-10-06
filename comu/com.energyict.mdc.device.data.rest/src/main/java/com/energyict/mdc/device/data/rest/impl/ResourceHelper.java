@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -165,4 +166,14 @@ public class ResourceHelper {
         }
         return Optional.absent();
     }
+
+    public ConnectionTask<?, ?> findConnectionTaskOrThrowException(Device device, long connectionMethodId) {
+        for (ConnectionTask<?, ?> connectionTask : device.getConnectionTasks()) {
+            if (connectionTask.getId()==connectionMethodId) {
+                 return connectionTask;
+            }
+        }
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getmRID(), connectionMethodId);
+    }
+
 }

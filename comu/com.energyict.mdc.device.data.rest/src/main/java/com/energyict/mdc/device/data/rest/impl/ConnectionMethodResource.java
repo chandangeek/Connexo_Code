@@ -40,10 +40,10 @@ public class ConnectionMethodResource {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final ConnectionTaskService connectionTaskService;
     private final ExceptionFactory exceptionFactory;
-    private final Provider<ComTaskExecutionResource> comTaskExecutionResourceProvider;
+    private final Provider<ComSessionResource> comTaskExecutionResourceProvider;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory, Provider<ComTaskExecutionResource> comTaskExecutionResourceProvider) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory, Provider<ComSessionResource> comTaskExecutionResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.engineModelService = engineModelService;
@@ -90,7 +90,7 @@ public class ConnectionMethodResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<?, ?> connectionTask = findConnectionTaskOrThrowException(device, connectionMethodId);
+        ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(connectionTask, uriInfo)).build();
     }
 
@@ -100,7 +100,7 @@ public class ConnectionMethodResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId, @Context UriInfo uriInfo, ConnectionMethodInfo<ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> task = findConnectionTaskOrThrowException(device, connectionMethodId);
+        ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> task = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         boolean wasConnectionTaskDefault = task.isDefault();
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
 
@@ -114,7 +114,7 @@ public class ConnectionMethodResource {
         }
 
         device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        task = findConnectionTaskOrThrowException(device, connectionMethodId);
+        task = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
@@ -133,21 +133,13 @@ public class ConnectionMethodResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response deleteConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<?,?> targetConnectionTask = findConnectionTaskOrThrowException(device, connectionMethodId);
+        ConnectionTask<?,?> targetConnectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         device.removeConnectionTask(targetConnectionTask);
         return Response.ok().build();
     }
 
-    private ConnectionTask<?, ?> findConnectionTaskOrThrowException(Device device, long connectionMethodId) {
-        for (ConnectionTask<?, ?> connectionTask : device.getConnectionTasks()) {
-            if (connectionTask.getId()==connectionMethodId) {
-                 return connectionTask;
-            }
-        }
-        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getmRID(), connectionMethodId);
-    }
-
-    public ComTaskExecutionResource getComTaskExecutionResource() {
+    @Path("/{id}/comsessions")
+    public ComSessionResource getComTaskExecutionResource() {
         return comTaskExecutionResourceProvider.get();
     }
     
