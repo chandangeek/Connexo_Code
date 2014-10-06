@@ -1,5 +1,25 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
@@ -70,27 +90,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -106,6 +105,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -131,7 +131,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-10 (16:27)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataService.class, ServerDeviceDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataService.class, ServerDeviceDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME, immediate = true)
 public class DeviceDataServiceImpl implements ServerDeviceDataService, ReferencePropertySpecFinderProvider, InstallService {
 
     private static final Logger LOGGER = Logger.getLogger(DeviceDataServiceImpl.class.getName());
@@ -194,7 +194,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
-    public boolean hasDevices (DeviceConfiguration deviceConfiguration) {
+    public boolean hasDevices(DeviceConfiguration deviceConfiguration) {
         Condition condition = where(DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(deviceConfiguration);
         Finder<Device> page =
                 DefaultFinder.
@@ -233,7 +233,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         List<ComPortPool> containingComPortPoolsForComServer = this.engineModelService.findContainingComPortPoolsForComServer(comServer);
         for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
             this.releaseTimedOutComTasks((OutboundComPortPool) comPortPool);
-            waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool)comPortPool).getTaskExecutionTimeout().getSeconds());
+            waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool) comPortPool).getTaskExecutionTimeout().getSeconds());
         }
         if (waitTime <= 0) {
             return new TimeDuration(1, TimeDuration.DAYS);
@@ -250,7 +250,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         }
     }
 
-    private void releaseTimedOutComTasks(OutboundComPortPool outboundComPortPool){
+    private void releaseTimedOutComTasks(OutboundComPortPool outboundComPortPool) {
         long now = this.toSeconds(this.clock.now());
         int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
         this.executeUpdate(this.releaseTimedOutComTaskExecutionsSqlBuilder(outboundComPortPool, now, timeOutSeconds));
@@ -292,8 +292,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                 statement.executeUpdate();
                 // Don't care about how many rows were updated and if that matches the expected number of updates
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -329,8 +328,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         List<ConnectionTask> connectionTasks = this.getDataModel().mapper(ConnectionTask.class).select(condition);
         if (connectionTasks.isEmpty()) {
             return Optional.absent();
-        }
-        else {
+        } else {
             return Optional.of(connectionTasks.get(0));
         }
     }
@@ -364,8 +362,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         List<ConnectionTask> connectionTasks = this.getDataModel().mapper(ConnectionTask.class).select(condition);
         if (connectionTasks != null && connectionTasks.size() == 1) {
             return connectionTasks.get(0);
-        }
-        else {
+        } else {
             if (device.getPhysicalGateway() != null) {
                 return this.findDefaultConnectionTaskForDevice(device.getPhysicalGateway());
             }
@@ -382,7 +379,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public List<ComTaskExecution> findComTaskExecutionsByFilter(ComTaskExecutionFilterSpecification filter, int pageStart, int pageSize) {
         ComTaskExecutionFilterSqlBuilder sqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, this.clock);
         DataMapper<ComTaskExecution> dataMapper = this.dataModel.mapper(ComTaskExecution.class);
-        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart+1, pageSize)); // SQL is 1-based
+        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
     }
 
     private List<ComTaskExecution> fetchComTaskExecutions(DataMapper<ComTaskExecution> dataMapper, SqlBuilder sqlBuilder) {
@@ -411,8 +408,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
-            }
-            else {
+            } else {
                 sqlBuilder.unionAll();
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             }
@@ -420,7 +416,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
     }
 
-    private Set<ServerComTaskStatus> taskStatusesForCounting (ComTaskExecutionFilterSpecification filter) {
+    private Set<ServerComTaskStatus> taskStatusesForCounting(ComTaskExecutionFilterSpecification filter) {
         Set<ServerComTaskStatus> taskStatuses = EnumSet.noneOf(ServerComTaskStatus.class);
         for (TaskStatus taskStatus : filter.taskStatuses) {
             taskStatuses.add(ServerComTaskStatus.forTaskStatus(taskStatus));
@@ -437,7 +433,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public Map<TaskStatus, Long> getConnectionTaskStatusCount() {
         ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
         filter.useLastComSession = false;
-        filter.taskStatuses=EnumSet.allOf(TaskStatus.class);
+        filter.taskStatuses = EnumSet.allOf(TaskStatus.class);
         return this.getConnectionTaskStatusCount(filter);
     }
 
@@ -449,8 +445,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
-            }
-            else {
+            } else {
                 sqlBuilder.unionAll();
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             }
@@ -458,7 +453,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
     }
 
-    private Set<ServerConnectionTaskStatus> taskStatusesForCounting (ConnectionTaskFilterSpecification filter) {
+    private Set<ServerConnectionTaskStatus> taskStatusesForCounting(ConnectionTaskFilterSpecification filter) {
         Set<ServerConnectionTaskStatus> taskStatuses = EnumSet.noneOf(ServerConnectionTaskStatus.class);
         for (TaskStatus taskStatus : filter.taskStatuses) {
             taskStatuses.add(ServerConnectionTaskStatus.forTaskStatus(taskStatus));
@@ -475,8 +470,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         Map<TaskStatus, Long> counters = new HashMap<>();
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchTaskStatusCounters(stmnt, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -502,8 +496,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private EnumSet<TaskStatus> taskStatusComplement(Set<TaskStatus> taskStatuses) {
         if (taskStatuses.isEmpty()) {
             return EnumSet.allOf(TaskStatus.class);
-        }
-        else {
+        } else {
             return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
         }
     }
@@ -512,7 +505,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter, int pageStart, int pageSize) {
         ConnectionTaskFilterSqlBuilder sqlBuilder = new ConnectionTaskFilterSqlBuilder(filter, this.clock);
         DataMapper<ConnectionTask> dataMapper = this.dataModel.mapper(ConnectionTask.class);
-        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart+1, pageSize)); // SQL is 1-based
+        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
     }
 
     private List<ConnectionTask> fetchConnectionTasks(DataMapper<ConnectionTask> dataMapper, SqlBuilder sqlBuilder) {
@@ -551,7 +544,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     private boolean isPreviousDefault(ConnectionTask newDefaultConnectionTask, ConnectionTask connectionTask) {
         return connectionTask.isDefault()
-            && (   (newDefaultConnectionTask == null)
+                && ((newDefaultConnectionTask == null)
                 || (connectionTask.getId() != newDefaultConnectionTask.getId()));
     }
 
@@ -559,7 +552,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask) {
         List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(device, defaultConnectionTask);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTask);
             comTaskExecutionUpdater.update();
         }
@@ -570,7 +563,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
      * the default {@link ConnectionTask} for the entire topology of the specified Device,
      * but are not linked yet to the given Default connectionTask
      *
-     * @param device the Device for which we need to search the ComTaskExecution
+     * @param device         the Device for which we need to search the ComTaskExecution
      * @param connectionTask the 'new' default ConnectionTask
      * @return The List of ComTaskExecution
      */
@@ -606,13 +599,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                     e.printStackTrace();
                     throw e;
                 }
-            }
-            else {
+            } else {
                 // No database lock but business lock is already set
                 return null;
             }
-        }
-        else {
+        } else {
             // ConnectionTask no longer exists, attempt to lock fails
             return null;
         }
@@ -622,7 +613,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public void unlockConnectionTask(ConnectionTask connectionTask) {
         this.unlockConnectionTask((ConnectionTaskImpl) connectionTask);
     }
-     private void unlockConnectionTask (ConnectionTaskImpl connectionTask) {
+
+    private void unlockConnectionTask(ConnectionTaskImpl connectionTask) {
         connectionTask.setExecutingComServer(null);
         connectionTask.save();
     }
@@ -803,8 +795,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         List<ConnectionTask> connectionTasks =
                 this.dataModel.query(ConnectionTask.class).
                         select(where("comPortPool").isEqualTo(comPortPool),
-                            new Order[0], false, new String[0],
-                            1, 1);
+                                new Order[0], false, new String[0],
+                                1, 1);
         return !connectionTasks.isEmpty();
     }
 
@@ -828,8 +820,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                     return count != 0;
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
         return false;
@@ -843,14 +834,12 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                 long minId = resultSet.getLong(0);
                 if (resultSet.wasNull()) {
                     return Optional.absent();    // There were not ComTaskExecutions
-                }
-                else {
+                } else {
                     long maxId = resultSet.getLong(1);
                     return Optional.of(new ScheduledComTaskExecutionIdRange(comScheduleId, minId, maxId));
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new UnderlyingSQLFailedException(e);
         }
@@ -872,8 +861,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             preparedStatement.setLong(3, idRange.minId);
             preparedStatement.setLong(4, idRange.maxId);
             preparedStatement.executeUpdate();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
@@ -1089,6 +1077,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         this.install(true);
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "USR", "EVT", "NLS", "MSG", "DTC", "CPC", "MDC", "SCH", "CTS");
+    }
+
     private void install(boolean exeuteDdl) {
         new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService, this.userService).install(exeuteDdl);
     }
@@ -1142,8 +1135,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                 devices.add(communicationGatewayReference.getOrigin());
             }
             return devices;
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -1167,8 +1159,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                                 communicationGatewayReference.getInterval()));
             }
             return entries;
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -1283,8 +1274,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId) {
         return this.dataModel.query(ComTaskExecution.class)
                 .select(where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule)
-                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
-                    .and(where(ComTaskExecutionFields.ID.fieldName()).between(minId).and(maxId)));
+                        .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                        .and(where(ComTaskExecutionFields.ID.fieldName()).between(minId).and(maxId)));
     }
 
 
@@ -1413,8 +1404,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         List<ComTaskExecutionSession> allSessions = page.find();
         if (allSessions.isEmpty()) {
             return Optional.absent();
-        }
-        else {
+        } else {
             return Optional.of(allSessions.get(0));
         }
     }
@@ -1459,8 +1449,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             sqlBuilder.append(" and nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.now()));
             sqlBuilder.append(" and ct.comserver is null and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.lastsuccessfulcommunicationend is not null");
-        }
-        else {
+        } else {
             sqlBuilder.append(" and ct.nextexecutiontimestamp is not null");
         }
         sqlBuilder.append(" and ");
@@ -1471,8 +1460,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                     return resultSet.getLong(1);
                 }
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return 0;
@@ -1496,8 +1484,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         Map<ComSession.SuccessIndicator, Long> counters = new HashMap<>();
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchSuccessIndicatorCounters(stmnt, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -1523,8 +1510,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private EnumSet<ComSession.SuccessIndicator> successIndicatorComplement(Set<ComSession.SuccessIndicator> successIndicators) {
         if (successIndicators.isEmpty()) {
             return EnumSet.allOf(ComSession.SuccessIndicator.class);
-        }
-        else {
+        } else {
             return EnumSet.complementOf(EnumSet.copyOf(successIndicators));
         }
     }
@@ -1640,8 +1626,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(SqlBuilder builder) {
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             return this.fetchComTaskHeatMapCounters(stmnt);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
     }
@@ -1718,8 +1703,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private void appendConnectionTypeHeatMapComTaskExecutionSessionConditions(boolean atLeastOneFailingComTask, SqlBuilder sqlBuilder) {
         if (atLeastOneFailingComTask) {
             sqlBuilder.append("cs.successindicator = 0 and");
-        }
-        else {
+        } else {
             sqlBuilder.append(" not");
         }
         sqlBuilder.append(" exists (select * from ");
@@ -1828,8 +1812,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private void addSuccessIndicatorCounter(List<Long> targetCounters, Map<ComSession.SuccessIndicator, Long> sourceCounters, ComSession.SuccessIndicator successIndicator) {
         if (sourceCounters != null) {
             targetCounters.add(sourceCounters.get(successIndicator));
-        }
-        else {
+        } else {
             targetCounters.add(0L);
         }
     }
@@ -1837,8 +1820,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchConnectionTypeHeatMapCounters(SqlBuilder builder) {
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             return this.fetchConnectionTypeHeatMapCounters(stmnt);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
     }
@@ -1883,8 +1865,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         Map<CompletionCode, Long> counters = new HashMap<>();
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchCompletionCodeCounters(stmnt, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -1910,8 +1891,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private EnumSet<CompletionCode> completionCodeComplement(Set<CompletionCode> completionCodes) {
         if (completionCodes.isEmpty()) {
             return EnumSet.allOf(CompletionCode.class);
-        }
-        else {
+        } else {
             return EnumSet.complementOf(EnumSet.copyOf(completionCodes));
         }
     }
@@ -1933,8 +1913,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
              * so there is no way to count the number of slave devices
              * that had a connection setup failure. */
             return 0;
-        }
-        else {
+        } else {
             int numberOfDevices = 0;
             List<CommunicationTopologyEntry> communicationTopologies = device.getAllCommunicationTopologies(interval);
             for (CommunicationTopologyEntry communicationTopologyEntry : communicationTopologies) {
@@ -2005,8 +1984,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         for (Condition condition : conditions) {
             if (superCondition == null) {
                 superCondition = condition;
-            }
-            else {
+            } else {
                 superCondition = superCondition.and(condition);
             }
         }
