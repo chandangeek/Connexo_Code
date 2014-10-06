@@ -89,7 +89,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     xtype: 'side-filter-date-time',
                     itemId: 'finished-between',
                     name: 'finishedBetween',
-                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.finishedBetween', 'DSH', 'Finished between')
+                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.finishedBetween', 'DSH', 'Finished successfully between')
                 }
             ],
             dockedItems: [

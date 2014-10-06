@@ -26,12 +26,12 @@ Ext.define('Dsh.view.widget.Summary', {
                     '<td class="label">' +
                     '<a href="#{alias}">{displayName}</a>' +
                     '</td>' +
-                    '<td width="100%" id="bar-{[parentIndex]}" class="bar-{alias}"></td>' +
+                    '<td width="100%" id="bar-{[parentIndex]}" class="bar-{[parentIndex]}"></td>' +
                     '</tr>' +
                     '<tpl for="counters">' +
                     '<tr class="child">' +
                     '<td class="label">{displayName}</td>' +
-                    '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{alias}"></td>' +
+                    '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{[parentIndex]}"></td>' +
                     '</tr>' +
                     '</tpl>' +
                     '</tbody>' +
@@ -65,7 +65,7 @@ Ext.define('Dsh.view.widget.Summary', {
 
                             var filter = {};
                             filter[view.record.get('alias')] = record.get('id');
-                            var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
+                            var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
                             view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
                         });
                     }
@@ -78,7 +78,7 @@ Ext.define('Dsh.view.widget.Summary', {
     summaryTitleUpdate: function (total) {
         var me = this,
             title = me.down('#connection-summary-title-panel');
-        title.update('<h3>' + me.wTitle + ' (' + total + ' ' + Uni.I18n.translate('overview.widget.connections', 'Dsh', 'connections') + ')' + '</h3>')
+            title.update('<h3>' + me.wTitle + ' (' + total + ' ' + Uni.I18n.translate('overview.widget.' + me.parent, 'Dsh', me.parent) + ')' + '</h3>')
     },
 
     setRecord: function (record) {

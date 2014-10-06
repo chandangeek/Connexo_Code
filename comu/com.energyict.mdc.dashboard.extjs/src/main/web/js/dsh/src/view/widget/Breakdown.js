@@ -18,24 +18,29 @@ Ext.define('Dsh.view.widget.Breakdown', {
         bindable: 'Ext.util.Bindable'
     },
     itemsInCollapsedMode: 5,
-    tbar: [
-        {
-            xtype: 'container',
-            itemId: 'title',
-            html: '<h2>' + Uni.I18n.translate('overview.widget.breakdown.title', 'DSH', 'Breakdown') + '</h2>'
-        },
-        '->',
-        {
-            xtype: 'container',
-            html: '<div class="legend">' +
+    dockedItems: [{
+        xtype: 'toolbar',
+        dock: 'top',
+        style: {padding: 0},
+        items: [
+            {
+                xtype: 'container',
+                itemId: 'title',
+                html: '<h2>' + Uni.I18n.translate('overview.widget.breakdown.title', 'DSH', 'Breakdown') + '</h2>'
+            },
+            '->',
+            {
+                xtype: 'container',
+                html: '<div class="legend">' +
                     '<ul>' +
-                        '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
-                        '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
-                        '<li><span class="color pending"></span> ' + Uni.I18n.translate('overview.widget.breakdown.pending', 'DSH', 'Pending') + '</li>' +
+                    '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
+                    '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
+                    '<li><span class="color ongoing"></span> ' + Uni.I18n.translate('overview.widget.breakdown.ongoing', 'DSH', 'Ongoing') + '</li>' +
                     '</ul>' +
-                '</div>'
-        }
-    ],
+                    '</div>'
+            }
+        ]
+    }],
     items: [
         {
             xtype: 'panel',
@@ -83,20 +88,19 @@ Ext.define('Dsh.view.widget.Breakdown', {
                 {property: 'total', direction: 'DESC'},
                 {property: 'displayName', direction: 'ASC'}
             ]);
+
+            var total = item.counters().first().get('total');
             var panel = Ext.create('Ext.panel.Panel', {
                 ui: 'tile',
-                style: {padding: '20px'},
                 tbar: {
                     xtype: 'container',
                     itemId: 'title',
                     html: '<h3>' + item.get('displayName') + '</h3>'
                 },
-                bbar: [
-                    '->',
+                buttonAlign: 'left',
+                buttons: [
                     {
-                        xtype: 'button',
-                        ui: 'link',
-                        text: Uni.I18n.translate('overview.widget.breakdown.showMore', 'DSH', 'show more'),
+                        text: Uni.I18n.translate('overview.widget.breakdown.showMore', 'DSH', 'Show more'),
                         hidden: item.counters().count() <= me.itemsInCollapsedMode,
                         handler: function () {
                             me.summaryMoreLess(panel);
@@ -109,16 +113,16 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     itemSelector: 'tbody.item',
                     total: item.get('total'),
                     store: item.counters(),
-                    tpl: '<table>' +
+                    tpl: '<table width="100%">' +
                             '<tpl for=".">' +
                                 '<tbody class="item item-{#}">' +
                                     '<tr>' +
-                                        '<td>' +
+                                        '<td width="50%"> ' +
                                             '<a>' +
-                                                '<div style="width: 200px; overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
+                                                '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
                                             '</a>' +
                                         '</td>' +
-                                        '<td width="100%" id="bar-{#}"></td>' +
+                                        '<td width="50%" id="bar-{#}"></td>' +
                                     '</tr>' +
                                 '</tbody>' +
                             '</tpl>' +
@@ -131,12 +135,13 @@ Ext.define('Dsh.view.widget.Breakdown', {
 
                                 var data = {
                                     failed: record.get('failedCount'),
-                                    pending: record.get('pendingCount'),
-                                    success: record.get('successCount')
+                                    success: record.get('successCount'),
+                                    ongoing: record.get('pendingCount')
                                 };
+
                                 var bar = Ext.widget('stacked-bar', {
                                     limit: record.get('total'),
-                                    total: item.get('total'),
+                                    total: total,
                                     count: data,
                                     label: record.get('total')
                                 });
@@ -144,7 +149,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
 
                                 var filter = {};
                                 filter[item.get('alias')] = record.get('id');
-                                var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
+                                var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
                                 view.getEl().down('.item-' + pos + ' a').set({ href: href });
                             });
 

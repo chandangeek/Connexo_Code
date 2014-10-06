@@ -11,33 +11,31 @@ Ext.define('Dsh.controller.history.Workspace', {
             route: 'workspace',
             disabled: true,
             items: {
-                datacommunication: {
-                    title: 'Data communication',
-                    route: 'datacommunication',
+                connections: {
+                    title: 'Connections overview',
+                    route: 'connections',
+                    controller: 'Dsh.controller.ConnectionOverview',
+                    action: 'showOverview',
                     items: {
-                        communication: {
-                            title: 'Communication overview',
-                            route: 'communication',
-                            controller: 'Dsh.controller.CommunicationOverview',
-                            action: 'showOverview'
-                        },
-                        communications: {
-                            title: 'Communications',
-                            route: 'communications',
-                            controller: 'Dsh.controller.Communications',
+                        details: {
+                            title: 'Connections',
+                            route: 'details',
+                            controller: 'Dsh.controller.Connections',
                             action: 'showOverview',
                             filter: 'Dsh.model.Filter'
-                        },
-                        connection: {
-                            title: 'Connection overview',
-                            route: 'connection',
-                            controller: 'Dsh.controller.ConnectionOverview',
-                            action: 'showOverview'
-                        },
-                        connections: {
-                            title: 'Connections',
-                            route: 'connections',
-                            controller: 'Dsh.controller.Connections',
+                        }
+                    }
+                },
+                communications: {
+                    title: 'Communication overview',
+                    route: 'communications',
+                    controller: 'Dsh.controller.CommunicationOverview',
+                    action: 'showOverview',
+                    items: {
+                        details: {
+                            title: 'Communications',
+                            route: 'details',
+                            controller: 'Dsh.controller.Communications',
                             action: 'showOverview',
                             filter: 'Dsh.model.Filter'
                         }
@@ -47,3 +45,7 @@ Ext.define('Dsh.controller.history.Workspace', {
         }
     }
 });
+//'workspace/datacommunication/communication' --> workspace/communications
+//'workspace/datacommunication/communications' --> workspace/communications/details
+//'workspace/datacommunication/connection' --> workspace/connections
+//'workspace/datacommunication/connections' --> workspace/connections/details
