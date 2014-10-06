@@ -18,13 +18,25 @@ import com.google.common.base.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Path("/loadprofiles")
 public class LoadProfileResource {
@@ -44,7 +56,7 @@ public class LoadProfileResource {
     @Path("/intervals")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
-    public Response getIntervals(@BeanParam QueryParameters queryParameters){
+    public Response getIntervals(@BeanParam QueryParameters queryParameters) {
         List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(LocalizedTimeDuration.intervals.size());
         for (Map.Entry<Integer, LocalizedTimeDuration> timeDurationEntry : LocalizedTimeDuration.intervals.entrySet()) {
             LocalizedTimeDuration.TimeDurationInfo info = new LocalizedTimeDuration.TimeDurationInfo();
@@ -99,7 +111,7 @@ public class LoadProfileResource {
         LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
         loadProfileType.setName(request.name);
         boolean isInUse = isLoadProfileTypeAlreadyInUse(loadProfileType);
-        if (!isInUse){
+        if (!isInUse) {
             loadProfileType.setInterval(request.timeDuration);
             loadProfileType.setObisCode(request.obisCode);
             boolean all = getBoolean(uriInfo, "all");
@@ -171,7 +183,8 @@ public class LoadProfileResource {
             }
         }
     }
-    private boolean isLoadProfileTypeAlreadyInUse(LoadProfileType loadProfileType){
+
+    private boolean isLoadProfileTypeAlreadyInUse(LoadProfileType loadProfileType) {
         return !deviceConfigurationService.findDeviceConfigurationsUsingLoadProfileType(loadProfileType).isEmpty()
                 || !deviceConfigurationService.findDeviceTypesUsingLoadProfileType(loadProfileType).isEmpty();
     }
