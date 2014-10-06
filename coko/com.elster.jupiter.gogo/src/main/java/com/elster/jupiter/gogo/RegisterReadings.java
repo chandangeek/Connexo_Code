@@ -1,7 +1,7 @@
 package com.elster.jupiter.gogo;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
@@ -40,7 +40,7 @@ import java.util.TimeZone;
         immediate = true)
 public class RegisterReadings {
 
-    private volatile DeviceDataService deviceDataService;
+    private volatile DeviceService deviceDataService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
@@ -58,7 +58,7 @@ public class RegisterReadings {
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
+    public void setDeviceDataService(DeviceService deviceDataService) {
         this.deviceDataService = deviceDataService;
     }
 
