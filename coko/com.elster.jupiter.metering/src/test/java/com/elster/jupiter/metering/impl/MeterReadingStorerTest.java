@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -12,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.base.Optional;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import javax.inject.Provider;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -63,12 +66,15 @@ public class MeterReadingStorerTest {
     private EventService eventService;
     @Mock
     private EndDeviceEventRecord existing;
+    @Mock
+    private DataMapper<ReadingQualityRecord> readingQualityRecordFactory;
 
     @Before
     public void setUp() {
         when(meteringService.createOverrulingStorer()).thenReturn(readingStorer);
         when(dataModel.mapper(EndDeviceEventType.class)).thenReturn(endDeviceEventTypeFactory);
         when(dataModel.mapper(EndDeviceEventRecord.class)).thenReturn(eventRecordFactory);
+        when(dataModel.mapper(ReadingQualityRecord.class)).thenReturn(readingQualityRecordFactory);
         when(deviceEventFactory.get()).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {

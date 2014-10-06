@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,10 +56,13 @@ public class ReadingStorerImpl implements ReadingStorer {
     }
 
     private void addScope(Channel channel, Date timestamp) {
-        if (!scope.containsKey(channel)) {
-            scope.put(channel, new Interval(timestamp, timestamp));
-            return;
-        }
-        scope.put(channel, scope.get(channel).spanToInclude(timestamp));
+    	scope.compute(
+    		channel, 
+    		(key, interval) -> interval == null ? new Interval(timestamp,timestamp) : interval.spanToInclude(timestamp));
+    }
+    
+    @Override
+    public boolean processed(Channel channel, Instant instant) {
+    	return storer.processed(((ChannelContract) channel).getTimeSeries(), instant);
     }
 }
