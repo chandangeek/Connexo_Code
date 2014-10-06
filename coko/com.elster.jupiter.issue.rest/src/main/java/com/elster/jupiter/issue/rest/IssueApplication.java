@@ -2,15 +2,32 @@ package com.elster.jupiter.issue.rest;
 
 
 import com.elster.jupiter.issue.rest.i18n.TranslationInstaller;
-import com.elster.jupiter.issue.rest.resource.*;
+import com.elster.jupiter.issue.rest.resource.ActionResource;
+import com.elster.jupiter.issue.rest.resource.AssigneeResource;
+import com.elster.jupiter.issue.rest.resource.CreationRuleResource;
+import com.elster.jupiter.issue.rest.resource.HelpResource;
+import com.elster.jupiter.issue.rest.resource.IssueResource;
+import com.elster.jupiter.issue.rest.resource.IssueTypeResource;
+import com.elster.jupiter.issue.rest.resource.MeterResource;
+import com.elster.jupiter.issue.rest.resource.ReasonResource;
+import com.elster.jupiter.issue.rest.resource.RuleResource;
+import com.elster.jupiter.issue.rest.resource.StatusResource;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptionMapper;
-import com.elster.jupiter.issue.share.service.*;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueHelpService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
@@ -22,6 +39,8 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.issue.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/isu", "name=" + IssueApplication.ISSUE_REST_COMPONENT})
@@ -96,34 +115,42 @@ public class IssueApplication extends Application implements BinderProvider, Ins
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
     }
+
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
+
     @Reference
     public void setIssueAssignmentService(IssueAssignmentService issueAssignmentService) {
         this.issueAssignmentService = issueAssignmentService;
     }
+
     @Reference
     public void setIssueCreationService(IssueCreationService issueCreationService) {
         this.issueCreationService = issueCreationService;
     }
+
     @Reference
     public void setIssueActionService(IssueActionService issueActionService) {
         this.issueActionService = issueActionService;
     }
+
     @Reference
     public void setIssueHelpService(IssueHelpService issueHelpService) {
         this.issueHelpService = issueHelpService;
     }
+
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
@@ -133,5 +160,10 @@ public class IssueApplication extends Application implements BinderProvider, Ins
     @Override
     public final void install() {
         new TranslationInstaller(thesaurus).createTranslations();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS");
     }
 }
