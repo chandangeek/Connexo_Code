@@ -27,6 +27,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.validation.MessageInterpolator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -50,6 +51,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     @Override
     public void install() {
         new InstallerImpl(dataModel, thesaurus).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "NLS");
     }
 
     @Reference
