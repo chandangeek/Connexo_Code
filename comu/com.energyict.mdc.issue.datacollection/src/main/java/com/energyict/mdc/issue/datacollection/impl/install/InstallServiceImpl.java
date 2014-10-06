@@ -13,6 +13,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.install", service = InstallService.class, property = "name=" + ModuleConstants.COMPONENT_NAME, immediate = true)
 public class InstallServiceImpl implements InstallService {
@@ -38,6 +40,11 @@ public class InstallServiceImpl implements InstallService {
     public void install() {
         new TranslationInstaller(thesaurus).createTranslations();
         new Installer(issueService, messageService, eventService, thesaurus).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS", "ISU", "MSG");
     }
 
     @Reference
