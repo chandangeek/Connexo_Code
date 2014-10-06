@@ -1,5 +1,17 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.proxy.LazyLoader;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
@@ -23,19 +35,6 @@ import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.proxy.LazyLoader;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -48,13 +47,12 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
-import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
-import static com.energyict.mdc.engine.model.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
-import static com.energyict.mdc.engine.model.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
+import static com.energyict.mdc.engine.model.impl.ComServerImpl.*;
 
 @Component(name = "com.energyict.mdc.engine.model", service = {EngineModelService.class, InstallService.class}, property = "name=" + EngineModelService.COMPONENT_NAME)
 public class EngineModelServiceImpl implements EngineModelService, InstallService, OrmClient {
@@ -87,6 +85,11 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         new Installer(this.dataModel, this.thesaurus, this.eventService, this.userService).install(true);
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "USR", "EVT", "USR");
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel(EngineModelService.COMPONENT_NAME, "ComServer Engine Model");
@@ -103,7 +106,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(EngineModelService.COMPONENT_NAME,Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(EngineModelService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -152,7 +155,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     public Optional<ComServer> findComServer(String name) {
         Condition condition = Where.where("name").isEqualTo(name).and(Where.where("obsoleteDate").isNull());
         return Optional.fromNullable(unique(getComServerDataMapper().select(condition)));
-   }
+    }
 
     @Override
     public Optional<ComServer> findComServer(long id) {
@@ -183,10 +186,10 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer) {
-        Condition condition = 
-                     Where.where("class").isEqualTo(REMOTE_COMSERVER_DISCRIMINATOR)
-                .and(Where.where("onlineComServer").isEqualTo(onlineComServer))
-                .and(Where.where("obsoleteDate").isNull());
+        Condition condition =
+                Where.where("class").isEqualTo(REMOTE_COMSERVER_DISCRIMINATOR)
+                        .and(Where.where("onlineComServer").isEqualTo(onlineComServer))
+                        .and(Where.where("obsoleteDate").isNull());
         return convertComServerListToRemoteComServers(getComServerDataMapper().select(condition));
     }
 
@@ -314,8 +317,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         ComPortPool comPortPool = this.findComPortPool(id);
         if (comPortPool instanceof InboundComPortPool) {
             return (InboundComPortPool) comPortPool;
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -325,8 +327,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         ComPortPool comPortPool = this.findComPortPool(id);
         if (comPortPool instanceof OutboundComPortPool) {
             return (OutboundComPortPool) comPortPool;
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -345,7 +346,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     public ComPortPool findComPortPool(String name) {
         Condition condition = Where.where("obsoleteDate").isNull().and(Where.where("name").isEqualTo(name));
         List<ComPortPool> comPortPools = getComPortPoolDataMapper().select(condition);
-        return comPortPools.size()==1?comPortPools.get(0):null;
+        return comPortPools.size() == 1 ? comPortPools.get(0) : null;
     }
 
     @Override
@@ -356,7 +357,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     private List<OutboundComPortPool> convertComportPoolListToOutBoundComPortPools(final List<ComPortPool> comPortPools) {
         List<OutboundComPortPool> outboundComPortPools = new ArrayList<>(comPortPools.size());
         for (ComPortPool comPortPool : comPortPools) {
-            if (!comPortPool.isInbound()){
+            if (!comPortPool.isInbound()) {
                 outboundComPortPools.add((OutboundComPortPool) comPortPool);
             }
         }
@@ -482,8 +483,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         try {
             String comServerName = (String) comServerJSon.get("name");
             return new ComServerLazyLoader(comServerName).load();
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
@@ -493,8 +493,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         try {
             Long id = Long.parseLong((String) comPortJSon.get("id"));
             return new ComPortLazyLoader(id).load();
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
@@ -502,7 +501,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     private <T> T unique(Collection<T> collection) {
         if (collection.isEmpty()) {
             return null;
-        } else if (collection.size()!=1) {
+        } else if (collection.size() != 1) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NOT_UNIQUE);
         }
         return collection.iterator().next();
@@ -545,8 +544,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         public ComPort load() {
             if (this.comPortId != null) {
                 return findComPort(comPortId);
-            }
-            else {
+            } else {
                 return null;
             }
         }
