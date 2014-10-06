@@ -26,6 +26,12 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,19 +43,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySet;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DashboardServiceImpl} component.
@@ -80,12 +77,12 @@ public class DashboardServiceImplTest {
     private DashboardServiceImpl dashboardService;
 
     @Before
-    public void setupService () {
+    public void setupService() {
         this.dashboardService = new DashboardServiceImpl(this.taskService, this.connectionTaskService, this.communicationTaskService);
     }
 
     @Test
-    public void testConnectionOverview () {
+    public void testConnectionOverview() {
         Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
@@ -107,7 +104,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testComSessionSuccessIndicatorOverview () {
+    public void testComSessionSuccessIndicatorOverview() {
         Map<ComSession.SuccessIndicator, Long> counters = new EnumMap<>(ComSession.SuccessIndicator.class);
         for (ComSession.SuccessIndicator successIndicator : ComSession.SuccessIndicator.values()) {
             counters.put(successIndicator, EXPECTED_STATUS_COUNT_VALUE);
@@ -131,7 +128,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testComPortPoolBreakdownWithoutComPortPools () {
+    public void testComPortPoolBreakdownWithoutComPortPools() {
         when(this.connectionTaskService.getComPortPoolBreakdown(anySet())).thenReturn(new HashMap<ComPortPool, Map<TaskStatus, Long>>());
 
         // Business methods
@@ -148,7 +145,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testComPortPoolBreakdownWithComPortPoolsButNoConnections () {
+    public void testComPortPoolBreakdownWithComPortPoolsButNoConnections() {
         ComPortPool comPortPool = mock(ComPortPool.class);
         when(this.engineModelService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool));
         Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
@@ -173,7 +170,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testConnectionTypeBreakdownWithoutConnectionTypes () {
+    public void testConnectionTypeBreakdownWithoutConnectionTypes() {
         when(this.connectionTaskService.getConnectionTypeBreakdown(anySet())).thenReturn(new HashMap<>());
 
         // Business methods
@@ -190,7 +187,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testConnectionTypeBreakdownWithConnectionTypesButNoConnections () {
+    public void testConnectionTypeBreakdownWithConnectionTypesButNoConnections() {
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
         when(this.protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Arrays.asList(connectionTypePluggableClass));
         Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
@@ -216,7 +213,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testConnectionTaskDeviceTypeBreakdownWithoutDeviceTypes () {
+    public void testConnectionTaskDeviceTypeBreakdownWithoutDeviceTypes() {
         when(this.connectionTaskService.getDeviceTypeBreakdown(anySet())).thenReturn(new HashMap<>());
 
         // Business methods
@@ -261,7 +258,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testCommunicationOverview () {
+    public void testCommunicationOverview() {
         Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
@@ -283,7 +280,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testComTaskExecutionsDeviceTypeBreakdownWithoutDeviceTypes () {
+    public void testComTaskExecutionsDeviceTypeBreakdownWithoutDeviceTypes() {
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
@@ -330,7 +327,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testComTaskExecutionsBreakdownWithoutComTasks () {
+    public void testComTaskExecutionsBreakdownWithoutComTasks() {
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
@@ -385,7 +382,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testComTaskExecutionsComScheduleBreakdownWithoutComSchedules () {
+    public void testComTaskExecutionsComScheduleBreakdownWithoutComSchedules() {
         List<ComSchedule> comSchedules = new ArrayList<>(0);
         when(this.schedulingService.findAllSchedules()).thenReturn(comSchedules);
 
@@ -431,7 +428,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testComTaskExecutionCompletionCodeOverview () {
+    public void testComTaskExecutionCompletionCodeOverview() {
         Map<CompletionCode, Long> counters = new EnumMap<>(CompletionCode.class);
         for (CompletionCode completionCode : CompletionCode.values()) {
             counters.put(completionCode, EXPECTED_STATUS_COUNT_VALUE);

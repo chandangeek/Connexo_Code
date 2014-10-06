@@ -25,7 +25,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -89,11 +88,11 @@ public class DashboardServiceImpl implements DashboardService {
         for (ComPortPool comPortPool : rawData.keySet()) {
             Map<TaskStatus, Long> statusCount = rawData.get(comPortPool);
             breakdown.add(
-                new TaskStatusBreakdownCounterImpl<>(
-                        comPortPool,
-                        this.successCount(statusCount),
-                        this.failedCount(statusCount),
-                        this.pendingCount(statusCount)));
+                    new TaskStatusBreakdownCounterImpl<>(
+                            comPortPool,
+                            this.successCount(statusCount),
+                            this.failedCount(statusCount),
+                            this.pendingCount(statusCount)));
         }
         return breakdown;
     }
@@ -267,7 +266,7 @@ public class DashboardServiceImpl implements DashboardService {
         return Arrays.asList(ComSession.SuccessIndicator.SetupError, ComSession.SuccessIndicator.Broken);
     }
 
-    private List<ComTask> availableComTasks () {
+    private List<ComTask> availableComTasks() {
         return this.taskService.findAllComTasks();
     }
 

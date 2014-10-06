@@ -48,8 +48,8 @@ public class ConnectionTaskHeatMapRowImpl<T> implements ConnectionTaskHeatMapRow
     @Override
     public long getTotalCount() {
         return Stream.of(this).
-            map(ConnectionTaskHeatMapRow::getTotalCount).
-            reduce((runningSum, value) -> runningSum + value).orElse(0L);
+                map(ConnectionTaskHeatMapRow::getTotalCount).
+                reduce((runningSum, value) -> runningSum + value).orElse(0L);
     }
 
 }
