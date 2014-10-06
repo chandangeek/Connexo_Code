@@ -53,7 +53,13 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -278,10 +284,11 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(false);
         when(queryExecutor.select(any(Condition.class))).thenReturn(Arrays.asList(meterActivationValidation));
-        when(meterActivationValidation.getMinLastChecked()).thenReturn(new Date (5000L));
+        when(meterActivationValidation.getMinLastChecked()).thenReturn(new Date(5000L));
         when(meterActivationValidation.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation1, channelValidation2));
-        when(channelValidation1.getLastChecked()).thenReturn(new Date (-5000));
-        when(channelValidation2.getLastChecked()).thenReturn(new Date (5000L));        when(channelValidation1.getChannel()).thenReturn(channel1);
+        when(channelValidation1.getLastChecked()).thenReturn(new Date(-5000));
+        when(channelValidation2.getLastChecked()).thenReturn(new Date(5000L));
+        when(channelValidation1.getChannel()).thenReturn(channel1);
         when(channelValidation2.getChannel()).thenReturn(channel2);
         when(channel1.findReadingQuality(Interval.sinceEpoch())).thenReturn(Arrays.asList(readingQuality1));
         when(channel2.findReadingQuality(Interval.sinceEpoch())).thenReturn(Arrays.asList(readingQuality2, readingQuality3));

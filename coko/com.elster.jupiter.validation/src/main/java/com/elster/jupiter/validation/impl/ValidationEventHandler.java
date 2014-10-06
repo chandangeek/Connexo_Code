@@ -14,7 +14,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component(name="com.elster.jupiter.validation.validationeventhandler", service = Subscriber.class, immediate = true)
+@Component(name = "com.elster.jupiter.validation.validationeventhandler", service = Subscriber.class, immediate = true)
 public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
     private static final String TOPIC = "com/elster/jupiter/metering/reading/CREATED";
