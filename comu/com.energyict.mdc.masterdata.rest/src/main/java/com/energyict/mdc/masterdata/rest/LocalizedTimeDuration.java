@@ -15,17 +15,17 @@ public class LocalizedTimeDuration {
     static {
         Integer i = 0;
         intervals = new HashMap<>(11);
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.MINUTES), MessageSeeds.TIME_MINUTE));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(2, TimeDuration.MINUTES), MessageSeeds.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(3, TimeDuration.MINUTES), MessageSeeds.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(5, TimeDuration.MINUTES), MessageSeeds.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(10, TimeDuration.MINUTES), MessageSeeds.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(15, TimeDuration.MINUTES), MessageSeeds.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(20, TimeDuration.MINUTES), MessageSeeds.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(30, TimeDuration.MINUTES), MessageSeeds.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.HOURS), MessageSeeds.TIME_HOUR));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.DAYS), MessageSeeds.TIME_DAY));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.MONTHS), MessageSeeds.TIME_MONTH));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES), MessageSeeds.TIME_MINUTE));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(2, TimeDuration.TimeUnit.MINUTES), MessageSeeds.TIME_MINUTES));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(3, TimeDuration.TimeUnit.MINUTES), MessageSeeds.TIME_MINUTES));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), MessageSeeds.TIME_MINUTES));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), MessageSeeds.TIME_MINUTES));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), MessageSeeds.TIME_MINUTES));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(20, TimeDuration.TimeUnit.MINUTES), MessageSeeds.TIME_MINUTES));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(30, TimeDuration.TimeUnit.MINUTES), MessageSeeds.TIME_MINUTES));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.TimeUnit.HOURS), MessageSeeds.TIME_HOUR));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.TimeUnit.DAYS), MessageSeeds.TIME_DAY));
+        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), MessageSeeds.TIME_MONTH));
     }
 
     private TimeDuration timeDuration;
