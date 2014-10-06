@@ -1,5 +1,7 @@
 Ext.define('Mdc.view.setup.devicesearch.SearchItems', {
     extend: 'Uni.view.container.ContentContainer',
+    xtype: 'mdc-search-items',
+    itemId: 'mdc-search-items',
 
     requires: [
         'Mdc.view.setup.devicesearch.SearchResults',

@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
     ],
 
     cls: 'filter-form',
+    itemId: 'filter-form',
     width: 250,
     title: Uni.I18n.translate('searchItems.sideFilter.title', 'MDC', 'Search for devices'),
     ui: 'medium',
@@ -18,8 +19,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
 
         me.items = [
             {
-                xtype: 'nested-form',
-                hydrator: 'Dsh.util.FilterHydrator',
+                xtype: 'filter-form',
                 ui: 'filter',
                 layout: {
                     type: 'vbox',
@@ -31,16 +31,14 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
                 items: [
                     {
                         xtype: 'textfield',
-                        name: 'mrid',
-                        itemId: 'mrid',
+                        name: 'mRID',
                         fieldLabel: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')
                     },
                     {
                         xtype: 'textfield',
-                        name: 'sn',
-                        itemId: 'sn',
+                        name: 'serialNumber',
                         fieldLabel: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')
-                    },
+                    }/*,
                     {
                         xtype: 'combobox',
                         name: 'type',
@@ -89,7 +87,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
                                 return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {name} </div>';
                             }
                         }
-                    }
+                    }*/
                 ],
                 dockedItems: [
                     {
@@ -97,7 +95,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
                         dock: 'bottom',
                         items: [
                             {
-                                text: Uni.I18n.translate('searchItems.sideFilter.apply', 'MDC', 'Apply'),
+                                text: Uni.I18n.translate('searchItems.sideFilter.apply', 'MDC', 'Search'),
                                 ui: 'action',
                                 action: 'applyfilter'
                             },
@@ -112,9 +110,9 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
         ];
 
         me.callParent(arguments);
-    },
+    }//,
 
-    onCollapseDeviceType: function () {
+    /*onCollapseDeviceType: function () {
         var me = this,
             form = me.down('nested-form'),
             typeConfig = me.down('#type'),
@@ -150,6 +148,6 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
     clearComboConfiguration: function (cmbConfig) {
         cmbConfig.setValue('');
         cmbConfig.setVisible(false);
-    }
+    }*/
 });
 

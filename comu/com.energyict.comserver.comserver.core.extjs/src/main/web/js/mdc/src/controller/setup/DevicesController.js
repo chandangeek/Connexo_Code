@@ -4,7 +4,36 @@ Ext.define('Mdc.controller.setup.DevicesController', {
     /**
      * @cfg {String} itemId prefix for the component
      */
-    prefix: ''
+    prefix: '',
 
-    // TODO
+    init: function () {
+        if (this.prefix) {
+            var control = {};
+
+            /*control[this.prefix + ' filter-top-panel'] = {
+                removeFilter: this.removeFilter,
+                clearAllFilters: this.clearFilter
+            };*/
+            control[this.prefix + ' button[action=applyfilter]'] = {
+                click: this.applyFilter
+            };
+            control[this.prefix + ' button[action=clearfilter]'] = {
+                click: this.clearFilter
+            };
+            this.control(control);
+        }
+
+        this.callParent(arguments);
+    },
+
+    initFilter: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        this.getSideFilterForm().loadRecord(router.filter || Ext.create('Mdc.model.DeviceFilter'));
+    },
+
+    getSideFilterForm: function() {},
+
+    applyFilter: function() {},
+
+    clearFilter: function() {}
 });
