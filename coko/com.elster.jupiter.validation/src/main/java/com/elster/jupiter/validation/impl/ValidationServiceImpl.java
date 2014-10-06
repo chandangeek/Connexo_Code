@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -64,19 +65,7 @@ import static java.util.Comparator.nullsFirst;
 public final class ValidationServiceImpl implements ValidationService, InstallService {
 
     private static final Upcast<IValidationRuleSet, ValidationRuleSet> UPCAST = new Upcast<>();
-    private static final Function<IMeterActivationValidation, Date> METER_ACTIVATION_MIN_LAST_CHECKED = new Function<IMeterActivationValidation, Date>() {
-        @Override
-        public Date apply(IMeterActivationValidation input) {
-            return (input == null ? null : input.getMinLastChecked());
-        }
-    };
-    private static final Function<ChannelValidation, Date> CHANNEL_VALIDATION_LAST_CHECKED = new Function<ChannelValidation, Date>() {
-        @Override
-        public Date apply(ChannelValidation input) {
-            return (input == null ? null : input.getLastChecked());
-        }
-    };
-    private static final Date ETERNITY = new Date(Long.MAX_VALUE);
+    private static final Function<IMeterActivationValidation, Date> METER_ACTIVATION_MIN_LAST_CHECKED = input -> input == null ? null : input.getMinLastChecked();
 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
@@ -343,6 +332,36 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
                     .filter(MeterActivationValidation::isActive)
                     .forEach(m -> m.validate(interval));
         }
+    }
+
+    @Override
+    public void validateForNewData(MeterActivation meterActivation, Interval interval) {
+        boolean validationActive = isValidationActive(meterActivation);
+        List<IMeterActivationValidation> meterActivationValidations = getUpdatedMeterActivationValidations(meterActivation);
+
+        meterActivationValidations.stream()
+                .peek(m -> {
+                    if (!validationActive || !m.isActive() && interval.startsBefore(m.getMaxLastChecked())) {
+                        handleDataOverwrite(m, interval);
+                    }
+                })
+                .filter(m -> validationActive)
+                .filter(MeterActivationValidation::isActive)
+                .forEach(m -> m.validate(interval));
+    }
+
+    private void handleDataOverwrite(IMeterActivationValidation meterActivationValidation, Interval interval) {
+        meterActivationValidation.getChannelValidations().stream()
+                .filter(c -> interval.startsBefore(c.getLastChecked()))
+                .map(IChannelValidation.class::cast)
+                .forEach(c -> c.setLastChecked(interval.getStart()));
+        meterActivationValidation.save();
+
+        meterActivationValidation.getChannelValidations().stream()
+                .map(ChannelValidation::getChannel)
+                .flatMap(c -> c.findReadingQuality(interval).stream())
+                .filter(IS_VALIDATION_QUALITY)
+                .forEach(ReadingQualityRecord::delete);
     }
 
     private boolean isValidationActive(MeterActivation meterActivation) {

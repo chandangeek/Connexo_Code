@@ -5,13 +5,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.elster.jupiter.validation.ChannelValidation;
 
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.Objects;
 
-final class ChannelValidationImpl implements ChannelValidation {
+final class ChannelValidationImpl implements IChannelValidation {
 
     private long id;
     private Reference<Channel> channel = ValueReference.absent();
@@ -54,6 +53,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         return lastChecked != null ? lastChecked.toDate() : null;
     }
 
+    @Override
     public void setLastChecked(Date date) {
         lastChecked = new UtcInstant(date);
     }

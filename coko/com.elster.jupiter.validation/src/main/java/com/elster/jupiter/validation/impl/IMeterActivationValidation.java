@@ -25,4 +25,6 @@ public interface IMeterActivationValidation extends MeterActivationValidation {
     boolean isAllDataValidated();
 
     Date getMinLastChecked();
+
+    Date getMaxLastChecked();
 }

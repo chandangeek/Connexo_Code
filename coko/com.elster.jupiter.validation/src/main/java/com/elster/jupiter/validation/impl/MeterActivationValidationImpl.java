@@ -17,6 +17,8 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.Predicates.notNull;
 import static java.util.Comparator.*;
@@ -152,7 +155,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public Set<ChannelValidation> getChannelValidations() {
-        return Collections.unmodifiableSet(new HashSet<ChannelValidation>(doGetChannelValidations()));
+        return Collections.unmodifiableSet(new HashSet<>(doGetChannelValidations()));
     }
 
     @Override
@@ -203,7 +206,14 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval, Channel channel) {
-        return new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), getLatestDate(channel.getLastDateTime(), interval.getEnd()));
+        Date lastChecked = getLatestDate(channelValidation.getLastChecked(), firstReadingTime(channelValidation));
+        return new Interval(getEarliestDate(lastChecked, interval.getStart()), getLatestDate(channel.getLastDateTime(), interval.getEnd()));
+    }
+
+    private Date firstReadingTime(ChannelValidationImpl channelValidation) {
+        int minutes = channelValidation.getChannel().getMainReadingType().getMeasuringPeriod().getMinutes();
+        Instant start = channelValidation.getChannel().getMeterActivation().getInterval().getStart().toInstant();
+        return Date.from(start.plus(minutes, ChronoUnit.MINUTES));
     }
 
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
@@ -263,26 +273,33 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
                 return false;
             }
             Comparator<? super Date> comparator = nullsLast(naturalOrder());
-            for (ChannelValidation channelValidation : getChannelValidations()) {
-                Date lastDateTime = channelValidation.getChannel().getLastDateTime();
-                Date lastChecked = channelValidation.getLastChecked();
-                if (channelValidation.hasActiveRules() && comparator.compare(lastChecked, lastDateTime) < 0) {
-                    return false;
-                }
-            }
+            return getChannelValidations().stream()
+                    .noneMatch(c -> c.hasActiveRules() && comparator.compare(c.getLastChecked(), c.getChannel().getLastDateTime()) < 0);
         }
-        return true;
+        return getChannelValidations().stream()
+                .noneMatch(ChannelValidation::hasActiveRules);
     }
 
     @Override
     public Date getMinLastChecked() {
+        return lastCheckedStream()
+                .min(naturalOrder())
+                .orElse(null);
+    }
+
+    @Override
+    public Date getMaxLastChecked() {
+        return lastCheckedStream()
+                .max(naturalOrder())
+                .orElse(null);
+    }
+
+    private Stream<Date> lastCheckedStream() {
         return getChannelValidations().stream()
                 .filter(notNull())
                 .filter(ChannelValidation::hasActiveRules)
                 .map(ChannelValidation::getLastChecked)
-                .filter(notNull())
-                .min(naturalOrder())
-                .orElse(null);
+                .filter(notNull());
     }
 
     @Override
