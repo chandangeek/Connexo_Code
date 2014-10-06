@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -27,7 +26,6 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -142,15 +140,15 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 
         super.delete();
     }
-    
+
     @Override
     public List<? extends ReadingQualityRecord> getReadingQualities(Range<Instant> range) {
-    	if (!range.hasLowerBound() && !range.hasUpperBound()) {
-    		throw new IllegalArgumentException();
-    	}
-    	QueryExecutor<ReadingQualityRecord> query = getDataModel().query(ReadingQualityRecord.class, Channel.class, MeterActivation.class);
-    	Condition condition = Where.where("channel.meterActivation.meter").isEqualTo(this);
-    	condition = condition.and(Where.where("readingTimestamp").in(range));
-    	return query.select(condition);
+        if (!range.hasLowerBound() && !range.hasUpperBound()) {
+            throw new IllegalArgumentException();
+        }
+        QueryExecutor<ReadingQualityRecord> query = getDataModel().query(ReadingQualityRecord.class, Channel.class, MeterActivation.class);
+        Condition condition = Where.where("channel.meterActivation.meter").isEqualTo(this);
+        condition = condition.and(Where.where("readingTimestamp").in(range));
+        return query.select(condition);
     }
 }

@@ -13,7 +13,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.base.Optional;
-
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +25,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import javax.inject.Provider;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
