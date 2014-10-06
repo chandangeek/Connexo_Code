@@ -7,6 +7,7 @@ import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
+import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import java.util.ArrayList;
 import java.util.Collections;

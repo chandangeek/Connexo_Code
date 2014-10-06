@@ -7,6 +7,7 @@ import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;

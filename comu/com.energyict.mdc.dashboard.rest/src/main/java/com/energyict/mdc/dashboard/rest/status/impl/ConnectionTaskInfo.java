@@ -4,6 +4,7 @@ import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
+import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import java.util.Date;
 import java.util.List;
