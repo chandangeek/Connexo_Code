@@ -1,5 +1,11 @@
 package com.energyict.mdc.issue.datacollection;
 
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -7,13 +13,6 @@ import com.energyict.mdc.issue.datacollection.impl.AbstractEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import java.util.Arrays;
@@ -39,17 +38,17 @@ public class MeterIssueEvent extends AbstractEvent {
 
         long timestamp = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP);
         List<EndDeviceEventRecord> deviceEvents = getDevice().getDeviceEvents(new Interval(new Date(timestamp), new Date(timestamp)));
-        if (deviceEvents.size() != 1){
+        if (deviceEvents.size() != 1) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_EVENT_IDENTIFIER);
         }
         eventRecord = deviceEvents.get(0);
         endDeviceEventType = (String) rawEvent.get("endDeviceEventType");
     }
 
-    protected void getEventDevice(Map<?, ?> rawEvent){
-        long endDeviceId = getLong(rawEvent,"endDeviceId");
+    protected void getEventDevice(Map<?, ?> rawEvent) {
+        long endDeviceId = getLong(rawEvent, "endDeviceId");
         Optional<Meter> meterRef = getMeteringService().findMeter(endDeviceId);
-        if (!meterRef.isPresent()){
+        if (!meterRef.isPresent()) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_END_DEVICE, endDeviceId);
         }
         Meter meter = meterRef.get();
