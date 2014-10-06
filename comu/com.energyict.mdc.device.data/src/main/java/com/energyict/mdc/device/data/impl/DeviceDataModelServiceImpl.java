@@ -52,6 +52,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -333,6 +334,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Override
     public void install() {
         this.install(true);
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT", "NLS", "MSG", "USR", "DTC", "CPC", "MDC", "SCH");
     }
 
     private void install(boolean exeuteDdl) {
