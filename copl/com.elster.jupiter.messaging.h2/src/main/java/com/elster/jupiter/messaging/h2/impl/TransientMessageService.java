@@ -12,10 +12,12 @@ import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@Component(name = "com.elster.jupiter.messaging.h2" , service = { MessageService.class , InstallService.class }, property = { "name=MSG" } )
+@Component(name = "com.elster.jupiter.messaging.h2", service = {MessageService.class, InstallService.class}, property = {"name=MSG"})
 public class TransientMessageService implements MessageService, InstallService {
 
     private final Map<String, TransientQueueTableSpec> queueTableSpecs = new HashMap<>();
@@ -74,8 +76,12 @@ public class TransientMessageService implements MessageService, InstallService {
 
     @Override
     public void install() {
-    	createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
-		createQueueTableSpec("MSG_RAWTOPICTABLE" , "RAW", true);
+        createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
+        createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM");
+    }
 }
