@@ -58,25 +58,42 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             msgTarget: 'under',
             items: [
                 {
-                    xtype: 'gridpanel',
-                    itemId: 'measurement-types-grid',
-                    hideHeaders: true,
-                    store: 'Mdc.store.SelectedMeasurementTypesForLoadProfileType',
-                    padding: 0,
-                    columns: [
+                    xtype: 'panel',
+                    width: 700,
+                    items: [
                         {
-                            text: 'Name',
-                            dataIndex: 'name',
-                            flex: 1
+                            xtype: 'gridpanel',
+                            itemId: 'measurement-types-grid',
+                            hideHeaders: true,
+                            store: 'Mdc.store.SelectedMeasurementTypesForLoadProfileType',
+                            padding: 0,
+                            columns: [
+                                {
+                                    text: 'Name',
+                                    dataIndex: 'name',
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'actioncolumn',
+                                    iconCls: 'icon-delete',
+                                    align: 'right'
+                                }
+                            ],
+                            height: 220
                         },
                         {
-                            xtype: 'actioncolumn',
-                            iconCls: 'icon-delete',
-                            align: 'right'
+                            xtype: 'displayfield',
+                            itemId: 'all-measurement-types',
+                            value: Uni.I18n.translate('loadProfileTypes.allMeasurementTypes', 'MDC', 'All measurement types'),
+                            hidden: true
+                        },
+                        {
+                            xtype: 'hiddenfield',
+                            itemId: 'all-measurement-types-field',
+                            name: 'allMeasurementTypes',
+                            value: false
                         }
                     ],
-                    height: 220,
-                    width: 700,
                     rbar: [
                         {
                             xtype: 'container',
@@ -177,7 +194,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         });
     },
 
-    updateRecord: function(record) {
+    updateRecord: function (record) {
         var me = this,
             basicForm = me.getForm(),
             measurementTypes = [],

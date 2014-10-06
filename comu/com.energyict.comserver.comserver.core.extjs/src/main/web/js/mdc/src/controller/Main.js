@@ -65,7 +65,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.SearchItems',
         'Mdc.controller.setup.SecuritySettings',
         'Mdc.controller.setup.SetupOverview',
-        'Mdc.controller.setup.ValidationRuleSets'
+        'Mdc.controller.setup.ValidationRuleSets',
+        'Mdc.controller.setup.Messages'
     ],
 
     refs: [

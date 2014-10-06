@@ -72,6 +72,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 itemId: 'validationRuleSetsLink',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/validationrulesets',
                 hrefTarget: '_self'
+            },
+            {
+                text: 'Messages',
+                pressed: false,
+                itemId: 'messagesLink',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/messages',
+                hrefTarget: '_self'
             }
         );
 

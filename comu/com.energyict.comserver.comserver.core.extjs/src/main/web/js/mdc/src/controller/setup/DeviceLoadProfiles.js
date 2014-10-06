@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     me.dataValidationLastChecked = res.lastChecked;
                     confirmationWindow.add(me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translatePlural('deviceloadprofiles.validateNow', me.mRID, 'MDC', 'Validate data of load profile {0}?'),
+                        title: Uni.I18n.translatePlural('deviceloadprofiles.validateNow', record.get('name'), 'MDC', 'Validate data of load profile {0}?'),
                         msg: ''
                     });
                 } else {

@@ -362,6 +362,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showAddValidationRuleSets'
                                                         }
                                                     }
+                                                },
+                                                //messages routes
+                                                messages: {
+                                                    title: 'Messages',
+                                                    route: 'messages',
+                                                    controller: 'Mdc.controller.setup.Messages',
+                                                    action: 'showMessagesOverview'
                                                 }
                                             }
                                         }

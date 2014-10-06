@@ -29,46 +29,34 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
         ];
         Ext.Array.each(me.channels, function (channel) {
             me.columns.push({
-                header: '',
+                header: channel.name,
                 dataIndex: 'channelData',
                 align: 'right',
-                //minWidth : 150,
-                width: 30,
+                minWidth : 150,
+                flex: 1,
                 renderer: function (data, metaData, record) {
                     var validationFlag = '';
-                    if (record.data.channelValidationData[channel.id]) {
+                    if (record.data.channelValidationData && record.data.channelValidationData[channel.id]) {
                         switch (record.data.channelValidationData[channel.id].validationResult) {
                             case 'validationStatus.notValidated':
                                 validationFlag = '<span class="icon-validation icon-validation-black"></span>';
                                 break;
                             case 'validationStatus.ok':
-                                validationFlag = '';
+                                validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
                                 break;
                             case 'validationStatus.suspect':
                                 validationFlag = '<span class="icon-validation icon-validation-red"></span>';
                                 break;
                             default:
-                                validationFlag = '';
+                                validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
                                 break;
                         }
-                    } else {
-                        validationFlag = '<span class="icon-validation icon-validation-black"></span>';
                     }
-                    return  '<span class="validation-column-align">' + validationFlag + '</span>';
+                    return !Ext.isEmpty(data[channel.id])
+                        ? '<span class="validation-column-align">' + data[channel.id] + ' ' + channel.unitOfMeasure.unit + ' ' + validationFlag + '</span>'
+                        : '<span class="icon-validation icon-validation-black"></span>';
                 }
-            },
-                {
-                    header: channel.name,
-                    dataIndex: 'channelData',
-                    align: 'right',
-                    minWidth: 200,
-                    flex: 1,
-                    renderer: function (data, metaData, record) {
-                        return !Ext.isEmpty(data[channel.id])
-                            ? data[channel.id] + ' ' + channel.unitOfMeasure.unit
-                            : '';
-                    }
-                });
+            });
         });
         /* Commented for now because of JP-5561
         me.columns.push({
