@@ -44,6 +44,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -74,7 +75,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         setNlsService(nlsService);
         activate();
         if (!dataModel.isInstalled()) {
-        	install();
+            install();
         }
     }
 
@@ -95,7 +96,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        new InstallerImpl(this, idsService, partyService, userService, eventService,thesaurus).install();
+        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "IDS", "PRT", "USR", "EVT", "NLS");
     }
 
     @Override
@@ -175,15 +181,15 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public Query<Meter> getMeterQuery() {
-    	QueryExecutor<?> executor = dataModel.query(EndDevice.class,
+        QueryExecutor<?> executor = dataModel.query(EndDevice.class,
                 MeterActivation.class,
                 UsagePoint.class,
                 ServiceLocation.class,
                 Channel.class);
-    	executor.setRestriction(Operator.EQUAL.compare("class", Meter.TYPE_IDENTIFIER));
-    	return queryService.wrap((QueryExecutor<Meter>) executor);
+        executor.setRestriction(Operator.EQUAL.compare("class", Meter.TYPE_IDENTIFIER));
+        return queryService.wrap((QueryExecutor<Meter>) executor);
     }
 
     @Override
@@ -234,7 +240,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     @Reference
     public final void setUserService(UserService userService) {
-    	this.userService = userService;
+        this.userService = userService;
     }
 
     public EventService getEventService() {
@@ -251,7 +257,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
-            	bind(ChannelBuilder.class).to(ChannelBuilderImpl.class);
+                bind(ChannelBuilder.class).to(ChannelBuilderImpl.class);
                 bind(MeteringService.class).toInstance(MeteringServiceImpl.this);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
@@ -275,11 +281,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     @Override
     public Condition hasAccountability(Date when) {
-    	return 
-    		Where.where("accountabilities.interval").isEffective(when).and(
-    		Where.where("accountabilities.party.representations.interval").isEffective(when).and(
-    		Where.where("accountabilities.party.representations.delegate").
-    			isEqualTo(dataModel.getPrincipal().getName())));
+        return
+                Where.where("accountabilities.interval").isEffective(when).and(
+                        Where.where("accountabilities.party.representations.interval").isEffective(when).and(
+                                Where.where("accountabilities.party.representations.delegate").
+                                        isEqualTo(dataModel.getPrincipal().getName())));
     }
 
     @Override
@@ -329,31 +335,30 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     DataModel getDataModel() {
         return dataModel;
     }
-    
+
     AmrSystemImpl createAmrSystem(int id, String name) {
-    	AmrSystemImpl system = dataModel.getInstance(AmrSystemImpl.class).init(id, name);
-    	system.save();
-    	return system;
-    }
-    
-    EndDeviceEventTypeImpl createEndDeviceEventType(String mRID) {
-    	EndDeviceEventTypeImpl endDeviceEventType = dataModel.getInstance(EndDeviceEventTypeImpl.class).init(mRID);
-    	dataModel.persist(endDeviceEventType);
-    	return endDeviceEventType;
+        AmrSystemImpl system = dataModel.getInstance(AmrSystemImpl.class).init(id, name);
+        system.save();
+        return system;
     }
 
-	ReadingTypeImpl createReadingType(String mRID, String aliasName) {
-		ReadingTypeImpl readingType = dataModel.getInstance(ReadingTypeImpl.class).init(mRID, aliasName);
-		dataModel.persist(readingType);
-		return readingType;
-	}
-	
-	ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind) {
-		ServiceCategoryImpl serviceCategory = dataModel.getInstance(ServiceCategoryImpl.class).init(serviceKind);
-		dataModel.persist(serviceCategory);
-		return serviceCategory;
-	}
-    
-    
-    
+    EndDeviceEventTypeImpl createEndDeviceEventType(String mRID) {
+        EndDeviceEventTypeImpl endDeviceEventType = dataModel.getInstance(EndDeviceEventTypeImpl.class).init(mRID);
+        dataModel.persist(endDeviceEventType);
+        return endDeviceEventType;
+    }
+
+    ReadingTypeImpl createReadingType(String mRID, String aliasName) {
+        ReadingTypeImpl readingType = dataModel.getInstance(ReadingTypeImpl.class).init(mRID, aliasName);
+        dataModel.persist(readingType);
+        return readingType;
+    }
+
+    ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind) {
+        ServiceCategoryImpl serviceCategory = dataModel.getInstance(ServiceCategoryImpl.class).init(serviceKind);
+        dataModel.persist(serviceCategory);
+        return serviceCategory;
+    }
+
+
 }
