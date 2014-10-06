@@ -17,11 +17,13 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 @Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class}, property = "name=" + IdsService.COMPONENTNAME)
 public class IdsServiceImpl implements IdsService, InstallService {
 
-	private volatile DataModel dataModel;
+    private volatile DataModel dataModel;
     private volatile Clock clock;
 
     public IdsServiceImpl() {
@@ -33,7 +35,7 @@ public class IdsServiceImpl implements IdsService, InstallService {
         setOrmService(ormService);
         activate();
         if (!dataModel.isInstalled()) {
-        	install();
+            install();
         }
     }
 
@@ -54,12 +56,17 @@ public class IdsServiceImpl implements IdsService, InstallService {
 
     @Override
     public TimeSeriesDataStorer createStorer(boolean overrules) {
-        return new TimeSeriesDataStorerImpl(dataModel,clock,overrules);
+        return new TimeSeriesDataStorerImpl(dataModel, clock, overrules);
     }
 
     @Override
     public void install() {
-        new InstallerImpl(this,dataModel).install(true, true);
+        new InstallerImpl(this, dataModel).install(true, true);
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM");
     }
 
     @Override
@@ -79,25 +86,25 @@ public class IdsServiceImpl implements IdsService, InstallService {
             spec.addTo(dataModel);
         }
     }
-   
+
     @Reference
     public final void setClock(Clock clock) {
         this.clock = clock;
     }
-    
-    @Activate 
+
+    @Activate
     public final void activate() {
-    	dataModel.register(getModule());
+        dataModel.register(getModule());
     }
-    
+
     private Module getModule() {
-    	return new AbstractModule() {
-			@Override
-			protected void configure() {
-				this.bind(DataModel.class).toInstance(dataModel);
-				this.bind(IdsService.class).toInstance(IdsServiceImpl.this);
-				this.bind(Clock.class).toInstance(clock);
-			}
-    	};
+        return new AbstractModule() {
+            @Override
+            protected void configure() {
+                this.bind(DataModel.class).toInstance(dataModel);
+                this.bind(IdsService.class).toInstance(IdsServiceImpl.this);
+                this.bind(Clock.class).toInstance(clock);
+            }
+        };
     }
 }
