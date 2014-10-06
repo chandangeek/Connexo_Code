@@ -1,17 +1,64 @@
 package com.energyict.mdc.dashboard.extjs;
 
-import com.elster.jupiter.install.UiInstallService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.HttpResource;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
-@Component(name = "com.energyict.mdc.dashboard.extjs", service = InstallService.class,
-        property = "name=" + DshUiInstaller.COMPONENT_NAME, immediate = true)
-public class DshUiInstaller extends UiInstallService {
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Logger;
+
+@Component(name = "com.energyict.mdc.dashboard.extjs", service = TranslationKeyProvider.class,
+        property = "name=" + DshUiInstaller.COMPONENT_NAME + "-UI", immediate = true)
+public class DshUiInstaller implements TranslationKeyProvider {
 
     public static final String COMPONENT_NAME = "DSH";
+    public static final String HTTP_RESOURCE_ALIAS = "/dsh";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/dsh";
+    private static final Logger LOGGER = Logger.getLogger(DshUiInstaller.class.getName());
+    private volatile ServiceRegistration<HttpResource> registration;
 
     public DshUiInstaller() {
-        super(COMPONENT_NAME, new Activator());
     }
 
+    @Activate
+    public void activate(BundleContext context) {
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        // EXAMPLE: Below is how to enable local development mode.
+//      HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.bpm.extjs/src/main/web/js/bpm", new FileResolver());
+        registration = context.registerService(HttpResource.class, resource, null);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        registration.unregister();
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        try {
+            return SimpleTranslationKey.loadFromInputStream(this.getClass().getClassLoader().getResourceAsStream("i18n.properties"));
+        } catch (IOException e) {
+            LOGGER.severe("Failed to load translations for the '" + COMPONENT_NAME + "' component bundle.");
+        }
+        return null;
+    }
 }
