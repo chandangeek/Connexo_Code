@@ -20,9 +20,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Grid', {
                 header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                 dataIndex: 'value',
                 flex: 3
-            },
-            {
-                xtype: 'uni-actioncolumn'
             }
         ]
     },

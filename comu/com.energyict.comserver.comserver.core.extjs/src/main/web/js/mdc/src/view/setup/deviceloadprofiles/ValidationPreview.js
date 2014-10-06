@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ValidationPreview', {
                 renderer: function (value, field) {
                     var result = '',
                         url;
-                    if (value.suspectReason) {
+                    if (!Ext.isEmpty(value.suspectReason)) {
                         field.show();
                         Ext.Array.each(value.suspectReason, function (rule) {
                             url = me.router.getRoute('administration/rulesets/overview/rules').buildUrl({ruleSetId: rule.key.ruleSet.id, ruleId: rule.key.id});
@@ -50,7 +50,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ValidationPreview', {
                     {
                         xtype: 'displayfield',
                         name: 'lastChecked_formatted',
-                        margin: '3 0 0 0',
                         renderer: function (value, field) {
                             if (!Ext.isEmpty(value)) {
                                 field.up('#lastCheckedCont').show();

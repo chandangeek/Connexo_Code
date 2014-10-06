@@ -87,28 +87,29 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
     addRegisterMappings: function (id) {
         var me = this;
-        this.getAvailableRegisterTypesStore().getProxy().setExtraParam('deviceType', id);
-        //var store = Ext.data.StoreManager.lookup('AvailableRegisterTypes');
-        this.getAvailableRegisterTypesStore().getProxy().setExtraParam('filter', Ext.encode([
+
+        var store = Ext.data.StoreManager.lookup('AvailableRegisterTypes');
+        store.getProxy().setExtraParam('deviceType', id);
+        store.getProxy().setExtraParam('filter', Ext.encode([
             {
                 property: 'available',
                 value: true
             }
         ]));
-        this.getAvailableRegisterTypesStore().load(
-            {
+
+        store.load({
                 callback: function () {
                     Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
                         success: function (deviceType) {
                             var widget = Ext.widget('registerMappingAdd', {deviceTypeId: id});
                             me.deviceTypeId = id;
+                            store.fireEvent('load', store);
                             me.getApplication().fireEvent('loadDeviceType', deviceType);
                             me.getApplication().fireEvent('changecontentevent', widget);
                         }
                     });
                 }
-            }
-        );
+            });
     },
 
     addRegisterMappingsToDeviceType: function () {

@@ -300,37 +300,39 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     },
 
     showMeasurementTypesAddView: function (id) {
-        if (!this.getEditPage()) {
-            this.showEdit(id);
+        var me = this;
+
+        if (!me.getEditPage()) {
+            me.showEdit(id);
         }
 
-        this.getStore('Mdc.store.MeasurementTypesToAdd').load();
-        this.getEditPage().getLayout().setActiveItem(1);
+        me.getStore('Mdc.store.MeasurementTypesToAdd').load(function () {
+            me.getEditPage().down('#load-profile-type-add-measurement-types-grid').getSelectionModel().deselectAll();
+        });
+        me.getEditPage().getLayout().setActiveItem(1);
     },
 
     onAllMeasurementTypesAdd: function () {
-        var me = this,
-            measurementTypesToAddStore = me.getStore('Mdc.store.MeasurementTypesToAdd');
-
-        measurementTypesToAddStore.getRange(0, 9999, {
-            callback: function (range) {
-                me.addMeasurementTypes(range);
-            }
-        });
+        this.addMeasurementTypes([], true);
     },
 
     onSelectedMeasurementTypesAdd: function (selection) {
-        this.addMeasurementTypes(selection);
+        this.addMeasurementTypes(selection, false);
     },
 
-    addMeasurementTypes: function (selection) {
-        var measurementTypesStore = this.getEditPage().down('#measurement-types-grid').getStore(),
+    addMeasurementTypes: function (selection, all) {
+        var page = this.getEditPage(),
+            measurementTypesGrid = page.down('#measurement-types-grid'),
+            measurementTypesStore = measurementTypesGrid.getStore(),
             router = this.getController('Uni.controller.history.Router');
 
         router.getRoute(router.currentRoute.replace('/addmeasurementtypes', '')).forward();
 
         measurementTypesStore.removeAll();
         measurementTypesStore.add(selection);
+        measurementTypesGrid.setVisible(!all);
+        page.down('#all-measurement-types').setVisible(all);
+        page.down('#all-measurement-types-field').setValue(all);
     },
 
     removeMeasurementType: function (grid, index, id, row, event, record) {
@@ -345,7 +347,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             form = editPage.down('#load-profile-type-edit-form'),
             basicForm = form.getForm(),
             formErrorsPanel = form.down('uni-form-error-message'),
-            model = form.getRecord();
+            model = form.getRecord(),
+            proxy = model.getProxy(),
+            all = form.down('#all-measurement-types-field').getValue();
 
         formErrorsPanel.hide();
         basicForm.clearInvalid();
@@ -357,6 +361,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         } else {
             widget.setLoading(Uni.I18n.translate('general.adding', 'MDC', 'Adding...'));
         }
+
+        proxy.setExtraParam('all', all);
 
         model.save({
             callback: function (model, operation, success) {
