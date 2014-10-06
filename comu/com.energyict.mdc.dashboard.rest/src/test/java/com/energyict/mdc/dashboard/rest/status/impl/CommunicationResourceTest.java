@@ -1,8 +1,9 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.energyict.mdc.common.ComWindow;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -24,28 +25,26 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.google.common.base.Optional;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.core.Response;
 import org.joda.time.Duration;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
+import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link com.energyict.mdc.dashboard.rest.status.ComServerStatusResource} component.
@@ -246,7 +245,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(window.getEnd()).thenReturn(PartialTime.fromHours(17));
         ComSchedule comSchedule=mock(ComSchedule.class);
         when(comSchedule.getName()).thenReturn("Weekly billing");
-        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.WEEKS),new TimeDuration(12, TimeDuration.HOURS)));
+        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS),new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
         when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
         when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(new Date());
@@ -340,7 +339,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
         ComSchedule comSchedule=mock(ComSchedule.class);
         when(comSchedule.getName()).thenReturn("Weekly billing");
-        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.WEEKS),new TimeDuration(12, TimeDuration.HOURS)));
+        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS),new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
         when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
         when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(new Date());
