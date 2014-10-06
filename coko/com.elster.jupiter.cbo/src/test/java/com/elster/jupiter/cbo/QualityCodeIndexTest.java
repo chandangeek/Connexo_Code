@@ -14,24 +14,24 @@ public class QualityCodeIndexTest {
 
     @Test
     public void testIndexUnique() {
-    	Map<QualityCodeCategory,Set<Integer>> map = new HashMap<>();
-    	Arrays.stream(QualityCodeCategory.values()).forEach(category -> map.put(category, new HashSet<>()));
-    	for (QualityCodeIndex codeIndex : QualityCodeIndex.values()) {
-    		Set<Integer> indexes = map.get(codeIndex.category());
-    		if (indexes.contains(codeIndex.index())) {
-    			throw new RuntimeException("Duplicate index: " + codeIndex); 
-    		}
-    		indexes.add(codeIndex.index());
-    	}
+        Map<QualityCodeCategory, Set<Integer>> map = new HashMap<>();
+        Arrays.stream(QualityCodeCategory.values()).forEach(category -> map.put(category, new HashSet<>()));
+        for (QualityCodeIndex codeIndex : QualityCodeIndex.values()) {
+            Set<Integer> indexes = map.get(codeIndex.category());
+            if (indexes.contains(codeIndex.index())) {
+                throw new RuntimeException("Duplicate index: " + codeIndex);
+            }
+            indexes.add(codeIndex.index());
+        }
     }
 
     @Test
     public void testUsageBelow() {
-    	assertThat(QualityCodeIndex.get(QualityCodeCategory.VALIDATION, 4).get()).isEqualTo(QualityCodeIndex.USAGEBELOW);
+        assertThat(QualityCodeIndex.get(QualityCodeCategory.VALIDATION, 4).get()).isEqualTo(QualityCodeIndex.USAGEBELOW);
     }
-    
+
     @Test
     public void testCustomValidation() {
-    	assertThat(QualityCodeIndex.get(QualityCodeCategory.VALIDATION, 1001).isPresent()).isFalse();
+        assertThat(QualityCodeIndex.get(QualityCodeCategory.VALIDATION, 1001).isPresent()).isFalse();
     }
 }
