@@ -149,7 +149,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
 
                                 var filter = {};
                                 filter[item.get('alias')] = record.get('id');
-                                var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
+                                var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
                                 view.getEl().down('.item-' + pos + ' a').set({ href: href });
                             });
 

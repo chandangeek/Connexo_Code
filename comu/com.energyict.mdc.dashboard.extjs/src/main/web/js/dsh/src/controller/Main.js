@@ -60,19 +60,19 @@ Ext.define('Dsh.controller.Main', {
                 items: [
                     {
                         text: 'Connections',
-                        href: router.getRoute('workspace/datacommunication/connections').buildUrl()
+                        href: router.getRoute('workspace/connections/details').buildUrl()
                     },
                     {
                         text: 'Connection overview',
-                        href: router.getRoute('workspace/datacommunication/connection').buildUrl()
+                        href: router.getRoute('workspace/connections').buildUrl()
                     },
                     {
                         text: 'Communications',
-                        href: router.getRoute('workspace/datacommunication/communications').buildUrl()
+                        href: router.getRoute('workspace/communications/details').buildUrl()
                     },
                     {
                         text: 'Communication overview',
-                        href: router.getRoute('workspace/datacommunication/communication').buildUrl()
+                        href: router.getRoute('workspace/communications').buildUrl()
                     }
                 ]
             })
