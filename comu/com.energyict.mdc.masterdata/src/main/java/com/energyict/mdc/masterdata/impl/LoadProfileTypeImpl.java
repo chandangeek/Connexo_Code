@@ -184,7 +184,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         if (interval == null || interval.isEmpty()) {
             throw IntervalIsRequiredException.forLoadProfileType(getThesaurus());
         }
-        if ((interval.getTimeUnitCode() == TimeDuration.WEEKS)) {
+        if ((interval.getTimeUnit() == TimeDuration.TimeUnit.WEEKS)) {
             throw UnsupportedIntervalException.weeksAreNotSupportedForLoadProfileTypes(this.getThesaurus(), this);
         }
         if (countMustBeOneFor(interval) && interval.getCount() != 1) {
@@ -209,7 +209,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     private boolean countMustBeOneFor(TimeDuration interval) {
-        return interval.getTimeUnitCode() == TimeDuration.DAYS || interval.getTimeUnitCode() == TimeDuration.MONTHS || interval.getTimeUnitCode() == TimeDuration.YEARS;
+        return interval.getTimeUnit() == TimeDuration.TimeUnit.DAYS || interval.getTimeUnit() == TimeDuration.TimeUnit.MONTHS || interval.getTimeUnit() == TimeDuration.TimeUnit.YEARS;
     }
 
     // Used by EventType

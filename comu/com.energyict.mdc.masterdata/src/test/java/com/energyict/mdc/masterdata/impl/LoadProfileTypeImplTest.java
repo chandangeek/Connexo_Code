@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class LoadProfileTypeImplTest extends PersistenceTest {
 
-    private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.MINUTES);
+    private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
     private static final ObisCode OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
 
     private ReadingType readingType;
@@ -176,7 +176,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     @Transactional
     public void testCreateWithEmptyInterval() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(0, TimeDuration.MINUTES);
+        TimeDuration interval = new TimeDuration(0, TimeDuration.TimeUnit.MINUTES);
 
         try {
             // Business method
@@ -193,7 +193,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     @Transactional
     public void testCreateWithIntervalInWeeks() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(1, TimeDuration.WEEKS);
+        TimeDuration interval = new TimeDuration(1, TimeDuration.TimeUnit.WEEKS);
 
         try {
             // Business method
@@ -210,7 +210,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     @Transactional
     public void testCreateWithNegativeIntervalSeconds() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(-1, TimeDuration.SECONDS);
+        TimeDuration interval = new TimeDuration(-1, TimeDuration.TimeUnit.SECONDS);
 
         try {
             // Business method
@@ -227,7 +227,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     @Transactional
     public void testCreateWithMultipleDays() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(2, TimeDuration.DAYS);
+        TimeDuration interval = new TimeDuration(2, TimeDuration.TimeUnit.DAYS);
 
         try {
             // Business method
@@ -244,7 +244,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     @Transactional
     public void testCreateWithMultipleMonths() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(2, TimeDuration.MONTHS);
+        TimeDuration interval = new TimeDuration(2, TimeDuration.TimeUnit.MONTHS);
 
         try {
             // Business method
@@ -261,7 +261,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
     @Transactional
     public void testCreateWithMultipleYears() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        TimeDuration interval = new TimeDuration(2, TimeDuration.YEARS);
+        TimeDuration interval = new TimeDuration(2, TimeDuration.TimeUnit.YEARS);
 
         try {
             // Business method
@@ -287,7 +287,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         loadProfileType.save();
 
         // Business method
-        TimeDuration updatedInterval = new TimeDuration(1, TimeDuration.HOURS);
+        TimeDuration updatedInterval = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
         loadProfileType.setInterval(updatedInterval);
 
         // Asserts

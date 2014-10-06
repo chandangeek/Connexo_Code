@@ -33,14 +33,14 @@ public class UnsupportedIntervalException extends LocalizedException {
     }
 
     public static UnsupportedIntervalException multipleNotSupported(Thesaurus thesaurus, TimeDuration timeDuration) {
-        switch (timeDuration.getTimeUnitCode()) {
-            case TimeDuration.DAYS: {
+        switch (timeDuration.getTimeUnit()) {
+            case DAYS: {
                 return UnsupportedIntervalException.multipleDays(thesaurus, timeDuration.getCount());
             }
-            case TimeDuration.MONTHS: {
+            case MONTHS: {
                 return UnsupportedIntervalException.multipleMonths(thesaurus, timeDuration.getCount());
             }
-            case TimeDuration.YEARS: {
+            case YEARS: {
                 return UnsupportedIntervalException.multipleYears(thesaurus, timeDuration.getCount());
             }
             default: {
