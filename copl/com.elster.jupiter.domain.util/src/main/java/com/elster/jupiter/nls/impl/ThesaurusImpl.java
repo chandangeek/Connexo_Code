@@ -5,6 +5,8 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -25,6 +27,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 class ThesaurusImpl implements Thesaurus {
 
@@ -111,6 +114,24 @@ class ThesaurusImpl implements Thesaurus {
             nlsKey.save();
             this.translations.put(nlsKey.getKey(), nlsKey);
         }
+    }
+
+    void createNewTranslationKeys(TranslationKeyProvider provider) {
+        initTranslations(component, layer);
+        List<NlsKey> newKeys = provider.getKeys().stream().filter(tk -> !translations.containsKey(tk.getKey())).map(this::newNlsKey).collect(Collectors.toList());
+
+        if (!newKeys.isEmpty()) {
+            dataModel.mapper(NlsKey.class).persist(newKeys);
+            initTranslations(component, layer);
+        }
+
+    }
+
+    private NlsKey newNlsKey(TranslationKey translationKey) {
+        NlsKeyImpl nlsKey = nlsKeyProvider.get().init(component, layer, translationKey.getKey());
+        nlsKey.setDefaultMessage(translationKey.getDefaultFormat());
+        nlsKey.add(Locale.ENGLISH, translationKey.getDefaultFormat());
+        return nlsKey;
     }
 
     @Override
