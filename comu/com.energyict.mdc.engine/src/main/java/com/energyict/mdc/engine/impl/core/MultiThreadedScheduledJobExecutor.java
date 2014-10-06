@@ -44,6 +44,8 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
                 acquireTokenAndPerformSingleJob(scheduledJob);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            } catch (Throwable t){
+                t.printStackTrace(System.err);
             }
         }
     }

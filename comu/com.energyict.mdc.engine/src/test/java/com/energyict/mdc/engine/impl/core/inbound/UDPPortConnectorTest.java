@@ -53,7 +53,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UDPPortConnectorTest {
 
-    public static final int PORT_NUMBER = 4059;
+    public static final int PORT_NUMBER = 4053;
     public static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 2;
     public static final int BUFFER_SIZE = 1024;
 

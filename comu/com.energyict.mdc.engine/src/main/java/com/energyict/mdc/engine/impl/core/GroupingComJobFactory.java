@@ -21,7 +21,7 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
 
     private int maximumJobs;
     private List<ComJob> jobs = new ArrayList<>();
-    private Map<OutboundConnectionTask, ComTaskExecutionGroup> groups = new HashMap<>();
+    private Map<Long, ComTaskExecutionGroup> groups = new HashMap<>();   // grouping based on the ID of the ConnectionTask
     private ComTaskExecution previous;
 
     public GroupingComJobFactory(int maximumJobs) {
@@ -110,10 +110,10 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
 
     private ComTaskExecutionGroup getComTaskGroup(ServerComTaskExecution comTaskExecution) {
         OutboundConnectionTask connectionTask = (OutboundConnectionTask) comTaskExecution.getConnectionTask();
-        ComTaskExecutionGroup group = this.groups.get(connectionTask);
+        ComTaskExecutionGroup group = this.groups.get(connectionTask.getId());
         if (group == null) {
             group = new ComTaskExecutionGroup(connectionTask);
-            this.groups.put(connectionTask, group);
+            this.groups.put(connectionTask.getId(), group);
         }
         return group;
     }
