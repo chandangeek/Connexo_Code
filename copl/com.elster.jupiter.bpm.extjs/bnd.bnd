@@ -1,5 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Bundle-Activator: com.elster.jupiter.bpm.extjs.Activator
 Private-Package: com.elster.jupiter.bpm.extjs
 -include: -../development.bnd
