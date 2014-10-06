@@ -1,13 +1,11 @@
 package com.energyict.mdc.engine.impl.protocol.inbound;
 
-import com.energyict.mdc.device.data.DeviceService;
-
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import org.junit.BeforeClass;
 
 import java.util.Arrays;
-
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
-import org.junit.*;
 
 import static org.mockito.Mockito.mock;
 
@@ -26,7 +24,7 @@ public class DeviceIdentifierByIdEqualityTest extends EqualsContractTest {
     private static DeviceIdentifierById instanceA;
 
     @BeforeClass
-    public static void setup () {
+    public static void setup() {
         deviceService = mock(DeviceService.class);
         instanceA = new DeviceIdentifierById(DEVICE_ID_A, deviceService);
     }

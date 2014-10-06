@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.engine.model.ComServer;
-import org.junit.*;
-import org.junit.runner.*;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -16,9 +16,7 @@ import java.text.DateFormat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link StoreConfigurationUserFile} component.
@@ -39,7 +37,7 @@ public class StoreConfigurationUserFileTest {
     private DeviceService deviceService;
 
     @Test
-    public void testExecute () {
+    public void testExecute() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData);
@@ -55,7 +53,7 @@ public class StoreConfigurationUserFileTest {
     }
 
     @Test
-    public void testToString () {
+    public void testToString() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData);

@@ -4,7 +4,6 @@ import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-
 import com.google.common.base.Optional;
 
 import java.util.ArrayList;
@@ -36,14 +35,14 @@ public class ConnectionTaskRequest extends IdBusinessObjectRequest {
         this.validateConnectionTaskIds();
     }
 
-    private void validateConnectionTaskIds () {
+    private void validateConnectionTaskIds() {
         this.connectionTasks = new ArrayList<>(this.getBusinessObjectIds().size());
         for (Long connectionTaskId : this.getBusinessObjectIds()) {
             this.connectionTasks.add(this.findConnectionTask(connectionTaskId));
         }
     }
 
-    private ConnectionTask findConnectionTask (long connectionTaskId) {
+    private ConnectionTask findConnectionTask(long connectionTaskId) {
         Optional<ConnectionTask> connectionTask = this.connectionTaskService.findConnectionTask(connectionTaskId);
         if (connectionTask.isPresent()) {
             return connectionTask.get();
@@ -52,7 +51,7 @@ public class ConnectionTaskRequest extends IdBusinessObjectRequest {
     }
 
     @Override
-    public void applyTo (EventPublisher eventPublisher) {
+    public void applyTo(EventPublisher eventPublisher) {
         eventPublisher.narrowInterestToConnectionTasks(null, this.connectionTasks);
     }
 

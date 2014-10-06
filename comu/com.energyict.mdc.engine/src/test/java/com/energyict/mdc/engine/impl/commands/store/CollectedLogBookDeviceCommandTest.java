@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
@@ -9,19 +11,15 @@ import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,21 +58,21 @@ public class CollectedLogBookDeviceCommandTest {
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
         List<MeterProtocolEvent> meterEvents = new ArrayList<>(2);
         meterEvents.add(
-                        new MeterProtocolEvent(new DateTime(2013, 9, 30, 9, 1, 0, 0).toDate(),
-                                MeterEvent.POWERDOWN,
-                                UNKNOWN,
-                                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
-                                "Power down",
-                                UNKNOWN,
-                                UNKNOWN));
+                new MeterProtocolEvent(new DateTime(2013, 9, 30, 9, 1, 0, 0).toDate(),
+                        MeterEvent.POWERDOWN,
+                        UNKNOWN,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
+                        "Power down",
+                        UNKNOWN,
+                        UNKNOWN));
         meterEvents.add(
-                        new MeterProtocolEvent(new DateTime(2013, 9, 30, 9, 4, 0, 0).toDate(),
-                                MeterEvent.POWERUP,
-                                UNKNOWN,
-                                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP),
-                                "Power up",
-                                UNKNOWN,
-                                UNKNOWN));
+                new MeterProtocolEvent(new DateTime(2013, 9, 30, 9, 4, 0, 0).toDate(),
+                        MeterEvent.POWERUP,
+                        UNKNOWN,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP),
+                        "Power up",
+                        UNKNOWN,
+                        UNKNOWN));
         deviceLogBook.setMeterEvents(meterEvents);
         CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, new MeterDataStoreCommand());
 

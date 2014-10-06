@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
@@ -24,9 +26,6 @@ import com.energyict.mdc.engine.model.OutboundCapable;
 import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
-
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
@@ -47,9 +46,9 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     public interface ServiceProvider
             extends
-                ScheduledComPortImpl.ServiceProvider,
-                ComChannelBasedComPortListenerImpl.ServiceProvider,
-                ComServerDAOImpl.ServiceProvider {
+            ScheduledComPortImpl.ServiceProvider,
+            ComChannelBasedComPortListenerImpl.ServiceProvider,
+            ComServerDAOImpl.ServiceProvider {
 
         public ManagementBeanFactory managementBeanFactory();
 
@@ -125,7 +124,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
 
-    private void initialize (ComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup) {
+    private void initialize(ComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup) {
         this.comServer = comServer;
         this.comServerDAO = comServerDAO;
         this.scheduledComPortFactory = scheduledComPortFactory;
@@ -134,7 +133,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.cleanupDuringStartup = cleanupDuringStartup;
     }
 
-    protected ComServerDAO getComServerDAO () {
+    protected ComServerDAO getComServerDAO() {
         return comServerDAO;
     }
 
@@ -142,28 +141,27 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return this.threadFactory;
     }
 
-    private void initializeTimeoutMonitor (OutboundCapableComServer comServer) {
+    private void initializeTimeoutMonitor(OutboundCapableComServer comServer) {
         this.timeOutMonitor = new TimeOutMonitorImpl(comServer, this.comServerDAO, this.threadFactory);
     }
 
-    private void addOutboundComPorts (List<OutboundComPort> outboundComPorts) {
+    private void addOutboundComPorts(List<OutboundComPort> outboundComPorts) {
         for (OutboundComPort comPort : outboundComPorts) {
             this.add(comPort);
         }
     }
 
-    private ScheduledComPort add (OutboundComPort comPort) {
+    private ScheduledComPort add(OutboundComPort comPort) {
         ScheduledComPort scheduledComPort = this.getScheduledComPortFactory().newFor(comPort);
         if (scheduledComPort == null) {
             return null;
-        }
-        else {
+        } else {
             this.add(scheduledComPort);
             return scheduledComPort;
         }
     }
 
-    private ScheduledComPortFactory getScheduledComPortFactory () {
+    private ScheduledComPortFactory getScheduledComPortFactory() {
         if (this.scheduledComPortFactory == null) {
             this.scheduledComPortFactory = new ScheduledComPortFactoryImpl(this.comServerDAO, this.deviceCommandExecutor, this.getThreadFactory(), this.serviceProvider);
         }
@@ -176,37 +174,36 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      *
      * @param comPort The OutboundComPort that is ignored
      */
-    private void ignored (OutboundComPort comPort) {
+    private void ignored(OutboundComPort comPort) {
         // No implementation required yet
     }
 
-    private ScheduledComPort add (ScheduledComPort scheduledComPort) {
+    private ScheduledComPort add(ScheduledComPort scheduledComPort) {
         this.scheduledComPorts.add(scheduledComPort);
         return scheduledComPort;
     }
 
-    private void addInboundComPorts (List<InboundComPort> inboundComPorts) {
+    private void addInboundComPorts(List<InboundComPort> inboundComPorts) {
         for (InboundComPort comPort : inboundComPorts) {
             this.add(comPort);
         }
     }
 
-    private ComPortListener add (InboundComPort comPort) {
+    private ComPortListener add(InboundComPort comPort) {
         ComPortListener comPortListener = getComPortListenerFactory().newFor(comPort);
         if (comPortListener == null) {
             return null;
-        }
-        else {
+        } else {
             this.add(comPortListener);
             return comPortListener;
         }
     }
 
-    private void initializeDeviceCommandExecutor (OnlineComServer comServer) {
+    private void initializeDeviceCommandExecutor(OnlineComServer comServer) {
         this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), comServer.getStoreTaskQueueSize(), comServer.getNumberOfStoreTaskThreads(), comServer.getStoreTaskThreadPriority());
     }
 
-    private void initializeDeviceCommandExecutor (String comServerName, ComServer.LogLevel logLevel, int queueSize, int numberOfThreads, int threadPriority) {
+    private void initializeDeviceCommandExecutor(String comServerName, ComServer.LogLevel logLevel, int queueSize, int numberOfThreads, int threadPriority) {
         this.deviceCommandExecutor =
                 new DeviceCommandExecutorImpl(
                         comServerName, queueSize, numberOfThreads, threadPriority, logLevel,
@@ -219,57 +216,55 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      *
      * @param comPort The InboundComPort that is ignored
      */
-    private void ignored (InboundComPort comPort) {
+    private void ignored(InboundComPort comPort) {
         // No implementation required yet
     }
 
-    private ComPortListener add (ComPortListener comPortListener) {
+    private ComPortListener add(ComPortListener comPortListener) {
         this.comPortListeners.add(comPortListener);
         return comPortListener;
     }
 
     @Override
-    public ServerProcessStatus getStatus () {
+    public ServerProcessStatus getStatus() {
         return this.status;
     }
 
     @Override
-    public final void start () {
+    public final void start() {
         this.status = ServerProcessStatus.STARTING;
         this.continueRunning = new AtomicBoolean(true);
         try {
             this.cleanupDuringStartup.releaseInterruptedTasks();
             this.continueStartupAfterCleanup();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             this.cleanupFailed();
         }
     }
 
-    private void cleanupFailed () {
+    private void cleanupFailed() {
         this.status = ServerProcessStatus.SHUTDOWN;
     }
 
-    private void continueStartupAfterCleanup () {
+    private void continueStartupAfterCleanup() {
         try {
             this.startComServerDAO();
             this.continueStartupAfterDAOStart();
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             this.comServerDAOStartFailed(e);
         }
     }
 
-    protected void startComServerDAO () {
+    protected void startComServerDAO() {
         this.comServerDAO.start();
     }
 
-    private void comServerDAOStartFailed (RuntimeException e) {
+    private void comServerDAOStartFailed(RuntimeException e) {
         e.printStackTrace(System.err);
         this.status = ServerProcessStatus.SHUTDOWN;
     }
 
-    protected void continueStartupAfterDAOStart () {
+    protected void continueStartupAfterDAOStart() {
         this.registerAsMBean();
         this.startEventMechanism();
         this.startDeviceCommandExecutor();
@@ -305,52 +300,52 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.shutdownImmediate();
     }
 
-    private void installEngineServiceShutdownHook () {
+    private void installEngineServiceShutdownHook() {
         this.serviceProvider.engineService().register(this);
     }
 
     private void installVMShutdownHook() {
         Thread shutdownHook = this.threadFactory.newThread(new Runnable() {
             @Override
-            public void run () {
+            public void run() {
                 shutdownImmediate();
             }
         });
         Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
-    private void startOutboundComPorts () {
+    private void startOutboundComPorts() {
         for (ScheduledComPort scheduledComPort : this.scheduledComPorts) {
             scheduledComPort.start();
         }
     }
 
-    private void startInboundComPorts () {
+    private void startInboundComPorts() {
         for (ComPortListener comPortListener : this.comPortListeners) {
             comPortListener.start();
         }
     }
 
-    private void startEventMechanism () {
+    private void startEventMechanism() {
         this.eventMechanism = new EventMechanism();
         this.eventMechanism.start();
     }
 
-    private void startDeviceCommandExecutor () {
+    private void startDeviceCommandExecutor() {
         this.deviceCommandExecutor.start();
     }
 
     @Override
-    public final void shutdown () {
+    public final void shutdown() {
         this.shutdown(false);
     }
 
     @Override
-    public void shutdownImmediate () {
+    public void shutdownImmediate() {
         this.shutdown(true);
     }
 
-    private void shutdown (boolean immediate) {
+    private void shutdown(boolean immediate) {
         this.doShutdown();
         this.removeShutdownHooks();
         this.shutdownNestedServerProcesses(immediate);
@@ -360,7 +355,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.unregisterAsMBean();
     }
 
-    protected void shutdownNestedServerProcesses (boolean immediate) {
+    protected void shutdownNestedServerProcesses(boolean immediate) {
         this.shutdownComServerDAO(immediate);
         this.shutdownEventMechanism(immediate);
         this.shutdownTimeOutMonitor(immediate);
@@ -369,49 +364,46 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.shutdownDeviceCommandExecutor(immediate);
     }
 
-    private void shutdownComServerDAO (boolean immediate) {
+    private void shutdownComServerDAO(boolean immediate) {
         if (immediate) {
             this.comServerDAO.shutdownImmediate();
-        }
-        else {
+        } else {
             this.comServerDAO.shutdown();
         }
     }
 
-    private void shutdownEventMechanism (boolean immediate) {
+    private void shutdownEventMechanism(boolean immediate) {
         if (this.eventMechanism != null) {
             this.eventMechanism.shutdown(immediate);
         }
     }
 
-    private void doShutdown () {
+    private void doShutdown() {
         this.status = ServerProcessStatus.SHUTTINGDOWN;
         this.continueRunning.set(false);
         self.interrupt();   // in case the thread was sleeping between detecting changes
     }
 
-    private void shutdownTimeOutMonitor (boolean immediate) {
+    private void shutdownTimeOutMonitor(boolean immediate) {
         if (immediate) {
             this.timeOutMonitor.shutdownImmediate();
-        }
-        else {
+        } else {
             this.timeOutMonitor.shutdown();
         }
     }
 
-    private void awaitNestedServerProcessesAreShutDown () {
+    private void awaitNestedServerProcessesAreShutDown() {
         while (this.atLeastOneNestedServerProcessStillRunning()) {
             try {
                 Thread.sleep(SHUTDOWN_WAIT_TIME);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
             }
         }
     }
 
-    private boolean atLeastOneNestedServerProcessStillRunning () {
+    private boolean atLeastOneNestedServerProcessStillRunning() {
         for (ServerProcess serverProcess : this.getNestedServerProcesses()) {
             if (!ServerProcessStatus.SHUTDOWN.equals(serverProcess.getStatus())) {
                 return true;
@@ -420,7 +412,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return false;
     }
 
-    protected List<ServerProcess> getNestedServerProcesses () {
+    protected List<ServerProcess> getNestedServerProcesses() {
         List<ServerProcess> nestedProcesses = new ArrayList<>();
         nestedProcesses.addAll(this.scheduledComPorts);
         nestedProcesses.addAll(this.comPortListeners);
@@ -428,9 +420,9 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return nestedProcesses;
     }
 
-    private void shutdownOutboundComPorts (boolean immediate) {
+    private void shutdownOutboundComPorts(boolean immediate) {
         for (ScheduledComPort scheduledComPort : this.scheduledComPorts) {
-            if(immediate){
+            if (immediate) {
                 scheduledComPort.shutdownImmediate();
             } else {
                 scheduledComPort.shutdown();
@@ -438,9 +430,9 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
     }
 
-    private void shutdownInboundComPorts (boolean immediate) {
+    private void shutdownInboundComPorts(boolean immediate) {
         for (ComPortListener comPortListener : this.comPortListeners) {
-            if(immediate){
+            if (immediate) {
                 comPortListener.shutdownImmediate();
             } else {
                 comPortListener.shutdown();
@@ -448,8 +440,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
     }
 
-    private void shutdownDeviceCommandExecutor (boolean immediate) {
-        if(immediate){
+    private void shutdownDeviceCommandExecutor(boolean immediate) {
+        if (immediate) {
             this.deviceCommandExecutor.shutdownImmediate();
         } else {
             this.deviceCommandExecutor.shutdown();
@@ -457,30 +449,27 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     @Override
-    public void run () {
+    public void run() {
         while (continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             this.monitorChanges();
         }
         this.status = ServerProcessStatus.SHUTDOWN;
     }
 
-    private void monitorChanges () {
+    private void monitorChanges() {
         try {
             Thread.sleep(this.getChangesInterPollDelayMillis());
-            ComServer newVersion =  this.comServerDAO.refreshComServer(this.comServer);
+            ComServer newVersion = this.comServerDAO.refreshComServer(this.comServer);
             if (newVersion == null) {
                 // ComServer was deleted or made obsolete, shutdown
                 this.shutdown();
-            }
-            else if (newVersion == this.comServer) {
+            } else if (newVersion == this.comServer) {
                 // No changes found
-            }
-            else {
+            } else {
                 if (!newVersion.isActive()) {
                     // ComServer is no longer active, shutdown
                     this.shutdown();
-                }
-                else {
+                } else {
                     this.applyChanges((InboundCapable) newVersion);
                     this.applyChanges((OutboundCapable) newVersion);
                     this.applyDelayChanges(newVersion);
@@ -488,13 +477,12 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                     this.comServer = newVersion;
                 }
             }
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
 
-    private void applyDelayChanges (ComServer newVersion) {
+    private void applyDelayChanges(ComServer newVersion) {
         if (!this.comServer.getSchedulingInterPollDelay().equals(newVersion.getSchedulingInterPollDelay())) {
             this.notifySchedulingInterPollDelayChange(newVersion.getSchedulingInterPollDelay());
         }
@@ -503,7 +491,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
     }
 
-    private void notifySchedulingInterPollDelayChange (TimeDuration schedulingInterPollDelay) {
+    private void notifySchedulingInterPollDelayChange(TimeDuration schedulingInterPollDelay) {
         for (ScheduledComPort comPort : this.scheduledComPorts) {
             comPort.schedulingInterpollDelayChanged(schedulingInterPollDelay);
         }
@@ -512,7 +500,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
     }
 
-    private void notifyChangesInterPollDelayChange (TimeDuration changesInterPollDelay) {
+    private void notifyChangesInterPollDelayChange(TimeDuration changesInterPollDelay) {
         for (ScheduledComPort comPort : this.scheduledComPorts) {
             comPort.changesInterpollDelayChanged(changesInterPollDelay);
         }
@@ -521,7 +509,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
     }
 
-    private void applyChanges (InboundCapable newVersion) {
+    private void applyChanges(InboundCapable newVersion) {
         this.shutdownAndRemoveOldInboundComPorts(newVersion);
         this.restartChangedInboundComPorts(newVersion);
         this.addAndStartNewInboundComPorts(newVersion);
@@ -531,7 +519,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         // Notify interested parties that changes have been applied
     }
 
-    private void applyChanges (OutboundCapable newVersion) {
+    private void applyChanges(OutboundCapable newVersion) {
         this.shutdownAndRemoveOldOutboundComPorts(newVersion);
         this.restartChangedOutboundComPorts(newVersion);
         this.addAndStartNewOutboundComPorts(newVersion);
@@ -541,13 +529,13 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
     }
 
-    private void applyDeviceCommandExecutorChanges (OnlineComServer newVersion) {
+    private void applyDeviceCommandExecutorChanges(OnlineComServer newVersion) {
         this.deviceCommandExecutor.changeQueueCapacity(newVersion.getStoreTaskQueueSize());
         this.deviceCommandExecutor.changeNumberOfThreads(newVersion.getNumberOfStoreTaskThreads());
         this.deviceCommandExecutor.changeThreadPriority(newVersion.getStoreTaskThreadPriority());
     }
 
-    private void restartChangedInboundComPorts (InboundCapable newVersion) {
+    private void restartChangedInboundComPorts(InboundCapable newVersion) {
         for (InboundComPort changedComPort : this.changedInboundComPortsIn(newVersion)) {
             ComPortListener oldListener = this.getListenerFor(changedComPort);
             oldListener.shutdown();
@@ -557,13 +545,12 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
     }
 
-    private void addAndStartNewInboundComPorts (InboundCapable newVersion) {
+    private void addAndStartNewInboundComPorts(InboundCapable newVersion) {
         for (InboundComPort comPort : this.newActivatedInboundComPortsIn(newVersion)) {
             ComPortListener comPortListener = this.add(comPort);
             if (comPortListener != null) {
                 comPortListener.start();
-            }
-            else {
+            } else {
                 this.ignored(comPort);
             }
         }
@@ -575,19 +562,19 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param newVersion The new version of this {@link RunningComServer}
      * @return The Collection of changed InboundComPorts
      */
-    private Collection<InboundComPort> changedInboundComPortsIn (InboundCapable newVersion) {
+    private Collection<InboundComPort> changedInboundComPortsIn(InboundCapable newVersion) {
         List<InboundComPort> newVersionInboundComPorts = newVersion.getInboundComPorts();
         Collection<InboundComPort> changed = new ArrayList<>(newVersionInboundComPorts.size());    // at most all ComPorts in the new version can have changed
         for (InboundComPort inboundComPort : newVersionInboundComPorts) {
             ComPortListener existingListener = this.getListenerFor(inboundComPort);
-            if (existingListener!= null && this.hasChanged(existingListener.getComPort(), inboundComPort)) {
+            if (existingListener != null && this.hasChanged(existingListener.getComPort(), inboundComPort)) {
                 changed.add(inboundComPort);
             }
         }
         return changed;
     }
 
-    private boolean hasChanged (InboundComPort existingComPort, InboundComPort newVersion) {
+    private boolean hasChanged(InboundComPort existingComPort, InboundComPort newVersion) {
         return existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections();
     }
 
@@ -597,7 +584,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param newVersion The new version of this {@link RunningComServer}
      * @return The Collection of newly activated InboundComPorts
      */
-    private Collection<InboundComPort> newActivatedInboundComPortsIn (InboundCapable newVersion) {
+    private Collection<InboundComPort> newActivatedInboundComPortsIn(InboundCapable newVersion) {
         List<InboundComPort> newVersionInboundComPorts = newVersion.getInboundComPorts();
         Collection<InboundComPort> newlyActivated = new ArrayList<>(newVersionInboundComPorts.size());    // at most all ComPorts in the new version can be activated
         for (InboundComPort inboundComPort : newVersionInboundComPorts) {
@@ -608,7 +595,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return newlyActivated;
     }
 
-    private void shutdownAndRemoveOldInboundComPorts (InboundCapable newVersion) {
+    private void shutdownAndRemoveOldInboundComPorts(InboundCapable newVersion) {
         for (InboundComPort comPort : this.deactivatedInboundComPortsIn(newVersion)) {
             ComPortListener listener = this.getListenerFor(comPort);
             this.comPortListeners.remove(listener);
@@ -631,7 +618,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param newVersion The new version of this {@link RunningComServer}
      * @return The Collection of deactivated InboundComPorts
      */
-    private Collection<InboundComPort> deactivatedInboundComPortsIn (InboundCapable newVersion) {
+    private Collection<InboundComPort> deactivatedInboundComPortsIn(InboundCapable newVersion) {
         List<InboundComPort> newVersionInboundComPorts = newVersion.getInboundComPorts();
         Collection<InboundComPort> deactivated = new ArrayList<>(newVersionInboundComPorts.size());    // at most all ComPorts in the new version can be activated
         for (InboundComPort inboundComPort : newVersionInboundComPorts) {
@@ -642,7 +629,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return deactivated;
     }
 
-    private ComPortListener getListenerFor (InboundComPort comPort) {
+    private ComPortListener getListenerFor(InboundComPort comPort) {
         for (ComPortListener listener : this.comPortListeners) {
             if (comPort.getId() == listener.getComPort().getId()) {
                 return listener;
@@ -651,11 +638,11 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return null;
     }
 
-    private boolean isAlreadyActive (InboundComPort comPort) {
+    private boolean isAlreadyActive(InboundComPort comPort) {
         return this.getListenerFor(comPort) != null;
     }
 
-    private void restartChangedOutboundComPorts (OutboundCapable newVersion) {
+    private void restartChangedOutboundComPorts(OutboundCapable newVersion) {
         for (OutboundComPort changedComPort : this.changedOutboundComPortsIn(newVersion)) {
             ScheduledComPort previouslyScheduledComPort = this.getSchedulerFor(changedComPort);
             previouslyScheduledComPort.shutdown();
@@ -665,13 +652,12 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
     }
 
-    private void addAndStartNewOutboundComPorts (OutboundCapable newVersion) {
+    private void addAndStartNewOutboundComPorts(OutboundCapable newVersion) {
         for (OutboundComPort comPort : this.newActivatedOutboundComPortsIn(newVersion)) {
             ScheduledComPort scheduledComPort = this.add(comPort);
             if (scheduledComPort != null) {
                 scheduledComPort.start();
-            }
-            else {
+            } else {
                 this.ignored(comPort);
             }
         }
@@ -683,7 +669,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param newVersion The new version of this {@link RunningComServer}
      * @return The Collection of changed OutboundComPorts
      */
-    private Collection<OutboundComPort> changedOutboundComPortsIn (OutboundCapable newVersion) {
+    private Collection<OutboundComPort> changedOutboundComPortsIn(OutboundCapable newVersion) {
         List<OutboundComPort> newVersionOutboundComPorts = newVersion.getOutboundComPorts();
         Collection<OutboundComPort> changed = new ArrayList<>(newVersionOutboundComPorts.size());    // at most all ComPorts in the new version can have changed
         for (OutboundComPort outboundComPort : newVersionOutboundComPorts) {
@@ -695,7 +681,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return changed;
     }
 
-    private boolean hasChanged (OutboundComPort existingComPort, OutboundComPort newVersion) {
+    private boolean hasChanged(OutboundComPort existingComPort, OutboundComPort newVersion) {
         return existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections();
     }
 
@@ -705,7 +691,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param newVersion The new version of this {@link RunningComServer}
      * @return The Collection of newly activated OutboundComPorts
      */
-    private Collection<OutboundComPort> newActivatedOutboundComPortsIn (OutboundCapable newVersion) {
+    private Collection<OutboundComPort> newActivatedOutboundComPortsIn(OutboundCapable newVersion) {
         List<OutboundComPort> newVersionOutboundComPorts = newVersion.getOutboundComPorts();
         Collection<OutboundComPort> newlyActivated = new ArrayList<>(newVersionOutboundComPorts.size());    // at most all ComPorts in the new version can be activated
         for (OutboundComPort outboundComPort : newVersionOutboundComPorts) {
@@ -716,7 +702,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return newlyActivated;
     }
 
-    private void shutdownAndRemoveOldOutboundComPorts (OutboundCapable newVersion) {
+    private void shutdownAndRemoveOldOutboundComPorts(OutboundCapable newVersion) {
         for (OutboundComPort comPort : this.deactivatedOutboundComPortsIn(newVersion)) {
             ScheduledComPort scheduledComPort = this.getSchedulerFor(comPort);
             this.scheduledComPorts.remove(scheduledComPort);
@@ -739,7 +725,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
      * @param newVersion The new version of this {@link RunningComServer}
      * @return The Collection of deactivated OutboundComPorts
      */
-    private Collection<OutboundComPort> deactivatedOutboundComPortsIn (OutboundCapable newVersion) {
+    private Collection<OutboundComPort> deactivatedOutboundComPortsIn(OutboundCapable newVersion) {
         List<OutboundComPort> newVersionOutboundComPorts = newVersion.getOutboundComPorts();
         Collection<OutboundComPort> deactivated = new ArrayList<>(newVersionOutboundComPorts.size());    // at most all ComPorts in the new version can be activated
         for (OutboundComPort outboundComPort : newVersionOutboundComPorts) {
@@ -750,7 +736,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return deactivated;
     }
 
-    private ScheduledComPort getSchedulerFor (OutboundComPort comPort) {
+    private ScheduledComPort getSchedulerFor(OutboundComPort comPort) {
         for (ScheduledComPort scheduledComPort : this.scheduledComPorts) {
             if (comPort.getId() == scheduledComPort.getComPort().getId()) {
                 return scheduledComPort;
@@ -759,11 +745,11 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return null;
     }
 
-    private boolean isAlreadyActive (OutboundComPort comPort) {
+    private boolean isAlreadyActive(OutboundComPort comPort) {
         return this.getSchedulerFor(comPort) != null;
     }
 
-    private int getChangesInterPollDelayMillis () {
+    private int getChangesInterPollDelayMillis() {
         return this.comServer.getChangesInterPollDelay().getSeconds() * DateTimeConstants.MILLIS_PER_SECOND;
     }
 
@@ -775,37 +761,37 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     @Override
-    public ComServer getComServer () {
+    public ComServer getComServer() {
         return this.comServer;
     }
 
     @Override
-    public boolean isRemoteQueryApiStarted () {
+    public boolean isRemoteQueryApiStarted() {
         return false;
     }
 
     @Override
-    public int getCollectedDataStorageCapacity () {
+    public int getCollectedDataStorageCapacity() {
         return this.deviceCommandExecutor.getCapacity();
     }
 
     @Override
-    public int getCurrentCollectedDataStorageSize () {
+    public int getCurrentCollectedDataStorageSize() {
         return this.deviceCommandExecutor.getCurrentSize();
     }
 
     @Override
-    public int getCurrentCollectedDataStorageLoadPercentage () {
+    public int getCurrentCollectedDataStorageLoadPercentage() {
         return this.deviceCommandExecutor.getCurrentLoadPercentage();
     }
 
     @Override
-    public int getNumberOfCollectedDataStorageThreads () {
+    public int getNumberOfCollectedDataStorageThreads() {
         return this.deviceCommandExecutor.getNumberOfThreads();
     }
 
     @Override
-    public int getCollectedDataStorageThreadPriority () {
+    public int getCollectedDataStorageThreadPriority() {
         return this.deviceCommandExecutor.getThreadPriority();
     }
 
@@ -849,11 +835,10 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
             this.eventMechanism.start();
         }
 
-        private void shutdown (boolean immediate) {
+        private void shutdown(boolean immediate) {
             if (immediate) {
                 this.eventMechanism.shutdownImmediate();
-            }
-            else {
+            } else {
                 this.eventMechanism.shutdown();
             }
             this.eventPublisher.shutdown();

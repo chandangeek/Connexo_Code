@@ -5,7 +5,6 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-
 import com.google.common.base.Optional;
 
 /**
@@ -32,8 +31,7 @@ public final class LogBookIdentifierByIdImpl implements LogBookIdentifier {
         Optional<LogBook> logBook = this.logBookService.findById(this.logBookId);
         if (!logBook.isPresent()) {
             throw new NotFoundException("LogBook with id " + this.logBookId + " not found");
-        }
-        else {
+        } else {
             return logBook.get();
         }
     }

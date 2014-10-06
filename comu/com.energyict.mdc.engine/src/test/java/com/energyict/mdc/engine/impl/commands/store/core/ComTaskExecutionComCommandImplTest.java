@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -18,23 +20,19 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComTaskExecutionComCommandImpl} component.
@@ -66,7 +64,7 @@ public class ComTaskExecutionComCommandImplTest {
     private TransactionService transactionService;
 
     @Before
-    public void initializeMocks () {
+    public void initializeMocks() {
         serviceProvider.setClock(clock);
         serviceProvider.setConnectionTaskService(this.connectionTaskService);
         serviceProvider.setDeviceService(this.deviceService);
@@ -92,7 +90,7 @@ public class ComTaskExecutionComCommandImplTest {
     }
 
     @Test
-    public void testGetCollectedDataWhenNone () {
+    public void testGetCollectedDataWhenNone() {
         ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
 
         // Business method
@@ -105,7 +103,7 @@ public class ComTaskExecutionComCommandImplTest {
     }
 
     @Test
-    public void testGetCollectedDataIsCalled () {
+    public void testGetCollectedDataIsCalled() {
         ComCommand comCommand1 = mock(ComCommand.class);
         when(comCommand1.getCommandType()).thenReturn(ComCommandTypes.BASIC_CHECK_COMMAND);
         ComCommand comCommand2 = mock(ComCommand.class);
@@ -130,7 +128,7 @@ public class ComTaskExecutionComCommandImplTest {
     }
 
     @Test
-    public void testGetCollectedData () {
+    public void testGetCollectedData() {
         ComCommand comCommand1 = mock(ComCommand.class);
         when(comCommand1.getCommandType()).thenReturn(ComCommandTypes.BASIC_CHECK_COMMAND);
         ServerCollectedData collectedData1 = mock(ServerCollectedData.class);
@@ -161,7 +159,7 @@ public class ComTaskExecutionComCommandImplTest {
     }
 
     @Test
-    public void testContains () {
+    public void testContains() {
         ComCommand comCommand1 = mock(ComCommand.class);
         when(comCommand1.getCommandType()).thenReturn(ComCommandTypes.BASIC_CHECK_COMMAND);
         ComCommand comCommand2 = mock(ComCommand.class);

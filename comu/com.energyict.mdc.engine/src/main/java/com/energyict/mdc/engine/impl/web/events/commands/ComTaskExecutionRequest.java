@@ -35,25 +35,24 @@ public class ComTaskExecutionRequest extends IdBusinessObjectRequest {
         this.validateComTaskExecutionIds();
     }
 
-    private void validateComTaskExecutionIds () {
+    private void validateComTaskExecutionIds() {
         this.comTaskExecutions = new ArrayList<>(this.getBusinessObjectIds().size());
         for (Long comTaskExecutionId : this.getBusinessObjectIds()) {
             this.comTaskExecutions.add(this.findComTaskExecution(comTaskExecutionId));
         }
     }
 
-    private ComTaskExecution findComTaskExecution (long comTaskExecutionId) {
+    private ComTaskExecution findComTaskExecution(long comTaskExecutionId) {
         ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecutionId);
         if (comTaskExecution == null) {
             throw new NotFoundException("ComTaskExecution with id " + comTaskExecutionId + " not found");
-        }
-        else {
+        } else {
             return comTaskExecution;
         }
     }
 
     @Override
-    public void applyTo (EventPublisher eventPublisher) {
+    public void applyTo(EventPublisher eventPublisher) {
         eventPublisher.narrowInterestToComTaskExecutions(null, this.comTaskExecutions);
     }
 
