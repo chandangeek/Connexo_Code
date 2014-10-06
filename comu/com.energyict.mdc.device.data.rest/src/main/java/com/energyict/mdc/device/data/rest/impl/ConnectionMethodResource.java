@@ -138,7 +138,7 @@ public class ConnectionMethodResource {
         return Response.ok().build();
     }
 
-    @Path("/{id}/comsessions")
+    @Path("/{connectionMethodId}/comsessions")
     public ComSessionResource getComTaskExecutionResource() {
         return comTaskExecutionResourceProvider.get();
     }
