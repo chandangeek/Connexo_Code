@@ -64,7 +64,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
         // TODO can't fetch them for now ...
 //        List<DeviceFactory> deviceFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
 //        for (DeviceFactory deviceFactory : deviceFactories) {
-//            allDevices.addAll(deviceFactory.findDevicesBySerialNumber(this.getIdentifier()));
+//            allDevices.addAll(deviceFactory.findDevicesBySerialNumber(this.getDescription()));
 //        }
         this.allDevices = allDevices;
     }
