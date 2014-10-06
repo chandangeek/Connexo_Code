@@ -20,12 +20,14 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Osgi Component class.
  */
-@Component(name = "com.elster.jupiter.messaging" , service = { MessageService.class , InstallService.class } ,
-	property = { "name=" + MessageService.COMPONENTNAME } )
+@Component(name = "com.elster.jupiter.messaging", service = {MessageService.class, InstallService.class},
+        property = {"name=" + MessageService.COMPONENTNAME})
 public class MessageServiceImpl implements MessageService, InstallService {
 
     private final DefaultAQFacade defaultAQMessageFactory = new DefaultAQFacade();
@@ -46,15 +48,15 @@ public class MessageServiceImpl implements MessageService, InstallService {
     }
 
     @Reference
-	public final void setOrmService(OrmService ormService) {
-		dataModel = ormService.newDataModel(MessageService.COMPONENTNAME, "Jupiter Messaging");
-		for (TableSpecs each : TableSpecs.values()) {
-			each.addTo(dataModel);
-		}
-	}
-	
-	@Activate
-	public final void activate() {
+    public final void setOrmService(OrmService ormService) {
+        dataModel = ormService.newDataModel(MessageService.COMPONENTNAME, "Jupiter Messaging");
+        for (TableSpecs each : TableSpecs.values()) {
+            each.addTo(dataModel);
+        }
+    }
+
+    @Activate
+    public final void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -64,34 +66,39 @@ public class MessageServiceImpl implements MessageService, InstallService {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
-	}
-	
-	@Deactivate
-	public final void deactivate() {
-	}
-	
-	@Override
-	public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
-		QueueTableSpecImpl result = QueueTableSpecImpl.from(dataModel, name, payloadType, multiConsumer);
+    }
+
+    @Deactivate
+    public final void deactivate() {
+    }
+
+    @Override
+    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
+        QueueTableSpecImpl result = QueueTableSpecImpl.from(dataModel, name, payloadType, multiConsumer);
         result.save();
-		result.activate();
-		return result;
-	}
+        result.activate();
+        return result;
+    }
 
-	@Override
-	public void install() {
-		new InstallerImpl(dataModel).install(this);
-	}
+    @Override
+    public void install() {
+        new InstallerImpl(dataModel).install(this);
+    }
 
-	@Override
-	public Optional<QueueTableSpec> getQueueTableSpec(String name) {
-		return dataModel.mapper(QueueTableSpec.class).getOptional(name);
-	}
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM");
+    }
 
-	@Override
-	public Optional<DestinationSpec> getDestinationSpec(String name) {
-		return dataModel.mapper(DestinationSpec.class).getOptional(name);
-	}
+    @Override
+    public Optional<QueueTableSpec> getQueueTableSpec(String name) {
+        return dataModel.mapper(QueueTableSpec.class).getOptional(name);
+    }
+
+    @Override
+    public Optional<DestinationSpec> getDestinationSpec(String name) {
+        return dataModel.mapper(DestinationSpec.class).getOptional(name);
+    }
 
     @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
