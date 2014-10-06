@@ -10,24 +10,6 @@ public class RestHelper {
     }
 
     public TimeDuration getTimeDuration(String units, int count) {
-        TimeDuration timeDuration = null;
-        if (units.equals(TimeDuration.getTimeUnitDescription(TimeDuration.MILLISECONDS))) {
-            timeDuration = TimeDuration.millis(count);
-        } else if (units.equals(TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS))) {
-            timeDuration = TimeDuration.seconds(count);
-        } else if (units.equals(TimeDuration.getTimeUnitDescription(TimeDuration.MINUTES))) {
-            timeDuration = TimeDuration.minutes(count);
-        } else if (units.equals(TimeDuration.getTimeUnitDescription(TimeDuration.HOURS))) {
-            timeDuration = TimeDuration.hours(count);
-        } else if (units.equals(TimeDuration.getTimeUnitDescription(TimeDuration.DAYS))) {
-            timeDuration = TimeDuration.days(count);
-        } else if (units.equals(TimeDuration.getTimeUnitDescription(TimeDuration.WEEKS))) {
-            timeDuration = TimeDuration.weeks(count);
-        } else if (units.equals(TimeDuration.getTimeUnitDescription(TimeDuration.MONTHS))) {
-            timeDuration = TimeDuration.months(count);
-//        } else if (units.equals(TimeDuration.getTimeUnitDescription(TimeDuration.YEARS))) {
-//            timeDuration = TimeDuration.years(count);
-        }
-        return timeDuration;
+        return TimeDuration.TimeUnit.forDescription(units).during(count);
     }
 }
