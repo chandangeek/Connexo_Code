@@ -1,7 +1,9 @@
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.common.ObisCode;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
@@ -18,18 +20,13 @@ import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import org.assertj.core.api.Condition;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.assertj.core.api.Condition;
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for the {@link ComTaskImpl} component.
@@ -42,9 +39,9 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     private static final boolean STORE_DATA_TRUE = true;
     private static final String COM_TASK_NAME = "UniqueComTaskName";
 
-    private static final TimeDuration minimumClockDifference = new TimeDuration(3, TimeDuration.SECONDS);
-    private static final TimeDuration maximumClockDifference = new TimeDuration(5, TimeDuration.MINUTES);
-    private static final TimeDuration maximumClockShift = new TimeDuration(13, TimeDuration.SECONDS);
+    private static final TimeDuration minimumClockDifference = new TimeDuration(3, TimeDuration.TimeUnit.SECONDS);
+    private static final TimeDuration maximumClockDifference = new TimeDuration(5, TimeDuration.TimeUnit.MINUTES);
+    private static final TimeDuration maximumClockShift = new TimeDuration(13, TimeDuration.TimeUnit.SECONDS);
 
     private ComTask createSimpleComTask() {
         ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
