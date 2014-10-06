@@ -13,11 +13,11 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validators.MessageSeeds;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     public static final String MISSING_VALUES_VALIDATOR = MissingValuesValidator.class.getName();
     public static final String REGISTER_INCREASE_VALIDATOR = RegisterIncreaseValidator.class.getName();
     public static final String INTERVAL_STATE_VALIDATOR = IntervalStateValidator.class.getName();
-    
+
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
 
@@ -60,6 +60,11 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
         thesaurus.addTranslations(translations);
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS");
+    }
+
     private enum ValidatorDefinition {
         THRESHOLD(THRESHOLD_VALIDATOR) {
             @Override
@@ -84,12 +89,12 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
             }
         },
         REGISTER_INCREASE(REGISTER_INCREASE_VALIDATOR) {
-          @Override
+            @Override
             Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
                 return new RegisterIncreaseValidator(thesaurus, propertySpecService, props);
             }
-          
-          @Override
+
+            @Override
             IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
                 return new RegisterIncreaseValidator(thesaurus, propertySpecService);
             }
@@ -99,7 +104,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
             Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
                 return new IntervalStateValidator(thesaurus, propertySpecService, props);
             }
-            
+
             @Override
             IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
                 return new IntervalStateValidator(thesaurus, propertySpecService);
