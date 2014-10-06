@@ -300,6 +300,32 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         // Expected a TranslatableApplicationException because a ComPortPool cannot be made obsolete twice
     }
 
+    /**
+     * Created test for JP-5753
+     */
+    @Test
+    @Transactional
+    public void findUniqueComPortPoolByNameAfterDeleteTest() {
+        OutboundComPortPool comPortPool = newOutboundComPortPoolWithoutViolations();
+        String comPortPoolName = comPortPool.getName();
+
+        comPortPool.makeObsolete();
+
+        ComPortPool noComPortPoolForThisName = getEngineModelService().findComPortPool(comPortPoolName);
+        assertThat(noComPortPoolForThisName).isNull();
+
+        // creating the exact same comportpool
+        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool();
+        outboundComPortPool.setName(comPortPoolName);
+        outboundComPortPool.setDescription(DESCRIPTION);
+        outboundComPortPool.setComPortType(COM_PORT_TYPE);
+        outboundComPortPool.setTaskExecutionTimeout(EXECUTION_TIMEOUT);
+        outboundComPortPool.save();
+
+        ComPortPool newComPortPoolForName = getEngineModelService().findComPortPool(comPortPoolName);
+        assertThat(newComPortPoolForName).isNotNull();
+    }
+
     private int outboundComPortPoolIndex =1;
     private OutboundComPortPool newOutboundComPortPoolWithoutViolations() {
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool();
