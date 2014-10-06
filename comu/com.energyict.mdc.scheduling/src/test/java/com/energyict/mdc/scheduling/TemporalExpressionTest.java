@@ -3,12 +3,13 @@ package com.energyict.mdc.scheduling;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import org.joda.time.DateTimeConstants;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import org.joda.time.DateTimeConstants;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,13 +90,13 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         DATE_OUTSIDE_DST_PERIOD.set(Calendar.DAY_OF_MONTH, 3);
 
         // Every day...
-        final TimeDuration dailyInterval = new TimeDuration(1, TimeDuration.DAYS);
+        final TimeDuration dailyInterval = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
         // At 4 AM...
-        final TimeDuration time = new TimeDuration(4, TimeDuration.HOURS);
+        final TimeDuration time = new TimeDuration(4, TimeDuration.TimeUnit.HOURS);
 
         DAILY_SCHEDULING_EXPRESSION = new TemporalExpression(dailyInterval, time);
 
-        final TimeDuration weeklyInterval = new TimeDuration(1, TimeDuration.WEEKS);
+        final TimeDuration weeklyInterval = new TimeDuration(1, TimeDuration.TimeUnit.WEEKS);
 
         WEEKLY_SCHEDULING_EXPRESSION = new TemporalExpression(weeklyInterval, time);
     }
@@ -243,8 +244,8 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         cal.set(Calendar.MINUTE, 30);
         cal.set(Calendar.MILLISECOND, 0);
 
-        TimeDuration every = new TimeDuration(15, TimeDuration.MINUTES);
-        TimeDuration offset = new TimeDuration(0, TimeDuration.MINUTES);
+        TimeDuration every = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration offset = new TimeDuration(0, TimeDuration.TimeUnit.MINUTES);
 
         TemporalExpression expr = new TemporalExpression(every, offset);
 
@@ -280,8 +281,8 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
-        TimeDuration every = new TimeDuration(1, TimeDuration.HOURS);
-        TimeDuration offset = new TimeDuration(0, TimeDuration.MINUTES);
+        TimeDuration every = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
+        TimeDuration offset = new TimeDuration(0, TimeDuration.TimeUnit.MINUTES);
 
         TemporalExpression expr = new TemporalExpression(every, offset);
 
@@ -318,8 +319,8 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
-        TimeDuration every = new TimeDuration(2, TimeDuration.HOURS);
-        TimeDuration offset = new TimeDuration(10, TimeDuration.MINUTES);
+        TimeDuration every = new TimeDuration(2, TimeDuration.TimeUnit.HOURS);
+        TimeDuration offset = new TimeDuration(10, TimeDuration.TimeUnit.MINUTES);
 
         TemporalExpression expr = new TemporalExpression(every, offset);
 
@@ -360,8 +361,8 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         cal.set(Calendar.MINUTE, 30);
         cal.set(Calendar.MILLISECOND, 0);
 
-        TimeDuration every = new TimeDuration(15, TimeDuration.MINUTES);
-        TimeDuration offset = new TimeDuration(0, TimeDuration.MINUTES);
+        TimeDuration every = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
+        TimeDuration offset = new TimeDuration(0, TimeDuration.TimeUnit.MINUTES);
 
         TemporalExpression expr = new TemporalExpression(every, offset);
 
@@ -416,8 +417,8 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
-        TimeDuration every = new TimeDuration(1, TimeDuration.HOURS);
-        TimeDuration offset = new TimeDuration(0, TimeDuration.MINUTES);
+        TimeDuration every = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
+        TimeDuration offset = new TimeDuration(0, TimeDuration.TimeUnit.MINUTES);
 
         TemporalExpression expr = new TemporalExpression(every, offset);
 
@@ -445,7 +446,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     @Test
     public void testEiserver2255() {
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(12, TimeDuration.MONTHS), new TimeDuration(1, TimeDuration.MONTHS));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(12, TimeDuration.TimeUnit.MONTHS), new TimeDuration(1, TimeDuration.TimeUnit.MONTHS));
         Calendar now = Calendar.getInstance();
         Date date = expression.nextOccurrence(now);
         Calendar returnedDate = Calendar.getInstance();
@@ -455,7 +456,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset31 () {
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(31, TimeDuration.DAYS));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(31, TimeDuration.TimeUnit.DAYS));
         Calendar february1st2013 = Calendar.getInstance();
         february1st2013.set(2013, Calendar.FEBRUARY, 1, 0, 0, 0);
         Date nextOccurrence = expression.nextOccurrence(february1st2013);
@@ -468,7 +469,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset31And6PM () {
         int offsetInSeconds = DateTimeConstants.SECONDS_PER_DAY * 31 + DateTimeConstants.SECONDS_PER_HOUR * 18;
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(offsetInSeconds));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(offsetInSeconds));
         Calendar february1st2013 = Calendar.getInstance();
         february1st2013.set(2013, Calendar.FEBRUARY, 1, 0, 0, 0);
         Date nextOccurrence = expression.nextOccurrence(february1st2013);
@@ -484,7 +485,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset31And6PMWithSetLastDay() {
         int offsetInSeconds = DateTimeConstants.SECONDS_PER_HOUR * 18;
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(offsetInSeconds));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(offsetInSeconds));
         expression.setLastDay();
         Calendar february1st2013 = Calendar.getInstance();
         february1st2013.set(2013, Calendar.FEBRUARY, 1, 0, 0, 0);
@@ -501,21 +502,21 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     @Test
     public void testGetLastDayNotSet() throws Exception {
         int offsetInSeconds = DateTimeConstants.SECONDS_PER_HOUR * 18;
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(offsetInSeconds));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(offsetInSeconds));
         assertThat(expression.isLastDay()).isFalse();
     }
 
     @Test
     public void testGetLastDaySet() throws Exception {
         int offsetInSeconds = DateTimeConstants.SECONDS_PER_HOUR * 18;
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(offsetInSeconds));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(offsetInSeconds));
         expression.setLastDay();
         assertThat(expression.isLastDay()).isTrue();
     }
 
     @Test
     public void testLastOfAfterAprilWithoutOffset() throws Exception {
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS));
         expression.setLastDay();
         Calendar april5th2013 = Calendar.getInstance();
         april5th2013.set(2013, Calendar.APRIL, 5, 0, 0, 0);
@@ -531,7 +532,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     @Test
     public void testLastOfAfterJulyWithoutOffset() throws Exception {
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS));
         expression.setLastDay();
         Calendar july5th2013 = Calendar.getInstance();
         july5th2013.set(2013, Calendar.JULY, 5, 0, 0, 0);
@@ -548,7 +549,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     @Test
     public void testLastOfMonthRoundRobin() throws Exception {
         int[] lastDayIndex = {31,28,31,30,31,30,31,31,30,31,30,31};
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS));
         expression.setLastDay();
         Calendar januari5th2013 = Calendar.getInstance();
         januari5th2013.set(2013, Calendar.JANUARY, 5, 0, 0, 0);
@@ -567,7 +568,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     @Test
     public void testLastOfMonthRoundRobinWithOffset() throws Exception {
         int[] lastDayIndex = {31,28,31,30,31,30,31,31,30,31,30,31};
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(14, TimeDuration.HOURS));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(14, TimeDuration.TimeUnit.HOURS));
         expression.setLastDay();
         Calendar januari5th2013 = Calendar.getInstance();
         januari5th2013.set(2013, Calendar.JANUARY, 5, 0, 0, 0);
@@ -585,7 +586,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     @Test
     public void testDailyRoundRobinWithOffset() throws Exception {
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(14, TimeDuration.HOURS));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(14, TimeDuration.TimeUnit.HOURS));
         expression.setLastDay();
         Calendar januari1th2013 = Calendar.getInstance(TIMEZONE_WITH_DST);
         januari1th2013.set(2013, Calendar.JANUARY, 1, 0, 0, 0);
@@ -605,7 +606,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset30 () {
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(31, TimeDuration.DAYS));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(31, TimeDuration.TimeUnit.DAYS));
         Calendar february1st2013 = Calendar.getInstance();
         february1st2013.set(2013, Calendar.FEBRUARY, 1, 0, 0, 0);
         Date nextOccurrence = expression.nextOccurrence(february1st2013);
@@ -617,7 +618,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset29 () {
-        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(31, TimeDuration.DAYS));
+        TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(31, TimeDuration.TimeUnit.DAYS));
         Calendar february1st2013 = Calendar.getInstance();
         february1st2013.set(2013, Calendar.FEBRUARY, 1, 0, 0, 0);
         Date nextOccurrence = expression.nextOccurrence(february1st2013);

@@ -3,15 +3,16 @@ package com.energyict.mdc.scheduling.model.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.elster.jupiter.time.TemporalExpression;
-import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+
+import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,13 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class NextExecutionSpecsImplTest extends PersistenceTest {
 
-    private static final TimeDuration ZERO_OFFSET = new TimeDuration(0, TimeDuration.SECONDS);
+    private static final TimeDuration ZERO_OFFSET = new TimeDuration(0, TimeDuration.TimeUnit.SECONDS);
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
-    private TimeDuration frequency = new TimeDuration(1, TimeDuration.DAYS);
-    private TimeDuration offset = new TimeDuration(2, TimeDuration.HOURS);
+    private TimeDuration frequency = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+    private TimeDuration offset = new TimeDuration(2, TimeDuration.TimeUnit.HOURS);
 
     @Test
     @Transactional
@@ -140,7 +141,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}")
     public void testCreateWithZeroFrequency () throws BusinessException, SQLException {
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
-        NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(new TimeDuration(0, TimeDuration.MINUTES)));
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(new TimeDuration(0, TimeDuration.TimeUnit.MINUTES)));
 
         // Business method
         specs.save();
@@ -153,7 +154,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY + "}", strict = false)
     public void testCreateWithNegativeFrequency () throws BusinessException, SQLException {
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
-        NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(new TimeDuration(-1, TimeDuration.MINUTES)));
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(new TimeDuration(-1, TimeDuration.TimeUnit.MINUTES)));
 
         // Business method
         specs.save();
@@ -166,7 +167,7 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY + "}")
     public void testCreateWithNegativeOffset () throws BusinessException, SQLException {
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
-        NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(this.frequency, new TimeDuration(-1, TimeDuration.HOURS)));
+        NextExecutionSpecs specs = service.newNextExecutionSpecs(new TemporalExpression(this.frequency, new TimeDuration(-1, TimeDuration.TimeUnit.HOURS)));
 
         // Business method
         specs.save();

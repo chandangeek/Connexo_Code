@@ -97,15 +97,15 @@ public class HasTemporalExpressionValidator implements ConstraintValidator<HasVa
     }
 
     private boolean validateTimeDuration (TimeDuration timeDuration, TimeDurationAspect countValidator, String aspect, ConstraintValidatorContext context) {
-        switch (timeDuration.getTimeUnitCode()) {
-            case TimeDuration.HOURS: // Intentional fall-through
-            case TimeDuration.MINUTES: // Intentional fall-through
-            case TimeDuration.SECONDS: // Intentional fall-through
-            case TimeDuration.MILLISECONDS: // Intentional fall-through
-            case TimeDuration.DAYS: // Intentional fall-through
-            case TimeDuration.WEEKS: // Intentional fall-through
-            case TimeDuration.MONTHS: // Intentional fall-through
-            case TimeDuration.YEARS: {
+        switch (timeDuration.getTimeUnit()) {
+            case HOURS: // Intentional fall-through
+            case MINUTES: // Intentional fall-through
+            case SECONDS: // Intentional fall-through
+            case MILLISECONDS: // Intentional fall-through
+            case DAYS: // Intentional fall-through
+            case WEEKS: // Intentional fall-through
+            case MONTHS: // Intentional fall-through
+            case YEARS: {
                 // All is fine
                 break;
             }
