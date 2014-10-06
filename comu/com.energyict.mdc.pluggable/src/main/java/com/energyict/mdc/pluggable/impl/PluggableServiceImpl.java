@@ -17,11 +17,13 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import java.util.List;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Provides an implemenation for the {@link PluggableService} interface.
@@ -29,7 +31,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-20 (17:49)
  */
-@Component(name="com.energyict.mdc.pluggable", service = {PluggableService.class, InstallService.class}, property = "name=" + PluggableService.COMPONENTNAME)
+@Component(name = "com.energyict.mdc.pluggable", service = {PluggableService.class, InstallService.class}, property = "name=" + PluggableService.COMPONENTNAME)
 public class PluggableServiceImpl implements PluggableService, InstallService {
 
     private volatile DataModel dataModel;
@@ -57,14 +59,14 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     public Optional<PluggableClass> findByTypeAndName(PluggableClassType type, String name) {
         return this.dataModel.mapper(PluggableClass.class).
                 getUnique("pluggableType", PersistentPluggableClassType.forActualType(type),
-                          "name", name);
+                        "name", name);
     }
 
     @Override
     public List<PluggableClass> findByTypeAndClassName(PluggableClassType type, String javaClassName) {
         return this.dataModel.mapper(PluggableClass.class).
                 find("pluggableType", PersistentPluggableClassType.forActualType(type),
-                     "javaClassName", javaClassName);
+                        "javaClassName", javaClassName);
     }
 
     @Override
@@ -72,8 +74,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
         List<PluggableClass> pluggableClasses = this.dataModel.mapper(PluggableClass.class).find("pluggableType", PersistentPluggableClassType.forActualType(type), "id", id);
         if (pluggableClasses.isEmpty()) {
             return null;
-        }
-        else {
+        } else {
             return pluggableClasses.get(0);
         }
     }
@@ -88,7 +89,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     }
 
     @Reference
-    public void setOrmService (OrmService ormService) {
+    public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "ComServer pluggable classes");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
@@ -115,7 +116,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     }
 
     @Reference
-    public void setNlsService (NlsService nlsService) {
+    public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
@@ -139,6 +140,11 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     @Override
     public void install() {
         new Installer(this.dataModel, this.eventService, this.thesaurus).install(true, true);
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT", "NLS");
     }
 
 }
