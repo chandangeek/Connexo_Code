@@ -208,7 +208,7 @@ public class PartialTime implements Comparable<PartialTime> {
      * @param calendar The Calendar
      */
     public void copyTo (Calendar calendar) {
-        new TimeDuration(1, TimeDuration.DAYS).truncate(calendar);
+        new TimeDuration(1, TimeDuration.TimeUnit.DAYS).truncate(calendar);
         calendar.add(Calendar.MILLISECOND, this.getMillis());
     }
 

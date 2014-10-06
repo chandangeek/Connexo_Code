@@ -82,49 +82,49 @@ public class ComWindowTest {
     @Test
     public void testIncludesTimeDuration() {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
-        assertTrue(comWindow.includes(new TimeDuration(2, TimeDuration.HOURS)));
+        assertTrue(comWindow.includes(new TimeDuration(2, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test
     public void testIncludesTimeDurationThatRunsAcrossMidnight () {
         ComWindow comWindow = new ComWindow(TEN_PM, TWO_AM);
-        assertTrue(comWindow.includes(new TimeDuration(23, TimeDuration.HOURS)));
+        assertTrue(comWindow.includes(new TimeDuration(23, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test
     public void testIncludesTimeDurationThatRunsAcrossMidnightAtStart () {
         ComWindow comWindow = new ComWindow(TEN_PM, TWO_AM);
-        assertTrue(comWindow.includes(new TimeDuration(22, TimeDuration.HOURS)));
+        assertTrue(comWindow.includes(new TimeDuration(22, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test
     public void testIncludesTimeDurationThatRunsAcrossMidnightAtEnd () {
         ComWindow comWindow = new ComWindow(TEN_PM, TWO_AM);
-        assertTrue(comWindow.includes(new TimeDuration(2, TimeDuration.HOURS)));
+        assertTrue(comWindow.includes(new TimeDuration(2, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test
     public void testIncludesTimeDurationAtStart() {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
-        assertTrue(comWindow.includes(new TimeDuration(START_SECONDS, TimeDuration.SECONDS)));
+        assertTrue(comWindow.includes(new TimeDuration(START_SECONDS, TimeDuration.TimeUnit.SECONDS)));
     }
 
     @Test
     public void testIncludesTimeDurationAtEnd() {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
-        assertTrue(comWindow.includes(new TimeDuration(END_SECONDS, TimeDuration.SECONDS)));
+        assertTrue(comWindow.includes(new TimeDuration(END_SECONDS, TimeDuration.TimeUnit.SECONDS)));
     }
 
     @Test
     public void testDoesNotIncludeTimeDurationAfterEnd () {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
-        assertFalse(comWindow.includes(new TimeDuration(12, TimeDuration.HOURS)));
+        assertFalse(comWindow.includes(new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test
     public void testDoesNotIncludeTimeDurationBeforeStart () {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
-        assertFalse(comWindow.includes(new TimeDuration(1, TimeDuration.HOURS)));
+        assertFalse(comWindow.includes(new TimeDuration(1, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test

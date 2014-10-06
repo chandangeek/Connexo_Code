@@ -4,7 +4,7 @@ import com.elster.jupiter.time.TimeDuration;
 
 public class TimeDurationInfo {
     public int count;
-    public String timeUnit = TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS);
+    public String timeUnit = TimeDuration.TimeUnit.SECONDS.getDescription();
 
     public TimeDurationInfo() {
     }
@@ -20,7 +20,7 @@ public class TimeDurationInfo {
 
     public TimeDurationInfo(int seconds) {
         this.count=seconds;
-        this.timeUnit=TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS);
+        this.timeUnit=TimeDuration.TimeUnit.SECONDS.getDescription();
     }
 
     public TimeDuration asTimeDuration() {

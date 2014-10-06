@@ -92,7 +92,7 @@ public class ComWindow {
         long millisBeforeTruncate = calendar.getTimeInMillis();
         Calendar forTruncationPurposesOnly = Calendar.getInstance();
         forTruncationPurposesOnly.setTimeInMillis(millisBeforeTruncate);
-        new TimeDuration(1, TimeDuration.DAYS).truncate(forTruncationPurposesOnly);
+        new TimeDuration(1, TimeDuration.TimeUnit.DAYS).truncate(forTruncationPurposesOnly);
         long millisAfterTruncate = forTruncationPurposesOnly.getTimeInMillis();
         long millisFromMidnight = millisBeforeTruncate - millisAfterTruncate;
         return PartialTime.fromMilliSeconds((int) millisFromMidnight);

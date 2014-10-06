@@ -14,7 +14,7 @@ public class TimeDurationTest {
 
     @Test
     public void test_truncate() {
-        TimeDuration td = new TimeDuration(5, TimeDuration.MINUTES);
+        TimeDuration td = new TimeDuration(5, TimeDuration.TimeUnit.MINUTES);
         Calendar cal = Calendar.getInstance();
         cal.set(2010, Calendar.JULY, 12, 8, 17, 23);
         cal.set(Calendar.MILLISECOND, 0);
@@ -26,7 +26,7 @@ public class TimeDurationTest {
         assertTrue("Test_truncate 1", is(cal.getTime()).equalTo(result.getTime()));
 
         // Truncate with an 'empty' TimeDuration
-        td = new TimeDuration(0, TimeDuration.MINUTES);
+        td = new TimeDuration(0, TimeDuration.TimeUnit.MINUTES);
         cal.set(2010, Calendar.JULY, 12, 8, 17, 23);
         cal.set(Calendar.MILLISECOND, 0);
         td.truncate(cal);
@@ -41,14 +41,14 @@ public class TimeDurationTest {
         cal.set(Calendar.HOUR_OF_DAY, 12);
         cal.set(Calendar.MINUTE, 31);
         cal.set(Calendar.SECOND, 25);
-        TimeDuration duration = new TimeDuration(75, TimeDuration.SECONDS);
+        TimeDuration duration = new TimeDuration(75, TimeDuration.TimeUnit.SECONDS);
         duration.truncate(cal);
         assertTime(cal.getTime(), 12, 31, 15);
         cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 12);
         cal.set(Calendar.MINUTE, 31);
         cal.set(Calendar.SECOND, 25);
-        duration = new TimeDuration(15, TimeDuration.SECONDS);
+        duration = new TimeDuration(15, TimeDuration.TimeUnit.SECONDS);
         duration.truncate(cal);
         assertTime(cal.getTime(), 12, 31, 15);
     }
