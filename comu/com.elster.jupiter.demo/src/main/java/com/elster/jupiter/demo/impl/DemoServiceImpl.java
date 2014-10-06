@@ -13,13 +13,13 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.*;
 import com.energyict.mdc.masterdata.*;
-import com.energyict.mdc.metering.ReadingTypeInformation;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
@@ -34,7 +34,6 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
-import com.google.common.base.*;
 import com.google.common.base.Optional;
 import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Component;
@@ -101,7 +100,8 @@ public class DemoServiceImpl implements DemoService {
     private volatile MeteringService meteringService;
     private volatile TaskService taskService;
     private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile DeviceDataService deviceDataService;
+    private volatile DeviceService deviceService;
+    private volatile ConnectionTaskService connectionTaskService;
     private volatile SchedulingService schedulingService;
 
     public DemoServiceImpl() {
@@ -118,7 +118,8 @@ public class DemoServiceImpl implements DemoService {
             MeteringService meteringService,
             TaskService taskService,
             DeviceConfigurationService deviceConfigurationService,
-            DeviceDataService deviceDataService,
+            DeviceService deviceService,
+            ConnectionTaskService connectionTaskService,
             SchedulingService schedulingService) {
         this.engineModelService = engineModelService;
         this.transactionService = transactionService;
@@ -128,7 +129,8 @@ public class DemoServiceImpl implements DemoService {
         this.meteringService = meteringService;
         this.taskService = taskService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
+        this.connectionTaskService = connectionTaskService;
         this.schedulingService = schedulingService;
         rethrowExceptions = Boolean.TRUE;
     }
@@ -575,7 +577,7 @@ public class DemoServiceImpl implements DemoService {
         String mrid = "ZABF0100" +  serialNumber;
         System.out.println("==> Creating Device '" + mrid + "'...");
         Calendar calendar = Calendar.getInstance();
-        Device device = deviceDataService.newDevice(configuration, mrid, mrid);
+        Device device = deviceService.newDevice(configuration, mrid, mrid);
         device.setSerialNumber(serialNumber);
         calendar.set(2014, 1, 1);
         device.setYearOfCertification(calendar.getTime());
@@ -596,7 +598,7 @@ public class DemoServiceImpl implements DemoService {
                 .setProperty("portNumber", new BigDecimal(4059))
                 .setSimultaneousConnectionsAllowed(false)
                 .add();
-        deviceDataService.setDefaultConnectionTask(deviceConnectionTask);
+        connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
     }
 
     @Reference
@@ -640,8 +642,13 @@ public class DemoServiceImpl implements DemoService {
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Reference

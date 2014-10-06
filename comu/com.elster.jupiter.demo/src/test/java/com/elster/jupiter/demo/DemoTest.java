@@ -27,9 +27,11 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
+import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.impl.EngineModule;
@@ -202,6 +204,7 @@ public class DemoTest {
         // Register device factory provider
         injector.getInstance(PropertySpecServiceDependency.class);
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
-        propertySpecService.addFactoryProvider((DeviceDataServiceImpl)injector.getInstance(DeviceDataService.class));
+        propertySpecService.addFactoryProvider((DeviceServiceImpl)injector.getInstance(DeviceService.class));
+        propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl)injector.getInstance(ConnectionTaskService.class));
     }
 }
