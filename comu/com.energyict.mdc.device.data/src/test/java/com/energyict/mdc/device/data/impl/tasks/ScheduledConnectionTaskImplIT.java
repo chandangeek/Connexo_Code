@@ -73,7 +73,7 @@ import static org.mockito.Mockito.when;
  */
 public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
-    private static final TimeDuration EVERY_DAY = new TimeDuration(1, TimeDuration.DAYS);
+    private static final TimeDuration EVERY_DAY = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     private static final ComWindow FROM_ONE_AM_TO_TWO_AM = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR, 2 * DateTimeConstants.SECONDS_PER_HOUR);
     private static final ComWindow FROM_TEN_PM_TO_TWO_AM = new ComWindow(22 * DateTimeConstants.SECONDS_PER_HOUR, 2 * DateTimeConstants.SECONDS_PER_HOUR);
 
@@ -673,7 +673,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 this.createMinimizeWithNoPropertiesWithoutViolations("createWithOffsetWithinDayButOutsideCommunicationWindow",
                                 new TemporalExpression(
                                         EVERY_DAY,
-                                        new TimeDuration(12, TimeDuration.HOURS))
+                                        new TimeDuration(12, TimeDuration.TimeUnit.HOURS))
                         );
         connectionTask.setCommunicationWindow(FROM_ONE_AM_TO_TWO_AM);
 
@@ -691,8 +691,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         partialScheduledConnectionTask.setName(name);
         partialScheduledConnectionTask.save();
         // Set it to execute every week, at 01:30 (am) of the second day of the week
-        TimeDuration frequency = new TimeDuration(1, TimeDuration.WEEKS);
-        TimeDuration offset = new TimeDuration(DateTimeConstants.SECONDS_PER_HOUR * 25 + DateTimeConstants.SECONDS_PER_MINUTE * 30, TimeDuration.SECONDS);
+        TimeDuration frequency = new TimeDuration(1, TimeDuration.TimeUnit.WEEKS);
+        TimeDuration offset = new TimeDuration(DateTimeConstants.SECONDS_PER_HOUR * 25 + DateTimeConstants.SECONDS_PER_MINUTE * 30, TimeDuration.TimeUnit.SECONDS);
         ScheduledConnectionTaskImpl connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations(name, new TemporalExpression(frequency, offset));
 
         // Business method
@@ -711,8 +711,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY + "}")
     public void createWithOffsetOutsideDayAndOutsideCommunicationWindow() {
-        TimeDuration frequency = new TimeDuration(1, TimeDuration.WEEKS);
-        TimeDuration offset = new TimeDuration(DateTimeConstants.SECONDS_PER_HOUR * 24 + DateTimeConstants.SECONDS_PER_MINUTE * 30, TimeDuration.SECONDS);
+        TimeDuration frequency = new TimeDuration(1, TimeDuration.TimeUnit.WEEKS);
+        TimeDuration offset = new TimeDuration(DateTimeConstants.SECONDS_PER_HOUR * 24 + DateTimeConstants.SECONDS_PER_MINUTE * 30, TimeDuration.TimeUnit.SECONDS);
         ScheduledConnectionTaskImpl connectionTask =
                 this.createMinimizeWithNoPropertiesWithoutViolations(
                         "createWithOffsetOutsideDayAndOutsideCommunicationWindow",
@@ -925,7 +925,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         connectionTask.setCommunicationWindow(FROM_TEN_PM_TO_TWO_AM);
         connectionTask.setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
-        TimeDuration elevenPM = new TimeDuration(23, TimeDuration.HOURS);
+        TimeDuration elevenPM = new TimeDuration(23, TimeDuration.TimeUnit.HOURS);
         connectionTask.setNextExecutionSpecsFrom(new TemporalExpression(EVERY_DAY, elevenPM));
 
         // Business method

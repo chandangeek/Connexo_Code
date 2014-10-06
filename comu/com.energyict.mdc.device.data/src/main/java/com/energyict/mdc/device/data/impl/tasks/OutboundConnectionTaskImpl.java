@@ -113,7 +113,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
      */
     protected TimeDuration getRescheduleRetryDelay() {
         if (this.getRescheduleDelay() == null || getRescheduleDelay().getSeconds() <= 0) {
-            return new TimeDuration(DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS, TimeDuration.SECONDS);
+            return new TimeDuration(DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS, TimeDuration.TimeUnit.SECONDS);
         }
         else {
             return this.getRescheduleDelay();

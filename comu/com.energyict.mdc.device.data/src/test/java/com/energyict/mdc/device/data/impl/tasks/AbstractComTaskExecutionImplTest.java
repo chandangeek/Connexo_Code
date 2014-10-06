@@ -116,7 +116,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         ipComPortPool.setActive(true);
         ipComPortPool.setComPortType(ComPortType.TCP);
         ipComPortPool.setName(name);
-        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.MINUTES));
+        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.save();
         return ipComPortPool;
     }
