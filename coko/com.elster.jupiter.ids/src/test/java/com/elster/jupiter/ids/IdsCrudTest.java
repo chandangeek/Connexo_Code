@@ -93,7 +93,12 @@ public class IdsCrudTest {
 	        dateTime = dateTime.plusMinutes(15);
 	        storer.add(ts, dateTime, BigDecimal.valueOf(20));
 	        storer.execute();
-	        ctx.commit();
+	        assertThat(storer.processed(ts, dateTime.toInstant())).isTrue();
+	        storer = idsService.createStorer(true);
+	        storer.add(ts, dateTime, BigDecimal.valueOf(20));
+	        storer.execute();
+	        assertThat(storer.processed(ts, dateTime.toInstant())).isFalse();
+	        ctx.commit();	        
         }
         ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
         Interval interval = Interval.of(dateTime.minusMinutes(15).toInstant(), dateTime.plusMinutes(15).toInstant());

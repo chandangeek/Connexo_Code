@@ -27,7 +27,6 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Joiner;
-import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
 
@@ -340,23 +339,6 @@ public class VaultImpl implements Vault {
 		return builder.toString();
 	}
 	
-	private void appendWhereClause(SqlBuilder builder, Range<Instant> range) {
-		if (range.hasLowerBound()) {
-			builder.append(" AND UTCSTAMP >");
-			if (range.lowerBoundType() == BoundType.CLOSED) {
-				builder.append("=");
-			}
-			builder.addLong(range.lowerEndpoint().toEpochMilli());
-		}
-		if (range.hasUpperBound()) {
-			builder.append(" AND UTCSTAMP <");
-			if (range.upperBoundType() == BoundType.CLOSED) {
-				builder.append("=");
-			}
-			builder.addLong(range.upperEndpoint().toEpochMilli());
-		}
-	}
-	
 	SqlBuilder journalSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
 		SqlBuilder builder = new SqlBuilder(baseJournalSql(timeSeries.getRecordSpec()).toString());
 		builder.add(new SqlFragment() {
@@ -372,7 +354,7 @@ public class VaultImpl implements Vault {
 		});
 		builder.append(" WHERE TIMESERIESID = ");
 		builder.addLong(timeSeries.getId());
-		appendWhereClause(builder, range);
+		builder.add("UTCSTAMP",range,"AND");
 		builder.append(")");
 		return builder;
 	}
@@ -575,7 +557,7 @@ public class VaultImpl implements Vault {
 		builder.append(getTableName());
 		builder.append(" WHERE TIMESERIESID = ");
 		builder.addLong(timeSeries.getId());
-		appendWhereClause(builder, range);
+		builder.add("UTCSTAMP", range, "AND");
 		return builder;
 	}
 	

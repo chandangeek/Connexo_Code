@@ -93,6 +93,17 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}	
 	}
 		
+	@Override
+	public boolean processed(TimeSeries timeSeries, Instant instant) {
+		RecordSpecInVault recordSpecInVault = new RecordSpecInVault((TimeSeriesImpl) timeSeries);
+		SlaveTimeSeriesDataStorer storer = storerMap. get(recordSpecInVault);
+		if (storer == null) {
+			return false;
+		} else {
+			return storer.processed(timeSeries, instant, overrules());
+		}
+	}
+	
 	private static final class RecordSpecInVault {
 		private final Vault vault;
 		private final RecordSpec recordSpec;
@@ -251,6 +262,15 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 			for ( SingleTimeSeriesStorer storer : storerMap.values()) {
 				storer.updateTimeSeries();
 				stats.addCount(storer.insertCount,storer.updateCount);				
+			}
+		}
+		
+		boolean processed(TimeSeries timeSeries, Instant instant, boolean overrules) { 
+			SingleTimeSeriesStorer storer = storerMap.get(timeSeries.getId());
+			if (storer == null) {
+				return false;
+			} else {
+				return storer.processed(instant, overrules);
 			}
 		}
 	}
@@ -418,6 +438,18 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 			if (insertCount + updateCount > 0) {
 				((TimeSeriesImpl) getTimeSeries()).updateRange(minDate,maxDate);
 			}
+		}
+		
+		boolean processed(Instant instant, boolean overrules) {
+			TimeSeriesEntryImpl entry = newEntries.get(instant);
+			if (entry == null) {
+				return false;
+			}
+			TimeSeriesEntryImpl oldEntry = oldEntries.get(instant);
+			if (oldEntry == null) {
+				return true;
+			}
+			return overrules && !entry.matches(oldEntry);
 		}
 	}
 	
