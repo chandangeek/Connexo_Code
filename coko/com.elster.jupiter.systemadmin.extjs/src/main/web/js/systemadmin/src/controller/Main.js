@@ -35,31 +35,35 @@ Ext.define('Sam.controller.Main', {
     initMenu: function () {
         var me = this;
 
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.administration', 'SAM', 'Administration'),
-            href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview(),
-            portal: 'administration',
-            glyph: 'settings',
-            index: 10
-        });
-        Uni.store.MenuItems.add(menuItem);
+        if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license','privilege.view.license'])) {
+            var menuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'SAM', 'Administration'),
+                href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview(),
+                portal: 'administration',
+                glyph: 'settings',
+                index: 10
+            });
+            Uni.store.MenuItems.add(menuItem);
 
-        var licensingItem = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.licenses', 'SAM', 'Licensing'),
-            portal: 'administration',
-            route: 'licensing',
-            items: [
-                {
-                    text: Uni.I18n.translate('general.licenses', 'MDC', 'Licenses'),
-                    href: '#/administration/licensing/licenses',
-                    route: 'licenses'
-                }
-            ]
-        });
+            if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license','privilege.view.license'])) {
+                var licensingItem = Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.licenses', 'SAM', 'Licensing'),
+                    portal: 'administration',
+                    route: 'licensing',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.licenses', 'MDC', 'Licenses'),
+                            href: '#/administration/licensing/licenses',
+                            route: 'licenses'
+                        }
+                    ]
+                });
 
-        Uni.store.PortalItems.add(
-            licensingItem
-        );
+                Uni.store.PortalItems.add(
+                    licensingItem
+                );
+            }
+        }
     }
 });
 
