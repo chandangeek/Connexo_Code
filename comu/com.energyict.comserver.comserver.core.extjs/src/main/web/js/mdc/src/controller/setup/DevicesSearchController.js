@@ -31,7 +31,7 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
 
     applyFilter: function () {
         debugger;
-        this.getDevicesSearchSideFilterForm().updateRecord();
+        this.getDevicesSearchSideFilterForm().updateRecord(Ext.create('Mdc.model.DeviceFilter', this.getDevicesSearchSideFilterForm().getValues()));
         this.getDevicesSearchSideFilterForm().getRecord().save();
     },
 
