@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.common.BusinessException;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -10,20 +13,16 @@ import com.energyict.mdc.engine.model.OfflineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.orm.DataModel;
 import com.google.inject.Provider;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.sql.SQLException;
 import java.util.List;
 
-import org.junit.*;
-import org.mockito.Mock;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
 * Tests the {@link OfflineComServerImpl} component.
@@ -37,8 +36,8 @@ public class OfflineComServerImplTest extends PersistenceTest {
 
     private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
-    private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.HOURS);
-    private static final TimeDuration SCHEDULING_INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.MINUTES);
+    private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.TimeUnit.HOURS);
+    private static final TimeDuration SCHEDULING_INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.TimeUnit.MINUTES);
     private static final String NO_VIOLATIONS_NAME = "Offline-No-Violations";
 
     @Mock
@@ -90,7 +89,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.setActive(true);
         offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
         offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        offlineComServer.setChangesInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
+        offlineComServer.setChangesInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
         offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
         offlineComServer.save();
@@ -106,7 +105,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
         offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        offlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
+        offlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
 
         offlineComServer.save();
     }

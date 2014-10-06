@@ -44,7 +44,7 @@ public interface ComServer extends HasId, HasName {
     /**
      * The minimum TimeDuration that can be used for changes and scheduling interpoll delay.
      */
-    static final TimeDuration MINIMUM_INTERPOLL_DELAY = new TimeDuration(60, TimeDuration.SECONDS);
+    static final TimeDuration MINIMUM_INTERPOLL_DELAY = new TimeDuration(60, TimeDuration.TimeUnit.SECONDS);
     /**
      * The maximum value for the storeTaskQueueSize property.
      */

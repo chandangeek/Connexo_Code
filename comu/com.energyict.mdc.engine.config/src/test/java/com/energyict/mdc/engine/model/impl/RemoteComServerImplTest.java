@@ -1,21 +1,19 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.RemoteComServer;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.orm.DataModel;
 import com.google.inject.Provider;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.sql.SQLException;
-
-import org.junit.*;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -33,8 +31,8 @@ public class RemoteComServerImplTest extends PersistenceTest {
     private static final String NO_VIOLATIONS_NAME = "Remote-No-Violations";
     private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
-    private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.HOURS);
-    private static final TimeDuration SCHEDULING_INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.MINUTES);
+    private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.TimeUnit.HOURS);
+    private static final TimeDuration SCHEDULING_INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.TimeUnit.MINUTES);
     private static final String EVENT_REGISTRATION_URI = "http://comserver.energyict.com/custom/events/registration";
     private static final String INVALID_URI = "Anything but a valid URI";
 
@@ -136,7 +134,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setActive(true);
         remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
         remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
+        remoteComServer.setChangesInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
 
@@ -155,7 +153,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
         remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
+        remoteComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
         remoteComServer.setOnlineComServer(onlineComServer);
 
         remoteComServer.save();

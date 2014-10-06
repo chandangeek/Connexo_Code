@@ -3,9 +3,9 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.BusinessException;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -19,18 +19,17 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import org.junit.Test;
+import org.mockito.Mock;
+
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -51,10 +50,10 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     private static final NrOfStopBits NR_OF_STOPBITS = NrOfStopBits.ONE;
     private static final Parities PARITY = Parities.NONE;
     private static final FlowControl FlOW_CONTROL = FlowControl.NONE;
-    private static final TimeDuration CONNECT_TIMEOUT = new TimeDuration(1, TimeDuration.MINUTES);
-    private static final TimeDuration DELAY_AFTER_CONNECT = new TimeDuration(20, TimeDuration.SECONDS);
-    private static final TimeDuration DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.MILLISECONDS);
-    private static final TimeDuration AT_COMMAND_TIMEOUT = new TimeDuration(5, TimeDuration.SECONDS);
+    private static final TimeDuration CONNECT_TIMEOUT = new TimeDuration(1, TimeDuration.TimeUnit.MINUTES);
+    private static final TimeDuration DELAY_AFTER_CONNECT = new TimeDuration(20, TimeDuration.TimeUnit.SECONDS);
+    private static final TimeDuration DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
+    private static final TimeDuration AT_COMMAND_TIMEOUT = new TimeDuration(5, TimeDuration.TimeUnit.SECONDS);
     private static final BigDecimal AT_COMMAND_TRY = new BigDecimal(5);
     private static final List<String> MODEM_INIT_STRINGS = Arrays.asList("ATM0");
     private static final String ADDRESS_SELECTOR = "Selector";
