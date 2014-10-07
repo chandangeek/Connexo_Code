@@ -57,7 +57,7 @@ public final class ComTaskExecutionOrganizer {
 
     public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<? extends ComTaskExecution> comTaskExecutions) {
         Map<Device, DeviceOrganizedComTaskExecution> result = new LinkedHashMap<>();
-        Map<Device, List<ComTaskExecution>> tasksPerDevice = groupComTaskExecutionsByDevice(comTaskExecutions);
+        Map<DeviceKey, List<ComTaskExecution>> tasksPerDevice = groupComTaskExecutionsByDevice(comTaskExecutions);
         makeSureBasicCheckIsInBeginningOfExecutions(tasksPerDevice);
         Map<Key, List<ComTaskExecution>> tasksPerDeviceAndSecurity = groupComTaskExecutionsBySecuritySet(tasksPerDevice);
 
@@ -163,28 +163,29 @@ public final class ComTaskExecutionOrganizer {
         }
     }
 
-    private Map<Device, List<ComTaskExecution>> groupComTaskExecutionsByDevice(List<? extends ComTaskExecution> comTaskExecutions) {
-        Map<Device, List<ComTaskExecution>> result = new LinkedHashMap<>();
+    private Map<DeviceKey, List<ComTaskExecution>> groupComTaskExecutionsByDevice(List<? extends ComTaskExecution> comTaskExecutions) {
+        Map<DeviceKey, List<ComTaskExecution>> result = new LinkedHashMap<>();
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             final Device masterDevice = getMasterDeviceIfAvailable(comTaskExecution.getDevice());
-            if (!result.containsKey(masterDevice)) {
-                result.put(masterDevice, new ArrayList<ComTaskExecution>());
+            DeviceKey deviceKey = DeviceKey.of(masterDevice);
+            if (!result.containsKey(deviceKey)) {
+                result.put(deviceKey, new ArrayList<>());
             }
-            result.get(masterDevice).add(comTaskExecution);
+            result.get(deviceKey).add(comTaskExecution);
         }
         return result;
     }
 
-    private Map<Key, List<ComTaskExecution>> groupComTaskExecutionsBySecuritySet(Map<Device, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
+    private Map<Key, List<ComTaskExecution>> groupComTaskExecutionsBySecuritySet(Map<DeviceKey, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
         Map<Key, List<ComTaskExecution>> result = new LinkedHashMap<>();
-        for (Map.Entry<Device, List<ComTaskExecution>> entry : comTaskExecutionGroupsPerDevice.entrySet()) {
-            Device device = entry.getKey();
+        for (Map.Entry<DeviceKey, List<ComTaskExecution>> entry : comTaskExecutionGroupsPerDevice.entrySet()) {
+            Device device = entry.getKey().device;
             for (ComTaskExecution comTaskExecution : entry.getValue()) {
                 List<ComTask> comTasks = comTaskExecution.getComTasks();
                 for (ComTask comTask : comTasks) {
                     Key key = toKey(device, comTaskExecution, comTask);
                     if (!result.containsKey(key)) {
-                        result.put(key, new ArrayList<ComTaskExecution>());
+                        result.put(key, new ArrayList<>());
                     }
                     result.get(key).add(comTaskExecution);
                 }
@@ -193,7 +194,7 @@ public final class ComTaskExecutionOrganizer {
         return result;
     }
 
-    private void makeSureBasicCheckIsInBeginningOfExecutions(Map<Device, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
+    private void makeSureBasicCheckIsInBeginningOfExecutions(Map<DeviceKey, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
         for (List<ComTaskExecution> comTaskExecutions : comTaskExecutionGroupsPerDevice.values()) {
             Collections.sort(comTaskExecutions, BasicCheckTasks.FIRST);
         }
@@ -223,6 +224,41 @@ public final class ComTaskExecutionOrganizer {
                 }
             }
             return false;
+        }
+    }
+
+    private static class DeviceKey {
+        private final Device device;
+
+        private DeviceKey(Device device) {
+            this.device = device;
+        }
+
+        public static DeviceKey of(Device device){
+            return new DeviceKey(device);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof DeviceKey)) {
+                return false;
+            }
+
+            DeviceKey deviceKey = (DeviceKey) o;
+
+            return device.getId() == deviceKey.device.getId();
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 17;
+            long deviceId = device.getId();
+            result = 31 * result +  (int) (deviceId ^ (deviceId >>> 32));
+            return result;
         }
     }
 
