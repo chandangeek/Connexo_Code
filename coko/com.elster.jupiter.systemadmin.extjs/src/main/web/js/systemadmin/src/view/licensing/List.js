@@ -35,8 +35,9 @@ Ext.define('Sam.view.licensing.List', {
                             text: 'Upload licenses',
                             action: 'uploadlicenses',
                             hrefTarget: '',
-                            href: '#/administration/licensing/upload',
-                            hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license')
+                            href: '#/administration/licensing/upload'
+                            //TODO: uncomment when the privileges are loaded before
+                            //hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license')
                         }
                     ]
                 }
@@ -92,8 +93,9 @@ Ext.define('Sam.view.licensing.List', {
                             text: 'Upload licenses',
                             action: 'uploadlicenses',
                             hrefTarget: '',
-                            href: '#/administration/licensing/upload',
-                            hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license')
+                            href: '#/administration/licensing/upload'
+                            //TODO: uncomment when the privileges are loaded before
+                            //hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license')
                         }
                     ]
                 }
