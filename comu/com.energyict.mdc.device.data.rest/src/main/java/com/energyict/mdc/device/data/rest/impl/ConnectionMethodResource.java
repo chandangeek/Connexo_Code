@@ -7,8 +7,6 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -37,7 +35,6 @@ public class ConnectionMethodResource {
 
     private final ResourceHelper resourceHelper;
     private final ConnectionMethodInfoFactory connectionMethodInfoFactory;
-    private final DeviceDataService deviceDataService;
     private final EngineModelService engineModelService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final ConnectionTaskService connectionTaskService;

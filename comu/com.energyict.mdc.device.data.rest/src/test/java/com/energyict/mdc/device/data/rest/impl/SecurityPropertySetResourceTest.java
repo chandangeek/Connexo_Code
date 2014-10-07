@@ -33,7 +33,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Test
     public void testPasswordPropertyWithViewAndEditPrivilege() throws Exception {
         Device device = mock(Device.class);
-        when(deviceDataService.findByUniqueMrid("AX1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("AX1")).thenReturn(device);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationDeviceAccessLevel(1, "DlmsSecuritySupportPerClient.authenticationlevel.1");
@@ -63,7 +63,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Test
     public void testPasswordPropertyWithEditWithoutViewPrivilege() throws Exception {
         Device device = mock(Device.class);
-        when(deviceDataService.findByUniqueMrid("AX1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("AX1")).thenReturn(device);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationDeviceAccessLevel(1, "DlmsSecuritySupportPerClient.authenticationlevel.1");
@@ -92,7 +92,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Test
     public void testPasswordPropertyWithoutEditWithoutViewPrivilege() throws Exception {
         Device device = mock(Device.class);
-        when(deviceDataService.findByUniqueMrid("AX1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("AX1")).thenReturn(device);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationDeviceAccessLevel(1, "DlmsSecuritySupportPerClient.authenticationlevel.1");
