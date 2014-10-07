@@ -71,7 +71,7 @@ public class AppServerImpl implements AppServer {
     @Override
     public CronExpression getScheduleFrequency() {
         if (scheduleFrequency == null) {
-            scheduleFrequency = cronExpressionParser.parse(cronString);
+            scheduleFrequency = cronExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
         }
         return scheduleFrequency;
     }
