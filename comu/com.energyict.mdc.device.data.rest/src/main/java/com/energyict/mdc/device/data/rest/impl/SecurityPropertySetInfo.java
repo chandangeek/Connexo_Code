@@ -7,7 +7,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class SecurityPropertySetInfo {
 
-    public Long id;
+    public long id;
     public String name;
     @JsonProperty("authenticationLevel")
     public SecurityLevelInfo authenticationLevel;

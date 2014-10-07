@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.google.common.base.Optional;
 import com.jayway.jsonpath.JsonModel;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -61,6 +62,43 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         assertThat(jsonModel.<Boolean>get("$.securityPropertySets[0].properties[0].required")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].status")).isEqualTo("Complete");
+    }
+
+    @Test
+    public void testGetSecurityPropertySetByIdWithViewAndEditPrivilege() throws Exception {
+        long deviceConfigId = 6161L;
+        long sps1Id = 1234L;
+        String devicemRID = "AX1";
+
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getId()).thenReturn(deviceConfigId);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationDeviceAccessLevel(1, "DlmsSecuritySupportPerClient.authenticationlevel.1");
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = getEncryptionDeviceAccessLevel(2, "Mtu155SecuritySupport.encryptionlevel.2");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", CAN_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
+        when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.of(sps1));
+        SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
+        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
+        when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
+        String response = target("/devices/"+devicemRID+"/securityproperties/"+sps1Id).request().get(String.class);
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("Set 1");
+        assertThat(jsonModel.<Integer>get("$.authenticationLevel.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.authenticationLevel.name")).isEqualTo("DlmsSecuritySupportPerClient.authenticationlevel.1");
+        assertThat(jsonModel.<Integer>get("$.encryptionLevel.id")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("$.encryptionLevel.name")).isEqualTo("Mtu155SecuritySupport.encryptionlevel.2");
+        assertThat(jsonModel.<List>get("$.properties")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo("password");
+        assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.inheritedValue")).isNull();
+        assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.defaultValue")).isNull();
+        assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.value")).isEqualTo("secret");
+        assertThat(jsonModel.<Boolean>get("$.properties[0].required")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
+        assertThat(jsonModel.<String>get("$.status")).isEqualTo("Complete");
     }
 
     @Test

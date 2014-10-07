@@ -14,6 +14,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Created by bvn on 9/30/14.
  */
@@ -28,35 +30,34 @@ public class SecurityPropertySetInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public List<SecurityPropertySetInfo> from(Device device, UriInfo uriInfo) {
-        List<SecurityPropertySetInfo> securityPropertySetInfos = new ArrayList<>();
+    public List<SecurityPropertySetInfo> asInfo(Device device, UriInfo uriInfo) {
+        return device.getDeviceConfiguration().getSecurityPropertySets().stream().map(s -> asInfo(device, uriInfo, s)).collect(toList());
+    }
 
-        for (SecurityPropertySet securityPropertySet : device.getDeviceConfiguration().getSecurityPropertySets()) {
-            SecurityPropertySetInfo securityPropertySetInfo = new SecurityPropertySetInfo();
-            securityPropertySetInfo.id=securityPropertySet.getId();
-            securityPropertySetInfo.name=securityPropertySet.getName();
-            securityPropertySetInfo.authenticationLevel=SecurityLevelInfo.from(securityPropertySet.getAuthenticationDeviceAccessLevel(), thesaurus);
-            securityPropertySetInfo.encryptionLevel=SecurityLevelInfo.from(securityPropertySet.getEncryptionDeviceAccessLevel(),thesaurus);
+    public SecurityPropertySetInfo asInfo(Device device, UriInfo uriInfo, SecurityPropertySet securityPropertySet) {
+        SecurityPropertySetInfo securityPropertySetInfo = new SecurityPropertySetInfo();
+        securityPropertySetInfo.id=securityPropertySet.getId();
+        securityPropertySetInfo.name=securityPropertySet.getName();
+        securityPropertySetInfo.authenticationLevel= SecurityLevelInfo.from(securityPropertySet.getAuthenticationDeviceAccessLevel(), thesaurus);
+        securityPropertySetInfo.encryptionLevel=SecurityLevelInfo.from(securityPropertySet.getEncryptionDeviceAccessLevel(),thesaurus);
 
-            securityPropertySetInfo.userHasViewPrivilege = securityPropertySet.currentUserIsAllowedToViewDeviceProperties();
-            securityPropertySetInfo.userHasEditPrivilege = securityPropertySet.currentUserIsAllowedToEditDeviceProperties();
+        securityPropertySetInfo.userHasViewPrivilege = securityPropertySet.currentUserIsAllowedToViewDeviceProperties();
+        securityPropertySetInfo.userHasEditPrivilege = securityPropertySet.currentUserIsAllowedToEditDeviceProperties();
 
-            TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
+        TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
 
-            securityPropertySetInfo.properties = new ArrayList<>();
-            mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs() , typedProperties, securityPropertySetInfo.properties);
-            securityPropertySetInfo.status = securityPropertySetInfo.properties.stream().anyMatch(p -> p.required && p.propertyValueInfo == null)?
-                thesaurus.getString(MessageSeeds.INCOMPLETE.getKey(), MessageSeeds.INCOMPLETE.getDefaultFormat()):
-                thesaurus.getString(MessageSeeds.COMPLETE.getKey(), MessageSeeds.COMPLETE.getDefaultFormat());
-            if (!securityPropertySetInfo.userHasViewPrivilege) {
-                securityPropertySetInfo.properties.stream().forEach(p->p.propertyValueInfo=new PropertyValueInfo<>());
-                if (!securityPropertySetInfo.userHasEditPrivilege) {
-                    securityPropertySetInfo.properties.stream().forEach(p->p.propertyTypeInfo=new PropertyTypeInfo());
-                }
+        securityPropertySetInfo.properties = new ArrayList<>();
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs() , typedProperties, securityPropertySetInfo.properties);
+        securityPropertySetInfo.status = securityPropertySetInfo.properties.stream().anyMatch(p -> p.required && p.propertyValueInfo == null)?
+            thesaurus.getString(MessageSeeds.INCOMPLETE.getKey(), MessageSeeds.INCOMPLETE.getDefaultFormat()):
+            thesaurus.getString(MessageSeeds.COMPLETE.getKey(), MessageSeeds.COMPLETE.getDefaultFormat());
+        if (!securityPropertySetInfo.userHasViewPrivilege) {
+            securityPropertySetInfo.properties.stream().forEach(p->p.propertyValueInfo=new PropertyValueInfo<>());
+            if (!securityPropertySetInfo.userHasEditPrivilege) {
+                securityPropertySetInfo.properties.stream().forEach(p->p.propertyTypeInfo=new PropertyTypeInfo());
             }
-            securityPropertySetInfos.add(securityPropertySetInfo);
         }
-        return securityPropertySetInfos;
+        return securityPropertySetInfo;
     }
 
     private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
