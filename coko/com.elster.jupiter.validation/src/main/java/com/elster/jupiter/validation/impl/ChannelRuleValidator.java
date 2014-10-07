@@ -34,14 +34,14 @@ class ChannelRuleValidator {
 
     Date validateReadings(Channel channel, Interval interval) {
         Date lastChecked = null;
-        ListMultimap<Date, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, interval);
+        Interval intervalToRequest = interval.withStart(new Date(interval.getStart().getTime() - 1));
+        ListMultimap<Date, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, intervalToRequest);
         for (ReadingType channelReadingType : channel.getReadingTypes()) {
             if (rule.getReadingTypes().contains(channelReadingType)) {
                 Validator validator = newValidator(channel, interval, channelReadingType);
 
                 ReadingQualityType readingQualityType = rule.getReadingQualityType();
                 if (channel.isRegular()) {
-                    Interval intervalToRequest = interval.withStart(new Date(interval.getStart().getTime() - 1));
                     for (IntervalReadingRecord intervalReading : channel.getIntervalReadings(channelReadingType, intervalToRequest)) {
                         ValidationResult result = validator.validate(intervalReading);
                         lastChecked = handleValidationResult(result, channel, lastChecked, existingReadingQualities, readingQualityType, intervalReading);
