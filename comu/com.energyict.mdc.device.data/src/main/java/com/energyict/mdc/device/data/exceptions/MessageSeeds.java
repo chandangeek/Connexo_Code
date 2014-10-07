@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.energyict.mdc.device.data.DeviceDataServices;
 
 import java.util.logging.Level;
@@ -49,10 +48,10 @@ public enum MessageSeeds implements MessageSeed {
     OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY(2015, Keys.OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_KEY, "The offset of the next execution scheduling specifications should not extend its frequency", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW(2016, Keys.OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications is not within the communication window", Level.SEVERE),
     OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW(2017, Keys.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications within a week or month, once calculated back to a daily offset is not within the communication window", Level.SEVERE),
-    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(2018, Keys.PHYSICAL_GATEWAY_STILL_IN_USE,"You can not remove device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
-    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(2019, Keys.COMMUNICATION_GATEWAY_STILL_IN_USE,"You can not remove device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
-    DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST(2020, Keys.INFOTYPE_DOESNT_EXIST,"The intotype for property value '{0}' does not exist.", Level.SEVERE),
-    DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(2021, Keys.PROPERTY_NOT_ON_DEVICE_PROTOCOL,"The property '{0}' is not defined by the device protocol '{1}' of device '{2}'", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(2018, Keys.PHYSICAL_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
+    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(2019, Keys.COMMUNICATION_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
+    DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST(2020, Keys.INFOTYPE_DOESNT_EXIST, "The intotype for property value '{0}' does not exist.", Level.SEVERE),
+    DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(2021, Keys.PROPERTY_NOT_ON_DEVICE_PROTOCOL, "The property '{0}' is not defined by the device protocol '{1}' of device '{2}'", Level.SEVERE),
     PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED(2022, Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY, "The protocol dialect configuration properties are required to add device protocol dialect properties", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2023, Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2024, Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of device dialect protocol ''{2}''", Level.SEVERE),
@@ -79,8 +78,7 @@ public enum MessageSeeds implements MessageSeed {
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2047, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
     COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2048, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device", Level.SEVERE),
     DEVICE_GROUP_IS_REQUIRED(2049, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection device group", Level.SEVERE),
-    EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),
-    ;
+    EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),;
     private final int number;
     private final String key;
     private final String defaultFormat;

@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.kpi;
 
-import com.energyict.mdc.common.HasId;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.energyict.mdc.common.HasId;
 
 import java.time.temporal.TemporalAmount;
 import java.util.Optional;
