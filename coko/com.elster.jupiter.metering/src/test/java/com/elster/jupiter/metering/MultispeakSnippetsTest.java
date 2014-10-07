@@ -1,20 +1,5 @@
 package com.elster.jupiter.metering;
 
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -38,6 +23,20 @@ import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+
+import java.security.Principal;
+import java.sql.SQLException;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 @Ignore
@@ -100,23 +99,23 @@ public class MultispeakSnippetsTest {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private  MeteringService getMeteringService() {
-    	return injector.getInstance(MeteringService.class);
-    }
-    
-    @Test
-    public void test() throws SQLException {
-    	getMeters("abc",100);
+    private MeteringService getMeteringService() {
+        return injector.getInstance(MeteringService.class);
     }
 
-    public List<Meter> getMeters(String lastMRID , int count) {
-    	Query<Meter> query = getMeteringService().getMeterQuery();
-    	Condition condition = Condition.TRUE;
-    	if (lastMRID != null) {
-    		condition = condition.and(Where.where("mRID").isGreaterThan(lastMRID));
-    	}
-    	return query.select(condition, 1 , count , Order.ascending("mRID"));
+    @Test
+    public void test() throws SQLException {
+        getMeters("abc", 100);
     }
-    
+
+    public List<Meter> getMeters(String lastMRID, int count) {
+        Query<Meter> query = getMeteringService().getMeterQuery();
+        Condition condition = Condition.TRUE;
+        if (lastMRID != null) {
+            condition = condition.and(Where.where("mRID").isGreaterThan(lastMRID));
+        }
+        return query.select(condition, 1, count, Order.ascending("mRID"));
+    }
+
 
 }
