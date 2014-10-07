@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
@@ -33,6 +34,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
@@ -114,6 +116,23 @@ public class IssueResource extends BaseResource {
         }
         IssueComment comment = getTransactionService().execute(new CreateCommentTransaction(id, request.getComment(), author, getIssueService()));
         return entity(new IssueCommentInfo(comment)).status(Response.Status.CREATED).build();
+    }
+
+    @GET
+    @Path("/{" + ID + "}/actions")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
+    public Response getActions(@PathParam("id") long id) {
+        Optional<IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
+        if (!issueRef.isPresent()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        Query<IssueActionType> query = getIssueService().query(IssueActionType.class, IssueType.class);
+        Condition condition = where("issueType").isEqualTo(issueRef.get().getReason().getIssueType()).or(where("issueType").isNull());
+        List<IssueActionType> ruleActionTypes = query.select(condition);
+        ruleActionTypes = ruleActionTypes.stream().filter(at -> at.createIssueAction().isApplicable(issueRef.get())).collect(Collectors.toList());
+        return entity(ruleActionTypes, CreationRuleActionTypeInfo.class).build();
     }
 
     @PUT
