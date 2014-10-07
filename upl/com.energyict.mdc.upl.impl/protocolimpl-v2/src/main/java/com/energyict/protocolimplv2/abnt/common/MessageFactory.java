@@ -8,9 +8,11 @@ import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdw.core.Code;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
@@ -27,10 +29,12 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.DstEnablementSta
 import com.energyict.protocolimplv2.abnt.common.structure.field.EventField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HistoryLogRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HolidayRecord;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -56,6 +60,7 @@ public class MessageFactory implements DeviceMessageSupport {
         supportedMessages.add(DeviceActionMessage.DEMAND_RESET);
         supportedMessages.add(DeviceActionMessage.DemandResetWithForceClock);
         supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureAutomaticDemandReset);
+        supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
         supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureHolidayList);
         supportedMessages.add(ClockDeviceMessage.EnableOrDisableDST);
         supportedMessages.add(ClockDeviceMessage.ConfigureDSTWithoutHour);
@@ -88,7 +93,7 @@ public class MessageFactory implements DeviceMessageSupport {
                     demandResetWithForceClock(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureAutomaticDemandReset)) {
                     configureAutomaticDemandReset(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureHolidayList)) {
+                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
                     configureHolidayList(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.ConfigureDSTWithoutHour)) {
                     configureDST(pendingMessage);
@@ -117,6 +122,7 @@ public class MessageFactory implements DeviceMessageSupport {
      * Check if it is allowed to execute a manual billing reset
      * If there are date/time changes pending to be executed the next automatic billing reset,
      * then it is <b>not</b> allowed to execute a manual billing reset in between.
+     *
      * @return true if demand reset is allowed
      * @throws ParsingException
      */
@@ -158,25 +164,11 @@ public class MessageFactory implements DeviceMessageSupport {
     }
 
     private void configureHolidayList(OfflineDeviceMessage pendingMessage) throws AbntException {
-        List<String> holidays = new ArrayList<>(15);
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord1AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord2AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord3AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord4AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord5AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord6AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord7AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord8AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord9AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord10AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord11AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord12AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord13AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord14AttributeName));
-        holidays.add(getDeviceMessageAttributeValue(pendingMessage, holidayRecord15AttributeName));
+        AbntActivityCalendarXmlParser activityCalendarXmlParser = new AbntActivityCalendarXmlParser();
+        activityCalendarXmlParser.parseContent(getDeviceMessageAttributeValue(pendingMessage, specialDaysCodeTableAttributeName));
 
         HolidayRecords holidayRecords = new HolidayRecords();
-        for (String holiday : holidays) {
+        for (String holiday : activityCalendarXmlParser.getSpecialDays()) {
             holidayRecords.addHolidayRecord(new HolidayRecord(holiday));
         }
 
@@ -274,8 +266,18 @@ public class MessageFactory implements DeviceMessageSupport {
             } else {
                 return dateFormatter.format(gmtCal.getTime());
             }
+        } else if (messageAttribute instanceof Code) {
+            return convertCodeTableToXML((Code) messageAttribute);
         } else {
             return messageAttribute.toString();
+        }
+    }
+
+    private String convertCodeTableToXML(Code messageAttribute) {
+        try {
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
+        } catch (ParserConfigurationException e) {
+            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
         }
     }
 
