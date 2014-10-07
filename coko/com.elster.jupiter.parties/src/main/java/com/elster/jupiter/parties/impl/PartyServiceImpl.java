@@ -20,27 +20,26 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 
 @Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + PartyService.COMPONENTNAME)
 public class PartyServiceImpl implements PartyService, InstallService {
-	
-	private volatile DataModel dataModel;
+
+    private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
     private volatile UserService userService;
     private volatile QueryService queryService;
     private volatile EventService eventService;
     private volatile OrmService ormService;
-    
+
     public PartyServiceImpl() {
     }
 
@@ -54,42 +53,42 @@ public class PartyServiceImpl implements PartyService, InstallService {
         setThreadPrincipalService(threadPrincipalService);
         activate();
         if (!dataModel.isInstalled()) {
-        	install();
+            install();
         }
     }
 
     Module getModule() {
-    	return new AbstractModule() {	
-			@Override
-			public void configure() {
-				bind(DataModel.class).toInstance(dataModel);
-				bind(EventService.class).toInstance(eventService);
-				bind(Clock.class).toInstance(clock);
-				bind(UserService.class).toInstance(userService);
-			}
-		}; 	
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(DataModel.class).toInstance(dataModel);
+                bind(EventService.class).toInstance(eventService);
+                bind(Clock.class).toInstance(clock);
+                bind(UserService.class).toInstance(userService);
+            }
+        };
     }
-    
+
     @Activate
     public void activate() {
         dataModel.register(getModule());
     }
 
-	@Override
-	public PartyRole createRole(String componentName, String mRID, String name, String aliasName , String description) {
-		PartyRoleImpl result = PartyRoleImpl.from(dataModel, componentName, mRID, name, aliasName, description);
-		dataModel.persist(result);
-		return result;
-	}
+    @Override
+    public PartyRole createRole(String componentName, String mRID, String name, String aliasName, String description) {
+        PartyRoleImpl result = PartyRoleImpl.from(dataModel, componentName, mRID, name, aliasName, description);
+        dataModel.persist(result);
+        return result;
+    }
 
-	void clearRoleCache() {
-		ormService.invalidateCache(COMPONENTNAME, TableSpecs.PRT_PARTYROLE.name());
-	}
-	
-	@Override
-	public Optional<PartyRole> getRole(String mRID) {
-		return dataModel.mapper(PartyRole.class).getOptional(mRID);
-	}
+    void clearRoleCache() {
+        ormService.invalidateCache(COMPONENTNAME, TableSpecs.PRT_PARTYROLE.name());
+    }
+
+    @Override
+    public Optional<PartyRole> getRole(String mRID) {
+        return dataModel.mapper(PartyRole.class).getOptional(mRID);
+    }
 
     @Override
     public void deletePartyRole(PartyRole partyRole) {
@@ -122,12 +121,12 @@ public class PartyServiceImpl implements PartyService, InstallService {
         return builder.build();
     }
 
-    
-    @Override 
+
+    @Override
     public Optional<Party> getParty(long id) {
-    	return dataModel.mapper(Party.class).getEager(id);
+        return dataModel.mapper(Party.class).getEager(id);
     }
-    
+
     @Override
     public Optional<Party> getParty(String mRID) {
         return dataModel.mapper(Party.class).getUnique("mRID", mRID);
@@ -135,7 +134,7 @@ public class PartyServiceImpl implements PartyService, InstallService {
 
     @Override
     public Query<Party> getPartyQuery() {
-    	return queryService.wrap(dataModel.query(Party.class,PartyInRole.class));
+        return queryService.wrap(dataModel.query(Party.class, PartyInRole.class));
     }
 
     @Override
@@ -153,17 +152,22 @@ public class PartyServiceImpl implements PartyService, InstallService {
 
     @Override
     public void install() {
-        new Installer(dataModel,eventService).install(true, true, true);
+        new Installer(dataModel, eventService).install(true, true, true);
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT");
     }
 
     @Override
     public Organization newOrganization(String mRID) {
-    	return dataModel.getInstance(OrganizationImpl.class).init(mRID);
+        return dataModel.getInstance(OrganizationImpl.class).init(mRID);
     }
 
     @Override
     public Person newPerson(String firstName, String lastName) {
-    	return dataModel.getInstance(PersonImpl.class).init(firstName,lastName);
+        return dataModel.getInstance(PersonImpl.class).init(firstName, lastName);
     }
 
     @Reference
@@ -179,7 +183,7 @@ public class PartyServiceImpl implements PartyService, InstallService {
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
-    	dataModel = ormService.newDataModel(COMPONENTNAME, "Party Management");
+        dataModel = ormService.newDataModel(COMPONENTNAME, "Party Management");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
@@ -211,6 +215,6 @@ public class PartyServiceImpl implements PartyService, InstallService {
     }
 
     DataModel getDataModel() {
-    	return dataModel;
+        return dataModel;
     }
 }
