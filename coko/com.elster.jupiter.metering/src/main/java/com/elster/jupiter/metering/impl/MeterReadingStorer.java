@@ -288,13 +288,4 @@ public class MeterReadingStorer {
 		return newReadingQuality;
     }
     
-    private Optional<ReadingQualityRecordImpl> find(Date timeStamp, String typeCode, List<? extends ReadingQuality> candidates) {
-    	for (ReadingQuality each : candidates) {
-    		ReadingQualityRecordImpl readingQuality = (ReadingQualityRecordImpl)  each;
-    		if (readingQuality.getReadingTimestamp().equals(timeStamp) && readingQuality.getTypeCode().equals(typeCode)) {
-    			return Optional.of(readingQuality);
-    		}
-    	}
-    	return Optional.absent();
-    }
 }

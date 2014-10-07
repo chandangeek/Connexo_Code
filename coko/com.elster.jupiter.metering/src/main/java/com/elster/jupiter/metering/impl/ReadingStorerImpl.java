@@ -56,9 +56,7 @@ public class ReadingStorerImpl implements ReadingStorer {
     }
 
     private void addScope(Channel channel, Date timestamp) {
-    	scope.compute(
-    		channel, 
-    		(key, interval) -> interval == null ? new Interval(timestamp,timestamp) : interval.spanToInclude(timestamp));
+    	scope.merge(channel, new Interval(timestamp,timestamp) , Interval::spanToInclude);
     }
     
     @Override
