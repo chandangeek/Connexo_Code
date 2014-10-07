@@ -517,6 +517,7 @@
                 <module>../com.elster.jupiter.issue</module>
                 <module>../com.elster.jupiter.issue.extjs</module>
                 <module>../com.elster.jupiter.issue.rest</module>
+                <module>../com.elster.jupiter.kpi</module>
                 <module>../com.elster.jupiter.login.app</module>
                 <module>../com.elster.jupiter.masterjs</module>
                 <module>../com.elster.jupiter.messaging</module>
@@ -532,7 +533,6 @@
                 <module>../com.elster.jupiter.osgi.goodies</module>
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
-                <module>../com.elster.jupiter.playground</module>
                 <module>../com.elster.jupiter.properties</module>
                 <module>../com.elster.jupiter.pubsub</module>
                 <module>../com.elster.jupiter.rest.util</module>
