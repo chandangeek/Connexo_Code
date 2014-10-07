@@ -8,19 +8,12 @@ import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -35,16 +28,13 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -57,16 +47,13 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
+@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingQualityLifeCycleTest {
  
