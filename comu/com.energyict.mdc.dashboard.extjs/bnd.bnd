@@ -1,5 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Bundle-Activator: com.energyict.mdc.dashboard.extjs.Activator
 Private-Package: com.energyict.mdc.dashboard.extjs
 -include: -../development.bnd
