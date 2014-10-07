@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -78,7 +79,6 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
