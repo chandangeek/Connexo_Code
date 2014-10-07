@@ -7,15 +7,17 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.callback.InstallService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Logger;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "rest.util", service = {InstallService.class}, immediate = true)
-public class RestUtilComponent implements InstallService{
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Logger;
+
+@Component(name = "rest.util", service = {InstallService.class}, property = {"name=" + MessageSeeds.COMPONENT_NAME}, immediate = true)
+public class RestUtilComponent implements InstallService {
     private final static Logger logger = Logger.getLogger(RestUtilComponent.class.getSimpleName());
 
     private Thesaurus thesaurus;
@@ -28,6 +30,11 @@ public class RestUtilComponent implements InstallService{
     @Override
     public void install() {
         createTranslations();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS");
     }
 
     private void createTranslations() {
