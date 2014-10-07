@@ -25,7 +25,7 @@ public class ComSessionInfoFactory {
         ComSessionInfo info = new ComSessionInfo();
         ConnectionTask<?,?> connectionTask = comSession.getConnectionTask();
         PartialConnectionTask partialConnectionTask = connectionTask.getPartialConnectionTask();
-
+        info.id = comSession.getId();
         info.connectionMethod = connectionTask.getName();
         info.isDefault = connectionTask.isDefault();
         info.startedOn = comSession.getStartDate();

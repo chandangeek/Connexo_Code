@@ -8,6 +8,7 @@ import java.util.Date;
  * Created by bvn on 10/3/14.
  */
 class ComSessionInfo {
+    public long id;
     public String connectionMethod;
     public Date startedOn;
     public Date finishedOn;

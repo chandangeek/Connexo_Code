@@ -10,8 +10,9 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Comparator;
 import java.util.List;
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Test;
 
@@ -23,8 +24,8 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 10/3/14.
  */
 public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest {
-    private final Date start = new Date(1412341200000L);
-    private final Date end = new Date(1412341300000L);
+    private final DateTime start = new DateTime(1412341200000L);
+    private final DateTime end = new DateTime(1412341300000L);
 
     @Test
     public void testGetComTaskExecutions() throws Exception {
@@ -43,18 +44,17 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
-        ComSession comSession1 = mockComSession(connectionTask, 61L);
-        ComSession comSession2 = mockComSession(connectionTask, 62L);
-        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1, comSession2));
+        ComSession comSession1 = mockComSession(connectionTask, 61L, 0);
+        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
         String response = target("/devices/XAW1/connectionmethods/3/comsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<String>get("$.connectionMethod")).isEqualTo("GPRS");
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
-        assertThat(jsonModel.<List>get("$.comSessions")).hasSize(2);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.comSessions")).hasSize(1);
         assertThat(jsonModel.<String>get("$.comSessions[0].connectionMethod")).isEqualTo("GPRS");
-        assertThat(jsonModel.<Long>get("$.comSessions[0].startedOn")).isEqualTo(start.getTime());
-        assertThat(jsonModel.<Long>get("$.comSessions[0].finishedOn")).isEqualTo(end.getTime());
+        assertThat(jsonModel.<Long>get("$.comSessions[0].startedOn")).isEqualTo(start.getMillis());
+        assertThat(jsonModel.<Long>get("$.comSessions[0].finishedOn")).isEqualTo(end.getMillis());
         assertThat(jsonModel.<Integer>get("$.comSessions[0].durationInSeconds")).isEqualTo(120);
         assertThat(jsonModel.<String>get("$.comSessions[0].direction")).isEqualTo("Inbound");
         assertThat(jsonModel.<String>get("$.comSessions[0].connectionType")).isEqualTo("IPDIALER");
@@ -68,15 +68,42 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfFailedTasks")).isEqualTo(1002);
         assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfIncompleteTasks")).isEqualTo(1003);
         assertThat(jsonModel.<Boolean>get("$.comSessions[0].isDefault")).isEqualTo(true);
-
+        assertThat(jsonModel.<Integer>get("$.comSessions[0].id")).isEqualTo(61);
 
     }
 
-    private ComSession mockComSession(ConnectionTask<?, ?> connectionTask, Long id) {
+    @Test
+    public void testGetComTaskExecutionsSorted() throws Exception {
+        Device device = mock(Device.class);
+        ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(deviceService.findByUniqueMrid("XAW1")).thenReturn(device);
+        when(connectionTask.getId()).thenReturn(3L);
+        when(connectionTask.isDefault()).thenReturn(true);
+        when(connectionTask.getName()).thenReturn("GPRS");
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
+        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
+        ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
+        when(pluggeableClass.getName()).thenReturn("IPDIALER");
+        when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        ComSession comSession1 = mockComSession(connectionTask, 61L, 1);
+        ComSession comSession2 = mockComSession(connectionTask, 62L, 3);
+        ComSession comSession3 = mockComSession(connectionTask, 63L, 2);
+        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1, comSession2, comSession3));
+        String response = target("/devices/XAW1/connectionmethods/3/comsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<List<Integer>>get("$.comSessions[*].startedOn")).isSortedAccordingTo(Comparator.<Integer>reverseOrder());
+    }
+
+    private ComSession mockComSession(ConnectionTask<?, ?> connectionTask, Long id, int startDelay) {
         ComSession comSession = mock(ComSession.class);
         when(comSession.getId()).thenReturn(id);
-        when(comSession.getStartDate()).thenReturn(start);
-        when(comSession.getStopDate()).thenReturn(end);
+        when(comSession.getStartDate()).thenReturn(start.plusHours(startDelay).toDate());
+        when(comSession.getStopDate()).thenReturn(end.plusHours(startDelay).toDate());
         ComPort comPort = mock(ComPort.class);
         when(comPort.getName()).thenReturn("comPort 199812981212");
         when(comPort.getId()).thenReturn(199812981212L);
