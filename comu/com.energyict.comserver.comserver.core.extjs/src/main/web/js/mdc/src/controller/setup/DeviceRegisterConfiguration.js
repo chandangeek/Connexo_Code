@@ -83,9 +83,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
         previewContainer.removeAll();
         previewContainer.add(widget);
-        if(!record.data.detailedValidationInfo) {
+        if (!record.data.detailedValidationInfo) {
             me.hideValidationActionMenuItems();
-        } else if(!record.data.detailedValidationInfo.validationActive) {
+        } else if (!record.data.detailedValidationInfo.validationActive) {
             me.hideValidationActionMenuItems();
         }
     },
@@ -142,9 +142,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 itemId: 'validateNowRegisterConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'MDC', 'Validate'),
                 confirmation: function () {
-                    if(menu.text) {
+                    if (menu.text) {
                         me.activateDataValidation(menu.record, this);
-                    } else{
+                    } else {
                         me.activateDataValidation(menu, this);
                     }
 
@@ -251,7 +251,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     },
 
     hideValidationActionMenuItems: function () {
-        var me=this;
+        var me = this;
         me.getDeviceRegisterConfigurationPreview().down('#gridPreviewActionMenu menu menuitem[action=validate]').hide();
         // Ext.ComponentQuery.query('#detailActionMenu menu menuitem[action=validate]')[0].hide();
         // Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid uni-actioncolumn menu menuitem[action=validate]')[0].hide();

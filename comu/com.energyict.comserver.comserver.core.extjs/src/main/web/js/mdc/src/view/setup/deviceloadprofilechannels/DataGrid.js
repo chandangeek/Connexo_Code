@@ -64,15 +64,15 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                         : '<span class="icon-validation icon-validation-black"></span>';
                 }
             }
- /*           {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
-                dataIndex: 'delta',
-                align: 'right',
-                flex: 1,
-                renderer: function (value, metaData, record) {
-                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                }
-            }*/
+            /*           {
+             header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
+             dataIndex: 'delta',
+             align: 'right',
+             flex: 1,
+             renderer: function (value, metaData, record) {
+             return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+             }
+             }*/
         );
 
         me.columns.push({

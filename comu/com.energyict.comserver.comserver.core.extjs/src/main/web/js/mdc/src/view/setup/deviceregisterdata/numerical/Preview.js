@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
         },
         items: [
             {
-                xtype:'fieldcontainer',
+                xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                 labelAlign: 'top',
                 layout: 'vbox',
@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         name: 'timeStamp',
                         format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
-                                return Ext.util.Format.date(value, this.format);
+                            return Ext.util.Format.date(value, this.format);
                         }
                     },
                     {
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                         name: 'value',
                         renderer: function (value) {
-                            var form  = this.up('form'),
+                            var form = this.up('form'),
                                 record = form.getRecord();
                             if (record) {
                                 return value + ' ' + record.get('unitOfMeasure');

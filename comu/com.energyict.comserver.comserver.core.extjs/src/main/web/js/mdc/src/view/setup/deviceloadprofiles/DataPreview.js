@@ -12,18 +12,18 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
     channels: null,
 
     /* Commented for now because of JP-5561
-    tools: [
-        {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            itemId: 'actionButton',
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'deviceLoadProfilesDataActionMenu'
-            }
-        }
-    ],
-    */
+     tools: [
+     {
+     xtype: 'button',
+     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+     itemId: 'actionButton',
+     iconCls: 'x-uni-action-iconD',
+     menu: {
+     xtype: 'deviceLoadProfilesDataActionMenu'
+     }
+     }
+     ],
+     */
 
     initComponent: function () {
         var me = this,
@@ -146,7 +146,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                                 form.down('#channelValidationResult' + channel.id).setValue(Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect'));
                                 break;
                             case 'validationStatus.suspect':
-                                form.down('#channelValidationResult' + channel.id).setValue(Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect')  + ' ' + '<span class="icon-validation icon-validation-red"></span>');
+                                form.down('#channelValidationResult' + channel.id).setValue(Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + ' ' + '<span class="icon-validation icon-validation-red"></span>');
                                 break;
                             default:
                                 form.down('#channelValidationResult' + channel.id).hide();

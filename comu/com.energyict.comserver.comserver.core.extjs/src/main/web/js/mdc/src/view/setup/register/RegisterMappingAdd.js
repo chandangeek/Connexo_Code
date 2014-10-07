@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerMappingAdd',
-  //  store: 'AvailableRegisterTypes',
+    //  store: 'AvailableRegisterTypes',
 
     requires: [
         'Mdc.view.setup.register.RegisterMappingAddGrid',
