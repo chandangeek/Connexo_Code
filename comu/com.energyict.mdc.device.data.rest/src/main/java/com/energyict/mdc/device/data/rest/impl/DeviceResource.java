@@ -11,8 +11,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
-import java.util.Calendar;
-import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -26,6 +25,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Calendar;
+import java.util.List;
 
 @Path("/devices")
 public class DeviceResource {
@@ -77,8 +78,7 @@ public class DeviceResource {
     }
 
 
-
-	@GET
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params) {
@@ -95,7 +95,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public DeviceInfo addDevice(DeviceInfo info) {
         DeviceConfiguration deviceConfiguration = null;
-        if(info.deviceConfigurationId != null){
+        if (info.deviceConfigurationId != null) {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
 
@@ -171,5 +171,7 @@ public class DeviceResource {
     }
 
     @Path("/{mRID}/comtasks")
-    public DeviceComTaskResource getComTaskResource(){return deviceComTaskResourceProvider.get();}
+    public DeviceComTaskResource getComTaskResource() {
+        return deviceComTaskResourceProvider.get();
+    }
 }
