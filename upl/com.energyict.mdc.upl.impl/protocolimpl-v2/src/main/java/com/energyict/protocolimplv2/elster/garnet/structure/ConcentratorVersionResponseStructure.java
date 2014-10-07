@@ -20,7 +20,7 @@ import java.util.TimeZone;
 public class ConcentratorVersionResponseStructure extends Data<ConcentratorVersionResponseStructure> {
 
     public static final int PADDING_DATA_LENGTH = 2;
-    public static final int LENGTH = FunctionCode.CONCENTRATOR_VERSION_RESPONSE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.CONCENTRATOR_VERSION_RESPONSE;
 
     private DateTime dateTime;
     private ConcentratorModel concentratorModel;
@@ -32,7 +32,7 @@ public class ConcentratorVersionResponseStructure extends Data<ConcentratorVersi
     private final TimeZone timeZone;
 
     public ConcentratorVersionResponseStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.dateTime = new DateTime(timeZone);
         this.concentratorModel = new ConcentratorModel();

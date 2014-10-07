@@ -19,7 +19,7 @@ import java.util.TimeZone;
  */
 public class ContactorRequestStructure extends Data<ContactorRequestStructure> {
 
-    private static final int LENGTH = FunctionCode.CONTACTOR_REQUEST.getDataLength();
+    private static final FunctionCode FUNCTION_CODE = FunctionCode.CONTACTOR_REQUEST;
     private static final int PADDING_DATA_LENGTH = 2;
 
     private DateTime dateTime;
@@ -32,7 +32,7 @@ public class ContactorRequestStructure extends Data<ContactorRequestStructure> {
    private final TimeZone timeZone;
 
     public ContactorRequestStructure(TimeZone timeZones) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZones;
         this.dateTime = new DateTime(timeZone);
         this.disp = new Part();

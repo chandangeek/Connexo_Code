@@ -22,7 +22,7 @@ import java.util.TimeZone;
  */
 public class PoolingResponseWithLogsStructure extends Data<PoolingResponseWithLogsStructure> {
 
-    public static final int LENGTH = FunctionCode.POOLING_RESPONSE_WITH_LOGS.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.POOLING_RESPONSE_WITH_LOGS;
 
     private DateTime dateTime;
     private ConcentratorModel model;
@@ -37,7 +37,7 @@ public class PoolingResponseWithLogsStructure extends Data<PoolingResponseWithLo
     private final TimeZone timeZone;
 
     public PoolingResponseWithLogsStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.dateTime = new DateTime(timeZone);
         this.model = new ConcentratorModel();

@@ -19,7 +19,7 @@ import java.util.TimeZone;
  */
 public class ConcentratorStatusResponseStructure extends Data<ConcentratorStatusResponseStructure> {
 
-    public static final int LENGTH = FunctionCode.CONCENTRATOR_STATUS_RESPONSE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.CONCENTRATOR_STATUS_RESPONSE;
     private static final int NR_OF_METERS = 12;
     private static final int LENGTH_OF_METER_RELAY_STATUSES = 2;
     private static final int LENGTH_OF_METER_SENSOR_STATUSES = 1;
@@ -34,7 +34,7 @@ public class ConcentratorStatusResponseStructure extends Data<ConcentratorStatus
     private final TimeZone timeZone;
 
     public ConcentratorStatusResponseStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.dateTime = new DateTime(timeZone);
         this.concentratorConfiguration = new ConcentratorConfiguration();

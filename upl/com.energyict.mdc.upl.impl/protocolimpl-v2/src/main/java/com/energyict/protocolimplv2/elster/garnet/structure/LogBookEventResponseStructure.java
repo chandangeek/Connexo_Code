@@ -32,7 +32,7 @@ import java.util.TimeZone;
  */
 public class LogBookEventResponseStructure extends Data<LogBookEventResponseStructure> {
 
-    public static final int LENGTH = FunctionCode.LOGBOOK_EVENT_RESPONSE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.LOGBOOK_EVENT_RESPONSE;
     private static final boolean PARSE_AS_BIG_ENDIAN = true;
 
     private DateTime dateTime;
@@ -48,7 +48,7 @@ public class LogBookEventResponseStructure extends Data<LogBookEventResponseStru
     private final TimeZone timeZone;
 
     public LogBookEventResponseStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.dateTime = new DateTime(timeZone);
         this.model = new ConcentratorModel();

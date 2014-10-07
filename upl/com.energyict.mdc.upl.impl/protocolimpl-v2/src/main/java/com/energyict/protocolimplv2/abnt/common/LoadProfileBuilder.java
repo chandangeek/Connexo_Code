@@ -39,6 +39,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     private static final int NR_OF_WORDS_PER_INTERVAL = 166;
     private static final ObisCode LOAD_PROFILE_OBIS = ObisCode.fromString("1.0.99.1.0.255");
 
+    private static final int MINUTES_PER_HOUR = 60;
     private static final int SECONDS_PER_MINUTE = 60;
     private static final int CHANNELS_PER_GROUP = 3;
     private static final int CHANNELS_PER_CHANNEL_GROUP = 3;
@@ -177,23 +178,8 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         int maxNrOfSegments = (int) Math.ceil((double) nrOfLoadProfileWords / NR_OF_WORDS_PER_INTERVAL);
 
         LoadProfileReadoutResponse loadProfileData = getRequestFactory().readPreviousBillingLoadProfileData(maxNrOfSegments);
-
-        Calendar intervalCalendar = Calendar.getInstance(getMeterProtocol().getRequestFactory().getTimeZone());
-        intervalCalendar.setTime(getDateOfLastDemandInterval(parameters));
-        for (int i = nrOfLoadProfileWords; i > 0; i -= 3) {
-            IntervalData intervalData = intervalDataMap.containsKey(intervalCalendar.getTime())
-                    ? intervalDataMap.get(intervalCalendar.getTime())   // If the intervalData already exists (and thus contains already data for other channel groups) then re-use it
-                    : new IntervalData(intervalCalendar.getTime());     // else make a new IntervalData object (note: this should only be the case for channel group 0)
-
-            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 3) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn1)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn1)).getValue());
-            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 2) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn2)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn2)).getValue());
-            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 1) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn3)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn3)).getValue());
-
-            intervalDataMap.put(intervalCalendar.getTime(), intervalData); // Create or update intervalData entry
-            intervalCalendar.add(Calendar.MINUTE, (int) (-1 * ((BcdEncodedField) parameters.getField(ReadParameterFields.loadProfileInterval)).getValue()));    // Subtract load profile interval from calendar
-        }
+        doReadLoadProfileData(intervalDataMap, parameters, nrOfLoadProfileWords, loadProfileData, channelGroup);
     }
-
 
     private void readCurrentBillingLoadProfileData(Map<Date, IntervalData> intervalDataMap, Integer channelGroup) throws ParsingException {
         ReadParametersResponse parameters = getRequestFactory().readParameters(channelGroup);
@@ -201,7 +187,11 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         int maxNrOfSegments = (int) Math.ceil((double) nrOfLoadProfileWords / NR_OF_WORDS_PER_INTERVAL);
 
         LoadProfileReadoutResponse loadProfileData = getRequestFactory().readCurrentBillingLoadProfileData(maxNrOfSegments);
+        doReadLoadProfileData(intervalDataMap, parameters, nrOfLoadProfileWords, loadProfileData, channelGroup);
+    }
 
+
+    private void doReadLoadProfileData(Map<Date, IntervalData> intervalDataMap, ReadParametersResponse parameters, int nrOfLoadProfileWords, LoadProfileReadoutResponse loadProfileData, Integer channelGroup) throws ParsingException {
         Calendar intervalCalendar = Calendar.getInstance(getMeterProtocol().getRequestFactory().getTimeZone());
         intervalCalendar.setTime(getDateOfLastDemandInterval(parameters));
         for (int i = nrOfLoadProfileWords; i > 0; i -= 3) {
@@ -209,9 +199,27 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     ? intervalDataMap.get(intervalCalendar.getTime())   // If the intervalData already exists (and thus contains already data for other channel groups) then re-use it
                     : new IntervalData(intervalCalendar.getTime());     // else make a new IntervalData object (note: this should only be the case for channel group 0)
 
-            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 3) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn1)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn1)).getValue());
-            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 2) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn2)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn2)).getValue());
-            intervalData.addValue((double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 1) * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn3)).getValue() / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn3)).getValue());
+
+            int nrOfIntervalsPerHour = MINUTES_PER_HOUR / (int) (((BcdEncodedField) parameters.getField(ReadParameterFields.loadProfileInterval)).getValue());
+            List<ChannelInfo> channelInfos = getChannelInfosForChannelGroup().get(channelGroup);
+            intervalData.addValue(
+                    (double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 3)
+                            * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn1)).getValue()
+                            / ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn1)).getValue()
+                            * (!channelInfos.get(0).getUnit().isUndefined() && channelInfos.get(0).getUnit().isVolumeUnit() ? 1 : nrOfIntervalsPerHour)
+            );
+            intervalData.addValue(
+                    (double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 2)
+                            * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn2)).getValue()
+                            /  ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn2)).getValue()
+                            * (!channelInfos.get(1).getUnit().isUndefined() && channelInfos.get(0).getUnit().isVolumeUnit() ? 1 : nrOfIntervalsPerHour)
+            );
+            intervalData.addValue(
+                    (double) loadProfileData.getLoadProfileWords().getLoadProfileWords().get(i - 1)
+                            * ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn3)).getValue()
+                            /  ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn3)).getValue()
+                            * (!channelInfos.get(0).getUnit().isUndefined() && channelInfos.get(2).getUnit().isVolumeUnit() ? 1 : nrOfIntervalsPerHour)
+            ) ;
 
             intervalDataMap.put(intervalCalendar.getTime(), intervalData); // Create or update intervalData entry
             intervalCalendar.add(Calendar.MINUTE, (int) (-1 * ((BcdEncodedField) parameters.getField(ReadParameterFields.loadProfileInterval)).getValue()));    // Subtract load profile interval from calendar

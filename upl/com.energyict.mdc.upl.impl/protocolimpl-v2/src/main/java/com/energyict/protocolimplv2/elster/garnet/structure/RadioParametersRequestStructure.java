@@ -13,13 +13,13 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.PaddingData;
 public class RadioParametersRequestStructure extends Data<RadioParametersRequestStructure> {
 
     public static final int PADDING_DATA_LENGTH = 3;
-    public static final int LENGTH = FunctionCode.CONCENTRATOR_STATUS_REQUEST.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.CONCENTRATOR_STATUS_REQUEST;
 
     private PaddingData paddingData;
     private RequestFactory requestFactory;
 
     public RadioParametersRequestStructure(RequestFactory requestFactory) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
         this.paddingData = new PaddingData(PADDING_DATA_LENGTH);
     }

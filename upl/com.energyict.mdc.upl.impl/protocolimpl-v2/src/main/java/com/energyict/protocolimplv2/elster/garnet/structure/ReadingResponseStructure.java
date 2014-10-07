@@ -36,7 +36,7 @@ public class ReadingResponseStructure extends Data<ReadingResponseStructure> {
     private static final int LENGTH_OF_METER_READING_STATUSES = 1;
     private static final int LENGTH_OF_METER_MODELS = 2;
     private static final int LENGTH_OF_METER_INSTALLATION_STATUSES = 2;
-    public static final int LENGTH = FunctionCode.DISCOVER_METERS_RESPONSE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.DISCOVER_METERS_RESPONSE;
     private static final int TARIFF_START_INDEX = 1;
 
     private DateTime dateTime;
@@ -54,7 +54,7 @@ public class ReadingResponseStructure extends Data<ReadingResponseStructure> {
     private final TimeZone timeZone;
 
     public ReadingResponseStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.dateTime = new DateTime(timeZone);
         this.readingDateTime = new DateTime(timeZone);

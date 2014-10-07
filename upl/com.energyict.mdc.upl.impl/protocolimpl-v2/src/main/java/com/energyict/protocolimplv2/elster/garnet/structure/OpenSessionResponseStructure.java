@@ -18,7 +18,7 @@ import java.util.TimeZone;
  */
 public class OpenSessionResponseStructure extends Data<OpenSessionResponseStructure> {
 
-    public static final int LENGTH = FunctionCode.OPEN_SESSION_RESPONSE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.OPEN_SESSION_RESPONSE;
 
     private DateTime dateTime;
     private SessionKeyPart secondPartOfSessionKey;
@@ -29,7 +29,7 @@ public class OpenSessionResponseStructure extends Data<OpenSessionResponseStruct
     private final TimeZone timeZone;
 
     public OpenSessionResponseStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.dateTime = new DateTime(timeZone);
         this.secondPartOfSessionKey = new SessionKeyPart();

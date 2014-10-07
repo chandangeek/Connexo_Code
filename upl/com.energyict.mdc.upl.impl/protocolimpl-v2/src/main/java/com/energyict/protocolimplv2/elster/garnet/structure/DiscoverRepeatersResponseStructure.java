@@ -22,7 +22,7 @@ import java.util.TimeZone;
 public class DiscoverRepeatersResponseStructure extends Data<DiscoverRepeatersResponseStructure> {
 
     private static final int NR_OF_POSITIONS = 40;
-    public static final int LENGTH = FunctionCode.DISCOVER_REPEATERS_RESPONSE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.DISCOVER_REPEATERS_RESPONSE;
 
     private DateTime dateTime;
 
@@ -31,7 +31,7 @@ public class DiscoverRepeatersResponseStructure extends Data<DiscoverRepeatersRe
     private final TimeZone timeZone;
 
     public DiscoverRepeatersResponseStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.dateTime = new DateTime(timeZone);
         this.repeaters = new HashMap<>(NR_OF_POSITIONS);

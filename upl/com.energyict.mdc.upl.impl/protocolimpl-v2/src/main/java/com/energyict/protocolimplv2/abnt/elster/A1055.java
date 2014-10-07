@@ -166,7 +166,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     @Override
     public void logOff() {
-        logOff();
+        // No logOff required
     }
 
     @Override

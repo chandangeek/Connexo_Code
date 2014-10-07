@@ -71,7 +71,7 @@ public class RequestFrame implements Frame<RequestFrame> {
             ptr += part.getLength();
         }
 
-        data = new Data(function.getFunctionCode().getDataLength()).parse(rawData, ptr);
+        data = new Data(function.getFunctionCode()).parse(rawData, ptr);
         ptr += data.getLength();
 
         crc.parse(rawData, ptr);

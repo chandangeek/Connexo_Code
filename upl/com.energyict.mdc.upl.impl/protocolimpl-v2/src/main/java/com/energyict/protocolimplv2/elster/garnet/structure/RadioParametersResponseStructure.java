@@ -14,13 +14,13 @@ public class RadioParametersResponseStructure extends Data<RadioParametersRespon
 
     public static final int RADIO_NET_LENGTH = 2;
     public static final int PADDING_DATA_LENGTH = 22;
-    public static final int LENGTH = FunctionCode.CONCENTRATOR_STATUS_RESPONSE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.CONCENTRATOR_STATUS_RESPONSE;
 
     private int radioNET;
     private PaddingData paddingData;
 
     public RadioParametersResponseStructure() {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.radioNET = 0;
         this.paddingData = new PaddingData(PADDING_DATA_LENGTH);
     }

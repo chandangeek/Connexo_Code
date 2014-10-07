@@ -14,7 +14,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.SessionKeyPart
  */
 public class OpenSessionRequestStructure extends Data<OpenSessionRequestStructure> {
 
-    public static final int LENGTH = FunctionCode.OPEN_SESSION_REQUEST.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.OPEN_SESSION_REQUEST;
 
     private DateTime dateTime;
     private SessionKeyPart firstPartOfSessionKey;
@@ -22,7 +22,7 @@ public class OpenSessionRequestStructure extends Data<OpenSessionRequestStructur
     private RequestFactory requestFactory;
 
     public OpenSessionRequestStructure(RequestFactory requestFactory) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
         this.dateTime = new DateTime(requestFactory.getTimeZone());
         this.firstPartOfSessionKey = new SessionKeyPart();

@@ -17,7 +17,7 @@ import java.util.TimeZone;
 public class NotExecutedErrorResponseStructure extends Data<NotExecutedErrorResponseStructure> {
 
     public static final int PADDING_DATA_LENGTH = 4;
-    public static final int LENGTH = FunctionCode.NOT_EXECUTED_RESPONSE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.NOT_EXECUTED_RESPONSE;
 
     private Function function;
     private NotExecutedError notExecutedError;
@@ -26,7 +26,7 @@ public class NotExecutedErrorResponseStructure extends Data<NotExecutedErrorResp
     private final TimeZone timeZone;
 
     public NotExecutedErrorResponseStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.function = new Function();
         this.notExecutedError = new NotExecutedError();

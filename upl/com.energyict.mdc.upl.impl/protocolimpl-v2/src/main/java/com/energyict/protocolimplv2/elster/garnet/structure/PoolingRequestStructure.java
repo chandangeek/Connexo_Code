@@ -12,13 +12,13 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.DateTime;
  */
 public class PoolingRequestStructure extends Data<PoolingRequestStructure> {
 
-    public static final int LENGTH = FunctionCode.POOLING_REQUEST.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.POOLING_REQUEST;
 
     private DateTime dateTime;
     private RequestFactory requestFactory;
 
     public PoolingRequestStructure(RequestFactory requestFactory) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
         this.dateTime = new DateTime(requestFactory.getTimeZone());
     }

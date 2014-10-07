@@ -12,13 +12,13 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.DateTime;
  */
 public class DiscoverMetersRequestStructure extends Data<DiscoverMetersRequestStructure> {
 
-    public static final int LENGTH = FunctionCode.DISCOVER_METERS_REQUEST.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.DISCOVER_METERS_REQUEST;
 
     private DateTime dateTime;
     private RequestFactory requestFactory;
 
     public DiscoverMetersRequestStructure(RequestFactory requestFactory) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
         this.dateTime = new DateTime(requestFactory.getTimeZone());
     }

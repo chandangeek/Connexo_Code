@@ -16,7 +16,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.PaddingData;
 public class LogBookEventRequestStructure extends Data<LogBookEventRequestStructure> {
 
     public static final int PADDING_DATA_LENGTH = 7;
-    public static final int LENGTH = FunctionCode.POOLING_REQUEST.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.POOLING_REQUEST;
 
     private DateTime dateTime;
     private LogBookEventNr logBookEventNr;
@@ -25,7 +25,7 @@ public class LogBookEventRequestStructure extends Data<LogBookEventRequestStruct
     private RequestFactory requestFactory;
 
     public LogBookEventRequestStructure(RequestFactory requestFactory, int logBookEventNr) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
         this.dateTime = new DateTime(requestFactory.getTimeZone());
         this.logBookEventNr = new LogBookEventNr(logBookEventNr);

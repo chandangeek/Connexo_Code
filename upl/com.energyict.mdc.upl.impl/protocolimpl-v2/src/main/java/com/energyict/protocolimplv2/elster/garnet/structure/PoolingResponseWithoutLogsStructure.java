@@ -19,7 +19,7 @@ import java.util.TimeZone;
  */
 public class PoolingResponseWithoutLogsStructure extends Data<PoolingResponseWithoutLogsStructure> {
 
-    public static final int LENGTH = FunctionCode.POOLING_RESPONSE_WITHOUT_LOGS.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.POOLING_RESPONSE_WITHOUT_LOGS;
     private static final int NR_OF_METERS = 12;
     private static final int LENGTH_OF_METER_READIG_STATUSES = 2;
     private static final int LENGTH_OF_METER_RELAY_STATUSES = 3;
@@ -34,7 +34,7 @@ public class PoolingResponseWithoutLogsStructure extends Data<PoolingResponseWit
     private final TimeZone timeZone;
 
     public PoolingResponseWithoutLogsStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.dateTime = new DateTime(timeZone);
         this.concentratorConfiguration = new ConcentratorConfiguration();

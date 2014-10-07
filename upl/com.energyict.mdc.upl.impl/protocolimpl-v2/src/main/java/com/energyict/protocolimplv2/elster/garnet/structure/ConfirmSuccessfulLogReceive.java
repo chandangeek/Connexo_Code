@@ -16,7 +16,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.PaddingData;
 public class ConfirmSuccessfulLogReceive extends Data<ConfirmSuccessfulLogReceive> {
 
     public static final int PADDING_DATA_LENGTH = 7;
-    public static final int LENGTH = FunctionCode.CONFIRM_LOG_RECEIVE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.CONFIRM_LOG_RECEIVE;
 
     private DateTime dateTime;
     private LogBookEventNr logBookEventNr;
@@ -24,7 +24,7 @@ public class ConfirmSuccessfulLogReceive extends Data<ConfirmSuccessfulLogReceiv
     private RequestFactory requestFactory;
 
     public ConfirmSuccessfulLogReceive(RequestFactory requestFactory) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
         this.dateTime = new DateTime(requestFactory.getTimeZone());
         this.logBookEventNr = new LogBookEventNr();
@@ -32,7 +32,7 @@ public class ConfirmSuccessfulLogReceive extends Data<ConfirmSuccessfulLogReceiv
     }
 
     public ConfirmSuccessfulLogReceive(RequestFactory requestFactory, int logBookNr) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
         this.dateTime = new DateTime(requestFactory.getTimeZone());
         this.logBookEventNr = new LogBookEventNr(logBookNr);

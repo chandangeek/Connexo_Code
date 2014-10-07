@@ -15,7 +15,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.ReadingSelecto
  */
 public class ReadingRequestStructure extends Data<ReadingRequestStructure> {
 
-    public static final int LENGTH = FunctionCode.CHECKPOINT_READING_REQUEST.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.CHECKPOINT_READING_REQUEST;
     private static final int PADDING_DATA_LENGTH = 7;
 
     private DateTime dateTime;
@@ -29,7 +29,7 @@ public class ReadingRequestStructure extends Data<ReadingRequestStructure> {
     }
 
     public ReadingRequestStructure(RequestFactory requestFactory) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
         this.dateTime = new DateTime(requestFactory.getTimeZone());
         this.readingSelector = new ReadingSelector();

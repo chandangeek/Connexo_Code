@@ -34,7 +34,7 @@ public class DiscoverMetersResponseStructure extends Data<DiscoverMetersResponse
     private static final int LENGTH_OF_METER_SENSOR_STATUSES = 2;
     private static final int LENGTH_OF_METER_INSTALLATION_STATUSES = 3;
     private static final int LENGTH_OF_METER_TARIFF_STATUSES = 2;
-    public static final int LENGTH = FunctionCode.DISCOVER_METERS_RESPONSE.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.DISCOVER_METERS_RESPONSE;
 
     private DateTime dateTime;
     private BitMapCollection<MeterModel> meterModelCollection;
@@ -49,7 +49,7 @@ public class DiscoverMetersResponseStructure extends Data<DiscoverMetersResponse
     private final TimeZone timeZone;
 
     public DiscoverMetersResponseStructure(TimeZone timeZone) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZone;
         this.dateTime = new DateTime(timeZone);
         this.meterModelCollection = new BitMapCollection<>(LENGTH_OF_METER_MODELS, NR_OF_METERS, MeterModel.class);

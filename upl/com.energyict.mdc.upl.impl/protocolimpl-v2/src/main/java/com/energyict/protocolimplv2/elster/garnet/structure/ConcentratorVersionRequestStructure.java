@@ -12,13 +12,13 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.DateTime;
  */
 public class ConcentratorVersionRequestStructure extends Data<ConcentratorVersionRequestStructure> {
 
-    public static final int LENGTH = FunctionCode.CONCENTRATOR_VERSION_REQUEST.getDataLength();
+    public static final FunctionCode FUNCTION_CODE = FunctionCode.CONCENTRATOR_VERSION_REQUEST;
 
     private DateTime dateTime;
     private RequestFactory requestFactory;
 
     public ConcentratorVersionRequestStructure(RequestFactory requestFactory) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
         this.dateTime = new DateTime(requestFactory.getTimeZone());
     }

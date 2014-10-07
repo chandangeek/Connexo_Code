@@ -242,7 +242,7 @@ public class RequestFactory {
                 cachedData.put(FunctionCode.DISCOVER_METERS_RESPONSE.name(), responseData);
             } else {
                 throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
-                        new UnexpectedResponseException("Expected DiscoverMetersResponseStructure but was " + response.getData().getClass().getSimpleName())
+                        new UnexpectedResponseException("Expected DiscoverMetersResponseStructure but was " + response.getData().getFunctionCode().name())
                 );
             }
         }

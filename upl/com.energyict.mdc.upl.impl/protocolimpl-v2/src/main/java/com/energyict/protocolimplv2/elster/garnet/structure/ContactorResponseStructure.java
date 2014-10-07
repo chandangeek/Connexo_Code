@@ -19,7 +19,7 @@ import java.util.TimeZone;
  */
 public class ContactorResponseStructure extends Data<ContactorResponseStructure> {
 
-    private static final int LENGTH = FunctionCode.CONTACTOR_RESPONSE.getDataLength();
+    private static final FunctionCode FUNCTION_CODE = FunctionCode.CONTACTOR_RESPONSE;
     private static final int NR_OF_METERS = 3;
     private static final int LENGTH_OF_CONTACTOR_STATUS_MASK = 1;
     private static final int PADDING_DATA_LENGTH = 5;
@@ -35,7 +35,7 @@ public class ContactorResponseStructure extends Data<ContactorResponseStructure>
     private final FunctionCode functionCode;
 
     public ContactorResponseStructure(TimeZone timeZones, FunctionCode functionCode) {
-        super(LENGTH);
+        super(FUNCTION_CODE);
         this.timeZone = timeZones;
         this.functionCode = functionCode;
         this.dateTime = new DateTime(timeZone);

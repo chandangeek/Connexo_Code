@@ -12,15 +12,17 @@ public class Data<T extends  Data> extends AbstractField<T> {
 
     private final int length;
     private byte[] data;
+    private FunctionCode functionCode;
 
     public Data() {
         this.length = 0;
         this.data = new byte[0];
     }
 
-    public Data(int length) {
-        this.length = length;
-        this.data = new byte[length];
+    public Data(FunctionCode functionCode) {
+        this.functionCode = functionCode;
+        this.length = functionCode.getDataLength();
+        this.data = new byte[this.length];
     }
 
     @Override
@@ -37,5 +39,13 @@ public class Data<T extends  Data> extends AbstractField<T> {
     @Override
     public int getLength() {
         return this.length;
+    }
+
+    public FunctionCode getFunctionCode() {
+        return functionCode;
+    }
+
+    public void setFunctionCode(FunctionCode functionCode) {
+        this.functionCode = functionCode;
     }
 }
