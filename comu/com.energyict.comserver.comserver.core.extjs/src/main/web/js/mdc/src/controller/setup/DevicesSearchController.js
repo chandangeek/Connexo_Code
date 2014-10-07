@@ -5,23 +5,40 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         'Mdc.view.setup.devicesearch.SearchItems'
     ],
 
+    models: [
+        'Mdc.model.Device',
+        'Mdc.model.DeviceFilter'
+    ],
+
+    stores: [
+        'Mdc.store.Devices'
+    ],
+
     refs: [
         {
             ref: 'devicesSearchFilterPanel',
             selector: '#mdc-search-items filter-top-panel'
         },
-        {
+        /*{
             ref: 'devicesSearchSideFilterForm',
             selector: '#mdc-search-items filter-form'
+        },*/
+        {
+            ref: 'devicesSearchSideFilterForm',
+            selector: 'mdc-search-results-side-filter form'
         }
+
+
     ],
 
     prefix: '#mdc-search-items',
 
     showSearchItems: function () {
         var searchItems = Ext.create('Mdc.view.setup.devicesearch.SearchItems');
+        var store = this.getStore('Mdc.store.Devices');
         this.getApplication().fireEvent('changecontentevent', searchItems);
         this.initFilter();
+        store.load();
     },
 
     getSideFilterForm: function() {
@@ -31,8 +48,9 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
 
     applyFilter: function () {
         debugger;
-        this.getDevicesSearchSideFilterForm().updateRecord(Ext.create('Mdc.model.DeviceFilter', this.getDevicesSearchSideFilterForm().getValues()));
-        this.getDevicesSearchSideFilterForm().getRecord().save();
+        var filterForm = this.getDevicesSearchSideFilterForm();
+        filterForm.updateRecord();
+        filterForm.getRecord().save();
     },
 
     clearFilter: function () {

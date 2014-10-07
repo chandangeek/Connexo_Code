@@ -1031,13 +1031,13 @@ Ext.define('Mdc.controller.history.Setup', {
             route: 'search',
             controller: 'Mdc.controller.setup.DevicesSearchController',
             action: 'showSearchItems',
+            filter: 'Mdc.model.DeviceFilter',
             items: {
                 bulkAction: {
                     title: 'Bulk action',
                     route: 'bulk',
                     controller: 'Mdc.controller.setup.SearchItemsBulkAction',
-                    action: 'showBulkAction',
-                    filter: 'Mdc.model.DeviceFilter'
+                    action: 'showBulkAction'
                 }
             }
         }

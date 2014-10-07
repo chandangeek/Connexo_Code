@@ -28,7 +28,7 @@ Ext.define('Mdc.controller.setup.DevicesController', {
 
     initFilter: function () {
         var router = this.getController('Uni.controller.history.Router');
-        this.getSideFilterForm().loadRecord(router.filter || Ext.create('Mdc.model.DeviceFilter'));
+        this.getSideFilterForm().loadRecord(router.filter);
     },
 
     getSideFilterForm: function() {},

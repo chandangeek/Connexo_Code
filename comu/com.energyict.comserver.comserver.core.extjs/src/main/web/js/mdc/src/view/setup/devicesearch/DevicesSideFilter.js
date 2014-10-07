@@ -9,7 +9,6 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
     ],
 
     cls: 'filter-form',
-    itemId: 'filter-form',
     width: 250,
     title: Uni.I18n.translate('searchItems.sideFilter.title', 'MDC', 'Search for devices'),
     ui: 'medium',
@@ -19,7 +18,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
 
         me.items = [
             {
-                xtype: 'filter-form',
+                xtype: 'form',
                 ui: 'filter',
                 layout: {
                     type: 'vbox',

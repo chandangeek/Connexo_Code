@@ -15,5 +15,17 @@ Ext.define('Mdc.store.Devices', {
             type: 'json',
             root: 'devices'
         }
-    }
+    }//,
+
+    /*setFilterModel: function (model) {
+        var data = model.getData();
+        var storeProxy = this.getProxy();
+
+        if (!Ext.isEmpty(data.serialNumber)) {
+            storeProxy.setExtraParam('serialNumber', data.serialNumber);
+        }
+        if (!Ext.isEmpty(data.mRID)) {
+            storeProxy.setExtraParam('mRID', data.mRID);
+        }
+    }*/
 });
