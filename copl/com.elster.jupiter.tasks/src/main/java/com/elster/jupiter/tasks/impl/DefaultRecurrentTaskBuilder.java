@@ -4,14 +4,15 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
-import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 /**
  * RecurrentTaskBuilder implementation that builds instances of RecurrentTaskImpl
  */
 class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
 
-    private final CronExpressionParser cronExpressionParser;
+    private final ScheduleExpressionParser scheduleExpressionParser;
 
     private String cronString;
     private String name;
@@ -20,9 +21,9 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     private boolean scheduleImmediately;
     private final DataModel dataModel;
 
-    public DefaultRecurrentTaskBuilder(DataModel dataModel, CronExpressionParser cronExpressionParser) {
+    public DefaultRecurrentTaskBuilder(DataModel dataModel, ScheduleExpressionParser scheduleExpressionParser) {
         this.dataModel = dataModel;
-        this.cronExpressionParser = cronExpressionParser;
+        this.scheduleExpressionParser = scheduleExpressionParser;
     }
 
     @Override
@@ -57,7 +58,8 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
 
     @Override
     public RecurrentTask build() {
-        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, cronExpressionParser.parse(cronString), destination, payload);
+        ScheduleExpression scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
+        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, scheduleExpression, destination, payload);
         if (scheduleImmediately) {
             recurrentTask.updateNextExecution();
         }

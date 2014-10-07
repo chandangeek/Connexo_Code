@@ -18,6 +18,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +67,11 @@ public class RecurrentTaskImplTest {
         recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, clock).init(NAME, cronExpression, destination, PAYLOAD);
 
         when(clock.now()).thenReturn(NOW);
-        when(cronExpression.nextAfter(NOW)).thenReturn(NEXT);
+        when(cronExpression.nextOccurrence(zoned(NOW))).thenReturn(zoned(NEXT));
+    }
+
+    private ZonedDateTime zoned(Date date) {
+        return ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 
     @After

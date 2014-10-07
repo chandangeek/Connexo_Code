@@ -5,19 +5,21 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.util.cron.CronExpression;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 class RecurrentTaskImpl implements RecurrentTask {
 
     private long id;
     private String name;
-    private transient CronExpression cronExpression;
+    private transient ScheduleExpression scheduleExpression;
     private String cronString;
     private UtcInstant nextExecution;
     private String payload;
@@ -25,32 +27,32 @@ class RecurrentTaskImpl implements RecurrentTask {
     private transient DestinationSpec destinationSpec;
 
     private final Clock clock;
-    private final CronExpressionParser cronExpressionParser;
+    private final ScheduleExpressionParser scheduleExpressionParser;
     private final MessageService messageService;
     private final DataModel dataModel;
 
     @SuppressWarnings("unused")
     @Inject
-	RecurrentTaskImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, MessageService messageService, Clock clock) {
+	RecurrentTaskImpl(DataModel dataModel, ScheduleExpressionParser scheduleExpressionParser, MessageService messageService, Clock clock) {
         this.dataModel = dataModel;
-        this.cronExpressionParser = cronExpressionParser;
+        this.scheduleExpressionParser = scheduleExpressionParser;
         this.messageService = messageService;
         // for persistence
         this.clock = clock;
     }
 
-    RecurrentTaskImpl init(String name, CronExpression cronExpression, DestinationSpec destinationSpec, String payload) {
+    RecurrentTaskImpl init(String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
         this.destinationSpec = destinationSpec;
         this.destination = destinationSpec.getName();
         this.payload = payload;
-        this.cronString = cronExpression.toString();
+        this.cronString = scheduleExpression.toString();
         this.name = name;
-        this.cronExpression = cronExpression;
+        this.scheduleExpression = scheduleExpression;
         return this;
     }
 
-    static RecurrentTaskImpl from(DataModel dataModel, String name, CronExpression cronExpression, DestinationSpec destinationSpec, String payload) {
-        return dataModel.getInstance(RecurrentTaskImpl.class).init(name, cronExpression, destinationSpec, payload);
+    static RecurrentTaskImpl from(DataModel dataModel, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
+        return dataModel.getInstance(RecurrentTaskImpl.class).init(name, scheduleExpression, destinationSpec, payload);
     }
 
     @Override
@@ -64,14 +66,16 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public void updateNextExecution() {
-        nextExecution = new UtcInstant(getCronExpression().nextAfter(clock.now()));
+        ZonedDateTime now = ZonedDateTime.ofInstant(clock.now().toInstant(), ZoneId.systemDefault());
+        ZonedDateTime nextOccurrence = getScheduleExpression().nextOccurrence(now);
+        nextExecution = new UtcInstant(Date.from(nextOccurrence.toInstant()));
     }
 
-    private CronExpression getCronExpression() {
-        if (cronExpression == null) {
-            cronExpression = cronExpressionParser.parse(cronString);
+    private ScheduleExpression getScheduleExpression() {
+        if (scheduleExpression == null) {
+            scheduleExpression = scheduleExpressionParser.parse(cronString).get();
         }
-        return cronExpression;
+        return scheduleExpression;
     }
 
     @Override

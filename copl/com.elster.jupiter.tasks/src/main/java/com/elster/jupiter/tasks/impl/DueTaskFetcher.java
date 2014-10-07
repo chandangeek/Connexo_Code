@@ -5,8 +5,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,12 +29,12 @@ class DueTaskFetcher {
     private final DataModel dataModel;
     private final Clock clock;
     private final MessageService messageService;
-    private final CronExpressionParser cronExpressionParser;
+    private final ScheduleExpressionParser scheduleExpressionParser;
 
-    DueTaskFetcher(DataModel dataModel, MessageService messageService, CronExpressionParser cronExpressionParser, Clock clock) {
+    DueTaskFetcher(DataModel dataModel, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, Clock clock) {
         this.dataModel = dataModel;
         this.messageService = messageService;
-        this.cronExpressionParser = cronExpressionParser;
+        this.scheduleExpressionParser = scheduleExpressionParser;
         this.clock = clock;
     }
 
@@ -72,7 +73,8 @@ class DueTaskFetcher {
         String payload = resultSet.getString(PAYLOAD_INDEX);
         String destination = resultSet.getString(DESTINATION_INDEX);
         DestinationSpec destinationSpec = messageService.getDestinationSpec(destination).get();
-        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, cronExpressionParser.parse(cronString), destinationSpec, payload);
+        ScheduleExpression scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
+        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, scheduleExpression, destinationSpec, payload);
         recurrentTask.setNextExecution(nextExecution);
         recurrentTask.setId(id);
         return recurrentTask;

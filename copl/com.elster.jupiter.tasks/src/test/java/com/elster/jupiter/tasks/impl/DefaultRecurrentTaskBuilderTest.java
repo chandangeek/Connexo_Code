@@ -16,7 +16,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -56,8 +59,8 @@ public class DefaultRecurrentTaskBuilderTest {
         defaultRecurrentTaskBuilder = new DefaultRecurrentTaskBuilder(dataModel, cronExpressionParser);
 
         when(clock.now()).thenReturn(NOW);
-        when(cronExpressionParser.parse(CRON_STRING)).thenReturn(cronExpression);
-        when(cronExpression.nextAfter(NOW)).thenReturn(FIRST);
+        when(cronExpressionParser.parse(CRON_STRING)).thenReturn(Optional.of(cronExpression));
+        when(cronExpression.nextOccurrence(ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()))).thenReturn(ZonedDateTime.ofInstant(FIRST.toInstant(), ZoneId.systemDefault()));
     }
 
     @After
