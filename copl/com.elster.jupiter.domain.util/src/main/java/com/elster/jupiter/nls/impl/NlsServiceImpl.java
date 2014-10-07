@@ -37,8 +37,8 @@ import java.util.regex.Pattern;
 @Component(name = "com.elster.jupiter.nls", service = {NlsService.class, InstallService.class}, property = {"name=" + NlsService.COMPONENTNAME, "osgi.command.scope=nls", "osgi.command.function=addTranslation"})
 public class NlsServiceImpl implements NlsService, InstallService {
 
-	private static final Pattern MESSAGE_PARAMETER_PATTERN = Pattern.compile( "(\\{[^\\}]+?\\})" );
-	
+    private static final Pattern MESSAGE_PARAMETER_PATTERN = Pattern.compile("(\\{[^\\}]+?\\})");
+
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageInterpolator messageInterpolator;
@@ -66,7 +66,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     @Inject
-    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService,ValidationProviderResolver validationProviderResolver) {
+    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, ValidationProviderResolver validationProviderResolver) {
         setOrmService(ormService);
         setThreadPrincipalService(threadPrincipalService);
         setValidationProviderResolver(validationProviderResolver);
@@ -100,10 +100,10 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Reference
     public final void setValidationProviderResolver(ValidationProviderResolver validationProviderResolver) {
-    	this.messageInterpolator = Validation.byDefaultProvider()
-            	.providerResolver(validationProviderResolver)
-            	.configure()
-            	.getDefaultMessageInterpolator();
+        this.messageInterpolator = Validation.byDefaultProvider()
+                .providerResolver(validationProviderResolver)
+                .configure()
+                .getDefaultMessageInterpolator();
     }
 
     @Reference(name = "ZTranslationProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
@@ -142,7 +142,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     public void removeTranslationProvider(TranslationKeyProvider provider) {
         this.translationKeyProviders.remove(provider);
     }
-    
+
     @Override
     public synchronized void install() {
         dataModel.install(true, true);
@@ -184,37 +184,37 @@ public class NlsServiceImpl implements NlsService, InstallService {
     public void addTranslation(Object... args) {
         System.out.println("Usage : \n\n addTranslation componentName layerName key defaultMessage");
     }
-    
-	@Override
-	public String interpolate(ConstraintViolation<?> violation) {
-		try(ContextClassLoaderResource ctx = ContextClassLoaderResource.of(com.sun.el.ExpressionFactoryImpl.class)) {
-			return messageInterpolator.interpolate(
-					interpolate(violation.getMessageTemplate()),
-					interpolationContext(violation),
-					threadPrincipalService.getLocale());
-		}
-	}
-	
-	private String interpolate(String messageTemplate) {
-		//
-		// copied from org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator
-		//
-		Matcher matcher = MESSAGE_PARAMETER_PATTERN.matcher(messageTemplate);
-		StringBuffer sb = new StringBuffer();
-		String resolvedParameterValue;
-		while (matcher.find()) {
-			String parameter = matcher.group(1);
-			resolvedParameterValue = resolveParameter(parameter);
-			if (!"".equals(resolvedParameterValue)) {
-				matcher.appendReplacement( sb, Matcher.quoteReplacement( resolvedParameterValue ) );
-			}
-		}
-		matcher.appendTail( sb );
-		return sb.toString();
-	}
-	
-	private String resolveParameter(String parameter) {
-		String base = removeCurlyBrace(parameter);
+
+    @Override
+    public String interpolate(ConstraintViolation<?> violation) {
+        try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(com.sun.el.ExpressionFactoryImpl.class)) {
+            return messageInterpolator.interpolate(
+                    interpolate(violation.getMessageTemplate()),
+                    interpolationContext(violation),
+                    threadPrincipalService.getLocale());
+        }
+    }
+
+    private String interpolate(String messageTemplate) {
+        //
+        // copied from org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator
+        //
+        Matcher matcher = MESSAGE_PARAMETER_PATTERN.matcher(messageTemplate);
+        StringBuffer sb = new StringBuffer();
+        String resolvedParameterValue;
+        while (matcher.find()) {
+            String parameter = matcher.group(1);
+            resolvedParameterValue = resolveParameter(parameter);
+            if (!"".equals(resolvedParameterValue)) {
+                matcher.appendReplacement(sb, Matcher.quoteReplacement(resolvedParameterValue));
+            }
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    private String resolveParameter(String parameter) {
+        String base = removeCurlyBrace(parameter);
 
         int index = base.indexOf('.');
 
@@ -225,41 +225,41 @@ public class NlsServiceImpl implements NlsService, InstallService {
         String module = base.substring(0, index);
         String key = base.substring(index + 1);
 
-		Thesaurus thesaurus = getThesaurus(module, Layer.DOMAIN);
-		if (thesaurus != null) {
-			String result = thesaurus.getString(key, parameter);
-			if (result.equals(parameter)) {
-				return parameter;
-			} else {
-				return interpolate(result);
-			}
-		} else {
-			return parameter;
-		}
-	}
-	
-	private String removeCurlyBrace(String parameter) {
-		return parameter.substring(1,parameter.length() - 1);
-	}
-	
-	private MessageInterpolator.Context interpolationContext (final ConstraintViolation<?> violation) {
-		return new MessageInterpolator.Context() {
-			
-			@Override
-			public <T> T unwrap(Class<T> clazz) {
-				return clazz.cast(this);
-			}
-			
-			@Override
-			public Object getValidatedValue() {
-				return violation.getInvalidValue();
-			}
-			
-			@Override
-			public ConstraintDescriptor<?> getConstraintDescriptor() {
-				return violation.getConstraintDescriptor();
-			}
-		};
-	}
+        Thesaurus thesaurus = getThesaurus(module, Layer.DOMAIN);
+        if (thesaurus != null) {
+            String result = thesaurus.getString(key, parameter);
+            if (result.equals(parameter)) {
+                return parameter;
+            } else {
+                return interpolate(result);
+            }
+        } else {
+            return parameter;
+        }
+    }
+
+    private String removeCurlyBrace(String parameter) {
+        return parameter.substring(1, parameter.length() - 1);
+    }
+
+    private MessageInterpolator.Context interpolationContext(final ConstraintViolation<?> violation) {
+        return new MessageInterpolator.Context() {
+
+            @Override
+            public <T> T unwrap(Class<T> clazz) {
+                return clazz.cast(this);
+            }
+
+            @Override
+            public Object getValidatedValue() {
+                return violation.getInvalidValue();
+            }
+
+            @Override
+            public ConstraintDescriptor<?> getConstraintDescriptor() {
+                return violation.getConstraintDescriptor();
+            }
+        };
+    }
 
 }
