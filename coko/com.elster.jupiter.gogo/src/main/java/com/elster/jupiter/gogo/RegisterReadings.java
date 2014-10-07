@@ -1,11 +1,5 @@
 package com.elster.jupiter.gogo;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
-
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -41,7 +35,7 @@ import java.util.TimeZone;
  * @since 2014-07-17 (14:17)
  */
 @Component(name = "com.elster.jupiter.gogo.RegisterReadings", service = RegisterReadings.class,
-        property = {"osgi.command.scope=mdc.metering", "osgi.command.function=printReadings","osgi.command.function=addReading" },
+        property = {"osgi.command.scope=mdc.metering", "osgi.command.function=printReadings", "osgi.command.function=addReading"},
         immediate = true)
 public class RegisterReadings {
 
@@ -82,19 +76,17 @@ public class RegisterReadings {
         this.userService = userService;
     }
 
-    public void addReading (String deviceMRID, String readingTypeMRID, String... formattedDates) {
-        Device device = this.deviceDataService.findByUniqueMrid(deviceMRID);
+    public void addReading(String deviceMRID, String readingTypeMRID, String... formattedDates) {
+        Device device = this.deviceService.findByUniqueMrid(deviceMRID);
         if (device != null) {
             Optional<Register<Reading>> register = this.findRegister(device, readingTypeMRID);
             if (register.isPresent()) {
                 List<Date> readingTimestamps = this.toTimestamps(formattedDates);
                 this.addReadings(device, readingTypeMRID, readingTimestamps);
-            }
-            else {
+            } else {
                 System.out.println("No register found with mRID " + readingTypeMRID + " on device with mRID " + deviceMRID);
             }
-        }
-        else {
+        } else {
             System.out.println("No device with mRID " + deviceMRID);
         }
     }
@@ -126,8 +118,7 @@ public class RegisterReadings {
             Optional<User> user = this.userService.findUser("batch executor");
             this.threadPrincipalService.set(user.get());
             this.transactionService.execute(transaction);
-        }
-        finally {
+        } finally {
             this.threadPrincipalService.clear();
         }
     }
@@ -140,21 +131,20 @@ public class RegisterReadings {
         return reading;
     }
 
-    private List<Date> toTimestamps (String... formattedDates) {
+    private List<Date> toTimestamps(String... formattedDates) {
         List<Date> parsed = new ArrayList<>(formattedDates.length);
         for (String formattedDate : formattedDates) {
             try {
                 parsed.add(this.parseDateFormat.parse(formattedDate));
-            }
-            catch (ParseException e) {
+            } catch (ParseException e) {
                 e.printStackTrace(System.err);
             }
         }
         return parsed;
     }
 
-    public void printReadings (String deviceMRID) {
-        Device device = this.deviceDataService.findByUniqueMrid(deviceMRID);
+    public void printReadings(String deviceMRID) {
+        Device device = this.deviceService.findByUniqueMrid(deviceMRID);
         if (device != null) {
             Interval sinceEpoch = Interval.sinceEpoch();
             System.out.print("Readings of registers for device with mRID ");
@@ -163,8 +153,7 @@ public class RegisterReadings {
             for (Register register : device.getRegisters()) {
                 this.printReadings(register, sinceEpoch);
             }
-        }
-        else {
+        } else {
             System.out.println("No device with mRID " + deviceMRID);
         }
     }
@@ -185,16 +174,14 @@ public class RegisterReadings {
         List<R> readings = register.getReadings(sinceEpoch);
         if (readings.isEmpty()) {
             System.out.println("No readings for register " + register.getRegisterSpec().getRegisterType().getReadingType().getMRID());
-        }
-        else {
+        } else {
             System.out.println("Readings for register " + register.getRegisterSpec().getRegisterType().getReadingType().getMRID());
             for (R reading : readings) {
                 System.out.print(this.printDateFormat.format(reading.getTimeStamp()) + " - ");
                 if (reading instanceof NumericalReading) {
                     NumericalReading numericalReading = (NumericalReading) reading;
                     System.out.println(numericalReading.getQuantity().toString());
-                }
-                else {
+                } else {
                     System.out.println(reading.getClass().getSimpleName());
                 }
             }
