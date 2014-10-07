@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -14,8 +15,13 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.google.common.base.Optional;
+import org.json.JSONArray;
+import org.glassfish.jersey.internal.util.collection.ImmutableMultivaluedMap;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,6 +78,65 @@ public class ResourceHelper {
             }
         }
         throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfile.getId(), channelId);
+    }
+
+    public Condition getQueryConditionForDevice(MultivaluedMap<String, String> uriParams) {
+        Condition condition = Condition.TRUE;
+        if (uriParams.containsKey("filter")) {
+            condition = condition.and(addDeviceQueryCondition(uriParams));
+        }
+        return condition;
+    }
+    private Condition addDeviceQueryCondition(MultivaluedMap<String, String> uriParams) {
+        try {
+            Condition conditionDevice = Condition.TRUE;
+            JsonQueryFilter filter = new JsonQueryFilter(new JSONArray(uriParams.getFirst("filter")));
+            String mRID = filter.getProperty("mRID");
+            if (mRID != null) {
+                mRID = replaceRegularExpression(mRID);
+                conditionDevice = !isRegularExpression(mRID)
+                        ? conditionDevice.and(where("mRID").isEqualTo(mRID))
+                        : conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
+            }
+            String serialNumber = filter.getProperty("serialNumber");
+            if (serialNumber != null) {
+                serialNumber = replaceRegularExpression(serialNumber);
+                conditionDevice = !isRegularExpression(serialNumber)
+                        ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
+                        : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
+            }
+            return conditionDevice;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean isRegularExpression(String value) {
+        if (value.contains("*")) {
+            return true;
+        }
+        if (value.contains("?")) {
+            return true;
+        }
+        if (value.contains("%")) {
+            return true;
+        }
+        return false;
+    }
+
+    private String replaceRegularExpression(String value) {
+        if (value.contains("*")) {
+            value = value.replaceAll("\\*","%");
+            return value;
+        }
+        if (value.contains("?")) {
+            value = value.replaceAll("\\?","_");
+            return value;
+        }
+        if (value.contains("%")) {
+            return value;
+        }
+        return value;
     }
 
     public Condition getQueryConditionForDevice(StandardParametersBean params) {
