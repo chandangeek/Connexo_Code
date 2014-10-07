@@ -5,6 +5,8 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -29,7 +31,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 /**
- * Created by bvn on 10/2/14.
+ * Created by bvn on 10/3/14.
  */
 public class ConnectionMethodResource {
 
@@ -38,15 +40,16 @@ public class ConnectionMethodResource {
     private final DeviceDataService deviceDataService;
     private final EngineModelService engineModelService;
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final ConnectionTaskService connectionTaskService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, DeviceDataService deviceDataService, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, ExceptionFactory exceptionFactory) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
-        this.deviceDataService = deviceDataService;
         this.engineModelService = engineModelService;
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.connectionTaskService = connectionTaskService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -66,9 +69,9 @@ public class ConnectionMethodResource {
     public Response createConnectionMethod(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
-        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(deviceDataService, engineModelService, device, mdcPropertyUtils, partialConnectionTask);
+        ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineModelService, device, mdcPropertyUtils, partialConnectionTask);
         if (connectionMethodInfo.isDefault) {
-            deviceDataService.setDefaultConnectionTask(task);
+            connectionTaskService.setDefaultConnectionTask(task);
         }
 
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
@@ -101,13 +104,13 @@ public class ConnectionMethodResource {
         boolean wasConnectionTaskDefault = task.isDefault();
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionMethodInfo.name);
 
-        connectionMethodInfo.writeTo(task, partialConnectionTask, deviceDataService, engineModelService, mdcPropertyUtils);
+        connectionMethodInfo.writeTo(task, partialConnectionTask, engineModelService, mdcPropertyUtils);
         task.save();
         pauseOrResumeTask(connectionMethodInfo, task);
         if (connectionMethodInfo.isDefault) {
-            deviceDataService.setDefaultConnectionTask(task);
+            connectionTaskService.setDefaultConnectionTask(task);
         } else if (wasConnectionTaskDefault) {
-            deviceDataService.clearDefaultConnectionTask(device);
+            connectionTaskService.clearDefaultConnectionTask(device);
         }
 
         device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -143,6 +146,5 @@ public class ConnectionMethodResource {
         }
         throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getmRID(), connectionMethodId);
     }
-
-
+    
 }

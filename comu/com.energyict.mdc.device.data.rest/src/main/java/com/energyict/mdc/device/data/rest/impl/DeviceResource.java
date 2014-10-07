@@ -8,7 +8,7 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.util.Calendar;
@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 @Path("/devices")
 public class DeviceResource {
     private final DeviceImportService deviceImportService;
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
@@ -49,7 +49,7 @@ public class DeviceResource {
     public DeviceResource(
             ResourceHelper resourceHelper,
             DeviceImportService deviceImportService,
-            DeviceDataService deviceDataService,
+            DeviceService deviceService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
@@ -65,7 +65,7 @@ public class DeviceResource {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
@@ -80,12 +80,14 @@ public class DeviceResource {
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
     }
 
+
+	
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params) {
         Condition condition = resourceHelper.getQueryConditionForDevice(params);
-        Finder<Device> allDevicesFinder = deviceDataService.findAllDevices(condition);
+        Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
         List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
         return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
@@ -102,7 +104,7 @@ public class DeviceResource {
         }
 
         Calendar calendar = Calendar.getInstance();
-        Device newDevice = deviceDataService.newDevice(deviceConfiguration, info.mRID, info.mRID);
+        Device newDevice = deviceService.newDevice(deviceConfiguration, info.mRID, info.mRID);
         newDevice.setSerialNumber(info.serialNumber);
         calendar.set(Integer.parseInt(info.yearOfCertification), 1, 1);
         newDevice.setYearOfCertification(calendar.getTime());
@@ -156,7 +158,7 @@ public class DeviceResource {
     public LoadProfileResource getLoadProfileResource() {
         return loadProfileResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/logbooks")
     public LogBookResource getLogBookResource() {
         return logBookResourceProvider.get();
