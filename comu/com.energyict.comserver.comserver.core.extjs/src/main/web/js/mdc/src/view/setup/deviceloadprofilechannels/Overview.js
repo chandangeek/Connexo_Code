@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceLoadProfileChannelOverview',
     itemId: 'deviceLoadProfileChannelOverview',
+
     requires: [
         'Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofilechannels.ValidationOverview'
@@ -21,13 +22,9 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                     {
                         xtype: 'form',
                         itemId: 'deviceLoadProfileChannelsOverviewForm',
-                        defaults: {
-                            xtype: 'container',
-                            layout: 'form'
-                        },
                         items: [
                             {
-                                xtype:'fieldcontainer',
+                                xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                                 labelAlign: 'top',
                                 layout: 'vbox',
@@ -92,7 +89,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                                         name: 'overflowValue'
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC' ,'Number of fraction digits'),
+                                        fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC', 'Number of fraction digits'),
                                         name: 'nbrOfFractionDigits'
                                     }
                                 ]
