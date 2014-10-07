@@ -30,6 +30,7 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.store.filter.CommPortPool',
         'Dsh.store.filter.ConnectionType',
         'Dsh.store.filter.DeviceType',
+        'Dsh.store.filter.CompletionCodes',
         'Dsh.store.ConnectionResultsStore',
         'Dsh.store.CombineStore'
     ],

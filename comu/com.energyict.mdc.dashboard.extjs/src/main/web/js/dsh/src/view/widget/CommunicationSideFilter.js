@@ -39,8 +39,8 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
                     name: 'latestResults',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
                     displayField: 'localizedValue',
-                    valueField: 'successIndicator',
-                    store: 'Dsh.store.filter.LatestResult'
+                    valueField: 'completionCode',
+                    store: 'Dsh.store.filter.CompletionCodes'
                 },
                 {
                     itemId: 'communication-task',
