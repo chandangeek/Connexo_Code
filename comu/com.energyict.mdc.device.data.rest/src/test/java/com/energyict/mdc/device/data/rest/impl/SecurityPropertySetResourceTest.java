@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Editability.CAN_EDIT;
@@ -99,6 +100,45 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         assertThat(jsonModel.<Boolean>get("$.properties[0].required")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
         assertThat(jsonModel.<String>get("$.status")).isEqualTo("Complete");
+    }
+
+    @Test
+    public void testGetSecurityPropertySetByIdDeviceConfigurationMismatch() throws Exception {
+        long deviceConfigId = 6161L;
+        long sps1Id = 1234L;
+        String devicemRID = "AX1";
+
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getId()).thenReturn(deviceConfigId);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationDeviceAccessLevel(1, "DlmsSecuritySupportPerClient.authenticationlevel.1");
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = getEncryptionDeviceAccessLevel(2, "Mtu155SecuritySupport.encryptionlevel.2");
+        SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", CAN_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
+        when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.of(sps1));
+        SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
+        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
+        DeviceConfiguration otherDeviceConfiguration = mock(DeviceConfiguration.class);
+        when(otherDeviceConfiguration.getId()).thenReturn(deviceConfigId+1);
+        when(sps1.getDeviceConfiguration()).thenReturn(otherDeviceConfiguration);
+
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
+        Response response = target("/devices/"+devicemRID+"/securityproperties/"+sps1Id).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetUnknownSecurityPropertySetById() throws Exception {
+        long sps1Id = 1234L;
+        String devicemRID = "AX1";
+
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(device);
+        when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.absent());
+
+        Response response = target("/devices/"+devicemRID+"/securityproperties/"+sps1Id).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
