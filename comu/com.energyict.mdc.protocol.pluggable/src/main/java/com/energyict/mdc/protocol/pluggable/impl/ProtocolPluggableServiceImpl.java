@@ -1,6 +1,19 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.DataVault;
 import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.NotFoundException;
@@ -46,20 +59,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationSupport;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -80,6 +79,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -94,7 +94,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-23 (13:47)
  */
-@Component(name="com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
+@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
 public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService {
 
     private static final Logger LOGGER = Logger.getLogger(ProtocolPluggableServiceImpl.class.getName());
@@ -173,8 +173,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (DeviceProtocolService service : this.deviceProtocolServices) {
             try {
                 return service.loadProtocolClass(javaClassName);
-            }
-            catch (ProtocolCreationException e) {
+            } catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolService
             }
         }
@@ -186,8 +185,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (DeviceProtocolMessageService service : this.deviceProtocolMessageServices) {
             try {
                 return service.createDeviceProtocolMessagesFor(javaClassName);
-            }
-            catch (ProtocolCreationException e) {
+            } catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolMessageService
             }
         }
@@ -199,8 +197,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (DeviceProtocolSecurityService service : this.deviceProtocolSecurityServices) {
             try {
                 return service.createDeviceProtocolSecurityFor(javaClassName);
-            }
-            catch (DeviceProtocolAdapterCodingExceptions e) {
+            } catch (DeviceProtocolAdapterCodingExceptions e) {
                 // Try the next DeviceProtocolSecurityService
             }
         }
@@ -246,8 +243,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 licensedProtocols.addAll(licensedProtocolService.getAllLicensedProtocols(mdcLicense.get()));
             }
             return licensedProtocols;
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -299,8 +295,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DeviceProtocol, id);
         if (pluggableClass == null) {
             return null;
-        }
-        else {
+        } else {
             return DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
         }
     }
@@ -308,11 +303,10 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name) {
         Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndName(PluggableClassType.DeviceProtocol, name);
-        if(pluggableClass.isPresent()){
+        if (pluggableClass.isPresent()) {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass.get());
             return Optional.of(deviceProtocolPluggableClass);
-        }
-        else  {
+        } else {
             return Optional.absent();
         }
     }
@@ -332,8 +326,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(id);
         if (deviceProtocolPluggableClass == null) {
             throw new NotFoundException("DeviceProtocolPluggableClass with id " + id + " cannot be deleted because it does not exist");
-        }
-        else {
+        } else {
             deviceProtocolPluggableClass.delete();
         }
     }
@@ -368,8 +361,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DiscoveryProtocol, id);
         if (pluggableClass == null) {
             return null;
-        }
-        else {
+        } else {
             return InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
         }
     }
@@ -438,8 +430,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.ConnectionType, id);
         if (pluggableClass == null) {
             return null;
-        }
-        else {
+        } else {
             return ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass);
         }
     }
@@ -481,7 +472,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public String createConformRelationTypeName (String name) {
+    public String createConformRelationTypeName(String name) {
         return RelationUtils.createConformRelationTypeName(name);
     }
 
@@ -494,8 +485,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public boolean isDefaultAttribute(RelationAttributeType attributeType) {
         List<PluggableClassRelationAttributeTypeUsage> usages =
                 this.dataModel
-                    .mapper(PluggableClassRelationAttributeTypeUsage.class)
-                    .find("relationAttributeTypeId", attributeType.getId());
+                        .mapper(PluggableClassRelationAttributeTypeUsage.class)
+                        .find("relationAttributeTypeId", attributeType.getId());
         return !usages.isEmpty();
     }
 
@@ -623,7 +614,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         }
     }
 
-    public void removeLicensedProtocolService (LicensedProtocolService licensedProtocolService) {
+    public void removeLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
         this.licensedProtocolServices.remove(licensedProtocolService);
     }
 
@@ -819,7 +810,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             } catch (NoFinderComponentFoundException e) {
                 LOGGER.warning("Not all factory components registered, will retry later.");
                 retryLater = true;
-            } catch (NoServiceFoundThatCanLoadTheJavaClass e){
+            } catch (NoServiceFoundThatCanLoadTheJavaClass e) {
                 LOGGER.warning(e.getMessage() + "; will retry later");
                 retryLater = true;
             } catch (RuntimeException e) {
@@ -974,13 +965,18 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         new Installer(this.dataModel, this.eventService, this.thesaurus, this.userService).install(true, true);
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "USR", "EVT", "NLS");
+    }
+
     private class TemporaryUnSecureDataVaultProvider implements DataVaultProvider {
 
         private DataVault soleInstance;
 
         @Override
         public DataVault getKeyVault() {
-            if (soleInstance ==null) {
+            if (soleInstance == null) {
                 soleInstance = new StraightForwardUnSecureDataVault();
             }
             return soleInstance;
@@ -990,9 +986,10 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     /**
      * An unsecure DataVault. The encrypt will just make a String from the given bytes and the decrypt will do the reverse!.
      * <b>NOT SECURE FOR IN PRODUCTION</b>
+     *
      * @see <a href="http://jira.eict.vpdc/browse/JP-3879">JP-3879</a>
      */
-    private class StraightForwardUnSecureDataVault implements DataVault{
+    private class StraightForwardUnSecureDataVault implements DataVault {
 
         @Override
         public String encrypt(byte[] decrypted) {
