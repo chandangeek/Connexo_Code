@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
     private BpmServerImpl bpmServer;
     private ServiceRegistration<App> appServiceRegistration;
 
-    public BpmServiceImpl(){
+    public BpmServiceImpl() {
     }
 
     @Inject
@@ -94,7 +95,11 @@ public class BpmServiceImpl implements BpmService, InstallService {
     @Override
     public void install() {
         new InstallerImpl().install(messageService, appService, userService);
+    }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("USR", "MSG");
     }
 
     @Reference
@@ -148,11 +153,11 @@ public class BpmServiceImpl implements BpmService, InstallService {
     public boolean startProcess(String deploymentId, String process, Map<String, Object> parameters) {
         boolean result = false;
         Optional<DestinationSpec> found = messageService.getDestinationSpec(BPM_QUEUE_DEST);
-            if (found.isPresent()){
-                String json = jsonService.serialize(new BpmProcess(deploymentId, process, parameters));
-                found.get().message(json).send();
-                result = true;
-            }
+        if (found.isPresent()) {
+            String json = jsonService.serialize(new BpmProcess(deploymentId, process, parameters));
+            found.get().message(json).send();
+            result = true;
+        }
         return result;
     }
 }
