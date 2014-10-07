@@ -1,16 +1,30 @@
 package com.elster.jupiter.theme.skyline;
 
-import com.elster.jupiter.http.whiteboard.HttpActivator;
+import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.HttpResource;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
-public class Activator extends HttpActivator {
+public class Activator implements BundleActivator {
 
     public static final String HTTP_RESOURCE_ALIAS = "/sky";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/skyline";
 
+    private volatile ServiceRegistration<HttpResource> registration;
+
     public Activator() {
-        super(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME);
-        // EXAMPLE: Below is how to enable development mode.
-//        super(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.theme.skyline/src/main/web/js/skyline", true);
+    }
+
+    @Override
+    public void start(BundleContext context) throws Exception {
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        registration = context.registerService(HttpResource.class, resource, null);
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        registration.unregister();
     }
 
 }
