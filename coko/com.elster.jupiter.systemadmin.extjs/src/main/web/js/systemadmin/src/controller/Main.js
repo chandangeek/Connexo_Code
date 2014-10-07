@@ -35,7 +35,7 @@ Ext.define('Sam.controller.Main', {
     initMenu: function () {
         var me = this;
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license','privilege.view.license'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license', 'privilege.view.license'])) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'SAM', 'Administration'),
                 href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview(),
@@ -45,7 +45,7 @@ Ext.define('Sam.controller.Main', {
             });
             Uni.store.MenuItems.add(menuItem);
 
-            if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license','privilege.view.license'])) {
+            if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license', 'privilege.view.license'])) {
                 var licensingItem = Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('general.licenses', 'SAM', 'Licensing'),
                     portal: 'administration',
