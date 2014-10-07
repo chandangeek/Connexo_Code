@@ -37,6 +37,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
@@ -139,6 +140,8 @@ public class DeviceGroupTest {
     @Mock
     private UserService userService;
     @Mock
+    private KpiService kpiService;
+    @Mock
     private SecurityPropertyService securityPropertyService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -161,6 +164,7 @@ public class DeviceGroupTest {
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(UserService.class).toInstance(userService);
+            bind(KpiService.class).toInstance(kpiService);
         }
     }
 

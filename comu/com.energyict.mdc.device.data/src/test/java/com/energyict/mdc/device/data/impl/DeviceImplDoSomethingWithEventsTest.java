@@ -40,6 +40,7 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
@@ -273,7 +274,6 @@ public class DeviceImplDoSomethingWithEventsTest {
             when(this.applicationContext.createEventManager()).thenReturn(eventManager);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.environment = injector.getInstance(Environment.class);
-            this.environment.put(InMemoryIntegrationPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, this.bootstrapModule, true);
             this.environment.setApplicationContext(this.applicationContext);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
@@ -359,6 +359,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(LicenseService.class).toInstance(licenseService);
 //                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(EventService.class).to(SpyEventService.class).in(Scopes.SINGLETON);
+                bind(KpiService.class).toInstance(mock(KpiService.class));
                 bind(DataModel.class).toProvider(new Provider<DataModel>() {
                     @Override
                     public DataModel get() {

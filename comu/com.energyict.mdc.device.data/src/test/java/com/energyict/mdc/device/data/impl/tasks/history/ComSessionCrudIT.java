@@ -78,6 +78,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -121,9 +122,6 @@ public class ComSessionCrudIT {
     @Rule
     public final TestRule duraLexSedLex = new ExpectedConstraintViolationRule();
 
-
-    public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
-
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -132,6 +130,8 @@ public class ComSessionCrudIT {
     private EventAdmin eventAdmin;
     @Mock
     private LicenseService licenseService;
+    @Mock
+    private KpiService kpiService;
     private TransactionService transactionService;
     private OrmService ormService;
     private PartialScheduledConnectionTask partialScheduledConnectionTask;
@@ -188,6 +188,7 @@ public class ComSessionCrudIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(KpiService.class).toInstance(kpiService);
         }
 
     }

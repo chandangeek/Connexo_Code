@@ -10,11 +10,13 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -24,6 +26,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -79,6 +82,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
     private volatile Clock clock;
+    private volatile KpiService kpiService;
 
     private volatile RelationService relationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -92,13 +96,14 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private ServerDeviceService deviceService;
     private ServerLoadProfileService loadProfileService;
     private ServerLogBookService logBookService;
+    private DataCollectionKpiService dataCollectionKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     public DeviceDataModelServiceImpl() {}
 
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
-                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock,
+                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
@@ -109,6 +114,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setNlsService(nlsService);
         this.setRelationService(relationService);
         this.setClock(clock);
+        this.setKpiService(kpiService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
@@ -248,8 +254,23 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
+    public DataCollectionKpiService dataCollectionKpiService() {
+        return this.dataCollectionKpiService;
+    }
+
+    @Override
     public ServerDeviceService deviceService() {
         return this.deviceService;
+    }
+
+    @Override
+    public KpiService kpiService() {
+        return kpiService;
+    }
+
+    @Reference
+    public void setKpiService(KpiService kpiService) {
+        this.kpiService = kpiService;
     }
 
     private Module getModule() {
@@ -272,6 +293,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(EngineModelService.class).toInstance(engineModelService);
+                bind(KpiService.class).toInstance(kpiService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(ServerConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
@@ -287,40 +309,54 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Activate
     public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-        this.createAndRegisterConnectionTaskService(bundleContext);
-        this.createAndRegisterCommunicationTaskService(bundleContext);
-        this.createAndRegisterDeviceService(bundleContext);
-        this.createAndRegisterLoadProfileService(bundleContext);
-        this.createAndRegisterLogBookService(bundleContext);
+        this.createRealServices();
         this.dataModel.register(this.getModule());
+        this.registerRealServices(bundleContext);
     }
 
-    private void createAndRegisterConnectionTaskService(BundleContext bundleContext) {
+    private void createRealServices() {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this);
+        this.communicationTaskService = new CommunicationTaskServiceImpl(this);
+        this.deviceService = new DeviceServiceImpl(this);
+        this.loadProfileService = new LoadProfileServiceImpl(this);
+        this.logBookService = new LogBookServiceImpl(this);
+        this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
+    }
+
+    private void registerRealServices(BundleContext bundleContext) {
+        this.registerConnectionTaskService(bundleContext);
+        this.registerCommunicationTaskService(bundleContext);
+        this.registerDeviceService(bundleContext);
+        this.registerLoadProfileService(bundleContext);
+        this.registerLogBookService(bundleContext);
+        this.registerDataCollectionKpiService(bundleContext);
+    }
+
+    private void registerConnectionTaskService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(ConnectionTaskService.class, this.connectionTaskService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerConnectionTaskService.class, this.connectionTaskService, null));
     }
 
-    private void createAndRegisterCommunicationTaskService(BundleContext bundleContext) {
-        this.communicationTaskService = new CommunicationTaskServiceImpl(this);
+    private void registerCommunicationTaskService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(CommunicationTaskService.class, this.communicationTaskService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerCommunicationTaskService.class, this.communicationTaskService, null));
     }
 
-    private void createAndRegisterDeviceService(BundleContext bundleContext) {
-        this.deviceService = new DeviceServiceImpl(this);
+    private void registerDeviceService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DeviceService.class, deviceService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerDeviceService.class, deviceService, null));
     }
 
-    private void createAndRegisterLogBookService(BundleContext bundleContext) {
-        this.logBookService = new LogBookServiceImpl(this);
+    private void registerLogBookService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(LogBookService.class, this.logBookService, null));
     }
 
-    private void createAndRegisterLoadProfileService(BundleContext bundleContext) {
-        this.loadProfileService = new LoadProfileServiceImpl(this);
+    private void registerLoadProfileService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(LoadProfileService.class, this.loadProfileService, null));
+    }
+
+    private void registerDataCollectionKpiService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(DataCollectionKpiService.class, this.dataCollectionKpiService, null));
     }
 
     @Deactivate
