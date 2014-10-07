@@ -1,5 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.inject.Provider;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -24,17 +36,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
-
-import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MeterReadingStorer {
 
@@ -67,26 +68,32 @@ public class MeterReadingStorer {
         if (meterActivations.isEmpty()) {
             createDefaultMeterActivation();
         }
+        removeOldReadingQualities();
         storeReadings(facade.getMeterReading().getReadings());
         storeIntervalBlocks(facade.getMeterReading().getIntervalBlocks());
+        removeOldReadingQualities();
+        storeReadingQualities();
         storeEvents(facade.getMeterReading().getEvents());
-
         readingStorer.execute();
-//        Interval interval = facade.getInterval(); TODO make this not throw away all readingqualities just made by validate on store
-//        if (interval != null) {
-//        	dataModel.mapper(ReadingQualityRecord.class).remove(
-//        		meter.getReadingQualities(interval.toClosedRange())
-//        			.stream()
-//        			.filter(this::isRelevant)
-//        			.collect(Collectors.<ReadingQualityRecord>toList()));
-//        }
-//        storeReadingQualities();
         eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getInterval().getStart().getTime(), facade.getInterval().getEnd().getTime()));
     }
 
+    private void removeOldReadingQualities() {
+    	  Interval interval = facade.getInterval();
+    	  if (interval != null) {
+        	DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
+        	mapper.remove(
+        			meter.getReadingQualities(interval.toClosedRange())
+        				.stream()
+        				.filter(this::isRelevant)
+        				.collect(Collectors.<ReadingQualityRecord>toList()));
+        }
+    }
+    
+    
     private boolean isRelevant(ReadingQualityRecord readingQuality) {
-        Map<Date, BaseReading> readingMap = channelReadings.get(readingQuality.getChannel());
-        return readingMap != null && readingMap.containsKey(readingQuality.getReadingTimestamp());
+    	Map<Date, BaseReading> readingMap = channelReadings.get(readingQuality.getChannel());
+    	return readingMap != null && readingMap.containsKey(readingQuality.getReadingTimestamp());
     }
 
     public static class EventSource {
@@ -132,16 +139,16 @@ public class MeterReadingStorer {
         for (EndDeviceEvent sourceEvent : events) {
             Optional<EndDeviceEventType> found = dataModel.mapper(EndDeviceEventType.class).getOptional(sourceEvent.getEventTypeCode());
             if (found.isPresent()) {
-                Optional<EndDeviceEventRecord> existing = getEventMapper().getOptional(meter.getId(), sourceEvent.getEventTypeCode(), sourceEvent.getCreatedDateTime());
-                if (existing.isPresent()) {
-                    if (existing.get().updateProperties(sourceEvent.getEventData())) {
-                        toUpdate.add(existing.get());
-                    }
-                } else {
-                    EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found.get(), sourceEvent.getCreatedDateTime());
-                    eventRecord.updateProperties(sourceEvent.getEventData());
+            	Optional<EndDeviceEventRecord> existing = getEventMapper().getOptional(meter.getId(),sourceEvent.getEventTypeCode(), sourceEvent.getCreatedDateTime());
+            	if (existing.isPresent()) {
+            		if (existing.get().updateProperties(sourceEvent.getEventData())) {
+            			toUpdate.add(existing.get());
+            		}
+            	} else {
+            		EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found.get(), sourceEvent.getCreatedDateTime());
+            		eventRecord.updateProperties(sourceEvent.getEventData());
                     eventRecord.setLogBookId(sourceEvent.getLogBookId());
-                    toCreate.add(eventRecord);
+            		toCreate.add(eventRecord);
                 }
             } else {
                 MessageSeeds.METER_EVENT_IGNORED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getMRID());
@@ -209,13 +216,13 @@ public class MeterReadingStorer {
     }
 
     private ReadingType findOrCreateReadingType(String code) {
-        Optional<ReadingType> readingTypeHolder = dataModel.mapper(ReadingType.class).getOptional(code);
+    	Optional<ReadingType> readingTypeHolder = dataModel.mapper(ReadingType.class).getOptional(code);
         if (readingTypeHolder.isPresent()) {
-            return readingTypeHolder.get();
+        	return readingTypeHolder.get();
         } else {
-            ReadingType readingType = ((MeteringServiceImpl) meteringService).createReadingType(code, "");
-            MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
-            return readingType;
+        	ReadingType readingType = ((MeteringServiceImpl) meteringService).createReadingType(code, "");
+        	MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
+        	return readingType;
         }
     }
 
@@ -260,37 +267,38 @@ public class MeterReadingStorer {
     }
 
     private void addedReading(Channel channel, BaseReading reading) {
-        channelReadings.computeIfAbsent(channel, key -> new HashMap<>()).put(reading.getTimeStamp(), reading);
+    	channelReadings.computeIfAbsent(channel , key -> new HashMap<>()).put(reading.getTimeStamp(), reading);
     }
 
     private void storeReadingQualities() {
-        dataModel.mapper(ReadingQualityRecord.class).persist(
-                channelReadings.entrySet().stream()
-                        .flatMap(entry -> buildReadingQualities(entry.getKey(), entry.getValue().values()))
-                        .collect(Collectors.toList()));
+    	dataModel.mapper(ReadingQualityRecord.class).persist(
+    		channelReadings.entrySet().stream()
+    			.flatMap(entry -> buildReadingQualities(entry.getKey() , entry.getValue().values()))
+    			.collect(Collectors.toList()));
     }
 
-    private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel, Collection<BaseReading> readings) {
-        return readings.stream().flatMap(reading -> buildReadingQualities(channel, reading));
+    private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel , Collection<BaseReading> readings) {
+    	return readings.stream().flatMap(reading -> buildReadingQualities(channel, reading));
     }
 
     private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel, BaseReading reading) {
-        return reading.getReadingQualities().stream().map(readingQuality -> buildReadingQualityRecord(channel, reading, readingQuality));
+    	return reading.getReadingQualities().stream().map(readingQuality -> buildReadingQualityRecord(channel, reading, readingQuality));
     }
 
     private ReadingQualityRecord buildReadingQualityRecord(Channel channel, BaseReading reading, ReadingQuality readingQuality) {
-        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), channel, reading.getTimeStamp());
-        newReadingQuality.setComment(readingQuality.getComment());
-        return newReadingQuality;
+    	ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()),channel,reading.getTimeStamp());
+		newReadingQuality.setComment(readingQuality.getComment());
+		return newReadingQuality;
     }
 
+
     private Optional<ReadingQualityRecordImpl> find(Date timeStamp, String typeCode, List<? extends ReadingQuality> candidates) {
-        for (ReadingQuality each : candidates) {
-            ReadingQualityRecordImpl readingQuality = (ReadingQualityRecordImpl) each;
-            if (readingQuality.getReadingTimestamp().equals(timeStamp) && readingQuality.getTypeCode().equals(typeCode)) {
-                return Optional.of(readingQuality);
-            }
-        }
-        return Optional.absent();
+    	for (ReadingQuality each : candidates) {
+    		ReadingQualityRecordImpl readingQuality = (ReadingQualityRecordImpl)  each;
+    		if (readingQuality.getReadingTimestamp().equals(timeStamp) && readingQuality.getTypeCode().equals(typeCode)) {
+    			return Optional.of(readingQuality);
+    		}
+    	}
+    	return Optional.absent();
     }
 }
