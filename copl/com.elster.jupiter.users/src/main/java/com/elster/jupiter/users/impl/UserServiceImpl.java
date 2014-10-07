@@ -10,7 +10,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.Module;
+import com.elster.jupiter.users.NoDefaultDomainException;
+import com.elster.jupiter.users.NoDomainFoundException;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.base.Optional;
@@ -23,6 +32,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -102,7 +112,7 @@ public class UserServiceImpl implements UserService, InstallService {
         String plainText = new String(DatatypeConverter.parseBase64Binary(base64));
         String[] names = plainText.split(":");
 
-        if(names.length <= 1){
+        if (names.length <= 1) {
             return Optional.absent();
         }
 
@@ -110,7 +120,7 @@ public class UserServiceImpl implements UserService, InstallService {
         String userName = names[0];
 
         String[] items = userName.split("/");
-        if(items.length > 1){
+        if (items.length > 1) {
             domain = items[0];
             userName = items[1];
         }
@@ -119,7 +129,7 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public User createUser(String name, String description){
+    public User createUser(String name, String description) {
         UserImpl result = createInternalDirectory(getRealm()).newUser(name, description, false);
         result.save();
 
@@ -128,7 +138,7 @@ public class UserServiceImpl implements UserService, InstallService {
 
     @Override
     public User createApacheDirectoryUser(String name, String domain) {
-        UserImpl result= createApacheDirectory(domain).newUser(name, domain, false);
+        UserImpl result = createApacheDirectory(domain).newUser(name, domain, false);
         result.save();
 
         return result;
@@ -156,7 +166,7 @@ public class UserServiceImpl implements UserService, InstallService {
         Optional<Resource> found = findResource(name);
         Resource resource = found.isPresent() ? found.get() : createResource(application, name, description);
 
-        for(String privilege : privileges){
+        for (String privilege : privileges) {
             resource.createPrivilege(privilege);
         }
     }
@@ -165,13 +175,13 @@ public class UserServiceImpl implements UserService, InstallService {
     public void grantGroupWithPrivilege(String groupName, String[] privileges) {
         Optional<Group> group = findGroup(groupName);
         if (group.isPresent()) {
-            for(String privilege : privileges){
+            for (String privilege : privileges) {
                 group.get().grant(privilege);
             }
         }
     }
 
-    private Resource createResource(String application, String name, String description){
+    private Resource createResource(String application, String name, String description) {
         ResourceImpl result = ResourceImpl.from(dataModel, application, name, description);
         result.persist();
 
@@ -211,7 +221,7 @@ public class UserServiceImpl implements UserService, InstallService {
         Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", name);
         Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.domain", domain);
         List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition));
-        if (users.isEmpty()){
+        if (users.isEmpty()) {
             if (ApacheDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
                 return createApacheDirectoryUser(name, domain);
             }
@@ -227,7 +237,7 @@ public class UserServiceImpl implements UserService, InstallService {
     public Group findOrCreateGroup(String name) {
         Condition groupCondition = Operator.EQUALIGNORECASE.compare("name", name);
         List<Group> groups = dataModel.query(Group.class).select(groupCondition);
-        if (groups.isEmpty()){
+        if (groups.isEmpty()) {
             return createGroup(name, "");
         }
         return groups.get(0);
@@ -253,7 +263,7 @@ public class UserServiceImpl implements UserService, InstallService {
         return privilegeFactory().getOptional(privilegeName);
     }
 
-    public Optional<Resource> getResource(String resourceName){
+    public Optional<Resource> getResource(String resourceName) {
         return resourceFactory().getOptional(resourceName);
     }
 
@@ -276,14 +286,14 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public List<Resource> getResources(String component){
+    public List<Resource> getResources(String component) {
         return resourceFactory().find("componentName", component);
     }
 
     @Override
     public List<Module> getModules() {
         List<Module> modules = new ArrayList<>();
-        for(DataModel model : ormService.getDataModels()){
+        for (DataModel model : ormService.getDataModels()) {
             modules.add(new ModuleImpl(model.getName(), model.getDescription()));
         }
         return modules;
@@ -320,6 +330,11 @@ public class UserServiceImpl implements UserService, InstallService {
 
     public void install() {
         new InstallerImpl(dataModel).install(this, getRealm());
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM");
     }
 
     @Override
