@@ -13,6 +13,7 @@ import org.joda.time.ReadableDateTime;
 import org.joda.time.ReadableInstant;
 import org.joda.time.ReadablePartial;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,6 +68,18 @@ class MyCronExpression implements CronExpression {
     private boolean noDayOfMonthChecks;
     private boolean noDayOfWeekChecks;
     private boolean lastWeekDay;
+
+    @Override
+    public ZonedDateTime nextOccurrence(ZonedDateTime time) {
+        //TODO automatically generated method body, provide implementation.
+        return null;
+    }
+
+    @Override
+    public String encoded() {
+        //TODO automatically generated method body, provide implementation.
+        return null;
+    }
 
     private enum Month {
         JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC

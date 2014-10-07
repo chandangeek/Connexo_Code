@@ -1,20 +1,20 @@
 package com.elster.jupiter.util.cron.impl;
 
-import com.elster.jupiter.util.cron.InvalidCronExpression;
-import org.osgi.service.component.annotations.Component;
-
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import org.osgi.service.component.annotations.Component;
+
+import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.cronexpressionparser", service = CronExpressionParser.class)
 public class DefaultCronExpressionParser implements CronExpressionParser {
 
     @Override
-    public CronExpression parse(String expression) {
+    public Optional<CronExpression> parse(String expression) {
         try {
-            return new QuartzCronExpressionAdapter(expression);
+            return Optional.of(new QuartzCronExpressionAdapter(expression));
         } catch (Exception e) {
-            throw new InvalidCronExpression(expression, e).set("expression", expression);
+            return Optional.empty();
         }
     }
 }
