@@ -40,6 +40,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -98,8 +99,6 @@ import static org.mockito.Mockito.when;
  * Time: 13:52
  */
 public class InMemoryIntegrationPersistence {
-
-    public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
 
     private BundleContext bundleContext;
     private Principal principal;
@@ -185,7 +184,6 @@ public class InMemoryIntegrationPersistence {
         when(this.applicationContext.createEventManager()).thenReturn(eventManager);
         this.transactionService = injector.getInstance(TransactionService.class);
         this.environment = injector.getInstance(Environment.class);
-        this.environment.put(InMemoryIntegrationPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         this.environment.setApplicationContext(this.applicationContext);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -255,20 +253,7 @@ public class InMemoryIntegrationPersistence {
     }
 
     public void cleanUpDataBase() throws SQLException {
-        Environment environment = Environment.DEFAULT.get();
-        if (environment != null) {
-            Object bootstrapModule = environment.get(JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME);
-            if (bootstrapModule != null) {
-                deactivate(bootstrapModule);
-            }
-        }
-    }
-
-    private void deactivate(Object bootstrapModule) {
-        if (bootstrapModule instanceof InMemoryBootstrapModule) {
-            InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
-            inMemoryBootstrapModule.deactivate();
-        }
+        bootstrapModule.deactivate();
     }
 
     public JsonService getJsonService() {
@@ -384,6 +369,7 @@ public class InMemoryIntegrationPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(licenseService);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(KpiService.class).toInstance(mock(KpiService.class));
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
                 public DataModel get() {

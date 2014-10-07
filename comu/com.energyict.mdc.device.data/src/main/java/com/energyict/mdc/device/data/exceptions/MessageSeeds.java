@@ -78,6 +78,8 @@ public enum MessageSeeds implements MessageSeed {
     COMTASK_CONFIGURATION_INCONSISTENT(2046, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The communication tasks in the communication schedule doesn't have the same connection method, security set, protocol dialect and/or urgency", SEVERE),
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2047, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
     COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2048, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device", Level.SEVERE),
+    DEVICE_GROUP_IS_REQUIRED(2049, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection device group", Level.SEVERE),
+    EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),
     ;
     private final int number;
     private final String key;
@@ -184,6 +186,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE = "cannotDeleteComScheduleFromDevice";
         public static final String DEVICE_CONFIGURATION_NOT_ACTIVE = "device.configuration.not.active";
         public static final String COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "comScheduleCannotDeleteNotFromDevice";
+        public static final String DEVICE_GROUP_IS_REQUIRED = "endDeviceGroupIsRequired";
+        public static final String EMPTY_DATA_COLLECTION_KPI = "dataCollectionKpi.cannotBeEmpty";
     }
 
 }

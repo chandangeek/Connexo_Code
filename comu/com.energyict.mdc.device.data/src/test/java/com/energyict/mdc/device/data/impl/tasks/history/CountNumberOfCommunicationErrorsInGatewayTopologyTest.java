@@ -37,6 +37,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -100,6 +101,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     private DeviceProtocol deviceProtocol;
     @Mock
     private LicenseService licenseService;
+    @Mock
+    private KpiService kpiService;
 
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
@@ -123,6 +126,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(KpiService.class).toInstance(kpiService);
         }
 
     }

@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
@@ -503,6 +505,16 @@ public enum TableSpecs {
                     reverseMap("journalEntries").
                     add();
             table.primaryKey("PK_DDC_COMSESSIONJOURNALENTRY").on(id).add();
+        }
+    },
+
+    DDC_DEVICE_GROUP {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DataCollectionKpi> table = dataModel.addTable(name(), DataCollectionKpi.class);
+            table.map(DataCollectionKpiImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.primaryKey("PK_DDC_DEVICE_GROUP").on(id).add();
         }
     },
     ;

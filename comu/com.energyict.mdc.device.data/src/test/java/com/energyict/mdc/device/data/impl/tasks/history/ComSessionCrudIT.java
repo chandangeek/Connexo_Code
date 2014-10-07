@@ -64,6 +64,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -122,9 +123,6 @@ public class ComSessionCrudIT {
     @Rule
     public final TestRule duraLexSedLex = new ExpectedConstraintViolationRule();
 
-
-    public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
-
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -133,6 +131,8 @@ public class ComSessionCrudIT {
     private EventAdmin eventAdmin;
     @Mock
     private LicenseService licenseService;
+    @Mock
+    private KpiService kpiService;
     private TransactionService transactionService;
     private OrmService ormService;
     private PartialScheduledConnectionTask partialScheduledConnectionTask;
@@ -189,6 +189,7 @@ public class ComSessionCrudIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(KpiService.class).toInstance(kpiService);
         }
 
     }
