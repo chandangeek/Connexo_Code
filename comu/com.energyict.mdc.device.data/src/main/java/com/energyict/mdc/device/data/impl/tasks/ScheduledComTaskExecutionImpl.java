@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksInComScheduleMustHaveSameConfigurationSettings;
@@ -13,15 +21,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -40,7 +39,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, schedulingService);
     }
 
-    public ScheduledComTaskExecutionImpl initialize (Device device, ComSchedule comSchedule) {
+    public ScheduledComTaskExecutionImpl initialize(Device device, ComSchedule comSchedule) {
         this.initializeDevice(device);
         this.setIgnoreNextExecutionSpecsForInbound(true);
         this.setExecutingPriority(ComTaskExecution.DEFAULT_PRIORITY);
@@ -77,7 +76,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     private void setComSchedule(ComSchedule comSchedule) {
-        if (comSchedule==null) {
+        if (comSchedule == null) {
             this.comSchedule.setNull();
         }
         this.comSchedule.set(comSchedule);
@@ -132,8 +131,8 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     public int getMaxNumberOfTries() {
         int minimalNrOfRetries = Integer.MAX_VALUE;
         for (ComTask comTask : this.getComSchedule().getComTasks()) {
-            if (comTask.getMaxNumberOfTries()<minimalNrOfRetries) {
-                minimalNrOfRetries=comTask.getMaxNumberOfTries();
+            if (comTask.getMaxNumberOfTries() < minimalNrOfRetries) {
+                minimalNrOfRetries = comTask.getMaxNumberOfTries();
             }
         }
         return minimalNrOfRetries;
@@ -184,8 +183,8 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     class ScheduledComTaskExecutionUpdaterImpl
-        extends AbstractComTaskExecutionUpdater<ScheduledComTaskExecutionUpdater, ScheduledComTaskExecution, ScheduledComTaskExecutionImpl>
-        implements ScheduledComTaskExecutionUpdater {
+            extends AbstractComTaskExecutionUpdater<ScheduledComTaskExecutionUpdater, ScheduledComTaskExecution, ScheduledComTaskExecutionImpl>
+            implements ScheduledComTaskExecutionUpdater {
 
         protected ScheduledComTaskExecutionUpdaterImpl(ScheduledComTaskExecutionImpl comTaskExecution) {
             super(comTaskExecution, ScheduledComTaskExecutionUpdater.class);

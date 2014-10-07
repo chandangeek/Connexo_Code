@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.EventType;
-import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.impl.EventType;
+import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.google.common.base.Optional;
 import org.osgi.service.event.EventConstants;
 
@@ -45,8 +44,7 @@ public class ComScheduleBackgroundObsoleteHandler implements MessageHandler {
         String topic = (String) messageProperties.get(EventConstants.EVENT_TOPIC);
         if (START_TOPIC.equals(topic)) {
             this.startBackgroundObsoletion(messageProperties);
-        }
-        else if (RANGE_OBSOLETE_TOPIC.equals(topic)) {
+        } else if (RANGE_OBSOLETE_TOPIC.equals(topic)) {
             this.obsoleteComTaskExecutionsInRange(messageProperties);
         }
     }
@@ -79,8 +77,7 @@ public class ComScheduleBackgroundObsoleteHandler implements MessageHandler {
         Object contents = messageProperties.get(key);
         if (contents instanceof Long) {
             return (Long) contents;
-        }
-        else {
+        } else {
             return ((Integer) contents).longValue();
         }
     }

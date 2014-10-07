@@ -1,23 +1,22 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.*;
-import org.junit.rules.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
@@ -25,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.device.data.impl.DeviceProtocolPropertyImpl} component
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 24/03/14
  * Time: 09:58
@@ -157,7 +156,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         try {
             device.save();
         } catch (DeviceProtocolPropertyException e) {
-            if(!e.getMessageSeed().equals(MessageSeeds.DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST)){
+            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST)) {
                 fail("Should have gotten exception indicating that you can not create a DeviceProtocolProperty without an infoType, but was " + e.getMessage());
             } else {
                 throw e;
@@ -208,7 +207,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         try {
             device.save();
         } catch (DeviceProtocolPropertyException e) {
-            if(!e.getMessageSeed().equals(MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL)){
+            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL)) {
                 fail("Should have gotten exception indicating that you tried to add a property that is not defined by the device protocol, but was " + e.getMessage());
             } else {
                 throw e;

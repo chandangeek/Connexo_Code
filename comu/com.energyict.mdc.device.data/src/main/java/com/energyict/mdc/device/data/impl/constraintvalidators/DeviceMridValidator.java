@@ -1,15 +1,16 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceFields;
+import com.energyict.mdc.device.data.DeviceService;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
  * Validates that each device has a unique external name.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 10/03/14
  * Time: 16:13

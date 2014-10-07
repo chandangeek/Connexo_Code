@@ -4,7 +4,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
-
 import com.energyict.mdc.device.data.DeviceDataServices;
 
 /**
@@ -68,8 +67,8 @@ public enum EventType {
     }
 
     @TransactionRequired
-    void createIfNotExists(EventService eventService){
-        if(!eventService.getEventType(topic()).isPresent()){
+    void createIfNotExists(EventService eventService) {
+        if (!eventService.getEventType(topic()).isPresent()) {
             install(eventService);
         }
     }

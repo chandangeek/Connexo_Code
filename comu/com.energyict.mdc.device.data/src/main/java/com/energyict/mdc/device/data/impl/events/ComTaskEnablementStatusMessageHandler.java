@@ -6,21 +6,21 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import org.osgi.service.event.EventConstants;
 
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-import org.osgi.service.event.EventConstants;
 
 /**
  * Handles events that are being sent when a {@link ComTaskEnablement}
  * was suspended or resumed.<br>
  * The changes that are being monitored are listed and described
  * <a href="http://confluence.eict.vpdc/display/JUPMDC/ComTaskEnablement+events">here</a>.
- * @see ComTaskEnablement#suspend()
- * @see ComTaskEnablement#resume()
  *
  * @author Rudi Vankeirsbilck (rudi)
+ * @see ComTaskEnablement#suspend()
+ * @see ComTaskEnablement#resume()
  * @since 2014-04-24 (11:51)
  */
 public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
@@ -46,6 +46,7 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
 
     private interface ServiceLocator {
         public DeviceConfigurationService deviceConfigurationService();
+
         public ServerCommunicationTaskService communicationTaskService();
     }
 
@@ -92,7 +93,7 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
 
         protected abstract void process(Long comTaskEnablementId, ServiceLocator serviceLocator);
 
-        private String topic () {
+        private String topic() {
             return "com/energyict/mdc/device/config/comtaskenablement/" + this.name();
         }
 
@@ -101,17 +102,15 @@ public class ComTaskEnablementStatusMessageHandler implements MessageHandler {
                 Object contents = messageProperties.get(key);
                 if (contents instanceof Long) {
                     return (Long) contents;
-                }
-                else {
+                } else {
                     return ((Integer) contents).longValue();
                 }
-            }
-            else {
+            } else {
                 return null;
             }
         }
 
-        private static ActualEventHandler forTopic (String topic) {
+        private static ActualEventHandler forTopic(String topic) {
             Set<ActualEventHandler> candidates = EnumSet.range(SUSPEND, RESUME);
             for (ActualEventHandler actualEventHandler : candidates) {
                 if (actualEventHandler.topic().equals(topic)) {

@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
@@ -12,6 +9,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 
 import javax.inject.Inject;
 import java.time.temporal.TemporalAmount;
@@ -96,8 +95,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     public Optional<TemporalAmount> connectionSetupKpiCalculationIntervalLength() {
         if (this.connectionKpi.isPresent()) {
             return Optional.of(this.connectionKpi.get().getIntervalLength());
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -105,8 +103,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     Optional<Kpi> connectionKpi() {
         if (this.connectionKpi.isPresent()) {
             return Optional.of(this.connectionKpi.get());
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -128,8 +125,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     public Optional<TemporalAmount> comTaskExecutionKpiCalculationIntervalLength() {
         if (this.communicationKpi.isPresent()) {
             return Optional.of(this.communicationKpi.get().getIntervalLength());
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -137,8 +133,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     Optional<Kpi> communicationKpi() {
         if (this.communicationKpi.isPresent()) {
             return Optional.of(this.communicationKpi.get());
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }

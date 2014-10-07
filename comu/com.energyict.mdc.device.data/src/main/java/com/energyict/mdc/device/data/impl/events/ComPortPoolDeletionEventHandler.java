@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.engine.model.ComPortPool;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.engine.model.ComPortPool;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -15,7 +14,7 @@ import org.osgi.service.component.annotations.Reference;
  * Date: 27/03/2014
  * Time: 10:37
  */
-@Component(name="com.energyict.mdc.device.data.delete.comportpool.eventhandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.data.delete.comportpool.eventhandler", service = TopicHandler.class, immediate = true)
 public class ComPortPoolDeletionEventHandler implements TopicHandler {
 
     private volatile ServerConnectionTaskService connectionTaskService;

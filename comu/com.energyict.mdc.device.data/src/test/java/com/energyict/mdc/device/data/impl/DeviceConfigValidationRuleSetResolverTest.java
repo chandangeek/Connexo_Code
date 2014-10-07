@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.DeviceService;
-
 import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;

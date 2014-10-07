@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.gogo;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -9,8 +10,6 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-
-import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -21,14 +20,14 @@ import java.util.List;
 /**
  * Provides useful gogo commands that will support device related operations
  * that are NOT yet provided by the GUI.
- *
+ * <p>
  * <ul>
- *   <li>enableOutboundCommunication
- *     <ul>
- *       <li>will add all outbound connections that are enabled on the configuration</li>
- *       <li>will schedule all communication tasks that are enabled on the configuration</li>
- *     </ul>
- *   </li>
+ * <li>enableOutboundCommunication
+ * <ul>
+ * <li>will add all outbound connections that are enabled on the configuration</li>
+ * <li>will schedule all communication tasks that are enabled on the configuration</li>
+ * </ul>
+ * </li>
  * </ul>
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -56,11 +55,10 @@ public class DeviceDataGoGoCommands {
             }
         };
 
-        public static ScheduleFrequency fromString (String name) {
+        public static ScheduleFrequency fromString(String name) {
             try {
                 return ScheduleFrequency.valueOf(name);
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 return NONE;
             }
         }
@@ -70,7 +68,7 @@ public class DeviceDataGoGoCommands {
     }
 
     @SuppressWarnings("unused")
-    public void enableOutboundCommunication (String scheduleFrequency, String scheduleOption, String... deviceMRIDs) {
+    public void enableOutboundCommunication(String scheduleFrequency, String scheduleOption, String... deviceMRIDs) {
         try {
             ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(this.transactionService, this.deviceService, scheduleOption, this.findDevices(deviceMRIDs));
         } catch (Exception ex) {
@@ -90,8 +88,7 @@ public class DeviceDataGoGoCommands {
         Device device = this.deviceService.findByUniqueMrid(deviceMRID);
         if (device != null) {
             devices.add(device);
-        }
-        else {
+        } else {
             System.out.println("Device with MRID " + deviceMRID + " does not exist and has been ignored");
         }
     }
@@ -116,7 +113,7 @@ public class DeviceDataGoGoCommands {
             this.devices = devices;
         }
 
-        private void execute () {
+        private void execute() {
             for (Device device : this.devices) {
                 this.execute(device);
             }
@@ -152,8 +149,7 @@ public class DeviceDataGoGoCommands {
             if (deviceConfiguration.getProtocolDialectConfigurationPropertiesList().isEmpty()) {
                 System.out.println("No communication task scheduled for device " + device.getmRID() + "because no protocol dialect was configured in the device configuration: " + device.getDeviceConfiguration().getName());
                 return Collections.emptyList();
-            }
-            else {
+            } else {
                 ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
                 List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
                 for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {

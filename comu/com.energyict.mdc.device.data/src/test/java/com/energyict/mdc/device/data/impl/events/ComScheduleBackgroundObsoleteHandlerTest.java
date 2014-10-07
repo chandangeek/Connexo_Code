@@ -1,31 +1,26 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.EventConstants;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComScheduleBackgroundObsoleteHandler} component.
@@ -61,7 +56,7 @@ public class ComScheduleBackgroundObsoleteHandlerTest {
     }
 
     @Before
-    public void createEventHandler () {
+    public void createEventHandler() {
         this.eventHandler = new ComScheduleBackgroundObsoleteHandler(this.jsonService, this.eventService, this.communicationTaskService);
     }
 
@@ -84,7 +79,7 @@ public class ComScheduleBackgroundObsoleteHandlerTest {
     }
 
     @Test
-    public void testWithoutComTaskExecutions () {
+    public void testWithoutComTaskExecutions() {
         this.createStartMessage();
         when(this.communicationTaskService.getScheduledComTaskExecutionIdRange(anyLong())).thenReturn(Optional.<ScheduledComTaskExecutionIdRange>absent());
 

@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.util.time.Clock;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.kpi.KpiBuilder;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-
-import com.elster.jupiter.kpi.KpiBuilder;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.google.inject.Inject;
 
 import java.math.BigDecimal;
@@ -40,8 +39,7 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         com.google.common.base.Optional<DataCollectionKpi> dataCollectionDeviceGroup = this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getOptional(id);
         if (dataCollectionDeviceGroup.isPresent()) {
             return Optional.of(dataCollectionDeviceGroup.get());
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -113,11 +111,12 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
             this.kpiBuilder.interval(intervalLength);
             this.memberBuilders =
                     MONITORED_STATUSSES.stream().
-                        map(s -> kpiBuilder.member().named(s.name())).
-                        map(s -> {
-                            s.add();
-                            return s;}).
-                        collect(Collectors.toList());
+                            map(s -> kpiBuilder.member().named(s.name())).
+                            map(s -> {
+                                s.add();
+                                return s;
+                            }).
+                            collect(Collectors.toList());
         }
 
         @Override

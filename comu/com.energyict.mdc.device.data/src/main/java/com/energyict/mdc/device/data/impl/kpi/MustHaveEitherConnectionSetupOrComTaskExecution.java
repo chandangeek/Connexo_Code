@@ -27,8 +27,8 @@ public @interface MustHaveEitherConnectionSetupOrComTaskExecution {
 
     String message() default "{" + MessageSeeds.Keys.EMPTY_DATA_COLLECTION_KPI + "}";
 
-    Class<?>[] groups() default { };
+    Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default { };
+    Class<? extends Payload>[] payload() default {};
 
 }
