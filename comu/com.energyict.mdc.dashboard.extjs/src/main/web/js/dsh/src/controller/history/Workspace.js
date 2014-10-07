@@ -12,13 +12,13 @@ Ext.define('Dsh.controller.history.Workspace', {
             disabled: true,
             items: {
                 connections: {
-                    title: 'Connections overview',
+                    title: Uni.I18n.translate('title.connections.overview', 'DSH', 'Connections overview'),
                     route: 'connections',
                     controller: 'Dsh.controller.ConnectionOverview',
                     action: 'showOverview',
                     items: {
                         details: {
-                            title: 'Connections',
+                            title: Uni.I18n.translate('title.connections', 'DSH', 'Connections'),
                             route: 'details',
                             controller: 'Dsh.controller.Connections',
                             action: 'showOverview',
@@ -27,13 +27,13 @@ Ext.define('Dsh.controller.history.Workspace', {
                     }
                 },
                 communications: {
-                    title: 'Communication overview',
+                    title: Uni.I18n.translate('title.communications.overview', 'DSH', 'Communications overview'),
                     route: 'communications',
                     controller: 'Dsh.controller.CommunicationOverview',
                     action: 'showOverview',
                     items: {
                         details: {
-                            title: 'Communications',
+                            title: Uni.I18n.translate('title.communications', 'DSH', 'Communications'),
                             route: 'details',
                             controller: 'Dsh.controller.Communications',
                             action: 'showOverview',

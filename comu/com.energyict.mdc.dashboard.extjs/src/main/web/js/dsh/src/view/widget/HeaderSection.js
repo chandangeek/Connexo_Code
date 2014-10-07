@@ -2,8 +2,8 @@ Ext.define('Dsh.view.widget.HeaderSection', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.header-section',
     itemId: 'header-section',
-    wTitle: Uni.I18n.translate('overview.widget.headerSection.title', 'DSH', 'Overview'),
     layout: 'column',
+    router: null,
 
     initComponent: function () {
         var me = this;
@@ -11,7 +11,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
             {
                 itemId: 'headerTitle',
                 baseCls: 'x-panel-header-text-container-large',
-                html: me.wTitle
+                html: me.router ? me.router.getRoute().title : ''
             },
 //            {
 //                xtype: 'combobox',

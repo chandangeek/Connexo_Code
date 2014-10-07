@@ -30,7 +30,7 @@ Ext.define('Dsh.view.ConnectionOverview', {
         me.items = [
             {
                 xtype: 'header-section',
-                wTitle: Uni.I18n.translate('connection.widget.headerSection.title', 'DSH', 'Connection overview'),
+                router: me.router,
                 style: 'none'
             },
             {
@@ -72,7 +72,7 @@ Ext.define('Dsh.view.ConnectionOverview', {
                                 href: me.router.getRoute('workspace/connections/details').buildUrl()
                             },
                             {
-                                link: Uni.I18n.translate('communication.widget.headerSection.title', 'DSH', 'Communication overview'),
+                                link: me.router.getRoute('workspace/communications').title,
                                 href: me.router.getRoute('workspace/communications').buildUrl()
                             }
                         ]
