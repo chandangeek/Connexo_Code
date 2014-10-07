@@ -39,6 +39,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -148,7 +149,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
 
     @Override
     public Class<?>[] getClasses() {
-    	return new Class<?>[] {InvalidateCacheRequest.class};
+        return new Class<?>[]{InvalidateCacheRequest.class};
     }
 
     Thesaurus getThesaurus() {
@@ -220,6 +221,11 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     @Override
     public void install() {
         new Installer(userService, dataModel, messageService, thesaurus).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "USR", "MSG", "NLS");
     }
 
     @Reference
