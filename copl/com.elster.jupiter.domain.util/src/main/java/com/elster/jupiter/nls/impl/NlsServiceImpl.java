@@ -6,17 +6,19 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import com.google.inject.AbstractModule;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
@@ -24,9 +26,11 @@ import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.ValidationProviderResolver;
 import javax.validation.metadata.ConstraintDescriptor;
-
+import java.security.Principal;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +42,8 @@ public class NlsServiceImpl implements NlsService, InstallService {
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageInterpolator messageInterpolator;
+    private volatile List<TranslationKeyProvider> translationKeyProviders = new CopyOnWriteArrayList<>();
+    private volatile boolean installed = false;
 
     @Activate
     public final void activate() {
@@ -99,10 +105,67 @@ public class NlsServiceImpl implements NlsService, InstallService {
             	.configure()
             	.getDefaultMessageInterpolator();
     }
+
+    @Reference(name = "ZTranslationProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
+    public synchronized void addTranslationProvider(TranslationKeyProvider provider) {
+        this.translationKeyProviders.add(provider);
+        if (installed) {
+            try {
+                setPrincipal();
+                threadPrincipalService.set("INSTALL-translation", provider.getComponentName());
+                doInstallProvider(provider);
+            } finally {
+                clearPrincipal();
+            }
+        }
+
+    }
+
+    private void clearPrincipal() {
+        threadPrincipalService.clear();
+    }
+
+    private void setPrincipal() {
+        threadPrincipalService.set(getPrincipal());
+    }
+
+    private Principal getPrincipal() {
+        return new Principal() {
+
+            @Override
+            public String getName() {
+                return "Jupiter Installer";
+            }
+        };
+    }
+
+    public void removeTranslationProvider(TranslationKeyProvider provider) {
+        this.translationKeyProviders.remove(provider);
+    }
     
     @Override
-    public void install() {
+    public synchronized void install() {
         dataModel.install(true, true);
+        installProviders();
+        installed = true;
+    }
+
+    private void installProviders() {
+        for (TranslationKeyProvider translationKeyProvider : translationKeyProviders) {
+            doInstallProvider(translationKeyProvider);
+        }
+    }
+
+    private void doInstallProvider(TranslationKeyProvider provider) {
+        String componentName = provider.getComponentName();
+        Layer layer = provider.getLayer();
+        ThesaurusImpl thesaurus = (ThesaurusImpl) getThesaurus(componentName, layer);
+        thesaurus.createNewTranslationKeys(provider);
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM");
     }
 
     public void addTranslation(String componentName, String layerName, String key, String defaultMessage) {
