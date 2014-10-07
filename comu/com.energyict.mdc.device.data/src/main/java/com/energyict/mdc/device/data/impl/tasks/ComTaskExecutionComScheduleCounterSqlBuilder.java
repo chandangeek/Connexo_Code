@@ -32,7 +32,7 @@ public class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTas
     private void appendSelectClause() {
         this.append("select '");
         this.append(this.taskStatus.getPublicStatus().name());
-        this.append("', ctincs.comtask, count(*)");
+        this.append("', ctincs.comschedule, count(*)");
     }
 
     private void appendFromClause() {
@@ -52,7 +52,7 @@ public class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTas
     }
 
     private void appendGroupByClause() {
-        this.append(" group by ctincs.comtask");
+        this.append(" group by ctincs.comschedule");
     }
 
 }

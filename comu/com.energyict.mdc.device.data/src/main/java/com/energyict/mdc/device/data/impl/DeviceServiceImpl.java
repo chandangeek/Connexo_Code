@@ -45,7 +45,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
         this.deviceDataModelService = deviceDataModelService;
     }
 
-
     @Override
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
         List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();

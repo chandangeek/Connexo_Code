@@ -8,12 +8,14 @@ Private-Package:  \
 	com.energyict.mdc.device.data.impl.events,\
 	com.energyict.mdc.device.data.impl.finders,\
 	com.energyict.mdc.device.data.impl.gogo,\
+	com.energyict.mdc.device.data.impl.kpi,\
 	com.energyict.mdc.device.data.impl.security,\
 	com.energyict.mdc.device.data.impl.tasks,\
 	com.energyict.mdc.device.data.impl.tasks.history
 Export-Package:  \
 	com.energyict.mdc.device.data,\
 	com.energyict.mdc.device.data.exceptions,\
+	com.energyict.mdc.device.data.kpi,\
 	com.energyict.mdc.device.data.security,\
 	com.energyict.mdc.device.data.tasks,\
 	com.energyict.mdc.device.data.tasks.history

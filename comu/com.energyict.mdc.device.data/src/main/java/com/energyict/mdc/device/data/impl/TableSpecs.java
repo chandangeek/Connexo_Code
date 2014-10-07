@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
@@ -63,17 +65,17 @@ public enum TableSpecs {
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             table.
-                    foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
-                    on(configuration).
-                    references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICECONFIG").
-                    map(DeviceFields.DEVICECONFIGURATION.fieldName()).
-                    add();
+                foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
+                on(configuration).
+                references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICECONFIG").
+                map(DeviceFields.DEVICECONFIGURATION.fieldName()).
+                add();
             table.
-                    foreignKey("FK_DDC_DEVICE_DEVICETYPE").
-                    on(deviceType).
-                    references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").
-                    map(DeviceFields.DEVICETYPE.fieldName()).
-                    add();
+                foreignKey("FK_DDC_DEVICE_DEVICETYPE").
+                on(deviceType).
+                references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").
+                map(DeviceFields.DEVICETYPE.fieldName()).
+                add();
             table.unique("UK_DDC_DEVICE_MRID").on(externid).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
         }
@@ -99,7 +101,7 @@ public enum TableSpecs {
             Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
             Column infoTypeId = table.column("INFOTYPEID").map("infoTypeId").number().conversion(NUMBER2LONG).notNull().add();
             table.column("INFOVALUE").varChar().map("propertyValue").add();
-            table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, infoTypeId).add();
+            table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId,infoTypeId).add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_INFOTYPE").on(infoTypeId).references(DDC_INFOTYPE.name()).map("infoTypeId").add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map("device").reverseMap("deviceProperties").composition().add();
         }
@@ -504,7 +506,18 @@ public enum TableSpecs {
                     add();
             table.primaryKey("PK_DDC_COMSESSIONJOURNALENTRY").on(id).add();
         }
-    },;
+    },
+
+    DDC_DEVICE_GROUP {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DataCollectionKpi> table = dataModel.addTable(name(), DataCollectionKpi.class);
+            table.map(DataCollectionKpiImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.primaryKey("PK_DDC_DEVICE_GROUP").on(id).add();
+        }
+    },
+    ;
 
     abstract void addTo(DataModel component);
 
