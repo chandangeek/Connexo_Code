@@ -195,8 +195,14 @@ public class LoadProfileResource {
 
     private Predicate<LoadProfileDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
         ImmutableList.Builder<Predicate<LoadProfileDataInfo>> list = ImmutableList.builder();
-        if (filterActive(queryParameters, "onlySuspect")) {
-            list.add(this::hasSuspects);
+        boolean onlySuspect = filterActive(queryParameters, "onlySuspect");
+        boolean onlyNonSuspect = filterActive(queryParameters, "onlyNonSuspect");
+        if (onlySuspect ^ onlyNonSuspect) {
+            if (onlySuspect) {
+                list.add(this::hasSuspects);
+            } else {
+                list.add(not(this::hasSuspects));
+            }
         }
         if (filterActive(queryParameters, "hideMissing")) {
             list.add(not(this::hasMissingData));

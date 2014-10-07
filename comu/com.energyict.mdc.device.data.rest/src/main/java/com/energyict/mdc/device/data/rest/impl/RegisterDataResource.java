@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
+
 public class RegisterDataResource {
 
     private final ResourceHelper resourceHelper;
@@ -95,8 +97,14 @@ public class RegisterDataResource {
 
     private Predicate<ReadingInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
         ImmutableList.Builder<Predicate<ReadingInfo>> list = ImmutableList.builder();
-        if (filterActive(queryParameters, "onlySuspect")) {
-            list.add(this::hasSuspects);
+        boolean onlySuspect = filterActive(queryParameters, "onlySuspect");
+        boolean onlyNonSuspect = filterActive(queryParameters, "onlyNonSuspect");
+        if (onlySuspect ^ onlyNonSuspect) {
+            if (onlySuspect) {
+                list.add(this::hasSuspects);
+            } else {
+                list.add(not(this::hasSuspects));
+            }
         }
         if (filterActive(queryParameters, "hideSuspects")) {
             list.add(this::hideSuspects);
