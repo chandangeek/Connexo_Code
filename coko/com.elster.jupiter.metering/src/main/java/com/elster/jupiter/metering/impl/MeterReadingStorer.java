@@ -74,7 +74,6 @@ public class MeterReadingStorer {
         removeOldReadingQualities();
         storeReadingQualities();
         storeEvents(facade.getMeterReading().getEvents());
-        removeOldReadingQualities();
         readingStorer.execute();
         eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getInterval().getStart().getTime(), facade.getInterval().getEnd().getTime()));
     }

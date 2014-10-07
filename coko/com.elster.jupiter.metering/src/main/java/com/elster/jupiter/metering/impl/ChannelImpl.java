@@ -10,7 +10,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -31,6 +33,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -38,12 +41,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 public final class ChannelImpl implements ChannelContract {
 	
@@ -295,14 +300,18 @@ public final class ChannelImpl implements ChannelContract {
         return version;
     }
 
+    public List<ReadingQualityRecord> findReadingQuality(Range<Instant> range) {
+    	Condition condition = inRange(range).and(ofThisChannel());
+        return dataModel.mapper(ReadingQualityRecord.class).select(condition);
+    }
+    
     @Override
     public List<ReadingQualityRecord> findReadingQuality(Interval interval) {
-        Condition condition = inInterval(interval).and(ofThisChannel());
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition); 
+    	return  findReadingQuality(interval.toClosedRange()); 
     }
 
-    private Condition inInterval(Interval interval) {        
-        return where("readingTimestamp").inClosed(interval);
+    private Condition inRange(Range<Instant> range) {        
+        return where("readingTimestamp").in(range);
     }
 
     private Condition ofThisChannel() {
@@ -322,7 +331,7 @@ public final class ChannelImpl implements ChannelContract {
 
     @Override
     public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Interval interval) {
-        Condition ofTypeAndInInterval = ofThisChannel().and(inInterval(interval)).and(Operator.EQUAL.compare("typeCode", type.getCode()));
+        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(interval.toClosedRange())).and(where("typeCode").isEqualTo(type.getCode()));
         return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval,Order.ascending("readingTimestamp"));
     }
 
@@ -402,6 +411,15 @@ public final class ChannelImpl implements ChannelContract {
 	
 	@Override
 	public void removeReadings(List<? extends BaseReadingRecord> readings) {
-		readings.forEach(reading -> timeSeries.get().removeEntry(reading.getTimeStamp().toInstant()));
+		if (readings.isEmpty()) {
+			return;
+		}
+		Set<Instant> readingTimes = readings.stream().map(reading -> reading.getTimeStamp().toInstant()).collect(Collectors.toSet());
+		List<ReadingQualityRecord> qualityRecords = findReadingQuality(Range.encloseAll(readingTimes));
+		readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
+		DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
+		mapper.remove(qualityRecords.stream()
+			.filter(quality -> readingTimes.contains(quality.getReadingTimestamp().toInstant()))
+			.collect(Collectors.toList()));
 	}
 }
