@@ -23,6 +23,7 @@ import java.security.SignatureException;
 import java.security.SignedObject;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
@@ -60,12 +61,17 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         assignPrivilegesToDefaultRoles();
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "USR");
+    }
+
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("SYS", "license.license", "license.license.description", new String[] {Privileges.VIEW_LICENSE, Privileges.UPLOAD_LICENSE});
+        this.userService.createResourceWithPrivileges("SYS", "license.license", "license.license.description", new String[]{Privileges.VIEW_LICENSE, Privileges.UPLOAD_LICENSE});
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, new String[] {Privileges.UPLOAD_LICENSE, Privileges.VIEW_LICENSE});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, new String[]{Privileges.UPLOAD_LICENSE, Privileges.VIEW_LICENSE});
     }
 
     @Reference
