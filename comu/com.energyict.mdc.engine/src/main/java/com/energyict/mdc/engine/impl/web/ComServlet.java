@@ -57,7 +57,7 @@ public class ComServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html");
         PrintWriter responseWriter = response.getWriter();
         responseWriter.println("<HTML><BODY><H1>ComServer servlet based com port connector</H1><TABLE>");
@@ -69,21 +69,20 @@ public class ComServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost (HttpServletRequest request, HttpServletResponse response)
-        throws
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws
             IOException,
             ServletException {
         this.statistics.doPost();
         try {
             this.handOverToInboundDeviceProtocol(request, response);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             // Avoid that the current thread will stop because of e.g. NPE
             LOGGER.log(Level.SEVERE, t.getMessage(), t);
         }
     }
 
-    private void handOverToInboundDeviceProtocol (HttpServletRequest request, HttpServletResponse response) {
+    private void handOverToInboundDeviceProtocol(HttpServletRequest request, HttpServletResponse response) {
         ServletBasedInboundDeviceProtocol inboundDeviceProtocol = this.newInboundDeviceProtocol();
         InboundDiscoveryContextImpl context = this.newInboundDiscoveryContext(request, response);
         inboundDeviceProtocol.initializeDiscoveryContext(context);
@@ -92,7 +91,7 @@ public class ComServlet extends HttpServlet {
         this.checkForConfigurationError(this.communicationHandler.getResponseType());
     }
 
-    private void checkForConfigurationError (InboundDeviceProtocol.DiscoverResponseType responseType) {
+    private void checkForConfigurationError(InboundDeviceProtocol.DiscoverResponseType responseType) {
         switch (responseType) {
             case DEVICE_NOT_FOUND: {
                 // Intentional fallthrough
@@ -116,14 +115,14 @@ public class ComServlet extends HttpServlet {
         }
     }
 
-    private InboundDiscoveryContextImpl newInboundDiscoveryContext (HttpServletRequest request, HttpServletResponse response) {
+    private InboundDiscoveryContextImpl newInboundDiscoveryContext(HttpServletRequest request, HttpServletResponse response) {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, request, response, serviceProvider.connectionTaskService());
         context.setInboundDAO(this.comServerDAO);
         context.setLogger(Logger.getAnonymousLogger());
         return context;
     }
 
-    private String getMdwVersion () {
+    private String getMdwVersion() {
         return "1.0.0-SNAPSHOT";
     }
 
@@ -131,12 +130,12 @@ public class ComServlet extends HttpServlet {
         return (ServletBasedInboundDeviceProtocol) this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass().getInboundDeviceProtocol();
     }
 
-    private String getWebVersion () {
+    private String getWebVersion() {
         String version = getVersion();
-        return this.getClass().getName() + " " + version.substring(7, version.length() -2);
+        return this.getClass().getName() + " " + version.substring(7, version.length() - 2);
     }
 
-    public String getVersion () {
+    public String getVersion() {
         return "$Date: 2012-10-11 17:21:47 +0200 $";
     }
 
@@ -153,13 +152,13 @@ public class ComServlet extends HttpServlet {
          */
         private long configurationErrorCount;
 
-        public void doPost () {
+        public void doPost() {
             this.hitCount++;
         }
 
-        public void printWith (PrintWriter writer) {
+        public void printWith(PrintWriter writer) {
             writer.println("<TR><TD>Servlet hitcount :</TD><TD>" + this.hitCount + "</TD></TR>");
-            writer.println("<TR><TD>Communication configuration error count:</TD><TD>" + this.configurationErrorCount+ "</TD></TR>");
+            writer.println("<TR><TD>Communication configuration error count:</TD><TD>" + this.configurationErrorCount + "</TD></TR>");
         }
     }
 

@@ -1,5 +1,12 @@
 package com.energyict.mdc.engine.impl.core.devices;
 
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
+import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -15,16 +22,16 @@ import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComServer;
-
-import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
-import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.google.common.base.Optional;
 import org.joda.time.DateTimeConstants;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,21 +40,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl} component.
@@ -159,8 +154,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(threadFactory.getThread(0).getPriority()).isEqualTo(threadPriority);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -188,8 +182,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             verify(receiver).receiveSignal();
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -221,8 +214,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             verify(receiver, times(CAPACITY)).receiveSignal();
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -242,8 +234,7 @@ public class DeviceCommandExecutorImplTest {
             deviceCommandExecutor.execute(new SleepCommand(), token);
 
             // Expected a NoResourcesAcquiredException because the command was not prepared
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -265,8 +256,7 @@ public class DeviceCommandExecutorImplTest {
             deviceCommandExecutor.execute(new SleepCommand(), token);
 
             // Expected an IllegalStateException because the DeviceCommandExecutor was already shutdown
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -353,8 +343,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(tokens).isEmpty();
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -397,8 +386,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(tokens).hasSize(2);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -448,8 +436,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(tokens).hasSize(2);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -468,8 +455,7 @@ public class DeviceCommandExecutorImplTest {
             deviceCommandExecutor.free(mock(DeviceCommandExecutionToken.class));
 
             // Was expecting a NoResourcesAcquiredException
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -505,8 +491,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(tokens).hasSize(2);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -540,8 +525,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(tokens).hasSize(2);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -575,8 +559,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(tokens).hasSize(2);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -604,8 +587,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -633,8 +615,7 @@ public class DeviceCommandExecutorImplTest {
             // Asserts
             assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
             verify(receiver, times(CAPACITY)).receiveSignal();
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -674,8 +655,7 @@ public class DeviceCommandExecutorImplTest {
             // Asserts
             assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
             verify(receiver, times(CAPACITY)).receiveSignal();
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -724,8 +704,7 @@ public class DeviceCommandExecutorImplTest {
             // Asserts
             verify(command1).execute(comServerDAO);
             verify(command3).executeDuringShutdown(comServerDAO);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -751,8 +730,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(threadFactory.getThread(0).getPriority()).isEqualTo(newThreadPriority);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -775,8 +753,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(extraTokens).hasSize(2);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -799,8 +776,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(extraTokens).isEmpty();
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -839,8 +815,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts
             assertThat(threadFactory.getThreads()).hasSize(changedNumberOfThreads);
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }
@@ -880,8 +855,7 @@ public class DeviceCommandExecutorImplTest {
 
             // Asserts that no new thread has been created
             assertThat(threadFactory.getThreads()).isEmpty();
-        }
-        finally {
+        } finally {
             shutdown(deviceCommandExecutor);
         }
     }

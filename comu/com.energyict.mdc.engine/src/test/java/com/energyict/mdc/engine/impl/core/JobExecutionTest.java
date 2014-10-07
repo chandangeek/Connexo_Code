@@ -1,5 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -51,41 +55,31 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TopologyTask;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Test to check if the organizeComCommands() method on the interface GenericDeviceProtocol is triggered correctly
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 30/01/13
  * Time: 9:11
@@ -157,7 +151,7 @@ public class JobExecutionTest {
     private CommandRootImpl root;
     private CommandRootImpl root2;
 
-    public void setupServiceProvider () {
+    public void setupServiceProvider() {
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
         this.serviceProvider.setIssueService(this.issueService);
@@ -172,19 +166,19 @@ public class JobExecutionTest {
     }
 
     @After
-    public void restServiceProvider () {
+    public void restServiceProvider() {
         ServiceProvider.instance.set(null);
     }
 
     @Before
-    public void setupEventPublisher () {
+    public void setupEventPublisher() {
         this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
         when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
     }
 
     @After
-    public void resetEventPublisher () {
+    public void resetEventPublisher() {
         EventPublisherImpl.setInstance(null);
     }
 
@@ -211,11 +205,11 @@ public class JobExecutionTest {
 
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), eq(this.device), any(Date.class))).
-            thenReturn(mock(ComTaskExecutionSessionBuilder.class));
+                thenReturn(mock(ComTaskExecutionSessionBuilder.class));
         when(this.connectionTaskService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).
-            thenReturn(comSessionBuilder);
+                thenReturn(comSessionBuilder);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(this.deviceConfiguration))).
-            thenReturn(Optional.of(this.comTaskEnablement));
+                thenReturn(Optional.of(this.comTaskEnablement));
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.comTaskEnablement.getSecurityPropertySet()).thenReturn(this.securityPropertySet);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);

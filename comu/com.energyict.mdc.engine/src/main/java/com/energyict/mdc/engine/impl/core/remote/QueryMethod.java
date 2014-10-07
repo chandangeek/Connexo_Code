@@ -2,8 +2,6 @@ package com.energyict.mdc.engine.impl.core.remote;
 
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.google.common.base.Optional;
-
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
@@ -13,6 +11,7 @@ import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.google.common.base.Optional;
 
 import java.io.IOException;
 import java.util.Date;
@@ -32,20 +31,20 @@ public enum QueryMethod {
     ConfirmSentMessagesAndGetPending,
     GetThisComServer {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             return comServerDAO.getThisComServer();
         }
     },
     GetComServer {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             String hostName = (String) parameters.get(RemoteComServerQueryJSonPropertyNames.HOSTNAME);
             return comServerDAO.getComServer(hostName);
         }
     },
     RefreshComServer {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
             Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
             if (comServer.isPresent()) {
@@ -59,14 +58,13 @@ public enum QueryMethod {
     },
     RefreshComPort {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comportId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
             Date modificationDate = this.getModificationDate(parameters);
             ComPort comPort = ServiceProvider.instance.get().engineModelService().findComPort(comportId);
             if (comPort.getModificationDate().after(modificationDate)) {
                 return comPort;
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -75,15 +73,14 @@ public enum QueryMethod {
     FindExecutableInboundComTasks,
     ExecutionStarted {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comTaskExecutionId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
             if (comTaskExecutionId != null) {
                 Long comportId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMPORT);
                 ComPort comPort = ServiceProvider.instance.get().engineModelService().findComPort(comportId);
                 ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.executionStarted(comServerDAO, comPort, comTaskExecution);
-            }
-            else {
+            } else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
@@ -98,15 +95,14 @@ public enum QueryMethod {
     },
     AttemptLock {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comTaskExecutionId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
             if (comTaskExecutionId != null) {
                 Long comportId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMPORT);
                 ComPort comPort = ServiceProvider.instance.get().engineModelService().findComPort(comportId);
                 ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.attemptLock(comServerDAO, comPort, comTaskExecution);
-            }
-            else {
+            } else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
@@ -121,13 +117,12 @@ public enum QueryMethod {
     },
     Unlock {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comTaskExecutionId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
             if (comTaskExecutionId != null) {
                 ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.unlock(comServerDAO, comTaskExecution);
-            }
-            else {
+            } else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 OutboundConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findOutboundConnectionTask(connectionTaskId).get();
@@ -138,13 +133,12 @@ public enum QueryMethod {
     },
     ExecutionCompleted {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comTaskExecutionId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
             if (comTaskExecutionId != null) {
                 ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.executionCompleted(comServerDAO, comTaskExecution);
-            }
-            else {
+            } else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 ConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findConnectionTask(connectionTaskId).get();
@@ -155,13 +149,12 @@ public enum QueryMethod {
     },
     ExecutionFailed {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comTaskExecutionId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
             if (comTaskExecutionId != null) {
                 ComTaskExecution comTaskExecution = ServiceProvider.instance.get().communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 this.executionFailed(comServerDAO, comTaskExecution);
-            }
-            else {
+            } else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 ConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findConnectionTask(connectionTaskId).get();
@@ -182,7 +175,7 @@ public enum QueryMethod {
     },
     ReleaseInterruptedComTasks {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
             Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
             if (comServer.isPresent()) {
@@ -193,7 +186,7 @@ public enum QueryMethod {
     },
     ReleaseTimedOutComTasks {
         @Override
-        protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
             Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
             return new TimeDurationXmlWrapper(comServerDAO.releaseTimedOutTasks(comServer.get()));
@@ -215,126 +208,126 @@ public enum QueryMethod {
 
     Long getLong(Map<String, Object> parameters, String jsonPropertyName) {
         Object parameter = parameters.get(jsonPropertyName);
-        if(parameter instanceof Long){
+        if (parameter instanceof Long) {
             return (Long) parameter;
         } else {
             return Long.valueOf((Integer) parameter);
         }
     }
 
-    protected void executionStarted (final ComServerDAOImpl comServerDAO, final ConnectionTask connectionTask, final ComServer comServer) {
+    protected void executionStarted(final ComServerDAOImpl comServerDAO, final ConnectionTask connectionTask, final ComServer comServer) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.executionStarted(connectionTask, comServer);
             }
         });
     }
 
-    protected void attemptLock (final ComServerDAOImpl comServerDAO, final OutboundConnectionTask connectionTask, final ComServer comServer) {
+    protected void attemptLock(final ComServerDAOImpl comServerDAO, final OutboundConnectionTask connectionTask, final ComServer comServer) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.attemptLock(connectionTask, comServer);
             }
         });
     }
 
-    protected void attemptLock (final ComServerDAOImpl comServerDAO, final ComPort comPort, final ComTaskExecution comTaskExecution) {
+    protected void attemptLock(final ComServerDAOImpl comServerDAO, final ComPort comPort, final ComTaskExecution comTaskExecution) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.attemptLock(comTaskExecution, comPort);
             }
         });
     }
 
-    protected void unlock (final ComServerDAOImpl comServerDAO, final OutboundConnectionTask connectionTask) {
+    protected void unlock(final ComServerDAOImpl comServerDAO, final OutboundConnectionTask connectionTask) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.unlock(connectionTask);
             }
         });
     }
 
-    protected void unlock (final ComServerDAOImpl comServerDAO, final ComTaskExecution comTaskExecution) {
+    protected void unlock(final ComServerDAOImpl comServerDAO, final ComTaskExecution comTaskExecution) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.unlock(comTaskExecution);
             }
         });
     }
 
-    protected void executionCompleted (final ComServerDAOImpl comServerDAO, final ConnectionTask connectionTask) {
+    protected void executionCompleted(final ComServerDAOImpl comServerDAO, final ConnectionTask connectionTask) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.executionCompleted(connectionTask);
             }
         });
     }
 
-    protected void executionFailed (final ComServerDAOImpl comServerDAO, final ConnectionTask connectionTask) {
+    protected void executionFailed(final ComServerDAOImpl comServerDAO, final ConnectionTask connectionTask) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.executionFailed(connectionTask);
             }
         });
     }
 
-    protected void setMaxNrOfTries (final ComServerDAOImpl comServerDAO, final ScheduledConnectionTask connectionTask, final int maxNrOfTries) {
+    protected void setMaxNrOfTries(final ComServerDAOImpl comServerDAO, final ScheduledConnectionTask connectionTask, final int maxNrOfTries) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.setMaxNumberOfTries(connectionTask, maxNrOfTries);
             }
         });
     }
 
-    protected void executionStarted (final ComServerDAOImpl comServerDAO, final ComPort comPort, final ComTaskExecution comTaskExecution) {
+    protected void executionStarted(final ComServerDAOImpl comServerDAO, final ComPort comPort, final ComTaskExecution comTaskExecution) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.executionStarted(comTaskExecution, comPort);
             }
         });
     }
 
-    protected void executionCompleted (final ComServerDAOImpl comServerDAO, final ComTaskExecution comTaskExecution) {
+    protected void executionCompleted(final ComServerDAOImpl comServerDAO, final ComTaskExecution comTaskExecution) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.executionCompleted(comTaskExecution);
             }
         });
     }
 
-    protected void executionFailed (final ComServerDAOImpl comServerDAO, final ComTaskExecution comTaskExecution) {
+    protected void executionFailed(final ComServerDAOImpl comServerDAO, final ComTaskExecution comTaskExecution) {
         this.executeTransaction(new VoidTransaction() {
             @Override
-            public void doPerform () {
+            public void doPerform() {
                 comServerDAO.executionFailed(comTaskExecution);
             }
         });
     }
 
-    private <T> T executeTransaction (Transaction<T> transaction) {
+    private <T> T executeTransaction(Transaction<T> transaction) {
         return ServiceProvider.instance.get().transactionService().execute(transaction);
     }
 
-    protected Date getModificationDate (Map<String, Object> parameters) {
+    protected Date getModificationDate(Map<String, Object> parameters) {
         Long utcMillis = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE);
         return new Date(utcMillis);
     }
 
-    private boolean nameMatches (String name) {
+    private boolean nameMatches(String name) {
         return this.name().equalsIgnoreCase(name);
     }
 
-    public static QueryMethod byName (String methodName) {
+    public static QueryMethod byName(String methodName) {
         for (QueryMethod queryMethod : values()) {
             if (queryMethod.nameMatches(methodName)) {
                 return queryMethod;
@@ -347,15 +340,15 @@ public enum QueryMethod {
      * Executes the query with the specified parameters
      * and uses the Writer to marshall the result to JSON.
      *
-     * @param parameters The parameters of the query
+     * @param parameters   The parameters of the query
      * @param comServerDAO The ComServerDAO
      * @return The result of the query
      */
-    public Object execute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) throws IOException {
+    public Object execute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) throws IOException {
         return this.doExecute(parameters, comServerDAO);
     }
 
-    protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
+    protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
         throw new UnsupportedOperationException(this.name() + " does not implement doExecute(Map<String,Object>,ComServerDAOImpl) yet");
     }
 

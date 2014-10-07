@@ -1,9 +1,12 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
@@ -40,10 +43,6 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-
-import com.elster.jupiter.util.time.StopWatch;
 import com.google.common.base.Optional;
 import org.joda.time.Duration;
 
@@ -143,13 +142,13 @@ public class InboundCommunicationHandler {
      * connection was not properly setup because we don't know which endDevice to use.
      *
      * @param inboundDeviceProtocol the inboundDeviceProtocol
-     * @param e the DuplicateException
+     * @param e                     the DuplicateException
      */
     private void handleDuplicateDevicesFound(InboundDeviceProtocol inboundDeviceProtocol, DuplicateException e) {
         if (FindMultipleDevices.class.isAssignableFrom(inboundDeviceProtocol.getDeviceIdentifier().getClass())) {
             FindMultipleDevices<?> multipleDevicesFinder = (FindMultipleDevices<?>) inboundDeviceProtocol.getDeviceIdentifier();
             List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> allDevices = multipleDevicesFinder.getAllDevices();
-            for (BaseDevice<?,?,?> device : allDevices) {
+            for (BaseDevice<?, ?, ?> device : allDevices) {
                 if (deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl((Device) device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider()))) {
                     List<DeviceCommandExecutionToken> tokens = this.deviceCommandExecutor.tryAcquireTokens(1);
                     if (!tokens.isEmpty() && this.connectionTask != null) {
@@ -173,7 +172,7 @@ public class InboundCommunicationHandler {
      * @param e the duplicateException
      * @return the CreateInboundComSession
      */
-    private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e){
+    private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e) {
         ComSessionBuilder comSessionBuilder =
                 serviceProvider.connectionTaskService().
                         buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now()).
@@ -244,8 +243,7 @@ public class InboundCommunicationHandler {
         this.discovering = new StopWatch();
         try {
             return inboundDeviceProtocol.doDiscovery();
-        }
-        finally {
+        } finally {
             this.discovering.stop();
         }
     }
@@ -260,7 +258,7 @@ public class InboundCommunicationHandler {
         }
     }
 
-    private boolean inWebContext () {
+    private boolean inWebContext() {
         return this.context.getServletRequest() != null;
     }
 
@@ -269,8 +267,7 @@ public class InboundCommunicationHandler {
         this.appendStatisticalInformationToComSession();
         if (InboundDeviceProtocol.DiscoverResponseType.SUCCESS.equals(this.responseType)) {
             this.markSuccessful(sessionBuilder);
-        }
-        else {
+        } else {
             this.markFailed(sessionBuilder, this.responseType);
         }
     }
@@ -287,8 +284,7 @@ public class InboundCommunicationHandler {
                 comSessionBuilder.talkDuration(Duration.millis(talkMillis));
                 comSessionBuilder.addReceivedBytes(request.getBytesRead()).addSentBytes(response.getBytesSent());
                 comSessionBuilder.addReceivedPackets(1).addSentPackets(1);
-            }
-            else {
+            } else {
                 ComPortRelatedComChannel comChannel = this.getComChannel();
                 long discoverMillis = this.discovering.getElapsed() / NANOS_IN_MILLI;
                 comSessionBuilder.talkDuration(Duration.millis(discoverMillis).withDurationAdded(comChannel.talkTime(), 1));
@@ -299,21 +295,20 @@ public class InboundCommunicationHandler {
                 comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead() + taskSessionCounters.getPacketsRead());
                 comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent() + taskSessionCounters.getPacketsSent());
             }
-        }
-        else {
+        } else {
             // Todo: deal with the unknown device situation
         }
     }
 
-    private StatisticsMonitoringHttpServletRequest getMonitoringRequest () {
+    private StatisticsMonitoringHttpServletRequest getMonitoringRequest() {
         return (StatisticsMonitoringHttpServletRequest) this.context.getServletRequest();
     }
 
-    private StatisticsMonitoringHttpServletResponse getMonitoringResponse () {
+    private StatisticsMonitoringHttpServletResponse getMonitoringResponse() {
         return (StatisticsMonitoringHttpServletResponse) this.context.getServletResponse();
     }
 
-    private ComPortRelatedComChannel getComChannel () {
+    private ComPortRelatedComChannel getComChannel() {
         return this.context.getComChannel();
     }
 

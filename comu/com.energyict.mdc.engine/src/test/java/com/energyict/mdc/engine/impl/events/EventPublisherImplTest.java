@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -11,25 +12,18 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-
-import com.elster.jupiter.util.time.Clock;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.events.EventPublisherImpl} component.
@@ -50,7 +44,7 @@ public class EventPublisherImplTest {
     private RunningComServer comServer;
 
     @Test
-    public void testRegisterNewReceiver () {
+    public void testRegisterNewReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -67,7 +61,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testRegisterReceiverTwice () {
+    public void testRegisterReceiverTwice() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -85,7 +79,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testRegisterUnRegisterAndRegisterAgain () {
+    public void testRegisterUnRegisterAndRegisterAgain() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -104,7 +98,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testNewlyRegisteredReceiversReceiveAllEventCategories () {
+    public void testNewlyRegisteredReceiversReceiveAllEventCategories() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -126,7 +120,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testRegisteringAndThenNarrowingToDeviceDelegatesNarrowingToExistingFilteringEventReceiver () {
+    public void testRegisteringAndThenNarrowingToDeviceDelegatesNarrowingToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -146,7 +140,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testWidenToAllDevicesOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver () {
+    public void testWidenToAllDevicesOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -165,7 +159,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testRegisteringAndThenNarrowingToConnectionTaskDelegatesNarrowingToExistingFilteringEventReceiver () {
+    public void testRegisteringAndThenNarrowingToConnectionTaskDelegatesNarrowingToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -185,7 +179,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testWidenToAllConnectionTasksOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver () {
+    public void testWidenToAllConnectionTasksOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -203,7 +197,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testRegisteringAndThenNarrowingToComTaskDelegatesNarrowingToExistingFilteringEventReceiver () {
+    public void testRegisteringAndThenNarrowingToComTaskDelegatesNarrowingToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -223,7 +217,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testWidenToAllComTasksOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver () {
+    public void testWidenToAllComTasksOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -241,7 +235,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testRegisteringAndThenNarrowingToComPortDelegatesNarrowingToExistingFilteringEventReceiver () {
+    public void testRegisteringAndThenNarrowingToComPortDelegatesNarrowingToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -261,7 +255,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testWidenToAllComPortsOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver () {
+    public void testWidenToAllComPortsOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -279,7 +273,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testRegisteringAndThenNarrowingToComPortPoolDelegatesNarrowingToExistingFilteringEventReceiver () {
+    public void testRegisteringAndThenNarrowingToComPortPoolDelegatesNarrowingToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -299,7 +293,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testWidenToAllComPortPoolsOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver () {
+    public void testWidenToAllComPortPoolsOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -317,7 +311,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testRegisteringAndThenNarrowingToLogLevelDelegatesNarrowingToExistingFilteringEventReceiver () {
+    public void testRegisteringAndThenNarrowingToLogLevelDelegatesNarrowingToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -336,7 +330,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void testWidenToAllLogLevelsOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver () {
+    public void testWidenToAllLogLevelsOnRegisteredReceiverDelegatesWideningToExistingFilteringEventReceiver() {
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiverFactory factory = mock(FilteringEventReceiverFactory.class);
         FilteringEventReceiver filteringEventReceiver = mock(FilteringEventReceiver.class);
@@ -354,7 +348,7 @@ public class EventPublisherImplTest {
     }
 
     @Test
-    public void doesNotPublishToNotInterestedEventReceivers () {
+    public void doesNotPublishToNotInterestedEventReceivers() {
         EventReceiver receiverForConnectionEvents = mock(EventReceiver.class);
         EventReceiver receiverForLoggingEvents = mock(EventReceiver.class);
         EventPublisherImpl eventPublisher = new EventPublisherImpl(this.comServer, this.clock);

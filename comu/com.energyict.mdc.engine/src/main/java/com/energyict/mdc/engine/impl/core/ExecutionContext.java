@@ -1,5 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -35,12 +40,6 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
-
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.util.Holder;
-import com.elster.jupiter.util.HolderBuilder;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.StopWatch;
 import org.joda.time.Duration;
 
 import java.text.MessageFormat;
@@ -54,10 +53,10 @@ import static com.energyict.mdc.device.data.tasks.history.ComSession.SuccessIndi
 import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession.SuccessIndicator.Success;
 
 /**
-* Copyrights EnergyICT
-* Date: 19/05/2014
-* Time: 16:12
-*/
+ * Copyrights EnergyICT
+ * Date: 19/05/2014
+ * Time: 16:12
+ */
 public final class ExecutionContext implements JournalEntryFactory {
 
     private static final long NANOS_IN_MILLI = 1000000L;
@@ -125,7 +124,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         return this.comPortRelatedComChannel != null;
     }
 
-    private void addStatisticalInformationToComSession () {
+    private void addStatisticalInformationToComSession() {
         ComSessionBuilder comSessionBuilder = this.getComSessionBuilder();
         comSessionBuilder.connectDuration(Duration.millis(this.connecting.getElapsed() / NANOS_IN_MILLI));
         comSessionBuilder.talkDuration(this.comPortRelatedComChannel.talkTime());
@@ -169,8 +168,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     private List<DeviceCommand> deviceCommandsForCurrentComTaskExecution() {
         if (this.getCommandRoot() != null) {
             return this.toDeviceCommands(this.getCommandRoot().getComTaskRoot(this.comTaskExecution));
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -197,13 +195,11 @@ public final class ExecutionContext implements JournalEntryFactory {
             this.setComPortRelatedComChannel(this.jobExecution.findOrCreateComChannel(this.connectionTaskPropertyCache));
             this.getComServerDAO().executionStarted(this.connectionTask, this.comPort.getComServer());
             return this.jobExecution.isConnected();
-        }
-        catch (ConnectionException e) {
+        } catch (ConnectionException e) {
             this.comPortRelatedComChannel = null;
             this.connectionFailed(e, this.connectionTask);
             throw new ConnectionSetupException(MessageSeeds.CONNECTION_FAILURE, e);
-        }
-        finally {
+        } finally {
             this.connecting.stop();
         }
     }
@@ -434,8 +430,7 @@ public final class ExecutionContext implements JournalEntryFactory {
             if (t instanceof ComServerRuntimeException) {
                 ComServerRuntimeException comServerRuntimeException = (ComServerRuntimeException) t;
                 translated = comServerRuntimeException.translated(this.serviceProvider.nlsService());
-            }
-            else {
+            } else {
                 translated = t.getLocalizedMessage();
             }
             currentTaskExecutionBuilder.addComCommandJournalEntry(now(), CompletionCode.UnexpectedError, translated, "General");
@@ -460,8 +455,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     private String messageFor(Throwable t) {
         if (t.getMessage() == null) {
             return t.toString();
-        }
-        else {
+        } else {
             return t.getMessage();
         }
     }

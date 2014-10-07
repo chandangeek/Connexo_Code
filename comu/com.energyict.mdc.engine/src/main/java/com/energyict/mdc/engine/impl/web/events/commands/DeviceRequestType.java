@@ -20,17 +20,17 @@ public class DeviceRequestType extends IdBusinessObjectRequestType {
     }
 
     @Override
-    protected String getBusinessObjectTypeName () {
+    protected String getBusinessObjectTypeName() {
         return "device";
     }
 
     @Override
-    protected Request newRequestForAll () {
+    protected Request newRequestForAll() {
         return new AllDevicesRequest();
     }
 
     @Override
-    protected Request newRequestFor (Set<Long> ids) {
+    protected Request newRequestFor(Set<Long> ids) {
         return new DeviceRequest(deviceService, ids);
     }
 

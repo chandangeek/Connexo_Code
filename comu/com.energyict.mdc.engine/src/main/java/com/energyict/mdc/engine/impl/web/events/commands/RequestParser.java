@@ -38,20 +38,19 @@ public class RequestParser {
         this.serviceProvider = serviceProvider;
     }
 
-    public Request parse (String message) throws RequestParseException {
+    public Request parse(String message) throws RequestParseException {
         Matcher matcher = COMMAND_PATTERN.matcher(message);
         if (matcher.matches()) {
             String narrowType = matcher.group(1);
             String narrowSpecs = matcher.group(2);
             RequestType requestType = this.parseRequestType(narrowType, matcher.start(1));
             return requestType.parse(narrowSpecs);
-        }
-        else {
+        } else {
             throw new UnexpectedRequestFormatException(COMMAND_PATTERN.toString());
         }
     }
 
-    private RequestType parseRequestType (String requestType, int requestTypeOffset) throws RequestTypeParseException {
+    private RequestType parseRequestType(String requestType, int requestTypeOffset) throws RequestTypeParseException {
         if (this.requestTypes == null) {
             this.initializeRequestTypes();
         }
@@ -63,7 +62,7 @@ public class RequestParser {
         throw new RequestTypeParseException(requestType, requestTypeOffset);
     }
 
-    private void initializeRequestTypes () {
+    private void initializeRequestTypes() {
         this.requestTypes =
                 Arrays.asList(
                         new ErrorLoggingRequestType(),

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -27,28 +28,25 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
-
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-
-import java.sql.SQLException;
-import java.util.Date;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.sql.SQLException;
+import java.util.Date;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the statistical monitoring aspects of the {@link InboundCommunicationHandler} component.
@@ -77,7 +75,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
-    public void initializeMocksAndFactories () {
+    public void initializeMocksAndFactories() {
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);
     }
@@ -95,22 +93,22 @@ public class InboundCommunicationHandlerStatisticsTest {
     }
 
     @After
-    public void resetServiceProvider () {
+    public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
     }
 
     @Before
-    public void setupEventPublisher () {
+    public void setupEventPublisher() {
         EventPublisherImpl.setInstance(this.eventPublisher);
     }
 
     @After
-    public void resetEventPublisher () {
+    public void resetEventPublisher() {
         EventPublisherImpl.setInstance(null);
     }
 
     @Test
-    public void testComSessionStatisticsUpdatedWhenConnectionIsBeingClosed () throws ConnectionException, BusinessException, SQLException {
+    public void testComSessionStatisticsUpdatedWhenConnectionIsBeingClosed() throws ConnectionException, BusinessException, SQLException {
         OutboundComPort comPort = mock(OutboundComPort.class);
         OutboundConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
@@ -128,8 +126,7 @@ public class InboundCommunicationHandlerStatisticsTest {
                 scheduledJob.getExecutionContext().getComPortRelatedComChannel().write("Hello world".getBytes());
                 scheduledJob.getExecutionContext().getComPortRelatedComChannel().read();
             }
-        }
-        finally {
+        } finally {
             scheduledJob.closeConnection();
         }
 
@@ -141,7 +138,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     }
 
     @Test
-    public void testComSessionStatisticsCounterValues () throws ConnectionException, BusinessException, SQLException {
+    public void testComSessionStatisticsCounterValues() throws ConnectionException, BusinessException, SQLException {
         OutboundComPort comPort = mock(OutboundComPort.class);
         OutboundConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
@@ -165,8 +162,7 @@ public class InboundCommunicationHandlerStatisticsTest {
                 scheduledJob.getExecutionContext().getComPortRelatedComChannel().write(helloWorldBytes);
                 numberOfBytesRead = scheduledJob.getExecutionContext().getComPortRelatedComChannel().read(readBuffer);
             }
-        }
-        finally {
+        } finally {
             scheduledJob.closeConnection();
         }
 

@@ -137,7 +137,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         return comServerDAO;
     }
 
-    CollectedLogBook createMockedCollectedLogBook(){
+    CollectedLogBook createMockedCollectedLogBook() {
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class, RETURNS_DEEP_STUBS);
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(eventTime2,
                 MeterEvent.POWERDOWN,

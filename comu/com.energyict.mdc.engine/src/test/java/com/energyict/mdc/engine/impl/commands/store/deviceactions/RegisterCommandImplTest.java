@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -18,10 +19,10 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.RegistersTask;
-
-import com.elster.jupiter.util.time.impl.DefaultClock;
-
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Matchers;
 
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class RegisterCommandImplTest {
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
-    public void setupServiceProvider () {
+    public void setupServiceProvider() {
         this.serviceProvider.setClock(new DefaultClock());
         this.serviceProvider.setIssueService(new IssueServiceImpl());
         this.serviceProvider.setDeviceService(mock(DeviceService.class));
@@ -51,7 +52,7 @@ public class RegisterCommandImplTest {
     }
 
     @After
-    public void resetServiceProvider () {
+    public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
     }
 

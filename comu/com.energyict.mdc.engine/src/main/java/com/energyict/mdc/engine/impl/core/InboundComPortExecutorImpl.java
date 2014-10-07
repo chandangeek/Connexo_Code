@@ -9,7 +9,6 @@ import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import java.util.logging.Logger;
 
 /**
- *
  * Copyrights EnergyICT
  * Date: 22/10/12
  * Time: 11:14
@@ -45,7 +44,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
         return this.comPort;
     }
 
-    private InboundDiscoveryContextImpl newInboundDiscoveryContext (ComPortRelatedComChannel comChannel) {
+    private InboundDiscoveryContextImpl newInboundDiscoveryContext(ComPortRelatedComChannel comChannel) {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel, this.serviceProvider.connectionTaskService());
         // Todo: needs revision as soon as we get more experience with inbound protocols that need encryption
         context.setLogger(Logger.getAnonymousLogger());

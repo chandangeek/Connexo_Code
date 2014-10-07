@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
@@ -8,12 +10,18 @@ import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
 import com.energyict.mdc.protocol.api.services.HexService;
-
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.services.SocketService;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.mdc.services.impl.SocketServiceImpl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -26,26 +34,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link UDPPortConnector} component
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 5/11/12
  * Time: 16:31
@@ -69,7 +65,7 @@ public class UDPPortConnectorTest {
     private Clock clock = new DefaultClock();
 
     @Before
-    public void mockSocketService () {
+    public void mockSocketService() {
         this.socketService = mock(SocketService.class);
     }
 
@@ -78,28 +74,28 @@ public class UDPPortConnectorTest {
     }
 
     @Before
-    public void setupServiceProvider () {
+    public void setupServiceProvider() {
         this.serviceProvider.setClock(this.clock);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 
     @After
-    public void resetServiceProvider () {
+    public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
     }
 
     @Before
-    public void setupEventPublisher () {
+    public void setupEventPublisher() {
         EventPublisherImpl.setInstance(this.eventPublisher);
     }
 
     @After
-    public void resetEventPublisher () {
+    public void resetEventPublisher() {
         EventPublisherImpl.setInstance(null);
     }
 
     @Before
-    public void initializeMocksAndFactories () throws IOException {
+    public void initializeMocksAndFactories() throws IOException {
         when(this.socketService.newUDPSocket(anyInt())).thenReturn(this.datagramSocket);
         ArgumentCaptor<DatagramPacket> datagramPacketArgumentCaptor = ArgumentCaptor.forClass(DatagramPacket.class);
         doAnswer(new Answer() {
@@ -166,8 +162,8 @@ public class UDPPortConnectorTest {
     @Test(timeout = 2000, expected = InboundCommunicationException.class)
     public void testAcceptFailure() throws IOException, InboundCommunicationException {
         doThrow(new IOException("Something fishy happened during the accept for testing purposes")).
-            when(this.datagramSocket).
-            receive(any(DatagramPacket.class));
+                when(this.datagramSocket).
+                receive(any(DatagramPacket.class));
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
 

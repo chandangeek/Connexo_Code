@@ -1,15 +1,15 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.RegisterCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-
 import com.energyict.mdc.tasks.RegistersTask;
+
 import java.util.List;
 
 /**

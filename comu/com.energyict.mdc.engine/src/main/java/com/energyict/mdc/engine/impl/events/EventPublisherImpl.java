@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
@@ -9,8 +10,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-
-import com.elster.jupiter.util.time.Clock;
 
 import java.util.EnumSet;
 import java.util.LinkedList;
@@ -47,15 +46,15 @@ public class EventPublisherImpl implements EventPublisher {
         setInstance(this);
     }
 
-    public static synchronized EventPublisherImpl getInstance () {
+    public static synchronized EventPublisherImpl getInstance() {
         return soleInstance;
     }
 
-    public static synchronized void setInstance (EventPublisherImpl eventPublisher) {
+    public static synchronized void setInstance(EventPublisherImpl eventPublisher) {
         soleInstance = eventPublisher;
     }
 
-    public AbstractComServerEventImpl.ServiceProvider serviceProvider () {
+    public AbstractComServerEventImpl.ServiceProvider serviceProvider() {
         return new ServiceProviderForEvents();
     }
 
@@ -65,7 +64,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void unregisterAllInterests (EventReceiver receiver) {
+    public void unregisterAllInterests(EventReceiver receiver) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findFilter(receiver);
             if (filter != null) {
@@ -76,12 +75,12 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void registerInterest (EventReceiver receiver) {
+    public void registerInterest(EventReceiver receiver) {
         this.narrowInterestToCategories(receiver, EnumSet.allOf(Category.class));
     }
 
     @Override
-    public void narrowInterestToCategories (EventReceiver receiver, Set<Category> categories) {
+    public void narrowInterestToCategories(EventReceiver receiver, Set<Category> categories) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.narrowTo(EnumSet.copyOf(categories));
@@ -89,7 +88,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void narrowInterestToDevices (EventReceiver receiver, List<BaseDevice> devices) {
+    public void narrowInterestToDevices(EventReceiver receiver, List<BaseDevice> devices) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.narrowToDevices(devices);
@@ -97,7 +96,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void widenInterestToAllDevices (EventReceiver receiver) {
+    public void widenInterestToAllDevices(EventReceiver receiver) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.widenToAllDevices();
@@ -105,7 +104,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void narrowInterestToConnectionTasks (EventReceiver receiver, List<ConnectionTask> connectionTasks) {
+    public void narrowInterestToConnectionTasks(EventReceiver receiver, List<ConnectionTask> connectionTasks) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.narrowToConnectionTasks(connectionTasks);
@@ -113,7 +112,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void widenInterestToAllConnectionTasks (EventReceiver receiver) {
+    public void widenInterestToAllConnectionTasks(EventReceiver receiver) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.widenToAllConnectionTasks();
@@ -121,7 +120,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void narrowInterestToComTaskExecutions (EventReceiver receiver, List<ComTaskExecution> comTaskExecutions) {
+    public void narrowInterestToComTaskExecutions(EventReceiver receiver, List<ComTaskExecution> comTaskExecutions) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.narrowToComTaskExecutions(comTaskExecutions);
@@ -129,7 +128,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void widenInterestToAllComTaskExecutions (EventReceiver receiver) {
+    public void widenInterestToAllComTaskExecutions(EventReceiver receiver) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.widenToAllComTasks();
@@ -137,7 +136,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void narrowInterestToComPorts (EventReceiver receiver, List<ComPort> comPorts) {
+    public void narrowInterestToComPorts(EventReceiver receiver, List<ComPort> comPorts) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.narrowToComPorts(comPorts);
@@ -145,7 +144,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void widenInterestToAllComPorts (EventReceiver receiver) {
+    public void widenInterestToAllComPorts(EventReceiver receiver) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.widenToAllComPorts();
@@ -153,7 +152,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void narrowInterestToComPortPools (EventReceiver receiver, List<ComPortPool> comPortPools) {
+    public void narrowInterestToComPortPools(EventReceiver receiver, List<ComPortPool> comPortPools) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.narrowToComPortPools(comPortPools);
@@ -161,7 +160,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void widenInterestToAllComPortPools (EventReceiver receiver) {
+    public void widenInterestToAllComPortPools(EventReceiver receiver) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.widenToAllComPortPools();
@@ -169,7 +168,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void narrowInterestToLogLevel (EventReceiver receiver, LogLevel logLevel) {
+    public void narrowInterestToLogLevel(EventReceiver receiver, LogLevel logLevel) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.narrowToLogLevel(logLevel);
@@ -177,14 +176,14 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void widenToAllLogLevels (EventReceiver receiver) {
+    public void widenToAllLogLevels(EventReceiver receiver) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findOrCreateFilter(receiver);
             filter.widenToAllLogLevels();
         }
     }
 
-    private FilteringEventReceiver findOrCreateFilter (EventReceiver receiver) {
+    private FilteringEventReceiver findOrCreateFilter(EventReceiver receiver) {
         FilteringEventReceiver filter = this.findFilter(receiver);
         if (filter == null) {
             filter = this.createFilter(receiver);
@@ -192,7 +191,7 @@ public class EventPublisherImpl implements EventPublisher {
         return filter;
     }
 
-    private FilteringEventReceiver createFilter (EventReceiver receiver) {
+    private FilteringEventReceiver createFilter(EventReceiver receiver) {
         FilteringEventReceiver filter = this.factory.newFor(receiver);
         this.filters.add(filter);
         this.notifyClientRegistered();
@@ -211,7 +210,7 @@ public class EventPublisherImpl implements EventPublisher {
         this.comServer.eventWasPublished();
     }
 
-    private FilteringEventReceiver findFilter (EventReceiver receiver) {
+    private FilteringEventReceiver findFilter(EventReceiver receiver) {
         for (FilteringEventReceiver filter : this.filters) {
             if (filter.delegatesTo(receiver)) {
                 return filter;
@@ -221,7 +220,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void publish (ComServerEvent event) {
+    public void publish(ComServerEvent event) {
         synchronized (this.filters) {
             for (FilteringEventReceiver filter : this.filters) {
                 filter.receive(event);

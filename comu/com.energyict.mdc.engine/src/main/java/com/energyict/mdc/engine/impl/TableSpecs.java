@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
@@ -27,8 +26,7 @@ public enum TableSpecs {
             table.primaryKey("PK_CES_DEVICECACHE").on(device).add();
             table.foreignKey("FK_CES_DEVICECACHE_DEVICE").on(device).references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").map("device").add();
         }
-    },
-    ;
+    },;
 
     abstract void addTo(DataModel component);
 

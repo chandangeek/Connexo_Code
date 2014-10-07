@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -27,9 +29,6 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +38,7 @@ import java.util.List;
  * A logical <i>connect</i> can be skipped as the
  * {@link ComChannel ComChannl}
  * will already be created by the ComPortListener
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/3/13
  * Time: 3:38 PM
@@ -109,7 +108,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         allPreparedComTaskExecutions.add(new PreparedComTaskExecution(comTaskExecution, root, getDeviceProtocol()));
     }
 
-    private ProtocolTask getMessageTask(ComTaskExecution comTaskExecution){
+    private ProtocolTask getMessageTask(ComTaskExecution comTaskExecution) {
         for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
             //TODO reenable onces messages are ported
 //            if (ComCommandTypes.MESSAGES_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
@@ -119,7 +118,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         return null;
     }
 
-    private ProtocolTask getLogBooksTask(ComTaskExecution comTaskExecution){
+    private ProtocolTask getLogBooksTask(ComTaskExecution comTaskExecution) {
         for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
             if (ComCommandTypes.LOGBOOKS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
                 return protocolTask;
@@ -129,7 +128,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     }
 
 
-    private ProtocolTask getLoadProfilesTask(ComTaskExecution comTaskExecution){
+    private ProtocolTask getLoadProfilesTask(ComTaskExecution comTaskExecution) {
         for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
             if (ComCommandTypes.LOAD_PROFILE_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
                 return protocolTask;
@@ -138,7 +137,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         return null;
     }
 
-    private ProtocolTask getRegistersTask(ComTaskExecution comTaskExecution){
+    private ProtocolTask getRegistersTask(ComTaskExecution comTaskExecution) {
         for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
             if (ComCommandTypes.REGISTERS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
                 return protocolTask;
