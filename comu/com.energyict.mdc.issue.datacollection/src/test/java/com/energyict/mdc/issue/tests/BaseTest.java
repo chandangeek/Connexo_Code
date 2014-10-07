@@ -31,7 +31,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
-
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
@@ -41,7 +40,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -84,7 +82,7 @@ public abstract class BaseTest {
     }
 
     @BeforeClass
-    public static void setEnvironment(){
+    public static void setEnvironment() {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -114,47 +112,58 @@ public abstract class BaseTest {
     }
 
     @AfterClass
-    public static void deactivateEnvironment(){
+    public static void deactivateEnvironment() {
         inMemoryBootstrapModule.deactivate();
     }
 
     protected TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-    protected TransactionContext getContext(){
+
+    protected TransactionContext getContext() {
         return getTransactionService().getContext();
     }
 
     protected IssueService getIssueService() {
         return injector.getInstance(IssueService.class);
     }
-    protected IssueMappingService getIssueMappingService(){
+
+    protected IssueMappingService getIssueMappingService() {
         return injector.getInstance(IssueMappingService.class);
     }
-    protected IssueCreationService getIssueCreationService(){
+
+    protected IssueCreationService getIssueCreationService() {
         return injector.getInstance(IssueCreationService.class);
     }
-    protected IssueActionService getIssueActionService(){
+
+    protected IssueActionService getIssueActionService() {
         return injector.getInstance(IssueActionService.class);
     }
+
     protected JsonService getJsonService() {
         return injector.getInstance(JsonService.class);
     }
+
     protected MeteringService getMeteringService() {
         return injector.getInstance(MeteringService.class);
     }
-    protected CommunicationTaskService getCommunicationTaskService(){
+
+    protected CommunicationTaskService getCommunicationTaskService() {
         return injector.getInstance(CommunicationTaskService.class);
     }
-    protected DeviceService getDeviceDataService(){
+
+    protected DeviceService getDeviceDataService() {
         return injector.getInstance(DeviceService.class);
     }
-    protected OrmService getOrmService(){
+
+    protected OrmService getOrmService() {
         return injector.getInstance(OrmService.class);
     }
-    protected Thesaurus getThesaurus(){
+
+    protected Thesaurus getThesaurus() {
         return injector.getInstance(Thesaurus.class);
     }
+
     protected Message getMockMessage(String payload) {
         Message message = mock(Message.class);
         when(message.getPayload()).thenReturn(payload.getBytes());
@@ -167,12 +176,12 @@ public abstract class BaseTest {
 
     protected class MockIssueCreationService extends IssueCreationServiceImpl {
         @Override
-        public void dispatchCreationEvent(IssueEvent event){
+        public void dispatchCreationEvent(IssueEvent event) {
             throw new DispatchCreationEventException("processed!");
         }
     }
 
-    protected static class DispatchCreationEventException extends RuntimeException{
+    protected static class DispatchCreationEventException extends RuntimeException {
         public DispatchCreationEventException(String message) {
             super(message);
         }
