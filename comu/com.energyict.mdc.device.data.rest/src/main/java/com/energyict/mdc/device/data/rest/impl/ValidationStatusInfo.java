@@ -6,7 +6,7 @@ public class ValidationStatusInfo {
     public boolean isActive;
     public Long lastChecked;
     public boolean hasValidation;
-    public Boolean allDataValidated = false;
+    public Boolean allDataValidated = true;
 
     public ValidationStatusInfo() {
     }
