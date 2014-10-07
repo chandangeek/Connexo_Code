@@ -1,5 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.inject.Provider;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -22,23 +34,8 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.IntervalBuilder;
 import com.google.common.base.Optional;
-import com.google.common.collect.Range;
-
-import javax.inject.Provider;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MeterReadingStorer {
 
