@@ -1,13 +1,12 @@
 package com.energyict.mdc.scheduling.model;
 
+import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -18,15 +17,18 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
     public void setName(String name);
 
     public SchedulingStatus getSchedulingStatus();
+
     public void setSchedulingStatus(SchedulingStatus status);
 
     public Date getNextTimestamp(Calendar calendar);
 
     public void addComTask(ComTask comTask);
+
     public void removeComTask(ComTask comTask);
 
     public List<ComTask> getComTasks();
-    public boolean containsComTask (ComTask comTask);
+
+    public boolean containsComTask(ComTask comTask);
 
     public NextExecutionSpecs getNextExecutionSpecs();
 
@@ -54,7 +56,7 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
      * Gets the date when this ComSchedule was made obsolete.
      *
      * @return The date when this ComSchedule was made obsolete
-     *         or <code>null</code> when this ComSchedule is not obsolete at all.
+     * or <code>null</code> when this ComSchedule is not obsolete at all.
      */
     public Date getObsoleteDate();
 
