@@ -20,7 +20,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
             icon.className = 'icon-edit';
             Ext.create('Ext.tip.ToolTip', {
                 target: icon,
-                html: Uni.I18n.formatDate('editedDate.format',value, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+                html: Uni.I18n.formatDate('editedDate.format', value, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
             });
             Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
         }
