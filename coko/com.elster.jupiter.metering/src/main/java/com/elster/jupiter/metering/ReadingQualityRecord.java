@@ -23,6 +23,6 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
     Date getReadingTimestamp();
 
     void delete();
-    
+
     long getVersion();
 }

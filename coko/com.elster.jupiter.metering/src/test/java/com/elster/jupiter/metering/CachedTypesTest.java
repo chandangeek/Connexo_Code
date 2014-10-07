@@ -38,66 +38,66 @@ public class CachedTypesTest {
     private Injector injector;
     private static InMemoryBootstrapModule bootMemoryBootstrapModule = new InMemoryBootstrapModule();
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    
+
     private static class MockModule extends AbstractModule {
         @Override
-        protected void configure() {       
-           bind(BundleContext.class).toInstance(mock(BundleContext.class));  
-           bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
         }
     }
-    
+
     private static final boolean printSql = false;
-    
+
     private static Injector getInjector(InMemoryBootstrapModule boot) {
-    	return Guice.createInjector(
-    			new MockModule(), 
-    			boot,  
-    			new IdsModule(),
-    			new MeteringModule(),
-    			new PartyModule(), 
-    			new UserModule(),
-    			new EventsModule(),
-    			new InMemoryMessagingModule(),
-    			new DomainUtilModule(), 
-    			new OrmModule(),
-    			new UtilModule(), 
-    			new ThreadSecurityModule(), 
-    			new PubSubModule(), 
-    			new TransactionModule(printSql),
+        return Guice.createInjector(
+                new MockModule(),
+                boot,
+                new IdsModule(),
+                new MeteringModule(),
+                new PartyModule(),
+                new UserModule(),
+                new EventsModule(),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(printSql),
                 new NlsModule());
     }
-    
-    
+
+
     @BeforeClass
     public static void setUp() throws SQLException {
         bootInjector = getInjector(bootMemoryBootstrapModule);
-        try (TransactionContext ctx = bootInjector.getInstance(TransactionService.class).getContext() ) {
-        	bootInjector.getInstance(MeteringService.class);
-        	ctx.commit();
+        try (TransactionContext ctx = bootInjector.getInstance(TransactionService.class).getContext()) {
+            bootInjector.getInstance(MeteringService.class);
+            ctx.commit();
         }
     }
 
     @AfterClass
     public static void tearDown() throws SQLException {
-    	bootMemoryBootstrapModule.deactivate();
+        bootMemoryBootstrapModule.deactivate();
     }
 
     @Before
     public void instanceSetup() throws SQLException {
-    	injector = getInjector(inMemoryBootstrapModule);
+        injector = getInjector(inMemoryBootstrapModule);
     }
-    
+
     @After
     public void instanceTearDown() throws SQLException {
-    	inMemoryBootstrapModule.deactivate();
+        inMemoryBootstrapModule.deactivate();
     }
-    
+
 
     @Test
     public void testCachedTypes() {
-		MeteringService meteringService = bootInjector.getInstance(MeteringService.class);
-		assertThat(meteringService.getAvailableReadingTypes()).isNotEmpty();
-		assertThat(meteringService.getServiceCategory(ServiceKind.HEAT)).isNotNull();
-	}
+        MeteringService meteringService = bootInjector.getInstance(MeteringService.class);
+        assertThat(meteringService.getAvailableReadingTypes()).isNotEmpty();
+        assertThat(meteringService.getServiceCategory(ServiceKind.HEAT)).isNotNull();
+    }
 }

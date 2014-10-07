@@ -34,7 +34,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -55,8 +54,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingQualityLifeCycleTest {
- 
-	private Injector injector;
+
+    private Injector injector;
 
     @Mock
     private BundleContext bundleContext;
@@ -113,100 +112,99 @@ public class ReadingQualityLifeCycleTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         Meter meter;
         String readingTypeCode;
-        ZonedDateTime dateTime = ZonedDateTime.of(2014,2,1,0,0,0,0,ZoneId.systemDefault());
+        ZonedDateTime dateTime = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        	meter = amrSystem.newMeter("myMeter");
-        	meter.save();
-        	ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
-        			.accumulate(Accumulation.BULKQUANTITY)
-        			.flow(FlowDirection.FORWARD)
-        			.measure(MeasurementKind.ENERGY)
-        			.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
-        	readingTypeCode = builder.code();
-        	ctx.commit();
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            meter = amrSystem.newMeter("myMeter");
+            meter.save();
+            ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                    .accumulate(Accumulation.BULKQUANTITY)
+                    .flow(FlowDirection.FORWARD)
+                    .measure(MeasurementKind.ENERGY)
+                    .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+            readingTypeCode = builder.code();
+            ctx.commit();
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	MeterReadingImpl meterReading = new MeterReadingImpl();
-        	for (Cases testCase : Cases.values()) { 
-        		Date date = Date.from(dateTime.plusMinutes(testCase.ordinal()).toInstant());
-        		ReadingImpl reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1), date);
-        		reading.addQuality("1.1.1","Same");
-        		meterReading.addReading(reading);
-        	}
-        	meter.store(meterReading);
+            MeterReadingImpl meterReading = new MeterReadingImpl();
+            for (Cases testCase : Cases.values()) {
+                Date date = Date.from(dateTime.plusMinutes(testCase.ordinal()).toInstant());
+                ReadingImpl reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1), date);
+                reading.addQuality("1.1.1", "Same");
+                meterReading.addReading(reading);
+            }
+            meter.store(meterReading);
             assertThat(meter.getReadingQualities(Range.atLeast(Instant.EPOCH))).hasSize(Cases.values().length);
             ctx.commit();
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	MeterReadingImpl meterReading = new MeterReadingImpl();
-        	for (Cases testCase : Cases.values()) { 
-        		Date date = Date.from(dateTime.plusMinutes(testCase.ordinal()).toInstant());
-        		ReadingImpl reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(testCase.sameReading ? 1 : 2), date);
-        		switch (testCase.readingQualityBehavior) {
-        			case SAME:
-        				reading.addQuality("1.1.1","Same");
-        				break;
-        			case DIFFERENT:
-        				reading.addQuality("1.1.2", "Different");
-        				break;
-        			case NONE:
-        				break;
-        		}
-        		meterReading.addReading(reading);
-        	}
-        	meter.store(meterReading);
-        	List<? extends BaseReading> readings = meter.getReadings(
-        			Interval.sinceEpoch(), 
-        			meteringService.getReadingType(readingTypeCode).get());
-        	assertThat(readings).hasSize(Cases.values().length);
-        	for (int i = 0 ; i < Cases.values().length ; i++) {
-        		BaseReading reading = readings.get(i);
-        		Cases testCase = Cases.values()[i];
-        		switch(testCase.readingQualityBehavior) {
-        			case SAME:
-        				assertThat(reading.getReadingQualities()).hasSize(1);
-        				assertThat(reading.getReadingQualities().get(0).getComment()).isEqualTo("Same");
-        				break;
-        			case DIFFERENT:
-        				assertThat(reading.getReadingQualities()).hasSize(1);
-        				assertThat(reading.getReadingQualities().get(0).getComment()).isEqualTo("Different");
-        				break;
-        			case NONE:
-        				assertThat(reading.getReadingQualities()).isEmpty();
-        				break;
-        		}
-        	}
+            MeterReadingImpl meterReading = new MeterReadingImpl();
+            for (Cases testCase : Cases.values()) {
+                Date date = Date.from(dateTime.plusMinutes(testCase.ordinal()).toInstant());
+                ReadingImpl reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(testCase.sameReading ? 1 : 2), date);
+                switch (testCase.readingQualityBehavior) {
+                    case SAME:
+                        reading.addQuality("1.1.1", "Same");
+                        break;
+                    case DIFFERENT:
+                        reading.addQuality("1.1.2", "Different");
+                        break;
+                    case NONE:
+                        break;
+                }
+                meterReading.addReading(reading);
+            }
+            meter.store(meterReading);
+            List<? extends BaseReading> readings = meter.getReadings(
+                    Interval.sinceEpoch(),
+                    meteringService.getReadingType(readingTypeCode).get());
+            assertThat(readings).hasSize(Cases.values().length);
+            for (int i = 0; i < Cases.values().length; i++) {
+                BaseReading reading = readings.get(i);
+                Cases testCase = Cases.values()[i];
+                switch (testCase.readingQualityBehavior) {
+                    case SAME:
+                        assertThat(reading.getReadingQualities()).hasSize(1);
+                        assertThat(reading.getReadingQualities().get(0).getComment()).isEqualTo("Same");
+                        break;
+                    case DIFFERENT:
+                        assertThat(reading.getReadingQualities()).hasSize(1);
+                        assertThat(reading.getReadingQualities().get(0).getComment()).isEqualTo("Different");
+                        break;
+                    case NONE:
+                        assertThat(reading.getReadingQualities()).isEmpty();
+                        break;
+                }
+            }
             assertThat(meter.getReadingQualities(Range.atLeast(Instant.EPOCH))).
-            	hasSize((int) Arrays.stream(Cases.values())
-            			.filter(testCase -> testCase.readingQualityBehavior != ReadingQualityBehavior.NONE)
-            			.count());
+                    hasSize((int) Arrays.stream(Cases.values())
+                            .filter(testCase -> testCase.readingQualityBehavior != ReadingQualityBehavior.NONE)
+                            .count());
             ctx.commit();
         }
     }
 
-	private enum ReadingQualityBehavior {
-		SAME,
-		DIFFERENT,
-		NONE;
-	}
-	
-	private enum Cases {
-		SAMEREADINGSAMEREADINGQUALITY(true,ReadingQualityBehavior.SAME),
-		SAMEREADINGDIFFERENTREADINGQUALITY(true,ReadingQualityBehavior.DIFFERENT),
-		SAMEREADINGNOREADINGQUALITY(true,ReadingQualityBehavior.NONE),
-		DIFFERENTREADINGSAMEREADINGQUALITY(false,ReadingQualityBehavior.SAME),
-		DIFFERENTREADINGDIFFERENTREADINGQUALITY(false,ReadingQualityBehavior.DIFFERENT),
-		DIFFERENTREADINGNOREADINGQUALITY(false,ReadingQualityBehavior.NONE),
-		;
-		
-		private boolean sameReading;
-		private ReadingQualityBehavior readingQualityBehavior;
-	
-		private Cases(boolean sameReading, ReadingQualityBehavior readingQualityBehavior ) {
-			this.sameReading = sameReading;
-			this.readingQualityBehavior = readingQualityBehavior;
-		}
-	}
-		
+    private enum ReadingQualityBehavior {
+        SAME,
+        DIFFERENT,
+        NONE;
+    }
+
+    private enum Cases {
+        SAMEREADINGSAMEREADINGQUALITY(true, ReadingQualityBehavior.SAME),
+        SAMEREADINGDIFFERENTREADINGQUALITY(true, ReadingQualityBehavior.DIFFERENT),
+        SAMEREADINGNOREADINGQUALITY(true, ReadingQualityBehavior.NONE),
+        DIFFERENTREADINGSAMEREADINGQUALITY(false, ReadingQualityBehavior.SAME),
+        DIFFERENTREADINGDIFFERENTREADINGQUALITY(false, ReadingQualityBehavior.DIFFERENT),
+        DIFFERENTREADINGNOREADINGQUALITY(false, ReadingQualityBehavior.NONE),;
+
+        private boolean sameReading;
+        private ReadingQualityBehavior readingQualityBehavior;
+
+        private Cases(boolean sameReading, ReadingQualityBehavior readingQualityBehavior) {
+            this.sameReading = sameReading;
+            this.readingQualityBehavior = readingQualityBehavior;
+        }
+    }
+
 }

@@ -92,10 +92,10 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         }
         return channel;
     }
-    
+
     @Override
     public String getTypeCode() {
-    	return typeCode;
+        return typeCode;
     }
 
     @Override
@@ -139,10 +139,10 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         dataModel.mapper(ReadingQualityRecord.class).remove(this);
         eventService.postEvent(EventType.READING_QUALITY_DELETED.topic(), new LocalEventSource(this));
     }
-    
+
     @Override
     public long getVersion() {
-    	return version;
+        return version;
     }
 
     public class LocalEventSource {
@@ -163,6 +163,6 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         public String getTypeCode() {
             return readingQuality.typeCode;
         }
-       
+
     }
 }
