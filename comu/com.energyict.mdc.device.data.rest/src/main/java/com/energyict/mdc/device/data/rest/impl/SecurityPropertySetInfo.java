@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import java.util.List;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -13,7 +14,7 @@ public class SecurityPropertySetInfo {
     public SecurityLevelInfo authenticationLevel;
     @JsonProperty("encryptionLevel")
     public SecurityLevelInfo encryptionLevel;
-    public String status;
+    public IdWithNameInfo status;
 
     public List<PropertyInfo> properties;
     public boolean userHasViewPrivilege;
