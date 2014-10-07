@@ -57,11 +57,11 @@ public class SecurityPropertySetResource {
     @Path("/{securityPropertySetId}")
     public Response getSecurityPropertySet(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, @PathParam("securityPropertySetId") long securityPropertySetId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device).get();
+        SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
         return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo,securityPropertySet)).build();
     }
 
-    private com.google.common.base.Optional<SecurityPropertySet> getSecurityPropertySetOrThrowException(long securityPropertySetId, Device device) {
+    private SecurityPropertySet getSecurityPropertySetOrThrowException(long securityPropertySetId, Device device) {
         com.google.common.base.Optional<SecurityPropertySet> securityPropertySetOptional = deviceConfigurationService.findSecurityPropertySet(securityPropertySetId);
         if (!securityPropertySetOptional.isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_SECURITY_PROPERTY_SET, securityPropertySetId);
@@ -69,7 +69,7 @@ public class SecurityPropertySetResource {
         if (securityPropertySetOptional.get().getDeviceConfiguration().getId()!=device.getDeviceConfiguration().getId()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_SECURITY_PROPERTY_SET_ON_DEVICE, securityPropertySetId, device.getmRID());
         }
-        return securityPropertySetOptional;
+        return securityPropertySetOptional.get();
     }
 
 }
