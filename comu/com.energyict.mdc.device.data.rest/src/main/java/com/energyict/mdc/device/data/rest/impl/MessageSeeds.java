@@ -57,7 +57,11 @@ public enum MessageSeeds implements MessageSeed {
     NEVER_COMPLETED(68, "NeverCompleted", "Never completed"),
     WAITING(69, "Waiting", "Waiting"),
     DEFAULT(70, "Default", "Default"),
-    DEFAULT_NOT_DEFINED(71, "DefaultNotDefined", "Default (not defined yet)");
+    DEFAULT_NOT_DEFINED(71, "DefaultNotDefined", "Default (not defined yet)"),
+    COMPLETE(72, "Complete", "Complete"),
+    INCOMPLETE(73, "Incomplete", "Incomplete"),
+
+    ;
 
 
     private final int number;

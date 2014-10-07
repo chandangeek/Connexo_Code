@@ -41,13 +41,13 @@ public class SecurityPropertySetInfoFactory {
             securityPropertySetInfo.userHasViewPrivilege = securityPropertySet.currentUserIsAllowedToViewDeviceProperties();
             securityPropertySetInfo.userHasEditPrivilege = securityPropertySet.currentUserIsAllowedToEditDeviceProperties();
 
-            TypedProperties typedProperties = TypedProperties.empty();
-            for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
-                typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
-            }
+            TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
 
             securityPropertySetInfo.properties = new ArrayList<>();
             mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs() , typedProperties, securityPropertySetInfo.properties);
+            securityPropertySetInfo.status = securityPropertySetInfo.properties.stream().anyMatch(p -> p.required && p.propertyValueInfo == null)?
+                thesaurus.getString(MessageSeeds.INCOMPLETE.getKey(), MessageSeeds.INCOMPLETE.getDefaultFormat()):
+                thesaurus.getString(MessageSeeds.COMPLETE.getKey(), MessageSeeds.COMPLETE.getDefaultFormat());
             if (!securityPropertySetInfo.userHasViewPrivilege) {
                 securityPropertySetInfo.properties.stream().forEach(p->p.propertyValueInfo=new PropertyValueInfo<>());
                 if (!securityPropertySetInfo.userHasEditPrivilege) {
@@ -57,5 +57,13 @@ public class SecurityPropertySetInfoFactory {
             securityPropertySetInfos.add(securityPropertySetInfo);
         }
         return securityPropertySetInfos;
+    }
+
+    private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
+        TypedProperties typedProperties = TypedProperties.empty();
+        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
+            typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
+        }
+        return typedProperties;
     }
 }

@@ -13,6 +13,7 @@ public class SecurityPropertySetInfo {
     public SecurityLevelInfo authenticationLevel;
     @JsonProperty("encryptionLevel")
     public SecurityLevelInfo encryptionLevel;
+    public String status;
 
     public List<PropertyInfo> properties;
     public boolean userHasViewPrivilege;
