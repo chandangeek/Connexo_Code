@@ -1,16 +1,5 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Logger;
-
-import javax.ws.rs.core.Application;
-
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -28,10 +17,21 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mds.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/mds", "name=" + MasterDataApplication.COMPONENT_NAME})
+import javax.ws.rs.core.Application;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
+
+@Component(name = "com.energyict.mds.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/mds", "name=" + MasterDataApplication.COMPONENT_NAME})
 public class MasterDataApplication extends Application implements InstallService {
-    
+
     private final Logger logger = Logger.getLogger(MasterDataApplication.class.getName());
 
     public static final String COMPONENT_NAME = "MDR";
@@ -96,6 +96,11 @@ public class MasterDataApplication extends Application implements InstallService
     public void install() {
         Installer installer = new Installer();
         installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS");
     }
 
     class HK2Binder extends AbstractBinder {
