@@ -1,7 +1,7 @@
 package com.elster.jupiter.gogo;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
@@ -40,7 +40,7 @@ import java.util.TimeZone;
         immediate = true)
 public class RegisterReadings {
 
-    private volatile DeviceDataService deviceDataService;
+    private volatile DeviceService deviceService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
@@ -58,8 +58,8 @@ public class RegisterReadings {
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setDeviceService(DeviceService deviceDataService) {
+        this.deviceService = deviceDataService;
     }
 
     @Reference
@@ -78,7 +78,7 @@ public class RegisterReadings {
     }
 
     public void addReading (String deviceMRID, String readingTypeMRID, String... formattedDates) {
-        Device device = this.deviceDataService.findByUniqueMrid(deviceMRID);
+        Device device = this.deviceService.findByUniqueMrid(deviceMRID);
         if (device != null) {
             Optional<Register<Reading>> register = this.findRegister(device, readingTypeMRID);
             if (register.isPresent()) {
@@ -149,7 +149,7 @@ public class RegisterReadings {
     }
 
     public void printReadings (String deviceMRID) {
-        Device device = this.deviceDataService.findByUniqueMrid(deviceMRID);
+        Device device = this.deviceService.findByUniqueMrid(deviceMRID);
         if (device != null) {
             Interval sinceEpoch = Interval.sinceEpoch();
             System.out.print("Readings of registers for device with mRID ");
