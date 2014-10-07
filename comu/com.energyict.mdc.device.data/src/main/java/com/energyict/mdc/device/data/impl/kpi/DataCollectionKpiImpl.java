@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.kpi;
 
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.kpi.Kpi;
@@ -12,9 +13,12 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
 import java.time.temporal.TemporalAmount;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -111,6 +115,16 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         }
     }
 
+    @Override
+    public List<DataCollectionKpiScore> getConnectionSetupKpiScores(Interval interval) {
+        if (this.connectionKpi.isPresent()) {
+            return new KpiMembers(this.connectionKpi.get().getMembers()).getScores(interval);
+        }
+        else {
+            return Collections.emptyList();
+        }
+    }
+
     KpiBuilder connectionKpiBuilder() {
         return this.connectionKpiBuilder;
     }
@@ -140,6 +154,16 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         }
         else {
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Interval interval) {
+        if (this.communicationKpi.isPresent()) {
+            return new KpiMembers(this.communicationKpi.get().getMembers()).getScores(interval);
+        }
+        else {
+            return Collections.emptyList();
         }
     }
 

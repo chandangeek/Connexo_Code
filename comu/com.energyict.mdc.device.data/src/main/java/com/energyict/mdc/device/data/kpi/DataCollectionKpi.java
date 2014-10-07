@@ -3,8 +3,10 @@ package com.energyict.mdc.device.data.kpi;
 import com.energyict.mdc.common.HasId;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.util.time.Interval;
 
 import java.time.temporal.TemporalAmount;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -36,6 +38,15 @@ public interface DataCollectionKpi extends HasId {
     public Optional<TemporalAmount> connectionSetupKpiCalculationIntervalLength();
 
     /**
+     * Gets the available {@link DataCollectionKpiScore}s that relate to
+     * setting up connections for the specified {@link Interval}.
+     *
+     * @param interval The Interval
+     * @return The List of DataCollectionKpiScore or an empty List if the connection setup KPI is not calculated
+     */
+    public List<DataCollectionKpiScore> getConnectionSetupKpiScores(Interval interval);
+
+    /**
      * Tests if this DataCollectionKpi calculates the communication task execution KPI.
      *
      * @return A flag that indicates if this DataCollectionKpi calculates the communication task execution KPI.
@@ -49,6 +60,16 @@ public interface DataCollectionKpi extends HasId {
      * @return A flag that indicates if this DataCollectionKpi calculates the communication task execution KPI.
      */
     public Optional<TemporalAmount> comTaskExecutionKpiCalculationIntervalLength();
+
+    /**
+     * Gets the available {@link DataCollectionKpiScore}s that relate to
+     * the execution of {@link com.energyict.mdc.tasks.ComTask}s
+     * for the specified {@link Interval}.
+     *
+     * @param interval The Interval
+     * @return The List of DataCollectionKpiScore or an empty List if the communication task execution KPI is not calculated
+     */
+    public List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Interval interval);
 
     /**
      * Gets the group of devices against which this DataCollectionKpi is calculated.

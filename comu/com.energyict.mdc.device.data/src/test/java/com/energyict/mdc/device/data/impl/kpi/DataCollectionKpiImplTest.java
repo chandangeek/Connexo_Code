@@ -10,7 +10,9 @@ import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -39,6 +41,8 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.kpi.KpiBuilder;
+import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -59,17 +63,23 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.joda.time.DateTimeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,7 +92,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -94,6 +107,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataCollectionKpiImplTest {
 
+    private static final int INTERVAL_START_MILLIS = 1000000;
+    private static final int INTERVAL_END_MILLIS = INTERVAL_START_MILLIS + DateTimeConstants.MILLIS_PER_DAY;
+    private static final BigDecimal TARGET = BigDecimal.TEN;
     private static final String DEVICE_TYPE_NAME = "DeviceTypeName";
 
     private static LicenseService licenseService;
@@ -340,6 +356,59 @@ public class DataCollectionKpiImplTest {
 
     @Test
     @Transactional
+    public void testNoConnectionScoresForOnlyComTaskExecutionKpi() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        DataCollectionKpi kpi = builder.save();
+
+        // Business method
+        List<DataCollectionKpiScore> scores = kpi.getConnectionSetupKpiScores(Interval.sinceEpoch());
+
+        // Asserts
+        assertThat(scores).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testConnectionScoresDelegatesToKoreKpi() {
+        DataCollectionKpiImpl kpi = new DataCollectionKpiImpl(deviceDataModelService.dataModel());
+        kpi.initialize(endDeviceGroup);
+        KpiBuilder kpiBuilder = mock(KpiBuilder.class);
+        Kpi koreKpi = mock(Kpi.class);
+        when(koreKpi.getId()).thenReturn(1L);
+        doReturn(
+                Arrays.asList(
+                        this.mockedKpiMember(TaskStatus.Waiting),
+                        this.mockedKpiMember(TaskStatus.Pending),
+                        this.mockedKpiMember(TaskStatus.Failed))).
+            when(koreKpi).getMembers();
+        when(kpiBuilder.build()).thenReturn(koreKpi);
+        kpi.connectionKpiBuilder(kpiBuilder);
+        kpi.save();
+
+        // Business method
+        kpi.getConnectionSetupKpiScores(Interval.sinceEpoch());
+
+        // Asserts
+        verify(koreKpi).getMembers();
+    }
+
+    @Test
+    @Transactional
+    public void testNoComTaskExecutionScoresForOnlyConnectionSetupKpi() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        DataCollectionKpi kpi = builder.save();
+
+        // Business method
+        List<DataCollectionKpiScore> scores = kpi.getComTaskExecutionKpiScores(Interval.sinceEpoch());
+
+        // Asserts
+        assertThat(scores).isEmpty();
+    }
+
+    @Test
+    @Transactional
     public void testDelete() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
@@ -372,6 +441,18 @@ public class DataCollectionKpiImplTest {
         // Asserts
         assertThat(kpiService.getKpi(connectionKpiId).isPresent()).isFalse();
         assertThat(kpiService.getKpi(communicationKpiId).isPresent()).isFalse();
+    }
+
+    private Interval testInterval() {
+        return Interval.of(Instant.ofEpochMilli(INTERVAL_START_MILLIS), Instant.ofEpochMilli(INTERVAL_END_MILLIS));
+    }
+
+    private KpiMember mockedKpiMember(TaskStatus taskStatus) {
+        KpiMember kpiMember = mock(KpiMember.class);
+        when(kpiMember.getName()).thenReturn(taskStatus.name());
+        when(kpiMember.getTarget(any(Date.class))).thenReturn(TARGET);
+        doReturn(Collections.emptyList()).when(kpiMember).getScores(this.testInterval());
+        return kpiMember;
     }
 
 }
