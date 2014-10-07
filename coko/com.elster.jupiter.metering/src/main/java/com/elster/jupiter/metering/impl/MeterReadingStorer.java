@@ -1,5 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.inject.Provider;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -22,23 +34,8 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.IntervalBuilder;
 import com.google.common.base.Optional;
-import com.google.common.collect.Range;
-
-import javax.inject.Provider;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MeterReadingStorer {
 
@@ -71,23 +68,29 @@ public class MeterReadingStorer {
         if (meterActivations.isEmpty()) {
             createDefaultMeterActivation();
         }
+        removeOldReadingQualities();
         storeReadings(facade.getMeterReading().getReadings());
         storeIntervalBlocks(facade.getMeterReading().getIntervalBlocks());
+        removeOldReadingQualities();
+        storeReadingQualities();
         storeEvents(facade.getMeterReading().getEvents());
-
         readingStorer.execute();
-//        Interval interval = facade.getInterval(); TODO make this not throw away all readingqualities just made by validate on store
-//        if (interval != null) {
-//        	dataModel.mapper(ReadingQualityRecord.class).remove(
-//        		meter.getReadingQualities(interval.toClosedRange())
-//        			.stream()
-//        			.filter(this::isRelevant)
-//        			.collect(Collectors.<ReadingQualityRecord>toList()));
-//        }
-//        storeReadingQualities();
         eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getInterval().getStart().getTime(), facade.getInterval().getEnd().getTime()));
     }
 
+    private void removeOldReadingQualities() {
+    	  Interval interval = facade.getInterval();
+    	  if (interval != null) {
+        	DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
+        	mapper.remove(
+        			meter.getReadingQualities(interval.toClosedRange())
+        				.stream()
+        				.filter(this::isRelevant)
+        				.collect(Collectors.<ReadingQualityRecord>toList()));
+        }
+    }
+    
+    
     private boolean isRelevant(ReadingQualityRecord readingQuality) {
     	Map<Date, BaseReading> readingMap = channelReadings.get(readingQuality.getChannel());
     	return readingMap != null && readingMap.containsKey(readingQuality.getReadingTimestamp());
@@ -287,6 +290,7 @@ public class MeterReadingStorer {
 		newReadingQuality.setComment(readingQuality.getComment());
 		return newReadingQuality;
     }
+
 
     private Optional<ReadingQualityRecordImpl> find(Date timeStamp, String typeCode, List<? extends ReadingQuality> candidates) {
     	for (ReadingQuality each : candidates) {

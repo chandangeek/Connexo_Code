@@ -97,7 +97,7 @@ public class MeterReadingStorerTest {
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new TransactionModule(true),
+                new TransactionModule(false),
                 new NlsModule()
         );
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
@@ -195,10 +195,15 @@ public class MeterReadingStorerTest {
         	MeterReadingImpl meterReading = new MeterReadingImpl();
         	IntervalBlockImpl block = new IntervalBlockImpl(readingTypeCode);
         	meterReading.addIntervalBlock(block);
-        	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
+        	final DateTime dateTime = new DateTime(2014,1,1,0,0,0);
         	block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
         	ProfileStatus status = ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW);
-        	block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100),status));
+        	IntervalReadingImpl reading = new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100),status);
+        	reading.addQuality("3.6.1");
+        	block.addIntervalReading(reading);
+        	reading = new IntervalReadingImpl(dateTime.plus(30*60*1000L).toDate(), BigDecimal.valueOf(1200),status);
+        	reading.addQuality("3.6.2");
+        	block.addIntervalReading(reading);
         	meter.store(meterReading);
         	Channel channel = meter.getMeterActivations().stream().flatMap(ma -> ma.getChannels().stream()).findFirst().get();
             List<BaseReadingRecord> readings = channel.getReadings(new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()));
@@ -206,9 +211,11 @@ public class MeterReadingStorerTest {
             assertThat(readings.get(0).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1000));
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1100));
             assertThat(((IntervalReadingRecord) readings.get(1)).getProfileStatus()).isEqualTo(status);
-            Interval interval = new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate());
+            Interval interval = new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(30*60*1000L).toDate());
+            assertThat(channel.findReadingQuality(interval));
             channel.removeReadings(readings);
-            assertThat(channel.getReadings(interval)).isEmpty();
+            assertThat(channel.getReadings(interval)).hasSize(1);
+            assertThat(channel.findReadingQuality(interval)).hasSize(1);
             ctx.commit();
         }
     }
