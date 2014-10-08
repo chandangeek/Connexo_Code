@@ -2,7 +2,6 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
@@ -15,6 +14,9 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.google.common.base.Optional;
+import java.sql.Date;
+import java.time.Duration;
+import java.time.temporal.ChronoField;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -57,9 +59,9 @@ public class ConnectionTaskInfoFactory {
             info.taskCount.numberOfFailedTasks = comSession.getNumberOfFailedTasks();
             info.taskCount.numberOfIncompleteTasks = comSession.getNumberOfPlannedButNotExecutedTasks();
 
-            info.startDateTime=comSession.getStartDate();
-            info.endDateTime=comSession.getStopDate();
-            info.duration=new TimeDurationInfo(new TimeDuration((int)comSession.getTotalDuration().getMillis(),TimeDuration.MILLISECONDS));
+            info.startDateTime = Date.from(comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND,0));
+            info.endDateTime = Date.from(comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0));
+            info.duration=new TimeDurationInfo(Duration.ofMillis(info.endDateTime.getTime()-info.startDateTime.getTime()).getSeconds());   // JP-6022
         }
         info.communicationTasks=new ComTaskListInfo();
         info.communicationTasks.count=comTaskExecutions.size();
