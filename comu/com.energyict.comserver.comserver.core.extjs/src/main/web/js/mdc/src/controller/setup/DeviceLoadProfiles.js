@@ -33,6 +33,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             },
             '#deviceLoadProfilesActionMenu': {
                 click: this.chooseAction
+            },
+            '#loadProfileActionMenu': {
+                click: this.chooseAction
             }
         });
     },
@@ -123,14 +126,18 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     me.activateDataValidation(record, this);
                 }
             }),
-            text = Uni.I18n.translatePlural('deviceloadprofiles.validateNow.statement', me.mRID, 'MDC', 'Validate data of load profile {0}') + '<br><br>' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile');
+            text = Uni.I18n.translatePlural('deviceloadprofiles.validateNow.statement', record.get('name'), 'MDC', 'Validate data of load profile {0}') + '<br><br>' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile');
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 if (res.hasValidation) {
-                    me.dataValidationLastChecked = res.lastChecked;
+                    if (res.lastChecked) {
+                        me.dataValidationLastChecked = new Date(res.lastChecked);
+                    } else {
+                        me.dataValidationLastChecked = new Date();
+                    }
                     confirmationWindow.add(me.getValidationContent());
                     confirmationWindow.show({
                         title: Uni.I18n.translatePlural('deviceloadprofiles.validateNow', record.get('name'), 'MDC', 'Validate data of load profile {0}?'),
@@ -159,7 +166,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     itemId: 'validateLoadProfileFromDate',
                     editable: false,
                     showToday: false,
-                    value: new Date(me.dataValidationLastChecked),
+                    value: me.dataValidationLastChecked,
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item1', 'MDC', 'The data of load profile will be validated starting from'),
                     labelWidth: 375,
                     labelPad: 0.5
