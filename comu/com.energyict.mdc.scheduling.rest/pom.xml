@@ -21,6 +21,10 @@
   <dependencies>
     <dependency>
       <groupId>com.energyict</groupId>
+      <artifactId>mdc.device.config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
       <artifactId>mdc.device.data</artifactId>
       <version>${project.version}</version>
     </dependency>
