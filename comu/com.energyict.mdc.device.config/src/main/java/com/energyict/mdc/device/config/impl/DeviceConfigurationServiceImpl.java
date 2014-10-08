@@ -1,5 +1,23 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
@@ -35,25 +53,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
@@ -70,6 +69,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -84,7 +84,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
 public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService {
 
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -240,8 +240,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType) {
         return this.getDataModel().
-                    query(DeviceConfiguration.class, LoadProfileSpec.class).
-                    select(where("loadProfileSpecs.loadProfileType").isEqualTo(loadProfileType));
+                query(DeviceConfiguration.class, LoadProfileSpec.class).
+                select(where("loadProfileSpecs.loadProfileType").isEqualTo(loadProfileType));
     }
 
     @Override
@@ -254,7 +254,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return this.getDataModel().
                 query(ChannelSpec.class, LoadProfileSpec.class).
                 select(where("channelType").isEqualTo(channelType).
-                   and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType))
+                                and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType))
                 );
     }
 
@@ -290,8 +290,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<DeviceConfiguration> findDeviceConfigurationsUsingMeasurementType(MeasurementType measurementType) {
         return this.getDataModel().
                 query(DeviceConfiguration.class, ChannelSpec.class, RegisterSpec.class).
-                select(   where("channelSpecs.channelType").isEqualTo(measurementType).
-                       or(where("registerSpecs.registerType").isEqualTo(measurementType)));
+                select(where("channelSpecs.channelType").isEqualTo(measurementType).
+                        or(where("registerSpecs.registerType").isEqualTo(measurementType)));
     }
 
     @Override
@@ -448,6 +448,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         initPrivileges();
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT", "NLS", "USR", "MDS", "CPC", "MDC", "SCH", "CTS", "VAL");
+    }
+
     @Reference
     public void setEngineModelService(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
@@ -519,7 +524,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             }
         }
         for (Long comTask : comTasks.elementSet()) { // filter comTasks not present in all device configs
-            if (comTasks.count(comTask)!=deviceConfigurations.size()) {
+            if (comTasks.count(comTask) != deviceConfigurations.size()) {
                 comTaskMap.remove(comTask);
             }
         }
@@ -542,7 +547,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         try (PreparedStatement preparedStatement = connection.prepareStatement("select distinct deviceConfigId from DDC_DEVICE inner join DDC_COMTASKEXEC on DDC_COMTASKEXEC.DEVICE = DDC_DEVICE.ID where DDC_COMTASKEXEC.COMSCHEDULE = ?")) {
             preparedStatement.setLong(1, comSchedule.getId());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while(resultSet.next()) {
+                while (resultSet.next()) {
                     deviceConfigurations.add(this.findDeviceConfiguration(resultSet.getLong(1)));
                 }
             }
@@ -584,8 +589,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private void initPrivileges() {
         privileges.clear();
         List<Resource> resources = userService.getResources(COMPONENTNAME);
-        for(Resource resource : resources){
-            for(Privilege privilege : resource.getPrivileges()){
+        for (Resource resource : resources) {
+            for (Privilege privilege : resource.getPrivileges()) {
                 Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forPrivilege(privilege.getName());
                 if (found.isPresent()) {
                     privileges.put(found.get(), privilege);
