@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.devicesearch.SearchResults', {
         'Mdc.view.setup.devicesearch.DevicesGrid'
     ],
 
-    title: Uni.I18n.translate('setup.devicesearch.searchResults.title', 'MDC', 'Search'),
     ui: 'large',
 
     layout: {

@@ -10,10 +10,10 @@ Ext.define('Mdc.controller.setup.DevicesController', {
         if (this.prefix) {
             var control = {};
 
-            /*control[this.prefix + ' filter-top-panel'] = {
+            control[this.prefix + ' filter-top-panel'] = {
                 removeFilter: this.removeTheFilter,
                 clearAllFilters: this.clearFilter
-            };*/
+            };
             control[this.prefix + ' button[action=applyfilter]'] = {
                 click: this.applyFilter
             };
@@ -29,15 +29,18 @@ Ext.define('Mdc.controller.setup.DevicesController', {
     initFilter: function () {
         var router = this.getController('Uni.controller.history.Router');
         this.getSideFilterForm().loadRecord(router.filter);
+        this.setFilterView();
     },
+
+    setFilterView: function () {},
 
     getSideFilterForm: function() {},
 
     applyFilter: function() {},
 
-    clearFilter: function() {}//,
+    clearFilter: function() {},
 
-    /*removeTheFilter: function (key) {
+    removeTheFilter: function (key) {
         var router = this.getController('Uni.controller.history.Router');
         var record = router.filter;
         switch (key) {
@@ -45,5 +48,5 @@ Ext.define('Mdc.controller.setup.DevicesController', {
                 record.set(key, null);
         }
         record.save();
-    }*/
+    }
 });

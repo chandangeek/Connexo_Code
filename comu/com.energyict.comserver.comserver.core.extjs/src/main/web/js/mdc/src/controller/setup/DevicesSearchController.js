@@ -47,7 +47,6 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         var filterForm = this.getDevicesSearchSideFilterForm();
         filterForm.updateRecord();
         filterForm.getRecord().save();
-        this.setFilterView();
     },
 
     clearFilter: function () {
@@ -60,11 +59,15 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         var filterView = this.getDevicesSearchFilterPanel();
 
         var serialNumberField = filterForm.down('[name=serialNumber]');
-        var serialNumberValue = serialNumberField.getValue();
+        var serialNumberValue = serialNumberField.getValue().trim();
         var mRIDField = filterForm.down('[name=mRID]');
-        var mRIDValue = mRIDField.getValue();
+        var mRIDValue = mRIDField.getValue().trim();
 
-        filterView.setFilter('serialNumber', serialNumberField.getFieldLabel(), serialNumberValue);
-        filterView.setFilter('mRID', mRIDField.getFieldLabel(), mRIDValue);
+        if (serialNumberValue != "") {
+            filterView.setFilter('serialNumber', serialNumberField.getFieldLabel(), serialNumberValue);
+        }
+        if (mRIDValue != "") {
+            filterView.setFilter('mRID', mRIDField.getFieldLabel(), mRIDValue);
+        }
     }
 });
