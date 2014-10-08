@@ -508,91 +508,10 @@ Ext.define('Uni.override.FormOverride', {
 });
 
 /**
- * @class Uni.model.Translation
- */
-Ext.define('Uni.model.Translation', {
-    extend: 'Ext.data.Model',
-    fields: [
-        'cmp',
-        'key',
-        'value'
-    ],
-    idProperty: 'key'
-});
-
-/**
- * @class Uni.store.Translations
- */
-Ext.define('Uni.store.Translations', {
-    extend: 'Ext.data.Store',
-    model: 'Uni.model.Translation',
-    storeId: 'translations',
-    singleton: true,
-    autoLoad: false,
-    clearOnPageLoad: false,
-    clearRemovedOnLoad: false,
-    remoteFilter: false,
-
-    config: {
-        baseComponents: ['UNI'],
-        components: []
-    },
-
-    proxy: {
-        type: 'ajax',
-        url: '/api/nls/thesaurus',
-        pageParam: undefined,
-        limitParam: undefined,
-        startParam: undefined,
-
-        reader: {
-            type: 'json',
-            root: 'translations'
-        },
-
-        buildUrl: function (request) {
-            var baseComponents = Uni.store.Translations.getBaseComponents(),
-                components = Uni.store.Translations.getComponents();
-
-            request.params.cmp = _.union(baseComponents, components);
-
-            var me = this,
-                format = me.format,
-                url = me.getUrl(request),
-                id = request.params.id;
-
-            if (!url.match(/\/$/)) {
-                url += '/';
-            }
-
-            if (typeof id !== 'undefined') {
-                url += id;
-            }
-
-            if (format) {
-                if (!url.match(/\.$/)) {
-                    url += '.';
-                }
-
-                url += format;
-            }
-
-            if (me.noCache) {
-                url = Ext.urlAppend(url, Ext.String.format("{0}={1}", me.cacheString, Ext.Date.now()));
-            }
-
-            request.url = url;
-
-            return url;
-        }
-    }
-});
-
-/**
  * @class Uni.I18n
  *
  * Internationalization (I18N) class that can be used to retrieve translations from the translations
- * REST interface. It uses the {@link Uni.store.Translations} store to retrieve all the available
+ * REST interface. It uses the {@link Ldr.store.Translations} store to retrieve all the available
  * translations for certain components when loading an application.
  *
  * # How to initialize the component translations
@@ -694,7 +613,10 @@ Ext.define('Uni.store.Translations', {
  */
 Ext.define('Uni.I18n', {
     singleton: true,
-    requires: ['Uni.store.Translations'],
+
+    requires: [
+        'Ldr.store.Translations'
+    ],
 
     /**
      * Default currency format key to perform translation look-ups with.
@@ -724,23 +646,7 @@ Ext.define('Uni.I18n', {
      * @param {String} components Components to load
      */
     init: function (components) {
-        Uni.store.Translations.setComponents(components);
-    },
-
-    /**
-     * Loads the internationalization translations for the current component settings.
-     *
-     * @param {Function} [callback] Callback after loading
-     */
-    load: function (callback) {
-        callback = (typeof callback !== 'undefined') ? callback : function () {
-        };
-
-        Uni.store.Translations.load({
-            callback: function () {
-                callback();
-            }
-        });
+        Ldr.store.Translations.setComponents(components);
     },
 
     /**
@@ -757,12 +663,12 @@ Ext.define('Uni.I18n', {
             index;
 
         if (typeof component !== 'undefined' && component) {
-            index = Uni.store.Translations.findBy(function (record) {
+            index = Ldr.store.Translations.findBy(function (record) {
                 return record.data.key === key && record.data.cmp === component;
             });
-            translation = Uni.store.Translations.getAt(index);
+            translation = Ldr.store.Translations.getAt(index);
         } else {
-            translation = Uni.store.Translations.getById(key);
+            translation = Ldr.store.Translations.getById(key);
         }
 
         if (typeof translation !== 'undefined' && translation !== null) {
@@ -1450,37 +1356,6 @@ Ext.define('Uni.About', {
     baseCssPrefix: 'uni-'
 });
 
-Ext.define('Uni.model.Privilege', {
-    extend: 'Ext.data.Model',
-    fields: [
-        'name'
-    ],
-    idProperty: 'name',
-    proxy: {
-        type: 'rest',
-        url: '/api/usr/users/privileges',
-        reader: {
-            type: 'json',
-            root: 'privileges'
-        }
-    }
-});
-
-
-/**
- * @class Uni.store.Privileges
- */
-Ext.define('Uni.store.Privileges', {
-    extend: 'Ext.data.Store',
-    model: 'Uni.model.Privilege',
-    storeId: 'userPrivileges',
-    singleton: true,
-    autoLoad: false,
-    clearOnPageLoad: false,
-    clearRemovedOnLoad: false,
-    remoteFilter: false
-});
-
 /**
  * @class Uni.Auth
  *
@@ -1488,27 +1363,14 @@ Ext.define('Uni.store.Privileges', {
  */
 Ext.define('Uni.Auth', {
     singleton: true,
-    requires: ['Uni.store.Privileges'],
 
-    /**
-     * Loads the privileges for the current user.
-     *
-     * @param {Function} [callback] Callback after loading
-     */
-    load: function (callback) {
-        callback = (typeof callback !== 'undefined') ? callback : function () {
-        };
-
-        Uni.store.Privileges.load({
-            callback: function () {
-                callback();
-            }
-        });
-    },
+    requires: [
+        'Ldr.store.Privileges'
+    ],
 
     hasPrivilege: function (privilege) {
-        for (var i = 0; i < Uni.store.Privileges.getCount(); i++) {
-            if (privilege === Uni.store.Privileges.getAt(i).get('name')) {
+        for (var i = 0; i < Ldr.store.Privileges.getCount(); i++) {
+            if (privilege === Ldr.store.Privileges.getAt(i).get('name')) {
                 return true;
             }
         }
@@ -4292,12 +4154,6 @@ Ext.define('Uni.Loader', {
         me.loadStateManager();
         me.loadStores();
         me.loadVtypes();
-
-        Uni.Auth.load(function () {
-            Uni.I18n.load(function () {
-                callback();
-            });
-        });
     },
 
     loadFont: function () {
@@ -4322,28 +4178,6 @@ Ext.define('Uni.Loader', {
 
     loadVtypes: function () {
         Ext.create('Uni.view.form.field.Vtypes').init();
-    },
-
-    loadScript: function (src, callback) {
-        var me = this,
-            script = document.createElement('script'),
-            loaded;
-
-        script.setAttribute('src', src);
-        if (callback) {
-            me.scriptLoadingCount++;
-            script.onreadystatechange = script.onload = function () {
-                if (!loaded) {
-                    me.scriptLoadingCount--;
-                    if (me.scriptLoadingCount === 0) {
-                        callback();
-                    }
-                }
-                loaded = true;
-            };
-        }
-
-        document.getElementsByTagName('head')[0].appendChild(script);
     },
 
     loadStyleSheet: function (href) {
@@ -10093,6 +9927,8 @@ Ext.define('Uni.view.grid.SelectionGrid', {
     overflowY: 'auto',
     maxHeight: 450,
 
+    extraTopToolbarComponent: undefined,
+
     plugins: [
         {
             ptype: 'bufferedrenderer',
@@ -10176,6 +10012,8 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
         me.getUncheckAllButton().on('click', me.onClickUncheckAllButton, me);
         me.on('selectionchange', me.onSelectionChange, me);
+
+        me.addComponentInToolbar();
     },
 
     onClickUncheckAllButton: function (button) {
@@ -10204,6 +10042,13 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
     getTopToolbarContainer: function () {
         return this.down('#topToolbarContainer');
+    },
+
+    addComponentInToolbar: function () {
+        var me = this;
+        me.getTopToolbarContainer().add(
+            me.extraTopToolbarComponent
+        )
     }
 });
 

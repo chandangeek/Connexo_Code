@@ -2,7 +2,7 @@
  * @class Uni.I18n
  *
  * Internationalization (I18N) class that can be used to retrieve translations from the translations
- * REST interface. It uses the {@link Uni.store.Translations} store to retrieve all the available
+ * REST interface. It uses the {@link Ldr.store.Translations} store to retrieve all the available
  * translations for certain components when loading an application.
  *
  * # How to initialize the component translations
@@ -104,7 +104,10 @@
  */
 Ext.define('Uni.I18n', {
     singleton: true,
-    requires: ['Uni.store.Translations'],
+
+    requires: [
+        'Ldr.store.Translations'
+    ],
 
     /**
      * Default currency format key to perform translation look-ups with.
@@ -136,23 +139,8 @@ Ext.define('Uni.I18n', {
      * @param {String} components Components to load
      */
     init: function (components) {
-        Uni.store.Translations.setComponents(components);
-    },
-
-    /**
-     * Loads the internationalization translations for the current component settings.
-     *
-     * @param {Function} [callback] Callback after loading
-     */
-    load: function (callback) {
-        callback = (typeof callback !== 'undefined') ? callback : function () {
-        };
-
-        Uni.store.Translations.load({
-            callback: function () {
-                callback();
-            }
-        });
+        // TODO Refactor.
+        Ldr.store.Translations.setComponents(components);
     },
 
     /**
@@ -169,12 +157,12 @@ Ext.define('Uni.I18n', {
             index;
 
         if (typeof component !== 'undefined' && component) {
-            index = Uni.store.Translations.findBy(function (record) {
+            index = Ldr.store.Translations.findBy(function (record) {
                 return record.data.key === key && record.data.cmp === component;
             });
-            translation = Uni.store.Translations.getAt(index);
+            translation = Ldr.store.Translations.getAt(index);
         } else {
-            translation = Uni.store.Translations.getById(key);
+            translation = Ldr.store.Translations.getById(key);
         }
 
         if (typeof translation !== 'undefined' && translation !== null) {

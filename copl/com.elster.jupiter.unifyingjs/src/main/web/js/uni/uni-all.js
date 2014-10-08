@@ -6,6 +6,7 @@
         enabled: true,
         disableCaching: true,
         paths: {
+            'Ldr': '../ldr/src',
             'Uni': '../uni/src',
             'Ext.ux.form': '../uni/packages/Ext.ux.form',
             'Ext.ux.Rixo': '../uni/packages/Ext.ux.Rixo',
