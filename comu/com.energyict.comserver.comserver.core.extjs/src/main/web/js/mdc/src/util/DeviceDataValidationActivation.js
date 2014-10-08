@@ -63,7 +63,11 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 me.hasValidation = res.hasValidation;
-                me.dataValidationLastChecked = res.lastChecked;
+                if (res.lastChecked) {
+                    me.dataValidationLastChecked = new Date(res.lastChecked);
+                } else {
+                    me.dataValidationLastChecked = new Date();
+                }
                 if (res.hasValidation) {
                     confirmationWindow.add(me.getActivationConfirmationContent());
                     confirmationWindow.show({
@@ -193,7 +197,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     itemId: 'validationFromDate',
                     editable: false,
                     showToday: false,
-                    value: new Date(me.dataValidationLastChecked),
+                    value: me.dataValidationLastChecked,
                     fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item1', 'MDC', '1. Validate data from'),
                     labelWidth: 175,
                     labelPad: 1
