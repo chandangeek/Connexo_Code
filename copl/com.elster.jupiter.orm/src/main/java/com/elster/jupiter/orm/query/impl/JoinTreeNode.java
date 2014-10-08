@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
@@ -27,10 +26,6 @@ final class JoinTreeNode<T>  {
 		this.value = value;
 	}
 
-	SqlDialect getDialect() {
-		return getTable().getDataModel().getSqlDialect();
-	}
-	
 	TableImpl<? super T> getTable() {		
 		return value.getTable();
 	}
