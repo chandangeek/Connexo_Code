@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.ValidationPreview', {
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('device.channelData.dataValidated', 'MDC', 'Data validated'),
+            fieldLabel: Uni.I18n.translate('device.registerData.allDataValidated', 'MDC', 'All data validated'),
             name: 'dataValidated',
             renderer: function (value) {
                 return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')

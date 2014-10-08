@@ -29,7 +29,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             persist: false,
             mapping: function (data) {
                 return (data.validationInfo && data.validationInfo.dataValidated) ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
-                    : '<span class="icon-validation icon-validation-black"></span>&nbsp;&nbsp;&nbsp;' + Uni.I18n.translate('general.no', 'MDC', 'No');
+                    : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
             }
         },
         {
