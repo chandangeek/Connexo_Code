@@ -42,15 +42,15 @@ public final class ReadingQualityType {
     	}
     }
     
-    Optional<QualityCodeSystem> system() {
+    public Optional<QualityCodeSystem> system() {
     	return getCode(1).flatMap(code -> QualityCodeSystem.get(code));
     }
     
-    Optional<QualityCodeCategory> category() {
+    public Optional<QualityCodeCategory> category() {
     	return getCode(2).flatMap(code -> QualityCodeCategory.get(code));
     }
     
-    Optional<QualityCodeIndex> qualityIndex()  {
+    public Optional<QualityCodeIndex> qualityIndex()  {
     	return category().flatMap(category -> getCode(3).flatMap(code -> category.qualityCodeIndex(code)));
     }
 

@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -11,6 +14,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+
 import java.util.Date;
 
 public class ReadingQualityRecordImpl implements ReadingQualityRecord {
@@ -143,6 +147,14 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     @Override
     public long getVersion() {
         return version;
+    }
+    
+    public boolean hasEditCategory() {
+    	return getType().category().equals(QualityCodeCategory.EDITED);
+    }
+    
+    public boolean isSuspect() {
+    	return getType().qualityIndex().equals(QualityCodeIndex.SUSPECT);
     }
 
     public class LocalEventSource {
