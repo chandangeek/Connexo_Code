@@ -2,12 +2,13 @@ Ext.define('Dsh.view.Connections', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.connections-details',
     itemId: 'connectionsdetails',
-    overflowY: 'auto',
 
     requires: [
         'Dsh.view.widget.ConnectionsList',
         'Dsh.view.widget.PreviewConnection',
-        'Dsh.view.widget.SideFilter'
+        'Dsh.view.widget.SideFilter',
+        'Dsh.view.widget.CommunicationsList',
+        'Dsh.view.widget.PreviewCommunication'
     ],
 
     content: [
@@ -46,10 +47,10 @@ Ext.define('Dsh.view.Connections', {
             padding: 0,
             margin: '16 0 0 0',
             title: '',
-            items: {
+            items: [{
                 xtype: 'container',
                 itemId: 'communicationcontainer'
-            }
+            }]
         }
     ],
     side: [
