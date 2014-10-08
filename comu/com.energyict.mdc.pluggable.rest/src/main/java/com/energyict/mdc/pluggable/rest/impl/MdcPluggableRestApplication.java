@@ -1,13 +1,5 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.common.rest.Installer;
-import com.energyict.mdc.common.rest.TransactionWrapper;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,17 +9,26 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.rest.Installer;
+import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.pluggable.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/plr", "name=" + MdcPluggableRestApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.pluggable.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/plr", "name=" + MdcPluggableRestApplication.COMPONENT_NAME})
 public class MdcPluggableRestApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "PLR";
@@ -99,6 +100,11 @@ public class MdcPluggableRestApplication extends Application implements InstallS
     public void install() {
         Installer installer = new Installer();
         installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS");
     }
 
 
