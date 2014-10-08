@@ -12,7 +12,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -28,6 +28,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
 /**
  * Created by bvn on 10/3/14.
@@ -78,9 +79,13 @@ public class ConnectionMethodResource {
     }
 
     private void pauseOrResumeTask(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
-        switch (connectionMethodInfo.status){
-            case ACTIVE:task.activate();break;
-            case INACTIVE:task.deactivate();break;
+        switch (connectionMethodInfo.status) {
+            case ACTIVE:
+                task.activate();
+                break;
+            case INACTIVE:
+                task.deactivate();
+                break;
         }
     }
 
@@ -142,5 +147,5 @@ public class ConnectionMethodResource {
     public ComSessionResource getComTaskExecutionResource() {
         return comTaskExecutionResourceProvider.get();
     }
-    
+
 }

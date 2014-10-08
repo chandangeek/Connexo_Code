@@ -112,7 +112,7 @@ public class LoadProfileResource {
 
     private boolean isValidationActive(LoadProfile loadProfile) {
         return loadProfile.getChannels().stream()
-                    .anyMatch(isValidationActive());
+                .anyMatch(isValidationActive());
     }
 
     private Date lastChecked(LoadProfile loadProfile) {
@@ -147,7 +147,7 @@ public class LoadProfileResource {
     public Response getLoadProfileData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
-        if (intervalStart!=null && intervalEnd!=null) {
+        if (intervalStart != null && intervalEnd != null) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(device, loadProfileData, thesaurus, clock);
             infos = filter(infos, uriInfo.getQueryParameters());
@@ -195,8 +195,14 @@ public class LoadProfileResource {
 
     private Predicate<LoadProfileDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
         ImmutableList.Builder<Predicate<LoadProfileDataInfo>> list = ImmutableList.builder();
-        if (filterActive(queryParameters, "onlySuspect")) {
-            list.add(this::hasSuspects);
+        boolean onlySuspect = filterActive(queryParameters, "onlySuspect");
+        boolean onlyNonSuspect = filterActive(queryParameters, "onlyNonSuspect");
+        if (onlySuspect ^ onlyNonSuspect) {
+            if (onlySuspect) {
+                list.add(this::hasSuspects);
+            } else {
+                list.add(not(this::hasSuspects));
+            }
         }
         if (filterActive(queryParameters, "hideMissing")) {
             list.add(not(this::hasMissingData));
@@ -229,7 +235,7 @@ public class LoadProfileResource {
 
     private boolean hasData(LoadProfile loadProfile) {
         return loadProfile.getChannels().stream()
-            .anyMatch(hasData());
+                .anyMatch(hasData());
     }
 
     private Predicate<Channel> hasData() {

@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
+
 /**
  * Created by bvn on 9/5/14.
  */
@@ -100,7 +102,7 @@ public class ChannelResource {
     }
 
     private Date lastChecked(Channel channel) {
-        Optional<Date> optional =  channel.getDevice().forValidation().getLastChecked(channel);
+        Optional<Date> optional = channel.getDevice().forValidation().getLastChecked(channel);
         return (optional.isPresent()) ? optional.get() : null;
     }
 
@@ -118,7 +120,7 @@ public class ChannelResource {
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.now());
-        if (intervalStart!=null && intervalEnd!=null) {
+        if (intervalStart != null && intervalEnd != null) {
             List<LoadProfileReading> channelData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<ChannelDataInfo> infos = ChannelDataInfo.from(channelData, isValidationActive, thesaurus, deviceValidation);
             infos = filter(infos, uriInfo.getQueryParameters());
@@ -144,8 +146,14 @@ public class ChannelResource {
 
     private Predicate<ChannelDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
         ImmutableList.Builder<Predicate<ChannelDataInfo>> list = ImmutableList.builder();
-        if (filterActive(queryParameters, "onlySuspect")) {
-            list.add(this::hasSuspects);
+        boolean onlySuspect = filterActive(queryParameters, "onlySuspect");
+        boolean onlyNonSuspect = filterActive(queryParameters, "onlyNonSuspect");
+        if (onlySuspect ^ onlyNonSuspect) {
+            if (onlySuspect) {
+                list.add(this::hasSuspects);
+            } else {
+                list.add(not(this::hasSuspects));
+            }
         }
         if (filterActive(queryParameters, "hideMissing")) {
             list.add(this::hasMissingData);
