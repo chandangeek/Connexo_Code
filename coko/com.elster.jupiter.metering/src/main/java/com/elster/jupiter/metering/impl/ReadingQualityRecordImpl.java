@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -11,6 +14,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+
 import java.util.Date;
 
 public class ReadingQualityRecordImpl implements ReadingQualityRecord {
@@ -144,7 +148,35 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     public long getVersion() {
         return version;
     }
-
+    
+    public boolean hasEditCategory() {
+    	return hasQualityCodeCategory(QualityCodeCategory.EDITED);
+    }
+    
+    public boolean hasValdiationCategory() {
+    	return hasQualityCodeCategory(QualityCodeCategory.VALIDATION);
+    }
+    
+    public boolean isSuspect() {
+    	return hasQualityIndex(QualityCodeIndex.SUSPECT);
+    }
+    
+    public boolean isMissing() {
+    	return hasQualityIndex(QualityCodeIndex.KNOWNMISSINGREAD);
+    }
+    
+    private boolean hasQualityCodeCategory(QualityCodeCategory cat) {
+    	return getType().category().filter(category -> category.equals(cat)).isPresent();
+    }
+    
+    private boolean hasQualityIndex(QualityCodeIndex index) {
+    	return getType().qualityIndex().filter(qualityIndex -> qualityIndex.equals(index)).isPresent();
+    }
+    
+    void clearActualFlag() {
+    	// TODO: clear actual flag
+    }
+    
     public class LocalEventSource {
         private final ReadingQualityRecordImpl readingQuality;
 

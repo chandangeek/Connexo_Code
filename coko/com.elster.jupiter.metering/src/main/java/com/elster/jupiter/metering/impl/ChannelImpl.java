@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
@@ -33,6 +35,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
@@ -393,17 +396,38 @@ public final class ChannelImpl implements ChannelContract {
 
     @Override
     public void editReadings(List<? extends BaseReading> readings) {
-        readings.forEach(reading -> editReading(reading));
-    }
-
-    private void editReading(BaseReading reading) {
-        ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.EDITED);
-        Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
-        if (oldReading.isPresent()) {
-            processStatus = processStatus.or(oldReading.get().getProcesStatus());
+    	if (readings.isEmpty()) {
+            return;
         }
-        ReadingStorer storer = meteringService.createOverrulingStorer();
-        storer.addReading(this, reading, processStatus);
+    	ReadingStorer storer = meteringService.createOverrulingStorer();
+        Range<Instant> range = readings.stream().map(reading -> reading.getTimeStamp().toInstant()).map(Range::singleton).reduce(Range::span).get();
+        List<ReadingQualityRecord> allQualityRecords = findReadingQuality(range);
+        ReadingQualityType editQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC);
+        ReadingQualityType addQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED);
+        for (BaseReading reading : readings) {
+        	List<ReadingQualityRecordImpl> currentQualityRecords = allQualityRecords.stream()
+        		.filter(qualityRecord -> qualityRecord.getReadingTimestamp().equals(reading.getTimeStamp()))
+        		.map(ReadingQualityRecordImpl.class::cast)
+        		.collect(Collectors.toList());
+        	ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.EDITED);
+        	Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
+        	boolean hasEditQuality = currentQualityRecords.stream().anyMatch(qualityRecord -> qualityRecord.hasEditCategory());
+        	if (oldReading.isPresent()) {
+        		processStatus = processStatus.or(oldReading.get().getProcesStatus());
+        		if (!hasEditQuality) {
+        			this.createReadingQuality(editQualityType, reading.getTimeStamp());
+        		}
+        	} else if (!hasEditQuality) {
+        		this.createReadingQuality(addQualityType, reading.getTimeStamp());
+        	}
+        	currentQualityRecords.stream()
+        		.filter(qualityRecord -> qualityRecord.isSuspect())
+        		.forEach(qualityRecord -> qualityRecord.delete());
+        	currentQualityRecords.stream()
+    			.filter(qualityRecord -> qualityRecord.hasValdiationCategory() || qualityRecord.isMissing())
+    			.forEach(qualityRecord -> qualityRecord.clearActualFlag());
+        	storer.addReading(this, reading, processStatus);
+        }
         storer.execute();
     }
 
@@ -415,9 +439,8 @@ public final class ChannelImpl implements ChannelContract {
         Set<Instant> readingTimes = readings.stream().map(reading -> reading.getTimeStamp().toInstant()).collect(Collectors.toSet());
         List<ReadingQualityRecord> qualityRecords = findReadingQuality(Range.encloseAll(readingTimes));
         readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
-        DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
-        mapper.remove(qualityRecords.stream()
-                .filter(quality -> readingTimes.contains(quality.getReadingTimestamp().toInstant()))
-                .collect(Collectors.toList()));
+        qualityRecords.stream()
+        	.filter(quality -> readingTimes.contains(quality.getReadingTimestamp().toInstant()))
+            .forEach(qualityRecord -> qualityRecord.delete());
     }
 }

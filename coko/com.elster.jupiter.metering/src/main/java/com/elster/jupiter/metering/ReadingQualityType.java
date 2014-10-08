@@ -1,12 +1,12 @@
 package com.elster.jupiter.metering;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.google.common.base.Joiner;
-
-import java.util.Objects;
-import java.util.Optional;
 
 public final class ReadingQualityType {
 
