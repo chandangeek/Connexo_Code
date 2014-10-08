@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -23,23 +30,15 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.google.common.base.Optional;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.junit.*;
-import org.junit.rules.*;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -455,6 +454,24 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     public void removeNonExistingDeviceMessageEnablementShouldNotFailTest() {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("NonExisting").add();
         assertThat(deviceConfiguration.removeDeviceMessageEnablement(DeviceMessageId.DLMS_CONFIGURATION_SET_DEVICE_ID)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void removeAUserActionFromAnExistingEnablementTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("RemoveExistingUserAction").add();
+        java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements().stream().filter(dme -> dme.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CLOSE)).findAny();
+
+        assertThat(deviceMessageEnablementOptional.get().removeDeviceMessageUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void removeUserActionFromExistingEnablementWhichDoesntExistTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("RemoveNonExistingUserAction").add();
+        java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements().stream().filter(dme -> dme.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CLOSE)).findAny();
+
+        assertThat(deviceMessageEnablementOptional.get().removeDeviceMessageUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1)).isFalse();
     }
 
     private DeviceConfiguration reloadDeviceConfiguration(DeviceConfiguration deviceConfiguration) {

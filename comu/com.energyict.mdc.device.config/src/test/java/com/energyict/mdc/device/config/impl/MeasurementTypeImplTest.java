@@ -96,12 +96,12 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
+        deviceType.save();
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.setNumberOfDigits(5);
         registerSpecBuilder.setNumberOfFractionDigits(2);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         configurationBuilder.add();
-        deviceType.save();
 
         // Business method
         registerType.setObisCode(ObisCode.fromString("1.0.3.9.0.255"));
@@ -138,11 +138,11 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addLoadProfileType(this.loadProfileType);
         deviceType.addRegisterType(registerType);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
         configurationBuilder.newChannelSpec(channelTypeForRegisterType, this.phenomenon1, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
         configurationBuilder.add();
-        deviceType.save();
 
         // Business method
         registerType.setObisCode(ObisCode.fromString("1.0.3.9.0.255"));
@@ -174,12 +174,12 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
+        deviceType.save();
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.setNumberOfDigits(5);
         registerSpecBuilder.setNumberOfFractionDigits(2);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         configurationBuilder.add();
-        deviceType.save();
 
         // Business method
         registerType.setUnit(unit2);
@@ -216,11 +216,11 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addLoadProfileType(this.loadProfileType);
         deviceType.addRegisterType(registerType);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
         configurationBuilder.newChannelSpec(channelTypeForRegisterType, this.phenomenon1, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setMultiplierMode(MultiplierMode.NONE).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
         configurationBuilder.add();
-        deviceType.save();
 
         // Business method
         registerType.setUnit(unit2);
@@ -251,13 +251,13 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         // Use it in a DeviceType and DeviceConfiguration
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.setNumberOfDigits(5);
         registerSpecBuilder.setNumberOfFractionDigits(2);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         configurationBuilder.add();
-        deviceType.save();
 
         try {
             registerType.delete();

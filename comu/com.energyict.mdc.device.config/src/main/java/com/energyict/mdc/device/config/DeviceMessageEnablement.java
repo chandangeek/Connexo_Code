@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -14,7 +15,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-03-04 (09:57)
  */
-public interface DeviceMessageEnablement {
+public interface DeviceMessageEnablement extends HasId {
 
     /**
      * Gets the Set of DeviceMessageUserActions
@@ -54,13 +55,13 @@ public interface DeviceMessageEnablement {
      *
      * @param deviceMessageUserAction the userAction to add
      */
-    void addDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction);
+    boolean addDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction);
 
     /**
      * Remove the given DeviceMessageUserAction from this enablement
      *
      * @param deviceMessageUserAction the userAction to delete
      */
-    void removeDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction);
+    boolean removeDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction);
 
 }

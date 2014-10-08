@@ -77,10 +77,10 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         // Setup DeviceType with a DeviceConfiguration and a LoadProfileSpec that uses the LoadProfileType
         DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
         deviceType.addLoadProfileType(loadProfileType);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         configurationBuilder.newLoadProfileSpec(loadProfileType);
         configurationBuilder.add();
-        deviceType.save();
 
         // Business method
         TimeDuration updatedInterval = new TimeDuration(1, TimeDuration.HOURS);
@@ -116,11 +116,11 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
         deviceType.addLoadProfileType(loadProfileType);
         deviceType.addRegisterType(registerType);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
         configurationBuilder.newChannelSpec(channelTypeForRegisterType, this.phenomenon, loadProfileSpecBuilder);
         configurationBuilder.add();
-        deviceType.save();
 
         try {
             // Business method

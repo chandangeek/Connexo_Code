@@ -5,26 +5,27 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
  * Date: 9/30/14
  * Time: 1:36 PM
  */
-public abstract class DeviceMessageEnablementImpl<T> extends PersistentIdObject<T> implements DeviceMessageEnablement {
+public abstract class DeviceMessageEnablementImpl<T> extends PersistentIdObject<T> implements DeviceMessageEnablement, PersistenceAware {
 
     private static final String SINGLEDEVICEMESSAGEENABLEMENT = "0";
     private static final String DEVICEMESSAGECATEGORYENABLEMENT = "1";
@@ -53,10 +54,7 @@ public abstract class DeviceMessageEnablementImpl<T> extends PersistentIdObject<
 
     }
 
-    private Set<DeviceMessageUserAction> deviceMessageUserActions = EnumSet.of(
-            DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1,
-            DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2,
-            DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);
+    private Set<DeviceMessageUserAction> deviceMessageUserActions = new HashSet<>();
 
     private List<DeviceMessageUserActionRecord> deviceMessageUserActionRecords = new ArrayList<>();
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
@@ -87,19 +85,15 @@ public abstract class DeviceMessageEnablementImpl<T> extends PersistentIdObject<
     }
 
     @Override
-    public void removeDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction) {
+    public boolean removeDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction) {
         boolean removed = deviceMessageUserActions.remove(deviceMessageUserAction);
-        if(removed){
-            deviceMessageUserActionRecords.removeIf(deviceMessageUserActionRecord -> deviceMessageUserActionRecord.userAction.equals(deviceMessageUserAction));
-        }
+        return removed && deviceMessageUserActionRecords.removeIf(deviceMessageUserActionRecord -> deviceMessageUserActionRecord.userAction.equals(deviceMessageUserAction));
     }
 
     @Override
-    public void addDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction) {
+    public boolean addDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction) {
         boolean added = this.deviceMessageUserActions.add(deviceMessageUserAction);
-        if(added){
-            this.deviceMessageUserActionRecords.add(new DeviceMessageUserActionRecord(this, deviceMessageUserAction));
-        }
+        return added && this.deviceMessageUserActionRecords.add(new DeviceMessageUserActionRecord(this, deviceMessageUserAction));
     }
 
     @Override
@@ -131,6 +125,11 @@ public abstract class DeviceMessageEnablementImpl<T> extends PersistentIdObject<
     @Override
     protected void validateDelete() {
 
+    }
+
+    @Override
+    public void postLoad() {
+        deviceMessageUserActions.addAll(deviceMessageUserActionRecords.stream().map(userActionRecord -> userActionRecord.userAction).collect(Collectors.toList()));
     }
 
     protected void setDeviceCommunicationConfiguration(DeviceCommunicationConfiguration deviceCommunicationConfiguration) {

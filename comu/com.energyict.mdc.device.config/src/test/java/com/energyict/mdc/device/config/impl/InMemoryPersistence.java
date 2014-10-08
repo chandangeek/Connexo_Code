@@ -336,6 +336,10 @@ public class InMemoryPersistence {
         }
     }
 
+    public DataModel getDataModel() {
+        return this.dataModel;
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
