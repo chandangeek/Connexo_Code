@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.model.ComServer;
 import org.junit.Test;
 import org.junit.runner.RunWith;

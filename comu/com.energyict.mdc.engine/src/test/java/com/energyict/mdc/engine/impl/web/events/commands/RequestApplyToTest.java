@@ -14,24 +14,20 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-
 import com.google.common.base.Optional;
-
-import java.util.EnumSet;
-import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.EnumSet;
+import java.util.List;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySetOf;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link Request#applyTo(EventPublisher)} method
@@ -59,7 +55,7 @@ public class RequestApplyToTest {
     private EngineModelService engineModelService;
 
     @Test
-    public void testCategoryRequest () {
+    public void testCategoryRequest() {
         LoggingRequest request = new LoggingRequest(LogLevel.TRACE, EnumSet.allOf(Category.class));
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
@@ -72,7 +68,7 @@ public class RequestApplyToTest {
     }
 
     @Test
-    public void testDeviceRequest () {
+    public void testDeviceRequest() {
         BaseDevice device = this.mockDevice();
         DeviceRequest request = new DeviceRequest(deviceService, DEVICE1_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
@@ -87,7 +83,7 @@ public class RequestApplyToTest {
     }
 
     @Test
-    public void testConnectionTaskRequest () {
+    public void testConnectionTaskRequest() {
         ConnectionTask connectionTask = this.mockConnectionTask();
         ConnectionTaskRequest request = new ConnectionTaskRequest(connectionTaskService, CONNECTION_TASK_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
@@ -102,7 +98,7 @@ public class RequestApplyToTest {
     }
 
     @Test
-    public void testComTaskExecutionRequest () {
+    public void testComTaskExecutionRequest() {
         ComTaskExecution comTaskExecution = this.mockComTaskExecution();
         ComTaskExecutionRequest comTaskExecutionRequest = new ComTaskExecutionRequest(this.communicationTaskService, COM_TASK_EXECUTION_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
@@ -117,7 +113,7 @@ public class RequestApplyToTest {
     }
 
     @Test
-    public void testComPortRequest () {
+    public void testComPortRequest() {
         ComPort comPort = this.mockComPort();
         ComPortRequest request = new ComPortRequest(engineModelService, COM_PORT_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
@@ -132,7 +128,7 @@ public class RequestApplyToTest {
     }
 
     @Test
-    public void testComPortPoolRequest () {
+    public void testComPortPoolRequest() {
         ComPortPool comPortPool = this.mockComPortPool();
         ComPortPoolRequest request = new ComPortPoolRequest(engineModelService, COM_PORT_POOL_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
@@ -146,35 +142,35 @@ public class RequestApplyToTest {
         assertThat(comPortPoolArgumentCaptor.getValue()).containsOnly(comPortPool);
     }
 
-    private BaseDevice mockDevice () {
+    private BaseDevice mockDevice() {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE1_ID);
         when(this.deviceService.findDeviceById(DEVICE1_ID)).thenReturn(device);
         return device;
     }
 
-    private ConnectionTask mockConnectionTask () {
+    private ConnectionTask mockConnectionTask() {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(this.connectionTaskService.findConnectionTask(CONNECTION_TASK_ID)).thenReturn(Optional.of(connectionTask));
         return connectionTask;
     }
 
-    private ComTaskExecution mockComTaskExecution () {
+    private ComTaskExecution mockComTaskExecution() {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION_ID)).thenReturn(comTaskExecution);
         return comTaskExecution;
     }
 
-    private ComPort mockComPort () {
+    private ComPort mockComPort() {
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COM_PORT_ID);
         when(this.engineModelService.findComPort(COM_PORT_ID)).thenReturn(comPort);
         return comPort;
     }
 
-    private ComPortPool mockComPortPool () {
+    private ComPortPool mockComPortPool() {
         ComPortPool comPortPool = mock(ComPortPool.class);
         when(comPortPool.getId()).thenReturn(Long.valueOf(COM_PORT_POOL_ID));
         when(this.engineModelService.findComPortPool(COM_PORT_POOL_ID)).thenReturn(comPortPool);

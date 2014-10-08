@@ -14,7 +14,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * JobExecutor that takes jobs from a blocking queue.
  * If not jobs are available, then the Thread will wait.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/17/13
  * Time: 11:12 AM
@@ -33,18 +33,18 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
     }
 
     @Override
-    public void run () {
+    public void run() {
         Optional<User> user = userService.findUser("batch executor");
         if (user.isPresent()) {
             threadPrincipalService.set(user.get(), "MultiThreadedComPort", "Executing", Locale.ENGLISH);
         }
-        while (!Thread.currentThread().isInterrupted()){
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 ScheduledJob scheduledJob = jobBlockingQueue.take();
                 acquireTokenAndPerformSingleJob(scheduledJob);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            } catch (Throwable t){
+            } catch (Throwable t) {
                 t.printStackTrace(System.err);
             }
         }

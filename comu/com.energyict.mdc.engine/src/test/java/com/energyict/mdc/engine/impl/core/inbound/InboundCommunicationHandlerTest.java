@@ -1,5 +1,9 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -52,13 +56,17 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.google.common.base.Optional;
+import org.assertj.core.api.Condition;
 import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,13 +77,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -83,12 +84,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link InboundCommunicationHandler} component.
@@ -147,7 +143,7 @@ public class InboundCommunicationHandlerTest {
     private Clock clock = new ProgrammableClock();
 
     @Before
-    public void setup () {
+    public void setup() {
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         serviceProvider.setEventService(eventService);
@@ -157,7 +153,7 @@ public class InboundCommunicationHandlerTest {
         when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
         EventPublisherImpl.setInstance(eventPublisher);
         when(connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
-            thenReturn(this.comSessionBuilder);
+                thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addSentBytes(anyLong())).thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addReceivedBytes(anyLong())).thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addSentPackets(anyLong())).thenReturn(this.comSessionBuilder);
@@ -194,18 +190,18 @@ public class InboundCommunicationHandlerTest {
     // Todo (JP-3084)
     @Ignore
     @Test
-    public void testBinaryCommunicationWithDeviceThatDoesNotExist () {
+    public void testBinaryCommunicationWithDeviceThatDoesNotExist() {
         this.testCommunicationWithDeviceThatDoesNotExist(this.newBinaryInboundDiscoveryContext());
     }
 
     // Todo (JP-3084)
     @Ignore
     @Test
-    public void testServletCommunicationWithDeviceThatDoesNotExist () {
+    public void testServletCommunicationWithDeviceThatDoesNotExist() {
         this.testCommunicationWithDeviceThatDoesNotExist(this.newServletInboundDiscoveryContext());
     }
 
-    private void testCommunicationWithDeviceThatDoesNotExist (InboundDiscoveryContextImpl context) {
+    private void testCommunicationWithDeviceThatDoesNotExist(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
@@ -224,18 +220,18 @@ public class InboundCommunicationHandlerTest {
     // Todo (JP-3084)
     @Ignore
     @Test
-    public void testComSessionShadowForBinaryCommunicationWithDeviceThatDoesNotExist () {
+    public void testComSessionShadowForBinaryCommunicationWithDeviceThatDoesNotExist() {
         this.testComSessionShadowForCommunicationWithDeviceThatDoesNotExist(this.newBinaryInboundDiscoveryContext());
     }
 
     // Todo (JP-3084)
     @Ignore
     @Test
-    public void testComSessionShadowForServletCommunicationWithDeviceThatDoesNotExist () {
+    public void testComSessionShadowForServletCommunicationWithDeviceThatDoesNotExist() {
         this.testComSessionShadowForCommunicationWithDeviceThatDoesNotExist(this.newServletInboundDiscoveryContext());
     }
 
-    private void testComSessionShadowForCommunicationWithDeviceThatDoesNotExist (InboundDiscoveryContextImpl context) {
+    private void testComSessionShadowForCommunicationWithDeviceThatDoesNotExist(InboundDiscoveryContextImpl context) {
         Date connectionEstablishedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 0, 0).toDate();
         Date sessionStartClock = new DateTime(2012, 10, 25, 13, 0, 0, 1).toDate();  // 1 milli second later
         Date discoveryStartedLogMessageClock = new DateTime(2012, 10, 25, 13, 0, 1, 0).toDate();   // 1 sec later
@@ -245,16 +241,16 @@ public class InboundCommunicationHandlerTest {
         Date connectionClosedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 5, 1).toDate();   // 5001 milli seconds later
         Clock clock = mock(Clock.class);
         when(clock.now()).thenReturn(
-                        connectionEstablishedEventOccurrenceClock,
-                        sessionStartClock,
-                        discoveryStartedLogMessageClock, // Once to actually log the message
-                        discoveryStartedLogMessageClock, // Once to send the message in a LoggingEvent
-                        discoveryResultLogEvent,    // Once to actually log the message
-                        discoveryResultLogEvent,    // Once to send the message in a LoggingEvent
-                        deviceNotFoundLogEvent,     // Once to actually log the message
-                        deviceNotFoundLogEvent,     // Once to send the message in a LoggingEvent
-                        sessionStopClock,
-                        connectionClosedEventOccurrenceClock);
+                connectionEstablishedEventOccurrenceClock,
+                sessionStartClock,
+                discoveryStartedLogMessageClock, // Once to actually log the message
+                discoveryStartedLogMessageClock, // Once to send the message in a LoggingEvent
+                discoveryResultLogEvent,    // Once to actually log the message
+                discoveryResultLogEvent,    // Once to send the message in a LoggingEvent
+                deviceNotFoundLogEvent,     // Once to actually log the message
+                deviceNotFoundLogEvent,     // Once to send the message in a LoggingEvent
+                sessionStopClock,
+                connectionClosedEventOccurrenceClock);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
@@ -274,18 +270,18 @@ public class InboundCommunicationHandlerTest {
     // Todo (JP-3084)
     @Ignore
     @Test
-    public void testBinaryCommunicationWithDeviceThatIsNotReadyForCommunication () {
+    public void testBinaryCommunicationWithDeviceThatIsNotReadyForCommunication() {
         this.testCommunicationWithDeviceThatIsNotReadyForCommunication(this.newBinaryInboundDiscoveryContext());
     }
 
     // Todo (JP-3084)
     @Ignore
     @Test
-    public void testServletCommunicationWithDeviceThatIsNotReadyForCommunication () {
+    public void testServletCommunicationWithDeviceThatIsNotReadyForCommunication() {
         this.testCommunicationWithDeviceThatIsNotReadyForCommunication(this.newServletInboundDiscoveryContext());
     }
 
-    private void testCommunicationWithDeviceThatIsNotReadyForCommunication (InboundDiscoveryContextImpl context) {
+    private void testCommunicationWithDeviceThatIsNotReadyForCommunication(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
@@ -305,18 +301,18 @@ public class InboundCommunicationHandlerTest {
     // Todo (JP-3084)
     @Ignore
     @Test
-    public void testComSessionShadowForBinaryCommunicationWithDeviceThatIsNotReadyForCommunication () {
+    public void testComSessionShadowForBinaryCommunicationWithDeviceThatIsNotReadyForCommunication() {
         this.testComSessionShadowForCommunicationWithDeviceThatIsNotReadyForCommunication(this.newBinaryInboundDiscoveryContext());
     }
 
     // Todo (JP-3084)
     @Ignore
     @Test
-    public void testComSessionShadowForServletCommunicationWithDeviceThatIsNotReadyForCommunication () {
+    public void testComSessionShadowForServletCommunicationWithDeviceThatIsNotReadyForCommunication() {
         this.testComSessionShadowForCommunicationWithDeviceThatIsNotReadyForCommunication(this.newServletInboundDiscoveryContext());
     }
 
-    private void testComSessionShadowForCommunicationWithDeviceThatIsNotReadyForCommunication (InboundDiscoveryContextImpl context) {
+    private void testComSessionShadowForCommunicationWithDeviceThatIsNotReadyForCommunication(InboundDiscoveryContextImpl context) {
         Date connectionEstablishedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 0, 0).toDate();
         Date sessionStartClock = new DateTime(2012, 10, 25, 13, 0, 0, 1).toDate();  // 1 milli second later
         Date discoveryStartedLogMessageClock = new DateTime(2012, 10, 25, 13, 0, 1, 0).toDate();   // 1 sec later
@@ -353,16 +349,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     @Test
-    public void testBinaryCommunicationWhenServerIsBusy () {
+    public void testBinaryCommunicationWhenServerIsBusy() {
         this.testCommunicationWhenServerIsBusy(this.newBinaryInboundDiscoveryContext());
     }
 
     @Test
-    public void testServletCommunicationWhenServerIsBusy () {
+    public void testServletCommunicationWhenServerIsBusy() {
         this.testCommunicationWhenServerIsBusy(this.newServletInboundDiscoveryContext());
     }
 
-    private void testCommunicationWhenServerIsBusy (InboundDiscoveryContextImpl context) {
+    private void testCommunicationWhenServerIsBusy(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
@@ -387,16 +383,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     @Test
-    public void testComSessionShadowForBinaryCommunicationWhenServerIsBusy () {
+    public void testComSessionShadowForBinaryCommunicationWhenServerIsBusy() {
         this.testComSessionShadowWhenServerIsBusy(this.newBinaryInboundDiscoveryContext());
     }
 
     @Test
-    public void testComSessionShadowForServletCommunicationWhenServerIsBusy () {
+    public void testComSessionShadowForServletCommunicationWhenServerIsBusy() {
         this.testComSessionShadowWhenServerIsBusy(this.newServletInboundDiscoveryContext());
     }
 
-    private void testComSessionShadowWhenServerIsBusy (InboundDiscoveryContextImpl context) {
+    private void testComSessionShadowWhenServerIsBusy(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
@@ -415,16 +411,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     @Test
-    public void testSuccessFulBinaryCommunication () {
+    public void testSuccessFulBinaryCommunication() {
         this.testSuccessFulCommunication(this.newBinaryInboundDiscoveryContext());
     }
 
     @Test
-    public void testSuccessFulSevletCommunication () {
+    public void testSuccessFulSevletCommunication() {
         this.testSuccessFulCommunication(this.newServletInboundDiscoveryContext());
     }
 
-    private void testSuccessFulCommunication (InboundDiscoveryContextImpl context) {
+    private void testSuccessFulCommunication(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
@@ -468,16 +464,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     @Test
-    public void testComSessionShadowForSuccessFulBinaryCommunication () {
+    public void testComSessionShadowForSuccessFulBinaryCommunication() {
         this.testComSessionShadowForSuccessFulCommunication(this.newBinaryInboundDiscoveryContext());
     }
 
     @Test
-    public void testComSessionShadowForSuccessFulSevletCommunication () {
+    public void testComSessionShadowForSuccessFulSevletCommunication() {
         this.testComSessionShadowForSuccessFulCommunication(this.newServletInboundDiscoveryContext());
     }
 
-    private void testComSessionShadowForSuccessFulCommunication (InboundDiscoveryContextImpl context) {
+    private void testComSessionShadowForSuccessFulCommunication(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
@@ -513,16 +509,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     @Test
-    public void testSuccessFulBinaryCommunicationWithHandOverToProtocol () throws BusinessException {
+    public void testSuccessFulBinaryCommunicationWithHandOverToProtocol() throws BusinessException {
         this.testSuccessFulCommunicationWithHandOverToProtocol(this.newBinaryInboundDiscoveryContext());
     }
 
     @Test
-    public void testSuccessFulServletCommunicationWithHandOverToProtocol () throws BusinessException {
+    public void testSuccessFulServletCommunicationWithHandOverToProtocol() throws BusinessException {
         this.testSuccessFulCommunicationWithHandOverToProtocol(this.newServletInboundDiscoveryContext());
     }
 
-    private void testSuccessFulCommunicationWithHandOverToProtocol (InboundDiscoveryContextImpl inboundDiscoveryContext) {
+    private void testSuccessFulCommunicationWithHandOverToProtocol(InboundDiscoveryContextImpl inboundDiscoveryContext) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -582,7 +578,7 @@ public class InboundCommunicationHandlerTest {
         verify(spy, times(1)).handOverToDeviceProtocol(token);
     }
 
-    private Device getMockedDevice(){
+    private Device getMockedDevice() {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
         when(device.getDeviceType()).thenReturn(this.deviceType);
@@ -592,16 +588,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     @Test
-    public void testSuccessFulBinaryCommunicationWithAllCollectedDataFiltered () {
+    public void testSuccessFulBinaryCommunicationWithAllCollectedDataFiltered() {
         this.testSuccessFulCommunicationWithAllCollectedDataFiltered(this.newBinaryInboundDiscoveryContext());
     }
 
     @Test
-    public void testSuccessFulSevletCommunicationWithAllCollectedDataFiltered () {
+    public void testSuccessFulSevletCommunicationWithAllCollectedDataFiltered() {
         this.testSuccessFulCommunicationWithAllCollectedDataFiltered(this.newServletInboundDiscoveryContext());
     }
 
-    private void testSuccessFulCommunicationWithAllCollectedDataFiltered (InboundDiscoveryContextImpl context) {
+    private void testSuccessFulCommunicationWithAllCollectedDataFiltered(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
@@ -651,19 +647,19 @@ public class InboundCommunicationHandlerTest {
         verify(this.comSessionBuilder).endSession(any(Date.class), any(ComSession.SuccessIndicator.class));
     }
 
-    private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext () {
+    private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext() {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.hexService), this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }
 
-    private InboundDiscoveryContextImpl newServletInboundDiscoveryContext () {
+    private InboundDiscoveryContextImpl newServletInboundDiscoveryContext() {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, mock(HttpServletRequest.class), mock(HttpServletResponse.class), this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }
 
-    private void initializeInboundDiscoveryContext (InboundDiscoveryContext context) {
+    private void initializeInboundDiscoveryContext(InboundDiscoveryContext context) {
         context.setLogger(Logger.getAnonymousLogger());
         Cryptographer cryptographer = mock(Cryptographer.class);
         when(cryptographer.wasUsed()).thenReturn(true);

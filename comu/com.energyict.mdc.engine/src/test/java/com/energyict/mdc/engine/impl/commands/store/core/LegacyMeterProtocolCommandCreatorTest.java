@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -16,11 +17,11 @@ import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolTermina
 import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolUpdateCacheCommand;
 import com.energyict.mdc.engine.impl.commands.store.legacy.HandHeldUnitEnablerCommand;
 import com.energyict.mdc.engine.impl.commands.store.legacy.InitializeLoggerCommand;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -29,29 +30,25 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Answers;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.MockSettings;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author sva
@@ -103,10 +100,10 @@ public class LegacyMeterProtocolCommandCreatorTest {
 
         LegacyMeterProtocolCommandCreator commandCreator = new LegacyMeterProtocolCommandCreator();
         commandCreator.createCommands(
-                            root,
-                            TypedProperties.empty(),
-                            ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                            device,
+                root,
+                TypedProperties.empty(),
+                ComChannelPlaceHolder.forKnownComChannel(comChannel),
+                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
@@ -137,10 +134,10 @@ public class LegacyMeterProtocolCommandCreatorTest {
 
         LegacyMeterProtocolCommandCreator commandCreator = new LegacyMeterProtocolCommandCreator();
         commandCreator.createCommands(
-                            root,
-                            TypedProperties.empty(),
-                            ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                            device,
+                root,
+                TypedProperties.empty(),
+                ComChannelPlaceHolder.forKnownComChannel(comChannel),
+                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
@@ -156,11 +153,11 @@ public class LegacyMeterProtocolCommandCreatorTest {
         order.verify(root).addCommand(any(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
     }
 
-    private ExecutionContext newTestExecutionContext () {
+    private ExecutionContext newTestExecutionContext() {
         return newTestExecutionContext(Logger.getAnonymousLogger());
     }
 
-    private ExecutionContext newTestExecutionContext (Logger logger) {
+    private ExecutionContext newTestExecutionContext(Logger logger) {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPortPool comPortPool = mock(ComPortPool.class);

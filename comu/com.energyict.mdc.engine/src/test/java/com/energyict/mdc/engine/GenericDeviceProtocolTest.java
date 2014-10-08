@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine;
 
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -15,17 +16,15 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-
-import com.elster.jupiter.util.time.ProgrammableClock;
 import org.fest.assertions.data.MapEntry;
-
-import java.util.logging.Logger;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.logging.Logger;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

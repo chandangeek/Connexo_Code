@@ -181,15 +181,12 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (reloaded.isPresent()) {
             if (reloaded.get().isObsolete()) {
                 return null;
-            }
-            else if (reloaded.get().getModificationDate().after(comServer.getModificationDate())) {
+            } else if (reloaded.get().getModificationDate().after(comServer.getModificationDate())) {
                 return reloaded.get();
-            }
-            else {
+            } else {
                 return comServer;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -577,13 +574,11 @@ public class ComServerDAOImpl implements ComServerDAO {
         InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
         if (connectionTask == null) {
             return null;
-        }
-        else {
+        } else {
             SecurityPropertySet securityPropertySet = this.getSecurityPropertySet(device, connectionTask);
             if (securityPropertySet == null) {
                 return null;
-            }
-            else {
+            } else {
                 return device.getSecurityProperties(securityPropertySet);
             }
         }

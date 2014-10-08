@@ -13,6 +13,7 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.google.common.base.Optional;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +32,7 @@ import java.util.Map;
  * <li>If a ComTaskExecution contains a BasicCheck protocolTask, then it should be the first member of the ComTaskExecution <i>set</i>
  * AND it should be the first <i>set</i> of the Device</li>
  * </ul>
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 4/04/13
  * Time: 16:38
@@ -86,8 +87,7 @@ public final class ComTaskExecutionOrganizer {
         DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution;
         if (result.containsKey(key.getDevice())) {
             deviceOrganizedComTaskExecution = result.get(key.getDevice());
-        }
-        else {
+        } else {
             deviceOrganizedComTaskExecution = new DeviceOrganizedComTaskExecution(key.getDevice());
             result.put(key.getDevice(), deviceOrganizedComTaskExecution);
         }
@@ -96,15 +96,15 @@ public final class ComTaskExecutionOrganizer {
 
     private ComTaskExecutionConnectionSteps determineFlags(Key previous, Key current, Key next) {
         ComTaskExecutionConnectionSteps steps = new ComTaskExecutionConnectionSteps(0);
-        if(previous == null){
+        if (previous == null) {
             steps.signOn();
-        } else if(!previous.isSameSecurityPropertySet(current) || !previous.isSameDevice(current)){
+        } else if (!previous.isSameSecurityPropertySet(current) || !previous.isSameDevice(current)) {
             steps.logOn();
         }
 
-        if(next == null){
+        if (next == null) {
             steps.signOff();
-        } else if(!next.isSameSecurityPropertySet(current) || !next.isSameDevice(current)){
+        } else if (!next.isSameSecurityPropertySet(current) || !next.isSameDevice(current)) {
             steps.logOff();
         }
         return steps;
@@ -132,8 +132,7 @@ public final class ComTaskExecutionOrganizer {
             final Device gateway = device.getPhysicalGateway();
             if (gateway == null) {
                 return device;
-            }
-            else {
+            } else {
                 return getMasterDeviceIfAvailable(gateway);
             }
         } else {
@@ -234,7 +233,7 @@ public final class ComTaskExecutionOrganizer {
             this.device = device;
         }
 
-        public static DeviceKey of(Device device){
+        public static DeviceKey of(Device device) {
             return new DeviceKey(device);
         }
 
@@ -257,7 +256,7 @@ public final class ComTaskExecutionOrganizer {
         public int hashCode() {
             int result = 17;
             long deviceId = device.getId();
-            result = 31 * result +  (int) (deviceId ^ (deviceId >>> 32));
+            result = 31 * result + (int) (deviceId ^ (deviceId >>> 32));
             return result;
         }
     }
@@ -311,8 +310,7 @@ public final class ComTaskExecutionOrganizer {
         private boolean isSameSecurityPropertySet(Key that) {
             if (this.securityPropertySet != null && that.securityPropertySet != null) {
                 return securityPropertySet.getId() == that.securityPropertySet.getId();
-            }
-            else {
+            } else {
                 return this.securityPropertySet == null && that.securityPropertySet == null;
             }
         }

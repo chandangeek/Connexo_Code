@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -16,11 +19,14 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.services.HexService;
-
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,20 +34,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the statistics defined on {@link ComChannelBasedComPortListenerImpl}.
@@ -85,7 +82,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     private MockJobExecution jobExecution;
 
     @Before
-    public void initializeMocksAndFactories () throws IOException {
+    public void initializeMocksAndFactories() throws IOException {
         this.initializeExpectedMessage();
     }
 
@@ -102,21 +99,21 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @After
-    public void resetServiceProvider () {
+    public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
     }
 
     @Before
-    public void initializeEventPublisher () {
+    public void initializeEventPublisher() {
         EventPublisherImpl.setInstance(this.eventPublisher);
     }
 
     @After
-    public void resetEventPublisher () {
+    public void resetEventPublisher() {
         EventPublisherImpl.setInstance(null);
     }
 
-    private void initializeExpectedMessage () throws IOException {
+    private void initializeExpectedMessage() throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write(singleByte);
         os.write(FIRST_SERIES_OF_BYTES);
@@ -127,7 +124,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testReadBytesBetweenCreationAndClose () {
+    public void testReadBytesBetweenCreationAndClose() {
         ComPortRelatedComChannel comChannel = this.newComChannelForReading();
         this.readFrom(comChannel);
 
@@ -139,7 +136,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testReadBytesBetweenCreationAndStartWriting () {
+    public void testReadBytesBetweenCreationAndStartWriting() {
         ComPortRelatedComChannel comChannel = this.newComChannelForReading();
         this.readFrom(comChannel);
 
@@ -151,7 +148,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testReadBytesBetweenStartReadingAndClose () {
+    public void testReadBytesBetweenStartReadingAndClose() {
         ComPortRelatedComChannel comChannel = this.newComChannelForReading();
         this.readFrom(comChannel);
 
@@ -168,7 +165,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testReadBytesBetweenStartReadingAndStartWriting () {
+    public void testReadBytesBetweenStartReadingAndStartWriting() {
         ComPortRelatedComChannel comChannel = this.newComChannelForReading();
         this.readFrom(comChannel);
 
@@ -185,7 +182,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testReadBytesBetweenCreationAndCloseWithInsufficientLogLevel () {
+    public void testReadBytesBetweenCreationAndCloseWithInsufficientLogLevel() {
         ComPortRelatedComChannel comChannel = this.newComChannelForReading(ComServer.LogLevel.INFO);
         this.readFrom(comChannel);
 
@@ -197,7 +194,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testReadBytesBetweenCreationAndStartWritingWithInsufficientLogLevel () {
+    public void testReadBytesBetweenCreationAndStartWritingWithInsufficientLogLevel() {
         ComPortRelatedComChannel comChannel = this.newComChannelForReading(ComServer.LogLevel.INFO);
         this.readFrom(comChannel);
 
@@ -209,7 +206,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testReadBytesBetweenStartReadingAndCloseWithInsufficientLogLevel () {
+    public void testReadBytesBetweenStartReadingAndCloseWithInsufficientLogLevel() {
         ComPortRelatedComChannel comChannel = this.newComChannelForReading(ComServer.LogLevel.INFO);
         this.readFrom(comChannel);
 
@@ -226,7 +223,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testReadBytesBetweenStartReadingAndStartWritingWithInsufficientLogLevel () {
+    public void testReadBytesBetweenStartReadingAndStartWritingWithInsufficientLogLevel() {
         ComPortRelatedComChannel comChannel = this.newComChannelForReading(ComServer.LogLevel.INFO);
         this.readFrom(comChannel);
 
@@ -243,7 +240,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testWriteBytesBetweenCreationAndClose () {
+    public void testWriteBytesBetweenCreationAndClose() {
         ComPortRelatedComChannel comChannel = this.newComChannelForWriting();
         this.writeTo(comChannel);
 
@@ -255,7 +252,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testWriteBytesBetweenCreationAndStartReading () {
+    public void testWriteBytesBetweenCreationAndStartReading() {
         ComPortRelatedComChannel comChannel = this.newComChannelForWriting();
         this.writeTo(comChannel);
 
@@ -267,7 +264,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testWriteBytesBetweenStartWritingAndClose () {
+    public void testWriteBytesBetweenStartWritingAndClose() {
         ComPortRelatedComChannel comChannel = this.newComChannelForWriting();
 
         // Business method that starts the reading session
@@ -283,7 +280,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testWriteBytesBetweenStartWritingAndStartReading () {
+    public void testWriteBytesBetweenStartWritingAndStartReading() {
         ComPortRelatedComChannel comChannel = this.newComChannelForWriting();
 
         // Business method that starts the reading session
@@ -299,7 +296,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testWriteBytesBetweenCreationAndCloseWithInsufficientLogLevel () {
+    public void testWriteBytesBetweenCreationAndCloseWithInsufficientLogLevel() {
         ComPortRelatedComChannel comChannel = this.newComChannelForWriting(ComServer.LogLevel.INFO);
         this.writeTo(comChannel);
 
@@ -311,7 +308,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testWriteBytesBetweenCreationAndStartReadingWithInsufficientLogLevel () {
+    public void testWriteBytesBetweenCreationAndStartReadingWithInsufficientLogLevel() {
         ComPortRelatedComChannel comChannel = this.newComChannelForWriting(ComServer.LogLevel.INFO);
         this.writeTo(comChannel);
 
@@ -323,7 +320,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testWriteBytesBetweenStartWritingAndCloseWithInsufficientLogLevel () {
+    public void testWriteBytesBetweenStartWritingAndCloseWithInsufficientLogLevel() {
         ComPortRelatedComChannel comChannel = this.newComChannelForWriting(ComServer.LogLevel.INFO);
 
         // Business method that starts the reading session
@@ -339,7 +336,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     @Test
-    public void testWriteBytesBetweenStartWritingAndStartReadingWithInsufficientLogLevel () {
+    public void testWriteBytesBetweenStartWritingAndStartReadingWithInsufficientLogLevel() {
         ComPortRelatedComChannel comChannel = this.newComChannelForWriting(ComServer.LogLevel.INFO);
 
         // Business method that starts the reading session
@@ -354,39 +351,39 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         this.assertNoComSessionJournalMessage();
     }
 
-    private void assertComSessionJournalMessage (String expectedMessage) {
+    private void assertComSessionJournalMessage(String expectedMessage) {
         verify(comSessionBuilder).addJournalEntry(eq(clock.now()), any(ComServer.LogLevel.class), eq(expectedMessage), isNull(Throwable.class));
     }
 
-    private void assertNoComSessionJournalMessage () {
+    private void assertNoComSessionJournalMessage() {
         verify(comSessionBuilder, never()).addJournalEntry(any(Date.class), any(ComServer.LogLevel.class), anyString(), any(Throwable.class));
     }
 
-    private void readFrom (ComPortRelatedComChannel comChannel) {
+    private void readFrom(ComPortRelatedComChannel comChannel) {
         this.readSingleByte(comChannel);
         this.readBytes(comChannel);
         this.readBytesWithOffset(comChannel);
     }
 
-    private void readSingleByte (ComPortRelatedComChannel comChannel) {
+    private void readSingleByte(ComPortRelatedComChannel comChannel) {
         comChannel.read();
     }
 
-    private void readBytes (ComPortRelatedComChannel comChannel) {
+    private void readBytes(ComPortRelatedComChannel comChannel) {
         byte[] bytes = new byte[FIRST_SERIES_OF_BYTES.length];
         comChannel.read(bytes);
     }
 
-    private void readBytesWithOffset (ComPortRelatedComChannel comChannel) {
+    private void readBytesWithOffset(ComPortRelatedComChannel comChannel) {
         byte[] bytes = new byte[SECOND_SERIES_OF_BYTES.length];
         comChannel.read(bytes, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
     }
 
-    private ComPortRelatedComChannel newComChannelForReading () {
+    private ComPortRelatedComChannel newComChannelForReading() {
         return this.newComChannelForReading(ComServer.LogLevel.TRACE);
     }
 
-    private ComPortRelatedComChannel newComChannelForReading (ComServer.LogLevel comServerLogLevel) {
+    private ComPortRelatedComChannel newComChannelForReading(ComServer.LogLevel comServerLogLevel) {
         ConfigurableReadComChannel comChannel = new ConfigurableReadComChannel();
         ComServer comServer = mock(ComServer.class);
         when(comServer.getServerLogLevel()).thenReturn(comServerLogLevel);
@@ -402,27 +399,27 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         return comPortRelatedComChannel;
     }
 
-    private void writeTo (ComPortRelatedComChannel comChannel) {
+    private void writeTo(ComPortRelatedComChannel comChannel) {
         this.writeSingleByteTo(comChannel);
         this.writeBytesTo(comChannel);
     }
 
-    private void writeSingleByteTo (ComPortRelatedComChannel comChannel) {
+    private void writeSingleByteTo(ComPortRelatedComChannel comChannel) {
         comChannel.write(singleByte);
     }
 
-    private void writeBytesTo (ComPortRelatedComChannel comChannel) {
+    private void writeBytesTo(ComPortRelatedComChannel comChannel) {
         comChannel.write(FIRST_SERIES_OF_BYTES);
         byte[] secondSeriesOfBytes = new byte[SECOND_SERIES_OF_BYTES_LENGTH];
         System.arraycopy(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, secondSeriesOfBytes, 0, SECOND_SERIES_OF_BYTES_LENGTH);
         comChannel.write(secondSeriesOfBytes);
     }
 
-    private ComPortRelatedComChannel newComChannelForWriting () {
+    private ComPortRelatedComChannel newComChannelForWriting() {
         return this.newComChannelForWriting(ComServer.LogLevel.TRACE);
     }
 
-    private ComPortRelatedComChannel newComChannelForWriting (ComServer.LogLevel comServerLogLevel) {
+    private ComPortRelatedComChannel newComChannelForWriting(ComServer.LogLevel comServerLogLevel) {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getServerLogLevel()).thenReturn(comServerLogLevel);
         when(comServer.getCommunicationLogLevel()).thenReturn(comServerLogLevel);
@@ -473,12 +470,12 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     private class MockJobExecution extends JobExecution {
         private ComPortRelatedComChannel comChannel;
 
-        private MockJobExecution (ComPort comPort, ComPortRelatedComChannel comChannel, ServiceProvider serviceProvider) {
+        private MockJobExecution(ComPort comPort, ComPortRelatedComChannel comChannel, ServiceProvider serviceProvider) {
             super(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), serviceProvider);
             this.comChannel = comChannel;
             ConnectionTask connectionTask = mock(ConnectionTask.class);
             ComPortPool comPortPool = mock(ComPortPool.class);
-            when(comPortPool.getId()).thenReturn((long)COMPORT_POOL_ID);
+            when(comPortPool.getId()).thenReturn((long) COMPORT_POOL_ID);
             when(connectionTask.getComPortPool()).thenReturn(comPortPool);
             this.setExecutionContext(new ExecutionContext(this, connectionTask, comPort, new ExecutionContextServiceProvider(serviceProvider)));
         }
@@ -489,12 +486,12 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         }
 
         @Override
-        public List<ComTaskExecution> getComTaskExecutions () {
+        public List<ComTaskExecution> getComTaskExecutions() {
             return new ArrayList<>(0);
         }
 
         @Override
-        protected boolean isConnected () {
+        protected boolean isConnected() {
             return true;
         }
 
@@ -534,12 +531,12 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         }
 
         @Override
-        public boolean isWithinComWindow () {
+        public boolean isWithinComWindow() {
             return true;
         }
 
         @Override
-        public void rescheduleToNextComWindow () {
+        public void rescheduleToNextComWindow() {
         }
 
         @Override

@@ -54,7 +54,7 @@ public final class DeviceIdentifierById implements DeviceIdentifier<Device> {
     }
 
     @Override
-    public boolean equals (Object other) {
+    public boolean equals(Object other) {
         if (this == other) {
             return true;
         }
@@ -67,7 +67,7 @@ public final class DeviceIdentifierById implements DeviceIdentifier<Device> {
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         return Long.valueOf(this.id).hashCode();
     }
 

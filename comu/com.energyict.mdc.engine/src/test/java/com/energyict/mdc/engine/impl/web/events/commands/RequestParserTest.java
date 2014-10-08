@@ -12,11 +12,10 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
-
 import com.google.common.base.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -41,7 +40,7 @@ public class RequestParserTest {
     private static final long COM_TASK_EXECUTION2_ID = COM_TASK_EXECUTION1_ID + 1;
     private static final long COM_PORT1_ID = COM_TASK_EXECUTION2_ID + 1;
     private static final long COM_PORT2_ID = COM_PORT1_ID + 1;
-    private static final long COM_PORT_POOL1_ID = COM_PORT2_ID+ 1;
+    private static final long COM_PORT_POOL1_ID = COM_PORT2_ID + 1;
     private static final long COM_PORT_POOL2_ID = COM_PORT_POOL1_ID + 1;
     private static final long NON_EXISTING_DEVICE_ID = 999;
     private static final long NON_EXISTING_CONNECTION_TASK_ID = NON_EXISTING_DEVICE_ID - 1;
@@ -61,7 +60,7 @@ public class RequestParserTest {
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
-    public void initializeServiceProvider () {
+    public void initializeServiceProvider() {
         this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
         this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
         this.serviceProvider.setDeviceService(this.deviceService);
@@ -69,7 +68,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = UnexpectedRequestFormatException.class)
-    public void testWrongFormat () throws RequestParseException {
+    public void testWrongFormat() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
@@ -79,7 +78,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = RequestTypeParseException.class)
-    public void testUnknownRequestType () throws RequestParseException {
+    public void testUnknownRequestType() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
@@ -89,7 +88,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = UnknownCategoryParseException.class)
-    public void testNonExistingErrorCategory () throws RequestParseException {
+    public void testNonExistingErrorCategory() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
@@ -99,7 +98,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = UnknownCategoryParseException.class)
-    public void testNonExistingWarningCategory () throws RequestParseException {
+    public void testNonExistingWarningCategory() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
@@ -109,7 +108,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = UnknownCategoryParseException.class)
-    public void testNonExistingInfoCategory () throws RequestParseException {
+    public void testNonExistingInfoCategory() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
@@ -119,7 +118,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = UnknownCategoryParseException.class)
-    public void testNonExistingDebugCategory () throws RequestParseException {
+    public void testNonExistingDebugCategory() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
@@ -129,7 +128,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = UnknownCategoryParseException.class)
-    public void testNonExistingTraceCategory () throws RequestParseException {
+    public void testNonExistingTraceCategory() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
@@ -139,21 +138,20 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testErrorCategoriesSeparatedBySpaces () throws RequestParseException {
+    public void testErrorCategoriesSeparatedBySpaces() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         String categoryNames = "CONNECTION COMTASK COLLECTED_DATA_PROCESSING LOGGING";
         try {
             //Business method
             parser.parse("Register request for errors: " + categoryNames);
-        }
-        catch (UnknownCategoryParseException e) {
+        } catch (UnknownCategoryParseException e) {
             assertThat(e.getMessage()).contains(categoryNames);
         }
     }
 
     @Test
-    public void testAllCategoriesInUpperCase () throws RequestParseException {
+    public void testAllCategoriesInUpperCase() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         String categoryNames = "CONNECTION,COMTASK,COLLECTED_DATA_PROCESSING,LOGGING";
@@ -168,7 +166,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testAllCategoriesInLowerCase () throws RequestParseException {
+    public void testAllCategoriesInLowerCase() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         String categoryNames = "connection,comtask,collected_data_processing,logging";
@@ -183,7 +181,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testAllCategoriesInMixedCase () throws RequestParseException {
+    public void testAllCategoriesInMixedCase() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         String categoryNames = "connECtion,comTask,colleCTed_Data_Processing,loGGinG";
@@ -198,7 +196,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testNoCategories () throws RequestParseException {
+    public void testNoCategories() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
@@ -301,7 +299,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testDeviceMixedCase () throws RequestParseException {
+    public void testDeviceMixedCase() throws RequestParseException {
         this.mockDevices();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -315,7 +313,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testNoConnectionTask () throws RequestParseException {
+    public void testNoConnectionTask() throws RequestParseException {
         this.mockConnectionTasks();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -327,7 +325,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testOneConnectionTask () throws RequestParseException {
+    public void testOneConnectionTask() throws RequestParseException {
         this.mockConnectionTasks();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -341,7 +339,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testMultipleConnectionTaskIds () throws RequestParseException {
+    public void testMultipleConnectionTaskIds() throws RequestParseException {
         this.mockConnectionTasks();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -355,7 +353,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonExistingConnectionTask () throws RequestParseException {
+    public void testNonExistingConnectionTask() throws RequestParseException {
         this.mockConnectionTasks();
         RequestParser parser = new RequestParser(serviceProvider);
         when(this.connectionTaskService.findConnectionTask(NON_EXISTING_CONNECTION_TASK_ID)).thenReturn(Optional.<ConnectionTask>absent());
@@ -367,7 +365,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonNumericalConnectionTaskId () throws RequestParseException {
+    public void testNonNumericalConnectionTaskId() throws RequestParseException {
         this.mockConnectionTasks();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -378,7 +376,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testConnectionTaskMixedCase () throws RequestParseException {
+    public void testConnectionTaskMixedCase() throws RequestParseException {
         this.mockConnectionTasks();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -392,7 +390,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testNoComTask () throws RequestParseException {
+    public void testNoComTask() throws RequestParseException {
         this.mockComTaskExecutions();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -404,7 +402,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testOneComTask () throws RequestParseException {
+    public void testOneComTask() throws RequestParseException {
         this.mockComTaskExecutions();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -418,7 +416,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testMultipleComTaskIds () throws RequestParseException {
+    public void testMultipleComTaskIds() throws RequestParseException {
         this.mockComTaskExecutions();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -432,7 +430,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonExistingComTaskExecution () throws RequestParseException {
+    public void testNonExistingComTaskExecution() throws RequestParseException {
         this.mockComTaskExecutions();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -443,7 +441,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonNumericalComTaskId () throws RequestParseException {
+    public void testNonNumericalComTaskId() throws RequestParseException {
         this.mockComTaskExecutions();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -454,7 +452,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testComTaskMixedCase () throws RequestParseException {
+    public void testComTaskMixedCase() throws RequestParseException {
         this.mockComTaskExecutions();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -468,7 +466,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testNoComPort () throws RequestParseException {
+    public void testNoComPort() throws RequestParseException {
         this.mockComPorts();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -480,7 +478,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testOneComPort () throws RequestParseException {
+    public void testOneComPort() throws RequestParseException {
         this.mockComPorts();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -494,7 +492,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testMultipleComPortIds () throws RequestParseException {
+    public void testMultipleComPortIds() throws RequestParseException {
         this.mockComPorts();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -508,7 +506,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = RequestParseException.class)
-    public void testNonExistingComPort () throws RequestParseException {
+    public void testNonExistingComPort() throws RequestParseException {
         this.mockComPorts();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -519,7 +517,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonNumericalComPortId () throws RequestParseException {
+    public void testNonNumericalComPortId() throws RequestParseException {
         this.mockComPorts();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -530,7 +528,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testComPortMixedCase () throws RequestParseException {
+    public void testComPortMixedCase() throws RequestParseException {
         this.mockComPorts();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -544,7 +542,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testNoComPortPool () throws RequestParseException {
+    public void testNoComPortPool() throws RequestParseException {
         this.mockComPortPools();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -556,7 +554,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testOneComPortPool () throws RequestParseException {
+    public void testOneComPortPool() throws RequestParseException {
         this.mockComPortPools();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -570,7 +568,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testMultipleComPortPoolIds () throws RequestParseException {
+    public void testMultipleComPortPoolIds() throws RequestParseException {
         this.mockComPortPools();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -584,7 +582,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonExistingComPortPool () throws RequestParseException {
+    public void testNonExistingComPortPool() throws RequestParseException {
         this.mockComPortPools();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -595,7 +593,7 @@ public class RequestParserTest {
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonNumericalComPortPoolId () throws RequestParseException {
+    public void testNonNumericalComPortPoolId() throws RequestParseException {
         this.mockComPortPools();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -606,7 +604,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testComPortPoolMixedCase () throws RequestParseException {
+    public void testComPortPoolMixedCase() throws RequestParseException {
         this.mockComPortPools();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -619,7 +617,7 @@ public class RequestParserTest {
         assertThat(comPortPoolRequest.getBusinessObjectIds()).containsOnly(COM_PORT_POOL1_ID);
     }
 
-    private void mockDevices () {
+    private void mockDevices() {
         Device device1 = mock(Device.class);
         when(device1.getId()).thenReturn(DEVICE1_ID);
         Device device2 = mock(Device.class);
@@ -628,7 +626,7 @@ public class RequestParserTest {
         when(this.deviceService.findDeviceById(DEVICE2_ID)).thenReturn(device2);
     }
 
-    private void mockConnectionTasks () {
+    private void mockConnectionTasks() {
         ConnectionTask connectionTask1 = mock(ConnectionTask.class);
         when(connectionTask1.getId()).thenReturn(CONNECTION_TASK1_ID);
         ConnectionTask connectionTask2 = mock(ConnectionTask.class);
@@ -637,7 +635,7 @@ public class RequestParserTest {
         when(this.connectionTaskService.findConnectionTask(CONNECTION_TASK2_ID)).thenReturn(Optional.of(connectionTask2));
     }
 
-    private void mockComTaskExecutions () {
+    private void mockComTaskExecutions() {
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getId()).thenReturn(COM_TASK_EXECUTION1_ID);
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
@@ -646,7 +644,7 @@ public class RequestParserTest {
         when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION2_ID)).thenReturn(comTaskExecution2);
     }
 
-    private void mockComPorts () {
+    private void mockComPorts() {
         ComPort comPort1 = mock(ComPort.class);
         when(comPort1.getId()).thenReturn(COM_PORT1_ID);
         ComPort comPort2 = mock(ComPort.class);
@@ -655,7 +653,7 @@ public class RequestParserTest {
         when(this.engineModelService.findComPort(COM_PORT2_ID)).thenReturn(comPort2);
     }
 
-    private void mockComPortPools () {
+    private void mockComPortPools() {
         ComPortPool comPortPool1 = mock(ComPortPool.class);
         when(comPortPool1.getId()).thenReturn(Long.valueOf(COM_PORT_POOL1_ID));
         ComPortPool comPortPool2 = mock(ComPortPool.class);

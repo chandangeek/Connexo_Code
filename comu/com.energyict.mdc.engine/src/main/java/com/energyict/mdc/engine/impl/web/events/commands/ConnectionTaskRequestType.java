@@ -20,17 +20,17 @@ public class ConnectionTaskRequestType extends IdBusinessObjectRequestType {
     }
 
     @Override
-    protected String getBusinessObjectTypeName () {
+    protected String getBusinessObjectTypeName() {
         return "connectiontask";
     }
 
     @Override
-    protected Request newRequestForAll () {
+    protected Request newRequestForAll() {
         return new AllConnectionTasksRequest();
     }
 
     @Override
-    protected Request newRequestFor (Set<Long> ids) {
+    protected Request newRequestFor(Set<Long> ids) {
         return new ConnectionTaskRequest(this.connectionTaskService, ids);
     }
 

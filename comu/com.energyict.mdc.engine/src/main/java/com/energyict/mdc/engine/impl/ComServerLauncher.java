@@ -1,5 +1,9 @@
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -20,11 +24,6 @@ import com.energyict.mdc.engine.model.HostName;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
 import org.apache.log4j.PropertyConfigurator;
 
 import java.io.File;
@@ -61,14 +60,14 @@ public final class ComServerLauncher {
         initializeLogging();
     }
 
-    private void initializeLogging () {
+    private void initializeLogging() {
         this.initializeLog4J();
         Logger anonymousLogger = Logger.getAnonymousLogger();
         anonymousLogger.setLevel(Level.FINEST);
         this.logger = LoggerFactory.getLoggerFor(ComServerLauncherLogger.class, anonymousLogger);
     }
 
-    private void initializeLog4J () {
+    private void initializeLog4J() {
         try {
             URL configURL = this.getClass().getClassLoader().getResource(LOG4J_PROPERTIES_FILE_NAME);
             if (configURL == null) {
@@ -83,11 +82,11 @@ public final class ComServerLauncher {
         }
     }
 
-    private void initializeLog4JWithFingersCrossed () {
+    private void initializeLog4JWithFingersCrossed() {
         PropertyConfigurator.configureAndWatch(LOG4J_PROPERTIES_FILE_NAME);
     }
 
-    public void startComServer () {
+    public void startComServer() {
         this.attemptLoadRemoteComServerProperties();
         this.initializeProviders();
         if (this.shouldStartRemote()) {
@@ -101,13 +100,13 @@ public final class ComServerLauncher {
         CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
     }
 
-    public void stopComServer(){
-        if(this.runningComServer != null){
+    public void stopComServer() {
+        if (this.runningComServer != null) {
             this.runningComServer.shutdownImmediate();
         }
     }
 
-    private boolean shouldStartRemote () {
+    private boolean shouldStartRemote() {
         return !Checks.is(this.remoteQueryApiUrl).empty();
     }
 
@@ -152,7 +151,7 @@ public final class ComServerLauncher {
         }
     }
 
-    private void startRemoteComServer () {
+    private void startRemoteComServer() {
         RemoteComServerDAOImpl comServerDAO = new RemoteComServerDAOImpl(this.remoteQueryApiUrl, new RemoteComServerDaoServiceProvider());
         try {
             comServerDAO.start();

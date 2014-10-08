@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -34,7 +34,7 @@ public class DeviceIpAddressTest {
     private IssueService issueService;
 
     @Test
-    public void testConstructorDoesNotThrowExceptions () {
+    public void testConstructorDoesNotThrowExceptions() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
 
         // Business method
@@ -44,7 +44,7 @@ public class DeviceIpAddressTest {
     }
 
     @Test
-    public void testIsAlwaysConfiguredOnComTasks () {
+    public void testIsAlwaysConfiguredOnComTasks() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
         DataCollectionConfiguration comTask = mock(DataCollectionConfiguration.class);
@@ -57,7 +57,7 @@ public class DeviceIpAddressTest {
     }
 
     @Test
-    public void testToDeviceCommand () {
+    public void testToDeviceCommand() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
@@ -69,7 +69,7 @@ public class DeviceIpAddressTest {
     }
 
     @Test
-    public void testGetDeviceIdentifier () {
+    public void testGetDeviceIdentifier() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
@@ -81,7 +81,7 @@ public class DeviceIpAddressTest {
     }
 
     @Test
-    public void testGetIpAddress () {
+    public void testGetIpAddress() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
@@ -93,7 +93,7 @@ public class DeviceIpAddressTest {
     }
 
     @Test
-    public void testGetConnectionTypePropertyName () {
+    public void testGetConnectionTypePropertyName() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 

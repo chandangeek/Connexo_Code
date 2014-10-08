@@ -1,5 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -34,14 +38,17 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,18 +56,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author sva
@@ -96,7 +93,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
-    public void setup(){
+    public void setup() {
         serviceProvider.setClock(clock);
         serviceProvider.setConnectionTaskService(this.connectionTaskService);
         serviceProvider.setDeviceService(this.deviceService);
@@ -241,7 +238,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     private Clock getFrozenClock() {
         if (frozenClock == null) {
-            frozenClock =  new ProgrammableClock().frozenAt(new DateTime(2012, 1, 1, 12, 0, 0, 0).toDate());
+            frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 1, 1, 12, 0, 0, 0).toDate());
         }
         return frozenClock;
     }

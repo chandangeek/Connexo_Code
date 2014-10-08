@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Provides functionality to create an serve a Device for testing purposes.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/05/14
  * Time: 14:49

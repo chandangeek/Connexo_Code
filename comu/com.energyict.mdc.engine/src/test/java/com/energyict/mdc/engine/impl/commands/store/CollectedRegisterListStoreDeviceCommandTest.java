@@ -18,11 +18,11 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.DeviceCreator;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.engine.impl.meterdata.identifiers.RegisterDataIdentifier;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.metering.impl.ObisCodeToReadingTypeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
@@ -30,7 +30,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,9 +43,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -54,7 +51,7 @@ import static org.mockito.Mockito.when;
  * Time: 16:08
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollectedDataIntegrationTest{
+public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollectedDataIntegrationTest {
 
     private final String registerObisCode1 = "1.0.1.8.0.255";
     private final String registerObisCode2 = "1.0.2.8.0.255";
@@ -135,7 +132,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     private ReadingType getReadingType(MeterActivation currentMeterActivation, String obisCode1, Unit unit) {
         String mridFromObisCodeAndUnit = ObisCodeToReadingTypeFactory.createMRIDFromObisCodeAndUnit(ObisCode.fromString(obisCode1), unit);
         for (ReadingType readingType : currentMeterActivation.getReadingTypes()) {
-            if(readingType.getMRID().equals(mridFromObisCodeAndUnit)){
+            if (readingType.getMRID().equals(mridFromObisCodeAndUnit)) {
                 return readingType;
             }
         }

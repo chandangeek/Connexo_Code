@@ -78,11 +78,11 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         this.cryptographer = cryptographer;
     }
 
-    public InboundDAO getInboundDAO () {
+    public InboundDAO getInboundDAO() {
         return inboundDAO;
     }
 
-    public void setInboundDAO (InboundDAO inboundDAO) {
+    public void setInboundDAO(InboundDAO inboundDAO) {
         this.inboundDAO = inboundDAO;
     }
 
@@ -96,7 +96,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         return sessionBuilder;
     }
 
-    public InboundComPort getComPort () {
+    public InboundComPort getComPort() {
         return comPort;
     }
 
@@ -148,8 +148,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     public void addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {
         if (this.sessionBuilder != null) {
             this.sessionBuilder.addJournalEntry(timestamp, logLevel, description, t);
-        }
-        else {
+        } else {
             this.journalEntryBacklog.addJournalEntry(timestamp, logLevel, description, t);
         }
     }
@@ -161,7 +160,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
             this.entries.add(new JournalEntryBacklogEntry(timestamp, logLevel, description, t));
         }
 
-        private void createWith (ComSessionBuilder builder) {
+        private void createWith(ComSessionBuilder builder) {
             for (JournalEntryBacklogEntry entry : this.entries) {
                 entry.createWith(builder);
             }
@@ -183,7 +182,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
             this.thrown = thrown;
         }
 
-        private void createWith (ComSessionBuilder builder) {
+        private void createWith(ComSessionBuilder builder) {
             builder.addJournalEntry(this.timestamp, this.logLevel, this.description, this.thrown);
         }
 

@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class DeviceRequest extends IdBusinessObjectRequest {
         this.validateDeviceIds();
     }
 
-    private void validateDeviceIds () {
+    private void validateDeviceIds() {
         this.devices = new ArrayList<>(this.getBusinessObjectIds().size());
         for (Long deviceId : this.getBusinessObjectIds()) {
             this.devices.add(new DeviceIdentifierById(deviceId, deviceService).findDevice());
@@ -42,7 +42,7 @@ public class DeviceRequest extends IdBusinessObjectRequest {
     }
 
     @Override
-    public void applyTo (EventPublisher eventPublisher) {
+    public void applyTo(EventPublisher eventPublisher) {
         eventPublisher.narrowInterestToDevices(null, this.devices);
     }
 

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -16,11 +17,14 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.util.time.Clock;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,11 +33,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -67,12 +66,12 @@ public class TextBasedEventFilterIntegrationTest {
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
-    public void initializeMocks () {
+    public void initializeMocks() {
         when(this.runningComServer.getComServer()).thenReturn(this.comServer);
     }
 
     @Before
-    public void setupEmbeddedWebServerFactory () {
+    public void setupEmbeddedWebServerFactory() {
         this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
     }
 
@@ -83,7 +82,7 @@ public class TextBasedEventFilterIntegrationTest {
      * @throws Exception Indicates failure
      */
     @Test
-    public void testRegisterMalformedEventRequest () throws Exception {
+    public void testRegisterMalformedEventRequest() throws Exception {
         // Create an EventPublisherImpl that will generate mocked events
         EventGenerator eventGenerator = new EventGenerator();
         EventPublisherImpl.setInstance(eventGenerator);
@@ -117,8 +116,7 @@ public class TextBasedEventFilterIntegrationTest {
             assertThat(messagesReceivedLatch.await(5, TimeUnit.SECONDS)).as("Timeout while waiting for message not understood reply from server.").isTrue();
             assertThat(webSocket.getReceivedMessages()).hasSize(1);
             assertThat(webSocket.getReceivedMessages().get(0)).startsWith("Message not understood");
-        }
-        finally {
+        } finally {
             webSocket.closeIfOpen();
             webServer.shutdownImmediate();
         }
@@ -132,7 +130,7 @@ public class TextBasedEventFilterIntegrationTest {
      * @throws Exception Indicates failure
      */
     @Test
-    public void testRegisterForAllEventsAndReceiveMockedConnectionEvents () throws Exception {
+    public void testRegisterForAllEventsAndReceiveMockedConnectionEvents() throws Exception {
         // Create an EventPublisherImpl that will generate mocked events
         EventGenerator eventGenerator = new EventGenerator();
         EventPublisherImpl.setInstance(eventGenerator);
@@ -169,15 +167,14 @@ public class TextBasedEventFilterIntegrationTest {
             assertThat(messagesReceivedLatch.await(5, TimeUnit.SECONDS)).as("Timeout while waiting for messages from server.").isTrue();
             assertThat(webSocket.getReceivedMessages()).hasSize(3); // First message confirms the registration, then 1 message for every event
 
-        }
-        finally {
+        } finally {
             webSocket.closeIfOpen();
             webServer.shutdownImmediate();
         }
     }
 
     @Test
-    public void testRegisterTwoClientsForAllEventsAndReceiveMockedConnectionEvents () throws Exception {
+    public void testRegisterTwoClientsForAllEventsAndReceiveMockedConnectionEvents() throws Exception {
         // Create an EventPublisherImpl that will generate mocked events
         EventGenerator eventGenerator = new EventGenerator();
         EventPublisherImpl.setInstance(eventGenerator);
@@ -220,8 +217,7 @@ public class TextBasedEventFilterIntegrationTest {
             assertThat(messagesReceivedLatch2.await(5, TimeUnit.SECONDS)).as("Timeout while client 2 is waiting for messages from server.").isTrue();
             assertThat(webSocket1.getReceivedMessages()).hasSize(3); // First message confirms the registration, then 1 message for every event
             assertThat(webSocket2.getReceivedMessages()).hasSize(3); // First message confirms the registration, then 1 message for every event
-        }
-        finally {
+        } finally {
             webSocket1.closeIfOpen();
             webSocket2.closeIfOpen();
             webServer.shutdownImmediate();
@@ -236,7 +232,7 @@ public class TextBasedEventFilterIntegrationTest {
      * @throws Exception Indicates failure
      */
     @Test
-    public void testRegisterForOnlyComTaskEventsAndPublishMockedConnectionEvents () throws Exception {
+    public void testRegisterForOnlyComTaskEventsAndPublishMockedConnectionEvents() throws Exception {
         // Create an EventPublisherImpl that will generate mocked events
         EventGenerator eventGenerator = new EventGenerator();
         EventPublisherImpl.setInstance(eventGenerator);
@@ -272,8 +268,7 @@ public class TextBasedEventFilterIntegrationTest {
             // Assert that both events have been received
             assertThat(messagesReceivedLatch.await(5, TimeUnit.SECONDS)).as("Timeout while waiting for messages from server.").isTrue();
             assertThat(webSocket.getReceivedMessages()).hasSize(1); // Single message that confirms the registration
-        }
-        finally {
+        } finally {
             webSocket.closeIfOpen();
             webServer.shutdownImmediate();
         }
@@ -285,43 +280,43 @@ public class TextBasedEventFilterIntegrationTest {
         private List<String> receivedMessages = new ArrayList<>();
         private Connection connection;
 
-        private RegisterAndReceiveAllEventCategories () {
+        private RegisterAndReceiveAllEventCategories() {
             super();
         }
 
-        private RegisterAndReceiveAllEventCategories (CountDownLatch messageReceivedLatch) {
+        private RegisterAndReceiveAllEventCategories(CountDownLatch messageReceivedLatch) {
             this();
             this.messageReceivedLatch = messageReceivedLatch;
         }
 
-        public void closeIfOpen () {
+        public void closeIfOpen() {
             if (this.isOpen()) {
                 this.connection.close();
             }
         }
 
-        public boolean isOpen () {
+        public boolean isOpen() {
             return this.connection != null;
         }
 
-        public void registerMalformedRequest () throws IOException {
+        public void registerMalformedRequest() throws IOException {
             this.connection.sendMessage("Anything as long as it does not conform to the expected parse format");
         }
 
-        public void register () throws IOException {
+        public void register() throws IOException {
             this.connection.sendMessage("Register request for info:");
         }
 
-        public void registerForComTasksOnly () throws IOException {
+        public void registerForComTasksOnly() throws IOException {
             this.connection.sendMessage("Register request for debugging: COMTASK");
         }
 
-        public synchronized List<String> getReceivedMessages () {
+        public synchronized List<String> getReceivedMessages() {
             return receivedMessages;
         }
 
         @Override
-        public synchronized void onMessage (String data) {
+        public synchronized void onMessage(String data) {
             this.receivedMessages.add(data);
             if (this.messageReceivedLatch != null) {
                 this.messageReceivedLatch.countDown();
@@ -329,12 +324,12 @@ public class TextBasedEventFilterIntegrationTest {
         }
 
         @Override
-        public void onOpen (Connection connection) {
+        public void onOpen(Connection connection) {
             this.connection = connection;
         }
 
         @Override
-        public void onClose (int closeCode, String message) {
+        public void onClose(int closeCode, String message) {
             this.connection = null;
         }
     }
@@ -345,7 +340,7 @@ public class TextBasedEventFilterIntegrationTest {
         private OutboundComPort comPort;
         private OutboundComPortPool comPortPool;
 
-        private EventGenerator () {
+        private EventGenerator() {
             super(runningComServer, clock);
             this.device = mock(BaseDevice.class);
             this.connectionTask = mock(OutboundConnectionTask.class);
@@ -355,12 +350,12 @@ public class TextBasedEventFilterIntegrationTest {
             when(this.comPortPool.getComPorts()).thenReturn(outboundComPorts);
         }
 
-        public void produceConnectDisconnectEvents () {
+        public void produceConnectDisconnectEvents() {
             this.sendMockedConnectionEstablishedEvent();
             this.sendMockedConnectionClosedEvent();
         }
 
-        private void sendMockedConnectionEstablishedEvent () {
+        private void sendMockedConnectionEstablishedEvent() {
             ConnectionEvent connectionEvent = mock(ConnectionEvent.class);
             when(connectionEvent.getCategory()).thenReturn(Category.CONNECTION);
             when(connectionEvent.isEstablishing()).thenReturn(true);
@@ -375,7 +370,7 @@ public class TextBasedEventFilterIntegrationTest {
             this.publish(connectionEvent);
         }
 
-        private void sendMockedConnectionClosedEvent () {
+        private void sendMockedConnectionClosedEvent() {
             ConnectionEvent connectionEvent = mock(ConnectionEvent.class);
             when(connectionEvent.getCategory()).thenReturn(Category.CONNECTION);
             when(connectionEvent.isClosed()).thenReturn(true);
@@ -395,13 +390,13 @@ public class TextBasedEventFilterIntegrationTest {
     private class LatchDrivenWebSocketEventPublisher extends WebSocketEventPublisher {
         private CountDownLatch latch;
 
-        private LatchDrivenWebSocketEventPublisher (CountDownLatch latch, WebSocketCloseEventListener closeEventListener) {
+        private LatchDrivenWebSocketEventPublisher(CountDownLatch latch, WebSocketCloseEventListener closeEventListener) {
             super(serviceProvider, closeEventListener);
             this.latch = latch;
         }
 
         @Override
-        public void onMessage (String message) {
+        public void onMessage(String message) {
             super.onMessage(message);
             this.latch.countDown();
         }
@@ -410,13 +405,13 @@ public class TextBasedEventFilterIntegrationTest {
     private class LatchDrivenWebSocketEventPublisherFactory extends WebSocketEventPublisherFactoryImpl {
         private CountDownLatch latch;
 
-        private LatchDrivenWebSocketEventPublisherFactory (CountDownLatch latch) {
+        private LatchDrivenWebSocketEventPublisherFactory(CountDownLatch latch) {
             super();
             this.latch = latch;
         }
 
         @Override
-        public WebSocketEventPublisher newWebSocketEventPublisher (WebSocketCloseEventListener closeEventListener) {
+        public WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener closeEventListener) {
             return new LatchDrivenWebSocketEventPublisher(this.latch, closeEventListener);
         }
     }
