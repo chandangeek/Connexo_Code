@@ -186,7 +186,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translatePlural('deviceregisterconfiguration.validation.completed', me.registerName, 'MDC', 'Data validation on register {0} was completed successfully'));
-                    Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].getSelectionModel(), record);
+                    if (Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0]) {
+                        Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].getSelectionModel(), record);
+                    }
                 }
                 /*failure: function (response) {
                  if (confWindow) {
