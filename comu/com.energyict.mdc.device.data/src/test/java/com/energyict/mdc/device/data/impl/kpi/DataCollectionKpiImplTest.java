@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -41,11 +40,10 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.Kpi;
-import com.elster.jupiter.kpi.KpiBuilder;
-import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -58,28 +56,29 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -91,10 +90,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -106,9 +103,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataCollectionKpiImplTest {
 
-    private static final int INTERVAL_START_MILLIS = 1000000;
-    private static final int INTERVAL_END_MILLIS = INTERVAL_START_MILLIS + DateTimeConstants.MILLIS_PER_DAY;
-    private static final BigDecimal TARGET = BigDecimal.TEN;
     private static final String DEVICE_TYPE_NAME = "DeviceTypeName";
 
     private static LicenseService licenseService;
@@ -119,9 +113,12 @@ public class DataCollectionKpiImplTest {
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static MessageService messageService;
+    private static TaskService taskService;
     private static KpiService kpiService;
     private static DeviceDataModelServiceImpl deviceDataModelService;
     private static EndDeviceGroup endDeviceGroup;
+    private static CronExpressionParser cronExpressionParser;
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -145,13 +142,17 @@ public class DataCollectionKpiImplTest {
             bind(InboundDeviceProtocolService.class).toInstance(mock(InboundDeviceProtocolService.class));
             bind(LicensedProtocolService.class).toInstance(mock(LicensedProtocolService.class));
             bind(UserService.class).toInstance(mock(UserService.class));
+            bind(LogService.class).toInstance(mock(LogService.class));
+            bind(CronExpressionParser.class).toInstance(cronExpressionParser);
         }
     }
 
     @BeforeClass
     public static void setUp() {
+        cronExpressionParser = mock(CronExpressionParser.class, RETURNS_DEEP_STUBS);
+        taskService = mock(TaskService.class);
         licenseService = mock(LicenseService.class);
-        when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.absent());
+        when(licenseService.getLicenseForApplication("MDC")).thenReturn(com.google.common.base.Optional.absent());
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("DataCollectionKpiImplTest");
         inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -181,6 +182,7 @@ public class DataCollectionKpiImplTest {
                 new DeviceConfigurationModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
+                new TaskModule(),
                 new TasksModule(),
                 new KpiModule(),
                 new DeviceDataModule(),
@@ -189,6 +191,8 @@ public class DataCollectionKpiImplTest {
         );
         transactionService = injector.getInstance(TransactionService.class);
         endDeviceGroup = transactionService.execute(() -> {
+            messageService = injector.getInstance(MessageService.class);
+            taskService = injector.getInstance(TaskService.class);
             kpiService = injector.getInstance(KpiService.class);
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
             injector.getInstance(MeteringGroupsService.class);
@@ -236,6 +240,38 @@ public class DataCollectionKpiImplTest {
 
         // Asserts
         assertThat(found.isPresent()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateConnectionKpiAlsoCreatesRecurrentTasks() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
+
+        // Asserts
+        Optional<RecurrentTask> kpiTask = kpi.connectionKpiTask();
+        assertThat(kpiTask.isPresent()).isTrue();
+        com.google.common.base.Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(kpiTask.get().getId());
+        assertThat(recurrentTask.isPresent()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateCommunicationKpiAlsoCreatesRecurrentTasks() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
+
+        // Asserts
+        Optional<RecurrentTask> kpiTask = kpi.communicationKpiTask();
+        assertThat(kpiTask.isPresent()).isTrue();
+        com.google.common.base.Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(kpiTask.get().getId());
+        assertThat(recurrentTask.isPresent()).isTrue();
     }
 
     @Test
@@ -305,8 +341,8 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreateWithConnectionAndComTaskExecutionKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofHours(2)).expectingAsMaximum(BigDecimal.TEN);
+        builder.calculateConnectionSetupKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.TEN);
 
         // Business method
         DataCollectionKpi kpi = builder.save();
@@ -369,31 +405,6 @@ public class DataCollectionKpiImplTest {
 
     @Test
     @Transactional
-    public void testConnectionScoresDelegatesToKoreKpi() {
-        DataCollectionKpiImpl kpi = new DataCollectionKpiImpl(deviceDataModelService.dataModel());
-        kpi.initialize(endDeviceGroup);
-        KpiBuilder kpiBuilder = mock(KpiBuilder.class);
-        Kpi koreKpi = mock(Kpi.class);
-        when(koreKpi.getId()).thenReturn(1L);
-        doReturn(
-                Arrays.asList(
-                        this.mockedKpiMember(TaskStatus.Waiting),
-                        this.mockedKpiMember(TaskStatus.Pending),
-                        this.mockedKpiMember(TaskStatus.Failed))).
-            when(koreKpi).getMembers();
-        when(kpiBuilder.build()).thenReturn(koreKpi);
-        kpi.connectionKpiBuilder(kpiBuilder);
-        kpi.save();
-
-        // Business method
-        kpi.getConnectionSetupKpiScores(Interval.sinceEpoch());
-
-        // Asserts
-        verify(koreKpi).getMembers();
-    }
-
-    @Test
-    @Transactional
     public void testNoComTaskExecutionScoresForOnlyConnectionSetupKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
@@ -410,8 +421,8 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testDelete() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofHours(2)).expectingAsMaximum(BigDecimal.TEN);
+        builder.calculateConnectionSetupKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.TEN);
         DataCollectionKpi kpi = builder.save();
         long kpiId = kpi.getId();
 
@@ -442,16 +453,22 @@ public class DataCollectionKpiImplTest {
         assertThat(kpiService.getKpi(communicationKpiId).isPresent()).isFalse();
     }
 
-    private Interval testInterval() {
-        return Interval.of(Instant.ofEpochMilli(INTERVAL_START_MILLIS), Instant.ofEpochMilli(INTERVAL_END_MILLIS));
-    }
+    @Test
+    @Transactional
+    public void testDeleteAlsoDeletesRecurrentTasks() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofMinutes(30)).expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.TEN);
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
+        long connectionTaskId = kpi.connectionKpiTask().get().getId();
+        long communicationTaskId = kpi.communicationKpiTask().get().getId();
 
-    private KpiMember mockedKpiMember(TaskStatus taskStatus) {
-        KpiMember kpiMember = mock(KpiMember.class);
-        when(kpiMember.getName()).thenReturn(taskStatus.name());
-        when(kpiMember.getTarget(any(Date.class))).thenReturn(TARGET);
-        doReturn(Collections.emptyList()).when(kpiMember).getScores(this.testInterval());
-        return kpiMember;
+        // Business method
+        kpi.delete();
+
+        // Asserts
+        assertThat(taskService.getRecurrentTask(connectionTaskId).isPresent()).isFalse();
+        assertThat(taskService.getRecurrentTask(communicationTaskId).isPresent()).isFalse();
     }
 
 }

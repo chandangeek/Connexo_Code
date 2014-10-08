@@ -6,6 +6,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -22,12 +23,14 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
@@ -76,6 +79,7 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -89,6 +93,7 @@ import java.util.Properties;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -176,6 +181,8 @@ public class InMemoryIntegrationPersistence {
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new ProtocolApiModule(),
+                new TaskModule(),
+                new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule());
@@ -366,7 +373,8 @@ public class InMemoryIntegrationPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(licenseService);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(KpiService.class).toInstance(mock(KpiService.class));
+            bind(LogService.class).toInstance(mock(LogService.class));
+            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
                 public DataModel get() {

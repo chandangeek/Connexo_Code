@@ -10,6 +10,7 @@ import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
@@ -27,12 +28,14 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
@@ -88,6 +91,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import javax.inject.Inject;
 import java.security.Principal;
@@ -125,8 +129,6 @@ public class DeviceImplDoSomethingWithEventsTest {
     DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     DeviceProtocol deviceProtocol;
-    private static Injector injector;
-    private static Environment environment;
 
     @BeforeClass
     public static void initialize() {
@@ -264,6 +266,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new DeviceConfigurationModule(),
                     new MdcCommonModule(),
                     new ProtocolApiModule(),
+                    new KpiModule(),
+                    new TaskModule(),
                     new TasksModule(),
                     new SchedulingModule(),
                     new DeviceDataModule());
@@ -356,7 +360,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(LicenseService.class).toInstance(licenseService);
 //                bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(EventService.class).to(SpyEventService.class).in(Scopes.SINGLETON);
-                bind(KpiService.class).toInstance(mock(KpiService.class));
+                bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+                bind(LogService.class).toInstance(mock(LogService.class));
                 bind(DataModel.class).toProvider(new Provider<DataModel>() {
                     @Override
                     public DataModel get() {

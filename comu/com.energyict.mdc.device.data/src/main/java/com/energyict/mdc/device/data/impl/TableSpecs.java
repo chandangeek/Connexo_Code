@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -370,13 +371,13 @@ public enum TableSpecs {
                     add();
             table.foreignKey("FK_DDC_COMSESSION_COMPORTPOOL").
                     on(comportPool).
-                    references("MDC", "MDC_COMPORTPOOL").
+                    references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").
                     onDelete(CASCADE).
                     map(ComSessionImpl.Fields.COMPORT_POOL.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMSESSION_COMPORT").
                     on(comport).
-                    references("MDC", "MDC_COMPORT").
+                    references(EngineModelService.COMPONENT_NAME, "MDC_COMPORT").
                     onDelete(CASCADE).
                     map(ComSessionImpl.Fields.COMPORT.fieldName()).
                     add();
@@ -508,13 +509,37 @@ public enum TableSpecs {
         }
     },
 
-    DDC_DEVICE_GROUP {
+    DDC_DATA_COLLECTION_KPI {
         @Override
         void addTo(DataModel dataModel) {
             Table<DataCollectionKpi> table = dataModel.addTable(name(), DataCollectionKpi.class);
             table.map(DataCollectionKpiImpl.class);
             Column id = table.addAutoIdColumn();
-            table.primaryKey("PK_DDC_DEVICE_GROUP").on(id).add();
+            Column connectionKpi = table.column("CONNECTIONKPI").number().add();
+            Column comTaskExecKpi = table.column("COMMUNICATIONKPI").number().add();
+            Column connectionKpiTask = table.column("CONNECTIONKPI_TASK").number().add();
+            Column communicationKpiTask = table.column("COMMUNICATIONKPI_TASK").number().add();
+            table.primaryKey("PK_DDC_DATA_COLLECTION_KPI").on(id).add();
+            table.foreignKey("FK_DDC_CONNECTIONKPI").
+                    on(connectionKpi).
+                    references(KpiService.COMPONENT_NAME, "KPI_KPI").
+                    map(DataCollectionKpiImpl.Fields.CONNECTION_KPI.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_COMTASKEXECKPI").
+                    on(comTaskExecKpi).
+                    references(KpiService.COMPONENT_NAME, "KPI_KPI").
+                    map(DataCollectionKpiImpl.Fields.COMMUNICATION_KPI.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_CONN_KPI_TASK").
+                    on(connectionKpiTask).
+                    references(com.elster.jupiter.tasks.TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK").
+                    map(DataCollectionKpiImpl.Fields.CONNECTION_RECURRENT_TASK.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_COMM_KPI_TASK").
+                    on(communicationKpiTask).
+                    references(com.elster.jupiter.tasks.TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK").
+                    map(DataCollectionKpiImpl.Fields.COMMUNICATION_RECURRENT_TASK.fieldName()).
+                    add();
         }
     },;
 

@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class Installer {
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_NAME = "COMSCHED_RECALCULATOR";
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME = "COMSCHED_BATCH_OBSOLETE";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    private static final int KPI_CALCULATOR_TASK_RETRY_DELAY = 60;
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -65,6 +67,17 @@ public class Installer {
         this.createTranslations();
         this.createMessageHandlers();
         this.createMasterData();
+        this.createKpiCalculatorDestination();
+    }
+
+    private void createKpiCalculatorDestination() {
+        DestinationSpec destination =
+                this.messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get().
+                        createDestinationSpec(
+                                DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION,
+                                KPI_CALCULATOR_TASK_RETRY_DELAY);
+        destination.activate();
+        destination.subscribe(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER);
     }
 
     private void createPrivileges() {

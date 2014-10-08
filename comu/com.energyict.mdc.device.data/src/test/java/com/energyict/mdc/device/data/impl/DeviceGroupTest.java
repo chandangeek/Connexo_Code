@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
@@ -23,12 +24,15 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -78,6 +82,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import java.security.Principal;
 import java.sql.SQLException;
@@ -87,6 +92,7 @@ import java.util.List;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -140,8 +146,6 @@ public class DeviceGroupTest {
     @Mock
     private UserService userService;
     @Mock
-    private KpiService kpiService;
-    @Mock
     private SecurityPropertyService securityPropertyService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -164,7 +168,8 @@ public class DeviceGroupTest {
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(UserService.class).toInstance(userService);
-            bind(KpiService.class).toInstance(kpiService);
+            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(LogService.class).toInstance(mock(LogService.class));
         }
     }
 
@@ -198,6 +203,8 @@ public class DeviceGroupTest {
                 new DeviceConfigurationModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
+                new KpiModule(),
+                new TaskModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new MockModule(),
