@@ -1,12 +1,12 @@
 package com.elster.jupiter.metering;
 
-import java.util.Objects;
-import java.util.Optional;
-
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.google.common.base.Joiner;
+
+import java.util.Objects;
+import java.util.Optional;
 
 public final class ReadingQualityType {
 
@@ -43,19 +43,19 @@ public final class ReadingQualityType {
     }
     
     Optional<QualityCodeSystem> system() {
-    	return getCode(1).flatMap(code -> QualityCodeSystem.get(code));
+    	return getCode(1).flatMap(QualityCodeSystem::get);
     }
     
     Optional<QualityCodeCategory> category() {
-    	return getCode(2).flatMap(code -> QualityCodeCategory.get(code));
+    	return getCode(2).flatMap(QualityCodeCategory::get);
     }
     
     Optional<QualityCodeIndex> qualityIndex()  {
-    	return category().flatMap(category -> getCode(3).flatMap(code -> category.qualityCodeIndex(code)));
+    	return category().flatMap(category -> getCode(3).flatMap(category::qualityCodeIndex));
     }
 
     public static ReadingQualityType defaultCodeForRuleId(long id) {
-        return new ReadingQualityType("3.6." + id);
+        return ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, (int) id);
     }
 
     @Override
