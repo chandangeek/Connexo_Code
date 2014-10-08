@@ -10,7 +10,7 @@ import java.util.Set;
  * Enables the usage of a {@link DeviceMessage}
  * or an entire DeviceMessageCategory
  * on a DeviceConfiguration.
-
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-03-04 (09:57)
  */
@@ -24,7 +24,7 @@ public interface DeviceMessageEnablement {
      *
      * @return The Set of DeviceMessageUserAction
      */
-    public Set<DeviceMessageUserAction> getUserActions ();
+    public Set<DeviceMessageUserAction> getUserActions();
 
     /**
      * @return true if the implementation of this enablement is for a complete Category, false otherwise
@@ -45,5 +45,22 @@ public interface DeviceMessageEnablement {
      * @return the DeviceMessageCategory which is fully enabled
      */
     public DeviceMessageCategory getDeviceMessageCategory();
+
+
+    void addDeviceMessageCategory(DeviceMessageCategory deviceMessageCategory);
+
+    /**
+     * Add the given DeviceMessageUserAction to the enablement
+     *
+     * @param deviceMessageUserAction the userAction to add
+     */
+    void addDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction);
+
+    /**
+     * Remove the given DeviceMessageUserAction from this enablement
+     *
+     * @param deviceMessageUserAction the userAction to delete
+     */
+    void removeDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction);
 
 }

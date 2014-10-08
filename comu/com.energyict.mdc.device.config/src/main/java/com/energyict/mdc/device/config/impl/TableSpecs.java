@@ -10,6 +10,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypeFields;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -23,6 +24,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+import oracle.sql.NUMBER;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -415,6 +417,45 @@ public enum TableSpecs {
                     composition().
                     add();
             table.primaryKey("PK_DTC_PARTIALCONTASKPROPS").on(partialconnectiontask,name).add();
+        }
+    },
+    DTC_MESSAGEENABLEMENT{
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DeviceMessageEnablement> table = dataModel.addTable(name(), DeviceMessageEnablement.class);
+            table.map(DeviceMessageEnablementImpl.IMPLEMENTERS);
+            Column id = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
+            Column deviceComConfig = table.column("DEVICECOMCONFIG").conversion(NUMBER2LONG).number().notNull().add();
+            table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map("deviceMessageId").add();
+            table.column("DEVICEMESSAGECATEGORY").number().conversion(NUMBER2INT).map("deviceMessageCategoryId").add();
+            table.foreignKey("FK_DTC_DME_DEVCOMCONFIG").
+                    on(deviceComConfig).
+                    references(DTC_DEVICECOMMCONFIG.name()).
+                    map("deviceCommunicationConfiguration").
+                    reverseMap(DeviceCommunicationConfigurationImpl.Fields.DEVICE_MESSAGE_ENABLEMENTS.fieldName()).
+                    onDelete(CASCADE).
+                    composition().
+                    add();
+            table.primaryKey("PK_DTC_DEVMESENABLEMENT").on(id).add();
+        }
+    },
+    DTC_MSGABLEMENTUSERACTION {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceMessageEnablementImpl.DeviceMessageUserActionRecord> table = dataModel.addTable(name(), DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class);
+            table.map(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class);
+            Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
+            Column deviceMessageEnablement = table.column("DEVICEMESSAGEENABLEMENT").number().notNull().add();
+            table.foreignKey("FK_DTC_MESENUSRACTION").
+                    on(deviceMessageEnablement).
+                    references(DTC_MESSAGEENABLEMENT.name()).
+                    reverseMap("deviceMessageUserActionRecords").
+                    onDelete(CASCADE).
+                    composition().
+                    map("deviceMessageEnablement").
+                    add();
+            table.primaryKey("PK_DTC_MESENABLEUSERACTION").on(useraction,deviceMessageEnablement).add();
         }
     },
     DTC_SECURITYPROPERTYSET {

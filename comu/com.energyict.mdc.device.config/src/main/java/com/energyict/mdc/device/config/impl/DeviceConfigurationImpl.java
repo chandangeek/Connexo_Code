@@ -12,6 +12,8 @@ import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
@@ -42,6 +44,8 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -857,6 +861,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    public DeviceMessageEnablementBuilder createDeviceMessageEnablement(DeviceMessageId deviceMessageId) {
+        return getCommunicationConfiguration().createDeviceMessageEnablement(deviceMessageId);
+    }
+
+    @Override
+    public boolean removeDeviceMessageEnablement(DeviceMessageId deviceMessageId) {
+        return this.getCommunicationConfiguration().removeDeviceMessageEnablement(deviceMessageId);
+    }
+
+    @Override
     public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy) {
         return getCommunicationConfiguration().newPartialScheduledConnectionTask(name, connectionType, rescheduleRetryDelay, connectionStrategy);
     }
@@ -889,6 +903,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public Optional<ComTaskEnablement> getComTaskEnablementFor(ComTask comTask) {
         return this.getCommunicationConfiguration().getComTaskEnablementFor(comTask);
+    }
+
+    @Override
+    public List<DeviceMessageEnablement> getDeviceMessageEnablements() {
+        return this.getCommunicationConfiguration().getDeviceMessageEnablements();
+    }
+
+    @Override
+    public boolean isAuthorized(DeviceMessageSpec deviceMessageSpec) {
+        return this.getCommunicationConfiguration().isAuthorized(deviceMessageSpec);
     }
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {

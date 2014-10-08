@@ -4,6 +4,8 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -60,6 +62,17 @@ public interface DeviceCommunicationConfiguration extends HasId {
 
     void removeSecurityPropertySet(SecurityPropertySet propertySet);
 
+    DeviceMessageEnablementBuilder createDeviceMessageEnablement(DeviceMessageId deviceMessageId);
+
+    /**
+     * Removed the DeviceMessageEnablement for the given DeviceMessageId
+     *
+     * @param deviceMessageId the deviceMessageId of the DeviceMessageEnablement which we need to remove
+     *
+     * @return true if we removed the required element, false otherwise
+     */
+    boolean removeDeviceMessageEnablement(DeviceMessageId deviceMessageId);
+
     public List<ComTaskEnablement> getComTaskEnablements();
 
     public Optional<ComTaskEnablement> getComTaskEnablementFor(ComTask comTask);
@@ -87,6 +100,25 @@ public interface DeviceCommunicationConfiguration extends HasId {
     public void  disableComTask (ComTask comTask);
 
 
+    /**
+     * Gets the specifications of which DeviceMessageCategory device message categories
+     * and DeviceMessages
+     * that are allowed to be used by Devices
+     * of this configuration.
+     *
+     * @return The List of DeviceMessageEnablement
+     */
+    List<DeviceMessageEnablement> getDeviceMessageEnablements();
 
-
+    /**
+     * Checks if the current user is allowed to perform the provided
+     * DeviceMessageSpec. Even if this config is marked to allow all
+     * categories (#supportsAllMessageCategories()), we check
+     * if the message is supported by the DeviceProtocol and match if
+     * the User is allowed to perform the message.
+     *
+     * @param deviceMessageSpec the messageSpec to check for authorization
+     * @return true if this DeviceMessageSpec can be performed by the current user, false otherwise
+     */
+    boolean isAuthorized(DeviceMessageSpec deviceMessageSpec);
 }

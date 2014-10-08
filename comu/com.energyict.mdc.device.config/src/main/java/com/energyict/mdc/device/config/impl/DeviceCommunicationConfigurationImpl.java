@@ -6,8 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.google.common.base.Optional;
-
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -15,6 +13,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
@@ -27,14 +26,14 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
-import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
+import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -42,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Provides an implementation for the {@link DeviceCommunicationConfiguration} interface.
@@ -50,12 +48,13 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-02-15 (11:02)
  */
-public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<DeviceCommunicationConfiguration> implements ServerDeviceCommunicationConfiguration {
+public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<DeviceCommunicationConfiguration> implements DeviceCommunicationConfiguration {
 
     private final SchedulingService schedulingService;
     enum Fields {
         COM_TASK_ENABLEMENTS("comTaskEnablements"),
-        SECURITY_PROPERTY_SETS("securityPropertySets");
+        SECURITY_PROPERTY_SETS("securityPropertySets"),
+        DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -69,10 +68,9 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private List<SecurityPropertySet> securityPropertySets = new ArrayList<>();
     private List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
+    private List<DeviceMessageEnablement> deviceMessageEnablements = new ArrayList<>();
     private boolean supportsAllMessageCategories;
     private long userActions; // temp place holder for the enumset
-//    private EnumSet<DeviceMessageUserAction> userActions = EnumSet.noneOf(DeviceMessageUserAction.class);
-//    private List<DeviceMessageEnablement> deviceMessageEnablements;
     @Valid
     private List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
     @Valid
@@ -411,22 +409,8 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     }
 
     @Override
-    public boolean supportsAllMessageCategories() {
-        return supportsAllMessageCategories;
-    }
-
-    @Override
-    public Set<DeviceMessageUserAction> getAllCategoriesUserActions() {
-        return Collections.emptySet(); // TODO
-    }
-
-    @Override
     public List<DeviceMessageEnablement> getDeviceMessageEnablements() {
-//        if (this.deviceMessageEnablements == null) {
-//            this.deviceMessageEnablements = this.findDeviceMessageEnablements();
-//        }
-//        return deviceMessageEnablements;
-        return Collections.emptyList();
+        return Collections.unmodifiableList(deviceMessageEnablements);
     }
 
 //    private List<DeviceMessageEnablement> findDeviceMessageEnablements() {
@@ -695,6 +679,16 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     }
 
     @Override
+    public DeviceMessageEnablementBuilder createDeviceMessageEnablement(DeviceMessageId deviceMessageId) {
+        return new InternalDeviceMessageEnablementBuilder(deviceMessageId);
+    }
+
+    @Override
+    public boolean removeDeviceMessageEnablement(DeviceMessageId deviceMessageId) {
+        return this.deviceMessageEnablements.removeIf(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId));
+    }
+
+    @Override
     public void save() {
         boolean created = getId() == 0;
         super.save();
@@ -739,11 +733,37 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         throw new CannotDisableComTaskThatWasNotEnabledException(this.getThesaurus(), this.getDeviceConfiguration(), comTask);
     }
 
-    private void addComTaskEnblement (ComTaskEnablementImpl comTaskEnablement) {
+    private void addComTaskEnablement(ComTaskEnablementImpl comTaskEnablement) {
         comTaskEnablement.adding();
         Save.CREATE.validate(this.dataModel, comTaskEnablement);
         this.comTaskEnablements.add(comTaskEnablement);
         comTaskEnablement.added();
+    }
+
+    private class InternalDeviceMessageEnablementBuilder implements DeviceMessageEnablementBuilder {
+
+        private final SingleDeviceMessageEnablement underConstruction;
+
+        private InternalDeviceMessageEnablementBuilder(DeviceMessageId deviceMessageId) {
+            this.underConstruction = SingleDeviceMessageEnablement.from(dataModel, DeviceCommunicationConfigurationImpl.this, deviceMessageId);
+        }
+
+        @Override
+        public DeviceMessageEnablementBuilder addUserAction(DeviceMessageUserAction deviceMessageUserAction) {
+            this.underConstruction.addDeviceMessageUserAction(deviceMessageUserAction);
+            return this;
+        }
+
+        @Override
+        public DeviceMessageEnablement build() {
+            DeviceCommunicationConfigurationImpl.this.addDeviceMessageEnablement(underConstruction);
+            return underConstruction;
+        }
+    }
+
+    private void addDeviceMessageEnablement(SingleDeviceMessageEnablement singleDeviceMessageEnablement) {
+        Save.CREATE.validate(dataModel, singleDeviceMessageEnablement);
+        this.deviceMessageEnablements.add(singleDeviceMessageEnablement);
     }
 
     private class InternalSecurityPropertySetBuilder implements SecurityPropertySetBuilder {
@@ -843,7 +863,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         @Override
         public ComTaskEnablement add() {
             this.mode.verify();
-            addComTaskEnblement(this.underConstruction);
+            addComTaskEnablement(this.underConstruction);
             this.mode = ComTaskEnablementBuildingMode.COMPLETE;
             return this.underConstruction;
         }

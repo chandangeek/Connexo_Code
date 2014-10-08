@@ -4,6 +4,8 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -45,10 +47,10 @@ import java.util.List;
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
 
-    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
-    @Size(max= 4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG +"}")
+    @Size(max = 4000, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
     private boolean useChannelJournal;
     private int deviceUsageTypeId;
@@ -59,7 +61,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
 
@@ -185,7 +187,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public boolean canActAsGateway() {
-        if (getDeviceProtocolPluggableClass()==null || getDeviceProtocolPluggableClass().getDeviceProtocol()==null) {
+        if (getDeviceProtocolPluggableClass() == null || getDeviceProtocolPluggableClass().getDeviceProtocol() == null) {
             return false;
         }
         List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolCapabilities();
@@ -194,7 +196,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public boolean isDirectlyAddressable() {
-        if (getDeviceProtocolPluggableClass()==null || getDeviceProtocolPluggableClass().getDeviceProtocol()==null) {
+        if (getDeviceProtocolPluggableClass() == null || getDeviceProtocolPluggableClass().getDeviceProtocol() == null) {
             return false;
         }
         List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolCapabilities();
@@ -226,7 +228,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         // Test for null because javax.validation only kicks @ save time
-        if (deviceProtocolPluggableClass != null ) {
+        if (deviceProtocolPluggableClass != null) {
             this.deviceProtocolPluggableClassChanged = (this.deviceProtocolPluggableClassId != deviceProtocolPluggableClass.getId());
             this.deviceProtocolPluggableClassId = deviceProtocolPluggableClass.getId();
             this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
@@ -386,7 +388,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private void collectChannelSpecsForChannelType(MeasurementType measurementType, DeviceConfiguration deviceConfiguration, List<ChannelSpec> channelSpecs) {
         for (ChannelSpec channelSpec : deviceConfiguration.getChannelSpecs()) {
-            if(channelSpec.getChannelType().getId() == measurementType.getId()){
+            if (channelSpec.getChannelType().getId() == measurementType.getId()) {
                 channelSpecs.add(channelSpec);
             }
         }
@@ -499,7 +501,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         while (iterator.hasNext()) {
             ServerDeviceConfiguration configuration = (ServerDeviceConfiguration) iterator.next();
-            if (configuration.getId()==deviceConfigurationToDelete.getId()) {
+            if (configuration.getId() == deviceConfigurationToDelete.getId()) {
                 configuration.notifyDelete();
                 configuration.prepareDelete();
                 iterator.remove();
@@ -688,6 +690,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             Save.CREATE.validate(dataModel, this.underConstruction);
             addConfiguration(this.underConstruction);
             this.mode = BuildingMode.COMPLETE;
+            this.underConstruction.getDeviceType().getDeviceProtocolPluggableClass()
+                    .getDeviceProtocol().getSupportedMessages().stream().forEach(
+                    deviceMessageId -> {
+                        DeviceMessageEnablementBuilder deviceMessageEnablement = underConstruction.createDeviceMessageEnablement(deviceMessageId);
+                        deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1);
+                        deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2);
+                        deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);
+                        deviceMessageEnablement.build();
+                    });
             return this.underConstruction;
         }
 

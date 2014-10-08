@@ -7,6 +7,8 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
@@ -29,6 +31,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.google.common.base.Optional;
 
 import java.util.Arrays;
@@ -49,7 +52,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DeviceConfigurationImpl} component
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 20/02/14
  * Time: 10:21
@@ -120,7 +123,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}",property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", property = "name")
     public void createWithWhiteSpaceNameTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration(" ");
         deviceConfigurationBuilder.add();
@@ -190,7 +193,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         try {
             loadProfileSpec1.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
-            if(!e.getMessageSeed().equals(MessageSeeds.LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION)){
+            if (!e.getMessageSeed().equals(MessageSeeds.LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION)) {
                 fail("Should have gotten the exception indicating that the load profile spec could not be added to an active device configuration, but was " + e.getMessage());
             } else {
                 throw e;
@@ -234,7 +237,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         try {
             LogBookSpec logBookSpec1 = logBookSpecBuilder1.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
-            if(!e.getMessageSeed().equals(MessageSeeds.LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION)){
+            if (!e.getMessageSeed().equals(MessageSeeds.LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION)) {
                 fail("Should have gotten the exception indicating that the log book spec could not be added to an active device configuration, but was " + e.getMessage());
             } else {
                 throw e;
@@ -257,7 +260,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         try {
             channelSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
-            if(!e.getMessageSeed().equals(MessageSeeds.CHANNEL_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION)){
+            if (!e.getMessageSeed().equals(MessageSeeds.CHANNEL_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION)) {
                 fail("Should have gotten the exception indicating that the channel spec could not be added to an active device configuration, but was " + e.getMessage());
             } else {
                 throw e;
@@ -276,8 +279,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         RegisterType registerType;
         if (xregisterType.isPresent()) {
             registerType = xregisterType.get();
-        }
-        else {
+        } else {
             registerType = inMemoryPersistence.getMasterDataService().newRegisterType("RMName", obisCode, unit, readingType, readingType.getTou());
             registerType.save();
         }
@@ -291,8 +293,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
             Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(DeviceConfigurationImplTest.class.getSimpleName(), unit);
             phenomenon.save();
             return phenomenon;
-        }
-        else {
+        } else {
             return phenomenonByUnit.get();
         }
     }
@@ -310,7 +311,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         try {
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
-            if(!e.getMessageSeed().equals(MessageSeeds.REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG)){
+            if (!e.getMessageSeed().equals(MessageSeeds.REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG)) {
                 fail("Should have gotten the exception indicating that the register configuration could not be added to an active device configuration, but was " + e.getMessage());
             } else {
                 throw e;
@@ -331,7 +332,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         try {
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
-            if(!e.getMessageSeed().equals(MessageSeeds.REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG)){
+            if (!e.getMessageSeed().equals(MessageSeeds.REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG)) {
                 fail("Should have gotten the exception indicating that the register configuration could not be added to an active device configuration, but was " + e.getMessage());
             } else {
                 throw e;
@@ -347,7 +348,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
         deviceConfiguration.save();
 
-        DeviceConfiguration refreshedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
+        DeviceConfiguration refreshedDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
         assertThat(refreshedDeviceConfiguration.canBeDirectlyAddressable()).isTrue();
         assertThat(refreshedDeviceConfiguration.canActAsGateway()).isFalse();
     }
@@ -360,14 +361,14 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
         deviceConfiguration.save();
 
-        DeviceConfiguration refreshedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
+        DeviceConfiguration refreshedDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
         assertThat(refreshedDeviceConfiguration.canBeDirectlyAddressable()).isFalse();
         assertThat(refreshedDeviceConfiguration.canActAsGateway()).isTrue();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED+"}", property = "isDirectlyAddressable")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED + "}", property = "isDirectlyAddressable")
     public void testSetDeviceConfigDirectlyAddressableWhenProtocolDoesNotAllowIt() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("direct address").add();
@@ -377,7 +378,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED+"}", property = "canActAsGateway")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CONFIG_GATEWAY_NOT_ALLOWED + "}", property = "canActAsGateway")
     public void testSetDeviceConfigGatewayWhenProtocolDoesNotAllowIt() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();
@@ -407,7 +408,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE+"}", property = "canActAsGateway", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE + "}", property = "canActAsGateway", strict = false)
     public void testCanNotUpdateGatewayWhenDeviceConfigIfInUse() throws Exception {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").canActAsGateway(false).add();
         deviceConfiguration.activate();
@@ -418,12 +419,45 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE+"}", property = "isDirectlyAddressable", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE + "}", property = "isDirectlyAddressable", strict = false)
     public void testCanNotUpdateDirectAddressWhenDeviceConfigIfInUse() throws Exception {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").isDirectlyAddressable(false).add();
         deviceConfiguration.activate();
 
         deviceConfiguration.setCanBeDirectlyAddressed(true);
         deviceConfiguration.save();
+    }
+
+    @Test
+    @Transactional
+    public void initialCreationOfConfigCreatesDefaultMessageEnablementsTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Initial").add();
+        List<DeviceMessageEnablement> deviceMessageEnablements = deviceConfiguration.getDeviceMessageEnablements();
+        assertThat(deviceMessageEnablements).hasSize(deviceMessageIds.size());
+        deviceMessageEnablements.stream().forEach(deviceMessageEnablement -> assertThat(deviceMessageEnablement.getUserActions()).
+                containsOnly(
+                        DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1,
+                        DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2,
+                        DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3));
+    }
+
+    @Test
+    @Transactional
+    public void removeDeviceMessageEnablementTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Remove").add();
+        deviceConfiguration.removeDeviceMessageEnablement(DeviceMessageId.CONTACTOR_CLOSE);
+        DeviceConfiguration reloadDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
+        assertThat(reloadDeviceConfiguration.getDeviceMessageEnablements()).hasSize(deviceMessageIds.size() - 1);
+    }
+
+    @Test
+    @Transactional
+    public void removeNonExistingDeviceMessageEnablementShouldNotFailTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("NonExisting").add();
+        assertThat(deviceConfiguration.removeDeviceMessageEnablement(DeviceMessageId.DLMS_CONFIGURATION_SET_DEVICE_ID)).isFalse();
+    }
+
+    private DeviceConfiguration reloadDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
     }
 }

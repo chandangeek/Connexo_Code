@@ -1,7 +1,11 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -13,13 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Copyrights EnergyICT
  * Date: 9/30/14
  * Time: 1:36 PM
  */
-public abstract class DeviceMessageEnablementImpl implements DeviceMessageEnablement {
+public abstract class DeviceMessageEnablementImpl<T> extends PersistentIdObject<T> implements DeviceMessageEnablement {
 
     private static final String SINGLEDEVICEMESSAGEENABLEMENT = "0";
     private static final String DEVICEMESSAGECATEGORYENABLEMENT = "1";
@@ -31,30 +36,32 @@ public abstract class DeviceMessageEnablementImpl implements DeviceMessageEnable
         IMPLEMENTERS.put(DEVICEMESSAGECATEGORYENABLEMENT, DeviceMessageCategoryEnablement.class);
     }
 
+    public DeviceMessageEnablementImpl(Class<T> deviceMessageEnablementClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+        super(deviceMessageEnablementClass, dataModel, eventService, thesaurus);
+    }
+
     static class DeviceMessageUserActionRecord {
 
         private DeviceMessageUserAction userAction;
-        private Reference<DeviceMessageEnablement> deviceMessageEnablement = ValueReference.absent();
 
-        DeviceMessageUserActionRecord() {
-        }
+        private Reference<DeviceMessageEnablement> deviceMessageEnablement = ValueReference.absent();
 
         DeviceMessageUserActionRecord(DeviceMessageEnablement deviceMessageEnablement, DeviceMessageUserAction userAction) {
             this.deviceMessageEnablement.set(deviceMessageEnablement);
             this.userAction = userAction;
         }
-    }
 
-    private List<DeviceMessageUserActionRecord> deviceMessageUserActionRecords = new ArrayList<>();
+    }
 
     private Set<DeviceMessageUserAction> deviceMessageUserActions = EnumSet.of(
             DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1,
             DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2,
             DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);
 
+    private List<DeviceMessageUserActionRecord> deviceMessageUserActionRecords = new ArrayList<>();
+    private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
     private int deviceMessageCategoryId;
     private DeviceMessageCategory deviceMessageCategory;
-    private DeviceMessageId deviceMessageId;
 
     @Override
     public Set<DeviceMessageUserAction> getUserActions() {
@@ -74,13 +81,59 @@ public abstract class DeviceMessageEnablementImpl implements DeviceMessageEnable
     @Override
     public DeviceMessageCategory getDeviceMessageCategory() {
         if(this.deviceMessageCategory == null && this.deviceMessageCategoryId != 0){
-//            this.deviceMessageCategory =
+//            no implementation yet, as the requirement stated that we don't need to store full categories
         }
         return null;
     }
 
     @Override
-    public DeviceMessageId getDeviceMessageId() {
-        return deviceMessageId;
+    public void removeDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction) {
+        boolean removed = deviceMessageUserActions.remove(deviceMessageUserAction);
+        if(removed){
+            deviceMessageUserActionRecords.removeIf(deviceMessageUserActionRecord -> deviceMessageUserActionRecord.userAction.equals(deviceMessageUserAction));
+        }
+    }
+
+    @Override
+    public void addDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction) {
+        boolean added = this.deviceMessageUserActions.add(deviceMessageUserAction);
+        if(added){
+            this.deviceMessageUserActionRecords.add(new DeviceMessageUserActionRecord(this, deviceMessageUserAction));
+        }
+    }
+
+    @Override
+    public void addDeviceMessageCategory(DeviceMessageCategory deviceMessageCategory) {
+//            no implementation yet, as the requirement stated that we don't need to store full categories
+
+    }
+
+    @Override
+    protected CreateEventType createEventType() {
+        return CreateEventType.DEVICE_MESSAGE_ENABLEMENT;
+    }
+
+    @Override
+    protected UpdateEventType updateEventType() {
+        return UpdateEventType.DEVICE_MESSAGE_ENABLEMENT;
+    }
+
+    @Override
+    protected DeleteEventType deleteEventType() {
+        return DeleteEventType.DEVICE_MESSAGE_ENABLEMENT;
+    }
+
+    @Override
+    protected void doDelete() {
+        dataModel.mapper(DeviceMessageEnablement.class).remove(this);
+    }
+
+    @Override
+    protected void validateDelete() {
+
+    }
+
+    protected void setDeviceCommunicationConfiguration(DeviceCommunicationConfiguration deviceCommunicationConfiguration) {
+        this.deviceCommunicationConfiguration.set(deviceCommunicationConfiguration);
     }
 }

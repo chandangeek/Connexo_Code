@@ -7,10 +7,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.EnumSet;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -43,6 +47,7 @@ public abstract class PersistenceTest {
     DeviceProtocol deviceProtocol;
 
     static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
+    EnumSet<DeviceMessageId> deviceMessageIds;
 
     public PersistenceTest() {
     }
@@ -66,6 +71,10 @@ public abstract class PersistenceTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
+                DeviceMessageId.CONTACTOR_OPEN,
+                DeviceMessageId.CONTACTOR_ARM);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
