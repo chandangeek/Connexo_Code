@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -9,6 +10,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.issue.datacollection.impl.TrendPeriodUnit;
+import com.google.common.base.Optional;
 import org.joda.time.DateTimeConstants;
 
 import java.math.BigDecimal;
@@ -44,8 +46,18 @@ public class MeterReadingIssueEvent implements IssueEvent {
     }
 
     @Override
-    public EndDevice getDevice() {
+    public EndDevice getKoreDevice() {
         return meter;
+    }
+
+    @Override
+    public Optional<? extends Issue> findExistingIssue(Issue baseIssue) {
+        return null;
+    }
+
+    @Override
+    public void apply(Issue issue) {
+
     }
 
     public ReadingType getReadingType() {
@@ -63,7 +75,7 @@ public class MeterReadingIssueEvent implements IssueEvent {
                 new Interval(new Date(unit.getStartMillisForTrendPeriod(trendPeriod)), new Date()), readingType);
         if (!isValidReadings(readings, trendPeriodInMillis)) {
             //Nothing to do because at least two measurement points needed
-            LOG.info("Device '" + getDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
+            LOG.info("Device '" + getKoreDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
             return 0d;
         }
 
@@ -85,7 +97,7 @@ public class MeterReadingIssueEvent implements IssueEvent {
         LOG.info("Processed readings:" + sb.toString());
         BigDecimal s0 = new BigDecimal(s0d);
         double result = Math.abs(s0.multiply(t1).subtract(s1.multiply(t0)).divide(s0.multiply(s2).subtract(s1.multiply(s1)), RoundingMode.HALF_UP).doubleValue());
-        LOG.info("Slope for device '" + getDevice().getMRID() + "' with " + readings.size() + " readings is: " + result);
+        LOG.info("Slope for device '" + getKoreDevice().getMRID() + "' with " + readings.size() + " readings is: " + result);
         return result;
     }
 
@@ -98,7 +110,7 @@ public class MeterReadingIssueEvent implements IssueEvent {
                     itr.remove();
                 }
             }
-            long readingInterval = readingType.getMeasuringPeriod().getMinutes() * DateTimeConstants.MILLIS_PER_MINUTE;
+            long readingInterval = ((long) readingType.getMeasuringPeriod().getMinutes()) * DateTimeConstants.MILLIS_PER_MINUTE;
             long expectedReadingsCount = (trendPeriodInMillis / readingInterval) / 4; // At least quarter of all expected readings
             LOG.info("Expected readings count: " + expectedReadingsCount);
             return readings.size() >= 2 && readings.size() >= expectedReadingsCount;

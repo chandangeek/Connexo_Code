@@ -7,14 +7,10 @@ import com.elster.jupiter.issue.share.cep.ParameterViolation;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleParameter;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractTemplate implements CreationRuleTemplate {
     private final Map<String, ParameterDefinition> parameterDefinitions;
@@ -52,7 +48,7 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
 
     @Override
     public String getIssueType() {
-        return ModuleConstants.ISSUE_TYPE_UUID;
+        return IssueDataCollectionService.ISSUE_TYPE_UUID;
     }
 
     @Override
@@ -69,7 +65,7 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
         }
         for (ParameterDefinition definition : parameterDefinitionsCopy.values()) {
             if (!definition.getConstraint().isOptional()) {
-                errors.add(new ParameterViolation(ParameterDefinitionContext.RULE.wrapKey(definition.getKey()), MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), ModuleConstants.COMPONENT_NAME));
+                errors.add(new ParameterViolation(ParameterDefinitionContext.RULE.wrapKey(definition.getKey()), MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), IssueDataCollectionService.COMPONENT_NAME));
             }
         }
         return errors;

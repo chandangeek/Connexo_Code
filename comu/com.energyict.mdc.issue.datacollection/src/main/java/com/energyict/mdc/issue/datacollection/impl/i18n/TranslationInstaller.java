@@ -1,10 +1,6 @@
 package com.energyict.mdc.issue.datacollection.impl.i18n;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.*;
 
 import java.util.ArrayList;
 import java.util.List;

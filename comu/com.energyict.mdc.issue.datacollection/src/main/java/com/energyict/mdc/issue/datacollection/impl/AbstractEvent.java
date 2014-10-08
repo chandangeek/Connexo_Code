@@ -8,13 +8,11 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import org.osgi.service.event.EventConstants;
 
 import java.util.Date;
 import java.util.List;
@@ -29,42 +27,30 @@ public abstract class AbstractEvent implements IssueEvent {
 
     private final IssueService issueService;
     private final MeteringService meteringService;
-    private final CommunicationTaskService communicationTaskService;
     private final DeviceService deviceService;
     private final Thesaurus thesaurus;
 
     private Device device;
-    private EndDevice endDevice;
+    private EndDevice koreDevice;
     private IssueStatus status;
     private DataCollectionEventDescription eventDescription;
 
-    protected AbstractEvent(IssueService issueService, MeteringService meteringService, CommunicationTaskService communicationTaskService, DeviceService deviceService, Thesaurus thesaurus) {
+    protected AbstractEvent(IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus) {
         this.issueService = issueService;
         this.meteringService = meteringService;
-        this.communicationTaskService = communicationTaskService;
         this.deviceService = deviceService;
         this.thesaurus = thesaurus;
     }
 
-    public AbstractEvent(IssueService issueService, MeteringService meteringService, CommunicationTaskService communicationTaskService, DeviceService deviceService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
-        this(issueService, meteringService, communicationTaskService, deviceService, thesaurus);
-        init(rawEvent);
-    }
-
-    protected void init(Map<?, ?> rawEvent) {
-        getEventDescriptionByTopic(rawEvent);
+    public void init(Map<?, ?> rawEvent, DataCollectionEventDescription eventDescription) {
+        this.eventDescription = eventDescription;
         getDefaultIssueStatus();
         getEventDevice(rawEvent);
     }
 
-    private void getEventDescriptionByTopic(Map<?, ?> rawEvent) {
-        String topic = String.class.cast(rawEvent.get(EventConstants.EVENT_TOPIC));
-        this.eventDescription = DataCollectionEventDescription.getDescriptionByTopic(topic);
-    }
-
     private void getDefaultIssueStatus() {
         Query<IssueStatus> statusQuery = issueService.query(IssueStatus.class);
-        List<IssueStatus> statusList = statusQuery.select(where("isFinal").isEqualTo(Boolean.FALSE));
+        List<IssueStatus> statusList = statusQuery.select(where("isHistorical").isEqualTo(Boolean.FALSE));
         if (statusList.isEmpty()) {
             LOG.severe("Issue creation failed, because no not-final statuses was found");
         } else {
@@ -76,7 +62,7 @@ public abstract class AbstractEvent implements IssueEvent {
         String amrId = String.class.cast(rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER));
         device = findDeviceByAmrId(amrId);
         if (device != null) {
-            endDevice = findEndDeviceByDevice();
+            koreDevice = findKoreDeviceByDevice();
         } else {
             throw new UnableToCreateEventException(thesaurus, MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId);
         }
@@ -85,17 +71,17 @@ public abstract class AbstractEvent implements IssueEvent {
     private Device findDeviceByAmrId(String amrId) {
         long id = 0;
         try {
-            id = Long.valueOf(amrId);
+            id = Long.parseLong(amrId);
         } catch (NumberFormatException e) {
         }
         return getDeviceService().findDeviceById(id);
     }
 
-    public EndDevice findEndDeviceByDevice() {
+    public EndDevice findKoreDeviceByDevice() {
         Query<Meter> meterQuery = meteringService.getMeterQuery();
         List<Meter> meterList = meterQuery.select(where("amrId").isEqualTo(device.getId()));
         if (meterList.size() != 1) {
-            throw new UnableToCreateEventException(thesaurus, MessageSeeds.EVENT_BAD_DATA_NO_END_DEVICE, device.getId());
+            throw new UnableToCreateEventException(thesaurus, MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device.getId());
         }
         return meterList.get(0);
     }
@@ -106,10 +92,6 @@ public abstract class AbstractEvent implements IssueEvent {
 
     protected MeteringService getMeteringService() {
         return meteringService;
-    }
-
-    protected CommunicationTaskService getCommunicationTaskService() {
-        return communicationTaskService;
     }
 
     protected DeviceService getDeviceService() {
@@ -149,12 +131,12 @@ public abstract class AbstractEvent implements IssueEvent {
     }
 
     @Override
-    public EndDevice getDevice() {
-        return endDevice;
+    public EndDevice getKoreDevice() {
+        return koreDevice;
     }
 
-    protected void setEndDevice(EndDevice endDevice) {
-        this.endDevice = endDevice;
+    protected void setKoreDevice(EndDevice koreDevice) {
+        this.koreDevice = koreDevice;
     }
 
     protected void setDevice(Device device) {
@@ -186,7 +168,7 @@ public abstract class AbstractEvent implements IssueEvent {
     protected AbstractEvent clone() {
         AbstractEvent clone = cloneInternal();
         clone.device = device;
-        clone.endDevice = endDevice;
+        clone.koreDevice = koreDevice;
         clone.status = status;
         clone.eventDescription = eventDescription;
         return clone;
@@ -195,7 +177,7 @@ public abstract class AbstractEvent implements IssueEvent {
     public AbstractEvent cloneForAggregation() {
         AbstractEvent clone = clone();
         clone.device = device.getPhysicalGateway();
-        clone.endDevice = clone.findEndDeviceByDevice();
+        clone.koreDevice = clone.findKoreDeviceByDevice();
         return clone;
     }
 

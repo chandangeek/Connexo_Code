@@ -7,28 +7,38 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.impl.database.CreateIssueViewOperation;
+import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 
 public class Installer {
 
     private final MessageService messageService;
     private final IssueService issueService;
     private final EventService eventService;
+    private final DataModel dataModel;
 
-    public Installer(IssueService issueService, MessageService messageService, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, EventService eventService, Thesaurus thesaurus) {
         this.issueService = issueService;
         this.messageService = messageService;
         this.eventService = eventService;
+        this.dataModel = dataModel;
     }
 
     public void install() {
+        try {
+            dataModel.install(true, false);
+            new CreateIssueViewOperation(dataModel).execute();
+        } catch (Exception ex){}
+        setAQSubscriber();
         IssueType issueType = setSupportedIssueType();
         setDataCollectionReasons(issueType);
-        setAQSubscriber();
     }
 
     private IssueType setSupportedIssueType() {
-        return issueService.createIssueType(ModuleConstants.ISSUE_TYPE_UUID, ModuleConstants.ISSUE_TYPE);
+        return issueService.createIssueType(IssueDataCollectionService.ISSUE_TYPE_UUID, MessageSeeds.ISSUE_TYPE_DATA_COLELCTION);
     }
 
     private void setAQSubscriber() {
@@ -46,13 +56,16 @@ public class Installer {
     }
 
     private void setDataCollectionReasons(IssueType issueType) {
-        issueService.createReason("Unknown inbound device", issueType);
-        issueService.createReason("Unknown outbound device", issueType);
-        issueService.createReason("Failed to communicate", issueType);
-        issueService.createReason("Connection setup failed", issueType);
-        issueService.createReason("Connection failed", issueType);
-        issueService.createReason("Power outage", issueType);
-        issueService.createReason("Time sync failed", issueType);
-        issueService.createReason("Slope detection", issueType);
+        issueService.createReason(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE, issueType, MessageSeeds.ISSUE_REASON_UNKNOWN_INBOUND_DEVICE);
+        issueService.createReason(ModuleConstants.REASON_UNKNOWN_OUTBOUND_DEVICE, issueType, MessageSeeds.ISSUE_REASON_UNKNOWN_OUTBOUND_DEVICE);
+        issueService.createReason(ModuleConstants.REASON_FAILED_TO_COMMUNICATE, issueType, MessageSeeds.ISSUE_REASON_FAILED_TO_COMMUNICATE);
+        issueService.createReason(ModuleConstants.REASON_CONNECTION_SETUP_FAILED, issueType, MessageSeeds.ISSUE_REASON_CONNECTION_SETUP_FAILED);
+        issueService.createReason(ModuleConstants.REASON_CONNECTION_FAILED, issueType, MessageSeeds.ISSUE_REASON_CONNECTION_FAILED);
+        issueService.createReason(ModuleConstants.REASON_POWER_OUTAGE, issueType, MessageSeeds.ISSUE_REASON_POWER_OUTAGE);
+        issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType, MessageSeeds.ISSUE_REASON_TIME_SYNC_FAILED);
+        issueService.createReason(ModuleConstants.REASON_SLOPE_DETECTION, issueType, MessageSeeds.ISSUE_REASON_SLOPE_DETECTION);
     }
+
+
 }
+

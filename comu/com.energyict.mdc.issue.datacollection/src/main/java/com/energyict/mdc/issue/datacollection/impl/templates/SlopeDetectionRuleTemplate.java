@@ -1,16 +1,19 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.MaxSlopeParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.ReadingTypeParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.TrendPeriodParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.TrendPeriodUnitParameter;
+import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -34,7 +37,7 @@ public class SlopeDetectionRuleTemplate extends AbstractTemplate {
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        setThesaurus(nlsService.getThesaurus(ModuleConstants.COMPONENT_NAME, Layer.DOMAIN));
+        setThesaurus(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -76,7 +79,13 @@ public class SlopeDetectionRuleTemplate extends AbstractTemplate {
             "\tevent : MeterReadingIssueEvent( readingType.getMRID() == \"@{readingType}\", computeMaxSlope(@{trendPeriod}, @{trendPeriodUnit}) >= @{maxSlope} )\n" +
             "then\n" +
             "\tSystem.out.println(\"Slope detection @{ruleId}\");\n" +
-            "\tissueCreationService.processCreationEvent(@{ruleId}, event);\n" +
+            "\tissueCreationService.createIssue(@{ruleId}, event);\n" +
             "end;";
     }
+
+    @Override
+    public Optional<? extends Issue> createIssue(Issue issue, IssueEvent event) {
+        return null;
+    }
+
 }

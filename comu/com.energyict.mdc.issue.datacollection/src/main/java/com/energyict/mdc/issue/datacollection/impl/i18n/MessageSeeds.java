@@ -31,16 +31,31 @@ public enum MessageSeeds implements MessageSeed {
     PARAMETER_NAME_THRESHOLD_SUFFIX(21, "ParameterNameThresholdSuffix", "%", Level.INFO),
     ISSUE_CREATION_RULE_PARAMETER_INCORRECT(22, "IssueCreationRuleParameterIncorrect", "Parameter has wrong value", Level.SEVERE),
     EVENT_BAD_DATA_NO_DEVICE(23, "EventBadDataNoDevice", "Unable to process issue creation event because target device (id = {0}) wasn't found", Level.SEVERE),
-    EVENT_BAD_DATA_NO_END_DEVICE(24, "EventBadDataNoEndDevice", "Unable to process issue creation event because target end device (amrId = {0}) wasn't found", Level.SEVERE),
-    EVENT_TITLE_UNKNOWN_INBOUND_DEVICE(25, "EventTitleUnknowInboundDevice", "Unknow Inbound Device", Level.INFO),
-    EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE(26, "EventTitleUnknownOutboundDevice", "Unknown Outbound Device", Level.INFO),
-    EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE(27, "EventTitleDeviceCommunicationFailure", "Device Communication Failure", Level.INFO),
-    EVENT_TITLE_DEVICE_CONNECTION_SETUP_FAILURE(28, "EventTitleDeviceConnectionSetupFailure", "Device Connection Setup Failure", Level.INFO),
-    EVENT_TITLE_DEVICE_CONNECTION_FAILURE(29, "EventTitleDeviceConnectionFailure", "Device Connection Failure", Level.INFO),
+    EVENT_BAD_DATA_NO_KORE_DEVICE(24, "EventBadDataNoEndDevice", "Unable to process issue creation event because target kore device (amrId = {0}) wasn't found", Level.SEVERE),
+    EVENT_TITLE_UNKNOWN_INBOUND_DEVICE(25, "EventTitleUnknowInboundDevice", "Unknow inbound device", Level.INFO),
+    EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE(26, "EventTitleUnknownOutboundDevice", "Unknown outbound device", Level.INFO),
+    EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE(27, "EventTitleDeviceCommunicationFailure", "Device communication failure", Level.INFO),
+    EVENT_TITLE_UNABLE_TO_CONNECT(28, "EventTitleUnableToConnect", "Unable to connect", Level.INFO),
+    EVENT_TITLE_CONNECTION_LOST(29, "EventTitleConnectionLost", "Connection lost", Level.INFO),
     EVENT_TITLE_DEVICE_EVENT(30, "EventTitleDeviceCreated", "Device Created", Level.INFO),
     EVENT_BAD_DATA_NO_EVENT_IDENTIFIER(31, "EventBadDataNoVentIdentifier", "Unable to process issue creation event because target event identifier wasn't found", Level.SEVERE),
     EVENT_BAD_DATA_WRONG_EVENT_TYPE(32, "EventBadDataWrongEventType", "Unable to process issue creation event because endDeviceEventType doesn't match to eventRecord type mrId", Level.SEVERE),
-    PARAMETER_NAME_MAX_SLOPE_SUFFIX_PER_HOUR(33, "ParameterNameTrendPeriodUnitSuffixPerHour", "/hour", Level.INFO),;
+    PARAMETER_NAME_MAX_SLOPE_SUFFIX_PER_HOUR(33, "ParameterNameTrendPeriodUnitSuffixPerHour", "/hour", Level.INFO),
+
+    ISSUE_REASON_UNKNOWN_INBOUND_DEVICE(34, "IssueReasonUnknownInbounDevice", "Unknown inbound device", Level.INFO),
+    ISSUE_REASON_UNKNOWN_OUTBOUND_DEVICE(35, "IssueReasonUnknownOutboundDevice", "Unknown outbound device", Level.INFO),
+    ISSUE_REASON_FAILED_TO_COMMUNICATE(36, "IssueReasonFailedToCommunicate", "Failed to communicate", Level.INFO),
+    ISSUE_REASON_CONNECTION_SETUP_FAILED(37, "IssueReasonConnectionSetupFailed", "Connection setup failed", Level.INFO),
+    ISSUE_REASON_CONNECTION_FAILED(38, "IssueReasonConnectionFailed", "Connection failed", Level.INFO),
+    ISSUE_REASON_POWER_OUTAGE(39, "IssueReasonPowerOutage", "Power outage", Level.INFO),
+    ISSUE_REASON_TIME_SYNC_FAILED(40, "IssueReasonSyncFailed", "Time sync failed", Level.INFO),
+    ISSUE_REASON_SLOPE_DETECTION(41, "IssueReasonSlopeDetection", "Slope detection", Level.INFO),
+
+    ISSUE_TYPE_DATA_COLELCTION(42, "IssueTypeDataCollection", "Data Collection", Level.INFO),
+    EVENT_BAD_DATA_NO_STATUS(43, "EventBadDataNoStatus", "Unable to process issue creation event because there is no open status", Level.SEVERE),
+
+    FIELD_CAN_NOT_BE_EMPTY (44, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
+    ;
 
     private final int number;
     private final String key;
@@ -98,5 +113,11 @@ public enum MessageSeeds implements MessageSeed {
             }
         }
         return null;
+    }
+
+    public static class Keys {
+        private Keys() {}
+
+        public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
     }
 }

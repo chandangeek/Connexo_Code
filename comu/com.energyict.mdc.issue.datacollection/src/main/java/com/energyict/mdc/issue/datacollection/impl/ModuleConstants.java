@@ -1,19 +1,28 @@
 package com.energyict.mdc.issue.datacollection.impl;
 
 public final class ModuleConstants {
-
     private ModuleConstants() {
     }
 
-    public static final String COMPONENT_NAME = "IDC";
-    public static final String ISSUE_TYPE = "Data Collection";
-    public static final String ISSUE_TYPE_UUID = "datacollection";
+    public static final String REASON_UNKNOWN_INBOUND_DEVICE = "reason.unknown.inbound.device";
+    public static final String REASON_UNKNOWN_OUTBOUND_DEVICE = "reason.unknown.outbound.device";
+    public static final String REASON_FAILED_TO_COMMUNICATE = "reason.failed.to.communicate";
+    public static final String REASON_CONNECTION_SETUP_FAILED = "reason.connection.setup.failed";
+    public static final String REASON_CONNECTION_FAILED = "reason.connection.failed";
+    public static final String REASON_POWER_OUTAGE = "reason.power.outage";
+    public static final String REASON_TYME_SYNC_FAILED = "reason.tyme.sync.failed";
+    public static final String REASON_SLOPE_DETECTION = "reason.slope.detection";
+
     public static final String AQ_DATA_COLLECTION_EVENT_SUBSC = "IssueCreationDC";
     public static final String AQ_METER_READING_EVENT_SUBSC = "IssueCreationSlope";
 
     public static final String DEVICE_IDENTIFIER = "deviceIdentifier";
     public static final String EVENT_IDENTIFIER = "eventIdentifier";
     public static final String EVENT_TIMESTAMP = "eventTimestamp";
+    public static final String FAILED_TASK_IDS = "failedTaskIDs";
+    public static final String SKIPPED_TASK_IDS = "skippedTaskIDs";
+    public static final String CONNECTION_TASK_ID = "connectionTaskId";
+
     public static final long MDC_AMR_SYSTEM_ID = 1L;
 
 }

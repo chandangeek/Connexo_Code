@@ -1,13 +1,16 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.ThresholdParameter;
+import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -28,7 +31,7 @@ public class EventAggregationRuleTemplate extends AbstractTemplate {
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        setThesaurus(nlsService.getThesaurus(ModuleConstants.COMPONENT_NAME, Layer.DOMAIN));
+        setThesaurus(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -63,7 +66,13 @@ public class EventAggregationRuleTemplate extends AbstractTemplate {
                 "then\n"+
                 "\tSystem.out.println(\"Events from meters of concentrator @{ruleId}\");\n"+
                 "\tAbstractEvent eventClone = event.cloneForAggregation();\n"+
-                "\tissueCreationService.processCreationEvent(@{ruleId}, eventClone);\n"+
+                "\tissueCreationService.createIssue(@{ruleId}, eventClone);\n"+
                 "end";
     }
+
+    @Override
+    public Optional<? extends Issue> createIssue(Issue issue, IssueEvent event) {
+        return null;
+    }
+
 }

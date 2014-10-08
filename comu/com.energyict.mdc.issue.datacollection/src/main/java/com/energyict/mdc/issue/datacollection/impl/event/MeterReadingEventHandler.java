@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -16,10 +17,7 @@ import com.energyict.mdc.issue.datacollection.MeterReadingIssueEvent;
 import com.google.common.base.Optional;
 import org.osgi.service.event.EventConstants;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -67,16 +65,17 @@ public class MeterReadingEventHandler implements MessageHandler {
             Long readingEnd = getLong(map, METER_READING_EVENT_READING_END);
             IssueStatus status = getEventStatus(issueService);
             Set<ReadingType> readingTypes = meterRef.get().getReadingTypes(new Interval(new Date(readingStart), new Date(readingEnd)));
+            List<IssueEvent> events = new ArrayList<>(readingTypes.size());
             for (ReadingType readingType : readingTypes) {
-                MeterReadingIssueEvent event = new MeterReadingIssueEvent(meterRef.get(), readingType, status, issueService);
-                issueCreationService.dispatchCreationEvent(event);
+                events.add(new MeterReadingIssueEvent(meterRef.get(), readingType, status, issueService));
             }
+            issueCreationService.dispatchCreationEvent(events);
         }
     }
 
     private IssueStatus getEventStatus(IssueService issueService) {
         Query<IssueStatus> statusQuery = issueService.query(IssueStatus.class);
-        List<IssueStatus> statusList = statusQuery.select(where("isFinal").isEqualTo(Boolean.FALSE));
+        List<IssueStatus> statusList = statusQuery.select(where("isHistorical").isEqualTo(Boolean.FALSE));
         if (statusList.isEmpty()) {
             LOG.severe("Issue creation failed, because no not-final statuses was found");
             return null;
