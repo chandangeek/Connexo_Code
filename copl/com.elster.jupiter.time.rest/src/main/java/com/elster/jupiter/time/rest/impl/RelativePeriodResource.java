@@ -1,0 +1,120 @@
+package com.elster.jupiter.time.rest.impl;
+
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.time.*;
+import com.elster.jupiter.time.rest.RelativeDatePreviewInfo;
+import com.elster.jupiter.time.rest.RelativePeriodInfo;
+import com.elster.jupiter.time.rest.impl.i18n.MessageSeeds;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
+
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Path("/relativeperiod")
+public class RelativePeriodResource {
+    private final TimeService timeService;
+
+    @Inject
+    public RelativePeriodResource(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
+    @GET
+    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @Produces(MediaType.APPLICATION_JSON)
+    public PagedInfoList getRelativePeriods(@BeanParam QueryParameters queryParameters) {
+        List<RelativePeriod> relativePeriods = ListPager.of(timeService.getRelativePeriods(),
+                (r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName())).from(queryParameters).find();
+        List<RelativePeriodInfo> relativePeriodInfos = new ArrayList<>();
+        relativePeriods.stream().forEach(rp -> relativePeriodInfos.add(new RelativePeriodInfo(rp)));
+        return PagedInfoList.asJson("data", relativePeriodInfos, queryParameters);
+    }
+
+    @Path("/id")
+    @GET
+    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @Produces(MediaType.APPLICATION_JSON)
+    public RelativePeriodInfo getRelativePeriod(@PathParam("id") long id) {
+        return new RelativePeriodInfo(getRelativePeriodOrThrowException(id));
+    }
+
+    @POST
+    @RolesAllowed(Privileges.CREATE_RELATIVE_PERIOD)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
+        RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.getRelativeOperations());
+        RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.getRelativeOperations());
+        verifyDateRangeOrThrowException(relativeDateFrom, relativeDateTo);
+        RelativePeriod period = timeService.createRelativePeriod(relativePeriodInfo.name, relativeDateFrom, relativeDateTo);
+        return Response.status(Response.Status.CREATED).entity(new RelativePeriodInfo(period)).build();
+    }
+
+    @PUT
+    @RolesAllowed(Privileges.UPDATE_RELATIVE_PERIOD)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public RelativePeriodInfo setRelativePeriod(@PathParam("id") long id, RelativePeriodInfo relativePeriodInfo) {
+        RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
+        RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.getRelativeOperations());
+        RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.getRelativeOperations());
+        verifyDateRangeOrThrowException(relativeDateFrom, relativeDateTo);
+        RelativePeriod period = timeService.updateRelativePeriod(relativePeriod.getId(), relativePeriodInfo.name, relativeDateFrom, relativeDateTo);
+        return new RelativePeriodInfo(period);
+    }
+
+    @Path("/id")
+    @DELETE
+    @RolesAllowed(Privileges.DELETE_RELATIVE_PERIOD)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeRelativePeriod(@PathParam("id") long id) {
+        RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
+        relativePeriod.delete();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private RelativePeriod getRelativePeriodOrThrowException(long id) {
+        RelativePeriod relativePeriod = timeService.findRelativePeriod(id);
+        if(relativePeriod == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        return relativePeriod;
+    }
+
+    @Path("/preview")
+    @PUT
+    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response previewRelativeDate(RelativeDatePreviewInfo relativeDatePreviewInfo) {
+        Instant instant = Instant.ofEpochMilli(relativeDatePreviewInfo.referenceDate);
+        List<RelativeOperation> operations = new ArrayList<>();
+        ZoneId zoneId = ZoneId.ofOffset("", ZoneOffset.ofHoursMinutes(relativeDatePreviewInfo.getOffsetHours(), relativeDatePreviewInfo.getOffsetMinutes()));
+        ZonedDateTime time = ZonedDateTime.ofInstant(instant, zoneId);
+        if (relativeDatePreviewInfo.relativeDateInfo != null) {
+            operations = relativeDatePreviewInfo.relativeDateInfo.getRelativeOperations();
+        }
+        RelativeDate relativeDate = new RelativeDate(operations);
+        ZonedDateTime target = relativeDate.getRelativeDate(time);
+        return Response.status(Response.Status.OK).entity(target).build();
+
+    }
+
+    private void verifyDateRangeOrThrowException(RelativeDate relativeDateFrom, RelativeDate relativeDateTo) {
+        ZonedDateTime time = ZonedDateTime.now();
+        if(relativeDateFrom.getRelativeDate(time).isAfter(relativeDateTo.getRelativeDate(time))) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_RANGE, "to");
+        }
+    }
+}
