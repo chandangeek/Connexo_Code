@@ -69,18 +69,6 @@ Ext.define('Dsh.view.widget.Breakdown', {
         }
     ],
 
-    initComponent: function () {
-        var me = this;
-        me.callParent(arguments);
-        me.add({
-            xtype: 'heat-map',
-            itemId: 'heatmap',
-            router: me.router,
-            parent: me.parent
-        });
-
-    },
-
     bindStore: function (store) {
         var me = this;
         me.down('#summaries-0').removeAll(true);

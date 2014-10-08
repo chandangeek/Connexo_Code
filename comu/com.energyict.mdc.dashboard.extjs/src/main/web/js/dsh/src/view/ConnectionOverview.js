@@ -92,6 +92,13 @@ Ext.define('Dsh.view.ConnectionOverview', {
                 xtype: 'breakdown',
                 parent: 'connections',
                 router: me.router
+            },
+            {
+                xtype: 'heat-map',
+                itemId: 'heatmap',
+                store: 'Dsh.store.ConnectionResultsStore',
+                router: me.router,
+                parent: 'connections'
             }
         ];
         this.callParent(arguments);

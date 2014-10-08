@@ -1,11 +1,11 @@
-Ext.define('Dsh.store.ConnectionResultsStore', {
+Ext.define('Dsh.store.CommunicationResultsStore', {
     extend: 'Ext.data.Store',
     model: 'Dsh.model.ConnectionResults',
     autoLoad: false,
 
     proxy: {
         type: 'ajax',
-        url: '/api/dsr/connectionheatmap',
+        url: '/api/dsr/communicationheatmap',
         pageParam: false,
         startParam: false,
         limitParam: false,

@@ -32,6 +32,7 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.store.filter.DeviceType',
         'Dsh.store.filter.CompletionCodes',
         'Dsh.store.ConnectionResultsStore',
+        'Dsh.store.CommunicationResultsStore',
         'Dsh.store.CombineStore'
     ],
 

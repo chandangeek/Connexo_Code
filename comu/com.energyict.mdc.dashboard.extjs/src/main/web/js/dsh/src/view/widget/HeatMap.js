@@ -69,7 +69,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
     initComponent: function () {
         var me = this,
             xTitle = '',
-            store = Ext.getStore('Dsh.store.ConnectionResultsStore');
+            store = Ext.getStore(me.store);
 
         if (me.parent == 'connections') {
             me.tbar = [
