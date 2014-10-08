@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
         },
         items: [
             {
-                xtype:'fieldcontainer',
+                xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                 labelAlign: 'top',
                 layout: 'vbox',
@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                         name: 'value',
                         renderer: function (value) {
-                            var form  = this.up('form'),
+                            var form = this.up('form'),
                                 record = form.getRecord();
                             if (record) {
                                 return value + ' ' + record.get('unitOfMeasure');

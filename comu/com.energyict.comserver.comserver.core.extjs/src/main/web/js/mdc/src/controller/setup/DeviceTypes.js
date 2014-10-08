@@ -246,7 +246,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record.set(values);
             record.save({
                 success: function (record) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.added', 'MDC', 'Device type added') );
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.added', 'MDC', 'Device type added'));
                     location.href = '#/administration/devicetypes/' + record.get('id');
                 },
                 failure: function (record, operation) {
@@ -268,7 +268,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record.set(values);
             record.save({
                 success: function (record) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.saved', 'MDC', 'Device type saved') );
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.saved', 'MDC', 'Device type saved'));
                     location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
                 },
                 failure: function (record, operation) {
@@ -301,7 +301,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
             deviceTypeToDelete.destroy({
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.removed', 'MDC', 'Device type removed') );
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.removed', 'MDC', 'Device type removed'));
                     location.href = '#/administration/devicetypes/';
                 }
             });

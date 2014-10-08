@@ -98,18 +98,18 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         ]));
 
         store.load({
-                callback: function () {
-                    Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
-                        success: function (deviceType) {
-                            var widget = Ext.widget('registerMappingAdd', {deviceTypeId: id});
-                            me.deviceTypeId = id;
-                            store.fireEvent('load', store);
-                            me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            me.getApplication().fireEvent('changecontentevent', widget);
-                        }
-                    });
-                }
-            });
+            callback: function () {
+                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
+                    success: function (deviceType) {
+                        var widget = Ext.widget('registerMappingAdd', {deviceTypeId: id});
+                        me.deviceTypeId = id;
+                        store.fireEvent('load', store);
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                    }
+                });
+            }
+        });
     },
 
     addRegisterMappingsToDeviceType: function () {
