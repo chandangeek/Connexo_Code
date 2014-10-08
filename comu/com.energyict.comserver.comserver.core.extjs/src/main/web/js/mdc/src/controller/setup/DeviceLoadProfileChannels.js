@@ -126,7 +126,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
             });
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
-            timeout: 30000000,
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -187,7 +186,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                 {
                     xtype: 'displayfield',
                     value: '',
-                    padding: '0 0 -10 0',
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item2', 'MDC', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
                     labelWidth: 500
                 }

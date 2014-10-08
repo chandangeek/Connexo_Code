@@ -188,7 +188,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 {
                     xtype: 'displayfield',
                     value: '',
-                    padding: '0 0 -10 0',
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item2', 'MDC', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
                     labelWidth: 500
                 }

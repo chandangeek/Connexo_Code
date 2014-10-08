@@ -11,12 +11,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ActionMenu', {
             action: 'viewdata'
         },
         {
+            itemId: 'validateNowRegister',
             text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'MDC', 'Validate now'),
             action: 'validate'
-        },
-        {
-            text: Uni.I18n.translate('deviceregisterconfiguration.menu.viewsuspects', 'MDC', 'View suspects'),
-            action: 'viewsuspects'
         }
     ]
 });
