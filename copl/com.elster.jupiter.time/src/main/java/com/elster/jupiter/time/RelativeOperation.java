@@ -1,5 +1,6 @@
 package com.elster.jupiter.time;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.IllegalFormatException;
@@ -10,13 +11,14 @@ import java.util.UnknownFormatConversionException;
  * Created by borunova on 01.10.2014.
  */
 public class RelativeOperation {
-    public static String SEPARATOR=":";
+    public static String SEPARATOR = ":";
 
     private RelativeField field;
     private RelativeOperator operator;
     private long shift;
 
-    public RelativeOperation() {}
+    public RelativeOperation() {
+    }
 
     public RelativeOperation(RelativeField field, RelativeOperator operator, long shift) {
         validateOperationOrThrowException(field, operator, shift);
@@ -27,7 +29,7 @@ public class RelativeOperation {
 
     public ZonedDateTime performOperation(ZonedDateTime referenceDate) {
         ZonedDateTime relativeDate = referenceDate;
-        if(field.getChronoUnit() != null) {
+        if (field.isChronoUnitBased()) {
             switch (operator) {
                 case PLUS:
                     relativeDate = referenceDate.plus(shift, field.getChronoUnit());
@@ -38,14 +40,21 @@ public class RelativeOperation {
                 default:
                     throw new UnknownFormatConversionException("Unsupportable operator was used for ChronoUnit type of field");
             }
-        } else if(field.getChronoField() != null) {
-            switch(operator) {
+        } else if (field.isChronoFieldBased()) {
+            switch (operator) {
                 case EQUAL:
                     relativeDate = referenceDate.with(field.getChronoField(), shift);
                     break;
                 default:
                     throw new UnknownFormatConversionException("Unsupportable operator was used for ChronoField type of field");
             }
+
+        } else if (field.equals(RelativeField.CURRENT_DAY_OF_MONTH)) {
+                ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), referenceDate.getZone());
+                relativeDate = referenceDate.withDayOfMonth(now.getDayOfMonth());
+        } else if (field.equals(RelativeField.START_NOW)) {
+            ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), referenceDate.getZone());
+            relativeDate = referenceDate.withDayOfMonth(now.getDayOfMonth()).withMonth(now.getMonth().getValue()).withYear(now.getYear());
         }
         return relativeDate;
     }
@@ -64,7 +73,7 @@ public class RelativeOperation {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(field.ordinal()).append(SEPARATOR)
+        builder.append(field.getId()).append(SEPARATOR)
                 .append(operator.toString()).append(SEPARATOR)
                 .append(shift);
         return builder.toString();
@@ -95,18 +104,21 @@ public class RelativeOperation {
     }
 
     private void validateOperationOrThrowException(RelativeField field, RelativeOperator operator, long shift) {
-        if(!field.isValid(shift)) {
+        if (!field.isValid(shift)) {
             throw new IllegalArgumentException("Provided value is incorrect");
         }
-        if(field.isChronoUnitBased() && !(operator.equals(RelativeOperator.PLUS) || operator.equals(RelativeOperator.MINUS))) {
+        if (field.isChronoUnitBased() && !(operator.equals(RelativeOperator.PLUS) || operator.equals(RelativeOperator.MINUS))) {
             StringBuilder exception = new StringBuilder();
-            exception.append("Unsupportable operator \"").append(operator.toString()).append("\" was used for ChronoUnit type of field. Valid operators are \"")
-                    .append(RelativeOperator.PLUS.toString()).append("\" and \"").append(RelativeOperator.MINUS.toString()).append("\"");
+            exception.append("Unsupportable operator \"").append(operator.toString())
+                    .append("\" was used for ChronoUnit type of field. Valid operators are \"")
+                    .append(RelativeOperator.PLUS.toString()).append("\" and \"")
+                    .append(RelativeOperator.MINUS.toString()).append("\"");
             throw new UnknownFormatConversionException(exception.toString());
         }
-        if(field.isChronoFieldBased() && !operator.equals(RelativeOperator.EQUAL)) {
+        if (field.isChronoFieldBased() && !operator.equals(RelativeOperator.EQUAL)) {
             StringBuilder exception = new StringBuilder();
-            exception.append("Unsupportable operator \"").append(operator.toString()).append("\" was used for ChronoUnit type of field. Valid operators are \"")
+            exception.append("Unsupportable operator \"").append(operator.toString())
+                    .append("\" was used for ChronoUnit type of field. Valid operators are \"")
                     .append(RelativeOperator.EQUAL.toString()).append("\"");
             throw new UnknownFormatConversionException(exception.toString());
         }
