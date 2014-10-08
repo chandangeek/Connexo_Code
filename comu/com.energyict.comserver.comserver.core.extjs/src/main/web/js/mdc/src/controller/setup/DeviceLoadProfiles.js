@@ -125,8 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 confirmation: function () {
                     me.activateDataValidation(record, this);
                 }
-            }),
-            text = Uni.I18n.translatePlural('deviceloadprofiles.validateNow.statement', record.get('name'), 'MDC', 'Validate data of load profile {0}') + '<br><br>' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile');
+            });
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'GET',
@@ -144,7 +143,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                         msg: ''
                     });
                 } else {
-                    me.getApplication().fireEvent('acknowledge', text);
+                    var title = Uni.I18n.translatePlural('deviceloadprofiles.validateNow.error', record.get('name'), 'MDC', 'Failed to validate data of load profile {0}'),
+                        message = Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile'),
+                        config = {
+                            icon: Ext.MessageBox.WARNING
+                        };
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
                 }
             }
         });
