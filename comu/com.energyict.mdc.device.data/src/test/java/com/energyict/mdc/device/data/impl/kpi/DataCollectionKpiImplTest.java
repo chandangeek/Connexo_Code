@@ -69,7 +69,6 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateTimeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -209,7 +208,7 @@ public class DataCollectionKpiImplTest {
     }
 
     @AfterClass
-    public static void tearDown () {
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 

@@ -1,5 +1,20 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -24,22 +39,6 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Module;
@@ -56,6 +55,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +70,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
+@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
 public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService {
 
     private volatile BundleContext bundleContext;
@@ -82,7 +82,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
     private volatile Clock clock;
-    private volatile KpiService kpiService;
 
     private volatile RelationService relationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -90,6 +89,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile EngineModelService engineModelService;
     private volatile SchedulingService schedulingService;
     private volatile SecurityPropertyService securityPropertyService;
+    private volatile KpiService kpiService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -99,7 +99,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private DataCollectionKpiService dataCollectionKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
-    public DeviceDataModelServiceImpl() {}
+    public DeviceDataModelServiceImpl() {
+    }
 
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
@@ -131,8 +132,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Override
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
         return Stream.of(this.connectionTaskService, this.deviceService, this.logBookService, this.loadProfileService).
-            flatMap(p -> p.finders().stream()).
-            collect(Collectors.toList());
+                flatMap(p -> p.finders().stream()).
+                collect(Collectors.toList());
     }
 
     @Reference
@@ -371,6 +372,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.install(true);
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT", "NLS", "MSG", "USR", "DTC", "CPC", "MDC", "SCH");
+    }
+
     private void install(boolean exeuteDdl) {
         new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService, this.userService).install(exeuteDdl);
     }
@@ -382,8 +388,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 statement.executeUpdate();
                 // Don't care about how many rows were updated and if that matches the expected number of updates
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -398,8 +403,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         Map<TaskStatus, Long> counters = new HashMap<>();
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchTaskStatusCounters(stmnt, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -420,8 +424,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         Map<Long, Map<TaskStatus, Long>> counters = new HashMap<>();
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchTaskStatusBreakdown(stmnt, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -455,8 +458,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private EnumSet<TaskStatus> taskStatusComplement(Set<TaskStatus> taskStatuses) {
         if (taskStatuses.isEmpty()) {
             return EnumSet.allOf(TaskStatus.class);
-        }
-        else {
+        } else {
             return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
         }
     }

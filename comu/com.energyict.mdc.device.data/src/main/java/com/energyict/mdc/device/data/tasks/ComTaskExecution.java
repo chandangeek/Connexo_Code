@@ -10,7 +10,6 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
 import com.google.common.base.Optional;
 
 import java.util.Date;
@@ -19,11 +18,11 @@ import java.util.List;
 /**
  * Models the execution of a ComTask in the context of a connection with a device
  * for which an appropriate {@link ConnectionTask} exists.
- * <p/>
+ * <p>
  * A ComTaskExecution is either scheduled or ad hoc.
  * The difference is that a scheduled ComTaskExecution has a scheduling frequency
  * and an ad hoc ComTaskExecution has not frequency.
- * <p/>
+ * <p>
  * A ComTaskExecution can be assigned to a specific {@link ConnectionTask}
  * but it can also be assigned to the default {@link ConnectionTask}.
  * In the first case, the ComTaskExecution is only executed when that
@@ -32,7 +31,7 @@ import java.util.List;
  * ConnectionTask executes, regardless of which one is the default.
  * In other words, when the default changes, the execution of the
  * ComTaskExecution will also change.
- * <p/>
+ * <p>
  * The execution can be prioritized with a simple numerical mechanism.
  * The priority is a positive number and smaller numbers indicate higher priority.
  * In other words, zero is the highest priority.
@@ -50,7 +49,7 @@ import java.util.List;
  * </ul>
  * The above still leaves some room for urgent high priority tasks to be scheduled
  * and executed before all others.
- * <p/>
+ * <p>
  * Each time a ComTaskExecution is executed,
  * a ComTaskExecutionSession is created
  * that captures all the details of the communication with the device.
@@ -90,7 +89,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return A flag that indicates if this ComTaskExecution is scheduled manually
      */
-    public boolean isScheduledManually ();
+    public boolean isScheduledManually();
 
     /**
      * Tests if this ComTaskExecution is ad hoc,
@@ -106,7 +105,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return The Device for which tasks are executed
      */
-    public Device getDevice ();
+    public Device getDevice();
 
     /**
      * Gets the {@link ComPort} that is currently
@@ -115,7 +114,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return The ComPort or <code>null</code>
      */
-    public ComPort getExecutingComPort ();
+    public ComPort getExecutingComPort();
 
     /**
      * Tests if this ComTaskExecution is currently executing.
@@ -123,7 +122,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return <code>true</code> iff this ComTaskExecution is executing, i.e. if the executing ComPort is not null
      */
-    public boolean isExecuting ();
+    public boolean isExecuting();
 
     /**
      * Gets this OutboundComTaskExecution's execution priority.
@@ -145,7 +144,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return The TaskStatus
      */
-    public TaskStatus getStatus ();
+    public TaskStatus getStatus();
 
     /**
      * Tests if this ComTaskExecution is on hold.
@@ -154,7 +153,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return <code>true</code> iff this ComTaskExecution is on hold.
      */
-    public boolean isOnHold ();
+    public boolean isOnHold();
 
     /**
      * Gets the earliest possible timestamp on which this ComTaskExecution
@@ -162,14 +161,14 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return The earliest possible next execution timestamp
      */
-    public Date getNextExecutionTimestamp ();
+    public Date getNextExecutionTimestamp();
 
     /**
      * Gets the maximum number of consecutive failures a ComTaskExecution can have before marking it as failed.
-
+     *
      * @return the maximum number of consecutive failures
      */
-    public int getMaxNumberOfTries ();
+    public int getMaxNumberOfTries();
 
     /**
      * Gets the counter that keeps track of the number of times
@@ -177,7 +176,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return The current try count
      */
-    public int getCurrentTryCount ();
+    public int getCurrentTryCount();
 
     /**
      * Indication whether this OutboundComTaskExecution uses the default
@@ -185,50 +184,51 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * This will return false if a user sets the ConnectionTask to a
      * specific OutboundConnectionTask from the Device,
      * even when he chooses the (at that moment) default ConnectionTask.
-     * <p/>
+     * <p>
      * This value will return true if this ComTask is always scheduled for
      * the default ConnectionTask which is at that moment configured on the Device.
      *
      * @return true if this ComTask is scheduled for the default ConnectionTask, false otherwise.
      */
-    public boolean useDefaultConnectionTask ();
+    public boolean useDefaultConnectionTask();
+
     /**
      * Gets the timestamp on which this ComTaskExecution started
      * or <code>null</code> if this ComTaskExecution is not executing at this moment.
      *
      * @return The timestamp on which this ComTaskExecution started or <code>null</code>
      */
-    public Date getExecutionStartedTimestamp ();
+    public Date getExecutionStartedTimestamp();
 
     /**
      * Makes this ComTaskExecution obsolete, i.e. it will no longer execute
      * nor will it be returned by {@link DeviceService} finder methods.
-     *
+     * <p>
      * Note: the call needs to run in a Transaction, no additional save() is required.
      */
-    public void makeObsolete ();
+    public void makeObsolete();
 
     /**
      * Tests if this ComTaskExecution is obsolete.
      *
      * @return A flag that indicates if this ComTaskExecution is obsolete
      */
-    public boolean isObsolete ();
+    public boolean isObsolete();
 
     /**
      * Gets the date on which this ComTaskExecution was made obsolete.
      *
      * @return The date when this ComTaskExecution is made obsolete
-     *         or <code>null</code> when this ComTaskExecution is not obsolete at all.
+     * or <code>null</code> when this ComTaskExecution is not obsolete at all.
      */
-    public Date getObsoleteDate ();
+    public Date getObsoleteDate();
 
     /**
      * Gets the {@link ConnectionTask} which will be used to perform this ComTaskExecution
      *
      * @return the used ConnectionTask
      */
-    public ConnectionTask<?,?> getConnectionTask ();
+    public ConnectionTask<?, ?> getConnectionTask();
 
     public boolean usesSameConnectionTaskAs(ComTaskExecution anotherTask);
 
@@ -236,18 +236,18 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * Gets the timestamp of the last execution of this ComTaskExecution.
      *
      * @return The timestamp on which the last execution of this ComTaskExecution started
-     *         or <code>null</code> if this ComTaskExecution has not started executing yet
+     * or <code>null</code> if this ComTaskExecution has not started executing yet
      */
-    public Date getLastExecutionStartTimestamp ();
+    public Date getLastExecutionStartTimestamp();
 
     /**
      * Gets the timestamp of the last time this ComTaskExecution completed successfully.
      *
      * @return The timestamp of last successful completion
-     *         or <code>null</code> if this ComTaskExecution
-     *         has never completed successfully
+     * or <code>null</code> if this ComTaskExecution
+     * has never completed successfully
      */
-    public Date getLastSuccessfulCompletionTimestamp ();
+    public Date getLastSuccessfulCompletionTimestamp();
 
     /**
      * Gets the specifications for the calculation of the next
@@ -265,7 +265,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      *
      * @return The flag that indicates if the NextExecutionSpecs will be ignored in an inbound context
      */
-    public boolean isIgnoreNextExecutionSpecsForInbound ();
+    public boolean isIgnoreNextExecutionSpecsForInbound();
 
     /**
      * Gets the earliest possible timestamp of
@@ -289,7 +289,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     /**
      * Calculates and updates the next execution of this ComTaskExecution
      * according to the recurring properties.
-
+     *
      * @see #getNextExecutionTimestamp()
      */
     public void updateNextExecutionTimestamp();
@@ -314,12 +314,12 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     /**
      * RunNow will trigger the ComTaskExecution for an immediate  readout, regardless of the current strategy.
      * <ul>
-     *     In case of:
-     *     <li>ASAP, the nextExecutionTimeStamp of the comTask will be set to now. This will automatically update the
-     *     nextExecutionTimeStamp of his connectionTask</li>
-     *     <li>Minimize, the nextExecutionTimeStamp fo the comTask will be set to new. Additionally, the nextExecutionTimeStamp
-     *     of his connectionTask will be set to now. This means that all ComTasks that were already pending for this minimize
-     *     connection, will also be read out.</li>
+     * In case of:
+     * <li>ASAP, the nextExecutionTimeStamp of the comTask will be set to now. This will automatically update the
+     * nextExecutionTimeStamp of his connectionTask</li>
+     * <li>Minimize, the nextExecutionTimeStamp fo the comTask will be set to new. Additionally, the nextExecutionTimeStamp
+     * of his connectionTask will be set to now. This means that all ComTasks that were already pending for this minimize
+     * connection, will also be read out.</li>
      * </ul>
      */
     public void runNow();
@@ -330,7 +330,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     public void schedule(Date when);
 
-    public ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> getUpdater();
+    public ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> getUpdater();
 
     public List<ProtocolTask> getProtocolTasks();
 

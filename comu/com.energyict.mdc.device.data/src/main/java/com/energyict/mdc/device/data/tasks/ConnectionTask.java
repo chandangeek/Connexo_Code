@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.pluggable.PluggableClassUsage;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
 import com.google.common.base.Optional;
 
 import java.util.Date;
@@ -23,20 +22,20 @@ import java.util.List;
  * A ConnectionTask can be used by multiple devices,
  * allowing those devices to all use the same communication channel.
  * In that case, the device will most likely be a gateway-like device.
- * <p/>
+ * <p>
  * A ConnectionTask of type X cannot be created against a device if the
  * {@link com.energyict.mdc.device.config.DeviceConfiguration} does not support X.
  * Remember that support for type X on the configuration level is
  * managed with a {@link PartialConnectionTask}. Every ConnectionTask
  * will therefore be linked to the PartialConnectionTask from which
  * it was created and from which it can inherit connection properties.
- * <p/>
+ * <p>
  * When the {@link ConnectionType} does not support {@link com.energyict.mdc.common.ComWindow}s
  * then the ConnectionTask is NOT required to have a ComWindow.
  * In case there is a ComWindow, the ConnectionTask will only
  * establish a connection when the time is within the ComWindow.
  * This ComWindow is computed against the device's time zone.
- * <p/>
+ * <p>
  * Each time a ConnectionTask is executed, a ComSession
  * is created that captures all the details of the communication with the device.
  * That communication overview is very important and should not be deleted
@@ -47,11 +46,11 @@ import java.util.List;
  * @since 2012-04-11 (09:59)
  */
 public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialConnectionTask>
-       extends
-            ConnectionTaskPropertyProvider,
-            PluggableClassUsage<ConnectionType, ConnectionTypePluggableClass, ConnectionTaskProperty>,
-            ConnectionTaskExecutionAspects,
-            HasId {
+        extends
+        ConnectionTaskPropertyProvider,
+        PluggableClassUsage<ConnectionType, ConnectionTypePluggableClass, ConnectionTaskProperty>,
+        ConnectionTaskExecutionAspects,
+        HasId {
 
     public enum Type {
         /**
@@ -104,9 +103,9 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
          */
         INACTIVE,
         /**
-        * The ConnectionTask is created but not valid and can not be used by the ComServer to execute tasks yet.
-        * This means that some properties may not be present yet.
-        */
+         * The ConnectionTask is created but not valid and can not be used by the ComServer to execute tasks yet.
+         * This means that some properties may not be present yet.
+         */
         INCOMPLETE
     }
 
@@ -138,7 +137,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return The Device that will be connected to
      */
-    public Device getDevice ();
+    public Device getDevice();
 
     /**
      * Gets the {@link PartialConnectionTask} from which this ConnectionTask
@@ -147,7 +146,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return The PartialConnectionTask
      */
-    public PCTT getPartialConnectionTask ();
+    public PCTT getPartialConnectionTask();
 
     /**
      * Gets the list of {@link ConnectionTaskProperty ConnectionTaskProperties}
@@ -159,7 +158,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return The List of ConnectionTaskProperties
      */
-    public List<ConnectionTaskProperty> getProperties ();
+    public List<ConnectionTaskProperty> getProperties();
 
     /**
      * Gets the list of {@link ConnectionTaskProperty ConnectionTaskProperties}
@@ -172,15 +171,15 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * @param date The Date on which the ConnectionTaskProperty should be active
      * @return The List of ConnectionTaskProperties
      */
-    public List<ConnectionTaskProperty> getProperties (Date date);
+    public List<ConnectionTaskProperty> getProperties(Date date);
 
     /**
      * Sets the value of the property with the specified name.
      *
      * @param propertyName the name of the property
-     * @param value The property value
+     * @param value        The property value
      */
-    public void setProperty (String propertyName, Object value);
+    public void setProperty(String propertyName, Object value);
 
     /**
      * Removes the property with the specified name.
@@ -190,7 +189,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @param propertyName The name of the property
      */
-    public void removeProperty (String propertyName);
+    public void removeProperty(String propertyName);
 
     /**
      * Tests if this ConnectionTask is paused.
@@ -208,29 +207,29 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * Makes this ConnectionTask obsolete, i.e. it will no longer execute
      * nor will it be returned by {@link DeviceService} finder methods.
      */
-    public void makeObsolete ();
+    public void makeObsolete();
 
     /**
      * Tests if this ConnectionTask is obsolete.
      *
      * @return A flag that indicates if this ConnectionTask is obsolete
      */
-    public boolean isObsolete ();
+    public boolean isObsolete();
 
     /**
      * Gets the date on which this ConnectionTask was made obsolete.
      *
      * @return The date when this ConnectionTask was made obsolete
-     *         or <code>null</code> when this ConnectionTask is not obsolete at all.
+     * or <code>null</code> when this ConnectionTask is not obsolete at all.
      */
-    public Date getObsoleteDate ();
+    public Date getObsoleteDate();
 
     /**
      * Gets the date on which this ConnectionTask was created or last modified.
      *
      * @return The date when this ConnectionTask was created or last modified
      */
-    public Date getModificationDate ();
+    public Date getModificationDate();
 
     /**
      * Tests if this ConnectionTask is the default that should be used
@@ -238,7 +237,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return A flag that indicates if this is the default
      */
-    public boolean isDefault ();
+    public boolean isDefault();
 
     /**
      * Returns if the {@link ConnectionType} allows simultaneous
@@ -247,7 +246,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * @return <code>true</code> iff the ConnectionType allows simultaneous connections
      * @see ConnectionType#allowsSimultaneousConnections()
      */
-    public boolean allowsSimultaneousConnections ();
+    public boolean allowsSimultaneousConnections();
 
     /**
      * Gets the ComPortPool from which a {@link com.energyict.mdc.engine.model.ComPort} will
@@ -257,9 +256,9 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return The ComPortPool
      */
-    public CPPT getComPortPool ();
+    public CPPT getComPortPool();
 
-    public void setComPortPool (CPPT comPortPool);
+    public void setComPortPool(CPPT comPortPool);
 
     /**
      * Tests if this ConnectionTask has a {@link ComPortPool}.
@@ -289,7 +288,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return The last ComSession or <code>null</code>
      */
-    public Optional<ComSession> getLastComSession ();
+    public Optional<ComSession> getLastComSession();
 
     /**
      * Gets the {@link SuccessIndicator} of this ConnectionTask.
@@ -304,7 +303,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * has never before been executed and therefore no ComSession exists.
      *
      * @return The SuccessIndicator of the last ComSession or <code>null</code>
-     *         if there is no ComSession yet
+     * if there is no ComSession yet
      */
     public Optional<ComSession.SuccessIndicator> getLastSuccessIndicator();
 
@@ -314,7 +313,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * has never before been executed and therefore no ComSession exists.
      *
      * @return The TaskExecutionSummary of the last ComSession or <code>null</code>
-     *         if there is no ComSession yet
+     * if there is no ComSession yet
      */
     public Optional<TaskExecutionSummary> getLastTaskExecutionSummary();
 
@@ -324,7 +323,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return <code>true</code> iff this ConnectionTask is executing, i.e. if the executing ComServer is not null
      */
-    public boolean isExecuting ();
+    public boolean isExecuting();
 
     /**
      * Gets the {@link ComServer} that is currently
@@ -333,7 +332,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      *
      * @return The ComServer or <code>null</code>
      */
-    public ComServer getExecutingComServer ();
+    public ComServer getExecutingComServer();
 
     /**
      * Pauses this connectionTask, i.e. temporarily disables its execution.

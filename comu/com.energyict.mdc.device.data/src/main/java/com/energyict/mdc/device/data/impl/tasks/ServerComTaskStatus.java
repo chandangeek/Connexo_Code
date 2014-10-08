@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import com.elster.jupiter.util.time.Clock;
 
 import java.util.Date;
 
@@ -24,7 +23,7 @@ public enum ServerComTaskStatus {
      */
     OnHold {
         @Override
-        public TaskStatus getPublicStatus () {
+        public TaskStatus getPublicStatus() {
             return TaskStatus.OnHold;
         }
 
@@ -34,7 +33,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and cte.nextExecutionTimestamp is null");
         }
@@ -45,7 +44,7 @@ public enum ServerComTaskStatus {
      */
     Busy {
         @Override
-        public TaskStatus getPublicStatus () {
+        public TaskStatus getPublicStatus() {
             return TaskStatus.Busy;
         }
 
@@ -55,7 +54,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and ((comport is not null) or ((exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
@@ -70,7 +69,7 @@ public enum ServerComTaskStatus {
      */
     Pending {
         @Override
-        public TaskStatus getPublicStatus () {
+        public TaskStatus getPublicStatus() {
             return TaskStatus.Pending;
         }
 
@@ -83,7 +82,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and comport is null and not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
@@ -97,7 +96,7 @@ public enum ServerComTaskStatus {
      */
     NeverCompleted {
         @Override
-        public TaskStatus getPublicStatus () {
+        public TaskStatus getPublicStatus() {
             return TaskStatus.NeverCompleted;
         }
 
@@ -112,7 +111,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and lastSuccessfulCompletion is null ");
             sqlBuilder.append("and comport is null ");
@@ -128,7 +127,7 @@ public enum ServerComTaskStatus {
      */
     Retrying {
         @Override
-        public TaskStatus getPublicStatus () {
+        public TaskStatus getPublicStatus() {
             return TaskStatus.Retrying;
         }
 
@@ -136,12 +135,12 @@ public enum ServerComTaskStatus {
         public boolean appliesTo(ServerComTaskExecution task, Date now) {
             int retryCount = task.getCurrentTryCount() - 1;
             return task.getNextExecutionTimestamp() != null
-                && !task.isExecuting()
-                && retryCount > 0;
+                    && !task.isExecuting()
+                    && retryCount > 0;
         }
 
         @Override
-        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and nextexecutiontimestamp > ");
             sqlBuilder.addUtcInstant(now);
@@ -155,7 +154,7 @@ public enum ServerComTaskStatus {
      */
     Failed {
         @Override
-        public TaskStatus getPublicStatus () {
+        public TaskStatus getPublicStatus() {
             return TaskStatus.Failed;
         }
 
@@ -164,14 +163,14 @@ public enum ServerComTaskStatus {
             Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             int retryCount = task.getCurrentTryCount() - 1;
             return nextExecutionTimestamp != null
-                && nextExecutionTimestamp.after(now)
-                && task.getLastSuccessfulCompletionTimestamp() != null
-                && task.lastExecutionFailed()
-                && retryCount == 0;
+                    && nextExecutionTimestamp.after(now)
+                    && task.getLastSuccessfulCompletionTimestamp() != null
+                    && task.lastExecutionFailed()
+                    && retryCount == 0;
         }
 
         @Override
-        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and nextExecutionTimestamp is not null ");
             sqlBuilder.append("and nextExecutionTimestamp >");
@@ -187,7 +186,7 @@ public enum ServerComTaskStatus {
      */
     Waiting {
         @Override
-        public TaskStatus getPublicStatus () {
+        public TaskStatus getPublicStatus() {
             return TaskStatus.Waiting;
         }
 
@@ -202,7 +201,7 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and comport is null ");
             sqlBuilder.append("and lastSuccessfulCompletion is not null ");
@@ -217,23 +216,23 @@ public enum ServerComTaskStatus {
      *
      * @return The public counterpart
      */
-    public abstract TaskStatus getPublicStatus ();
+    public abstract TaskStatus getPublicStatus();
 
     /**
      * Checks if this ServerTaskStatus applies to the {@link ComTaskExecution}.
      *
      * @param task The ComTaskExecution
-     * @param now The current time
+     * @param now  The current time
      * @return <code>true</code> iff this ServerTaskStatus applies to the ComTaskExecution
      */
     public abstract boolean appliesTo(ServerComTaskExecution task, Date now);
 
-    public final void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+    public final void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
         sqlBuilder.appendWhereOrAnd();
         this.completeFindBySqlBuilder(sqlBuilder, clock.now());
     }
 
-    protected void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date date) {
+    protected void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date date) {
         sqlBuilder.append("cte.obsolete_date is null ");
     }
 
@@ -241,7 +240,7 @@ public enum ServerComTaskStatus {
      * Gets the {@link TaskStatus} that applies to the specified {@link ComTaskExecution}.
      *
      * @param task The ComTaskExecution
-     * @param now The current time
+     * @param now  The current time
      * @return The applicable TaskStatus
      */
     public static TaskStatus getApplicableStatusFor(ServerComTaskExecution task, Date now) {
@@ -262,7 +261,7 @@ public enum ServerComTaskStatus {
      * @param taskStatus The TaskStatus
      * @return The corresponding ServerTaskStatus
      */
-    public static ServerComTaskStatus forTaskStatus (TaskStatus taskStatus) {
+    public static ServerComTaskStatus forTaskStatus(TaskStatus taskStatus) {
         for (ServerComTaskStatus serverComTaskStatus : values()) {
             if (serverComTaskStatus.getPublicStatus().equals(taskStatus)) {
                 return serverComTaskStatus;

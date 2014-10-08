@@ -1,11 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import com.elster.jupiter.util.time.Clock;
 
 /**
  * Builds the SQL query thats counts {@link com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution}s

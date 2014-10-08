@@ -38,21 +38,20 @@ public class UniqueInboundComPortPoolPerDeviceValidator implements ConstraintVal
         if (!this.onlyOneForComPortPool(connectionTask)) {
             context.disableDefaultConstraintViolation();
             context
-                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE_KEY + "}")
-                .addPropertyNode("comPortPool").addConstraintViolation();
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE_KEY + "}")
+                    .addPropertyNode("comPortPool").addConstraintViolation();
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
+
     private boolean onlyOneForComPortPool(InboundConnectionTaskImpl connectionTask) {
         InboundComPortPool comPortPool = connectionTask.getComPortPool();
         if (comPortPool != null) {
             Set<Long> comportPoolIds = this.getOtherComPortPoolIds(connectionTask);
             return !comportPoolIds.contains(comPortPool.getId());
-        }
-        else {
+        } else {
             /* Although ComPortPool is a required attribute,
              * it is not the responsibility of this component
              * to validate that. */

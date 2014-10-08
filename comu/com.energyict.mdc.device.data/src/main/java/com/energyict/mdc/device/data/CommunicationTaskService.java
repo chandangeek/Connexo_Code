@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -14,13 +16,9 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -97,9 +95,9 @@ public interface CommunicationTaskService {
     /**
      * Finds all {@link ConnectionTask}s that match the specified filter.
      *
-     * @param filter The ComTaskExecutionFilterSpecification
+     * @param filter    The ComTaskExecutionFilterSpecification
      * @param pageStart The first ComTaskExecution
-     * @param pageSize The maximum number of ComTaskExecutions
+     * @param pageSize  The maximum number of ComTaskExecutions
      * @return The List of ComTaskExecution
      */
     public List<ComTaskExecution> findComTaskExecutionsByFilter(ComTaskExecutionFilterSpecification filter, int pageStart, int pageSize);
@@ -127,7 +125,7 @@ public interface CommunicationTaskService {
      * Note that this MUST run in an existing transactional context.
      *
      * @param comTaskExecution The ComTaskExecution
-     * @param comPort The ComPort that is about to execute the ComTaskExecution
+     * @param comPort          The ComPort that is about to execute the ComTaskExecution
      * @return <code>true</code> iff the lock succeeds
      */
     public ComTaskExecution attemptLockComTaskExecution(ComTaskExecution comTaskExecution, ComPort comPort);
@@ -157,6 +155,7 @@ public interface CommunicationTaskService {
      * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
      */
     public List<ComTaskExecution> findComTaskExecutionsByComSchedule(ComSchedule comSchedule);
+
     public List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId);
 
     public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
