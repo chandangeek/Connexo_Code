@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -117,7 +118,12 @@ final class JoinExecutor<T> {
 			for (ColumnAndAlias columnAndAlias : columnAndAliases) {
 				builder.append(separator);
 				separator = ", ";
-				builder.append(order.getClause(columnAndAlias.toString()));
+				if (root.getDialect() == SqlDialect.ORACLE) {
+					builder.append(order.getClause(columnAndAlias.toString()));
+				} else {
+					// H2 does not like qualified names in order by clause
+					builder.append(order.getClause(columnAndAlias.getColumn().getName()));
+				}
 				builder.space();
 			}
 		}
