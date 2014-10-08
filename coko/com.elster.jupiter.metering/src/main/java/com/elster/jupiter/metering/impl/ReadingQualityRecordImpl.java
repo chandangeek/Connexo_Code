@@ -150,18 +150,22 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         return version;
     }
     
+    @Override
     public boolean hasEditCategory() {
     	return hasQualityCodeCategory(QualityCodeCategory.EDITED);
     }
     
+    @Override
     public boolean hasValidationCategory() {
     	return hasQualityCodeCategory(QualityCodeCategory.VALIDATION);
     }
     
+    @Override
     public boolean isSuspect() {
     	return hasQualityIndex(QualityCodeIndex.SUSPECT);
     }
     
+    @Override
     public boolean isMissing() {
     	return hasQualityIndex(QualityCodeIndex.KNOWNMISSINGREAD);
     }
@@ -174,7 +178,8 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     	return getType().qualityIndex().filter(qualityIndex -> qualityIndex.equals(index)).isPresent();
     }
     
-    public void readingValueChanged() {
+    @Override
+    public void makePast() {
     	this.actual = false;
     	this.save();
     }

@@ -28,5 +28,15 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
 
 	boolean isActual();
 
-	void makeActual();
+    boolean hasEditCategory();
+
+    boolean hasValidationCategory();
+
+    boolean isSuspect();
+
+    boolean isMissing();
+
+    void makePast();
+
+    void makeActual();
 }

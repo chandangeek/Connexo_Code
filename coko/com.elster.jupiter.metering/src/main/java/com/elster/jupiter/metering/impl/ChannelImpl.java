@@ -19,7 +19,6 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -425,7 +424,7 @@ public final class ChannelImpl implements ChannelContract {
         		.forEach(qualityRecord -> qualityRecord.delete());
         	currentQualityRecords.stream()
     			.filter(qualityRecord -> qualityRecord.hasValidationCategory() || qualityRecord.isMissing())
-    			.forEach(qualityRecord -> qualityRecord.readingValueChanged());
+    			.forEach(qualityRecord -> qualityRecord.makePast());
         	storer.addReading(this, reading, processStatus);
         }
         storer.execute();
