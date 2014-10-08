@@ -99,6 +99,11 @@ public class AbntActivityCalendarXmlParser {
                 }
             }
         }
+        if (this.specialDays.size() > 15) {
+            String message = "AbntActivityCalendarXmlParser -> At max 15 special days can be programmed!";
+            logger.error(message);
+            throw new AbntException(message);
+        }
     }
 
     public List<String> getSpecialDays() {
