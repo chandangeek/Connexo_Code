@@ -20,6 +20,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>4.0-beta5</version>
+    </dependency>
+    <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>util</artifactId>
       <version>${jupiter.version}</version>
@@ -28,6 +33,10 @@
       <groupId>com.energyict</groupId>
       <artifactId>mdc.tasks</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.device.config</artifactId>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
