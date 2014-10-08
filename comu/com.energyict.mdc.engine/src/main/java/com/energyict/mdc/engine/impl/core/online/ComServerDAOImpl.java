@@ -1,11 +1,18 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
@@ -61,14 +68,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 
 import java.text.DateFormat;
@@ -605,7 +604,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (first == null) {
             return null;
         } else {
-            for (ComTaskEnablement comTaskEnablement : enabledComTasks((ServerDeviceCommunicationConfiguration) device.getDeviceConfiguration().getCommunicationConfiguration())) {
+            for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration().getCommunicationConfiguration())) {
                 if (comTaskEnablement.getComTask().equals(first.getComTasks().get(0))) {
                     securityPropertySet = comTaskEnablement.getSecurityPropertySet();
                 }
@@ -614,7 +613,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private List<ComTaskEnablement> enabledComTasks(ServerDeviceCommunicationConfiguration communicationConfiguration) {
+    private List<ComTaskEnablement> enabledComTasks(DeviceCommunicationConfiguration communicationConfiguration) {
         return communicationConfiguration.getComTaskEnablements();
     }
 
