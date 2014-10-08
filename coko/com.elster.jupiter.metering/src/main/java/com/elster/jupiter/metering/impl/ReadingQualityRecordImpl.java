@@ -150,13 +150,33 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
     
     public boolean hasEditCategory() {
-    	return getType().category().equals(QualityCodeCategory.EDITED);
+    	return hasQualityCodeCategory(QualityCodeCategory.EDITED);
+    }
+    
+    public boolean hasValdiationCategory() {
+    	return hasQualityCodeCategory(QualityCodeCategory.VALIDATION);
     }
     
     public boolean isSuspect() {
-    	return getType().qualityIndex().equals(QualityCodeIndex.SUSPECT);
+    	return hasQualityIndex(QualityCodeIndex.SUSPECT);
     }
-
+    
+    public boolean isMissing() {
+    	return hasQualityIndex(QualityCodeIndex.KNOWNMISSINGREAD);
+    }
+    
+    private boolean hasQualityCodeCategory(QualityCodeCategory cat) {
+    	return getType().category().filter(category -> category.equals(cat)).isPresent();
+    }
+    
+    private boolean hasQualityIndex(QualityCodeIndex index) {
+    	return getType().qualityIndex().filter(qualityIndex -> qualityIndex.equals(index)).isPresent();
+    }
+    
+    void clearActualFlag() {
+    	// TODO: clear actual flag
+    }
+    
     public class LocalEventSource {
         private final ReadingQualityRecordImpl readingQuality;
 
