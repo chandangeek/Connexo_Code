@@ -116,6 +116,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         form.loadRecord(register);
                         widget.down('#stepsMenu').setTitle(register.get('name'));
+                        if (!register.data.detailedValidationInfo.validationActive) {
+                            widget.down('#validateNowRegister').hide();
+                        }
+                        widget.down('#deviceRegisterConfigurationActionMenu').record = register;
                     },
                     callback: function () {
                         contentPanel.setLoading(false);
