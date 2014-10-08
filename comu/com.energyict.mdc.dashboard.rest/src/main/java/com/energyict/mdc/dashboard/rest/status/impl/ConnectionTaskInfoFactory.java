@@ -59,7 +59,7 @@ public class ConnectionTaskInfoFactory {
 
             info.startDateTime=comSession.getStartDate();
             info.endDateTime=comSession.getStopDate();
-            info.duration=new TimeDurationInfo(new TimeDuration(comSession.getTotalDuration().toStandardSeconds().getSeconds()));
+            info.duration=new TimeDurationInfo(new TimeDuration((int)comSession.getTotalDuration().getMillis(),TimeDuration.MILLISECONDS));
         }
         info.communicationTasks=new ComTaskListInfo();
         info.communicationTasks.count=comTaskExecutions.size();
