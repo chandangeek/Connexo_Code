@@ -290,6 +290,7 @@ public enum TableSpecs {
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).map("channelId").add();
             Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("readingTimestamp").add();
             Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
+            table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
             table.column("COMMENTS").type("varchar(4000)").map("comment").add();
             table.primaryKey("MTR_PK_READINGQUALITY").on(idColumn).add();

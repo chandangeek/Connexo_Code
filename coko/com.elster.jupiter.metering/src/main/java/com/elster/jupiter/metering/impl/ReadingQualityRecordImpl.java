@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -24,6 +23,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     private long channelId;
     private UtcInstant readingTimestamp;
     private String typeCode;
+    private boolean actual;
 
     private transient ReadingQualityType type;
     private transient Optional<BaseReadingRecord> baseReadingRecord;
@@ -45,6 +45,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         // for persistence
         this.meteringService = meteringService;
         this.eventService = eventService;
+        this.actual = true;
     }
 
     ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, BaseReadingRecord baseReadingRecord) {
@@ -153,7 +154,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     	return hasQualityCodeCategory(QualityCodeCategory.EDITED);
     }
     
-    public boolean hasValdiationCategory() {
+    public boolean hasValidationCategory() {
     	return hasQualityCodeCategory(QualityCodeCategory.VALIDATION);
     }
     
@@ -173,8 +174,20 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     	return getType().qualityIndex().filter(qualityIndex -> qualityIndex.equals(index)).isPresent();
     }
     
-    void clearActualFlag() {
-    	// TODO: clear actual flag
+    public void readingValueChanged() {
+    	this.actual = false;
+    	this.save();
+    }
+    
+    @Override
+    public void makeActual() {
+    	this.actual = true;
+    	this.save();
+    }
+    
+    @Override
+    public boolean isActual() {
+    	return actual;
     }
     
     public class LocalEventSource {

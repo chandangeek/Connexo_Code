@@ -3,7 +3,6 @@ package com.elster.jupiter.metering;
 import java.util.Date;
 import java.util.List;
 
-import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;

@@ -424,8 +424,8 @@ public final class ChannelImpl implements ChannelContract {
         		.filter(qualityRecord -> qualityRecord.isSuspect())
         		.forEach(qualityRecord -> qualityRecord.delete());
         	currentQualityRecords.stream()
-    			.filter(qualityRecord -> qualityRecord.hasValdiationCategory() || qualityRecord.isMissing())
-    			.forEach(qualityRecord -> qualityRecord.clearActualFlag());
+    			.filter(qualityRecord -> qualityRecord.hasValidationCategory() || qualityRecord.isMissing())
+    			.forEach(qualityRecord -> qualityRecord.readingValueChanged());
         	storer.addReading(this, reading, processStatus);
         }
         storer.execute();

@@ -25,4 +25,8 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
     void delete();
 
     long getVersion();
+
+	boolean isActual();
+
+	void makeActual();
 }
