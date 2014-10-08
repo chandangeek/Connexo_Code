@@ -6,12 +6,12 @@ Ext.define('Dsh.view.widget.common.StackedBar', {
     trackTpl: [
         '<div data-qtip="{tooltip}">',
         '<tpl foreach="count">',
-            '<div class="{parent.baseCls}-track {parent.baseCls}-track-stacked {[xkey]}" style="width: {.}%;"></div>',
+        '<div class="{parent.baseCls}-track {parent.baseCls}-track-stacked {[xkey]}" style="width: {.}%;"></div>',
         '</tpl>',
         '</div>'
     ],
 
-    prepareData: function(){
+    prepareData: function () {
         var me = this;
         var counts = _.object(_.map(me.count, function (value, key) {
             return [key, !me.limit ? 0 : value * 100 / me.limit];

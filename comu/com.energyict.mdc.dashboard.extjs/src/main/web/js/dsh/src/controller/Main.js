@@ -30,6 +30,7 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.store.filter.CommPortPool',
         'Dsh.store.filter.ConnectionType',
         'Dsh.store.filter.DeviceType',
+        'Dsh.store.filter.CompletionCodes',
         'Dsh.store.ConnectionResultsStore',
         'Dsh.store.CombineStore'
     ],
@@ -59,19 +60,19 @@ Ext.define('Dsh.controller.Main', {
                 route: 'datacommunication',
                 items: [
                     {
-                        text: 'Connections',
+                        text: Uni.I18n.translate('title.connections', 'DSH', 'Connections'),
                         href: router.getRoute('workspace/connections/details').buildUrl()
                     },
                     {
-                        text: 'Connection overview',
+                        text: Uni.I18n.translate('title.connections.overview', 'DSH', 'Connections overview'),
                         href: router.getRoute('workspace/connections').buildUrl()
                     },
                     {
-                        text: 'Communications',
+                        text: Uni.I18n.translate('title.communications', 'DSH', 'Communications'),
                         href: router.getRoute('workspace/communications/details').buildUrl()
                     },
                     {
-                        text: 'Communication overview',
+                        text: Uni.I18n.translate('title.communications.overview', 'DSH', 'Communications overview'),
                         href: router.getRoute('workspace/communications').buildUrl()
                     }
                 ]

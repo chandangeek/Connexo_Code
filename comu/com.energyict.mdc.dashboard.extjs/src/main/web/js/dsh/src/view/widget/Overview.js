@@ -13,18 +13,20 @@ Ext.define('Dsh.view.widget.Overview', {
     },
     defaults: {flex: 1},
     total: 0,
-    dockedItems: [{
-        xtype: 'toolbar',
-        dock: 'top',
-        style: {padding: 0},
-        items: [
-            {
-                xtype: 'container',
-                itemId: 'title',
-                html: '<h2>' + Uni.I18n.translate('overview.widget.overview.title', 'DSH', 'Overview') + '</h2>'
-            }
-        ]
-    }],
+    dockedItems: [
+        {
+            xtype: 'toolbar',
+            dock: 'top',
+            style: {padding: 0},
+            items: [
+                {
+                    xtype: 'container',
+                    itemId: 'title',
+                    html: '<h2>' + Uni.I18n.translate('overview.widget.overview.title', 'DSH', 'Overview') + '</h2>'
+                }
+            ]
+        }
+    ],
     bindStore: function (store) {
         var me = this;
         me.removeAll(true);
@@ -57,24 +59,23 @@ Ext.define('Dsh.view.widget.Overview', {
                     itemSelector: 'tbody.item',
                     total: item.get('total') || me.total,
                     store: item.counters(),
-                    tpl:
-                        '<table width="100%">' +
-                            '<tpl for=".">' +
-                                '<tbody class="item item-{#}">' +
-                                '<tr>' +
-                                    '<td width="50%">' +
-                                        '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">' +
-                                            '<tpl if="href">' +
-                                                '<a href="{href}">{displayName}</a>' +
-                                            '<tpl else>' +
-                                                '{displayName}' +
-                                            '</tpl>' +
-                                        '</div>' +
-                                    '</td>' +
-                                    '<td width="50%" id="bar-{#}"></td>' +
-                                '</tr>' +
-                            '</tbody>' +
-                            '</tpl>' +
+                    tpl: '<table width="100%">' +
+                        '<tpl for=".">' +
+                        '<tbody class="item item-{#}">' +
+                        '<tr>' +
+                        '<td width="50%">' +
+                        '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">' +
+                        '<tpl if="href">' +
+                        '<a href="{href}">{displayName}</a>' +
+                        '<tpl else>' +
+                        '{displayName}' +
+                        '</tpl>' +
+                        '</div>' +
+                        '</td>' +
+                        '<td width="50%" id="bar-{#}"></td>' +
+                        '</tr>' +
+                        '</tbody>' +
+                        '</tpl>' +
                         '</table>',
                     listeners: {
                         refresh: function (view) {
