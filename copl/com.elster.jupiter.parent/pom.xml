@@ -519,7 +519,6 @@
                 <module>../com.elster.jupiter.issue.rest</module>
                 <module>../com.elster.jupiter.kpi</module>
                 <module>../com.elster.jupiter.login.app</module>
-                <module>../com.elster.jupiter.masterjs</module>
                 <module>../com.elster.jupiter.messaging</module>
                 <module>../com.elster.jupiter.messaging.oracle</module>
                 <module>../com.elster.jupiter.metering</module>
