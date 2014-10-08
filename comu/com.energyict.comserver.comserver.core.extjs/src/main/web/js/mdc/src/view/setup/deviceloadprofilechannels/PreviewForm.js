@@ -10,19 +10,14 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
 
     router: null,
 
-
     initComponent: function () {
         var me = this;
 
-        me.items =  {
+        me.items = {
             xtype: 'form',
-            defaults: {
-                xtype: 'container',
-                layout: 'form'
-            },
             items: [
                 {
-                    xtype:'fieldcontainer',
+                    xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                     labelAlign: 'top',
                     layout: 'vbox',
@@ -57,7 +52,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
                             name: 'overflowValue'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC' ,'Number of fraction digits'),
+                            fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC', 'Number of fraction digits'),
                             name: 'nbrOfFractionDigits'
                         }
                     ]
@@ -67,7 +62,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
                     router: me.router
                 }
             ]
-        }
+        };
 
         me.callParent(arguments);
     }
