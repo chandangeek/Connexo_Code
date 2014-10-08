@@ -46,8 +46,8 @@ public class ConnectionOverviewResource {
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
         SummaryData summaryData = new SummaryData(taskStatusOverview, connectionTaskService.countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
 
-            return connectionOverviewInfoFactory.from(summaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,
-                    comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown);
+        return connectionOverviewInfoFactory.from(summaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,
+                comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown);
     }
 
 }

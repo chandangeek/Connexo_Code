@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
@@ -20,8 +21,6 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import javax.annotation.security.RolesAllowed;
@@ -90,12 +89,12 @@ public class ConnectionResource {
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
-        if (queryParameters.getStart()==null || queryParameters.getLimit()==null) {
+        if (queryParameters.getStart() == null || queryParameters.getLimit() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<ConnectionTask> connectionTasksByFilter = connectionTaskService.findConnectionTasksByFilter(filter, queryParameters.getStart(), queryParameters.getLimit()+1);
+        List<ConnectionTask> connectionTasksByFilter = connectionTaskService.findConnectionTasksByFilter(filter, queryParameters.getStart(), queryParameters.getLimit() + 1);
         List<ConnectionTaskInfo> connectionTaskInfos = new ArrayList<>(connectionTasksByFilter.size());
-        for (ConnectionTask<?,?> connectionTask : connectionTasksByFilter) {
+        for (ConnectionTask<?, ?> connectionTask : connectionTasksByFilter) {
             Optional<ComSession> lastComSession = connectionTask.getLastComSession();
             List<ComTaskExecution> comTaskExecutions = communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask);
             Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
@@ -119,7 +118,7 @@ public class ConnectionResource {
             // already optimized
             for (ComPortPool comPortPool : engineModelService.findAllComPortPools()) {
                 for (Long comPortPoolId : comPortPoolIds) {
-                    if (comPortPool.getId()==comPortPoolId) {
+                    if (comPortPool.getId() == comPortPoolId) {
                         filter.comPortPools.add(comPortPool);
                     }
                 }
@@ -155,27 +154,27 @@ public class ConnectionResource {
         }
 
         if (filterProperties.containsKey(FilterOption.startIntervalFrom.name()) || filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
-            Date start=null;
-            Date end=null;
+            Date start = null;
+            Date end = null;
             if (filterProperties.containsKey(FilterOption.startIntervalFrom.name())) {
-                start=jsonQueryFilter.getDate(FilterOption.startIntervalFrom.name());
+                start = jsonQueryFilter.getDate(FilterOption.startIntervalFrom.name());
             }
             if (filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
-                end=jsonQueryFilter.getDate(FilterOption.startIntervalTo.name());
+                end = jsonQueryFilter.getDate(FilterOption.startIntervalTo.name());
             }
-            filter.lastSessionStart=new Interval(start, end);
+            filter.lastSessionStart = new Interval(start, end);
         }
 
         if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name()) || filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
-            Date start=null;
-            Date end=null;
+            Date start = null;
+            Date end = null;
             if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name())) {
-                start=jsonQueryFilter.getDate(FilterOption.finishIntervalFrom.name());
+                start = jsonQueryFilter.getDate(FilterOption.finishIntervalFrom.name());
             }
             if (filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
-                end=jsonQueryFilter.getDate(FilterOption.finishIntervalTo.name());
+                end = jsonQueryFilter.getDate(FilterOption.finishIntervalTo.name());
             }
-            filter.lastSessionEnd=new Interval(start, end);
+            filter.lastSessionEnd = new Interval(start, end);
         }
 
         return filter;

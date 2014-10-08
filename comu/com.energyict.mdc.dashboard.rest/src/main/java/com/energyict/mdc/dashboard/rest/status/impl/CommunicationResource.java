@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.DateAdapter;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
@@ -18,8 +19,6 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -63,7 +62,7 @@ public class CommunicationResource {
     @Consumes("application/json")
     public Response getCommunications(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ComTaskExecutionFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
-        if (queryParameters.getStart()==null || queryParameters.getLimit()==null) {
+        if (queryParameters.getStart() == null || queryParameters.getLimit() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         List<ComTaskExecution> communicationTasksByFilter = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart(), queryParameters.getLimit() + 1);
@@ -71,7 +70,7 @@ public class CommunicationResource {
         for (ComTaskExecution comTaskExecution : communicationTasksByFilter) {
             Optional<ComTaskExecutionSession> lastSession = communicationTaskService.findLastSessionFor(comTaskExecution);
             ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
-            if (connectionTask!=null) {
+            if (connectionTask != null) {
                 comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastSession, connectionTask));
             } else {
                 comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastSession));
@@ -117,27 +116,27 @@ public class CommunicationResource {
 
 
         if (filterProperties.containsKey(FilterOption.startIntervalFrom.name()) || filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
-            Date start=null;
-            Date end=null;
+            Date start = null;
+            Date end = null;
             if (filterProperties.containsKey(FilterOption.startIntervalFrom.name())) {
-                start=jsonQueryFilter.getProperty(FilterOption.startIntervalFrom.name(), DATE_ADAPTER);
+                start = jsonQueryFilter.getProperty(FilterOption.startIntervalFrom.name(), DATE_ADAPTER);
             }
             if (filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
-                end=jsonQueryFilter.getProperty(FilterOption.startIntervalTo.name(), DATE_ADAPTER);
+                end = jsonQueryFilter.getProperty(FilterOption.startIntervalTo.name(), DATE_ADAPTER);
             }
-            filter.lastSessionStart=new Interval(start, end);
+            filter.lastSessionStart = new Interval(start, end);
         }
 
         if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name()) || filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
-            Date start=null;
-            Date end=null;
+            Date start = null;
+            Date end = null;
             if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name())) {
-                start=jsonQueryFilter.getProperty(FilterOption.finishIntervalFrom.name(), DATE_ADAPTER);
+                start = jsonQueryFilter.getProperty(FilterOption.finishIntervalFrom.name(), DATE_ADAPTER);
             }
             if (filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
-                end=jsonQueryFilter.getProperty(FilterOption.finishIntervalTo.name(), DATE_ADAPTER);
+                end = jsonQueryFilter.getProperty(FilterOption.finishIntervalTo.name(), DATE_ADAPTER);
             }
-            filter.lastSessionEnd=new Interval(start, end);
+            filter.lastSessionEnd = new Interval(start, end);
         }
 
         return filter;
@@ -147,7 +146,7 @@ public class CommunicationResource {
         List<H> selectedObjects = new ArrayList<>(ids.size());
         for (H object : objects) {
             for (Long id : ids) {
-                if (object.getId()==id) {
+                if (object.getId() == id) {
                     selectedObjects.add(object);
                 }
             }
