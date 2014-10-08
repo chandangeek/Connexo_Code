@@ -23,9 +23,6 @@ public interface ReadingStorer {
     void addReading(Channel channel, BaseReading reading, ProcessStatus status);
 
     Map<Channel, Interval> getScope();
-<<<<<<< Upstream, based on origin/master
-
-=======
     
     /*
      * 
@@ -36,6 +33,6 @@ public interface ReadingStorer {
      * so the implementation may return true for an instant without a corresponding addReading(channel, reading) call
      * 
      */
->>>>>>> 12ed53c reading quality
+
     boolean processed(Channel channel, Instant instant);
 }
