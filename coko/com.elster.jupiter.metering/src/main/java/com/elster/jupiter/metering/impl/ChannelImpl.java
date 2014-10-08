@@ -318,9 +318,13 @@ public final class ChannelImpl implements ChannelContract {
         return where("channelId").isEqualTo(getId());
     }
 
+    private Condition ofType(ReadingQualityType type) {
+    	return where("typeCode").isEqualTo(type.getCode());
+    }
+    
     @Override
     public Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Date timestamp) {
-        Condition condition = ofThisChannel().and(withTimestamp(timestamp));
+        Condition condition = ofThisChannel().and(withTimestamp(timestamp)).and(ofType(type));
         List<ReadingQualityRecord> list = dataModel.mapper(ReadingQualityRecord.class).select(condition);
         return FluentIterable.from(list).first();
     }
@@ -331,7 +335,7 @@ public final class ChannelImpl implements ChannelContract {
 
     @Override
     public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Interval interval) {
-        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(interval.toClosedRange())).and(where("typeCode").isEqualTo(type.getCode()));
+        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(interval.toClosedRange())).and(ofType(type));
         return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, Order.ascending("readingTimestamp"));
     }
 
@@ -414,10 +418,10 @@ public final class ChannelImpl implements ChannelContract {
         	if (oldReading.isPresent()) {
         		processStatus = processStatus.or(oldReading.get().getProcesStatus());
         		if (!hasEditQuality) {
-        			this.createReadingQuality(editQualityType, reading.getTimeStamp());
+        			this.createReadingQuality(editQualityType, reading.getTimeStamp()).save();
         		}
         	} else if (!hasEditQuality) {
-        		this.createReadingQuality(addQualityType, reading.getTimeStamp());
+        		this.createReadingQuality(addQualityType, reading.getTimeStamp()).save();
         	}
         	currentQualityRecords.stream()
         		.filter(qualityRecord -> qualityRecord.isSuspect())
