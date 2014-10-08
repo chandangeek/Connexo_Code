@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.rest.resource;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.device.MeterShortInfo;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -15,7 +16,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/meters")
@@ -41,9 +42,9 @@ public class MeterResource extends BaseResource {
 
             Query<Meter> meterQuery = getMeteringService().getMeterQuery();
             List<Meter> listMeters = meterQuery.select(condition, params.getFrom(), params.getTo(), Order.ascending("mRID"));
-            return ok(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
+            return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
         }
-        return ok("").build();
+        return entity("").build();
     }
 
     /**
@@ -56,11 +57,12 @@ public class MeterResource extends BaseResource {
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_ISSUE)
-    public Response getMeter(@PathParam(ID) long id){
-        Optional<Meter> meterRef = getMeteringService().findMeter(id);
-        if(!meterRef.isPresent()){
+    public Response getMeter(@PathParam(ID) String mrid){
+        Query<Meter> meterQuery = getMeteringService().getMeterQuery();
+        List<Meter> meters = meterQuery.select(where("mRID").isEqualTo(mrid));
+        if(meters == null || meters.isEmpty()){
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return ok(new MeterShortInfo(meterRef.get())).build();
+        return entity(new MeterShortInfo(meters.get(0))).build();
     }
 }

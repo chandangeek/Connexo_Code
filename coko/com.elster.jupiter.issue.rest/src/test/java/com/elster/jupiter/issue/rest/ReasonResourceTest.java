@@ -46,8 +46,8 @@ public class ReasonResourceTest extends Mocks {
     public void testGetReasons(){
         IssueType issueType = getDefaultIssueType();
         List<IssueReason> reasons = new ArrayList<>();
-        reasons.add(mockReason(1, "Name 1", issueType));
-        reasons.add(mockReason(2, "Name 2", issueType));
+        reasons.add(mockReason("1", "Name 1", issueType));
+        reasons.add(mockReason("2", "Name 2", issueType));
 
         Query<IssueReason> query = mock(Query.class);
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(reasons);
@@ -66,18 +66,18 @@ public class ReasonResourceTest extends Mocks {
 
     @Test
     public void testGetUnexistingReason(){
-        when(issueService.findReason(9999)).thenReturn(Optional.<IssueReason>absent());
+        when(issueService.findReason("not-exsist")).thenReturn(Optional.<IssueReason>absent());
 
-        Response response = target("/reasons/9999").request().get();
+        Response response = target("/reasons/not-exsist").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void testGetReason(){
         IssueReason reason = getDefaultReason();
-        when(issueService.findReason(1)).thenReturn(Optional.of(reason));
+        when(issueService.findReason("reason")).thenReturn(Optional.of(reason));
 
-        Map<String, Object> map = target("/reasons/1").request().get(Map.class);
-        assertThat(((Map)map.get("data")).get("id")).isEqualTo(1);
+        Map<String, Object> map = target("/reasons/reason").request().get(Map.class);
+        assertThat(((Map)map.get("data")).get("id")).isEqualTo("1");
     }
 }

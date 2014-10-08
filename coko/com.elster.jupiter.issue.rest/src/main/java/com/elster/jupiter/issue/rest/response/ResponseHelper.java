@@ -9,19 +9,19 @@ import java.util.logging.Logger;
 
 public abstract class ResponseHelper extends javax.ws.rs.core.Response {
 
-    public static ResponseBuilder ok(Object entity) {
+    public static ResponseBuilder entity(Object entity) {
         ResponseBuilder b = ok();
         b.entity(new SingleResponse<Object>(entity));
         return b;
     }
 
-    public static <T> ResponseBuilder ok(List<? extends Object> data, Class<T> entityWrapper) {
+    public static <T> ResponseBuilder entity(List<? extends Object> data, Class<T> entityWrapper) {
         ResponseBuilder b = ok();
         b.entity(new ListResponse<T>(data, entityWrapper));
         return b;
     }
 
-    public static <T> ResponseBuilder ok(List<? extends Object> data, Class<T> entityWrapper, long start, long limit) {
+    public static <T> ResponseBuilder entity(List<? extends Object> data, Class<T> entityWrapper, long start, long limit) {
         ResponseBuilder b = ok();
         b.entity(new ListResponse<T>(data, entityWrapper, start, limit));
         return b;

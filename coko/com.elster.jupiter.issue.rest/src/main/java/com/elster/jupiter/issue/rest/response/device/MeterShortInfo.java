@@ -1,23 +1,15 @@
 package com.elster.jupiter.issue.rest.response.device;
 
-import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.EndDevice;
 
 public class MeterShortInfo {
-    private long id;
-    private String name;
+    public long id;
+    public String name;
 
-    public MeterShortInfo(Meter meter) {
+    public MeterShortInfo(EndDevice meter) {
         if (meter != null) {
             this.id = meter.getId();
             this.name = meter.getMRID();
         }
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public long getId() {
-        return id;
     }
 }

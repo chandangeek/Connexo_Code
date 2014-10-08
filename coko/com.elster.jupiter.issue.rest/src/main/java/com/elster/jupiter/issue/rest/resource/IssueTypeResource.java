@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 
 @Path("/issuetypes")
 public class IssueTypeResource extends BaseResource {
@@ -29,6 +29,6 @@ public class IssueTypeResource extends BaseResource {
     @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getIssueTypes(){
         List<IssueType> issueTypes = getIssueService().query(IssueType.class).select(Condition.TRUE);
-        return ok(issueTypes, IssueTypeInfo.class).build();
+        return entity(issueTypes, IssueTypeInfo.class).build();
     }
 }

@@ -69,7 +69,7 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
 
     private void updateRuleContent(CreationRule rule){
         rule.updateContent();
-        rule.update();
+        rule.save();
     }
 
     protected void saveChanges(CreationRule rule){
@@ -148,7 +148,7 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
     }
 
     private IssueReason getIssueReason() {
-        IssueReason issueReason = issueService.findReason(request.getReason().getId()).orNull();
+        IssueReason issueReason = issueService.findReason(request.getReason().id).orNull();
         if (issueReason == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }

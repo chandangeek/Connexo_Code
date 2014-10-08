@@ -41,7 +41,7 @@ public class AssignIssueTransaction  implements Transaction<ActionInfo> {
                 } else {
                     issue.assignTo(request.getAssignee().getType(), request.getAssignee().getId());
                     issue.addComment(request.getComment(), author);
-                    issue.update();
+                    issue.save();
                     response.addSuccess(issueRef.getId());
                 }
             }

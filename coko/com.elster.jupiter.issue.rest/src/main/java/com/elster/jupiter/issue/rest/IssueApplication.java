@@ -2,40 +2,24 @@ package com.elster.jupiter.issue.rest;
 
 
 import com.elster.jupiter.issue.rest.i18n.TranslationInstaller;
-import com.elster.jupiter.issue.rest.resource.ActionResource;
-import com.elster.jupiter.issue.rest.resource.AssigneeResource;
-import com.elster.jupiter.issue.rest.resource.CreationRuleResource;
-import com.elster.jupiter.issue.rest.resource.HelpResource;
-import com.elster.jupiter.issue.rest.resource.IssueResource;
-import com.elster.jupiter.issue.rest.resource.IssueTypeResource;
-import com.elster.jupiter.issue.rest.resource.MeterResource;
-import com.elster.jupiter.issue.rest.resource.ReasonResource;
-import com.elster.jupiter.issue.rest.resource.RuleResource;
-import com.elster.jupiter.issue.rest.resource.StatusResource;
+import com.elster.jupiter.issue.rest.resource.*;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptionMapper;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueHelpService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.BinderProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
@@ -54,7 +38,6 @@ public class IssueApplication extends Application implements BinderProvider, Ins
     private volatile IssueCreationService issueCreationService;
     private volatile IssueActionService issueActionService;
     private volatile IssueAssignmentService issueAssignmentService;
-    private volatile IssueHelpService issueHelpService;
     private volatile MeteringService meteringService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -65,7 +48,6 @@ public class IssueApplication extends Application implements BinderProvider, Ins
             @Override
             protected void configure() {
                 bind(issueService).to(IssueService.class);
-                bind(issueHelpService).to(IssueHelpService.class);
                 bind(issueAssignmentService).to(IssueAssignmentService.class);
                 bind(issueCreationService).to(IssueCreationService.class);
                 bind(issueActionService).to(IssueActionService.class);
@@ -83,10 +65,8 @@ public class IssueApplication extends Application implements BinderProvider, Ins
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
-                IssueResource.class,
                 AssigneeResource.class,
                 RuleResource.class,
-                HelpResource.class,
                 ReasonResource.class,
                 StatusResource.class,
                 CreationRuleResource.class,
@@ -98,19 +78,10 @@ public class IssueApplication extends Application implements BinderProvider, Ins
                 CreationRuleValidationExceptionMapper.class);
     }
 
-    @Activate
-    public void activate() {
-    }
-
-    @Deactivate
-    public void deactivate() {
-    }
-
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
-
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
@@ -141,10 +112,6 @@ public class IssueApplication extends Application implements BinderProvider, Ins
         this.issueActionService = issueActionService;
     }
 
-    @Reference
-    public void setIssueHelpService(IssueHelpService issueHelpService) {
-        this.issueHelpService = issueHelpService;
-    }
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {

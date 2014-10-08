@@ -19,7 +19,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 
 @Path("/creationrules")
 public class CreationRuleResource extends BaseResource {
@@ -38,7 +38,7 @@ public class CreationRuleResource extends BaseResource {
 
         Query<CreationRule> query = getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
         List<CreationRule> rules = query.select(Condition.TRUE, params.getFrom(), params.getTo());
-        return ok(rules, CreationRuleInfo.class, params.getStart(), params.getLimit()).build();
+        return entity(rules, CreationRuleInfo.class, params.getStart(), params.getLimit()).build();
     }
 
     /**
@@ -56,7 +56,7 @@ public class CreationRuleResource extends BaseResource {
         if (!rule.isPresent()){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return ok(new CreationRuleInfo(rule.get())).build();
+        return entity(new CreationRuleInfo(rule.get())).build();
     }
 
     @DELETE

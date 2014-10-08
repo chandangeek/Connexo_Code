@@ -23,7 +23,7 @@ import java.util.List;
 import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
 import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/assignees")
@@ -77,12 +77,12 @@ public class AssigneeResource extends BaseResource {
             //Takes care of Unassigned issues which would have userId of "-1"
             if (id < 0){
                 String unassignedText = getString(ISSUE_ASSIGNEE_UNASSIGNED, getThesaurus());
-                return ok(new IssueAssigneeInfo("UnexistingType", -1L, unassignedText)).build();
+                return entity(new IssueAssigneeInfo("UnexistingType", -1L, unassignedText)).build();
             }
             //Not unassigned, so this user really doesn't exist
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return ok(new IssueAssigneeInfo(assignee)).build();
+        return entity(new IssueAssigneeInfo(assignee)).build();
     }
 
     /**
@@ -98,7 +98,7 @@ public class AssigneeResource extends BaseResource {
     public Response getGroups() {
         Query<AssigneeTeam> query = getIssueService().query(AssigneeTeam.class);
         List<AssigneeTeam> list = query.select(Condition.TRUE);
-        return ok(list, IssueAssigneeInfo.class).build();
+        return entity(list, IssueAssigneeInfo.class).build();
     }
 
     /**
@@ -114,7 +114,7 @@ public class AssigneeResource extends BaseResource {
     public Response getTeams() {
         Query<AssigneeRole> query = getIssueService().query(AssigneeRole.class);
         List<AssigneeRole> list = query.select(Condition.TRUE);
-        return ok(list, IssueAssigneeInfo.class).build();
+        return entity(list, IssueAssigneeInfo.class).build();
     }
 
     @GET
@@ -129,7 +129,7 @@ public class AssigneeResource extends BaseResource {
             condition = condition.and(where("authenticationName").likeIgnoreCase(dbSearchText));
         }
         Query<User> query = getUserService().getUserQuery();
-        List<User> list = query.select(condition, Order.ascending("authname"));
+        List<User> list = query.select(condition, Order.ascending("authenticationName"));
         return Response.ok(new AssigneeFilterListInfo(Collections.<AssigneeTeam>emptyList(), Collections.<AssigneeRole>emptyList(), list)).build();
     }
 }

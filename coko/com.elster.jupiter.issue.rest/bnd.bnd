@@ -1,4 +1,3 @@
 -classpath: target/classes 
 -dsannotations: *
-Export-Package: com.elster.jupiter.issue.rest
-Private-Package: com.elster.jupiter.issue.rest.*
+Export-Package: com.elster.jupiter.issue.rest.*

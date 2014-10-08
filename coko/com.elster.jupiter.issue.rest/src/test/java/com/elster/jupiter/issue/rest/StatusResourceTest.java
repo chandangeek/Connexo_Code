@@ -33,7 +33,7 @@ public class StatusResourceTest extends Mocks{
     public void testGetStatuses(){
         List<IssueStatus> statuses = new ArrayList<>();
         statuses.add(getDefaultStatus());
-        statuses.add(mockStatus(2, "close", true));
+        statuses.add(mockStatus("2", "close", true));
 
         Query<IssueStatus> query = mock(Query.class);
         when(query.select(Condition.TRUE)).thenReturn(statuses);
@@ -48,18 +48,18 @@ public class StatusResourceTest extends Mocks{
 
     @Test
     public void testGetUnexistingStatus(){
-        when(issueService.findStatus(9999)).thenReturn(Optional.<IssueStatus>absent());
+        when(issueService.findStatus("not-exsist")).thenReturn(Optional.<IssueStatus>absent());
 
-        Response response = target("/statuses/9999").request().get();
+        Response response = target("/statuses/not-exsist").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void testGetStatus(){
         IssueStatus status = getDefaultStatus();
-        when(issueService.findStatus(1)).thenReturn(Optional.of(status));
+        when(issueService.findStatus("status")).thenReturn(Optional.of(status));
 
-        Map<String, Object> map = target("/statuses/1").request().get(Map.class);
-        assertThat(((Map)map.get("data")).get("id")).isEqualTo(1);
+        Map<String, Object> map = target("/statuses/status").request().get(Map.class);
+        assertThat(((Map)map.get("data")).get("id")).isEqualTo("1");
     }
 }

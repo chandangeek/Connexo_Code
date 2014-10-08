@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 
 @Path("/rules")
 public class RuleResource extends BaseResource{
@@ -44,7 +44,7 @@ public class RuleResource extends BaseResource{
     @RolesAllowed(Privileges.VIEW_ASSIGNMENT_RULE)
     public Response getAssignmentRules(){
         List<AssignmentRule> assignmentRules = issueAssignmentService.getAssignmentRuleQuery().select(Condition.TRUE);
-        return ok(assignmentRules, AssignmentRuleInfo.class).build();
+        return entity(assignmentRules, AssignmentRuleInfo.class).build();
     }
 
     /**
@@ -68,7 +68,7 @@ public class RuleResource extends BaseResource{
                 filteredTemplates.add(template);
             }
         }
-        return ok(filteredTemplates, CreationRuleTemplateInfo.class).build();
+        return entity(filteredTemplates, CreationRuleTemplateInfo.class).build();
     }
 
     /**
@@ -86,7 +86,7 @@ public class RuleResource extends BaseResource{
         if (!template.isPresent()){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return ok(new CreationRuleTemplateInfo(template.get())).build();
+        return entity(new CreationRuleTemplateInfo(template.get())).build();
     }
 
 
@@ -106,7 +106,7 @@ public class RuleResource extends BaseResource{
                 parameters.add(parameter.getValue(paramValues));
             }
         }
-        return ok(parameters, ParameterInfo.class).build();
+        return entity(parameters, ParameterInfo.class).build();
     }
 
 
@@ -127,6 +127,6 @@ public class RuleResource extends BaseResource{
         if (parameter == null){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return ok(new ParameterInfo(parameter.getValue(paramValues))).build();
+        return entity(new ParameterInfo(parameter.getValue(paramValues))).build();
     }
 }

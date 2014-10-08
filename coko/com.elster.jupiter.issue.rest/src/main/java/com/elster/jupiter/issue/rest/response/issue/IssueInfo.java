@@ -5,10 +5,10 @@ import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.rest.response.IssueStatusInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
-import com.elster.jupiter.issue.share.entity.BaseIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.EndDevice;
 
-public class IssueInfo<T extends DeviceInfo> {
+public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     private long id;
     private IssueReasonInfo reason;
     private IssueStatusInfo status;
@@ -18,15 +18,15 @@ public class IssueInfo<T extends DeviceInfo> {
     private long creationDate;
     private long version;
 
-    public IssueInfo(BaseIssue issue){
+    public IssueInfo(I issue){
         init(issue, DeviceShortInfo.class);
     }
 
-    public IssueInfo(BaseIssue issue, Class<T> deviceType){
+    public IssueInfo(I issue, Class<T> deviceType){
         init(issue, deviceType);
     }
 
-    private final void init(BaseIssue issue, Class<? extends DeviceInfo> deviceType){
+    private final void init(Issue issue, Class<? extends DeviceInfo> deviceType){
         if (issue != null) {
             this.id = issue.getId();
             this.reason = new IssueReasonInfo(issue.getReason());

@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 
 @Path("/statuses")
 public class StatusResource extends BaseResource {
@@ -31,7 +31,7 @@ public class StatusResource extends BaseResource {
     public Response getStatuses() {
         Query<IssueStatus> query = getIssueService().query(IssueStatus.class);
         List<IssueStatus> statuses = query.select(Condition.TRUE);
-        return ok(statuses, IssueStatusInfo.class).build();
+        return entity(statuses, IssueStatusInfo.class).build();
     }
 
     /**
@@ -44,11 +44,11 @@ public class StatusResource extends BaseResource {
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_ISSUE)
-    public Response getStatus(@PathParam(ID) long id){
-        Optional<IssueStatus> statusRef = getIssueService().findStatus(id);
+    public Response getStatus(@PathParam(ID) String key){
+        Optional<IssueStatus> statusRef = getIssueService().findStatus(key);
         if(!statusRef.isPresent()){
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return ok(new IssueStatusInfo(statusRef.get())).build();
+        return entity(new IssueStatusInfo(statusRef.get())).build();
     }
 }

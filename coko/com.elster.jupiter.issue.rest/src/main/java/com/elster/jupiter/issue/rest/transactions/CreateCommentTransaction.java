@@ -25,7 +25,7 @@ public class CreateCommentTransaction implements Transaction<IssueComment> {
 
     @Override
     public IssueComment perform() {
-        Optional<Issue> issueRef = issueService.findIssue(issueId, true);
+        Optional<Issue> issueRef = issueService.findIssue(issueId);
         IssueComment issueComment = null;
         if (issueRef.isPresent()){
             Issue issue = issueRef.get();

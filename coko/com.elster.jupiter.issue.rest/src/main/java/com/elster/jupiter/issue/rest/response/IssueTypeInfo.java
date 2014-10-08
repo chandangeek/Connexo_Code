@@ -5,8 +5,8 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IssueTypeInfo {
-    private String uid;
-    private String name;
+    public String uid;
+    public String name;
 
     public IssueTypeInfo() {}
 
@@ -15,21 +15,5 @@ public class IssueTypeInfo {
             this.uid = type.getUUID();
             this.name = type.getName();
         }
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 }

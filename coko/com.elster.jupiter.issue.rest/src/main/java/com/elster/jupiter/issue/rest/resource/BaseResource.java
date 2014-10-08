@@ -47,20 +47,12 @@ public abstract class BaseResource {
         return issueService;
     }
     @Inject
-    public void setIssueHelpService(IssueHelpService issueHelpService) {
-        this.issueHelpService = issueHelpService;
-    }
-    protected IssueHelpService getIssueHelpService() {
-        return issueHelpService;
-    }
-    @Inject
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
     protected TransactionService getTransactionService() {
         return transactionService;
     }
-
     @Inject
     public void setUserService(UserService userService) {
         this.userService = userService;

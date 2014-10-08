@@ -100,10 +100,8 @@ public class Mocks extends JerseyTest {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(
-                IssueResource.class,
                 AssigneeResource.class,
                 RuleResource.class,
-                HelpResource.class,
                 ReasonResource.class,
                 StatusResource.class,
                 CreationRuleResource.class,
@@ -143,16 +141,16 @@ public class Mocks extends JerseyTest {
         super.configureClient(config);
     }
 
-    protected IssueStatus mockStatus(long id, String name, boolean isFinal){
+    protected IssueStatus mockStatus(String key, String name, boolean isFinal){
         IssueStatus status = mock(IssueStatus.class);
-        when(status.isFinal()).thenReturn(isFinal);
+        when(status.isHistorical()).thenReturn(isFinal);
         when(status.getName()).thenReturn(name);
-        when(status.getId()).thenReturn(id);
+        when(status.getKey()).thenReturn(key);
         return status;
     }
 
     protected IssueStatus getDefaultStatus(){
-        return mockStatus(1, "open", false);
+        return mockStatus("1", "open", false);
     }
 
     protected IssueType mockIssueType(String uuid, String name){
@@ -166,16 +164,16 @@ public class Mocks extends JerseyTest {
         return mockIssueType("datacollection", "Data Collection");
     }
 
-    protected IssueReason mockReason(long id, String name, IssueType issueType){
+    protected IssueReason mockReason(String key, String name, IssueType issueType){
         IssueReason reason = mock(IssueReason.class);
-        when(reason.getId()).thenReturn(id);
+        when(reason.getKey()).thenReturn(key);
         when(reason.getName()).thenReturn(name);
         when(reason.getIssueType()).thenReturn(issueType);
         return reason;
     }
 
     protected IssueReason getDefaultReason(){
-        return mockReason(1, "Reason", getDefaultIssueType());
+        return mockReason("1", "Reason", getDefaultIssueType());
     }
 
     protected Meter mockMeter(long id, String mrid){

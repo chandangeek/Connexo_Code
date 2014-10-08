@@ -13,9 +13,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
-import static com.elster.jupiter.issue.rest.response.ResponseHelper.ok;
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/reasons")
@@ -33,16 +34,14 @@ public class ReasonResource extends BaseResource {
     public Response getReasons(@BeanParam StandardParametersBean params) {
         validateMandatory(params, ISSUE_TYPE);
         IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orNull();
-
-        Condition condition = where("issueType").isEqualTo(issueType);
-        if (params.get(LIKE) != null) {
-            String value = "%" + params.getFirst(LIKE) + "%";
-            condition = condition.and(where("name").likeIgnoreCase(value));
-        }
-
         Query<IssueReason> query = getIssueService().query(IssueReason.class);
+        Condition condition = where("issueType").isEqualTo(issueType);
         List<IssueReason> reasons = query.select(condition);
-        return ok(reasons, IssueReasonInfo.class).build();
+
+        if (params.getFirst(LIKE) != null) {
+            reasons = reasons.stream().filter(reason -> reason.getName().toLowerCase().contains(params.getFirst(LIKE).toLowerCase())).collect(Collectors.toList());
+        }
+        return entity(reasons, IssueReasonInfo.class).build();
     }
 
     /**
@@ -55,11 +54,11 @@ public class ReasonResource extends BaseResource {
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_ISSUE)
-    public Response getReason(@PathParam(ID) long id){
-        Optional<IssueReason> reasonRef = getIssueService().findReason(id);
+    public Response getReason(@PathParam(ID) String key){
+        Optional<IssueReason> reasonRef = getIssueService().findReason(key);
         if(!reasonRef.isPresent()){
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return ok(new IssueReasonInfo(reasonRef.get())).build();
+        return entity(new IssueReasonInfo(reasonRef.get())).build();
     }
 }

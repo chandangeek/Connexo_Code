@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -10,6 +11,7 @@ import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -56,16 +58,20 @@ public class MeterResourceTest extends Mocks {
 
     @Test
     public void testGetMeterUnexisting(){
-        when(meteringService.findMeter(9999)).thenReturn(Optional.<Meter>absent());
-        Response response = target("/meters/9999").request().get();
+        Query<Meter> query = mock(Query.class);
+        when(query.select(Matchers.any(Condition.class))).thenReturn(Collections.emptyList());
+        when(meteringService.getMeterQuery()).thenReturn(query);
+        Response response = target("/meters/mrid").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void testGetMeter(){
         Meter meter = mockMeter(1, "0.0.0.1");
-        when(meteringService.findMeter(1)).thenReturn(Optional.of(meter));
-        Map<String, Object> map = target("/meters/1").request().get(Map.class);
+        Query<Meter> query = mock(Query.class);
+        when(query.select(Matchers.any(Condition.class))).thenReturn(Collections.singletonList(meter));
+        when(meteringService.getMeterQuery()).thenReturn(query);
+        Map<String, Object> map = target("/meters/0.0.0.1").request().get(Map.class);
         assertThat(((Map)map.get("data")).get("id")).isEqualTo(1);
     }
 }

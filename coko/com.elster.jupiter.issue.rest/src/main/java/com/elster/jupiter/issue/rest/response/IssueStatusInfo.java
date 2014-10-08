@@ -3,39 +3,17 @@ package com.elster.jupiter.issue.rest.response;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 
 public class IssueStatusInfo {
-    private long id;
-    private String name;
-    private boolean allowForClosing;
+    public String id;
+    public String name;
+    public boolean allowForClosing;
 
     public IssueStatusInfo(IssueStatus status) {
         if (status != null) {
-            this.id = status.getId();
+            this.id = status.getKey();
             this.name = status.getName();
-            this.allowForClosing = status.isFinal();
+            this.allowForClosing = status.isHistorical();
         }
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isAllowForClosing() {
-        return allowForClosing;
-    }
-
-    public void setAllowForClosing(boolean allowForClosing) {
-        this.allowForClosing = allowForClosing;
-    }
+    public IssueStatusInfo() {}
 }

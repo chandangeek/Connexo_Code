@@ -3,8 +3,8 @@ package com.elster.jupiter.issue.rest.transactions;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
-import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
@@ -32,9 +32,9 @@ public class CloseIssuesTransaction implements Transaction<ActionInfo> {
     public ActionInfo perform() {
         ActionInfo response = new ActionInfo();
         IssueStatus status = issueService.findStatus(request.getStatus()).orNull();
-        if (request.getIssues() != null && status != null && status.isFinal()) {
+        if (request.getIssues() != null && status != null && status.isHistorical()) {
             for (EntityReference issueRef : request.getIssues()) {
-                Issue issue = issueService.findIssue(issueRef.getId()).orNull();
+                OpenIssue issue = issueService.findOpenIssue(issueRef.getId()).orNull();
                 if (issue == null) {
                     response.addFail(getString(ISSUE_DOES_NOT_EXIST, thesaurus), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
                 } else if (issueRef.getVersion() != issue.getVersion()){
