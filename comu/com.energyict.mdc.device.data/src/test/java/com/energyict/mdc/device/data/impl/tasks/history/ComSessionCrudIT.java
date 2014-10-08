@@ -366,8 +366,8 @@ public class ComSessionCrudIT {
 
         ComSession foundSession = found.get();
 
-        assertThat(foundSession.getStartDate()).isEqualTo(startTime);
-        assertThat(foundSession.getStopDate()).isEqualTo(stopTime);
+        assertThat(Date.from(foundSession.getStartDate())).isEqualTo(startTime);
+        assertThat(Date.from(foundSession.getStopDate())).isEqualTo(stopTime);
         assertThat(foundSession.getSuccessIndicator()).isEqualTo(ComSession.SuccessIndicator.Success);
         Assertions.assertThat(EqualById.byId(foundSession.getConnectionTask())).isEqualTo(EqualById.byId(connectionTask));
         Assertions.assertThat(EqualById.byId(foundSession.getComPortPool())).isEqualTo(EqualById.byId(outboundTcpipComPortPool));
