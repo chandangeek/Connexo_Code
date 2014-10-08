@@ -32,6 +32,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         var data = [],
             x = 0,
             y = 0;
+
         store.each(function (rec) {
             Ext.each(rec.data.data, function (item) {
                 var count = item.count,
@@ -51,10 +52,11 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
     loadChart: function (store, xTitle) {
         if (store.getCount() > 0) {
+            store.sort([{property: 'displayValue', direction: 'DESC'}]);
             var me = this,
                 ycat = [],
-                xcat = store.collect('displayValue')
-                ;
+                xcat = store.collect('displayValue');
+
             Ext.each(store.getAt(0).data.data, function (item) {
                 ycat.push(item.displayName);
             });
@@ -101,18 +103,18 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
         if (me.parent == 'connections') {
             var combo = me.getCombo();
-            combo.getStore().on('load', function (store) {
-                if (store.getCount() > 0) {
-                    var val = store.getAt(1);
-                    combo.select(val);
-                }
-            });
             combo.on('change', function (combo, newValue) {
                 store.proxy.extraParams.filter = '[{"property":"breakdown","value": "' + newValue + '"}]';
                 xTitle = combo.getDisplayValue();
                 store.load();
             });
 
+            combo.getStore().on('load', function (store) {
+                if (store.getCount() > 0) {
+                    var val = store.getAt(1);
+                    combo.select(val);
+                }
+            });
         } else if (me.parent == 'communications') {
             store.load();
         }
@@ -133,7 +135,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
     renderChart: function (container) {
         var me = this;
-        var width = container.offsetWidth;
+        var width = container.offsetWidth - 50;
         this.chart = new Highcharts.Chart({
             chart: {
                 type: 'heatmap',
@@ -167,19 +169,13 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 minColor: '#FFFFFF',
                 maxColor: Highcharts.getOptions().colors[0]
             },
-            options: {
-                width: '100%',
-                height: '100%'
-            },
             legend: {
                 align: 'center',
-                margin: 0,
-                symbolPadding: 16,
                 layout: 'horisontal',
                 verticalAlign: 'top',
-                symbolWidth: width - 230,
+                symbolWidth: width - 200,
                 width: width,
-                x: 230
+                x: 200
             },
             tooltip: {
                 formatter: function () {
