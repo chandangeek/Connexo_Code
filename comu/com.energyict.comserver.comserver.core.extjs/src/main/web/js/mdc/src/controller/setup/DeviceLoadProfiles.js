@@ -17,6 +17,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
 
     refs: [
         {
+            ref: 'page',
+            selector: 'deviceLoadProfilesSetup'
+        },
+        {
             ref: 'preview',
             selector: 'deviceLoadProfilesSetup #deviceLoadProfilesPreview'
         }
@@ -71,6 +75,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         loadProfileOfDeviceModel.load(loadProfileId, {
             success: function (rec) {
                 if (!preview.isDestroyed) {
+                    if (!rec.data.validationInfo.validationActive) {
+                        preview.down('#validateNowLoadProfile').hide();
+                        Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].hide();
+                    }
                     preview.down('#deviceLoadProfilesPreviewForm').loadRecord(rec);
                     preview.setLoading(false);
                 }
