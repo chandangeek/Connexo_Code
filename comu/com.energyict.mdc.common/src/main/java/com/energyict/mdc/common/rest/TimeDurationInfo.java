@@ -3,7 +3,7 @@ package com.energyict.mdc.common.rest;
 import com.energyict.mdc.common.TimeDuration;
 
 public class TimeDurationInfo {
-    public int count;
+    public long count;
     public String timeUnit = TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS);
 
     public TimeDurationInfo() {
@@ -18,7 +18,7 @@ public class TimeDurationInfo {
         this.timeUnit=TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode());
     }
 
-    public TimeDurationInfo(int seconds) {
+    public TimeDurationInfo(long seconds) {
         this.count=seconds;
         this.timeUnit=TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS);
     }
