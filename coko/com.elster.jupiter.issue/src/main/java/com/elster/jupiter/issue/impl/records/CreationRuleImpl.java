@@ -209,12 +209,12 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     @Override
     public void delete() {
         Condition condition = where("rule").isEqualTo(this);
-        List<BaseIssue> referencedIssues = issueService.query(BaseIssue.class).select(condition);
+        List<Issue> referencedIssues = issueService.query(Issue.class).select(condition);
         if (referencedIssues.size() == 0){
             super.delete(); // delete from table
         } else {
             this.setObsoleteTime(new UtcInstant(new Date())); // mark obsolete
-            this.update();
+            this.save();
         }
     }
 

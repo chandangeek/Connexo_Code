@@ -71,12 +71,11 @@ public abstract class EntityImpl implements Entity {
 
     @Override
     public void save(){
-        Save.CREATE.save(dataModel, this);
-    }
-
-    @Override
-    public void update(){
-        Save.UPDATE.save(dataModel, this);
+        if (this.createTime == null) {
+            Save.CREATE.save(dataModel, this);
+        } else {
+            Save.UPDATE.save(dataModel, this);
+        }
     }
 
     @Override

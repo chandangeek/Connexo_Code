@@ -10,9 +10,5 @@ public interface IssueType extends Entity {
     long getId();
 
     String getUUID();
-    void setUUID(String uuid);
-
-
     String getName();
-    void setName(String name);
 }

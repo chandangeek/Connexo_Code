@@ -5,10 +5,8 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
-import com.elster.jupiter.issue.share.entity.Entity;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.cep.IssueActionResult;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.orm.DataModel;
@@ -77,10 +75,17 @@ public class IssueActionServiceImpl implements IssueActionService {
 
     @Override
     public IssueActionType createActionType(String factoryId, String className, IssueType issueType) {
-        IssueActionType type = dataModel.getInstance(IssueActionTypeImpl.class);
-        type.setClassName(className);
-        type.setFactoryId(factoryId);
-        type.setIssueType(issueType);
+        IssueActionTypeImpl type = dataModel.getInstance(IssueActionTypeImpl.class);
+        type.init(factoryId, className, issueType);
+        type.save();
+        return type;
+    }
+
+
+    @Override
+    public IssueActionType createActionType(String factoryId, String className, IssueReason issueReason) {
+        IssueActionTypeImpl type = dataModel.getInstance(IssueActionTypeImpl.class);
+        type.init(factoryId, className, issueReason);
         type.save();
         return type;
     }
@@ -92,12 +97,12 @@ public class IssueActionServiceImpl implements IssueActionService {
 
     @Override
     public Query<IssueActionType> getActionTypeQuery() {
-        return query(IssueActionType.class);
+        return query(IssueActionType.class, IssueType.class, IssueReason.class);
     }
 
     @Override
-    public void executeAction(IssueActionType type, Issue issue, Map<String, String> actionParams) {
-        createIssueAction(type.getFactoryId(), type.getClassName()).execute(issue, actionParams);
+    public IssueActionResult executeAction(IssueActionType type, Issue issue, Map<String, String> actionParams) {
+        return createIssueAction(type.getFactoryId(), type.getClassName()).execute(issue, actionParams);
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {

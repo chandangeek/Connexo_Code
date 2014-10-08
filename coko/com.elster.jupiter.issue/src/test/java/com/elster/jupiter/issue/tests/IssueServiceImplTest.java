@@ -1,9 +1,12 @@
 package com.elster.jupiter.issue.tests;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueImpl;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
@@ -20,7 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class IssueServiceImplTest extends BaseTest{
 
-    @Test (expected = UnderlyingSQLFailedException.class)
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "rule", strict = false)
     public void testIssueCreationWithDefault(){
         try (TransactionContext context = getContext()) {
             Issue issue = getDataModel().getInstance(IssueImpl.class);
@@ -30,8 +34,8 @@ public class IssueServiceImplTest extends BaseTest{
 
     @Test
     public void testIssueCreationMinInfo() {
-        Query <Issue> issueQuery = getIssueService().query(Issue.class);
-        List<Issue> issueList = issueQuery.select(Condition.TRUE);
+        Query <OpenIssue> issueQuery = getIssueService().query(OpenIssue.class);
+        List<OpenIssue> issueList = issueQuery.select(Condition.TRUE);
         assertThat(issueList).isEmpty();
         Issue issue = createIssueMinInfo();
         assertThat(issue).isNotNull();
@@ -49,9 +53,9 @@ public class IssueServiceImplTest extends BaseTest{
             context.commit();
         }
         try (TransactionContext context = getContext()) {
-            Issue issue = getDataModel().getInstance(IssueImpl.class);
-            issue.setReason(getIssueService().findReason(1).orNull());
-            issue.setStatus(getIssueService().findStatus(1).orNull());
+            OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
+            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull());
+            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orNull());
             issue.setRule(getSimpleCreationRule());
             issue.assignTo(null);
             issue.assignTo(role);
@@ -59,15 +63,15 @@ public class IssueServiceImplTest extends BaseTest{
         }
         // Check that we save correct assignee for closed issues
         try (TransactionContext context = getContext()) {
-            Issue issue = getDataModel().getInstance(IssueImpl.class);
-            issue.setReason(getIssueService().findReason(1).orNull());
-            issue.setStatus(getIssueService().findStatus(1).orNull());
+            OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
+            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull());
+            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orNull());
             issue.setRule(getSimpleCreationRule());
             issue.assignTo(null);
             issue.assignTo(role);
             issue.save();
-            issue.close(getIssueService().findStatus(2).orNull());
-            Issue closedIssue = getIssueService().findIssue(issue.getId(), true).orNull();
+            issue.close(getIssueService().findStatus(IssueStatus.RESOLVED).orNull());
+            Issue closedIssue = getIssueService().findHistoricalIssue(issue.getId()).orNull();
             assertThat(closedIssue).isNotNull();
             IssueAssignee assignee = closedIssue.getAssignee();
             assertThat(assignee).isNotNull();
@@ -93,49 +97,13 @@ public class IssueServiceImplTest extends BaseTest{
     }
 
     @Test
-    public void testStatusCreation() {
-        String statusName = "not an issue";
-        try (TransactionContext context = getContext()) {
-            IssueStatus status = getIssueService().createStatus(statusName, true);
-            Optional<IssueStatus> statusRef = getIssueService().findStatus(status.getId());
-            assertThat(statusRef.isPresent()).isTrue();
-            assertThat(statusRef.get().getName()).isEqualTo(statusName);
-            assertThat(statusRef.get().isFinal()).isTrue();
-        }
-    }
-
-    @Test
-    public void testIssueTypeCreation() {
-        String typeUUid = "3-14-15-92-65";
-        String typeName = "depressive type";
-        try (TransactionContext context = getContext()) {
-            IssueType type = getIssueService().createIssueType(typeUUid, typeName);
-            Optional<IssueType> typeRef = getIssueService().findIssueType(type.getUUID());
-            assertThat(typeRef.isPresent()).isTrue();
-            assertThat(typeRef.get().getName()).isEqualTo(typeName);
-        }
-    }
-
-    @Test
-    public void testReasonCreation() {
-        String reasonName = "End of days reached";
-        try (TransactionContext context = getContext()) {
-            IssueType type = getIssueService().createIssueType("3-14-15-92-65", "depressive type");
-            IssueReason reason = getIssueService().createReason(reasonName, type);
-            Optional<IssueReason> reasonRef = getIssueService().findReason(reason.getId());
-            assertThat(reasonRef.isPresent()).isTrue();
-            assertThat(reasonRef.get().getName()).isEqualTo(reasonName);
-        }
-    }
-
-    @Test
     public void testCommentCreation() {
         Issue issue = createIssueMinInfo();
         try (TransactionContext context = getContext()) {
             Optional<User> userRef = getUserService().findUser("admin");
             assertThat(userRef).isNotEqualTo(Optional.absent());
             issue.addComment("comment", userRef.get());
-            issue.update();
+            issue.save();
             context.commit();
         }
         Query <IssueComment> commentQuery = getIssueService().query(IssueComment.class);
@@ -157,23 +125,37 @@ public class IssueServiceImplTest extends BaseTest{
         }
     }
 
-/*    @Test
-    public void testIssueGroupList() {
-        Issue issueId = createIssueMinInfo();
+    @Test
+    public void testIssueApiQuery(){
+        deactivateEnvironment();
+        setEnvironment();
+        createIssueMinInfo();
+        OpenIssue issue = createIssueMinInfo();
         try (TransactionContext context = getContext()) {
-            GroupQueryBuilder builder = new GroupQueryBuilder();
-            builder.setId(1) // Reason id
-                    .setFrom(0) // Pagination
-                    .setTo(10)
-                    .setSourceClass(Issue.class) // Issues, Historical Issues or Both
-                    .setGroupColumn("reason") // Main grouping column
-                    .setIssueType(getIssueService().findReason(1).get().getIssueType().getUUID()) // Reasons only with specific issue type
-                    .setStatuses(null) // All selected statuses
-                    .setAssigneeType(null) // User, Group ot Role type of assignee
-                    .setAssigneeId(0) // Id of selected assignee
-                    .setMeterId(0); // Filter by meter MRID
-            List<GroupByReasonEntity> resultList = getIssueService().getIssueGroupList(builder);
+            issue.close(getIssueService().findStatus(IssueStatus.RESOLVED).get());
+            context.commit();
+        }
+        // So fo now we have one open issue and one closed
+        int size = getIssueService().query(OpenIssue.class).select(Condition.TRUE).size();
+        assertThat(size).isEqualTo(1);
+        size = getIssueService().query(HistoricalIssue.class).select(Condition.TRUE).size();
+        assertThat(size).isEqualTo(1);
+        size = getIssueService().query(Issue.class).select(Condition.TRUE).size();
+        assertThat(size).isEqualTo(2);
+    }
+
+    public void testIssueGroupList() {
+        createIssueMinInfo();
+        createIssueMinInfo();
+        try (TransactionContext context = getContext()) {
+            IssueGroupFilter builder = new IssueGroupFilter();
+            builder.using(Issue.class)
+                    .onlyGroupWithKey(ISSUE_DEFAULT_REASON)
+                    .withIssueType(ISSUE_DEFAULT_TYPE_UUID)
+                    .groupBy("reason")
+                    .from(0).to(10);
+            List<IssueGroup> resultList = getIssueService().getIssueGroupList(builder);
             assertThat(resultList).isNotEmpty();
         }
-    }*/
+    }
 }

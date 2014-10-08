@@ -1,7 +1,7 @@
 package com.elster.jupiter.issue.impl.records.assignee;
 
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
-import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeTypes;
+import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
 import com.elster.jupiter.users.User;
 
 public class AssigneeUserImpl extends IssueAssigneeImpl {
@@ -9,7 +9,7 @@ public class AssigneeUserImpl extends IssueAssigneeImpl {
     private User user;
 
     public AssigneeUserImpl(User user) {
-        super(null, AssigneeTypes.USER);
+        super(null, AssigneeType.USER);
         this.user = user;
     }
 

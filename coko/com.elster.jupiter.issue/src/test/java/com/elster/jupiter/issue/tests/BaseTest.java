@@ -1,21 +1,20 @@
 package com.elster.jupiter.issue.tests;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
-import com.elster.jupiter.issue.impl.records.IssueImpl;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.InstallServiceImpl;
 import com.elster.jupiter.issue.impl.service.IssueMappingServiceImpl;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.*;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -35,12 +34,15 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBase;
@@ -53,13 +55,46 @@ import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.util.logging.Level;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Ignore("Base functionality for all tests")
 public class BaseTest {
+    public static final String ISSUE_DEFAULT_TYPE_UUID = "datacollection";
+    public static final String ISSUE_DEFAULT_REASON = "reason.default";
+    public static final MessageSeed MESSAGE_SEED_DEFAULT_TRANSLATION = new MessageSeed() {
+        @Override
+        public String getModule() {
+            return IssueService.COMPONENT_NAME;
+        }
+        @Override
+        public int getNumber() {
+            return 0;
+        }
+        @Override
+        public String getKey() {
+            return "issue.entity.default.translation";
+        }
+        @Override
+        public String getDefaultFormat() {
+            return "Default entity";
+        }
+        @Override
+        public Level getLevel() {
+            return Level.INFO;
+        }
+    };
+
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
+
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -105,8 +140,8 @@ public class BaseTest {
             injector.getInstance(InstallServiceImpl.class);
             // In OSGI container issue types will be set by separate bundle
             IssueService issueService = injector.getInstance(IssueService.class);
-            IssueType type = issueService.createIssueType("datacollection", "Data Collection");
-            issueService.createReason("reason", type);
+            IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
+            issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();
         }
     }
@@ -153,7 +188,7 @@ public class BaseTest {
         rule.setName("Simple Rule");
         rule.setComment("Comment for rule");
         rule.setContent("Empty content");
-        rule.setReason(getIssueService().findReason(1L).orNull());
+        rule.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull());
         rule.setDueInValue(15L);
         rule.setDueInType(DueInType.DAY);
         rule.setTemplateUuid("Parent template uuid");
@@ -161,11 +196,11 @@ public class BaseTest {
         return rule;
     }
 
-    protected Issue createIssueMinInfo() {
+    protected OpenIssue createIssueMinInfo() {
         try (TransactionContext context = getContext()) {
-            Issue issue = getDataModel().getInstance(IssueImpl.class);
-            issue.setReason(getIssueService().findReason(1).orNull());
-            issue.setStatus(getIssueService().findStatus(1).orNull());
+            OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
+            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull());
+            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orNull());
             issue.setRule(getSimpleCreationRule());
             issue.save();
             context.commit();
@@ -208,7 +243,7 @@ public class BaseTest {
 
     protected IssueEvent getMockIssueEvent() {
         IssueEvent event = mock(IssueEvent.class);
-        when(event.getStatus()).thenReturn(getIssueService().findStatus(1).get());
+        when(event.getStatus()).thenReturn(getIssueService().findStatus(IssueStatus.OPEN).get());
         return event;
     }
 

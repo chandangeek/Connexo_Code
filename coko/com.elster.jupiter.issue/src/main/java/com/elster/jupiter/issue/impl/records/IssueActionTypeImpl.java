@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.impl.records;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.orm.DataModel;
@@ -24,6 +25,7 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
     private String factoryId;
 
     private Reference<IssueType> issueType = ValueReference.absent();
+    private Reference<IssueReason> issueReason = ValueReference.absent();
 
     private IssueActionService issueActionService;
     
@@ -33,24 +35,28 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
         this.issueActionService = issueActionService;
     }
 
+    public void init(String factoryId, String actionTypeClass, IssueReason issueReason){
+        IssueType type = null;
+        if (issueReason != null){
+            type = issueReason.getIssueType();
+        }
+        this.init(factoryId, actionTypeClass, issueReason, type);
+    }
+
+    public void init(String factoryId, String actionTypeClass, IssueType issueType){
+        this.init(factoryId, actionTypeClass, null, issueType);
+    }
+
+    private void init(String factoryId, String actionTypeClass, IssueReason issueReason, IssueType issueType){
+        this.factoryId = factoryId;
+        this.className = actionTypeClass;
+        this.issueReason.set(issueReason);
+        this.issueType.set(issueType);
+    }
+
     @Override
     public String getClassName() {
         return className;
-    }
-
-    @Override
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    @Override
-    public IssueType getIssueType() {
-        return issueType.orNull();
-    }
-
-    @Override
-    public void setIssueType(IssueType type) {
-        issueType.set(type);
     }
 
     @Override
@@ -59,10 +65,15 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
     }
 
     @Override
-    public void setFactoryId(String factoryId) {
-        this.factoryId = factoryId;
+    public IssueType getIssueType() {
+        return issueType.orNull();
     }
-    
+
+    @Override
+    public IssueReason getIssueReason() {
+        return issueReason.orNull();
+    }
+
     @Override
     public IssueAction createIssueAction() {
         return issueActionService.createIssueAction(factoryId, className);

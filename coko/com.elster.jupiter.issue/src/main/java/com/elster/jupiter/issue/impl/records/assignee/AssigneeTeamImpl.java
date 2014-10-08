@@ -2,7 +2,7 @@ package com.elster.jupiter.issue.impl.records.assignee;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
-import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeTypes;
+import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
 import com.elster.jupiter.issue.share.entity.AssigneeTeam;
 import com.elster.jupiter.orm.DataModel;
 
@@ -17,7 +17,7 @@ public class AssigneeTeamImpl extends IssueAssigneeImpl implements AssigneeTeam{
 
     @Inject
     public AssigneeTeamImpl(DataModel dataModel) {
-        super(dataModel, AssigneeTypes.GROUP);
+        super(dataModel, AssigneeType.GROUP);
     }
 
     @Override

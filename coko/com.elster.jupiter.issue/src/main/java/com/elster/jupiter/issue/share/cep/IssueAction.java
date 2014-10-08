@@ -8,13 +8,10 @@ import java.util.Map;
 
 public interface IssueAction {
 
-    public void execute(Issue issue, Map<String, String> actionParameters);
-    
+    public IssueActionResult execute(Issue issue, Map<String, String> actionParameters);
+    public <T extends Issue> boolean isApplicable(T issue);
     public Map<String, ParameterDefinition> getParameterDefinitions();
-    
     public String getLocalizedName();
-
     public List<ParameterViolation> validate(Map<String, String> actionParameters);
-
     public List<ParameterViolation> validate(CreationRuleAction action);
 }

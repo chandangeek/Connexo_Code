@@ -2,7 +2,7 @@ package com.elster.jupiter.issue.impl.records.assignee;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
-import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeTypes;
+import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
 import com.elster.jupiter.issue.share.entity.AssigneeRole;
 import com.elster.jupiter.orm.DataModel;
 
@@ -15,13 +15,14 @@ public class AssigneeRoleImpl extends IssueAssigneeImpl implements AssigneeRole 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
+
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 256, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_256 + "}")
     private String description;
 
     @Inject
     public AssigneeRoleImpl(DataModel dataModel) {
-        super(dataModel, AssigneeTypes.ROLE);
+        super(dataModel, AssigneeType.ROLE);
     }
 
     @Override

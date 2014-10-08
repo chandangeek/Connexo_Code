@@ -15,10 +15,14 @@ public abstract class AbstractIssueAction implements IssueAction {
         return parameterDefinitions;
     }
 
+    protected Map<String, ParameterDefinition> getParameterDefinitionsForValidation() {
+        return getParameterDefinitions();
+    }
+
     @Override
     public List<ParameterViolation> validate(Map<String, String> actionParameters) {
         List<ParameterViolation> errors = new ArrayList<>();
-        for (ParameterDefinition definition : parameterDefinitions.values()) {
+        for (ParameterDefinition definition : getParameterDefinitionsForValidation().values()) {
             errors.addAll(definition.validate(actionParameters.get(definition.getKey()), ParameterDefinitionContext.ACTION));
         }
         return errors;
@@ -36,7 +40,7 @@ public abstract class AbstractIssueAction implements IssueAction {
             throw new IllegalArgumentException("action is missing");
         }
 
-        Map<String, ParameterDefinition> parameterDefinitionsCopy = new HashMap<>(parameterDefinitions);
+        Map<String, ParameterDefinition> parameterDefinitionsCopy = new HashMap<>(getParameterDefinitionsForValidation());
         for (ActionParameter parameter : action.getParameters()) {
             ParameterDefinition definition = parameterDefinitionsCopy.remove(parameter.getKey());
             if (definition != null) {

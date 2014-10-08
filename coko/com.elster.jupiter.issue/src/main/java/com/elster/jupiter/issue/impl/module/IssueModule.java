@@ -27,6 +27,7 @@ public class IssueModule extends AbstractModule {
         requireBinding(UserService.class);
         requireBinding(MeteringService.class);
         requireBinding(MessageService.class);
+//        requireBinding(TaskService.class);
 
         bind(IssueMappingService.class).to(IssueMappingServiceImpl.class).in(Scopes.SINGLETON);
         bind(InstallService.class).to(InstallServiceImpl.class).in(Scopes.SINGLETON);

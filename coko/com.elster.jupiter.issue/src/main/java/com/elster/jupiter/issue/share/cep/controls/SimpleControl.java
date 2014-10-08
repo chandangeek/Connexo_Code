@@ -4,6 +4,7 @@ import com.elster.jupiter.issue.share.cep.ParameterControl;
 
 public class SimpleControl implements ParameterControl {
     public static final SimpleControl TEXT_FIELD = new SimpleControl("textfield");
+    public static final SimpleControl TEXT_AREA = new SimpleControl("textArea");
     public static final SimpleControl NUMBER_FIELD = new SimpleControl("numberfield");
 
     private String xtype;

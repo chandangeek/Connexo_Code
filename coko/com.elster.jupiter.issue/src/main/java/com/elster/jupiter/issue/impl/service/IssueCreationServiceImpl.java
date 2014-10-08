@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.module.DroolsValidationException;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
-import com.elster.jupiter.issue.impl.records.IssueImpl;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
@@ -167,7 +167,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     }
 
     @Override
-    public void dispatchCreationEvent(IssueEvent event) {
+    public void dispatchCreationEvent(List<IssueEvent> events) {
         if (canEvaluateRules()) {
             StatefulKnowledgeSession ksession = knowledgeBase.newStatefulKnowledgeSession();
             ksession.addEventListener(new DebugAgendaEventListener());
@@ -178,41 +178,30 @@ public class IssueCreationServiceImpl implements IssueCreationService{
                 LOG.warning("Unable to set the issue creation service as a global for all rules. This means that no " +
                         "issues will be created! Check that at least one rule contais string 'global com.elster.jupiter." +
                         "issue.share.service.IssueCreationService issueCreationService;' and this rule calls " +
-                        "'issueCreationService.processCreationEvent(@{ruleId}, event);' or something like that.");
+                        "'issueCreationService.createIssue(@{ruleId}, event);' or something like that.");
             }
-            ksession.insert(event);
+            events.stream().forEach(event -> ksession.insert(event));
             ksession.fireAllRules();
             ksession.dispose();
         }
     }
 
     @Override
-    public void processCreationEvent(long ruleId, IssueEvent event) {
+    public void processIssueEvent(long ruleId, IssueEvent event) {
         CreationRule firedRule = findCreationRule(ruleId).orNull();
-        if (firedRule != null && validateEvent(event, firedRule)) {
-            createIssue(event, firedRule);
+        CreationRuleTemplate template = firedRule.getTemplate();
+        Issue baseIssue = dataModel.getInstance(OpenIssueImpl.class);
+        baseIssue.setReason(firedRule.getReason());
+        baseIssue.setStatus(event.getStatus());
+        baseIssue.setDueDate(new UtcInstant(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
+        baseIssue.setOverdue(false);
+        baseIssue.setRule(firedRule);
+        baseIssue.setDevice(event.getKoreDevice());
+        Optional<? extends Issue> newIssue = template.createIssue(baseIssue, event);
+        if (newIssue.isPresent()){
+            newIssue.get().autoAssign();
+            executeCreationActions(newIssue.get());
         }
-    }
-
-    private boolean validateEvent(IssueEvent event, CreationRule firedRule) {
-        if (event == null || firedRule == null) {
-            return false;
-        }
-        Query<Issue> query = queryService.wrap(dataModel.query(Issue.class, CreationRule.class));
-        return query.select(where("rule").isEqualTo(firedRule).and(where("device").isEqualTo(event.getDevice()))).isEmpty();
-    }
-
-    private void createIssue(IssueEvent event, CreationRule firedRule) {
-        Issue issue = dataModel.getInstance(IssueImpl.class);
-        issue.setReason(firedRule.getReason());
-        issue.setStatus(event.getStatus());
-        issue.setDueDate(new UtcInstant(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
-        issue.setOverdue(false);
-        issue.setRule(firedRule);
-        issue.setDevice(event.getDevice());
-        issue.save();
-        issue.autoAssign();
-        executeCreationActions(issue);
     }
 
     @Override

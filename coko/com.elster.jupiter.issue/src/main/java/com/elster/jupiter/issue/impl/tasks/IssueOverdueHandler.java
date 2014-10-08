@@ -3,7 +3,7 @@ package com.elster.jupiter.issue.impl.tasks;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -34,23 +34,23 @@ public class IssueOverdueHandler implements TaskExecutor{
     public void execute(TaskOccurrence occurrence) {
         Condition overdueCondition = where("overdue").isEqualTo(false)
                 .and(where("dueDate").isLessThan(System.currentTimeMillis()));
-        Query<Issue> overdueIssuesQuery = issueService.query(Issue.class);
-        List<Issue> overdueIssues = overdueIssuesQuery.select(overdueCondition);
-        for (Issue issue : overdueIssues) {
+        Query<OpenIssue> overdueIssuesQuery = issueService.query(OpenIssue.class);
+        List<OpenIssue> overdueIssues = overdueIssuesQuery.select(overdueCondition);
+        for (OpenIssue issue : overdueIssues) {
             markOverdue(issue);
             doOverdueActions(issue);
             MessageSeeds.ISSUE_OVERDUE_NOTIFICATION.log(LOG, thesaurus, issue.getTitle());
         }
     }
 
-    private void markOverdue(Issue issue){
+    private void markOverdue(OpenIssue issue){
         if (issue != null) {
             issue.setOverdue(true);
-            issue.update();
+            issue.save();
         }
     }
 
-    private void doOverdueActions(Issue issue) {
+    private void doOverdueActions(OpenIssue issue) {
         new IssueActionExecutor(issue, CreationRuleActionPhase.OVERDUE, thesaurus, issueActionService).run();
     }
 }

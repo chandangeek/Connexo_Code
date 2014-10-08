@@ -22,7 +22,7 @@ public class IssueActionServiceImplTest extends BaseTest {
     public void testIssueActionTypes() {
         Query<IssueActionType> actionTypeQuery =  getIssueActionService().getActionTypeQuery();
         List<IssueActionType> actionTypeList = actionTypeQuery.select(Condition.TRUE);
-        assertThat(actionTypeList).isEmpty();
+        assertThat(actionTypeList).isNotEmpty();
 
         IssueActionType type = new IssueActionTypeImpl(getDataModel(), getIssueActionService());
         Optional<IssueType> issueTypeRef = getIssueService().findIssueType("datacollection");

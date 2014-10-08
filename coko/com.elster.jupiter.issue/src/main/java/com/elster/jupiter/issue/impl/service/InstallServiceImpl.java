@@ -1,13 +1,13 @@
 package com.elster.jupiter.issue.impl.service;
 
+import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
+import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueMappingService;
-import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.*;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -43,6 +43,7 @@ public class InstallServiceImpl implements InstallService {
     private volatile MeteringService meteringService;
     private volatile UserService userService;
 
+  
     private volatile TaskService taskService;
 
     private volatile IssueService issueService;
@@ -109,10 +110,12 @@ public class InstallServiceImpl implements InstallService {
 
     @Override
     public final void install() {
-        createPrivileges();
-        assignPrivilegesToDefaultRoles();
-        new Installer(dataModel, thesaurus, issueService, issueCreationService).install(true);
-        createIssueOverdueTask();
+        new Installer(dataModel, thesaurus, issueService).install(true);
+
+        Installer.run(this::createPrivileges, "privileges");
+        Installer.run(this::assignPrivilegesToDefaultRoles, "default roles");
+        Installer.run(this::createIssueOverdueTask, "overdue task");
+        Installer.run(this::createActionTypes, "action types");
     }
 
     @Override
@@ -146,6 +149,12 @@ public class InstallServiceImpl implements InstallService {
         task.save();
     }
 
+    private void createActionTypes(){
+        IssueType type = null;
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, CommentIssueAction.class.getName(), type);
+    }
     @Reference
     public final void setMessageService(MessageService messageService) {
         this.messageService = messageService;

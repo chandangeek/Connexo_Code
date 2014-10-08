@@ -21,7 +21,7 @@ public interface IssueCreationService {
     Optional<CreationRuleTemplate> findCreationRuleTemplate(String uuid);
     List<CreationRuleTemplate> getCreationRuleTemplates();
 
-    void dispatchCreationEvent(IssueEvent event);
-    void processCreationEvent(long ruleId, IssueEvent event);
+    void dispatchCreationEvent(List<IssueEvent> events);
+    void processIssueEvent(long ruleId, IssueEvent event);
     boolean reReadRules();
 }

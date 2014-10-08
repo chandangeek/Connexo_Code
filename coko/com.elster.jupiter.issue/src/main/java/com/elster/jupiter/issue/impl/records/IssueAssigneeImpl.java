@@ -1,14 +1,14 @@
 package com.elster.jupiter.issue.impl.records;
 
-import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeTypes;
+import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.orm.DataModel;
 
 public abstract class IssueAssigneeImpl extends EntityImpl implements IssueAssignee {
 
-    private AssigneeTypes type;
+    private AssigneeType type;
 
-    protected IssueAssigneeImpl(DataModel dataModel, AssigneeTypes type) {
+    protected IssueAssigneeImpl(DataModel dataModel, AssigneeType type) {
         super(dataModel);
         this.type = type;
     }
@@ -18,7 +18,7 @@ public abstract class IssueAssigneeImpl extends EntityImpl implements IssueAssig
         return type.getType();
     }
 
-    public void applyAssigneeToIssue(BaseIssueImpl issue){
+    public void applyAssigneeToIssue(IssueImpl issue){
         type.applyAssigneeToIssue(issue, this);
     }
 }

@@ -16,14 +16,7 @@ public class CreateIssueViewOperation {
 
     private final DataModel dataModel;
 
-    public static CreateIssueViewOperation init(DataModel dataModel) {
-        if (dataModel == null){
-            throw new IllegalArgumentException("[ CreateIssueViewOperation ] Data model can't be null");
-        }
-        return new CreateIssueViewOperation(dataModel);
-    }
-
-    protected CreateIssueViewOperation(DataModel dataModel){
+    public CreateIssueViewOperation(DataModel dataModel){
         this.dataModel = dataModel;
     }
 
@@ -38,14 +31,14 @@ public class CreateIssueViewOperation {
 
     protected SqlBuilder buildCreateSQL(){
         SqlBuilder builder = new SqlBuilder();
-        builder.append("CREATE OR REPLACE VIEW " + DatabaseConst.ALL_ISSUES_VIEW_NAME + " AS ");
-        builder.append("select * from " + TableSpecs.ISU_ISSUE.name() + " union select * from " + TableSpecs.ISU_ISSUEHISTORY.name());
+        builder.append("CREATE OR REPLACE VIEW " + TableSpecs.ISU_ISSUE_ALL + " AS ");
+        builder.append("select * from " + TableSpecs.ISU_ISSUE_OPEN.name() + " union select * from " + TableSpecs.ISU_ISSUE_HISTORY.name());
         return builder;
     }
 
     protected PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException{
         if (connection == null){
-            throw new IllegalArgumentException("[ CreateIssueViewOperation ] Connection can't be null");
+            throw new IllegalArgumentException("Connection can't be null");
         }
         return sql.prepare(connection);
     }
