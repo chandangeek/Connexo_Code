@@ -87,7 +87,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private ReadingQualityRecord readingQuality;
+    private ReadingQualityRecord readingQuality, readingQuality1;
     @Mock
     private ReadingRecord readingRecord;
     @Mock
@@ -309,6 +309,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(validator.validate(intervalReadingRecord)).thenReturn(ValidationResult.SUSPECT);
 
         when(channel.createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord)).thenReturn(readingQuality);
+        when(channel.createReadingQuality(new ReadingQualityType("3.5.258"), intervalReadingRecord)).thenReturn(readingQuality1);
         when(channel.isRegular()).thenReturn(true);
         validationRule.addReadingType(readingType1);
         validationRule.addReadingType(readingType2);
@@ -320,7 +321,9 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         verify(validator).init(channel, readingType2, INTERVAL);
         verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord);
+        verify(channel).createReadingQuality(new ReadingQualityType("3.5.258"), intervalReadingRecord);
         verify(readingQuality).save();
+        verify(readingQuality1).save();
         verify(intervalReadingRecord).setProcessingFlags(ProcessStatus.Flag.SUSPECT);
         verify(validator).finish();
     }
@@ -336,6 +339,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(readingRecord.getTimeStamp()).thenReturn(DATE1);
         when(validator.validate(readingRecord)).thenReturn(ValidationResult.SUSPECT);
         when(channel.createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord)).thenReturn(readingQuality);
+        when(channel.createReadingQuality(new ReadingQualityType("3.5.258"), readingRecord)).thenReturn(readingQuality1);
         validationRule.addReadingType(readingType1);
         validationRule.addReadingType(readingType2);
         validationRule.activate();
@@ -347,6 +351,8 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         verify(validator).init(channel, readingType2, INTERVAL);
         verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
         verify(readingQuality).save();
+        verify(channel).createReadingQuality(new ReadingQualityType("3.5.258"), readingRecord);
+        verify(readingQuality1).save();
         verify(readingRecord).setProcessingFlags(ProcessStatus.Flag.SUSPECT);
         verify(validator).finish();
     }
@@ -358,6 +364,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE1);
         when(validator.validate(intervalReadingRecord)).thenReturn(ValidationResult.SUSPECT);
         when(channel.createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord)).thenReturn(readingQuality);
+        when(channel.createReadingQuality(new ReadingQualityType("3.5.258"), intervalReadingRecord)).thenReturn(readingQuality1);
         when(channel.isRegular()).thenReturn(true);
         validationRule.addReadingType(readingType1);
         validationRule.addReadingType(readingType2);
@@ -368,6 +375,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         verify(validator, never()).init(channel, readingType2, INTERVAL);
         verify(channel, never()).createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord);
+        verify(channel, never()).createReadingQuality(new ReadingQualityType("3.5.258"), intervalReadingRecord);
         verify(intervalReadingRecord, never()).setProcessingFlags(any(ProcessStatus.Flag.class));
     }
 
@@ -384,6 +392,8 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(readingRecord.getTimeStamp()).thenReturn(DATE1);
         when(validator.validate(readingRecord)).thenReturn(ValidationResult.SUSPECT);
         when(channel.createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord)).thenReturn(readingQuality);
+        when(channel.createReadingQuality(new ReadingQualityType("3.5.258"), readingRecord)).thenReturn(readingQuality1);
+        when(readingQuality1.isSuspect()).thenReturn(true);
         validationRule.addReadingType(readingType1);
         validationRule.addReadingType(readingType2);
         validationRule.activate();
@@ -397,6 +407,8 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         // @Todo check with Karel if this is ok.
         verify(channel, times(2)).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
         verify(readingQuality, times(2)).save();
+        verify(channel).createReadingQuality(new ReadingQualityType("3.5.258"), readingRecord);
+        verify(readingQuality1).save();
         verify(readingRecord, times(2)).setProcessingFlags(ProcessStatus.Flag.SUSPECT);
 
         verify(validator, times(2)).finish();

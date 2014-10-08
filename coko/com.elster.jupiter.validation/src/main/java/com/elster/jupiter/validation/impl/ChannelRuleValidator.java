@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -81,14 +83,28 @@ class ChannelRuleValidator {
     private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities,
                                         ReadingQualityType readingQualityType, BaseReadingRecord readingRecord) {
         Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
-        if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
-            ReadingQualityRecord readingQualityRecord = saveNewReadingQuality(channel, readingRecord, readingQualityType);
-            existingReadingQualities.put(readingRecord.getTimeStamp(), readingQualityRecord);
-            readingRecord.setProcessingFlags(ProcessStatus.Flag.SUSPECT);
+        if (ValidationResult.SUSPECT.equals(result)) {
+            if (!existingQualityForType.isPresent()) {
+                ReadingQualityRecord readingQualityRecord = saveNewReadingQuality(channel, readingRecord, readingQualityType);
+                existingReadingQualities.put(readingRecord.getTimeStamp(), readingQualityRecord);
+                readingRecord.setProcessingFlags(ProcessStatus.Flag.SUSPECT);
+            } else if (!existingQualityForType.get().isActual()) {
+                existingQualityForType.get().makeActual();
+            }
+            java.util.Optional<ReadingQualityRecord> suspectQuality = existingReadingQualities.get(readingRecord.getTimeStamp()).stream()
+                    .filter(ReadingQualityRecord::isSuspect)
+                    .findFirst();
+            ReadingQualityRecord suspectQualityRecord = suspectQuality.orElseGet(() -> {
+                ReadingQualityRecord record = saveNewReadingQuality(channel, readingRecord, ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT));
+                existingReadingQualities.put(readingRecord.getTimeStamp(), record);
+                return record;
+            });
+            if (!suspectQualityRecord.isActual()) {
+                suspectQualityRecord.makeActual();
+            }
         }
-        if (ValidationResult.VALID.equals(result) && existingQualityForType.isPresent()) {
-            existingQualityForType.get().delete();
-            existingReadingQualities.remove(readingRecord.getTimeStamp(), existingQualityForType);
+        if (ValidationResult.VALID.equals(result) && existingQualityForType.isPresent() && existingQualityForType.get().isActual()) {
+            existingQualityForType.get().makePast();
         }
         return determineLastChecked(result, lastChecked, readingRecord.getTimeStamp());
     }
