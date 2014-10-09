@@ -7,7 +7,7 @@ import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import java.sql.Date;
+import java.util.Date;
 import java.time.Duration;
 import java.time.temporal.ChronoField;
 import javax.inject.Inject;
