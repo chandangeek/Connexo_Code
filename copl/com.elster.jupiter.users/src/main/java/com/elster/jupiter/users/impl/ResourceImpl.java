@@ -5,9 +5,11 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ResourceImpl implements Resource {
     // persistent fields
@@ -26,11 +28,11 @@ public class ResourceImpl implements Resource {
         this.dataModel = dataModel;
     }
 
-    static ResourceImpl from(DataModel dataModel, String componentName , String name , String description) {
+    static ResourceImpl from(DataModel dataModel, String componentName, String name, String description) {
         return new ResourceImpl(dataModel).init(componentName, name, description);
     }
 
-    ResourceImpl init(String componentName , String name , String description) {
+    ResourceImpl init(String componentName, String name, String description) {
         this.componentName = componentName;
         this.name = name;
         this.description = description;
@@ -54,16 +56,21 @@ public class ResourceImpl implements Resource {
 
     @Override
     public void createPrivilege(String name) {
-        if(privileges == null || !privileges.contains(name)){
+        if (getPrivileges().stream().map(Privilege::getName).noneMatch(s -> Objects.equals(s, name))) {
             PrivilegeImpl result = PrivilegeImpl.from(dataModel, name, this);
             result.persist();
+            doGetPrivileges().add(result);
         }
     }
 
     @Override
     public List<Privilege> getPrivileges() {
+        return Collections.unmodifiableList(doGetPrivileges());
+    }
+
+    private List<Privilege> doGetPrivileges() {
         if (privileges == null) {
-            privileges = dataModel.mapper(Privilege.class).find("resource", this);
+            privileges = new CopyOnWriteArrayList<>(dataModel.mapper(Privilege.class).find("resource", this));
         }
         return privileges;
     }
