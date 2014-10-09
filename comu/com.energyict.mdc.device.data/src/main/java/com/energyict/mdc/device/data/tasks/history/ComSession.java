@@ -76,9 +76,9 @@ public interface ComSession extends HasId, TaskExecutionSummary {
 
     public List<ComTaskExecutionSession> getComTaskExecutionSessions ();
 
-    public Date getStartDate ();
+    public java.time.Instant getStartDate();
 
-    public Date getStopDate ();
+    public java.time.Instant getStopDate();
 
     public boolean endsAfter (ComSession other);
 
@@ -87,7 +87,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      *
      * @return The total number of milli seconds
      */
-    public Duration getTotalDuration();
+    public java.time.Duration getTotalDuration();
 
     /**
      * Gets the number of milli seconds take were necessary to setup the connection.

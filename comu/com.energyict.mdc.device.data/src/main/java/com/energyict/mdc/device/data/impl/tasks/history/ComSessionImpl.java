@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
@@ -17,25 +24,17 @@ import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
-
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-import org.joda.time.Duration;
-
-import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
+import org.joda.time.Duration;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -231,23 +230,23 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
-    public Date getStartDate() {
-        return startDate.toDate();
+    public Instant getStartDate() {
+        return startDate.toInstant();
     }
 
     @Override
-    public Date getStopDate() {
-        return stopDate.toDate();
+    public Instant getStopDate() {
+        return stopDate.toInstant();
     }
 
     @Override
     public boolean endsAfter(ComSession other) {
-        return this.getStopDate().after(other.getStopDate());
+        return this.getStopDate().isAfter(other.getStopDate());
     }
 
     @Override
-    public Duration getTotalDuration() {
-        return Duration.millis(totalMillis);
+    public java.time.Duration getTotalDuration() {
+        return java.time.Duration.ofMillis(totalMillis);
     }
 
     @Override

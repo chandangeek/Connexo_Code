@@ -112,13 +112,13 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     private void appendLastSessionJoinClauseForComTaskExecution() {
         this.append(" join ");
         this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        this.append(" ");
         this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
         this.append(" on ");
         this.append(communicationTaskAliasName());
         this.append(".lastsession = ");
         this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
         this.append(".id");
-        this.appendWhereOrAnd();
     }
 
     private void appendCompletionCodeClause() {

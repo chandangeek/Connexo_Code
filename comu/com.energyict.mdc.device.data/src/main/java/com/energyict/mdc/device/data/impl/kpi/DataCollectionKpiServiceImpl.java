@@ -78,8 +78,6 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
 
         private DataCollectionKpiBuilderImpl(EndDeviceGroup group) {
             this.underConstruction = deviceDataModelService.dataModel().getInstance(DataCollectionKpiImpl.class).initialize(group);
-            this.connectionKpiBuilder = this.underConstruction.connectionKpiBuilder();
-            this.communicationKpiBuilder = this.underConstruction.communicationKpiBuilder();
         }
 
         @Override

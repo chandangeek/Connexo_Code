@@ -1136,7 +1136,7 @@ public class DeviceImpl implements Device {
             }
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                loadProfileReading.setChannelData(mdcChannel, meterReading.getValue());
+                loadProfileReading.setChannelData(mdcChannel, meterReading);
                 loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
