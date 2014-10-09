@@ -121,7 +121,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
                 return getAllProtocolMessagesUserActions().stream().anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
             }
             java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId)).findAny();
-            if(deviceMessageEnablementOptional.isPresent()){
+            if (deviceMessageEnablementOptional.isPresent()) {
                 return deviceMessageEnablementOptional.get().getUserActions().stream().anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
             }
         }
@@ -256,10 +256,14 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     @Override
     public void setSupportsAllProtocolMessagesWithUserActions(boolean supportAllProtocolMessages, DeviceMessageUserAction... deviceMessageUserActions) {
         this.supportsAllProtocolMessages = supportAllProtocolMessages;
-        if(this.supportsAllProtocolMessages){
+        if (this.supportsAllProtocolMessages) {
             this.deviceMessageEnablements.clear();
+            if (deviceMessageUserActions.length > 0) {
+                this.supportsAllProtocolMessagesUserActionsBitVector = toDatabaseValue(EnumSet.copyOf(Arrays.asList(deviceMessageUserActions)));
+            }
+        } else {
+            this.supportsAllProtocolMessagesUserActionsBitVector = 0;
         }
-        this.supportsAllProtocolMessagesUserActionsBitVector = toDatabaseValue(EnumSet.copyOf(Arrays.asList(deviceMessageUserActions)));
     }
 
     @Override
@@ -447,6 +451,12 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         }
 
         @Override
+        public DeviceMessageEnablementBuilder addUserActions(DeviceMessageUserAction... deviceMessageUserActions) {
+            Arrays.asList(deviceMessageUserActions).stream().forEach(this.underConstruction::addDeviceMessageUserAction);
+            return this;
+        }
+
+        @Override
         public DeviceMessageEnablement build() {
             DeviceCommunicationConfigurationImpl.this.addDeviceMessageEnablement(underConstruction);
             return underConstruction;
@@ -456,6 +466,8 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     private void addDeviceMessageEnablement(DeviceMessageEnablement singleDeviceMessageEnablement) {
         Save.CREATE.validate(dataModel, singleDeviceMessageEnablement);
         this.deviceMessageEnablements.add(singleDeviceMessageEnablement);
+        this.setSupportsAllProtocolMessagesWithUserActions(false);
+        this.save();
     }
 
     private class InternalSecurityPropertySetBuilder implements SecurityPropertySetBuilder {

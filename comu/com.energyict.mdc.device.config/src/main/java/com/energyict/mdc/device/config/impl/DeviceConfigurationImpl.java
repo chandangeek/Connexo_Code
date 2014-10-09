@@ -739,6 +739,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void save() {
         this.modificationDate = this.clock.now();
         super.save();
+        if(this.communicationConfiguration != null){
+            getCommunicationConfiguration().save();
+        }
     }
 
     @Override

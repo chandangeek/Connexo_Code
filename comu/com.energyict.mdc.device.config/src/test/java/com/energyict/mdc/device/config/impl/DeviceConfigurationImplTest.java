@@ -32,7 +32,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.google.common.base.Optional;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -46,6 +45,7 @@ import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
 import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
 import static org.mockito.Mockito.when;
@@ -515,7 +515,6 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         assertThat(deviceMessageUserActionRecords).hasSize(0);
     }
 
-    @Ignore
     @Test
     @Transactional
     public void setSupportAllDeviceProtocolMessagesTest() {
@@ -530,6 +529,78 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
         assertThat(configWithSupportAllMessages.isSupportsAllProtocolMessages()).isTrue();
         assertThat(configWithSupportAllMessages.getAllProtocolMessagesUserActions()).containsOnly(deviceMessageUserActions);
+    }
+
+    @Test
+    @Transactional
+    public void settingSupportAllDeviceProtocolMessagesShouldRemoveMessageEnablementsTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("settingSupportAllDeviceProtocolMessagesShouldRemoveMessageEnablementsTest").add();
+        DeviceMessageUserAction[] deviceMessageUserActions = {DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2};
+
+        DeviceConfiguration reloadDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
+        reloadDeviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(true, deviceMessageUserActions);
+        reloadDeviceConfiguration.save();
+
+        DeviceConfiguration configWithSupportAllMessages = reloadDeviceConfiguration(reloadDeviceConfiguration);
+
+        assertThat(configWithSupportAllMessages.getDeviceMessageEnablements()).hasSize(0);
+    }
+
+    @Test
+    @Transactional
+    public void setSupportAllDeviceProtocolMessagesWithOtherUserActionsTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("setSupportAllDeviceProtocolMessagesWithOtherUserActionsTest").add();
+        DeviceMessageUserAction[] firstDeviceMessageUserActions = {DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2};
+        DeviceMessageUserAction[] secondDeviceMessageUserActions = {DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3};
+
+        deviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(true, firstDeviceMessageUserActions);
+        deviceConfiguration.save();
+
+        DeviceConfiguration reloadDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
+        reloadDeviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(true, secondDeviceMessageUserActions);
+        reloadDeviceConfiguration.save();
+
+        DeviceConfiguration configWithLessUserActions = reloadDeviceConfiguration(reloadDeviceConfiguration);
+        assertThat(configWithLessUserActions.getAllProtocolMessagesUserActions()).containsOnly(secondDeviceMessageUserActions);
+    }
+
+    @Test
+    @Transactional
+    public void removeSupportAllDeviceProtocolMessagesRemovesUserActionsTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("removeSupportAllDeviceProtocolMessagesRemovesUserActionsTest").add();
+        DeviceMessageUserAction[] deviceMessageUserActions = {DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2};
+
+        deviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(true, deviceMessageUserActions);
+        deviceConfiguration.save();
+
+        DeviceConfiguration reloadDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
+        reloadDeviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(false);
+        reloadDeviceConfiguration.save();
+
+        DeviceConfiguration configWithNoSupportedMessages = reloadDeviceConfiguration(reloadDeviceConfiguration);
+
+        assertThat(configWithNoSupportedMessages.getAllProtocolMessagesUserActions()).hasSize(0);
+    }
+
+    @Test
+    @Transactional
+    public void addingSpecificDeviceMessageEnablementsRemovesTheAllFlagTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("addingSpecificDeviceMessageEnablementsRemovesTheAllFlagTest").add();
+        DeviceMessageUserAction[] deviceMessageUserActions = {DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2};
+
+        deviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(true, deviceMessageUserActions);
+        deviceConfiguration.save();
+
+        DeviceConfiguration reloadDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
+        DeviceMessageEnablement deviceMessageEnablement = reloadDeviceConfiguration.createDeviceMessageEnablement(DeviceMessageId.CONTACTOR_CLOSE)
+                .addUserActions(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1)
+                .build();
+
+        DeviceConfiguration configWithEnablements = reloadDeviceConfiguration(reloadDeviceConfiguration);
+        assertThat(configWithEnablements.isSupportsAllProtocolMessages()).isFalse();
+        assertThat(configWithEnablements.getAllProtocolMessagesUserActions()).hasSize(0);
+        assertThat(configWithEnablements.getDeviceMessageEnablements()).hasSize(1);
+        assertThat(configWithEnablements.getDeviceMessageEnablements().get(0).getDeviceMessageId()).isEqualTo(deviceMessageEnablement.getDeviceMessageId());
     }
 
     private DeviceConfiguration reloadDeviceConfiguration(DeviceConfiguration deviceConfiguration) {

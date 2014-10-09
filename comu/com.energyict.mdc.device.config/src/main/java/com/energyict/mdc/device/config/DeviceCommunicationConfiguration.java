@@ -119,7 +119,8 @@ public interface DeviceCommunicationConfiguration extends HasId {
     boolean isAuthorized(DeviceMessageId deviceMessageId);
 
     /**
-     * Set whether or not this configuration should allow all protocol messages with the given deviceMessageUserActions
+     * Set whether or not this configuration should allow all protocol messages with the given deviceMessageUserActions.
+     * <b>Note: Setting to true will remove all currently existing DeviceMessageEnablements</b>
      *
      * @param supportAllProtocolMessages indicates whether or not we allow all protocol messages
      * @param deviceMessageUserActions   the userActions for all protocol messages
