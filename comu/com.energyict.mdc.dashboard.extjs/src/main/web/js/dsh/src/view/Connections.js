@@ -22,23 +22,26 @@ Ext.define('Dsh.view.Connections', {
             itemId: 'dshconnectionsfilterpanel'
         },
         {
-            xtype: 'preview-container',
-            grid: {
-                xtype: 'connections-list',
-                itemId: 'connectionsdetails'
-            },
-            emptyComponent: {
-                xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('workspace.dataCommunication.connections.empty.title', 'DSH', 'No connections found'),
-                reasons: [
-                    Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item1', 'DSH', 'No connections in the system.'),
-                    Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item2', 'DSH', 'No connections found due to applied filters.')
-                ]
-            },
-            previewComponent: {
-                xtype: 'preview_connection',
-                itemId: 'connectionpreview',
-                hidden: true
+            xtype: 'panel',
+            items: {
+                xtype: 'preview-container',
+                grid: {
+                    xtype: 'connections-list',
+                    itemId: 'connectionsdetails'
+                },
+                emptyComponent: {
+                    xtype: 'no-items-found-panel',
+                    title: Uni.I18n.translate('workspace.dataCommunication.connections.empty.title', 'DSH', 'No connections found'),
+                    reasons: [
+                        Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item1', 'DSH', 'No connections in the system.'),
+                        Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item2', 'DSH', 'No connections found due to applied filters.')
+                    ]
+                },
+                previewComponent: {
+                    xtype: 'preview_connection',
+                    itemId: 'connectionpreview',
+                    hidden: true
+                }
             }
         },
         {
@@ -47,10 +50,12 @@ Ext.define('Dsh.view.Connections', {
             padding: 0,
             margin: '16 0 0 0',
             title: '',
-            items: [{
-                xtype: 'container',
-                itemId: 'communicationcontainer'
-            }]
+            items: [
+                {
+                    xtype: 'container',
+                    itemId: 'communicationcontainer'
+                }
+            ]
         }
     ],
     side: [
