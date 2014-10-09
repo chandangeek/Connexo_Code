@@ -14,7 +14,7 @@ class CompletionCodeInfo {
     public CompletionCode id;
     public String displayValue;
 
-    public static CompletionCodeInfo from(CompletionCode completionCode, Thesaurus thesaurus) throws Exception {
+    public static CompletionCodeInfo from(CompletionCode completionCode, Thesaurus thesaurus)  {
         CompletionCodeInfo info = new CompletionCodeInfo();
         info.id = completionCode;
         if (completionCode != null) {

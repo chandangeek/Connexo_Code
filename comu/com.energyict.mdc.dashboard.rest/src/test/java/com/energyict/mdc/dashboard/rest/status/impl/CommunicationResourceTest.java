@@ -345,7 +345,8 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(new Date());
         when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(new Date());
         when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(new Date());
-        when(communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        Finder<ComTaskExecution> comTaskExecutionFinder = mockFinder(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        when(communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutionFinder);
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
         when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));

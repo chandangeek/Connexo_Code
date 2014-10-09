@@ -15,20 +15,15 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * Created by bvn on 9/1/14.
  */
 public class ComTaskExecutionInfoFactory {
-
-    private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new ComTaskExecutionComparator();
 
     private final Thesaurus thesaurus;
     private final CommunicationTaskService communicationTaskService;
@@ -41,7 +36,7 @@ public class ComTaskExecutionInfoFactory {
         this.connectionTaskInfoFactory = connectionTaskInfoFactoryProvider;
     }
 
-    public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) throws Exception {
+    public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) {
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
         info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
         for (ComTask comTask : comTaskExecution.getComTasks()) {
@@ -81,13 +76,12 @@ public class ComTaskExecutionInfoFactory {
 
     public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession, ConnectionTask<?, ?> connectionTask) throws Exception {
         ComTaskExecutionInfo comTaskExecutionInfo = this.from(comTaskExecution, comTaskExecutionSession);
-        comTaskExecutionInfo.connectionTask = connectionTaskInfoFactory.get().from(connectionTask, connectionTask.getLastComSession(), Collections.<ComTaskExecution>emptyList());
+        comTaskExecutionInfo.connectionTask = connectionTaskInfoFactory.get().from(connectionTask, connectionTask.getLastComSession());
         return comTaskExecutionInfo;
     }
 
-    public List<ComTaskExecutionInfo> from(List<ComTaskExecution> comTaskExecutions) throws Exception {
+    public List<ComTaskExecutionInfo> from(List<ComTaskExecution> comTaskExecutions) {
         List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(comTaskExecutions.size());
-        Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             comTaskExecutionInfos.add(this.from(comTaskExecution, communicationTaskService.findLastSessionFor(comTaskExecution)));
         }

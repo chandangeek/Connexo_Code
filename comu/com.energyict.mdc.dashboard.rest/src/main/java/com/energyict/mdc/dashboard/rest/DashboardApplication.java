@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -205,6 +206,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(ConnectionOverviewInfoFactory.class).to(ConnectionOverviewInfoFactory.class);
             bind(CommunicationOverviewInfoFactory.class).to(CommunicationOverviewInfoFactory.class);
             bind(ComServerStatusInfoFactory.class).to(ComServerStatusInfoFactory.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 

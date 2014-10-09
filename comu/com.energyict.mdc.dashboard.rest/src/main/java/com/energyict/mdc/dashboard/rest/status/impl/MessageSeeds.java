@@ -53,6 +53,7 @@ public enum MessageSeeds implements MessageSeed {
     ONLINE(44, "Online", "Online"),
     REMOTE(45, "Remote", "Remote"),
     MOBILE(46, "Mobile", "Mobile"),
+    NO_SUCH_CONNECTION_TASK(47, "NoSuchConnectionTask", "No connection task with id {0}")
     ;
 
 
