@@ -1,16 +1,5 @@
 Ext.onReady(function () {
-    var loader = Ext.create('Uni.Loader'),
-        translationsQueue = [
-            'CFG',
-            'USM',
-            'USR',
-            'MDC',
-            'ISU',
-            'DVI',
-            'DSH'
-        ];
-
-    loader.initI18n(translationsQueue);
+    var loader = Ext.create('Uni.Loader');
 
     // <debug>
     var packages = [

@@ -2,6 +2,7 @@
     "name": "com.energyict.mdc.app",
 
     "requires": [
+        "com.elster.jupiter.loaderjs",
         "com.elster.jupiter.unifyingjs",
         "com.elster.jupiter.config.extjs",
         "com.elster.jupiter.issue.extjs",
