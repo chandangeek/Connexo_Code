@@ -186,8 +186,10 @@ class ChannelRuleValidator {
 
     private void setValidationQuality(Channel channel, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
         Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(existingReadingQualities, target.getTimestamp());
-        if (existingQualityForType.isPresent() && !existingQualityForType.get().isActual()) {
-            existingQualityForType.get().makeActual();
+        if (existingQualityForType.isPresent()) {
+            if (!existingQualityForType.get().isActual()) {
+                existingQualityForType.get().makeActual();
+            }
             return;
         }
         ReadingQualityRecord readingQualityRecord = saveNewReadingQuality(channel, target, rule.getReadingQualityType());
