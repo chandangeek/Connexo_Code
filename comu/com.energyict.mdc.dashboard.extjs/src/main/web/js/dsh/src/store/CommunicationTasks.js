@@ -6,13 +6,16 @@ Ext.define('Dsh.store.CommunicationTasks', {
     ],
     model: 'Dsh.model.CommunicationTask',
     hydrator: 'Dsh.util.FilterStoreHydrator',
+    autoLoad: false,
+    remoteFilter: true,
+
     proxy: {
         type: 'ajax',
         url: '/api/dsr/communications',
         reader: {
             type: 'json',
             root: 'communicationTasks',
-            totalProperty: 'count'
+            totalProperty: 'total'
         }
     }
 });

@@ -53,6 +53,7 @@ Ext.define('Dsh.controller.Communications', {
 
         this.callParent(arguments);
     },
+
     showOverview: function () {
         var widget = Ext.widget('communications-details'),
             store = this.getStore('Dsh.store.CommunicationTasks');
