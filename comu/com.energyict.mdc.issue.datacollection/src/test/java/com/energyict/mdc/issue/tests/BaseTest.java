@@ -17,6 +17,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -39,6 +40,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -74,10 +76,12 @@ import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 import java.util.List;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -105,15 +109,9 @@ public abstract class BaseTest {
             Thesaurus thesaurus = mock(Thesaurus.class);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
-            bind(KpiService.class).toInstance(mock(KpiService.class));
 
-            //TODO think about including this lines into IssueModule class
-            TaskService taskService = mock(TaskService.class);
-            bind(TaskService.class).toInstance(taskService);
-
-            RecurrentTaskBuilder builder = mock(RecurrentTaskBuilder.class);
-            when(taskService.newBuilder()).thenReturn(builder);
-            when(builder.build()).thenReturn(mock(RecurrentTask.class));
+            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(LogService.class).toInstance(mock(LogService.class));
         }
     }
 
@@ -129,6 +127,8 @@ public abstract class BaseTest {
                 new EventsModule(),
                 new DomainUtilModule(),
                 new OrmModule(),
+                new com.elster.jupiter.tasks.impl.TaskModule(),
+                new KpiModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
@@ -160,7 +160,6 @@ public abstract class BaseTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             // initialize Issue tables
             injector.getInstance(com.elster.jupiter.issue.impl.service.InstallServiceImpl.class);
-            injector.getInstance(DeviceService.class);
             injector.getInstance(IssueDataCollectionService.class);
             ctx.commit();
         }
