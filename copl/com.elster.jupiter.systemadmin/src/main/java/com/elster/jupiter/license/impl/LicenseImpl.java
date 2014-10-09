@@ -122,6 +122,9 @@ public class LicenseImpl implements License {
         return this;
     }
 
+    public long getVersion() {
+        return version;
+    }
 
     @Override
     public String getApplicationKey() {

@@ -2,10 +2,13 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.license.impl.LicenseServiceImpl;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -30,6 +33,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,6 +67,7 @@ public class LicenseServiceTest {
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(LicenseService.class).to(LicenseServiceImpl.class).in(Scopes.SINGLETON);
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             //  bind(Clock.class).toInstance(new ProgrammableClock().frozenAt(new DateTime(2014, 4, 14, 12, 32, 13, 200).toDate()));
         }
     };
@@ -70,7 +75,9 @@ public class LicenseServiceTest {
     @BeforeClass
     public static void setUp() {
         injector = Guice.createInjector(inMemoryBootstrapModule, licenseModule,
-                new OrmModule(), new TransactionModule(), new PubSubModule(), new ThreadSecurityModule(), new UtilModule(), new DomainUtilModule(), new UserModule());
+                new OrmModule(), new TransactionModule(), new PubSubModule(), new ThreadSecurityModule(),
+                new UtilModule(), new DomainUtilModule(), new UserModule(), new EventsModule(),
+                new InMemoryMessagingModule(), new NlsModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             getLicenseService();
             getUserService();

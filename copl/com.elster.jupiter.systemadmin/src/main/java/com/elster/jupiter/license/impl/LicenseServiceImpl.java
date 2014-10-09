@@ -1,5 +1,6 @@
 package com.elster.jupiter.license.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -41,14 +42,16 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
     private volatile DataModel dataModel;
     private volatile OrmService ormService;
     private volatile UserService userService;
+    private volatile EventService eventService;
 
     public LicenseServiceImpl() {
     }
 
     @Inject
-    public LicenseServiceImpl(OrmService ormService, UserService userService) {
+    public LicenseServiceImpl(OrmService ormService, UserService userService, EventService eventService) {
         setOrmService(ormService);
         setUserService(userService);
+        setEventService(eventService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -59,11 +62,21 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         dataModel.install(true, true);
         createPrivileges();
         assignPrivilegesToDefaultRoles();
+        createEventTypes();
+    }
+
+    private void createEventTypes() {
+        List<com.elster.jupiter.events.EventType> eventTypesForComponent = eventService.getEventTypesForComponent(LicenseService.COMPONENTNAME);
+        for (EventType eventType : EventType.values()) {
+            if (!eventTypesForComponent.stream().anyMatch(et -> et.getName().equals(eventType.name()))) {
+                eventType.install(eventService);
+            }
+        }
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR");
+        return Arrays.asList("ORM", "USR", "EVT");
     }
 
     private void createPrivileges() {
@@ -88,6 +101,10 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         this.userService = userService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @Activate
     public void activate() {
@@ -160,9 +177,11 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
                     LicenseImpl license = (LicenseImpl) licenseOption.get();
                     license.setSignedObject(licensedApps.get(applicationKey));
                     dataModel.update(license, "signedObject");
+                    eventService.postEvent(EventType.LICENSE_UPDATED.topic(), license);
                 } else {
                     LicenseImpl license = LicenseImpl.from(dataModel, applicationKey, licensedApps.get(applicationKey));
                     dataModel.persist(license);
+                    eventService.postEvent(EventType.LICENSE_UPDATED.topic(), license);
                 }
             }
             return licensedApps.keySet();
