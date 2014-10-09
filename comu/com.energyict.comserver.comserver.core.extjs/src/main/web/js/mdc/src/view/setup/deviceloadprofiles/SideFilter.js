@@ -59,6 +59,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SideFilter', {
                         name: 'onlySuspect',
                         boxLabel: Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect'),
                         afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                    },
+                    {
+                        itemId: 'nonSuspect',
+                        inputValue: 'nonSuspect',
+                        name: 'onlyNonSuspect',
+                        padding: '-10 0 0 0',
+                        boxLabel: Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect')
                     }
                 ]
             }
