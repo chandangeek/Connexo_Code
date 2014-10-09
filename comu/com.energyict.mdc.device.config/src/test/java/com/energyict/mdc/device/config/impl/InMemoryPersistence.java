@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -80,6 +81,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Provides initialization services that is typically used by classes that focus
@@ -226,7 +228,7 @@ public class InMemoryPersistence {
             }
         });
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class);
+        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
         when(this.principal.getName()).thenReturn(testName);
         if (this.mockProtocolPluggableService) {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
@@ -338,6 +340,10 @@ public class InMemoryPersistence {
 
     public DataModel getDataModel() {
         return this.dataModel;
+    }
+
+    public User getMockedUser(){
+        return (User) this.principal;
     }
 
     private class MockModule extends AbstractModule {

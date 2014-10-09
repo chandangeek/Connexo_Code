@@ -72,10 +72,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -104,7 +105,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile ValidationService validationService;
     private volatile QueryService queryService;
 
-    private final Map<DeviceSecurityUserAction, Privilege> privileges = new EnumMap<>(DeviceSecurityUserAction.class);
+    private final Set<Privilege> privileges = new HashSet<>();
 
     public DeviceConfigurationServiceImpl() {
         super();
@@ -414,12 +415,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.schedulingService = schedulingService;
     }
 
-    Optional<Privilege> findPrivilege(DeviceSecurityUserAction userAction) {
-        return Optional.fromNullable(privileges.get(userAction));
-    }
-
-    Optional<Privilege> findPrivilege(DeviceMessageUserAction userAction) {
-        return Optional.fromNullable(privileges.get(userAction));
+    Optional<Privilege> findPrivilege(String userActionPrivilege) {
+        java.util.Optional<Privilege> privilegeOptional = privileges.stream().filter(privilege -> privilege.getName().equals(userActionPrivilege)).findAny();
+        if(privilegeOptional.isPresent()) {
+            return Optional.of(privilegeOptional.get());
+        }
+        return Optional.absent();
     }
 
     private Module getModule() {
@@ -598,7 +599,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             for (Privilege privilege : resource.getPrivileges()) {
                 Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forPrivilege(privilege.getName());
                 if (found.isPresent()) {
-                    privileges.put(found.get(), privilege);
+                    privileges.add(privilege);
+                }
+                Optional<DeviceMessageUserAction> deviceMessageUserAction = DeviceMessageUserAction.forPrivilege(privilege.getName());
+                if(deviceMessageUserAction.isPresent()){
+                    privileges.add(privilege);
                 }
             }
         }

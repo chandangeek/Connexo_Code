@@ -7,6 +7,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -35,6 +37,7 @@ import com.google.common.base.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,6 +51,9 @@ import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -601,6 +607,96 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         assertThat(configWithEnablements.getAllProtocolMessagesUserActions()).hasSize(0);
         assertThat(configWithEnablements.getDeviceMessageEnablements()).hasSize(1);
         assertThat(configWithEnablements.getDeviceMessageEnablements().get(0).getDeviceMessageId()).isEqualTo(deviceMessageEnablement.getDeviceMessageId());
+    }
+
+    @Test
+    @Transactional
+    public void deleteDeviceConfigurationDeletesMessageEnablementsAndUserActionsTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("deleteDeviceConfigurationDeletesMessageEnablementsAndUserActionsTest").add();
+
+        deviceType.removeConfiguration(deviceConfiguration);
+
+        List<DeviceMessageEnablementImpl> deviceMessageEnablements = inMemoryPersistence.getDataModel().mapper(DeviceMessageEnablementImpl.class).find();
+        List<DeviceMessageEnablementImpl.DeviceMessageUserActionRecord> deviceMessageUserActionRecords = inMemoryPersistence.getDataModel().mapper(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class).find();
+
+        assertThat(deviceMessageEnablements).hasSize(0);
+        assertThat(deviceMessageUserActionRecords).hasSize(0);
+    }
+
+    @Test
+    @Transactional
+    public void currentUserHasCorrectLevelTest() {
+        User mockedUser = inMemoryPersistence.getMockedUser();
+        when(mockedUser.hasPrivilege(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege())).thenReturn(true);
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserHasCorrectLevelTest").add();
+
+        assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.CONTACTOR_CLOSE)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void currentUserDoesntHaveCorrectLevelTest() {
+        User mockedUser = inMemoryPersistence.getMockedUser();
+        when(mockedUser.hasPrivilege(anyString())).thenReturn(false);
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserDoesntHaveCorrectLevelTest").add();
+
+        assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.CONTACTOR_CLOSE)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void currentUserHasAllPrivilegeButNotConfiguredOnConfigTest() {
+        User mockedUser = inMemoryPersistence.getMockedUser();
+        when(mockedUser.hasPrivilege(anyString())).thenReturn(true);
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserHasAllPrivilegeButNotConfiguredOnConfigTest").add();
+
+        assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_ID)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void deviceConfigHasAllProtocolMessagesAndUserHasCorrectLevelTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("deviceConfigHasAllProtocolMessagesAndUserHasCorrectLevelTest").add();
+        DeviceMessageUserAction[] deviceMessageUserActions = {DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2};
+        deviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(true, deviceMessageUserActions);
+        deviceConfiguration.save();
+
+        User mockedUser = inMemoryPersistence.getMockedUser();
+        when(mockedUser.hasPrivilege(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege())).thenReturn(true);
+
+        assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.CONTACTOR_CLOSE)).isTrue();
+    }
+
+
+    @Test
+    @Transactional
+    public void deviceConfigHasAllProtocolMessagesAndUserDoesntHaveCorrectLevelTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("deviceConfigHasAllProtocolMessagesAndUserHasCorrectLevelTest").add();
+        DeviceMessageUserAction[] deviceMessageUserActions = {DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2};
+        deviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(true, deviceMessageUserActions);
+        deviceConfiguration.save();
+
+        User mockedUser = inMemoryPersistence.getMockedUser();
+        when(mockedUser.hasPrivilege(anyString())).thenReturn(false);
+
+        assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.CONTACTOR_CLOSE)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void deviceConfigHasAllProtocolMessagesAndUserHasLevelsButProtocolDoesntSupportTheMessageTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("deviceConfigHasAllProtocolMessagesAndUserHasCorrectLevelTest").add();
+        DeviceMessageUserAction[] deviceMessageUserActions = {DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2};
+        deviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(true, deviceMessageUserActions);
+        deviceConfiguration.save();
+
+        User mockedUser = inMemoryPersistence.getMockedUser();
+        when(mockedUser.hasPrivilege(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege())).thenReturn(true);
+
+        assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_ID)).isFalse();
     }
 
     private DeviceConfiguration reloadDeviceConfiguration(DeviceConfiguration deviceConfiguration) {

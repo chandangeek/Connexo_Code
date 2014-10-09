@@ -108,8 +108,8 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     }
 
     private boolean isUserAuthorizedForAction(DeviceMessageUserAction action, User user) {
-        Optional<Privilege> privilege = ((DeviceConfigurationServiceImpl) deviceConfigurationService).findPrivilege(action);
-        return privilege.isPresent() && user.hasPrivilege(privilege.get());
+        Optional<Privilege> privilege = ((DeviceConfigurationServiceImpl) deviceConfigurationService).findPrivilege(action.getPrivilege());
+        return privilege.isPresent() && user.hasPrivilege(privilege.get().getName());
     }
 
     @Override
@@ -118,7 +118,9 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         if (currentUser.isPresent()) {
             User user = currentUser.get();
             if (isSupportsAllProtocolMessages()) {
-                return getAllProtocolMessagesUserActions().stream().anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
+                if(getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().contains(deviceMessageId)){
+                    return getAllProtocolMessagesUserActions().stream().anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
+                }
             }
             java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId)).findAny();
             if (deviceMessageEnablementOptional.isPresent()) {
