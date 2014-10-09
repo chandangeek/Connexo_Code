@@ -88,6 +88,10 @@ public final class Interval {
 		return contains(when,EndpointBehavior.CLOSED_OPEN);
 	}
 	
+	public boolean isEffective(Instant when) {
+		return contains(Date.from(when), EndpointBehavior.CLOSED_OPEN);
+	}
+	
 	public boolean isEffective(Interval interval) {
 		return this.overlaps(interval);
 	}

@@ -1,5 +1,6 @@
 package com.elster.jupiter.util.time;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -19,5 +20,10 @@ public interface Clock {
      * @return a Date instance representing the System's current time.
      */
     Date now();
+     
+    default Instant instant() {
+    	return now().toInstant();
+    }
+     
 
 }
