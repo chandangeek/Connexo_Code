@@ -87,7 +87,6 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.Dsmr50Properties
 -keepnames class com.energyict.protocolimpl.dlms.g3.G3Properties
 -keepnames class com.energyict.protocolimpl.dlms.g3.G3SecurityProvider
--keepnames class com.energyict.genericprotocolimpl.rtuplusserver.g3.G3RtuPlusServerProperties
 -keepnames class com.energyict.protocol.MessageProtocol
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging
@@ -520,7 +519,7 @@
     public void cacheRegisters(java.util.List);
 }
 
--keepnames class com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol
+-keepnames class test.com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3
 

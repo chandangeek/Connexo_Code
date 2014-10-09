@@ -11,12 +11,7 @@ import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -48,13 +43,8 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -122,10 +112,11 @@ public class RtuPlusServer implements DeviceProtocol {
      */
     private void readFrameCounter() {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
-        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, "16");
+        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         clone.setProperty(DlmsProtocolProperties.SECURITY_LEVEL, "0:0");
         G3GatewayProperties publicClientProperties = new G3GatewayProperties();
         publicClientProperties.addProperties(clone);
+        publicClientProperties.setSecurityPropertySet(getDlmsSessionProperties().getSecurityPropertySet());
 
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
