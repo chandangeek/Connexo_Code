@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -68,12 +70,20 @@ public class SecurityPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{securityPropertySetId}")
-    public Response updateSecurityPropertySet(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, @PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo securityPropertySetInfo) {
+    public Response updateSecurityPropertySet(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, @PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo securityPropertySetInfo) throws InvalidValueException {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
+        TypedProperties typedProperties = TypedProperties.empty();
         for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
             Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, securityPropertySetInfo.properties);
+            propertySpec.validateValue(newPropertyValue);
+            typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
         }
+        device.setSecurityProperties(securityPropertySet, typedProperties);
+
+        // Reload
+        device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
 
         return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo,securityPropertySet)).build();
     }
