@@ -10,8 +10,6 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
 
     Channel getChannel();
 
-    ReadingQualityType getType();
-
     long getId();
 
     void setComment(String comment);

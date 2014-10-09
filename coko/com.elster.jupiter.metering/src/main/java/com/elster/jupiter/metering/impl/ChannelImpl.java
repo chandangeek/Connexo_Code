@@ -300,14 +300,28 @@ public final class ChannelImpl implements ChannelContract {
         return version;
     }
 
-    public List<ReadingQualityRecord> findReadingQuality(Range<Instant> range) {
+    private List<ReadingQualityRecord> findReadingQuality(Range<Instant> range) {
         Condition condition = inRange(range).and(ofThisChannel());
         return dataModel.mapper(ReadingQualityRecord.class).select(condition);
+    }
+
+    private List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> range) {
+        Condition condition = inRange(range).and(ofThisChannel()).and(isActual());
+        return dataModel.mapper(ReadingQualityRecord.class).select(condition);
+    }
+
+    private Condition isActual() {
+        return where("actual").isEqualTo(true);
     }
 
     @Override
     public List<ReadingQualityRecord> findReadingQuality(Interval interval) {
         return findReadingQuality(interval.toOpenClosedRange());
+    }
+
+    @Override
+    public List<ReadingQualityRecord> findActualReadingQuality(Interval interval) {
+        return findActualReadingQuality(interval.toOpenClosedRange());
     }
 
     private Condition inRange(Range<Instant> range) {

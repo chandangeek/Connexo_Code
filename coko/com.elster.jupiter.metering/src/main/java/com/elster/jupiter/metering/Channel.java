@@ -1,11 +1,11 @@
 package com.elster.jupiter.metering;
 
-import java.util.Date;
-import java.util.List;
-
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+
+import java.util.Date;
+import java.util.List;
 
 public interface Channel {
 	long getId();
@@ -31,6 +31,7 @@ public interface Channel {
 
     List<ReadingQualityRecord> findReadingQuality(Date timestamp);
     List<ReadingQualityRecord> findReadingQuality(Interval interval);
+    List<ReadingQualityRecord> findActualReadingQuality(Interval interval);
 
     boolean isRegular();
     List<BaseReadingRecord> getReadingsBefore(Date when, int readingCount);
