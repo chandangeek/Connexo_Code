@@ -33,10 +33,13 @@ import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -94,6 +97,7 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpda
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -110,6 +114,8 @@ import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,7 +149,7 @@ import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
-public class DeviceImpl implements Device {
+public class DeviceImpl implements Device, CanLock {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -817,6 +823,35 @@ public class DeviceImpl implements Device {
     public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook) {
         return new LogBookUpdaterForDevice((LogBookImpl) logBook);
     }
+
+    @Override
+    public void lock() {
+        try {
+            try (PreparedStatement stmnt = getLockSqlBuilder().getStatement(dataModel.getConnection(true))) {
+                try (ResultSet rs = stmnt.executeQuery()) {
+                    if (rs.next()) {
+                        return;
+                    }
+                    else {
+                        throw new ApplicationException("Tuple not found");
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DatabaseException(ex);
+        }
+    }
+
+    private SqlBuilder getLockSqlBuilder() {
+        SqlBuilder sqlBuilder = new SqlBuilder("select *");
+        sqlBuilder.append(" from ");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append(" where id = ?");
+        sqlBuilder.bindLong(this.getId());
+        sqlBuilder.append(" for update");
+        return sqlBuilder;
+    }
+
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
 
