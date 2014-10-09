@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
@@ -8,10 +9,11 @@ import com.energyict.mdc.dashboard.impl.ComSessionSuccessIndicatorOverviewImpl;
 import com.energyict.mdc.dashboard.impl.ConnectionTaskHeatMapRowImpl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.engine.model.ComPortPool;
+import com.jayway.jsonpath.JsonModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
 
@@ -29,14 +31,16 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
     }
 
     @Test
-    public void testConnectionHeatMapJsonBinding() throws Exception {
+    public void testConnectionHeatMapByDeviceType() throws Exception {
         ConnectionTaskDeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
         when(dashboardService.getConnectionsDeviceTypeHeatMap()).thenReturn(heatMap);
 
-        Map<String, Object> map = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter("breakdown", "deviceTypes")).request().get(Map.class);
+        String response = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter("breakdown", "deviceTypes")).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
 
-        assertThat(map).containsKey("heatMap");
-        assertThat(map).containsKey("breakdown");
+        assertThat(model.<Object>get("$.heatMap")).isNotNull();
+        assertThat(model.<List<String>>get("$.heatMap[*].data[*].id")).contains("Success").contains("SetupError").contains("Broken").contains("SomeTasksFailed");
+        assertThat(model.<String>get("$.breakdown")).isEqualTo("deviceTypes");
     }
 
     private ConnectionTaskDeviceTypeHeatMap createDeviceTypeHeatMap() {
@@ -52,6 +56,37 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
             when(deviceType.getName()).thenReturn(name);
             when(deviceType.getId()).thenReturn(id++);
             rows.add(new ConnectionTaskHeatMapRowImpl(deviceType, counters));
+        }
+        when(heatMap.iterator()).thenReturn(rows.iterator());
+        return heatMap;
+    }
+
+    @Test
+    public void testConnectionHeatMapByComPortPool() throws Exception {
+        ComPortPoolHeatMap heatMap = createComPortPoolHeatMap();
+        when(dashboardService.getConnectionsComPortPoolHeatMap()).thenReturn(heatMap);
+
+        String response = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter("breakdown", "comPortPools")).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+
+        assertThat(model.<Object>get("$.heatMap")).isNotNull();
+        assertThat(model.<List<String>>get("$.heatMap[*].data[*].id")).contains("Success").contains("SetupError").contains("Broken").contains("SomeTasksFailed");
+        assertThat(model.<String>get("$.breakdown")).isEqualTo("comPortPools");
+    }
+
+    private ComPortPoolHeatMap createComPortPoolHeatMap() {
+        ComPortPoolHeatMap heatMap = mock(ComPortPoolHeatMap.class);
+        List<ConnectionTaskHeatMapRow<ComPortPool>> rows = new ArrayList<>();
+        ComSessionSuccessIndicatorOverviewImpl counters = new ComSessionSuccessIndicatorOverviewImpl(103L);
+        counters.add(createCounter(ComSession.SuccessIndicator.Broken, 100L));
+        counters.add(createCounter(ComSession.SuccessIndicator.SetupError, 101L));
+        counters.add(createCounter(ComSession.SuccessIndicator.Success, 102L));
+        long id=1;
+        for (String name: Arrays.asList("cpp1", "cpp2", "cpp3")) {
+            ComPortPool comPortPool = mock(ComPortPool.class);
+            when(comPortPool.getName()).thenReturn(name);
+            when(comPortPool.getId()).thenReturn(id++);
+            rows.add(new ConnectionTaskHeatMapRowImpl(comPortPool, counters));
         }
         when(heatMap.iterator()).thenReturn(rows.iterator());
         return heatMap;
