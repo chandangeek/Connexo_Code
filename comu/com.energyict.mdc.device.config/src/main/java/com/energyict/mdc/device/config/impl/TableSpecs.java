@@ -24,7 +24,6 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import oracle.sql.NUMBER;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -295,8 +294,8 @@ public enum TableSpecs {
             table.map(DeviceCommunicationConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
             Column deviceconfiguration = table.column("DEVICECONFIGURATION").number().add();
-            table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllMessageCategories").add();
-            table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("userActions").add();
+            table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllProtocolMessages").add();
+            table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("supportsAllProtocolMessagesUserActionsBitVector").add();
             table.foreignKey("FK_MDCDEVICECOMMCONFIG_DCONFIG").
                     on(deviceconfiguration).
                     references(DTC_DEVICECONFIG.name()).
@@ -423,12 +422,10 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceMessageEnablement> table = dataModel.addTable(name(), DeviceMessageEnablement.class);
-            table.map(DeviceMessageEnablementImpl.IMPLEMENTERS);
+            table.map(DeviceMessageEnablementImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column deviceComConfig = table.column("DEVICECOMCONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map("deviceMessageId").add();
-            table.column("DEVICEMESSAGECATEGORY").number().conversion(NUMBER2INT).map("deviceMessageCategoryId").add();
             table.foreignKey("FK_DTC_DME_DEVCOMCONFIG").
                     on(deviceComConfig).
                     references(DTC_DEVICECOMMCONFIG.name()).

@@ -10,13 +10,12 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,21 +24,7 @@ import java.util.stream.Collectors;
  * Date: 9/30/14
  * Time: 1:36 PM
  */
-public abstract class DeviceMessageEnablementImpl<T> extends PersistentIdObject<T> implements DeviceMessageEnablement, PersistenceAware {
-
-    private static final String SINGLEDEVICEMESSAGEENABLEMENT = "0";
-    private static final String DEVICEMESSAGECATEGORYENABLEMENT = "1";
-
-    static final Map<String, Class<? extends DeviceMessageEnablement>> IMPLEMENTERS = new HashMap<>();
-
-    static {
-        IMPLEMENTERS.put(SINGLEDEVICEMESSAGEENABLEMENT, SingleDeviceMessageEnablement.class);
-        IMPLEMENTERS.put(DEVICEMESSAGECATEGORYENABLEMENT, DeviceMessageCategoryEnablement.class);
-    }
-
-    public DeviceMessageEnablementImpl(Class<T> deviceMessageEnablementClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
-        super(deviceMessageEnablementClass, dataModel, eventService, thesaurus);
-    }
+public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessageEnablement> implements DeviceMessageEnablement, PersistenceAware {
 
     static class DeviceMessageUserActionRecord {
 
@@ -47,7 +32,11 @@ public abstract class DeviceMessageEnablementImpl<T> extends PersistentIdObject<
 
         private Reference<DeviceMessageEnablement> deviceMessageEnablement = ValueReference.absent();
 
+        DeviceMessageUserActionRecord() {
+        }
+
         DeviceMessageUserActionRecord(DeviceMessageEnablement deviceMessageEnablement, DeviceMessageUserAction userAction) {
+            this();
             this.deviceMessageEnablement.set(deviceMessageEnablement);
             this.userAction = userAction;
         }
@@ -58,30 +47,31 @@ public abstract class DeviceMessageEnablementImpl<T> extends PersistentIdObject<
 
     private List<DeviceMessageUserActionRecord> deviceMessageUserActionRecords = new ArrayList<>();
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
-    private int deviceMessageCategoryId;
-    private DeviceMessageCategory deviceMessageCategory;
+    private DeviceMessageId deviceMessageId;
+
+    static DeviceMessageEnablement from(DataModel dataModel, DeviceCommunicationConfigurationImpl deviceCommunicationConfiguration, DeviceMessageId deviceMessageId) {
+        return dataModel.getInstance(DeviceMessageEnablementImpl.class).init(deviceCommunicationConfiguration, deviceMessageId);
+    }
+
+    @Inject
+    public DeviceMessageEnablementImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+        super(DeviceMessageEnablement.class, dataModel, eventService, thesaurus);
+    }
 
     @Override
     public Set<DeviceMessageUserAction> getUserActions() {
         return deviceMessageUserActions;
     }
 
-    @Override
-    public boolean isCategory() {
-        return false;
+    private DeviceMessageEnablement init(DeviceCommunicationConfiguration deviceCommunicationConfiguration, DeviceMessageId deviceMessageId) {
+        setDeviceCommunicationConfiguration(deviceCommunicationConfiguration);
+        this.deviceMessageId = deviceMessageId;
+        return this;
     }
 
     @Override
-    public boolean isSpecificMessage() {
-        return false;
-    }
-
-    @Override
-    public DeviceMessageCategory getDeviceMessageCategory() {
-        if(this.deviceMessageCategory == null && this.deviceMessageCategoryId != 0){
-//            no implementation yet, as the requirement stated that we don't need to store full categories
-        }
-        return null;
+    public DeviceMessageId getDeviceMessageId() {
+        return deviceMessageId;
     }
 
     @Override

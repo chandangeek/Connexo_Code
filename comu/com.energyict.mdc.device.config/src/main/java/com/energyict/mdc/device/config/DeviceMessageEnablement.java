@@ -28,24 +28,9 @@ public interface DeviceMessageEnablement extends HasId {
     public Set<DeviceMessageUserAction> getUserActions();
 
     /**
-     * @return true if the implementation of this enablement is for a complete Category, false otherwise
-     */
-    public boolean isCategory();
-
-    /**
-     * @return true if the implementation of this enablement is for a single Device message, false otherwise
-     */
-    public boolean isSpecificMessage();
-
-    /**
      * @return the id of the DeviceMessage
      */
     public DeviceMessageId getDeviceMessageId();
-
-    /**
-     * @return the DeviceMessageCategory which is fully enabled
-     */
-    public DeviceMessageCategory getDeviceMessageCategory();
 
 
     void addDeviceMessageCategory(DeviceMessageCategory deviceMessageCategory);

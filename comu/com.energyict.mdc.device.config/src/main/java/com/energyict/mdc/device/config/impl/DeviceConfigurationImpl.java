@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
@@ -44,7 +45,6 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
@@ -806,8 +806,18 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public void setSupportsAllMessageCategories(boolean supportAllMessageCategories) {
-        getCommunicationConfiguration().setSupportsAllMessageCategories(supportAllMessageCategories);
+    public boolean isSupportsAllProtocolMessages() {
+        return getCommunicationConfiguration().isSupportsAllProtocolMessages();
+    }
+
+    @Override
+    public Set<DeviceMessageUserAction> getAllProtocolMessagesUserActions() {
+        return getCommunicationConfiguration().getAllProtocolMessagesUserActions();
+    }
+
+    @Override
+    public void setSupportsAllProtocolMessagesWithUserActions(boolean supportAllProtocolMessages, DeviceMessageUserAction... deviceMessageUserActions) {
+        getCommunicationConfiguration().setSupportsAllProtocolMessagesWithUserActions(supportAllProtocolMessages, deviceMessageUserActions);
     }
 
     @Override
@@ -911,8 +921,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public boolean isAuthorized(DeviceMessageSpec deviceMessageSpec) {
-        return this.getCommunicationConfiguration().isAuthorized(deviceMessageSpec);
+    public boolean isAuthorized(DeviceMessageId deviceMessageId) {
+        return this.getCommunicationConfiguration().isAuthorized(deviceMessageId);
     }
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {

@@ -32,6 +32,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.google.common.base.Optional;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -460,7 +461,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Transactional
     public void removeAUserActionFromAnExistingEnablementTest() {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("RemoveExistingUserAction").add();
-        java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements().stream().filter(dme -> dme.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CLOSE)).findAny();
+        java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = findDeviceMessageEnablementFor(deviceConfiguration, DeviceMessageId.CONTACTOR_CLOSE);
 
         assertThat(deviceMessageEnablementOptional.get().removeDeviceMessageUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1)).isTrue();
     }
@@ -469,9 +470,66 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Transactional
     public void removeUserActionFromExistingEnablementWhichDoesntExistTest() {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("RemoveNonExistingUserAction").add();
-        java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements().stream().filter(dme -> dme.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CLOSE)).findAny();
+        java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = findDeviceMessageEnablementFor(deviceConfiguration, DeviceMessageId.CONTACTOR_CLOSE);
 
-        assertThat(deviceMessageEnablementOptional.get().removeDeviceMessageUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1)).isFalse();
+        assertThat(deviceMessageEnablementOptional.get().removeDeviceMessageUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE4)).isFalse();
+    }
+
+    private java.util.Optional<DeviceMessageEnablement> findDeviceMessageEnablementFor(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId) {
+        return deviceConfiguration.getDeviceMessageEnablements().stream().filter(dme -> dme.getDeviceMessageId().equals(deviceMessageId)).findAny();
+    }
+
+    @Test
+    @Transactional
+    public void addUserActionWhichDoesntExistYetTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("addUserActionWhichDoesntExistYetTest").add();
+        java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = findDeviceMessageEnablementFor(deviceConfiguration, DeviceMessageId.CONTACTOR_CLOSE);
+
+        assertThat(deviceMessageEnablementOptional.get().addDeviceMessageUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE4)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void addUserActionWhichExistsTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("addUserActionWhichDoesntExistYetTest").add();
+        java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = findDeviceMessageEnablementFor(deviceConfiguration, DeviceMessageId.CONTACTOR_CLOSE);
+
+        assertThat(deviceMessageEnablementOptional.get().addDeviceMessageUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void removeDeviceMessageEnablementRemovesUserActionsTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("RemoveUserActions").add();
+
+        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
+        DeviceConfiguration reloadedDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
+        java.util.Optional<DeviceMessageEnablement> dme = reloadedDeviceConfiguration.getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(contactorClose)).findAny();
+
+        List<DeviceMessageEnablementImpl.DeviceMessageUserActionRecord> deviceMessageUserActionRecords = inMemoryPersistence.getDataModel().mapper(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class).find("deviceMessageEnablement", dme.get());
+        assertThat(deviceMessageUserActionRecords).hasSize(3);
+
+        deviceConfiguration.removeDeviceMessageEnablement(contactorClose);
+
+        deviceMessageUserActionRecords = inMemoryPersistence.getDataModel().mapper(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class).find("deviceMessageEnablement", dme.get());
+        assertThat(deviceMessageUserActionRecords).hasSize(0);
+    }
+
+    @Ignore
+    @Test
+    @Transactional
+    public void setSupportAllDeviceProtocolMessagesTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("setSupportAllDeviceProtocolMessagesTest").add();
+        DeviceMessageUserAction[] deviceMessageUserActions = {DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1, DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2};
+
+        DeviceConfiguration reloadDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
+        reloadDeviceConfiguration.setSupportsAllProtocolMessagesWithUserActions(true, deviceMessageUserActions);
+        reloadDeviceConfiguration.save();
+
+        DeviceConfiguration configWithSupportAllMessages = reloadDeviceConfiguration(reloadDeviceConfiguration);
+
+        assertThat(configWithSupportAllMessages.isSupportsAllProtocolMessages()).isTrue();
+        assertThat(configWithSupportAllMessages.getAllProtocolMessagesUserActions()).containsOnly(deviceMessageUserActions);
     }
 
     private DeviceConfiguration reloadDeviceConfiguration(DeviceConfiguration deviceConfiguration) {

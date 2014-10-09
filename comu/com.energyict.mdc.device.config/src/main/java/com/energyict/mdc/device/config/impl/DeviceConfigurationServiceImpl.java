@@ -28,6 +28,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -414,6 +415,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     Optional<Privilege> findPrivilege(DeviceSecurityUserAction userAction) {
+        return Optional.fromNullable(privileges.get(userAction));
+    }
+
+    Optional<Privilege> findPrivilege(DeviceMessageUserAction userAction) {
         return Optional.fromNullable(privileges.get(userAction));
     }
 
