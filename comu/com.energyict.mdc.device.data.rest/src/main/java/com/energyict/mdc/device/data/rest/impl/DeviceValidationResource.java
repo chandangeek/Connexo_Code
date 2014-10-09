@@ -143,7 +143,7 @@ public class DeviceValidationResource {
     private DeviceValidationStatusInfo determineStatus(Device device) {
         Meter meter = getMeterFor(device);
         DeviceValidation deviceValidation = device.forValidation();
-        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo(deviceValidation.isValidationActive(), deviceValidation.getLastChecked().or(clock.now()), meter.hasData());
+        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo(deviceValidation.isValidationActive(), deviceValidation.getLastChecked().orNull(), meter.hasData());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.now().toInstant(), clock.getTimeZone().toZoneId()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 

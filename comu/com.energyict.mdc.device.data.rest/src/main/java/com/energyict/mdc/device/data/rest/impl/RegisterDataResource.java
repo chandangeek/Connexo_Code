@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -10,9 +12,7 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -21,15 +21,10 @@ import com.google.common.collect.ImmutableList;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -62,7 +57,7 @@ public class RegisterDataResource {
         Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
         List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
         Boolean validationStatusForRegister = false;
-        if (channelRef.isPresent()) {
+        if(channelRef.isPresent()) {
             validationStatusForRegister = device.forValidation().isValidationActive(register, clock.now());
             dataValidationStatuses = device.forValidation().getValidationStatus(register, readingRecords, interval);
         }
@@ -70,17 +65,67 @@ public class RegisterDataResource {
                 validationStatusForRegister, dataValidationStatuses);
         readingInfos = filter(readingInfos, uriInfo.getQueryParameters());
 
-        List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos, ((ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp))).from(queryParameters).find();
+        List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos, ((ri1, ri2) -> ri1.timeStamp.compareTo(ri2.timeStamp))).from(queryParameters).find();
         return PagedInfoList.asJson("data", paginatedReadingInfo, queryParameters);
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters, ReadingInfo readingInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Meter meter = resourceHelper.getMeterFor(device);
+        Optional<Channel> channel =  resourceHelper.getRegisterChannel(register, meter);
+        if(!channel.isPresent()) {
+            exceptionFactory.newException(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId);
+        }
+
+        List<BaseReading> readings = new ArrayList<>();
+        readings.add(readingInfo.createNew(register));
+        channel.get().editReadings(readings);
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters, ReadingInfo readingInfo) {
+        return editRegisterData(mRID, registerId, queryParameters, readingInfo);
+    }
+
+    @DELETE
+    @Path("/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    public Response deleteRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp, @BeanParam QueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Meter meter = resourceHelper.getMeterFor(device);
+        Optional<Channel> channel =  resourceHelper.getRegisterChannel(register, meter);
+        if(!channel.isPresent()) {
+            exceptionFactory.newException(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId);
+        }
+
+        List<BaseReadingRecord> readings = channel.get().getReadings(new Interval(new Date(timeStamp), new Date(timeStamp)));
+        if(readings.isEmpty()) {
+            exceptionFactory.newException(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp);
+        }
+        channel.get().removeReadings(readings);
+
+        return Response.status(Response.Status.OK).build();
     }
 
     private boolean hasSuspects(ReadingInfo info) {
         boolean result = true;
-        if (info.reading instanceof BillingReading) {
-            BillingReadingInfo billingReadingInfo = BillingReadingInfo.class.cast(info);
+        if(info instanceof BillingReadingInfo) {
+            BillingReadingInfo billingReadingInfo = (BillingReadingInfo)info;
             result = ValidationStatus.SUSPECT.equals(billingReadingInfo.validationResult);
-        } else if (info.reading instanceof NumericalReading) {
-            NumericalReadingInfo numericalReadingInfo = NumericalReadingInfo.class.cast(info);
+        } else if (info instanceof NumericalReadingInfo) {
+            NumericalReadingInfo numericalReadingInfo = (NumericalReadingInfo)info;
             result = ValidationStatus.SUSPECT.equals(numericalReadingInfo.validationResult);
         }
         return result;

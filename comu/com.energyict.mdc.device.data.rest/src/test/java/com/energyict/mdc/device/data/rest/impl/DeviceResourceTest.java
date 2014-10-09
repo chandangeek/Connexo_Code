@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -785,12 +786,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Interval interval) {
         LoadProfileReading loadProfileReading = mock(LoadProfileReading.class);
+        IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
+        when(intervalReadingRecord.getValue()).thenReturn(BigDecimal.TEN);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.CORRUPTED));
         when(loadProfileReading.getReadingTime()).thenReturn(new Date());
         when(loadProfileReading.getInterval()).thenReturn(interval);
-        Map<Channel, BigDecimal> map = new HashMap<>();
+        Map<Channel, IntervalReadingRecord> map = new HashMap<>();
         for (Channel channel : loadProfile.getChannels()) {
-            map.put(channel, BigDecimal.TEN);
+            map.put(channel, intervalReadingRecord);
         }
         when(loadProfileReading.getChannelValues()).thenReturn(map);
         return loadProfileReading;

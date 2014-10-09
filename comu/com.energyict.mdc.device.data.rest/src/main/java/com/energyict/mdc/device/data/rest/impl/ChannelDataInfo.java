@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -20,9 +23,15 @@ import java.util.*;
  * Created by bvn on 8/1/14.
  */
 public class ChannelDataInfo {
+    @JsonProperty("interval")
     public IntervalInfo interval;
+    @JsonProperty("readingTime")
     public Date readingTime;
+    @JsonProperty("editedTime")
+    public Date editedTime;
+    @JsonProperty("intervalFlags")
     public List<String> intervalFlags;
+    @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
 
@@ -51,9 +60,10 @@ public class ChannelDataInfo {
                 channelIntervalInfo.intervalFlags.add(thesaurus.getString(flag.name(), flag.name()));
             }
             Channel valueOwnerChannel = null;
-            for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues().entrySet()) {
+            for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
                 valueOwnerChannel = entry.getKey();
-                channelIntervalInfo.value=entry.getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
+                channelIntervalInfo.value=entry.getValue().getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
+                channelIntervalInfo.editedTime = entry.getValue().edited() ? entry.getValue().getReportedDateTime() : null;
             }
             if (channelIntervalInfo.value != null && valueOwnerChannel != null){
                 channelIntervalInfo.value= channelIntervalInfo.value.setScale(valueOwnerChannel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP);
@@ -68,6 +78,11 @@ public class ChannelDataInfo {
             channelData.add(channelIntervalInfo);
         }
         return channelData;
+    }
+
+    public BaseReading createNew() {
+        IntervalReadingImpl reading = new IntervalReadingImpl(new Date(this.interval.end), this.value);
+        return reading;
     }
 }
 

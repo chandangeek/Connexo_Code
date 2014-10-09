@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
@@ -46,9 +47,9 @@ public class LoadProfileDataInfo {
             channelIntervalInfo.intervalFlags.add(thesaurus.getString(flag.name(), flag.name()));
         }
 
-        for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues().entrySet()) {
+        for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
             Channel channel = entry.getKey();
-            BigDecimal value = entry.getValue();
+            BigDecimal value = entry.getValue().getValue();
             if (value != null) {
                 int nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
                 value = value.setScale(nbrOfFractionDigits, BigDecimal.ROUND_UP);
