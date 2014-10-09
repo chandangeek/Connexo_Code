@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -20,7 +21,7 @@ import java.util.Map;
  */
 public class LoadProfileReadingImpl implements LoadProfileReading {
     private Interval interval;
-    private Map<Channel, BigDecimal> values = new HashMap<>();
+    private Map<Channel, IntervalReadingRecord> values = new HashMap<>();
     private Map<Channel, DataValidationStatus> states = new HashMap<>();
     private Date readingTime;
     private final List<ProfileStatus.Flag> flags = new ArrayList<>();
@@ -35,8 +36,8 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
         this.interval = interval;
     }
 
-    public void setChannelData(Channel channel, BigDecimal value) {
-        values.put(channel, value);
+    public void setChannelData(Channel channel, IntervalReadingRecord readingRecord) {
+        values.put(channel, readingRecord);
     }
 
     public void setDataValidationStatus(Channel channel, DataValidationStatus status) {
@@ -44,7 +45,7 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     }
 
     @Override
-    public Map<Channel, BigDecimal> getChannelValues() {
+    public Map<Channel, IntervalReadingRecord> getChannelValues() {
         return Collections.unmodifiableMap(values);
     }
 
