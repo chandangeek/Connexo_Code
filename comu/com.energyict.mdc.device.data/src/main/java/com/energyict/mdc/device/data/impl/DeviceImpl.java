@@ -33,6 +33,7 @@ import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -93,7 +94,6 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpda
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -110,6 +110,7 @@ import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -154,7 +155,6 @@ public class DeviceImpl implements Device {
     private final ServerCommunicationTaskService communicationTaskService;
     private final DeviceService deviceService;
     private final SecurityPropertyService securityPropertyService;
-    private final RelationService relationService;
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
@@ -213,7 +213,7 @@ public class DeviceImpl implements Device {
             ServerCommunicationTaskService communicationTaskService,
             DeviceService deviceService,
             SecurityPropertyService securityPropertyService,
-            RelationService relationService, Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
+            Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
             Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
             Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
             Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
@@ -228,7 +228,6 @@ public class DeviceImpl implements Device {
         this.communicationTaskService = communicationTaskService;
         this.deviceService = deviceService;
         this.securityPropertyService = securityPropertyService;
-        this.relationService = relationService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
@@ -959,15 +958,19 @@ public class DeviceImpl implements Device {
 
     @Override
     public void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
-//        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
-//        RelationType relationType = protocolPluggableService.findSecurityPropertyRelationType(deviceProtocolPluggableClass);
-//        RelationTransaction transaction = relationType.newRelationTransaction();
-//        transaction.setFrom(activePeriodStart);
-//        transaction.setTo(null);
-//        transaction.set(DEVICE_ATTRIBUTE_NAME, this);
-//        transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);
-//        typedProperties.propertyNames().stream().forEach(p->transaction.set(p,typedProperties.getPropertyValue(p)));
-//        transaction.execute();
+        try {
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+            RelationType relationType = protocolPluggableService.findSecurityPropertyRelationType(deviceProtocolPluggableClass);
+            RelationTransaction transaction = relationType.newRelationTransaction();
+            transaction.setFrom(clock.now());
+            transaction.setTo(null);
+            transaction.set(DEVICE_ATTRIBUTE_NAME, this);
+            transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);
+            typedProperties.propertyNames().stream().forEach(p->transaction.set(p,typedProperties.getPropertyValue(p)));
+            transaction.execute();
+        } catch (BusinessException | SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addDeviceProperty(String name, String propertyValue) {
