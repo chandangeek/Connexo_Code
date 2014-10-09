@@ -15,12 +15,12 @@ public interface EventService {
 
     @TransactionRequired
     EventTypeBuilder buildEventTypeWithTopic(String topic);
-    
+
     List<EventType> getEventTypes();
-    
+
+    List<EventType> getEventTypesForComponent(String component);
+
     Optional<EventType> getEventType(String topic);
-    
-    
-    
+
 
 }

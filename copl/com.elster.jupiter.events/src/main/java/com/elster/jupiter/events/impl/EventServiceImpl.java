@@ -191,6 +191,11 @@ public class EventServiceImpl implements EventService, InstallService {
     }
 
     @Override
+    public List<EventType> getEventTypesForComponent(String component) {
+        return eventTypeFactory().find("component", component);
+    }
+
+    @Override
     public Optional<EventType> getEventType(String topic) {
         return eventTypeFactory().getOptional(topic);
     }
