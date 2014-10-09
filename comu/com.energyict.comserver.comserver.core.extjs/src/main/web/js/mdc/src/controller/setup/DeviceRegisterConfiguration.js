@@ -218,7 +218,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     showToday: false,
                     value: me.dataValidationLastChecked,
                     fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validation.item1', 'MDC', 'The data of register will be validated starting from'),
-                    labelWidth: 400,
+                    labelWidth: 375,
                     labelPad: 0.5
                 },
                 {
