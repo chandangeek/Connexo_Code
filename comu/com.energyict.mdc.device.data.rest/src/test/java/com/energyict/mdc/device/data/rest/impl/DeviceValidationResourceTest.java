@@ -29,7 +29,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -172,10 +171,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(notSuspect.getTypeCode()).thenReturn("0");
 
         Interval regInterval1 = new Interval(Date.from(fromReg.toInstant()), Date.from(to.toInstant()));
-        when(evaluator.getValidationStatus(channel4, regInterval1)).thenReturn(Arrays.asList(validationStatus1));
         Date toNow = Date.from(ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
-        Interval regInterval2 = new Interval(Date.from(to.toInstant()), toNow);
-        when(evaluator.getValidationStatus(channel7, regInterval2)).thenReturn(Arrays.asList(validationStatus2, validationStatus3));
         Interval wholeRegInterval = new Interval(Date.from(fromReg.toInstant()), toNow);
         when(deviceValidation.getValidationStatus(eq(register1), anyList(), eq(wholeRegInterval))).thenReturn(Arrays.asList(validationStatus1, validationStatus2, validationStatus3));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus1).getReadingQualities();
@@ -184,11 +180,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
         ZonedDateTime fromCh = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
         Interval chInterval1 = new Interval(Date.from(fromCh.toInstant()), Date.from(to.toInstant()));
-        when(evaluator.getValidationStatus(channel5, chInterval1)).thenReturn(Arrays.asList(validationStatus4));
-        when(evaluator.getValidationStatus(channel6, chInterval1)).thenReturn(Collections.emptyList());
         Interval chInterval2 = new Interval(Date.from(to.toInstant()), toNow);
-        when(evaluator.getValidationStatus(channel8, chInterval2)).thenReturn(Collections.emptyList());
-        when(evaluator.getValidationStatus(channel9, chInterval2)).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
         Interval wholeInterval = new Interval(Date.from(fromCh.toInstant()), toNow);
         when(deviceValidation.getValidationStatus(eq(ch1), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus4));
         when(deviceValidation.getValidationStatus(eq(ch2), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
