@@ -414,4 +414,35 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         verify(validator, times(2)).finish();
     }
 
+    @Test
+    public void testValidateChannelWhenOneReadingTypeMatchesForRegisterValuesButRuleIsWarnOnly() {
+        field("id").ofType(Long.TYPE).in(validationRule).set(ID);
+
+        when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Collections.<IntervalReadingRecord>emptyList());
+        when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));
+        when(channel.isRegular()).thenReturn(false);
+        when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE1);
+        when(readingRecord.getTimeStamp()).thenReturn(DATE1);
+        when(validator.validate(readingRecord)).thenReturn(ValidationResult.SUSPECT);
+        when(channel.createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord)).thenReturn(readingQuality);
+        when(channel.createReadingQuality(new ReadingQualityType("3.5.258"), readingRecord)).thenReturn(readingQuality1);
+        validationRule.addReadingType(readingType1);
+        validationRule.addReadingType(readingType2);
+        validationRule.setAction(ValidationAction.WARN_ONLY);
+        validationRule.activate();
+
+        doReturn(Arrays.asList(readingType2, readingType3)).when(channel).getReadingTypes();
+
+        assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(DATE1);
+
+        verify(validator).init(channel, readingType2, INTERVAL);
+        verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
+        verify(readingQuality).save();
+        verify(channel, never()).createReadingQuality(new ReadingQualityType("3.5.258"), readingRecord);
+        verify(readingQuality1, never()).save();
+        verify(readingRecord).setProcessingFlags(ProcessStatus.Flag.SUSPECT);
+        verify(validator).finish();
+    }
+
+
 }
