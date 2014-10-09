@@ -60,8 +60,6 @@ public enum MessageSeeds implements MessageSeed {
     WAITING(69, "Waiting", "Waiting"),
     DEFAULT(70, "Default", "Default"),
     DEFAULT_NOT_DEFINED(71, "DefaultNotDefined", "Default (not defined yet)"),
-    INBOUND(72, ConnectionType.Direction.INBOUND.name(), "Inbound"),
-    OUTBOUND(73, ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
     SUCCESS(74, "Success", "Success"),
     BROKEN(75, "Broken", "Broken"),
     SETUP_ERROR(76, "SetupError", "Setup error"),
@@ -77,6 +75,8 @@ public enum MessageSeeds implements MessageSeed {
     UNEXPECTED_ERROR(86, "UnexpectedError", "Unexpected error"),
     INDIVIDUAL(87, "Individual", "Individual"),
     NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD(88,"noSuchComSession" ,"No such communication session exists for this connection method"),
+    INBOUND(89, ConnectionType.Direction.INBOUND.name(), "Inbound"),
+    OUTBOUND(90, ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
     ;
 
     private final int number;

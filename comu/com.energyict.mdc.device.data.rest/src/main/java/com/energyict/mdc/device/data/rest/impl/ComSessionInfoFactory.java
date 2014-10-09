@@ -7,6 +7,9 @@ import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import java.sql.Date;
+import java.time.Duration;
+import java.time.temporal.ChronoField;
 import javax.inject.Inject;
 
 /**
@@ -28,9 +31,9 @@ public class ComSessionInfoFactory {
         info.id = comSession.getId();
         info.connectionMethod = connectionTask.getName();
         info.isDefault = connectionTask.isDefault();
-        info.startedOn = comSession.getStartDate();
-        info.finishedOn = comSession.getStopDate();
-        info.durationInSeconds = comSession.getTotalDuration().getStandardSeconds();
+        info.startedOn = Date.from(comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND,0));
+        info.finishedOn = Date.from(comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0));
+        info.durationInSeconds = Duration.ofMillis(info.finishedOn.getTime() - info.startedOn.getTime()).getSeconds(); // JP-6022
         if (comSession.getComPort()!=null) {
             info.comPort = comSession.getComPort().getName();
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());

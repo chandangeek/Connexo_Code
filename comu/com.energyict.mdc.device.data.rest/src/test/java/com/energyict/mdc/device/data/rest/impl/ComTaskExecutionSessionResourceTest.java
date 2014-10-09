@@ -17,7 +17,6 @@ import com.jayway.jsonpath.JsonModel;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.joda.time.Duration;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,8 +85,8 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
     private ComSession mockComSession(ConnectionTask<?, ?> connectionTask, Long id, Device device) {
         ComSession comSession = mock(ComSession.class);
         when(comSession.getId()).thenReturn(id);
-        when(comSession.getStartDate()).thenReturn(start);
-        when(comSession.getStopDate()).thenReturn(end);
+        when(comSession.getStartDate()).thenReturn(start.toInstant());
+        when(comSession.getStopDate()).thenReturn(end.toInstant());
         ComPort comPort = mock(ComPort.class);
         when(comPort.getName()).thenReturn("comPort 199812981212");
         when(comPort.getId()).thenReturn(199812981212L);
@@ -96,7 +95,6 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(comServer.getName()).thenReturn("communication server alfa");
         when(comPort.getComServer()).thenReturn(comServer);
         when(comSession.getComPort()).thenReturn(comPort);
-        when(comSession.getTotalDuration()).thenReturn(Duration.standardMinutes(2));
         when(comSession.getConnectionTask()).thenReturn(connectionTask);
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(1001);
         when(comSession.getNumberOfFailedTasks()).thenReturn(1002);

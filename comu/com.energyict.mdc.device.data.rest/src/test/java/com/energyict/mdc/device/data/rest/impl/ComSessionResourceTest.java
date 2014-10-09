@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,8 +23,8 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 10/3/14.
  */
 public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest {
-    private final DateTime start = new DateTime(1412341200000L);
-    private final DateTime end = new DateTime(1412341300000L);
+    private final DateTime start = new DateTime(2014, 10,10,13,10,10);
+    private final DateTime end = new DateTime(2014, 10,10,13,10,20);
 
     @Test
     public void testGetComTaskExecutions() throws Exception {
@@ -55,7 +54,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.comSessions[0].connectionMethod")).isEqualTo("GPRS");
         assertThat(jsonModel.<Long>get("$.comSessions[0].startedOn")).isEqualTo(start.getMillis());
         assertThat(jsonModel.<Long>get("$.comSessions[0].finishedOn")).isEqualTo(end.getMillis());
-        assertThat(jsonModel.<Integer>get("$.comSessions[0].durationInSeconds")).isEqualTo(120);
+        assertThat(jsonModel.<Integer>get("$.comSessions[0].durationInSeconds")).isEqualTo(10);
         assertThat(jsonModel.<String>get("$.comSessions[0].direction")).isEqualTo("Inbound");
         assertThat(jsonModel.<String>get("$.comSessions[0].connectionType")).isEqualTo("IPDIALER");
         assertThat(jsonModel.<Integer>get("$.comSessions[0].comServer.id")).isEqualTo(1234654);
@@ -102,8 +101,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     private ComSession mockComSession(ConnectionTask<?, ?> connectionTask, Long id, int startDelay) {
         ComSession comSession = mock(ComSession.class);
         when(comSession.getId()).thenReturn(id);
-        when(comSession.getStartDate()).thenReturn(start.plusHours(startDelay).toDate());
-        when(comSession.getStopDate()).thenReturn(end.plusHours(startDelay).toDate());
+        when(comSession.getStartDate()).thenReturn(start.plusHours(startDelay).toDate().toInstant());
+        when(comSession.getStopDate()).thenReturn(end.plusHours(startDelay).toDate().toInstant());
         ComPort comPort = mock(ComPort.class);
         when(comPort.getName()).thenReturn("comPort 199812981212");
         when(comPort.getId()).thenReturn(199812981212L);
@@ -112,7 +111,6 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(comServer.getName()).thenReturn("communication server alfa");
         when(comPort.getComServer()).thenReturn(comServer);
         when(comSession.getComPort()).thenReturn(comPort);
-        when(comSession.getTotalDuration()).thenReturn(Duration.standardMinutes(2));
         when(comSession.getConnectionTask()).thenReturn(connectionTask);
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(1001);
         when(comSession.getNumberOfFailedTasks()).thenReturn(1002);
