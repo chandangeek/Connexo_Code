@@ -77,7 +77,7 @@ Ext.define('Ldr.Loader', {
         };
 
         // Should be defined as a script tag is the index file.
-        var i18nComponents = i18nComponents || [];
+        var i18nComponents = window.i18nComponents || [];
         Ldr.store.Translations.setComponents(i18nComponents);
 
         Ldr.store.Translations.load({
