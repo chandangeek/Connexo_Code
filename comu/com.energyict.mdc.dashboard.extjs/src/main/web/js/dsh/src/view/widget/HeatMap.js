@@ -135,7 +135,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
     renderChart: function (container) {
         var me = this;
-        var width = container.offsetWidth - 50;
+        var width = container.offsetWidth;
         this.chart = new Highcharts.Chart({
             chart: {
                 type: 'heatmap',
@@ -170,12 +170,10 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 maxColor: Highcharts.getOptions().colors[0]
             },
             legend: {
-                align: 'center',
-                layout: 'horisontal',
+                align: 'right',
+                layout: 'vertical',
                 verticalAlign: 'top',
-                symbolWidth: width - 200,
-                width: width,
-                x: 200
+                symbolHeight: 100
             },
             tooltip: {
                 formatter: function () {
