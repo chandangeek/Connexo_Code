@@ -115,32 +115,6 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
     }
 
     @Override
-    public List<DataValidationStatus> getValidationStatus(Channel channel, Interval interval) {
-        List<DataValidationStatus> result = new ArrayList<>();
-        List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
-        boolean configured = !channelValidations.isEmpty();
-        Date lastChecked = configured ? getMinLastChecked(channelValidations.stream()
-                .filter(ChannelValidation::hasActiveRules)
-                .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
-
-        ListMultimap<String, IValidationRule> validationRuleMap = getValidationRulesPerReadingQuality(channelValidations);
-
-        ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, interval);
-
-        for (Date readingTimestamp : readingQualities.keySet()) {
-            List<ReadingQuality> qualities = new ArrayList<>(readingQualities.containsKey(readingTimestamp) ? readingQualities.get(readingTimestamp) : new ArrayList<ReadingQuality>());
-            boolean wasValidated = wasValidated(lastChecked, readingTimestamp);
-            if (qualities.isEmpty() && configured && wasValidated) {
-                qualities.add(OK_QUALITY);
-            }
-            boolean fullyValidated = configured && wasValidated;
-            result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, validationRuleMap));
-
-        }
-        return result;
-    }
-
-    @Override
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Interval interval) {
         List<DataValidationStatus> result = new ArrayList<>();
         List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);

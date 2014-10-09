@@ -24,8 +24,6 @@ public interface ValidationEvaluator {
 
     List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings);
 
-    List<DataValidationStatus> getValidationStatus(Channel channel, Interval interval);
-
     List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Interval interval);
 
     boolean isValidationEnabled(Meter meter);

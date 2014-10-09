@@ -16,7 +16,7 @@ public interface ValidationService {
 
     String COMPONENTNAME = "VAL";
 
-    Predicate<ReadingQuality> IS_VALIDATION_QUALITY = q -> q.getTypeCode().startsWith("3.");
+    Predicate<ReadingQuality> IS_VALIDATION_QUALITY = q -> q.getTypeCode().startsWith("3.6");
 
     /**
      * Mangagement of ruleSets and ules *
