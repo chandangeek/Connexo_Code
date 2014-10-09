@@ -158,6 +158,16 @@ public class ResourceHelper {
         return Optional.absent();
     }
 
+    public Optional<com.elster.jupiter.metering.Channel> getLoadProfileChannel(Channel channel, Meter meter) {
+        for (MeterActivation meterActivation : getMeterActivationsMostCurrentFirst(meter)) {
+            Optional<com.elster.jupiter.metering.Channel> channelRef = getChannel(meterActivation, channel.getReadingType());
+            if (channelRef.isPresent()) {
+                return channelRef;
+            }
+        }
+        return Optional.absent();
+    }
+
     public Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
         for (com.elster.jupiter.metering.Channel channel : meterActivation.getChannels()) {
             if (channel.getReadingTypes().contains(readingType)) {

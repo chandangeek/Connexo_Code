@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
@@ -8,12 +9,14 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
+import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
@@ -23,6 +26,7 @@ import org.mockito.Mock;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -63,6 +67,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private ValidationRuleSet ruleSet;
     @Mock
     private ValidationEvaluator evaluator;
+    @Mock
+    private IntervalReadingRecord readingRecord1, readingRecord2;
 
     public ChannelResourceTest() {
     }
@@ -78,7 +84,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfileReading.getInterval()).thenReturn(interval);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
         when(thesaurus.getString(BATTERY_LOW, BATTERY_LOW)).thenReturn(BATTERY_LOW);
-        when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, BigDecimal.valueOf(200, 0), channel2, BigDecimal.valueOf(250, 0)));
+        when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, readingRecord1, channel2, readingRecord2));
+        when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
+        when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(250, 0));
         when(clock.now()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device);
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
@@ -129,6 +137,37 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<Boolean>get("$.data[0].suspectReason[0].active")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].suspectReason[0].implementation")).isEqualTo("isPrime");
         assertThat(jsonModel.<String>get("$.data[0].suspectReason[0].displayName")).isEqualTo("Primes only");
+    }
+
+    @Test
+    public void testPutChannelData() {
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        Meter meter = mock(Meter.class);
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        com.elster.jupiter.metering.Channel meteringChannel = mock(com.elster.jupiter.metering.Channel.class);
+        ReadingType readingType = mock(ReadingType.class);
+        List list = mock(List.class);
+        when(channel1.getReadingType()).thenReturn(readingType);
+        when(channel2.getReadingType()).thenReturn(readingType);
+        when(device.getId()).thenReturn(1L);
+        when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));
+        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
+        when(meterActivation.getChannels()).thenReturn(Arrays.asList(meteringChannel));
+        doReturn(Arrays.asList(readingType)).when(meteringChannel).getReadingTypes();
+        when(list.contains(readingType)).thenReturn(true);
+
+        ChannelDataInfo channelDataInfo = new ChannelDataInfo();
+        channelDataInfo.value = BigDecimal.TEN;
+        channelDataInfo.interval = new IntervalInfo();
+        channelDataInfo.interval.start = intervalStart;
+        channelDataInfo.interval.end = intervalEnd;
+
+        List<ChannelDataInfo> infos = new ArrayList<>();
+        infos.add(channelDataInfo);
+
+        Response response = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/data").request().put(Entity.json(infos));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
