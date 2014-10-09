@@ -118,6 +118,7 @@ mvn:com.elster.jupiter/events.rest/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/install/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/osgi.goodies/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/extjs/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/loaderjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/unifyingjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/soap.whiteboard/1.0.0-SNAPSHOT
