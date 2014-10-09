@@ -28,7 +28,7 @@ Ext.define('Ldr.Loader', {
      * @param {Object} scope Scope
      */
     onPrivilegesLoad: function (scope) {
-        scope.loadTranslations(scope.onTranslationsLoad);
+        scope.loadTranslations(scope.onTranslationsLoad, scope);
     },
 
     /**
