@@ -187,7 +187,7 @@ public class DeviceValidationResource {
 
         deviceValidationStatusInfo.registerSuspectCount = statuses.stream()
                 .flatMap(d -> d.getReadingQualities().stream())
-                .filter(ValidationService.IS_VALIDATION_QUALITY)
+                .filter(r -> QualityCodeIndex.SUSPECT.equals(r.getType().qualityIndex().orElse(null)))
                 .count();
         if (statuses.isEmpty()) {
             deviceValidationStatusInfo.allDataValidated &= device.getLoadProfiles().stream()

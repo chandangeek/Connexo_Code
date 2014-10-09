@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
@@ -167,8 +168,10 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(validationService.getEvaluator(eq(meter), any(Interval.class))).thenReturn(evaluator);
-        when(suspect.getTypeCode()).thenReturn("3.0.1");
-        when(notSuspect.getTypeCode()).thenReturn("0");
+        when(suspect.getTypeCode()).thenReturn("3.5.258");
+        when(notSuspect.getTypeCode()).thenReturn("0.0.0");
+        when(suspect.getType()).thenReturn(new ReadingQualityType("3.5.258"));
+        when(notSuspect.getType()).thenReturn(new ReadingQualityType("0.0.0"));
 
         Interval regInterval1 = new Interval(Date.from(fromReg.toInstant()), Date.from(to.toInstant()));
         Date toNow = Date.from(ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
