@@ -29,22 +29,23 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.google.common.base.Optional;
-import org.joda.time.Duration;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-
-import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.dashboard.rest.status.ComServerStatusResource} component.
@@ -321,9 +322,8 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
         when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(3);
         when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
-        when(comSession.getStartDate()).thenReturn(new Date());
-        when(comSession.getStopDate()).thenReturn(new Date());
-        when(comSession.getTotalDuration()).thenReturn(Duration.standardSeconds(4L));
+        when(comSession.getStartDate()).thenReturn(Instant.now());
+        when(comSession.getStopDate()).thenReturn(Instant.now());
         ComPort comPort = mock(ComPort.class);
         when(comPort.getName()).thenReturn("com port");
         when(comPort.getId()).thenReturn(99L);

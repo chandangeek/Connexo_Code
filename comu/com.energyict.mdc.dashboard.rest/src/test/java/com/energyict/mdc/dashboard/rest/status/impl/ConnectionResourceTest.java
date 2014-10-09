@@ -27,21 +27,24 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.google.common.base.Optional;
 import com.jayway.jsonpath.JsonModel;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-
-import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.core.Response;
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.dashboard.rest.status.ComServerStatusResource} component.
@@ -212,9 +215,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testConnectionTaskJsonBinding() throws Exception {
+        Instant startDate = Instant.ofEpochMilli(1412771995988L);
+        Instant endDate = startDate.plus(1, ChronoUnit.HOURS);
         DateTime now = DateTime.now();
-        Date startDate = now.toDate();
-        Date endDate = now.plusHours(1).toDate();
         Date plannedNext = now.plusHours(2).toDate();
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
@@ -260,7 +263,6 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
         when(comSession.getStartDate()).thenReturn(startDate);
         when(comSession.getStopDate()).thenReturn(endDate);
-        when(comSession.getTotalDuration()).thenReturn(Duration.standardSeconds(4L));
         when(connectionTask.getConnectionType()).thenReturn(new OutboundTcpIpConnectionType());
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         ComPort comPort = mock(ComPort.class);
@@ -304,9 +306,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfSuccessfulTasks")).isEqualTo(12);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfFailedTasks")).isEqualTo(401);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfIncompleteTasks")).isEqualTo(3);
-        assertThat(jsonModel.<Long>get("$.connectionTasks[0].startDateTime")).isEqualTo(startDate.getTime());
-        assertThat(jsonModel.<Long>get("$.connectionTasks[0].endDateTime")).isEqualTo(endDate.getTime());
-        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].duration.count")).isEqualTo(4);
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].startDateTime")).isEqualTo(1412771995000L);
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].endDateTime")).isEqualTo(endDate.with(ChronoField.MILLI_OF_SECOND,0).toEpochMilli());
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].duration.count")).isEqualTo(3600);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].duration.timeUnit")).isEqualTo("seconds");
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comServer.id")).isEqualTo(1212);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].comServer.name")).isEqualTo("com server");
