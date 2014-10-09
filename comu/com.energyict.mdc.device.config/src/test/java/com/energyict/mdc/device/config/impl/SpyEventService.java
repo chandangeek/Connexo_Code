@@ -13,10 +13,11 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
-import java.util.List;
-import javax.inject.Inject;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+
+import javax.inject.Inject;
+import java.util.List;
 
 import static org.mockito.Mockito.spy;
 
@@ -47,6 +48,11 @@ public class SpyEventService implements EventService {
     @Override
     public Optional<EventType> getEventType(String topic) {
         return eventService.getEventType(topic);
+    }
+
+    @Override
+    public List<EventType> getEventTypesForComponent(String component) {
+        return eventService.getEventTypesForComponent(component);
     }
 
     public EventService getSpy() {
