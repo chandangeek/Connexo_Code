@@ -400,6 +400,11 @@ public class DeviceImplDoSomethingWithEventsTest {
             public Optional<EventType> getEventType(String topic) {
                 return eventService.getEventType(topic);
             }
+
+            @Override
+            public List<EventType> getEventTypesForComponent(String component) {
+                return eventService.getEventTypesForComponent(component);
+            }
         }
 
     }
