@@ -2,6 +2,7 @@
     "name": "com.elster.jupiter.system.app",
 
     "requires": [
+        "com.elster.jupiter.loaderjs",
         "com.elster.jupiter.unifyingjs",
         "com.elster.jupiter.users.extjs",
         "com.elster.jupiter.systemadmin.extjs"

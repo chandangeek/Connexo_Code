@@ -1,11 +1,5 @@
 Ext.onReady(function () {
-    var loader = Ext.create('Uni.Loader'),
-        translationsQueue = [
-            'USR',
-            'SAM'
-        ];
-
-    loader.initI18n(translationsQueue);
+    var loader = Ext.create('Uni.Loader');
 
     // <debug>
     // Used only during development to point to hosted files.

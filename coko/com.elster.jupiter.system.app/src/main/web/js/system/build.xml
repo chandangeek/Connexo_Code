@@ -39,4 +39,12 @@
             <target name="-after-build"/>
     -->
 
+    <!-- Removes the app.js script cause it is being loaded in via the loader.js file. -->
+    <target name="-after-page">
+        <replaceregexp
+                match="\&lt;script type=\&quot;text\/javascript\&quot; src=\&quot;app.js\&quot;\&gt;\&lt;\/script\&gt;"
+                replace="" flags="gs" file="${build.out.page.path}">
+        </replaceregexp>
+    </target>
+
 </project>
