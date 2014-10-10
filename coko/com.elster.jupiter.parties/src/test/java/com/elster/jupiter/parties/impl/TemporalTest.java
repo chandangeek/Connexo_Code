@@ -51,7 +51,7 @@ public class TemporalTest {
         }
     }
     
-    private static final boolean printSql = true;
+    private static final boolean printSql = false;
 
     @BeforeClass
     public static void setUp() throws SQLException {

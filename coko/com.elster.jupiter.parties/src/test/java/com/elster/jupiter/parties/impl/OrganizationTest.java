@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.util.Date;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +41,7 @@ public class OrganizationTest {
     	assertThat(party.getPartyInRoles(Range.atLeast(Instant.EPOCH))).isEmpty();
     	assertThat(party.getCurrentDelegates()).isEmpty();
     	Instant now = Instant.now();
-    	when(clock.now()).thenReturn(Date.from(now));
+    	when(clock.instant()).thenReturn(now);
     	assertThat(party.appointDelegate(user, now).isCurrent()).isTrue();
     	assertThat(party.getCurrentDelegates()).isNotEmpty();
     	assertThat(party.assumeRole(role, now).getParty()).isEqualTo(party);
