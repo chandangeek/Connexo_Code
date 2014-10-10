@@ -1,18 +1,18 @@
 package com.elster.jupiter.util.time;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-
 import com.google.common.collect.ImmutableList;
+
 import org.assertj.core.api.BooleanAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.Date;
 
 import static com.elster.jupiter.util.time.Interval.EndpointBehavior.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -140,7 +140,7 @@ public class IntervalTest extends EqualsContractTest {
 
     @Test
     public void testWithEndToOpenEnded() {
-        Interval newInterval = new Interval(date2, date3).withEnd(null);
+        Interval newInterval = new Interval(date2, date3).withEnd((Instant) null);
         assertThat(newInterval.getStart()).isEqualTo(date2);
         assertThat(newInterval.getEnd()).isNull();
     }

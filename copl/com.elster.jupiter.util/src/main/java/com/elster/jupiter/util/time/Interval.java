@@ -216,7 +216,7 @@ public final class Interval {
         return new Interval(start, getEndValue(date));
     }
     
-    public Interval endAt(Instant instant) {
+    public Interval withEnd(Instant instant) {
     	return new Interval(start, getEndValue(instant));
     }
 
