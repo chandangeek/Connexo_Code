@@ -118,7 +118,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
 
     @Override
     public LocalEvent create(Object source) {
-        return new LocalEventImpl(clock.now(), jsonService, eventConfiguration, messageService, beanService, this, source, thesaurus);
+        return new LocalEventImpl(clock.instant(), jsonService, eventConfiguration, messageService, beanService, this, source, thesaurus);
     }
 
     @Override

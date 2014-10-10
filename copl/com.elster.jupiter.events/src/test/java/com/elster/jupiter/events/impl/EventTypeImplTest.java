@@ -11,7 +11,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
-import org.joda.time.DateTime;
+
+import java.time.Instant;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +20,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,7 +37,7 @@ public class EventTypeImplTest {
     private static final String NAME = "name";
     private static final String ACCESS_PATH = "owner.name";
     private static final String PROPERTY_NAME = "propertyName";
-    private static final Date NOW = new DateTime(2013, 9, 14, 18, 45, 12).toDate();
+    private static final Instant NOW = ZonedDateTime.of(2013, 9, 14, 18, 45, 12, 0, ZoneId.systemDefault()).toInstant();
     private static final String SOURCE = "source";
 
     @Mock
@@ -60,7 +61,7 @@ public class EventTypeImplTest {
 
     @Before
     public void setUp() {
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(dataModel.mapper(EventType.class)).thenReturn(eventTypeFactory);
         when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, thesaurus));
     }

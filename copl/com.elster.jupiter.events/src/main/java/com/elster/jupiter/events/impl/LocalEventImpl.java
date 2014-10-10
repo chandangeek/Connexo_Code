@@ -9,10 +9,11 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
+
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,14 +21,14 @@ public class LocalEventImpl implements LocalEvent {
 
     private final Object source;
     private final EventType type;
-    private final Date dateTime;
+    private final Instant dateTime;
     private final JsonService jsonService;
     private final EventConfiguration eventService;
     private final MessageService messageService;
     private final BeanService beanService;
     private final Thesaurus thesaurus;
 
-    LocalEventImpl(Date dateTime, JsonService jsonService, EventConfiguration eventService, MessageService messageService, BeanService beanService, EventType type, Object source, Thesaurus thesaurus) {
+    LocalEventImpl(Instant dateTime, JsonService jsonService, EventConfiguration eventService, MessageService messageService, BeanService beanService, EventType type, Object source, Thesaurus thesaurus) {
         this.type = type;
         this.source = source;
         this.jsonService = jsonService;
@@ -39,7 +40,7 @@ public class LocalEventImpl implements LocalEvent {
     }
 
     @Override
-    public Date getDateTime() {
+    public Instant getDateTime() {
         return dateTime;
     }
 
@@ -76,7 +77,7 @@ public class LocalEventImpl implements LocalEvent {
             Object value = getValue(eventPropertyType);
             result.put(eventPropertyType.getName(), value);
         }        
-        result.put(EventConstants.TIMESTAMP, dateTime.getTime());
+        result.put(EventConstants.TIMESTAMP, dateTime.toEpochMilli());
         result.put(EventConstants.EVENT_TOPIC, getType().getTopic());
         return result;
     }

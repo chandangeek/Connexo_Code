@@ -10,7 +10,6 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,8 +21,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.osgi.service.event.Event;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LocalEventImplTest {
 
-    private static final Date NOW = new DateTime(2013, 9, 13, 4, 56, 14).toDate();
+    private static final Instant NOW = ZonedDateTime.of(2013, 9, 13, 4, 56, 14, 0, ZoneId.systemDefault()).toInstant();
     private static final String LEE_DUNCAN = "Lee Duncan";
     private static final String DOG_OWNER = "dogOwner";
     private static final String TOPIC = "topic";
@@ -66,7 +67,7 @@ public class LocalEventImplTest {
 
     @Before
     public void setUp() {
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(eventType.getPropertyTypes()).thenReturn(Arrays.asList(propertyType));
         when(eventType.getTopic()).thenReturn(TOPIC);
         when(propertyType.getValueType()).thenReturn(ValueType.STRING);

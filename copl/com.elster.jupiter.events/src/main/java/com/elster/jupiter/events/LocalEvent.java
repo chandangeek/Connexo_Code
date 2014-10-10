@@ -2,11 +2,11 @@ package com.elster.jupiter.events;
 
 import org.osgi.service.event.Event;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface LocalEvent {
 
-    Date getDateTime();
+    Instant getDateTime();
 
     EventType getType();
 
