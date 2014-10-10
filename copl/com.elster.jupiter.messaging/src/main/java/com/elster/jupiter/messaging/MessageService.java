@@ -1,6 +1,6 @@
 package com.elster.jupiter.messaging;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Main service of the MSG module that allows managing messaging.
