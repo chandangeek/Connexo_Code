@@ -126,8 +126,6 @@ Ext.define('Uni.Loader', {
         Ext.require('Uni.store.Apps');
         Ext.require('Uni.store.AppItems');
         Ext.require('Uni.store.Notifications');
-        Ext.require('Uni.store.Translations');
-        Ext.require('Uni.store.Privileges');
     },
 
     loadVtypes: function () {
