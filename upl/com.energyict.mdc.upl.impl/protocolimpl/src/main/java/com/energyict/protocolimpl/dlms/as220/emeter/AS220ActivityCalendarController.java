@@ -16,7 +16,6 @@ import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -181,13 +180,6 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
      * @throws java.io.IOException if a parsing exception occurred
      */
     public void parseContent(String content) throws IOException {
-        final String openingTag = "<" + AS220Messaging.ACTIVITY_CALENDAR + ">";
-        final String closingTag = "</" + AS220Messaging.ACTIVITY_CALENDAR + ">";
-        String compressedBase64Content = content.replaceFirst(openingTag, "");
-        compressedBase64Content = compressedBase64Content.replaceFirst(closingTag, "");
-        compressedBase64Content = compressedBase64Content.trim();
-        content = ProtocolTools.decompress(compressedBase64Content);
-
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
