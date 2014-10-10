@@ -16,6 +16,7 @@ import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -82,7 +83,7 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
         return dataModel.mapper(QueryEndDeviceGroup.class);
     }
 
-    private Condition getCondition() {
+    public Condition getCondition() {
         if (queryBuilder == null) {
             queryBuilder = QueryBuilder.using(getOperations());
         }
@@ -109,21 +110,20 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     }
 
     public List<SearchCriteria> getSearchCriteria() {
-        List<SearchCriteria> result = new ArrayList<SearchCriteria>();
+        List<SearchCriteria> result = new ArrayList<>();
         List<EndDeviceQueryBuilderOperation> operations = getOperations();
         for (EndDeviceQueryBuilderOperation operation : operations) {
             if (operation instanceof SimpleConditionOperation) {
                 SimpleConditionOperation condition = (SimpleConditionOperation) operation;
                 String fieldName = condition.getFieldName();
                 Object[] possibleValues = condition.getValues();
-                List values = new ArrayList();
-                for (Object object : possibleValues) {
-                    values.add(object);
-                }
+                List<Object> values = new ArrayList<>();
+                Collections.addAll(values, possibleValues);
                 SearchCriteria searchCriteriaInfo = new SearchCriteria(fieldName, values);
                 result.add(searchCriteriaInfo);
             }
         }
         return result;
     }
+
 }
