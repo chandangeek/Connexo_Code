@@ -32,6 +32,14 @@ public class ConnectionOverviewResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    public ConnectionOverviewInfo getConnectionOverview() throws Exception {
+        return connectionOverviewInfoFactory.asInfo();
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     @Path("/{mrid}")
     public ConnectionOverviewInfo getConnectionOverview(@PathParam("mrid") String mrid) throws Exception {
 

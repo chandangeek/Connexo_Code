@@ -66,8 +66,23 @@ public class ConnectionOverviewInfoFactory {
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown(endDeviceGroup);
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup);
         SummaryData summaryData = new SummaryData(taskStatusOverview, connectionTaskService.countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
-        ConnectionOverviewInfo info = new ConnectionOverviewInfo();
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(0).get();
+        return getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData, dataCollectionKpi);
+    }
+
+    public ConnectionOverviewInfo asInfo() {
+        TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
+        ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
+        ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
+        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
+        SummaryData summaryData = new SummaryData(taskStatusOverview, connectionTaskService.countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
+        DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(0).get();
+        return getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData, dataCollectionKpi);
+    }
+
+    private ConnectionOverviewInfo getConnectionOverviewInfo(TaskStatusOverview taskStatusOverview, ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, ComPortPoolBreakdown comPortPoolBreakdown, ConnectionTypeBreakdown connectionTypeBreakdown, DeviceTypeBreakdown deviceTypeBreakdown, SummaryData summaryData, DataCollectionKpi dataCollectionKpi) {
+        ConnectionOverviewInfo info = new ConnectionOverviewInfo();
         if (dataCollectionKpi.calculatesConnectionSetupKpi()) {
             info.kpi = new ArrayList<>();
             KpiScoreInfo success = new KpiScoreInfo(MessageSeeds.SUCCESS.getKey());
