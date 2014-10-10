@@ -4,11 +4,12 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
+
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQEnqueueOptions;
 import oracle.jdbc.aq.AQMessage;
 import oracle.jdbc.aq.AQMessageProperties;
-import org.joda.time.Seconds;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
+import java.time.Duration;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -69,7 +71,7 @@ public class BytesMessageBuilderTest {
     @Test
     public void testExpiringSend() throws SQLException {
         new BytesMessageBuilder(dataModel, aqFacade, publisher, destination, MESSAGE.getBytes())
-                .expiringAfter(Seconds.seconds(60))
+                .expiringAfter(Duration.ofSeconds(60))
                 .send();
 
         verify(aqMessage).setPayload(MESSAGE.getBytes());
@@ -82,7 +84,7 @@ public class BytesMessageBuilderTest {
         doThrow(SQLException.class).when(aqMessageProperties).setExpiration(anyInt());
 
         new BytesMessageBuilder(dataModel, aqFacade, publisher, destination, MESSAGE.getBytes())
-                .expiringAfter(Seconds.seconds(60))
+                .expiringAfter(Duration.ofSeconds(60))
                 .send();
    }
 

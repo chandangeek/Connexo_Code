@@ -5,14 +5,14 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
+
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQEnqueueOptions;
 import oracle.jdbc.aq.AQMessage;
 import oracle.jdbc.aq.AQMessageProperties;
-import org.joda.time.Seconds;
-
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Arrays;
 
 /**
@@ -43,9 +43,9 @@ class BytesMessageBuilder implements MessageBuilder {
     }
 
     @Override
-    public MessageBuilder expiringAfter(Seconds seconds) {
+    public MessageBuilder expiringAfter(Duration  duration) {
         try {
-            return tryExpiringAfter(seconds);
+            return tryExpiringAfter(duration);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -70,8 +70,8 @@ class BytesMessageBuilder implements MessageBuilder {
         return props;
     }
 
-    private MessageBuilder tryExpiringAfter(Seconds seconds) throws SQLException {
-        getMessageProperties().setExpiration(seconds.getSeconds());
+    private MessageBuilder tryExpiringAfter(Duration duration) throws SQLException {
+        getMessageProperties().setExpiration((int) duration.getSeconds());
         return this;
     }
 

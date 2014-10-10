@@ -12,14 +12,13 @@ import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
 
-import org.joda.time.Seconds;
-
 import javax.inject.Inject;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +33,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     /**
      * Receive will wait this long before checking whether to continue or not.
      */
-    private static final Seconds DEFAULT_WAIT = Seconds.seconds(60);
+    private static final Duration DEFAULT_WAIT = Duration.ofSeconds(60);
     private String name;
 
     @SuppressWarnings("unused")
@@ -143,7 +142,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private AQDequeueOptions basicOptions() throws SQLException {
         AQDequeueOptions options = new AQDequeueOptions();
-        options.setWait(DEFAULT_WAIT.getSeconds());
+        options.setWait((int) DEFAULT_WAIT.getSeconds());
         if (getDestination().isTopic()) {
             options.setConsumerName(name);
             options.setNavigation(AQDequeueOptions.NavigationOption.FIRST_MESSAGE);
