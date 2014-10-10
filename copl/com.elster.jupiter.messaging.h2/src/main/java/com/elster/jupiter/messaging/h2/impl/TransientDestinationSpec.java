@@ -8,8 +8,8 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
-import org.joda.time.Seconds;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -136,7 +136,7 @@ class TransientDestinationSpec implements DestinationSpec {
         }
 
         @Override
-        public MessageBuilder expiringAfter(Seconds seconds) {
+        public MessageBuilder expiringAfter(Duration duration) {
             return this;
         }
     }
