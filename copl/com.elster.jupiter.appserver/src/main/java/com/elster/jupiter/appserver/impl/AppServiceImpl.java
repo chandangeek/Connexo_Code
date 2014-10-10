@@ -27,7 +27,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -245,7 +245,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
 
     @Override
     public Optional<AppServer> getAppServer() {
-        return Optional.<AppServer>fromNullable(appServer);
+        return Optional.ofNullable(appServer);
     }
 
     @Override

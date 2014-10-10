@@ -9,7 +9,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -154,7 +154,7 @@ public class MessageHandlerLauncherService {
                 return Optional.of(candidate);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private void shutDownServiceWithCancelling(ExecutorService executorService) {

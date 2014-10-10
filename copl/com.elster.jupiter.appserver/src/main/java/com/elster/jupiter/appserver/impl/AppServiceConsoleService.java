@@ -12,7 +12,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -79,7 +79,7 @@ public class AppServiceConsoleService {
             appServerToActivateOn = current.get();
         } else {
             Optional<AppServer> found = getDataModel().mapper(AppServer.class).getOptional(appServerName);
-            appServerToActivateOn = found.orNull();
+            appServerToActivateOn = found.orElse(null);
         }
         return appServerToActivateOn;
     }

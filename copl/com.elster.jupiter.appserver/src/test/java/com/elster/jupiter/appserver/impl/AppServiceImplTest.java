@@ -29,7 +29,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
@@ -129,8 +129,8 @@ public class AppServiceImplTest {
         when(importScheduleOnAppServerFactory.find("appServer", appServer)).thenReturn(Collections.<ImportScheduleOnAppServer>emptyList());
         when(appServer.isRecurrentTaskActive()).thenReturn(false);
         when(appServer.messagingName()).thenReturn(MESSAGING_NAME);
-        when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.<SubscriberSpec>absent());
-        when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.<SubscriberSpec>absent());
+        when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.empty());
+        when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.empty());
         when(userService.findUser("batch executor")).thenReturn(Optional.of(batchUser));
         when(importTask1.getImportSchedule()).thenReturn(schedule1);
         when(importTask2.getImportSchedule()).thenReturn(schedule2);
@@ -317,18 +317,18 @@ public class AppServiceImplTest {
 
         appService.activate(context);
 
-        assertThat(appService.getAppServer()).isAbsent();
+        assertThat(appService.getAppServer().isPresent()).isFalse();
     }
 
     @Test
     public void testActivateWithUnknownNameRunsAnonymously() {
         when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
-        when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>absent());
+        when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.empty());
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
         appService.activate(context);
 
-        assertThat(appService.getAppServer()).isAbsent();
+        assertThat(appService.getAppServer().isPresent()).isFalse();
     }
 
     @Test

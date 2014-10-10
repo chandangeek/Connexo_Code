@@ -1,7 +1,7 @@
 package com.elster.jupiter.appserver;
 
 import com.elster.jupiter.util.cron.CronExpression;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.List;
 

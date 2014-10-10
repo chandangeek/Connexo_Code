@@ -7,7 +7,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
