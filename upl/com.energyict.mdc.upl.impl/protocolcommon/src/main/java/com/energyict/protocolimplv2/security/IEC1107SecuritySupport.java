@@ -3,12 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.security.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,11 +16,16 @@ import java.util.List;
  * Date: 21/01/13
  * Time: 11:10
  */
-public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     public static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DEFAULT_SECURITY_LEVEL_VALUE = "1";
     private final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
+
+    @Override
+    public List<String> getLegacySecurityProperties() {
+        return Arrays.asList(SECURITY_LEVEL_PROPERTY_NAME);
+    }
 
     /**
      * Summarizes the used ID for the AuthenticationLevels.

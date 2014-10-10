@@ -5,12 +5,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dynamicattributes.EncryptedStringFactory;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
-import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.protocol.security.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,9 +15,12 @@ import java.util.List;
  * Date: 28/05/13
  * Time: 10:51
  */
-public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
+    private static final String KEY_T_LEGACY_PROPERTY = "KeyT";
+    private static final String KEY_C_LEGACY_PROPERTY = "KeyC";
+    private static final String KEY_F_LEGACY_PROPERTY = "KeyF";
     private final String authenticationTranslationKeyConstant = "Mtu155SecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "Mtu155SecuritySupport.encryptionlevel.";
 
@@ -52,6 +50,15 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
                 getEncryptionKeyCPropertySpec(),
                 getEncryptionKeyFPropertySpec(),
                 getEncryptionKeyTPropertySpec());
+    }
+
+    @Override
+    public List<String> getLegacySecurityProperties() {
+        return Arrays.asList(
+                KEY_T_LEGACY_PROPERTY,
+                KEY_T_LEGACY_PROPERTY,
+                KEY_T_LEGACY_PROPERTY,
+                SECURITY_LEVEL_PROPERTY_NAME);
     }
 
     @Override
@@ -90,11 +97,11 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
             } else {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
             }
-            typedProperties.setProperty("KeyT",
+            typedProperties.setProperty(KEY_T_LEGACY_PROPERTY,
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), ""));
-            typedProperties.setProperty("KeyC",
+            typedProperties.setProperty(KEY_C_LEGACY_PROPERTY,
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), ""));
-            typedProperties.setProperty("KeyF",
+            typedProperties.setProperty(KEY_F_LEGACY_PROPERTY,
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), ""));
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
         }
@@ -121,9 +128,9 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
             String keyTValue = (String) typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), "");
             String keyCValue = (String) typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), "");
             String keyFValue = (String) typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), "");
-            typedProperties.setProperty("KeyT", keyTValue);
-            typedProperties.setProperty("KeyC", keyCValue);
-            typedProperties.setProperty("KeyF", keyFValue);
+            typedProperties.setProperty(KEY_T_LEGACY_PROPERTY, keyTValue);
+            typedProperties.setProperty(KEY_C_LEGACY_PROPERTY, keyCValue);
+            typedProperties.setProperty(KEY_F_LEGACY_PROPERTY, keyFValue);
 
             int securityLevel;
             if (!keyTValue.isEmpty()) {

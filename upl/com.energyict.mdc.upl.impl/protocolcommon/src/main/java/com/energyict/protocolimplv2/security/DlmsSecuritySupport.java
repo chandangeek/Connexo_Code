@@ -3,11 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.security.*;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -20,11 +16,13 @@ import java.util.List;
  * Date: 10/01/13
  * Time: 16:39
  */
-public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
     private static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
+    private static final String HLS_SECRET_LEGACY_PROPERTY_NAME = "HlsSecret";
+    private static final String HEX_PASSWORD_LEGACY_PROPERTY_NAME = "HexPassword";
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
@@ -79,6 +77,16 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
                 DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(),
                 DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec()
         );
+    }
+
+    @Override
+    public List<String> getLegacySecurityProperties() {
+        return Arrays.asList(
+                SECURITY_LEVEL_PROPERTY_NAME,
+                HLS_SECRET_LEGACY_PROPERTY_NAME,
+                HEX_PASSWORD_LEGACY_PROPERTY_NAME,
+                getDataTransportAuthenticationKeyLegacyPropertyname(),
+                getDataTransportEncryptionKeyLegacyPropertyName());
     }
 
     @Override
@@ -155,7 +163,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
             securityLevelProperty = "0:0";
         }
         if (!securityLevelProperty.contains(":")) {
-            securityLevelProperty+=":0";
+            securityLevelProperty += ":0";
         }
         final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
         final int encryptionLevel = getEncryptionLevel(securityLevelProperty);

@@ -3,12 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.security.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,9 +16,9 @@ import java.util.List;
  * Date: 21/01/13
  * Time: 12:02
  */
-public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
+    protected static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private final String authenticationTranslationKeyConstant = "AnsiC12SecuritySupport.authenticationlevel.";
 
     @Override
@@ -33,6 +28,11 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
                 DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                 DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
         );
+    }
+
+    @Override
+    public List<String> getLegacySecurityProperties() {
+        return Arrays.asList(SECURITY_LEVEL_PROPERTY_NAME);
     }
 
     @Override
@@ -84,13 +84,13 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         String authenticationDeviceAccessLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
-        final int authenticationDeviceAccessLevel=authenticationDeviceAccessLevelProperty!=null?
-                Integer.valueOf(authenticationDeviceAccessLevelProperty):
+        final int authenticationDeviceAccessLevel = authenticationDeviceAccessLevelProperty != null ?
+                Integer.valueOf(authenticationDeviceAccessLevelProperty) :
                 new RestrictedAuthentication().getId();
 
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
 
-        if (authenticationDeviceAccessLevelProperty==null) {
+        if (authenticationDeviceAccessLevelProperty == null) {
             securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.name(), "");
             securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER_ID.name(), 0);
         } else {
