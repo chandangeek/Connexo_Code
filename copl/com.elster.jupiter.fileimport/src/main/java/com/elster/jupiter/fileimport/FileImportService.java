@@ -1,7 +1,7 @@
 package com.elster.jupiter.fileimport;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Main FIM service that allows managing schedules for FileImports

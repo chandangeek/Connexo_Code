@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,7 +98,7 @@ public class FileImportServiceImplTest {
 
     @Test
     public void testGetImportSchedule() {
-        assertThat(fileImportService.getImportSchedule(15L)).contains(importSchedule);
+        assertThat(fileImportService.getImportSchedule(15L).get()).isEqualTo(importSchedule);
     }
 
     @Test

@@ -5,7 +5,7 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.json.JsonService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
