@@ -36,7 +36,7 @@ public class ConnectionTypePluggableClassRegistrarTest {
     @Mock
     private ConnectionTypeService connectionTypeService;
 
-    private TransactionService transactionService = new FakeTransactionService();
+    private TransactionService transactionService = new FakeTransactionService(null);
 
     @Test
     public void testRegistration() {

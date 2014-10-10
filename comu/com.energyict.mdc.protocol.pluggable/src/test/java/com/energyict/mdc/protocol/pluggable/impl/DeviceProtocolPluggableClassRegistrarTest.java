@@ -1,16 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol;
-import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
-import com.google.common.base.Optional;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,7 +15,6 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -41,7 +35,7 @@ public class DeviceProtocolPluggableClassRegistrarTest {
     @Mock
     private LicensedProtocol licensedProtocol;
 
-    private TransactionService transactionService = new FakeTransactionService();
+    private TransactionService transactionService = new FakeTransactionService(null);
 
     @Test
     public void testRegistration() {

@@ -7,12 +7,22 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.StopWatch;
 
 /**
- * Insert your comments here.
+ * Provides an implementation for the {@link TransactionService}
+ * that can be used for contexts that require the service
+ * but are in fact already running in a transactional context
+ * and would therefore cause a "Nested transactions are not allowed" exception.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-09 (15:33)
  */
 public class FakeTransactionService implements TransactionService {
+
+    private final TransactionService actualTransactionService;
+
+    public FakeTransactionService(TransactionService actualTransactionService) {
+        super();
+        this.actualTransactionService = actualTransactionService;
+    }
 
     @Override
     public <T> T execute(Transaction<T> transaction) {
@@ -21,24 +31,7 @@ public class FakeTransactionService implements TransactionService {
 
     @Override
     public TransactionContext getContext() {
-        return null;
-    }
-
-    private class FakeTransactionContext implements TransactionContext {
-        @Override
-        public void close() {
-
-        }
-
-        @Override
-        public void commit() {
-
-        }
-
-        @Override
-        public TransactionEvent getStats() {
-            return new TransactionEvent(false, new StopWatch(false), 0, 0);
-        }
+        return this.actualTransactionService.getContext();
     }
 
 }

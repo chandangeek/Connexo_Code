@@ -76,7 +76,7 @@ public class UpdateLicenseEventHandler implements TopicHandler {
     @Reference
     @SuppressWarnings("unused")
     public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
+        this.transactionService = new FakeTransactionService(transactionService);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
