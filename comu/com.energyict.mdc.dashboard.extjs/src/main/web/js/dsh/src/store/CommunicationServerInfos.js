@@ -3,5 +3,12 @@ Ext.define('Dsh.store.CommunicationServerInfos', {
     storeId: 'CommunicationServerInfos',
     requires: ['Dsh.model.CommunicationServerInfo'],
     model: 'Dsh.model.CommunicationServerInfo',
-    sorters: [{ property: 'running', direction: 'ASC' }]
+    autoLoad: false,
+
+    groupers: [
+        {
+            direction: 'ASC',
+            property: 'status'
+        }
+    ]
 });

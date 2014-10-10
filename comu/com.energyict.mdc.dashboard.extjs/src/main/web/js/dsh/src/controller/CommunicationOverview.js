@@ -36,7 +36,7 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         var me = this,
             model = me.getModel('Dsh.model.communication.Overview');
         me.getCommunicationOverview().setLoading();
-        me.getCommunicationServers().reload();
+
         model.load(null, {
                 success: function (record) {
                     me.getSummary().setRecord(record.getSummary());
