@@ -1,0 +1,9 @@
+{
+  "name": "com.elster.jupiter.loaderjs",
+  "format": "1",
+  "version": "1.0.0",
+  "creator": "Elster Jupiter Project",
+  "summary": "Short summary",
+  "detailedDescription": "Long description of package",
+  "type": "code"
+}
