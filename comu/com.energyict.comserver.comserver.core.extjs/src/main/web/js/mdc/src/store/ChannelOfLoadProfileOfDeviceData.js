@@ -33,6 +33,7 @@ Ext.define('Mdc.store.ChannelOfLoadProfileOfDeviceData', {
                 storeProxy.setExtraParam('intervalStart', data.intervalStart.getTime());
                 storeProxy.setExtraParam('intervalEnd', moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
                 storeProxy.setExtraParam('onlySuspect', data.onlySuspect);
+                storeProxy.setExtraParam('onlyNonSuspect', data.onlyNonSuspect);
             }
         }
     }

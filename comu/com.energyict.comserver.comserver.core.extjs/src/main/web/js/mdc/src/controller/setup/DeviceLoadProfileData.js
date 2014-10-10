@@ -79,7 +79,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
             widget;
-
         dataStore.getProxy().setUrl({
             mRID: mRID,
             loadProfileId: loadProfileId
@@ -114,9 +113,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                         widget.setLoading(false);
                     }
                 }, me);
-                viewOnlySuspects = (router.queryParams.viewOnlySuspects === 'true');
                 if (Ext.isEmpty(router.filter.data.intervalStart)) {
+                    viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
                     me.setDefaults(dataIntervalAndZoomLevels, viewOnlySuspects);
+                    delete router.queryParams.onlySuspect;
                 }
                 dataStore.setFilterModel(router.filter);
                 me.getSideFilterForm().loadRecord(router.filter);
@@ -287,7 +287,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             router = me.getController('Uni.controller.history.Router'),
             all = dataIntervalAndZoomLevels.get('all'),
             intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
-        router.filter = Ext.create('Mdc.model.LoadProfilesOfDeviceDataFilter');
         router.filter.set('intervalStart', intervalStart);
         router.filter.set('duration', all.count + all.timeUnit);
         router.filter.set('onlySuspect', viewOnlySuspects);

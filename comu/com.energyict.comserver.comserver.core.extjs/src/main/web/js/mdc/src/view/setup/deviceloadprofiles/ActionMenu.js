@@ -18,6 +18,11 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ActionMenu', {
             action: 'viewData'
         },
         {
+            itemId: 'viewSuspects',
+            text: Uni.I18n.translate('deviceregisterconfiguration.menu.viewsuspects', 'MDC', 'View suspects'),
+            action: 'viewSuspects'
+        },
+        {
             itemId: 'viewDetails',
             text: Uni.I18n.translate('deviceloadprofiles.actionmenu.viewDetails', 'MDC', 'View details'),
             action: 'viewDetails'
@@ -26,11 +31,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ActionMenu', {
             itemId: 'validateNowLoadProfile',
             text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'MDC', 'Validate now'),
             action: 'validateNow'
-        },
-        {
-            itemId: 'viewSuspects',
-            text: Uni.I18n.translate('deviceregisterconfiguration.menu.viewsuspects', 'MDC', 'View suspects'),
-            action: 'viewSuspects'
         }
     ]
 });

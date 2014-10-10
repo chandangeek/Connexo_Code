@@ -95,24 +95,30 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
     chooseAction: function (menu, item) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            route;
+            route,
+            filterParams = {};
 
         switch (item.action) {
             case 'viewData':
                 route = 'devices/device/loadprofiles/loadprofile/channels/channel/data';
                 break;
             case 'viewDetails':
+                filterParams.onlySuspect = false;
                 route = 'devices/device/loadprofiles/loadprofile/channels/channel';
                 break;
             case 'validateNow':
                 me.showValidateNowMessage(menu.record);
+                break;
+            case 'viewSuspects':
+                filterParams.onlySuspect = true;
+                route = 'devices/device/loadprofiles/loadprofile/channels/channel/data';
                 break;
         }
 
         route && (route = router.getRoute(route));
         route && route.forward({
             channelId: menu.record.getId()
-        });
+        }, filterParams);
     },
 
     showValidateNowMessage: function (record) {

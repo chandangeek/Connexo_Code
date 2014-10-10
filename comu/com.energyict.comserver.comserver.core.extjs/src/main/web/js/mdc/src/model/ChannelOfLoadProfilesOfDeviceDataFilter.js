@@ -10,6 +10,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter', {
     fields: [
         {name: 'intervalStart', type: 'date', dateFormat: 'Y-m-dTH:i:s'},
         {name: 'duration'},
-        {name: 'onlySuspect'}
+        {name: 'onlySuspect'},
+        {name: 'onlyNonSuspect'}
     ]
 });

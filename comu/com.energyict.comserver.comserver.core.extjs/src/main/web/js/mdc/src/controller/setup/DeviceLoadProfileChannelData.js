@@ -113,7 +113,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         models.channel.load(channelId, {
             success: function (record) {
                 var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
-                    durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+                    durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
+                    viewOnlySuspects;
                 durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
                 widget = Ext.widget('deviceLoadProfileChannelData', {
                     router: me.getController('Uni.controller.history.Router'),
@@ -133,7 +134,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                     }
                 }, me);
                 if (Ext.isEmpty(router.filter.data.intervalStart)) {
-                    me.setDefaults(dataIntervalAndZoomLevels);
+                    viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
+                    me.setDefaults(dataIntervalAndZoomLevels, viewOnlySuspects);
+                    delete router.queryParams.onlySuspect;
                 }
                 dataStore.setFilterModel(router.filter);
                 me.getSideFilterForm().loadRecord(router.filter);
@@ -258,13 +261,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         var router = this.getController('Uni.controller.history.Router'),
             record = router.filter;
 
-        if (key === 'onlySuspect') {
+        if (key === 'onlySuspect' || key === 'onlyNonSuspect') {
             record.set(key, false);
         }
         record.save();
     },
 
-    setDefaults: function (dataIntervalAndZoomLevels) {
+    setDefaults: function (dataIntervalAndZoomLevels, viewOnlySuspects) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             all = dataIntervalAndZoomLevels.get('all'),
@@ -272,8 +275,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         router.filter = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter');
         router.filter.set('intervalStart', intervalStart);
         router.filter.set('duration', all.count + all.timeUnit);
-        router.filter.set('onlySuspect', true);
-        me.getPage().down('#suspect').setValue(true);
+        router.filter.set('onlySuspect', viewOnlySuspects);
+        router.filter.set('onlyNonSuspect', false);
+        me.getPage().down('#suspect').setValue(viewOnlySuspects);
     },
 
     setFilterView: function () {
@@ -282,9 +286,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             intervalStartField = filterForm.down('[name=intervalStart]'),
             intervalEndField = filterForm.down('[name=duration]'),
             suspectField = filterForm.down('#suspect'),
+            nonSuspectField = filterForm.down('#nonSuspect'),
             intervalStart = intervalStartField.getValue(),
             intervalEnd = intervalEndField.getRawValue(),
             suspect = suspectField.boxLabel,
+            nonSuspect = nonSuspectField.boxLabel,
             eventDateText = '';
         eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
             + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y') + ' ';
@@ -292,6 +298,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         filterView.down('#Reset').setText('Reset');
         if (suspectField.getValue()) {
             filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
+        }
+        if (nonSuspectField.getValue()) {
+            filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
         }
     }
 });

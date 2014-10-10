@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 route = 'devices/device/loadprofiles/loadprofile/channels';
                 break;
             case 'viewData':
-                filterParams.viewOnlySuspects = false;
+                filterParams.onlySuspect = false;
                 route = 'devices/device/loadprofiles/loadprofile/data';
                 break;
             case 'viewDetails':
@@ -114,7 +114,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 me.showValidateNowMessage(menu.record);
                 break;
             case 'viewSuspects':
-                filterParams.viewOnlySuspects = true;
+                filterParams.onlySuspect = true;
                 route = 'devices/device/loadprofiles/loadprofile/data';
                 break;
         }
