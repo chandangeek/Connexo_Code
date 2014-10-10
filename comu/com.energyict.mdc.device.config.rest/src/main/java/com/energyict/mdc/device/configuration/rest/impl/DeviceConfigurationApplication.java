@@ -22,7 +22,7 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -38,10 +38,11 @@ import javax.ws.rs.core.Application;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-@Component(name = "com.energyict.dtc.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/dtc", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.dtc.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dtc", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
 public class DeviceConfigurationApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "DCR";
@@ -59,7 +60,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile ValidationService validationService;
-    private volatile DeviceDataService deviceDataService;
+    private volatile DeviceService deviceService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -155,8 +156,8 @@ public class DeviceConfigurationApplication extends Application implements Insta
     }
 
     @Reference
-    public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = deviceDataService;
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
@@ -173,36 +174,41 @@ public class DeviceConfigurationApplication extends Application implements Insta
         installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, messageSeeds.toArray(new MessageSeed[messageSeeds.size()]));
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS", "MDS");
+    }
+
     private Set<MessageSeed> camouflagePhenomenaAsMessageSeeds() {
         Set<MessageSeed> messageSeedSet = new HashSet<>();
         for (final Phenomenon phenomenon : masterDataService.findAllPhenomena()) {
             messageSeedSet.add(
-                new MessageSeed() {
-                    @Override
-                    public String getModule() {
-                        return DeviceConfigurationApplication.COMPONENT_NAME;
-                    }
+                    new MessageSeed() {
+                        @Override
+                        public String getModule() {
+                            return DeviceConfigurationApplication.COMPONENT_NAME;
+                        }
 
-                    @Override
-                    public int getNumber() {
-                        return (int) phenomenon.getId();
-                    }
+                        @Override
+                        public int getNumber() {
+                            return (int) phenomenon.getId();
+                        }
 
-                    @Override
-                    public String getKey() {
-                        return phenomenon.getName();
-                    }
+                        @Override
+                        public String getKey() {
+                            return phenomenon.getName();
+                        }
 
-                    @Override
-                    public String getDefaultFormat() {
-                        return phenomenon.getName();
-                    }
+                        @Override
+                        public String getDefaultFormat() {
+                            return phenomenon.getName();
+                        }
 
-                    @Override
-                    public Level getLevel() {
-                        return Level.SEVERE;
-                    }
-                });
+                        @Override
+                        public Level getLevel() {
+                            return Level.SEVERE;
+                        }
+                    });
         }
         return messageSeedSet;
     }
@@ -229,7 +235,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(thesaurus).to(Thesaurus.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(validationService).to(ValidationService.class);
-            bind(deviceDataService).to(DeviceDataService.class);
+            bind(deviceService).to(DeviceService.class);
             bind(userService).to(UserService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);

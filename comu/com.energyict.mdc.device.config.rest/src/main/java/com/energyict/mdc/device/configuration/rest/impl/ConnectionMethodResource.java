@@ -11,16 +11,12 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -37,6 +33,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -50,18 +51,18 @@ public class ConnectionMethodResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final ConnectionMethodInfoFactory connectionMethodInfoFactory;
     private final MdcPropertyUtils mdcPropertyUtils;
-    private final DeviceDataService deviceDataService;
+    private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, ConnectionMethodInfoFactory connectionMethodInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceDataService deviceDataService, ExceptionFactory exceptionFactory) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, ConnectionMethodInfoFactory connectionMethodInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceService deviceService, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.protocolPluggableService = protocolPluggableService;
         this.engineModelService = engineModelService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -78,12 +79,12 @@ public class ConnectionMethodResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ConnectionMethodInfo<?>> connectionMethodInfos = new ArrayList<>();
         List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
-        if (available!=null) {
-            Device device = deviceDataService.findByUniqueMrid(mrId);
-            if (device==null) {
+        if (available != null) {
+            Device device = deviceService.findByUniqueMrid(mrId);
+            if (device == null) {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE);
             }
-            if (device.getDeviceConfiguration().getId()!=deviceConfigurationId) {
+            if (device.getDeviceConfiguration().getId() != deviceConfigurationId) {
                 throw exceptionFactory.newException(MessageSeeds.DEVICE_DOES_NOT_MATCH_CONFIG);
             }
             partialConnectionTasks.addAll(findAvailablePartialConnectionTasksByDevice(device, deviceConfiguration));
@@ -108,9 +109,9 @@ public class ConnectionMethodResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public ConnectionMethodInfo<?> getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
-                                                     @PathParam("deviceConfigurationId") long deviceConfigurationId,
-                                                     @PathParam("connectionMethodId") long connectionMethodId,
-                                                     @Context UriInfo uriInfo) {
+                                                        @PathParam("deviceConfigurationId") long deviceConfigurationId,
+                                                        @PathParam("connectionMethodId") long connectionMethodId,
+                                                        @Context UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(connectionMethodId, deviceConfiguration);
@@ -140,7 +141,7 @@ public class ConnectionMethodResource {
                                            ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, engineModelService, protocolPluggableService,mdcPropertyUtils);
+        PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, engineModelService, protocolPluggableService, mdcPropertyUtils);
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(created, uriInfo)).build();
     }
 
@@ -150,10 +151,10 @@ public class ConnectionMethodResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
-                                                       @PathParam("deviceConfigurationId") long deviceConfigurationId,
-                                                       @PathParam("connectionMethodId") long connectionMethodId,
-                                                       @Context UriInfo uriInfo,
-                                                       ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo) {
+                                           @PathParam("deviceConfigurationId") long deviceConfigurationId,
+                                           @PathParam("connectionMethodId") long connectionMethodId,
+                                           @Context UriInfo uriInfo,
+                                           ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(connectionMethodId, deviceConfiguration);
@@ -170,10 +171,10 @@ public class ConnectionMethodResource {
      * Discards properties if there is no matching propertySpec
      */
     private void updateProperties(ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
-        if (connectionMethodInfo.properties !=null) {
+        if (connectionMethodInfo.properties != null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, connectionMethodInfo.properties);
-                if (propertyValue!=null) {
+                if (propertyValue != null) {
                     partialConnectionTask.setProperty(propertySpec.getName(), propertyValue);
                 } else {
                     partialConnectionTask.removeProperty(propertySpec.getName());
@@ -184,7 +185,7 @@ public class ConnectionMethodResource {
 
     private PartialConnectionTask findPartialConnectionTaskOrThrowException(long connectionMethodId, DeviceConfiguration deviceConfiguration) {
         for (PartialConnectionTask partialConnectionTask : deviceConfiguration.getPartialConnectionTasks()) {
-            if (partialConnectionTask.getId()==connectionMethodId) {
+            if (partialConnectionTask.getId() == connectionMethodId) {
                 return partialConnectionTask;
             }
         }
@@ -194,7 +195,7 @@ public class ConnectionMethodResource {
     /**
      * Finds the {@link ConnectionTask}s that are available for configuration on a device, that is, the PartialConnectionTasks that are not yet used in a ConnectionTask
      *
-     * @param device the Device
+     * @param device              the Device
      * @param deviceConfiguration
      * @return the List of ConnectionTask
      */
@@ -204,7 +205,7 @@ public class ConnectionMethodResource {
         for (Iterator<PartialConnectionTask> iterator = availableConnectionTasks.iterator(); iterator.hasNext(); ) {
             PartialConnectionTask next = iterator.next();
             for (ConnectionTask<?, ?> connectionTask : connectionTasks) {
-                if (connectionTask.getPartialConnectionTask().getId()==next.getId()) {
+                if (connectionTask.getPartialConnectionTask().getId() == next.getId()) {
                     iterator.remove();
                 }
             }
