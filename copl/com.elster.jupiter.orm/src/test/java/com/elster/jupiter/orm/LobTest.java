@@ -58,7 +58,7 @@ public class LobTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(principal),
         			new PubSubModule(),
-        			new TransactionModule(true),        			        		
+        			new TransactionModule(false),        			        		
         			new OrmModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	injector.getInstance(OrmService.class);

@@ -19,8 +19,9 @@ public interface Effectivity {
 	 * API
 	 */
 	default Range<Instant> getRange() {
-		return getInterval().toOpenClosedRange();
+		return getInterval().toClosedOpenRange();
 	}
+	
 	default boolean isEffectiveAt(Instant instant) {
 		return getRange().contains(instant);
 	}
