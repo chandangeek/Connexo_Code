@@ -76,7 +76,7 @@ public class PartyInRoleImpl implements PartyInRole {
         if (!interval.isEffective(date)) {
             throw new IllegalArgumentException();
         }
-        interval = interval.endAt(date);
+        interval = interval.withEnd(date);
     }
 
     @Override
