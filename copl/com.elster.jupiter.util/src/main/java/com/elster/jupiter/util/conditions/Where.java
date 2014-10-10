@@ -4,6 +4,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -127,8 +128,25 @@ public final class Where {
         return where(field + ".start").isLessThanOrEqual(date.getTime()).and(where(field + ".end").isGreaterThan(date.getTime()));
     }
 
-    public Condition isEffective(Interval interval) {
-        return where(field + ".start").isLessThan(interval.dbEnd()).and(where(field + ".end").isGreaterThan(interval.dbStart()));
+    public Condition isEffective(Instant instant) {
+        return where(field + ".start").isLessThanOrEqual(instant.toEpochMilli()).and(where(field + ".end").isGreaterThan(instant.toEpochMilli()));
+    }
+
+    public Condition isEffective(Range<Instant> range) {
+    	Condition result = Condition.TRUE;
+    	if (range.hasLowerBound()) {
+    		boolean open = range.lowerBoundType().equals(BoundType.OPEN);
+    		Where end = Where.where(field + ".end");
+    		long endpoint = range.lowerEndpoint().toEpochMilli();
+            result = result.and(open ? end.isGreaterThan(endpoint) : end.isGreaterThanOrEqual(endpoint));
+    	}
+    	if (range.hasUpperBound()) {
+    		boolean open = range.upperBoundType().equals(BoundType.OPEN);
+    		Where start = Where.where(field + ".start");
+    		long endpoint = range.upperEndpoint().toEpochMilli();
+            result = result.and(open ? start.isLessThan(endpoint) : start.isLessThanOrEqual(endpoint));
+    	}
+    	return result;
     }
 
     public Condition in(List<?> values) {

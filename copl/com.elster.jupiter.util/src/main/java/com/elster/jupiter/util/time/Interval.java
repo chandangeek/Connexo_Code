@@ -44,6 +44,12 @@ public final class Interval {
     	return new Interval(start == null ? null : Date.from(start), end == null ? null : Date.from(end));
     }
     
+    public static Interval of(Range<Instant> range) {
+    	long start = range.hasLowerBound() ? range.lowerEndpoint().toEpochMilli() : -ETERNITY;
+    	long end = range.hasUpperBound() ? range.upperEndpoint().toEpochMilli() : ETERNITY;
+    	return new Interval(start,end);
+    }
+    
     /**
      * Static factory method to create an infinite Interval that starts at the given Date.
      * @param start
@@ -51,6 +57,10 @@ public final class Interval {
      */
     public static Interval startAt(Date start) {
         return new Interval(start, null);
+    }
+    
+    public static Interval startAt(Instant start) {
+    	return new Interval(start.toEpochMilli(),ETERNITY);
     }
 
     /**
@@ -157,6 +167,18 @@ public final class Interval {
 			}
 		}
 	}
+	
+	private long getEndValue(Instant endInstant) {
+		if (endInstant == null) {
+			return ETERNITY;
+		} else {
+			if (endInstant.toEpochMilli() >= ETERNITY) {
+				throw new IllegalArgumentException("End instant too late");
+			} else {
+				return endInstant.toEpochMilli();
+			}
+		}
+	}
 
 	private long getStartValue(Date startDate) {
 		if (startDate == null) {
@@ -192,6 +214,10 @@ public final class Interval {
      */
     public Interval withEnd(Date date) {
         return new Interval(start, getEndValue(date));
+    }
+    
+    public Interval endAt(Instant instant) {
+    	return new Interval(start, getEndValue(instant));
     }
 
     /**
