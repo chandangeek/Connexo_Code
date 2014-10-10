@@ -1,5 +1,7 @@
 package com.energyict.mdc.dashboard;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+
 /**
  * Provides services to dashboard-like information of the
  * {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s
@@ -13,13 +15,21 @@ public interface DashboardService {
 
     public TaskStatusOverview getConnectionTaskStatusOverview();
 
+    public TaskStatusOverview getConnectionTaskStatusOverview(QueryEndDeviceGroup deviceGroup);
+
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview();
 
     public ComPortPoolBreakdown getComPortPoolBreakdown();
 
+    public ComPortPoolBreakdown getComPortPoolBreakdown(QueryEndDeviceGroup deviceGroup);
+
     public ConnectionTypeBreakdown getConnectionTypeBreakdown();
 
+    public ConnectionTypeBreakdown getConnectionTypeBreakdown(QueryEndDeviceGroup deviceGroup);
+
     public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown();
+
+    public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(QueryEndDeviceGroup deviceGroup);
 
     public ConnectionTypeHeatMap getConnectionTypeHeatMap();
 

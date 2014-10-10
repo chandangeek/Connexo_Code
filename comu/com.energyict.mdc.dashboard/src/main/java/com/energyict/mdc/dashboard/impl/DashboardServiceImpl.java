@@ -25,6 +25,8 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Provides an implementation for the {@link DashboardService} interface.
@@ -63,8 +66,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public TaskStatusOverview getConnectionTaskStatusOverview() {
+        return this.getConnectionTaskStatusOverview(this.connectionTaskService::getConnectionTaskStatusCount);
+    }
+
+    @Override
+    public TaskStatusOverview getConnectionTaskStatusOverview(QueryEndDeviceGroup deviceGroup) {
+        return this.getConnectionTaskStatusOverview(() -> this.connectionTaskService.getConnectionTaskStatusCount(deviceGroup));
+    }
+
+    private TaskStatusOverview getConnectionTaskStatusOverview(Supplier<Map<TaskStatus, Long>> statusCountersSupplier) {
         TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
-        Map<TaskStatus, Long> statusCounters = this.connectionTaskService.getConnectionTaskStatusCount();
+        Map<TaskStatus, Long> statusCounters = statusCountersSupplier.get();
         for (TaskStatus taskStatus : TaskStatus.values()) {
             overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
         }
@@ -83,8 +95,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComPortPoolBreakdown getComPortPoolBreakdown() {
+        return this.getComPortPoolBreakdown(() -> this.connectionTaskService.getComPortPoolBreakdown(this.breakdownStatusses()));
+    }
+
+    @Override
+    public ComPortPoolBreakdown getComPortPoolBreakdown(QueryEndDeviceGroup deviceGroup) {
+        return this.getComPortPoolBreakdown(() -> this.connectionTaskService.getComPortPoolBreakdown(this.breakdownStatusses(), deviceGroup));
+    }
+
+    private ComPortPoolBreakdown getComPortPoolBreakdown(Supplier<Map<ComPortPool, Map<TaskStatus, Long>>> rawDataSupplier) {
         ComPortPoolBreakdownImpl breakdown = new ComPortPoolBreakdownImpl();
-        Map<ComPortPool, Map<TaskStatus, Long>> rawData = this.connectionTaskService.getComPortPoolBreakdown(this.breakdownStatusses());
+        Map<ComPortPool, Map<TaskStatus, Long>> rawData = rawDataSupplier.get();
         for (ComPortPool comPortPool : rawData.keySet()) {
             Map<TaskStatus, Long> statusCount = rawData.get(comPortPool);
             breakdown.add(
@@ -99,8 +120,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ConnectionTypeBreakdown getConnectionTypeBreakdown() {
+        return this.getConnectionTypeBreakdown(() -> this.connectionTaskService.getConnectionTypeBreakdown(this.breakdownStatusses()));
+    }
+
+    @Override
+    public ConnectionTypeBreakdown getConnectionTypeBreakdown(QueryEndDeviceGroup deviceGroup) {
+        return this.getConnectionTypeBreakdown(() -> this.connectionTaskService.getConnectionTypeBreakdown(this.breakdownStatusses(), deviceGroup));
+    }
+
+    private ConnectionTypeBreakdown getConnectionTypeBreakdown(Supplier<Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>>> rawDataSupplier) {
         ConnectionTypeBreakdownImpl breakdown = new ConnectionTypeBreakdownImpl();
-        Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> rawData = this.connectionTaskService.getConnectionTypeBreakdown(this.breakdownStatusses());
+        Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> rawData = rawDataSupplier.get();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : rawData.keySet()) {
             Map<TaskStatus, Long> statusCount = rawData.get(connectionTypePluggableClass);
             breakdown.add(
@@ -115,8 +145,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown() {
+        return this.getConnectionTasksDeviceTypeBreakdown(() -> this.connectionTaskService.getDeviceTypeBreakdown(this.breakdownStatusses()));
+    }
+
+    @Override
+    public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(QueryEndDeviceGroup deviceGroup) {
+        return this.getConnectionTasksDeviceTypeBreakdown(() -> this.connectionTaskService.getDeviceTypeBreakdown(this.breakdownStatusses(), deviceGroup));
+    }
+
+    private DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(Supplier<Map<DeviceType, Map<TaskStatus, Long>>> rawDataSupplier) {
         DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
-        Map<DeviceType, Map<TaskStatus, Long>> rawData = this.connectionTaskService.getDeviceTypeBreakdown(this.breakdownStatusses());
+        Map<DeviceType, Map<TaskStatus, Long>> rawData = rawDataSupplier.get();
         for (DeviceType deviceType : rawData.keySet()) {
             Map<TaskStatus, Long> statusCount = rawData.get(deviceType);
             breakdown.add(
@@ -139,8 +178,12 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ConnectionTypeHeatMap getConnectionTypeHeatMap() {
+        return this.getConnectionTypeHeatMap(this.connectionTaskService::getConnectionTypeHeatMap);
+    }
+
+    private ConnectionTypeHeatMap getConnectionTypeHeatMap(Supplier<Map<ConnectionTypePluggableClass, List<Long>>> rawDataSupplier) {
         ConnectionTypeHeatMapImpl heatMap = new ConnectionTypeHeatMapImpl();
-        Map<ConnectionTypePluggableClass, List<Long>> rawData = this.connectionTaskService.getConnectionTypeHeatMap();
+        Map<ConnectionTypePluggableClass, List<Long>> rawData = rawDataSupplier.get();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : rawData.keySet()) {
             List<Long> counters = rawData.get(connectionTypePluggableClass);
             ConnectionTaskHeatMapRowImpl<ConnectionTypePluggableClass> heatMapRow = new ConnectionTaskHeatMapRowImpl<>(connectionTypePluggableClass);
