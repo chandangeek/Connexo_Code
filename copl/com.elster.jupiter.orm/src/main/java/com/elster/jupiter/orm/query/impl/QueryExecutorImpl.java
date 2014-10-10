@@ -15,28 +15,28 @@ import java.sql.SQLException;
 import java.util.*;
 
 
-public class QueryExecutorImpl<T> implements QueryExecutor<T> {	
+public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
 	private final JoinTreeNode<T> root;
 	private final AliasFactory aliasFactory = new AliasFactory();
 	private Condition restriction = Condition.TRUE;
 	private UtcInstant effectiveInstant;
-	
+
 	public QueryExecutorImpl(DataMapperImpl<T> mapper) {
 		RootDataMapper<T> rootDataMapper = new RootDataMapper<>(mapper);
 		aliasFactory.setBase(rootDataMapper.getAlias());
 		aliasFactory.getAlias();
-		this.root = new JoinTreeNode<>(rootDataMapper);				
+		this.root = new JoinTreeNode<>(rootDataMapper);
 	}
-    
+
 	public <R> void add(DataMapperImpl<R> newMapper) {
 		aliasFactory.setBase(newMapper.getAlias());
 		boolean result = root.addMapper(newMapper , aliasFactory);
 		if (!result) {
 			throw new IllegalArgumentException("No referential key match for " + newMapper.getTable().getName());
 		}
-	}	
-	
+	}
+
 	public List<T> select(Condition condition, Order[] ordering , boolean eager , String[] exceptions , int from , int to) {
 		try {
 			return new JoinExecutor<>(root.copy(), getEffectiveDate() , from,to).select(restriction.and(condition),ordering , eager, exceptions);
@@ -49,7 +49,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	public boolean hasField(String fieldName) {
 		return root.hasWhereField(fieldName);
 	}
-	
+
 	@Override
 	public Class<?> getType(String fieldName) {
 		return root.getType(fieldName);
@@ -59,12 +59,12 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	public Subquery asSubquery(Condition condition, String ... fieldNames) {
 		return new SubqueryImpl(asFragment(condition,fieldNames));
 	}
-	
+
 	@Override
-	public SqlFragment asFragment(Condition condition, String[] fieldNames) {
-		return new JoinExecutor<>(root.copy(),getEffectiveDate()).getSqlBuilder(condition, fieldNames);		
+	public SqlFragment asFragment(Condition condition, String... fieldNames) {
+		return new JoinExecutor<>(root.copy(),getEffectiveDate()).getSqlBuilder(condition, fieldNames);
 	}
-	
+
 	public Object convert(String fieldName, String value) {
 		ColumnImpl column = root.getColumnForField(fieldName);
 		if (column != null) {
@@ -94,7 +94,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
 	@Override
 	public List<String> getQueryFieldNames() {
-		return root.getQueryFields();	
+		return root.getQueryFields();
 	}
 
 	@Override
@@ -137,7 +137,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 
 	@Override
-	public List<T> select(Condition condition, Order[] orders, boolean eager,String[] exceptions) {		
+	public List<T> select(Condition condition, Order[] orders, boolean eager,String[] exceptions) {
 		return select(condition,orders,eager,exceptions,0,0);
 	}
 }
