@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -46,7 +46,7 @@ public class TransientMessageService implements MessageService, InstallService {
 
     @Override
     public Optional<QueueTableSpec> getQueueTableSpec(String name) {
-        return Optional.<QueueTableSpec>fromNullable(queueTableSpecs.get(name));
+        return Optional.ofNullable(queueTableSpecs.get(name));
     }
 
     @Override
@@ -57,21 +57,21 @@ public class TransientMessageService implements MessageService, InstallService {
                 return Optional.<DestinationSpec>of(destination);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
         Optional<DestinationSpec> destinationSpec = getDestinationSpec(destinationSpecName);
         if (!destinationSpec.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         for (SubscriberSpec subscriberSpec : destinationSpec.get().getSubscribers()) {
             if (subscriberSpec.getName().equals(name)) {
                 return Optional.of(subscriberSpec);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override

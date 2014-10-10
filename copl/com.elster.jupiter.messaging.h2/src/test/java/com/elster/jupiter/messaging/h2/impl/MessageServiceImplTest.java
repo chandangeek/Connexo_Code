@@ -16,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageServiceImplTest {
@@ -69,12 +68,12 @@ public class MessageServiceImplTest {
     public void testGetQueueTableSpec() {
         queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
 
-        assertThat(messageService.getQueueTableSpec(QTS)).contains(queueTableSpec);
+        assertThat(messageService.getQueueTableSpec(QTS).get()).isEqualTo(queueTableSpec);
     }
 
     @Test
     public void testGetQueueTableSpecNotExists() {
-        assertThat(messageService.getQueueTableSpec(QTS)).isAbsent();
+        assertThat(messageService.getQueueTableSpec(QTS).isPresent()).isFalse();
     }
 
     @Test
@@ -82,14 +81,14 @@ public class MessageServiceImplTest {
         queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
         destination = queueTableSpec.createDestinationSpec(DESTINATION, 0);
 
-        assertThat(messageService.getDestinationSpec(DESTINATION)).contains(destination);
+        assertThat(messageService.getDestinationSpec(DESTINATION).get()).isEqualTo(destination);
     }
 
     @Test
     public void testGetDestinationSpecNotExists() {
         queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
 
-        assertThat(messageService.getDestinationSpec(DESTINATION)).isAbsent();
+        assertThat(messageService.getDestinationSpec(DESTINATION).isPresent()).isFalse();
     }
 
     @Test
@@ -99,7 +98,7 @@ public class MessageServiceImplTest {
         destination.activate();
         subscriberSpec = destination.subscribe(SUBSCRIBER);
 
-        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER)).contains(subscriberSpec);
+        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).get()).isEqualTo(subscriberSpec);
     }
 
     @Test
@@ -107,7 +106,7 @@ public class MessageServiceImplTest {
         queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
         destination = queueTableSpec.createDestinationSpec(DESTINATION, 0);
 
-        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER)).isAbsent();
+        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).isPresent()).isFalse();
     }
 
 }

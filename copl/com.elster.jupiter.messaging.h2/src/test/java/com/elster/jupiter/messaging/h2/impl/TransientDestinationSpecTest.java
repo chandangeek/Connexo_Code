@@ -25,10 +25,8 @@ import static org.mockito.Mockito.when;
 public class TransientDestinationSpecTest {
 
     private static final String NAME = "name";
-    private static final int RETRY_DELAY = 60;
     private static final String RAW = "RAW";
     private static final String SUBSCRIBER = "SUBSCRIBER";
-    private static final String QUEUE_TABLE_NAME = "QUEUE_TABLE_NAME";
 
     private TransientDestinationSpec destinationSpec;
 
