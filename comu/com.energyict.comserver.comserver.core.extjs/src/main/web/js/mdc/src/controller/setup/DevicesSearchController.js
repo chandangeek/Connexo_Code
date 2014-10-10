@@ -37,7 +37,6 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
 
     ],
 
-    //prefix: '#mdc-search-items',
     prefix: 'mdc-search-items',
 
     showSearchItems: function () {

@@ -107,7 +107,7 @@ Ext.define('Mdc.controller.setup.DevicesController', {
                 this.createSortButton(button, sortContainer, 'sortbyconfigurationbtn', item.value, item.text);
                 break;
         }
-        //this.applyFilter();
+        this.applyFilter();
     },
 
     createSortButton: function (button, container, name, sortName, text) {
