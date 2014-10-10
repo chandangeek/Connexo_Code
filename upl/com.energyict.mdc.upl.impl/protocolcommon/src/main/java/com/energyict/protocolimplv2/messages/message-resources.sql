@@ -36,3 +36,4 @@ insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('MBusSetupDeviceMessage.Commission_With_Channel', 'Install MBus device', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ConfigurationChangeDeviceMessage.DISABLE_DISCOVERY_ON_POWER_UP', 'Disable discovery on power up', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ConfigurationChangeDeviceMessage.ENABLE_DISCOVERY_ON_POWER_UP', 'Enable discovery on power up', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('CSC-CONF-149', 'Required security property "{0}" is missing', 'M', 'Y', 'N', 'MDW', sysdate);
