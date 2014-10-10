@@ -1,17 +1,14 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
-
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -93,4 +90,18 @@ public class DataCollectionKpiScoreImpl implements DataCollectionKpiScore {
         return this.timestamp.hashCode();
     }
 
+    @Override
+    public BigDecimal getSuccess() {
+        return BigDecimal.ONE; // TODO implement me
+    }
+
+    @Override
+    public BigDecimal getOngoing() {
+        return BigDecimal.ONE; // TODO implement me
+    }
+
+    @Override
+    public BigDecimal getFailed() {
+        return BigDecimal.ONE; // TODO implement me
+    }
 }
