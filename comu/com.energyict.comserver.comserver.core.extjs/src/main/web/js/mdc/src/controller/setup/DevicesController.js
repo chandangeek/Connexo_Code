@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.DevicesController', {
     extend: 'Ext.app.Controller',
 
+    /*requires: [
+        'Uni.form.filter.FilterCombobox'
+    ],*/
+
     /**
      * @cfg {String} itemId prefix for the component
      */
@@ -14,6 +18,9 @@ Ext.define('Mdc.controller.setup.DevicesController', {
                 removeFilter: this.removeTheFilter,
                 clearAllFilters: this.clearFilter
             };
+            control[this.prefix + ' side-filter-combo'] = {
+                updateTopFilterPanelTagButtons: this.onFilterChange
+            };
             control[this.prefix + ' button[action=applyfilter]'] = {
                 click: this.applyFilter
             };
@@ -25,6 +32,10 @@ Ext.define('Mdc.controller.setup.DevicesController', {
 
         this.callParent(arguments);
     },
+
+    onFilterChange: function (combo) {
+    },
+
 
     initFilter: function () {
         var router = this.getController('Uni.controller.history.Router');

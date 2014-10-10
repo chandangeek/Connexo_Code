@@ -4,8 +4,13 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
 
     requires: [
         'Uni.component.filter.view.Filter',
-        'Mdc.store.DeviceTypes',
-        'Uni.form.NestedForm'
+        //'Mdc.store.DeviceTypes',
+        'Dsh.view.widget.common.SideFilterCombo',
+        'Mdc.store.filter.DeviceTypes',
+        //'Mdc.view.setup.devicesearch.SideFilterCombo',
+        //'Mdc.view.setup.devicesearch.SideFilterCombo',
+        //'Uni.form.filter.FilterCombobox',
+        'Mdc.store.filter.DeviceTypes'
     ],
 
     cls: 'filter-form',
@@ -37,25 +42,16 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
                         xtype: 'textfield',
                         name: 'serialNumber',
                         fieldLabel: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')
-                    }/*,
+                    },
                     {
-                        xtype: 'combobox',
-                        name: 'type',
+                        xtype: 'side-filter-combo',
+                        name: 'deviceTypes',
                         itemId: 'type',
-                        store: Ext.create('Mdc.store.DeviceTypes', {storeId: 'DeviceTypesCbSearch'}),
                         fieldLabel: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
                         displayField: 'name',
                         valueField: 'id',
-                        forceSelection: false,
-                        editable: false,
-                        allowBlank: true,
-                        multiSelect: true,
-                        triggerAction: 'all',
-                        listConfig: {
-                            getInnerTpl: function () {
-                                return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {name} </div>';
-                            }
-                        },
+                        store: 'Mdc.store.filter.DeviceTypes',
+                        //store: Ext.create('Mdc.store.DeviceTypes', {storeId: 'DeviceTypesCbSearch'}),
                         listeners: {
                             collapse: {
                                 scope: me,
@@ -69,7 +65,10 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
                     },
                     {
                         xtype: 'combobox',
-                        name: 'type',
+                        triggerAction: 'all',
+                        //xtype: 'side-filter-combo-devicesearch',
+                        name: 'deviceConfigurations',
+                        loadStore: false,
                         itemId: 'configuration',
                         store: Ext.create('Mdc.store.DeviceConfigurations'),
                         queryMode: 'local',
@@ -86,7 +85,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
                                 return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {name} </div>';
                             }
                         }
-                    }*/
+                    }
                 ],
                 dockedItems: [
                     {
@@ -109,11 +108,11 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
         ];
 
         me.callParent(arguments);
-    }//,
+    },
 
-    /*onCollapseDeviceType: function () {
+    onCollapseDeviceType: function () {
         var me = this,
-            form = me.down('nested-form'),
+            form = me.down('form'),
             typeConfig = me.down('#type'),
             comboConfig = form.down('#configuration');
 
@@ -136,9 +135,23 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
 
     onChangeDeviceType: function (comp, newValue) {
         var me = this,
-            form = me.down('nested-form'),
+            form = me.down('form'),
+            typeConfig = me.down('#type'),
             comboConfig = form.down('#configuration');
 
+        if (typeConfig.getValue().length === 1) {
+            var store = comboConfig.getStore();
+            comboConfig.setVisible(true);
+
+            store.getProxy().setExtraParam('deviceType', typeConfig.getValue()[0]);
+            store.load(function () {
+                store.sort('name', 'ASC');
+                comboConfig.bindStore(store);
+                if (store.getCount() === 0) {
+                    me.clearComboConfiguration(comboConfig);
+                }
+            });
+        }
         if (newValue[0] === '') {
             me.clearComboConfiguration(comboConfig);
         }
@@ -147,6 +160,6 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
     clearComboConfiguration: function (cmbConfig) {
         cmbConfig.setValue('');
         cmbConfig.setVisible(false);
-    }*/
+    }
 });
 

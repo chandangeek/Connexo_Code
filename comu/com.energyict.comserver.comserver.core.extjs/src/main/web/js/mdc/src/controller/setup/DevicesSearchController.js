@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
     extend: 'Mdc.controller.setup.DevicesController',
 
     requires: [
-        'Mdc.view.setup.devicesearch.SearchItems'
+        'Mdc.view.setup.devicesearch.SearchItems'//,
+        //'Uni.form.filter.FilterCombobox'
     ],
 
     models: [
@@ -11,7 +12,8 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
     ],
 
     stores: [
-        'Mdc.store.Devices'
+        'Mdc.store.Devices',
+        'Mdc.store.filter.DeviceTypes'
     ],
 
     refs: [
@@ -43,7 +45,6 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
 
 
     applyFilter: function () {
-        debugger;
         var filterForm = this.getDevicesSearchSideFilterForm();
         filterForm.updateRecord();
         filterForm.getRecord().save();
@@ -54,6 +55,14 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         this.getDevicesSearchSideFilterForm().getRecord().getProxy().destroy();
     },
 
+    onFilterChange: function (combo) {
+        if (!_.isEmpty(combo.getRawValue())) {
+            var filterView = this.getDevicesSearchFilterPanel();
+            filterView.setFilter(combo.getName(), combo.getFieldLabel(), combo.getRawValue());
+        }
+    },
+
+
     setFilterView: function () {
         var filterForm = this.getDevicesSearchSideFilterForm();
         var filterView = this.getDevicesSearchFilterPanel();
@@ -63,11 +72,22 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         var mRIDField = filterForm.down('[name=mRID]');
         var mRIDValue = mRIDField.getValue().trim();
 
+        var deviceTypesCombo = filterForm.down('[name=deviceTypes]');
+        //var deviceConfigurationsCombo = filterForm.down('[name=deviceConfigurations]');
+
         if (serialNumberValue != "") {
             filterView.setFilter('serialNumber', serialNumberField.getFieldLabel(), serialNumberValue);
         }
         if (mRIDValue != "") {
             filterView.setFilter('mRID', mRIDField.getFieldLabel(), mRIDValue);
         }
+
+        if (!_.isEmpty(deviceTypesCombo.getRawValue())) {
+            filterView.setFilter(deviceTypesCombo.getName(), deviceTypesCombo.getFieldLabel(), deviceTypesCombo.getRawValue());
+        }
+
+        /*if (!_.isEmpty(deviceConfigurationsCombo.getRawValue())) {
+            filterView.setFilter(deviceConfigurationsCombo.getName(), deviceConfigurationsCombo.getFieldLabel(), deviceConfigurationsCombo.getRawValue());
+        }*/
     }
 });

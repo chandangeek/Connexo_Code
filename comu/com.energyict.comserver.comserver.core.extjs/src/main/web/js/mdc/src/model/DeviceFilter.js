@@ -12,10 +12,13 @@ Ext.define('Mdc.model.DeviceFilter', {
 
     fields: [
         {name: 'mRID', type: 'string'},
-        {name: 'serialNumber', type: 'string'}/*,
-        {name: 'deviceTypeId', type: 'number'},
-        {name: 'deviceTypeName', type: 'string'},
-        {name: 'deviceConfigurationId', type: 'number'},
-        {name: 'deviceConfigurationName', type: 'string'}*/
+        {name: 'serialNumber', type: 'string'},
+        {name: 'deviceTypes', type: 'auto'},
+        {name: 'deviceConfigurations', type: 'auto'}
+        /*,
+         {name: 'deviceTypeId', type: 'number'},
+         {name: 'deviceTypeName', type: 'string'},
+         {name: 'deviceConfigurationId', type: 'number'},
+         {name: 'deviceConfigurationName', type: 'string'}*/
     ]
 });
