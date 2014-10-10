@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -84,10 +85,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
-        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?, ?>>asList(connectionTask));
         Map<String, Object> response = target("/devices/1/connectionmethods").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("connectionMethods");
-        List<Map<String,Object>> connectionMethods = (List<Map<String, Object>>) response.get("connectionMethods");
+        List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("connectionMethods");
         assertThat(connectionMethods).hasSize(1);
         Map<String, Object> connectionTypeJson = connectionMethods.get(0);
         assertThat(connectionTypeJson)
@@ -110,17 +111,17 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testCreatePausedInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
-        info.name="inbConnMethod";
+        info.name = "inbConnMethod";
         info.status = ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE;
-        info.isDefault=false;
-        info.comPortPool="cpp";
+        info.isDefault = false;
+        info.comPortPool = "cpp";
 
         Device device = mock(Device.class);
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
+        PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
@@ -148,17 +149,17 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testCreateActiveInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
-        info.name="inbConnMethod";
+        info.name = "inbConnMethod";
         info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
-        info.isDefault=false;
-        info.comPortPool="cpp";
+        info.isDefault = false;
+        info.comPortPool = "cpp";
 
         Device device = mock(Device.class);
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
+        PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
@@ -187,17 +188,17 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testCreateDefaultInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
-        info.name="inbConnMethod";
+        info.name = "inbConnMethod";
         info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
-        info.isDefault=true;
-        info.comPortPool="cpp";
+        info.isDefault = true;
+        info.comPortPool = "cpp";
 
         Device device = mock(Device.class);
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
+        PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
@@ -222,23 +223,23 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testUpdateAndUndefaultInboundConnectionMethod() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
-        info.name="inbConnMethod";
+        info.name = "inbConnMethod";
         info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
-        info.isDefault=false;
-        info.comPortPool="cpp";
+        info.isDefault = false;
+        info.comPortPool = "cpp";
 
         Device device = mock(Device.class);
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
+        PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
-        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?, ?>>asList(connectionTask));
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
 
@@ -260,23 +261,23 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testUpdateOnlyClearsDefaultIfConnectionMethodWasDefaultBeforeUpdate() throws Exception {
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
-        info.name="inbConnMethod";
+        info.name = "inbConnMethod";
         info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
-        info.isDefault=false;
-        info.comPortPool="cpp";
+        info.isDefault = false;
+        info.comPortPool = "cpp";
 
         Device device = mock(Device.class);
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        PartialInboundConnectionTask partialConnectionTask = mock (PartialInboundConnectionTask.class);
+        PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(engineModelService.findComPortPool("cpp")).thenReturn(comPortPool);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
-        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?,?>>asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?, ?>>asList(connectionTask));
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
 
@@ -296,7 +297,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testComSchedulesBulkActionsWithWrongDevice(){
+    public void testComSchedulesBulkActionsWithWrongDevice() {
         BulkRequestInfo request = new BulkRequestInfo();
         request.deviceMRIDs = Arrays.asList("mrid1", "unexisting");
         request.scheduleIds = Arrays.asList(1L);
@@ -323,7 +324,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testComSchedulesBulkActionsAddAlreadyAdded(){
+    public void testComSchedulesBulkActionsAddAlreadyAdded() {
         BulkRequestInfo request = new BulkRequestInfo();
         request.deviceMRIDs = Arrays.asList("mrid1", "mrid2");
         request.scheduleIds = Arrays.asList(1L);
@@ -380,10 +381,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         Map response = target("/devices/mrid1/loadprofiles").request().get(Map.class);
         assertThat(response).containsKey("total").containsKey("loadProfiles");
-        assertThat((List)response.get("loadProfiles")).isSortedAccordingTo(new Comparator<Map<String, Object>>() {
+        assertThat((List) response.get("loadProfiles")).isSortedAccordingTo(new Comparator<Map<String, Object>>() {
             @Override
             public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                return ((String)o1.get("name")).compareToIgnoreCase((String) o2.get("name"));
+                return ((String) o1.get("name")).compareToIgnoreCase((String) o2.get("name"));
             }
         });
     }
@@ -470,9 +471,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
         final long startTime = 1388534400000L;
         long start = startTime;
-        for (int i=0; i<2880;i++) {
+        for (int i = 0; i < 2880; i++) {
             loadProfileReadings.add(mockLoadProfileReading(loadProfile3, new Interval(new Date(start), new Date(start + 900))));
-            start+=900;
+            start += 900;
         }
         when(loadProfile3.getChannelData((com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
 
@@ -486,14 +487,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.get("total")).isEqualTo(11);
         List data = (List) response.get("data");
         assertThat(data).hasSize(10);
-        assertThat((Map)data.get(0))
+        assertThat((Map) data.get(0))
                 .containsKey("interval")
                 .containsKey("channelData")
                 .containsKey("readingTime")
                 .containsKey("intervalFlags");
         Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");
         assertThat(interval.get("start")).isEqualTo(startTime);
-        assertThat(interval.get("end")).isEqualTo(startTime+900);
+        assertThat(interval.get("end")).isEqualTo(startTime + 900);
         Map<String, BigDecimal> channelData = (Map<String, BigDecimal>) ((Map) data.get(0)).get("channelData");
         assertThat(channelData).hasSize(2).containsKey("0").containsKey("1");
     }
@@ -516,9 +517,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
         final long startTime = 1388534400000L;
         long start = startTime;
-        for (int i=0; i<2880;i++) {
+        for (int i = 0; i < 2880; i++) {
             loadProfileReadings.add(mockLoadProfileReading(loadProfile3, new Interval(new Date(start), new Date(start + 900))));
-            start+=900;
+            start += 900;
         }
         when(channel1.getChannelData((com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
 
@@ -532,14 +533,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.get("total")).isEqualTo(11);
         List data = (List) response.get("data");
         assertThat(data).hasSize(10);
-        assertThat((Map)data.get(0))
+        assertThat((Map) data.get(0))
                 .containsKey("interval")
                 .containsKey("value")
                 .containsKey("readingTime")
                 .containsKey("intervalFlags");
         Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");
         assertThat(interval.get("start")).isEqualTo(startTime);
-        assertThat(interval.get("end")).isEqualTo(startTime+900);
+        assertThat(interval.get("end")).isEqualTo(startTime + 900);
     }
 
     @Test
@@ -549,8 +550,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(response)
-            .contains(MapEntry.entry("total", 0))
-            .containsKey("data");
+                .contains(MapEntry.entry("total", 0))
+                .containsKey("data");
     }
 
     @Test
@@ -570,28 +571,28 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 2).request().get(Map.class);
 
         assertThat(response)
-            .contains(MapEntry.entry("total", 3))
-            .containsKey("data");
+                .contains(MapEntry.entry("total", 3))
+                .containsKey("data");
 
-        assertThat((List)response.get("data")).hasSize(2);
+        assertThat((List) response.get("data")).hasSize(2);
 
-        Map logBookInfo1 = (Map) ((List)response.get("data")).get(0);
+        Map logBookInfo1 = (Map) ((List) response.get("data")).get(0);
         assertThat(logBookInfo1)
-            .contains(MapEntry.entry("id", 3))
-            .contains(MapEntry.entry("name", "A_LogBook"))
-            .contains(MapEntry.entry("obisCode", "0.0.0.0.0.5"))
-            .contains(MapEntry.entry("overruledObisCode", "0.0.0.0.0.6"))
-            .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
-            .contains(MapEntry.entry("lastReading", lastReading.getTime()));
+                .contains(MapEntry.entry("id", 3))
+                .contains(MapEntry.entry("name", "A_LogBook"))
+                .contains(MapEntry.entry("obisCode", "0.0.0.0.0.5"))
+                .contains(MapEntry.entry("overruledObisCode", "0.0.0.0.0.6"))
+                .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
+                .contains(MapEntry.entry("lastReading", lastReading.getTime()));
 
-        Map logBookInfo2 = (Map) ((List)response.get("data")).get(1);
+        Map logBookInfo2 = (Map) ((List) response.get("data")).get(1);
         assertThat(logBookInfo2)
-            .contains(MapEntry.entry("id", 2))
-            .contains(MapEntry.entry("name", "B_LogBook"))
-            .contains(MapEntry.entry("obisCode", "0.0.0.0.0.3"))
-            .contains(MapEntry.entry("overruledObisCode", "0.0.0.0.0.4"))
-            .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
-            .contains(MapEntry.entry("lastReading", lastReading.getTime()));
+                .contains(MapEntry.entry("id", 2))
+                .contains(MapEntry.entry("name", "B_LogBook"))
+                .contains(MapEntry.entry("obisCode", "0.0.0.0.0.3"))
+                .contains(MapEntry.entry("overruledObisCode", "0.0.0.0.0.4"))
+                .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
+                .contains(MapEntry.entry("lastReading", lastReading.getTime()));
     }
 
     @Test
@@ -752,23 +753,23 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
                 .queryParam("filter", "[{'property':'intervalStart','value':1},"
-                                     + "{'property':'intervalEnd','value':2},"
-                                     + "{'property':'domain','value':'BATTERY'},"
-                                     + "{'property':'subDomain','value':'ACCESS'},"
-                                     + "{'property':'eventOrAction','value':'ACTIVATED'}]").request().get(Map.class);
+                        + "{'property':'intervalEnd','value':2},"
+                        + "{'property':'domain','value':'BATTERY'},"
+                        + "{'property':'subDomain','value':'ACCESS'},"
+                        + "{'property':'eventOrAction','value':'ACTIVATED'}]").request().get(Map.class);
 
         assertThat(response.get("total")).isEqualTo(1);
 
         List<?> infos = (List<?>) response.get("data");
         assertThat(infos).hasSize(1);
         assertThat((Map<?, ?>) infos.get(0))
-            .contains(MapEntry.entry("eventDate", start.getTime()))
-            .contains(MapEntry.entry("deviceCode", deviceCode))
-            .contains(MapEntry.entry("eventLogId", eventLogId))
-            .contains(MapEntry.entry("readingDate", start.getTime()))
-            .contains(MapEntry.entry("message", message));
+                .contains(MapEntry.entry("eventDate", start.getTime()))
+                .contains(MapEntry.entry("deviceCode", deviceCode))
+                .contains(MapEntry.entry("eventLogId", eventLogId))
+                .contains(MapEntry.entry("readingDate", start.getTime()))
+                .contains(MapEntry.entry("message", message));
 
-        Map<?, ?> eventType = (Map<?, ?>) ((Map<?, ?>)infos.get(0)).get("eventType");
+        Map<?, ?> eventType = (Map<?, ?>) ((Map<?, ?>) infos.get(0)).get("eventType");
         assertThat(eventType).contains(MapEntry.entry("code", eventTypeCode));
         Map<?, ?> deviceTypeMap = (Map<?, ?>) eventType.get("deviceType");
         assertThat(deviceTypeMap).contains(MapEntry.entry("id", type.getValue())).contains(MapEntry.entry("name", type.getMnemonic()));
@@ -785,12 +786,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Interval interval) {
         LoadProfileReading loadProfileReading = mock(LoadProfileReading.class);
+        IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
+        when(intervalReadingRecord.getValue()).thenReturn(BigDecimal.TEN);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.CORRUPTED));
         when(loadProfileReading.getReadingTime()).thenReturn(new Date());
         when(loadProfileReading.getInterval()).thenReturn(interval);
-        Map<Channel, BigDecimal> map= new HashMap<>();
+        Map<Channel, IntervalReadingRecord> map = new HashMap<>();
         for (Channel channel : loadProfile.getChannels()) {
-            map.put(channel, BigDecimal.TEN);
+            map.put(channel, intervalReadingRecord);
         }
         when(loadProfileReading.getChannelValues()).thenReturn(map);
         return loadProfileReading;
@@ -820,8 +823,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfileType.getName()).thenReturn(name);
         when(loadProfile1.getInterval()).thenReturn(interval);
         when(loadProfile1.getId()).thenReturn(id);
-        when(loadProfile1.getDeviceObisCode()).thenReturn(new ObisCode(1,2,3,4,5, (int) id));
-        when(loadProfile1.getChannels()).thenReturn(channels==null? Collections.<Channel>emptyList() :Arrays.asList(channels));
+        when(loadProfile1.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, (int) id));
+        when(loadProfile1.getChannels()).thenReturn(channels == null ? Collections.<Channel>emptyList() : Arrays.asList(channels));
         when(loadProfile1.getLastReading()).thenReturn(new Date(1406617200000L)); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);

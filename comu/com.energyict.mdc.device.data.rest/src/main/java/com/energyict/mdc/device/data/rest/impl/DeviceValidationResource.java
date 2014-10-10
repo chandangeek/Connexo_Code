@@ -1,14 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -18,10 +10,19 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.MeterActivationValidation;
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 
@@ -144,7 +145,7 @@ public class DeviceValidationResource {
     private DeviceValidationStatusInfo determineStatus(Device device) {
         Meter meter = getMeterFor(device);
         DeviceValidation deviceValidation = device.forValidation();
-        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo(deviceValidation.isValidationActive(), deviceValidation.getLastChecked().or(clock.now()), meter.hasData());
+        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo(deviceValidation.isValidationActive(), deviceValidation.getLastChecked().orNull(), meter.hasData());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.now().toInstant(), clock.getTimeZone().toZoneId()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
@@ -165,7 +166,7 @@ public class DeviceValidationResource {
 
         deviceValidationStatusInfo.loadProfileSuspectCount = statuses.stream()
                 .flatMap(d -> d.getReadingQualities().stream())
-                .filter(ValidationService.IS_VALIDATION_QUALITY)
+                .filter(r -> QualityCodeIndex.SUSPECT.equals(r.getType().qualityIndex().orElse(null)))
                 .count();
         if (statuses.isEmpty()) {
             deviceValidationStatusInfo.allDataValidated &= device.getRegisters().stream()
@@ -186,7 +187,7 @@ public class DeviceValidationResource {
 
         deviceValidationStatusInfo.registerSuspectCount = statuses.stream()
                 .flatMap(d -> d.getReadingQualities().stream())
-                .filter(ValidationService.IS_VALIDATION_QUALITY)
+                .filter(r -> QualityCodeIndex.SUSPECT.equals(r.getType().qualityIndex().orElse(null)))
                 .count();
         if (statuses.isEmpty()) {
             deviceValidationStatusInfo.allDataValidated &= device.getLoadProfiles().stream()
@@ -246,12 +247,17 @@ public class DeviceValidationResource {
     public Response validateDeviceData(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
-        resourceHelper.getMeterActivationsMostCurrentFirst(meter).forEach(meterActivation -> {
-            if (!validationService.getEvaluator().isAllDataValidated(meterActivation)) {
-                Date date = validationService.getLastChecked(meterActivation).or(meterActivation.getStart());
-                validationService.validate(meterActivation, Interval.startAt(date));
-            }
-        });
+        List<MeterActivation> meterActivations = resourceHelper.getMeterActivationsMostCurrentFirst(meter);
+        if (!meterActivations.isEmpty()) {
+            Interval interval = Interval.startAt(meterActivations.get(meterActivations.size() - 1).getStart());
+            ValidationEvaluator evaluator = validationService.getEvaluator(meter, interval);
+            meterActivations.forEach(meterActivation -> {
+                if (!evaluator.isAllDataValidated(meterActivation)) {
+                    Date date = validationService.getLastChecked(meterActivation).or(meterActivation.getStart());
+                    validationService.validate(meterActivation, Interval.startAt(date));
+                }
+            });
+        }
         return Response.status(Response.Status.OK).build();
     }
 

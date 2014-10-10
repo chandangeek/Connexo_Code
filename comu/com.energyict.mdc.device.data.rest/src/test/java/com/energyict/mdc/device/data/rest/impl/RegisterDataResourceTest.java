@@ -1,0 +1,128 @@
+package com.energyict.mdc.device.data.rest.impl;
+
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.google.common.base.Optional;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
+import java.util.*;
+
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.*;
+
+public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTest {
+
+    @Mock
+    private Device device;
+    @Mock
+    private DeviceValidation deviceValidation;
+    @Mock
+    private DataValidationStatus dataValidationStatus;
+    @Mock
+    private Register register;
+    @Mock
+    private RegisterType registerType;
+    @Mock
+    private ReadingType readingType;
+    @Mock
+    NumericalRegisterSpec numericalRegisterSpec;
+    @Mock
+    private AmrSystem amrSystem;
+    @Mock
+    private Meter meter;
+    @Mock
+    private ReadingRecord actualReading1, actualReading2;
+    @Mock
+    private Channel meteringChannel;
+    @Mock
+    private MeterActivation meterActivation;
+    @Mock
+    private List list;
+
+    public static final Date BILLING_READING_INTERVAL_END = new Date(1410786196000L);
+    public static final Date BILLING_READING_INTERVAL_START = new Date(1409570229000L);
+    public static final Date READING_TIMESTAMP = new Date(1409570229000L);
+
+    public RegisterDataResourceTest() {
+    }
+
+    @Before
+    public void setUpStubs() {
+        when(device.getRegisters()).thenReturn(Arrays.asList(register));
+        when(numericalRegisterSpec.getRegisterType()).thenReturn(registerType);
+        when(register.getRegisterSpec()).thenReturn(numericalRegisterSpec);
+        when(register.getReadingType()).thenReturn(readingType);
+        when(numericalRegisterSpec.getUnit()).thenReturn(Unit.get("M"));
+        BillingReading billingReading = mock(BillingReading.class);
+        NumericalReading numericalReading = mock(NumericalReading.class);
+        Quantity quantity = Quantity.create(BigDecimal.TEN, "M");
+        when(billingReading.getQuantity()).thenReturn(quantity);
+        when(numericalReading.getQuantity()).thenReturn(quantity);
+        when(billingReading.getTimeStamp()).thenReturn(READING_TIMESTAMP);
+        when(numericalReading.getTimeStamp()).thenReturn(READING_TIMESTAMP);
+        Interval interval = new Interval(BILLING_READING_INTERVAL_START, BILLING_READING_INTERVAL_END);
+        when(billingReading.getInterval()).thenReturn(Optional.of(interval));
+        when(register.getReadings(Interval.sinceEpoch())).thenReturn(Arrays.asList(billingReading, numericalReading));
+        when(billingReading.getActualReading()).thenReturn(actualReading1);
+        when(numericalReading.getActualReading()).thenReturn(actualReading2);
+        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+        when(registerType.getReadingType()).thenReturn(readingType);
+        when(meterActivation.getChannels()).thenReturn(Arrays.asList(meteringChannel));
+        doReturn(Arrays.asList(readingType)).when(meteringChannel).getReadingTypes();
+        when(list.contains(readingType)).thenReturn(true);
+        when(device.forValidation()).thenReturn(deviceValidation);
+        when(deviceValidation.isValidationActive(any(Register.class), any(Date.class))).thenReturn(false);
+        when(deviceValidation.getValidationStatus(any(Register.class), anyListOf(ReadingRecord.class), any(Interval.class))).thenReturn(new ArrayList<>());
+    }
+
+    @Test
+    public void testGetRegisterData() {
+        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(numericalRegisterSpec.getId()).thenReturn(1L);
+        when(device.getId()).thenReturn(1L);
+        when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));
+        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
+
+        Map json = target("devices/1/registers/1/data").request().get(Map.class);
+        System.out.println(json);
+
+
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<List<?>>get("$.data")).hasSize(2);
+        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
+        assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("numerical");
+    }
+
+    @Test
+    public void testPutRegisterData() {
+        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(numericalRegisterSpec.getId()).thenReturn(1L);
+        when(device.getId()).thenReturn(1L);
+        when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));
+        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
+        when(readingType.getMRID()).thenReturn("mRID");
+
+        NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
+        numericalReadingInfo.value = BigDecimal.TEN;
+        numericalReadingInfo.timeStamp = READING_TIMESTAMP;
+
+        Response response = target("devices/1/registers/1/data").request().put(Entity.json(numericalReadingInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+}

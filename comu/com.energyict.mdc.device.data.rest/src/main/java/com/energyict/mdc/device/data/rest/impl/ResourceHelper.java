@@ -235,7 +235,8 @@ public class ResourceHelper {
     }
 
     private Meter createMeter(Device device) {
-        Meter meter;AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        Meter meter;
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
         meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
         meter.save();
         return meter;
@@ -250,6 +251,16 @@ public class ResourceHelper {
     public Optional<com.elster.jupiter.metering.Channel> getRegisterChannel(Register register, Meter meter) {
         for (MeterActivation meterActivation : getMeterActivationsMostCurrentFirst(meter)) {
             Optional<com.elster.jupiter.metering.Channel> channelRef = getChannel(meterActivation, register.getRegisterSpec().getRegisterType().getReadingType());
+            if (channelRef.isPresent()) {
+                return channelRef;
+            }
+        }
+        return Optional.absent();
+    }
+
+    public Optional<com.elster.jupiter.metering.Channel> getLoadProfileChannel(Channel channel, Meter meter) {
+        for (MeterActivation meterActivation : getMeterActivationsMostCurrentFirst(meter)) {
+            Optional<com.elster.jupiter.metering.Channel> channelRef = getChannel(meterActivation, channel.getReadingType());
             if (channelRef.isPresent()) {
                 return channelRef;
             }
