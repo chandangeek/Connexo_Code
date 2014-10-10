@@ -181,5 +181,5 @@ Ext.define('Mdc.controller.setup.DevicesController', {
 
     getSearchItems: function() {},
 
-    getCriteriaPanel: function() {},
+    getCriteriaPanel: function() {}
 });
