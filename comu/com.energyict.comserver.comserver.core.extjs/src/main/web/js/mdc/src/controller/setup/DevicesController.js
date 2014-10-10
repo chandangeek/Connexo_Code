@@ -19,7 +19,11 @@ Ext.define('Mdc.controller.setup.DevicesController', {
                 clearAllFilters: this.clearFilter
             };
             control[this.prefix + ' uni-filter-combo'] = {
-                updateTopFilterPanelTagButtons: this.onFilterChange
+                updateTopFilterPanelTagButtons: this.onFilterChange,
+                specialkey: this.applyFilter
+            };
+            control[this.prefix + ' textfield'] = {
+                specialkey: this.applyFilter
             };
             control[this.prefix + ' button[action=applyfilter]'] = {
                 click: this.applyFilter
