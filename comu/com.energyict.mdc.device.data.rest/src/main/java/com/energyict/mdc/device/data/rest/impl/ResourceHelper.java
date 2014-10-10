@@ -105,10 +105,37 @@ public class ResourceHelper {
                         ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
                         : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
             }
+            JSONArray deviceTypesJSONArray =  (JSONArray)filter.getProperty("deviceTypes");
+            if (deviceTypesJSONArray != null) {
+                List<String> deviceTypes = getValues(deviceTypesJSONArray);
+                if (!deviceTypes.isEmpty()) {
+                    conditionDevice = conditionDevice.and(createMultipleConditions(deviceTypes, "deviceConfiguration.deviceType.id"));
+                }
+            }
+            JSONArray deviceConfigurationsJSONArray =  (JSONArray)filter.getProperty("deviceConfigurations");
+            if (deviceConfigurationsJSONArray != null) {
+                List<String> deviceConfigurations = getValues(deviceConfigurationsJSONArray);
+                if (!deviceConfigurations.isEmpty()) {
+                    conditionDevice = conditionDevice.and(createMultipleConditions(deviceConfigurations, "deviceConfiguration.id"));
+                }
+            }
             return conditionDevice;
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<String> getValues(JSONArray jsonArray) throws JSONException {
+        int numberOfValues = jsonArray.length();
+        List<String> values = new ArrayList<String>();
+        for (int i = 0; i < numberOfValues; i++) {
+            String type = jsonArray.getString(i);
+            type = type.trim();
+            if (!type.equals("")) {
+                values.add(type);
+            }
+        }
+        return values;
     }
 
     private boolean isRegularExpression(String value) {
@@ -170,6 +197,14 @@ public class ResourceHelper {
             conditionDevice = conditionDevice.and(createMultipleConditions(deviceConfiguration, "deviceConfiguration.name"));
         }
         return conditionDevice;
+    }
+
+    private Condition createMultipleConditions(List<String> params, String conditionField) {
+        Condition condition = Condition.FALSE;
+        for (String value : params) {
+            condition = condition.or(where(conditionField).isEqualTo(value.trim()));
+        }
+        return condition;
     }
 
     private Condition createMultipleConditions(String params, String conditionField) {
