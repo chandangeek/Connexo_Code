@@ -1,6 +1,6 @@
 package com.elster.jupiter.messaging;
 
-import org.joda.time.Seconds;
+import java.time.Duration;
 
 /**
  * Builder interface for messages.
@@ -17,6 +17,6 @@ public interface MessageBuilder {
      * @param seconds
      * @return the messageBuilder, for chaining calls.
      */
-    MessageBuilder expiringAfter(Seconds seconds);
+    MessageBuilder expiringAfter(Duration duration);
 
 }
