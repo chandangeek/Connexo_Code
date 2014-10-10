@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.security.Principal;
@@ -41,7 +41,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -121,7 +121,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
                 EndDeviceEventTypeImpl endDeviceEventType = meteringService.createEndDeviceEventType(code);
                 Optional<EndDeviceEventType> found = meteringService.getDataModel().mapper(EndDeviceEventType.class).getOptional(code);
-                assertThat(found).contains(endDeviceEventType);
+                assertThat(found.get()).isEqualTo(endDeviceEventType);
             }
         });
 

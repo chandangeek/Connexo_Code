@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.readings;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.Status;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ public interface EndDeviceEvent extends IdentifiedObject {
     /**
      * This is the datetime of event occurrence in the device
      */
-	Date getCreatedDateTime();
+	Instant getCreatedDateTime();
 	String getReason();
 	String getSeverity();
 	Status getStatus();

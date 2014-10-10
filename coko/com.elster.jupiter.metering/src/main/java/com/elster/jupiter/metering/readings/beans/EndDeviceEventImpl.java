@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.readings.beans;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,7 @@ import java.util.Map;
  */
 public class EndDeviceEventImpl implements EndDeviceEvent {
 
-    private final Date eventOccurredDate;
+    private final Instant eventOccurredDate;
     private final String mRID;
     private String reason;
     private String severity;
@@ -32,13 +33,13 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
     private String description;
     private String name;
 
-    public EndDeviceEventImpl(String mRID, Date eventTime) {
+    public EndDeviceEventImpl(String mRID, Instant eventTime) {
         this.mRID = mRID;
         this.eventOccurredDate = eventTime;
     }
 
     @Override
-    public Date getCreatedDateTime() {
+    public Instant getCreatedDateTime() {
         return eventOccurredDate;
     }
 

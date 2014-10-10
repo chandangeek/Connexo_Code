@@ -62,7 +62,7 @@ public enum TableSpecs {
             table.column("EAUSERID").varChar(NAME_LENGTH).map("electronicAddress.userID").add();
             table.column("EAWEB").varChar(NAME_LENGTH).map("electronicAddress.web").add();
             table.column("GEOINFOREFERENCE").varChar(NAME_LENGTH).map("geoInfoReference").add();
-            table.column("MASTATUSDATETIME").type("number").conversion(NUMBER2UTCINSTANT).map("mainAddress.status.dateTime").add();
+            table.column("MASTATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("mainAddress.status.dateTime").add();
             table.column("MASTATUSREASON").varChar(NAME_LENGTH).map("mainAddress.status.reason").add();
             table.column("MASTATUSREMARK").varChar(NAME_LENGTH).map("mainAddress.status.remark").add();
             table.column("MASTATUSVALUE").varChar(NAME_LENGTH).map("mainAddress.status.value").add();
@@ -91,7 +91,7 @@ public enum TableSpecs {
             table.column("PHONE2COUNTRY").varChar(NAME_LENGTH).map("phone2.countryCode").add();
             table.column("PHONE2EXTENSION").varChar(NAME_LENGTH).map("phone2.extension").add();
             table.column("PHONE2LOCALNUMBER").varChar(NAME_LENGTH).map("phone2.localNumber").add();
-            table.column("SASTATUSDATETIME").type("number").conversion(NUMBER2UTCINSTANT).map("secondaryAddress.status.dateTime").add();
+            table.column("SASTATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("secondaryAddress.status.dateTime").add();
             table.column("SASTATUSREASON").varChar(NAME_LENGTH).map("secondaryAddress.status.reason").add();
             table.column("SASTATUSREMARK").varChar(NAME_LENGTH).map("secondaryAddress.status.remark").add();
             table.column("SASTATUSVALUE").varChar(NAME_LENGTH).map("secondaryAddress.status.value").add();
@@ -110,7 +110,7 @@ public enum TableSpecs {
             table.column("SATOWNNAME").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.name").add();
             table.column("SATOWNSECTION").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.section").add();
             table.column("SATOWNSTATE").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.stateOrProvince").add();
-            table.column("STATUSDATETIME").type("number").conversion(NUMBER2UTCINSTANT).map("status.dateTime").add();
+            table.column("STATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("status.dateTime").add();
             table.column("STATUSREASON").varChar(NAME_LENGTH).map("status.reason").add();
             table.column("STATUSREMARK").varChar(NAME_LENGTH).map("status.remark").add();
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
@@ -288,7 +288,7 @@ public enum TableSpecs {
             table.setJournalTableName("MTR_READINGQUALITYJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).map("channelId").add();
-            Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("readingTimestamp").add();
+            Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
             Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
             table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
@@ -318,7 +318,7 @@ public enum TableSpecs {
             table.map(EndDeviceEventRecordImpl.class);
             Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column eventTypeColumn = table.column("EVENTTYPE").varChar(NAME_LENGTH).notNull().add();
-            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2INSTANT).map("createdDateTime").add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
@@ -327,7 +327,7 @@ public enum TableSpecs {
             table.column("SEVERITY").varChar(NAME_LENGTH).map("severity").add();
             table.column("ISSUERID").varChar(NAME_LENGTH).map("issuerID").add();
             table.column("ISSUERTRACKINGID").varChar(NAME_LENGTH).map("issuerTrackingID").add();
-            table.column("STATUSDATETIME").type("number").conversion(NUMBER2UTCINSTANT).map("status.dateTime").add();
+            table.column("STATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("status.dateTime").add();
             table.column("STATUSREASON").varChar(NAME_LENGTH).map("status.reason").add();
             table.column("STATUSREMARK").varChar(NAME_LENGTH).map("status.remark").add();
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
@@ -348,7 +348,7 @@ public enum TableSpecs {
             table.map(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
             Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
             Column eventTypeColumn = table.column("EVENTTYPE").varChar(NAME_LENGTH).notNull().map("eventTypeCode").add();
-            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2INSTANT).map("createdDateTime").add();
             Column keyColumn = table.column("KEY").varChar(NAME_LENGTH).notNull().map("key").add();
             table.column("DETAIL_VALUE").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("value").add();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTDETAIL").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, keyColumn).add();

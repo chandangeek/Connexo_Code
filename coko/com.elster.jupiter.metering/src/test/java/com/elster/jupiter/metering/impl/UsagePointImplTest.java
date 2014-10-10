@@ -275,8 +275,8 @@ public class UsagePointImplTest {
 
         verify(dataModel).persist(meterActivation);
 
-        assertThat(meterActivation.getUsagePoint()).isPresent();
-        assertThat(meterActivation.getUsagePoint()).contains(usagePoint);
+        assertThat(meterActivation.getUsagePoint().isPresent()).isTrue();
+        assertThat(meterActivation.getUsagePoint().get()).isEqualTo(usagePoint);
     }
 
     @Test
@@ -297,7 +297,7 @@ public class UsagePointImplTest {
         when(acc2.isEffective(now)).thenReturn(true);
         when(acc2.getParty()).thenReturn(party);
 
-        assertThat(usagePoint.getResponsibleParty(now, MarketRoleKind.ENERGYSERVICECONSUMER)).contains(party);
+        assertThat(usagePoint.getResponsibleParty(now, MarketRoleKind.ENERGYSERVICECONSUMER).get()).isEqualTo(party);
     }
 
     @Test
@@ -310,7 +310,7 @@ public class UsagePointImplTest {
         when(acc2.isEffective(now)).thenReturn(true);
         when(acc2.getParty()).thenReturn(party);
 
-        assertThat(usagePoint.getResponsibleParty(now, MarketRoleKind.ENERGYSERVICECONSUMER)).contains(party);
+        assertThat(usagePoint.getResponsibleParty(now, MarketRoleKind.ENERGYSERVICECONSUMER).get()).isEqualTo(party);
     }
 
     @Test

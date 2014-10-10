@@ -141,7 +141,7 @@ public class ReadingEditTest {
             ctx.commit();
         }
         Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate)).isPresent();
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isTrue();
         assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
         // added a value adds an added rq
@@ -149,18 +149,18 @@ public class ReadingEditTest {
         	ReadingImpl reading1 = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(2), existDate);
         	ReadingImpl reading2 = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(2), newDate);
             channel.editReadings(ImmutableList.of(reading1,reading2));
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),existDate)).isPresent();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate)).isAbsent();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),existDate).isPresent()).isTrue();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isFalse();
             assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isFalse();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate)).isPresent();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
             ctx.commit();
         }
         // make sure if you edit an added reading the reading quality remains added
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	ReadingImpl reading2 = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(3), newDate);
             channel.editReadings(ImmutableList.of(reading2));
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),newDate)).isAbsent();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate)).isPresent();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),newDate).isPresent()).isFalse();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
             ctx.commit();
         }
     }

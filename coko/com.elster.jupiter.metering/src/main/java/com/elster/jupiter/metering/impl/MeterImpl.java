@@ -20,7 +20,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -92,7 +92,7 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
                 return Optional.of(meterActivation);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
@@ -102,7 +102,7 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
                 return Optional.of(meterActivation);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
 

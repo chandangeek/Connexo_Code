@@ -11,7 +11,7 @@ import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.orm.DataModel;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import javax.inject.Provider;
 

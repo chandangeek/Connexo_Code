@@ -1,12 +1,12 @@
 package com.elster.jupiter.metering;
 
-import com.google.common.base.Optional;
-
+import java.time.Instant;
+import java.util.Optional;
 import java.util.Date;
 
 public interface ReadingQualityRecord extends com.elster.jupiter.metering.readings.ReadingQuality {
 
-    Date getTimestamp();
+    Instant getTimestamp();
 
     Channel getChannel();
 
@@ -18,7 +18,7 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
 
     void save();
 
-    Date getReadingTimestamp();
+    Instant getReadingTimestamp();
 
     void delete();
 

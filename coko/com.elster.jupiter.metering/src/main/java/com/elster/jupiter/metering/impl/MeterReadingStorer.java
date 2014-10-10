@@ -23,9 +23,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.util.Optional;
 
 import javax.inject.Provider;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -48,7 +51,7 @@ public class MeterReadingStorer {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
-    private final Map<Channel, Map<Date, BaseReading>> channelReadings = new HashMap<>();
+    private final Map<Channel, Map<Instant, BaseReading>> channelReadings = new HashMap<>();
 
     MeterReadingStorer(DataModel dataModel, MeteringService meteringService, Meter meter,
                        MeterReading meterReading, Thesaurus thesaurus, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory) {
@@ -91,7 +94,7 @@ public class MeterReadingStorer {
 
 
     private boolean isRelevant(ReadingQualityRecord readingQuality) {
-        Map<Date, BaseReading> readingMap = channelReadings.get(readingQuality.getChannel());
+        Map<Instant, BaseReading> readingMap = channelReadings.get(readingQuality.getChannel());
         return readingMap != null && readingMap.containsKey(readingQuality.getReadingTimestamp());
     }
 
@@ -266,7 +269,7 @@ public class MeterReadingStorer {
     }
 
     private void addedReading(Channel channel, BaseReading reading) {
-        channelReadings.computeIfAbsent(channel, key -> new HashMap<>()).put(reading.getTimeStamp(), reading);
+        channelReadings.computeIfAbsent(channel, key -> new HashMap<>()).put(reading.getTimeStamp().toInstant(), reading);
     }
 
     private void storeReadingQualities() {
@@ -298,6 +301,6 @@ public class MeterReadingStorer {
                 return Optional.of(readingQuality);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 }

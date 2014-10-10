@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Date;
 
 import org.junit.After;
@@ -151,7 +152,7 @@ public class UsagePointQueryTest {
         location.save();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
         usagePoint.setServiceLocation(location);
-        ElectricityDetail detail = (ElectricityDetail) serviceCategory.newUsagePointDetail(usagePoint, new Date());
+        ElectricityDetail detail = (ElectricityDetail) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
         detail.setAmiBillingReady(AmiBillingReadyKind.AMICAPABLE);
         detail.setRatedPower(Unit.WATT_HOUR.amount(BigDecimal.valueOf(1000),3));
         usagePoint.addDetail(detail);
@@ -175,10 +176,10 @@ public class UsagePointQueryTest {
         Party party = partyService.newOrganization("Electrabel");
         party.save();
         PartyRole role = partyService.getRole(MarketRoleKind.ENERGYSERVICECONSUMER.name()).get();
-        party.assumeRole(role, new Date());
+        party.assumeRole(role, Instant.now());
         query.setLazy();
         assertThat(query.select(meteringService.hasAccountability())).isEmpty();
-        party.appointDelegate(user, new Date());
+        party.appointDelegate(user, Instant.now());
         party = partyService.getParty("Electrabel").get();
         usagePoint.addAccountability(role, party, new Date());
         assertThat(query.select(meteringService.hasAccountability())).isNotEmpty();

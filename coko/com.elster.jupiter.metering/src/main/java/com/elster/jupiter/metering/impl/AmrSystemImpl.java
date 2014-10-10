@@ -8,8 +8,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.util.Optional;
 
 import javax.inject.Provider;
 import javax.inject.Inject;
@@ -23,9 +24,9 @@ public class AmrSystemImpl implements AmrSystem {
 	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
+	private Instant createTime;
 	@SuppressWarnings("unused")
-	private UtcInstant modTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 
@@ -87,7 +88,7 @@ public class AmrSystemImpl implements AmrSystem {
 		List<Meter> candidates = meteringService.getMeterQuery().select(condition);
 		switch(candidates.size()) {
 			case 0:
-				return Optional.absent();
+				return Optional.empty();
 			case 1:
 				return Optional.of(candidates.get(0));
 			default:

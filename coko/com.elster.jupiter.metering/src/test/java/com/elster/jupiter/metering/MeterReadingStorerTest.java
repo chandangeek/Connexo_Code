@@ -34,7 +34,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -154,13 +154,13 @@ public class MeterReadingStorerTest {
             assertThat(meter.getReadingsBefore(dateTime.toDate(), meteringService.getReadingType(intervalReadingTypeCode).get(), 10)).isEmpty();
             assertThat(meter.getReadingsOnOrBefore(dateTime.toDate(), meteringService.getReadingType(intervalReadingTypeCode).get(), 10)).hasSize(1);
             List<Channel> channels = meter.getMeterActivations().get(0).getChannels();
-            Optional<Channel> channel = Optional.absent();
+            Optional<Channel> channel = Optional.empty();
             for (Channel candidate : channels) {
                 if (candidate.getMainReadingType().getMRID().equals(registerReadingTypeCode)) {
                     channel = Optional.of(candidate);
                 }
             }
-            assertThat(channel).isPresent();
+            assertThat(channel.isPresent()).isTrue();
 //            assertThat(channel.get().findReadingQuality(dateTime.toDate())).hasSize(1);
 //            assertThat(meter.getReadingQualities(Range.atLeast(Instant.EPOCH))).hasSize(1);
             //update reading quality
@@ -244,7 +244,7 @@ public class MeterReadingStorerTest {
             Reading reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
             meterReading.addReading(reading);
 
-            EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(EVENTTYPECODE, dateTime.toDate());
+            EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(EVENTTYPECODE, dateTime.toDate().toInstant());
             HashMap<String, String> eventData = new HashMap<>();
             eventData.put("A", "B");
             endDeviceEvent.setEventData(eventData);

@@ -9,10 +9,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -30,7 +30,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         private EndDeviceEventRecord eventRecord;
         private String eventTypeCode;
         private long endDeviceId;
-        private UtcInstant createdDateTime;
+        private Instant createdDateTime;
 
         private String key;
         private String value;
@@ -43,7 +43,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
             this.eventRecord = eventRecord;
             eventTypeCode = eventRecord.getEventType().getMRID();
             endDeviceId = eventRecord.getEndDevice().getId();
-            createdDateTime = new UtcInstant(eventRecord.getCreatedDateTime());
+            createdDateTime = eventRecord.getCreatedDateTime();
             this.key = key;
             this.value = value;
         }
@@ -62,14 +62,14 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private long processingFlags;
     private long logBookId;
     private int logBookPosition;
-    private UtcInstant createdDateTime;
+    private Instant createdDateTime;
     
     @SuppressWarnings("unused")
 	private long version;
     @SuppressWarnings("unused")
-    private UtcInstant createTime;
+    private Instant createTime;
     @SuppressWarnings("unused")
-    private UtcInstant modTime;
+    private Instant modTime;
     private String userName;
 
     private final Reference<EndDeviceEventType> eventType = ValueReference.absent();
@@ -107,18 +107,18 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     }
 
     @Override
-    public Date getCreatedDateTime() {
-        return createdDateTime.toDate();
+    public Instant getCreatedDateTime() {
+        return createdDateTime;
     }
 
     @Override
-    public Date getCreateTime() {
-        return createTime!=null?createTime.toDate():null;
+    public Instant getCreateTime() {
+        return createTime;
     }
 
     @Override
-    public Date getModTime() {
-        return modTime!=null?modTime.toDate():null;
+    public Instant getModTime() {
+        return modTime;
     }
 
     @Override
@@ -282,9 +282,9 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         this.deviceEventType = deviceEventType;
     }
 
-    EndDeviceEventRecordImpl init(EndDevice endDevice, EndDeviceEventType eventType, Date createdDateTime) {
+    EndDeviceEventRecordImpl init(EndDevice endDevice, EndDeviceEventType eventType, Instant createdDateTime) {
         this.endDevice.set(endDevice);
-        this.createdDateTime = new UtcInstant(createdDateTime);
+        this.createdDateTime = createdDateTime;
         this.eventType.set(eventType);        
         return this;
     }

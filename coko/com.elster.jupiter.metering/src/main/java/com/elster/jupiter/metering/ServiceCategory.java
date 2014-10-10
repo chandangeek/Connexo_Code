@@ -2,6 +2,7 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.nls.HasTranslatableName;
 
+import java.time.Instant;
 import java.util.Date;
 
 public interface ServiceCategory extends HasTranslatableName {
@@ -11,5 +12,5 @@ public interface ServiceCategory extends HasTranslatableName {
 	ServiceKind getKind();
 	UsagePoint newUsagePoint(String mRID);
 
-    UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Date start);
+    UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Instant start);
 }

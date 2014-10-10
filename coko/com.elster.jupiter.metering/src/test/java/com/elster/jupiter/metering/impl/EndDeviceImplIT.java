@@ -36,6 +36,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -102,7 +105,7 @@ public class EndDeviceImplIT {
 
     @Test
     public void testGetEvents() {
-        Date date = new DateTime(2014, 2, 5, 14, 15, 16, 0).toDate();
+        Instant date = ZonedDateTime.of(2014, 2, 5, 14, 15, 16, 0, ZoneId.systemDefault()).toInstant();
         EndDevice endDevice;
         EndDeviceEventRecord eventRecord;
         TransactionService transactionService = injector.getInstance(TransactionService.class);

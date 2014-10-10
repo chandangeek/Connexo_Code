@@ -20,14 +20,15 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Quantity;
-import com.google.common.base.Optional;
+
+import java.util.Optional;
 
 import javax.inject.Inject;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.Currency;
@@ -62,9 +63,9 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     private String description;
 	private long version;
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
+	private Instant createTime;
 	@SuppressWarnings("unused")
-	private UtcInstant modTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 	
@@ -277,7 +278,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
             return Optional.of(Period.ofDays(1));
         }
         int minutes = getMeasuringPeriod().getMinutes();
-        return minutes == 0 ? Optional.absent() : Optional.of(Duration.ofMinutes(minutes));
+        return minutes == 0 ? Optional.empty() : Optional.of(Duration.ofMinutes(minutes));
     }
 
 	boolean hasMacroPeriod() {

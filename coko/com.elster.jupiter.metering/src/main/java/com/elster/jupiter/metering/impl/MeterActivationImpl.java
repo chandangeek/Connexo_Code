@@ -12,12 +12,15 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -31,9 +34,9 @@ public class MeterActivationImpl implements MeterActivation {
 	private Interval interval;
 	private long version;
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
+	private Instant createTime;
 	@SuppressWarnings("unused")
-	private UtcInstant modTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 	

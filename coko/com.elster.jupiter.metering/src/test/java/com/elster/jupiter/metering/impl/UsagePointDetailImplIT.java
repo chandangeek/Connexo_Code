@@ -22,11 +22,12 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
-import com.google.common.base.Optional;
+import java.util.Optional;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateTime;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,9 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -52,10 +56,10 @@ public class UsagePointDetailImplIT {
     private static final Quantity RATED_POWER2 = Unit.WATT.amount(BigDecimal.valueOf(156157));
     private static final Quantity LOAD = Unit.WATT_HOUR.amount(BigDecimal.ONE);
 
-    private static final Date JANUARY_2014 = new DateTime(2014, 1, 1, 0, 0, 0, 0).toDate();
-    private static final Date FEBRUARY_2014 = new DateTime(2014, 2, 1, 0, 0, 0, 0).toDate();
-    private static final Date JANUARY_2013 = new DateTime(2013, 1, 1, 0, 0, 0, 0).toDate();
-    private static final Date MARCH_2014 = new DateTime(2014, 3, 1, 0, 0, 0, 0).toDate();
+    private static final Instant JANUARY_2014 = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant FEBRUARY_2014 = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant JANUARY_2013 = ZonedDateTime.of(2013, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant MARCH_2014 = ZonedDateTime.of(2014, 3, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
     private Injector injector;
 
@@ -138,7 +142,7 @@ public class UsagePointDetailImplIT {
             assertThat(optional.isPresent()).isTrue();
             ElectricityDetail foundElecDetail = (ElectricityDetail) optional.get();
             //verify interval is closed because a second was added!
-            assertThat(foundElecDetail.getInterval().equals(new Interval(JANUARY_2014, FEBRUARY_2014))).isTrue();
+            assertThat(foundElecDetail.getInterval().equals(Interval.of(JANUARY_2014, FEBRUARY_2014))).isTrue();
             //check content
             checkElectricityDetailContent(foundElecDetail);
 
@@ -157,7 +161,7 @@ public class UsagePointDetailImplIT {
             optional =  usagePoint.getDetail(FEBRUARY_2014);
             assertThat(optional.isPresent()).isTrue();
             foundElecDetail = (ElectricityDetail) optional.get();
-            assertThat(foundElecDetail.getInterval().equals(new Interval(FEBRUARY_2014, null))).isTrue();
+            assertThat(foundElecDetail.getInterval().equals(Interval.of(FEBRUARY_2014, null))).isTrue();
             foundElecDetail.getAmiBillingReady();
 
             //no details to be found valid on 1 january 2013
@@ -166,8 +170,8 @@ public class UsagePointDetailImplIT {
 
 
             //2 details to be found in the period from 1 january 2014 to 1 march 2014
-            Interval interval = new Interval(JANUARY_2014, MARCH_2014);
-            List details = usagePoint.getDetail(interval);
+            Range<Instant> range = Range.closedOpen(JANUARY_2014, MARCH_2014);
+            List details = usagePoint.getDetail(range);
             assertThat(details.size() == 2).isTrue();
         }
 
@@ -199,7 +203,7 @@ public class UsagePointDetailImplIT {
             assertThat(optional.isPresent()).isTrue();
             GasDetail foundGasDetail = (GasDetail) optional.get();
             //verify interval is closed because a second was added!
-            assertThat(foundGasDetail.getInterval().equals(new Interval(JANUARY_2014, FEBRUARY_2014))).isTrue();
+            assertThat(foundGasDetail.getInterval().equals(Interval.of(JANUARY_2014, FEBRUARY_2014))).isTrue();
             //check content
             checkGasDetailContent(foundGasDetail);
 
@@ -218,7 +222,7 @@ public class UsagePointDetailImplIT {
             optional =  usagePoint.getDetail(FEBRUARY_2014);
             assertThat(optional.isPresent()).isTrue();
             foundGasDetail = (GasDetail) optional.get();
-            assertThat(foundGasDetail.getInterval().equals(new Interval(FEBRUARY_2014, null))).isTrue();
+            assertThat(foundGasDetail.getInterval().equals(Interval.of(FEBRUARY_2014, null))).isTrue();
             foundGasDetail.getAmiBillingReady();
 
             //no details to be found valid on 1 january 2013
@@ -227,22 +231,22 @@ public class UsagePointDetailImplIT {
 
 
             //2 details to be found in the period from 1 january 2014 to 1 march 2014
-            Interval interval = new Interval(JANUARY_2014, MARCH_2014);
-            List details = usagePoint.getDetail(interval);
-            assertThat(details.size() == 2).isTrue();
+            Range<Instant> range = Range.closedOpen(JANUARY_2014, MARCH_2014);
+            List<? extends UsagePointDetail> details = usagePoint.getDetail(range);
+            assertThat(details).hasSize(2);
         }
 
     }
 
 
-    protected ElectricityDetail newElectricityDetail(UsagePoint usagePoint, Date date) {
+    protected ElectricityDetail newElectricityDetail(UsagePoint usagePoint, Instant date) {
         ElectricityDetail elecDetail = (ElectricityDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, date);
         fillElectricityDetail(elecDetail);
         return elecDetail;
     }
 
-    protected GasDetail newGasDetail(UsagePoint usagePoint, Date date) {
-        GasDetail gasDetail = (GasDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, date);
+    protected GasDetail newGasDetail(UsagePoint usagePoint, Instant instant) {
+        GasDetail gasDetail = (GasDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, instant);
         fillGasDetail(gasDetail);
         return gasDetail;
     }

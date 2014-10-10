@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.readings.beans;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public abstract class BaseReadingImpl implements BaseReading {
 
     private final BigDecimal value;
     private final Date timeStamp;
-    private Optional<Interval> timePeriod = Optional.absent();
+    private Optional<Interval> timePeriod = Optional.empty();
     private String source;
     private BigDecimal sensorAccuracy;
     private final List<ReadingQualityImpl> readingQualities = new ArrayList<>();
@@ -57,7 +57,7 @@ public abstract class BaseReadingImpl implements BaseReading {
 
     @Override
     public Interval getTimePeriod() {
-        return timePeriod.orNull();
+        return timePeriod.orElse(null);
     }
 
     public void setTimePeriod(Date start, Date end) {
@@ -65,7 +65,7 @@ public abstract class BaseReadingImpl implements BaseReading {
     }
 
     public void setTimePeriod(Interval interval) {
-        this.timePeriod = Optional.fromNullable(interval);
+        this.timePeriod = Optional.ofNullable(interval);
     }
 
     public void setSource(String source) {

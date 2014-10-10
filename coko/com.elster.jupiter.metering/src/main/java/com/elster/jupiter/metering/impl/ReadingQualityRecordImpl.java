@@ -9,8 +9,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -21,7 +22,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     private long id;
     private String comment;
     private long channelId;
-    private UtcInstant readingTimestamp;
+    private Instant readingTimestamp;
     private String typeCode;
     private boolean actual;
 
@@ -30,8 +31,8 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     private transient Channel channel;
 
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 
@@ -52,7 +53,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         this.channel = channel;
         this.channelId = channel.getId();
         this.baseReadingRecord = Optional.of(baseReadingRecord);
-        readingTimestamp = new UtcInstant(baseReadingRecord.getTimeStamp());
+        readingTimestamp = baseReadingRecord.getTimeStamp().toInstant();
         this.type = type;
         this.typeCode = type.getCode();
         return this;
@@ -61,7 +62,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, Date timestamp) {
         this.channel = channel;
         this.channelId = channel.getId();
-        readingTimestamp = new UtcInstant(timestamp);
+        readingTimestamp = timestamp.toInstant();
         this.type = type;
         this.typeCode = type.getCode();
         return this;
@@ -86,8 +87,8 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
 
     @Override
-    public Date getTimestamp() {
-        return modTime.toDate();
+    public Instant getTimestamp() {
+        return modTime;
     }
 
     @Override
@@ -135,8 +136,8 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
 
     @Override
-    public Date getReadingTimestamp() {
-        return readingTimestamp.toDate();
+    public Instant getReadingTimestamp() {
+        return readingTimestamp;
     }
 
     @Override
@@ -203,7 +204,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         }
 
         public long getReadingTimestamp() {
-            return readingQuality.readingTimestamp.getTime();
+            return readingQuality.readingTimestamp.toEpochMilli();
         }
 
         public long getChannelId() {

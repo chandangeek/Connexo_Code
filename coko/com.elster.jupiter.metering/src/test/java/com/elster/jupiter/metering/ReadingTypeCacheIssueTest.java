@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering;
 
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -127,7 +127,7 @@ public class ReadingTypeCacheIssueTest {
         	meter.store(meterReading);
         	//rollback
         }	
-        assertThat(meteringService.getReadingType(readingTypeCode)).isAbsent();
+        assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isFalse();
         meter = meteringService.findMeter(meter.getId()).get(); // get fresh copy from DB
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
@@ -137,7 +137,7 @@ public class ReadingTypeCacheIssueTest {
         	meter.store(meterReading);
         	ctx.commit();
         }
-        assertThat(meteringService.getReadingType(readingTypeCode)).isPresent();
+        assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isTrue();
     }
 
 }

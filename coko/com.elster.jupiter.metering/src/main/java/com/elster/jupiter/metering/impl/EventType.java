@@ -101,7 +101,7 @@ public enum EventType {
                     .shouldPublish()
                     .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
                     .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
-                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.time")
+                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.epochSecond")
                     .create().save();
 
         }
@@ -117,7 +117,7 @@ public enum EventType {
                     .shouldPublish()
                     .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
                     .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
-                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.time")
+                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.epochSecond")
                     .create().save();
 
         }

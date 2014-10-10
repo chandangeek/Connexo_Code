@@ -27,8 +27,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -58,9 +57,9 @@ public final class ChannelImpl implements ChannelContract {
     private long id;
     private long version;
     @SuppressWarnings("unused")
-    private UtcInstant createTime;
+    private Instant createTime;
     @SuppressWarnings("unused")
-    private UtcInstant modTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 
@@ -215,7 +214,7 @@ public final class ChannelImpl implements ChannelContract {
         if (entryHolder.isPresent()) {
             return Optional.of(createReading(isRegular(), entryHolder.get()));
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -339,12 +338,11 @@ public final class ChannelImpl implements ChannelContract {
     @Override
     public Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Date timestamp) {
         Condition condition = ofThisChannel().and(withTimestamp(timestamp)).and(ofType(type));
-        List<ReadingQualityRecord> list = dataModel.mapper(ReadingQualityRecord.class).select(condition);
-        return FluentIterable.from(list).first();
+        return dataModel.mapper(ReadingQualityRecord.class).select(condition).stream().findFirst();
     }
 
     private Condition withTimestamp(Date timestamp) {
-        return where("readingTimestamp").isEqualTo(timestamp);
+        return where("readingTimestamp").isEqualTo(timestamp.toInstant());
     }
 
     @Override
@@ -423,7 +421,7 @@ public final class ChannelImpl implements ChannelContract {
         ReadingQualityType addQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED);
         for (BaseReading reading : readings) {
         	List<ReadingQualityRecordImpl> currentQualityRecords = allQualityRecords.stream()
-        		.filter(qualityRecord -> qualityRecord.getReadingTimestamp().equals(reading.getTimeStamp()))
+        		.filter(qualityRecord -> qualityRecord.getReadingTimestamp().equals(reading.getTimeStamp().toInstant()))
         		.map(ReadingQualityRecordImpl.class::cast)
         		.collect(Collectors.toList());
         	ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.EDITED);
@@ -457,7 +455,7 @@ public final class ChannelImpl implements ChannelContract {
         List<ReadingQualityRecord> qualityRecords = findReadingQuality(Range.encloseAll(readingTimes));
         readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
         qualityRecords.stream()
-        	.filter(quality -> readingTimes.contains(quality.getReadingTimestamp().toInstant()))
+        	.filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
             .forEach(qualityRecord -> qualityRecord.delete());
     }
 }

@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Range;
 
 import java.time.Instant;

@@ -11,9 +11,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
+
+import java.time.Instant;
 import java.util.Objects;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
@@ -35,9 +36,9 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
 
     private long version;
     @SuppressWarnings("unused")
-    private UtcInstant createTime;
+    private Instant createTime;
     @SuppressWarnings("unused")
-    private UtcInstant modTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 

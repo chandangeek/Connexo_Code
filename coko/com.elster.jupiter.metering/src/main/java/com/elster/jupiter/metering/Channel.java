@@ -2,8 +2,9 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
 
+import java.time.Instant;
+import java.util.Optional;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +24,9 @@ public interface Channel {
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Interval interval);
     List<BaseReadingRecord> getReadings(ReadingType readingType, Interval interval);
     Optional<BaseReadingRecord> getReading(Date when);
+    default Optional<BaseReadingRecord> getReading(Instant when) {
+    	return getReading(Date.from(when));
+    }
     ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord);
     ReadingQualityRecord createReadingQuality(ReadingQualityType type, Date timestamp);
 

@@ -2,7 +2,7 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.Date;
 import java.util.List;
