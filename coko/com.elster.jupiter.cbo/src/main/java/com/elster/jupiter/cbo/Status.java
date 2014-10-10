@@ -3,7 +3,6 @@ package com.elster.jupiter.cbo;
 import javax.xml.bind.annotation.XmlTransient;
 
 import java.time.Instant;
-import java.util.Date;
 
 public final class Status implements Cloneable {
 	private Instant dateTime;
@@ -14,15 +13,15 @@ public final class Status implements Cloneable {
 	public Status() {	
 	}
 	
-	public Status(String value , String reason , String remark , Date dateTime) {
+	public Status(String value , String reason , String remark , Instant dateTime) {
 		this.value = value;
 		this.reason = reason;
 		this.remark = remark;
-		this.dateTime = dateTime == null ? null : dateTime.toInstant();
+		this.dateTime = dateTime;
 	}
 	
 	public Status(String value , String reason , String remark) {
-		this(value,reason,remark,new Date());
+		this(value,reason,remark, Instant.now());
 	}
 
     public static StatusBuilder builder() {
@@ -41,12 +40,12 @@ public final class Status implements Cloneable {
 		return value == null ? null : value;
 	}
 
-	public Date getDateTime() {
-		return dateTime == null ? null : Date.from(dateTime);
+	public Instant getDateTime() {
+		return dateTime;
 	}
 
-	public void setDateTime(Date dateTime) {
-		this.dateTime = dateTime == null ? null : dateTime.toInstant();
+	public void setDateTime(Instant dateTime) {
+		this.dateTime = dateTime;
 	}
 
 	public void setReason(String reason) {
@@ -97,7 +96,7 @@ public final class Status implements Cloneable {
         }
 
         @Override
-        public StatusBuilder at(Date dateTime) {
+        public StatusBuilder at(Instant dateTime) {
             constructing.setDateTime(dateTime);
             return this;
         }

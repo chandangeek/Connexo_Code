@@ -1,6 +1,6 @@
 package com.elster.jupiter.cbo;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface StatusBuilder {
 
@@ -10,7 +10,7 @@ public interface StatusBuilder {
 
     StatusBuilder remark(String remark);
 
-    StatusBuilder at(Date dateTime);
+    StatusBuilder at(Instant dateTime);
 
     Status build();
 }
