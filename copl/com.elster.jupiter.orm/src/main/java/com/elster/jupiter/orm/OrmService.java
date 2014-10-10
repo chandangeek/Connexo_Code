@@ -1,9 +1,9 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.orm.associations.RefAny;
-import com.google.common.base.Optional;
 
 import java.util.List;
+import java.util.Optional;
 
 /*
  * OSGI ORM Service

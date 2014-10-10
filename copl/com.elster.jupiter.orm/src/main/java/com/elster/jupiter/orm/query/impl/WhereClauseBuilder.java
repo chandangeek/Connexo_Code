@@ -17,22 +17,22 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 public class WhereClauseBuilder implements Visitor {
 	
 	private final JoinTreeNode<?> root;
 	private final SqlBuilder builder;
-	private final Date effectiveDate;
+	private final Instant effectiveDate;
 	
-	private WhereClauseBuilder(JoinTreeNode<?> root, SqlBuilder builder, Date effectiveDate) {
+	private WhereClauseBuilder(JoinTreeNode<?> root, SqlBuilder builder, Instant effectiveDate) {
 		this.root = root;
 		this.builder = builder;
 		this.effectiveDate = effectiveDate;
 	}
 	
-	static WhereClauseBuilder from(JoinTreeNode<?> root, SqlBuilder builder, Date effectiveDate) {
+	static WhereClauseBuilder from(JoinTreeNode<?> root, SqlBuilder builder, Instant effectiveDate) {
 		return new WhereClauseBuilder(root,builder,effectiveDate);
 	}
 	

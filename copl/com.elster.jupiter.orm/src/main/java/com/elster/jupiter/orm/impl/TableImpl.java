@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
 import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import java.lang.reflect.Field;
@@ -26,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.util.Checks.is;
@@ -595,7 +595,7 @@ public class TableImpl<T> implements Table<T> {
         return indexOrganized;
     }
 
-    public Optional<?> getOptional(Object... primaryKeyValues) {
+    public Optional<? extends T> getOptional(Object... primaryKeyValues) {
         return getDataMapper(api).getOptional(primaryKeyValues);
     }
 
@@ -777,7 +777,7 @@ public class TableImpl<T> implements Table<T> {
 				return Optional.of(column);
 			}
 		}
-		return Optional.absent();
+		return Optional.empty();
 	}
 	
 	Class<? extends T> classCast(Class<?> in) {

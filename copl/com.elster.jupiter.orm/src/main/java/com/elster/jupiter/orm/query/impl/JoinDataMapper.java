@@ -16,8 +16,8 @@ import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,7 +155,7 @@ public abstract class JoinDataMapper<T> {
 		this.cache = new HashMap<>();
 	}
 
-	void completeFind(Date effectiveDate) {
+	void completeFind(Instant effectiveDate) {
 		for (T each : cache.values()) {
 			if (each instanceof PersistenceAware) {
 				((PersistenceAware) each).postLoad();

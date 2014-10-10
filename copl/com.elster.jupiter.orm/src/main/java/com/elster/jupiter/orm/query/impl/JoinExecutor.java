@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.util.conditions.Condition;
@@ -18,13 +18,13 @@ final class JoinExecutor<T> {
 	private SqlBuilder builder;
 	private final int from;
 	private final int to;
-	private final Date effectiveDate;
+	private final Instant effectiveDate;
 	
-	JoinExecutor(JoinTreeNode<T> root, Date effectiveDate) {
+	JoinExecutor(JoinTreeNode<T> root, Instant effectiveDate) {
 		this(root,effectiveDate,0,0);		 
 	}
  	
-	JoinExecutor(JoinTreeNode<T> root, Date effectiveDate, int from , int to) {
+	JoinExecutor(JoinTreeNode<T> root, Instant effectiveDate, int from , int to) {
 		this.root = root;
 		this.effectiveDate = effectiveDate;
 		this.from = from;

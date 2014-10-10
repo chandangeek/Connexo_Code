@@ -1,6 +1,6 @@
 package com.elster.jupiter.orm.associations;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 public class TemporalArrayList <T extends Effectivity> extends AbstractTemporalAspect<T> implements TemporalList<T> {
@@ -10,7 +10,7 @@ public class TemporalArrayList <T extends Effectivity> extends AbstractTemporalA
 	}
 	
 	@Override
-	public List<T> effective(Date when) {
+	public List<T> effective(Instant when) {
 		return allEffective(when);
 	}
 

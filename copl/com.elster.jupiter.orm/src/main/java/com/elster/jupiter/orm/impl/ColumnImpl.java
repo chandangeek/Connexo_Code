@@ -6,14 +6,15 @@ import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.validation.constraints.Size;
+
 import java.lang.reflect.Field;
 import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Objects;
 
 public class ColumnImpl implements Column {
@@ -286,7 +287,7 @@ public class ColumnImpl implements Column {
         }
     }
 
-    void prepare(Object target, boolean update, UtcInstant now) {
+    void prepare(Object target, boolean update, Instant now) {
         if (conversion == ColumnConversionImpl.NUMBER2NOW && !(update && skipOnUpdate())) {
             getDomainMapper().set(target, fieldName, now);
         }

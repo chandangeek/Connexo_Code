@@ -1,9 +1,9 @@
 package com.elster.jupiter.orm.schema;
 
 import com.elster.jupiter.orm.DataModel;
-import com.google.common.base.Optional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExistingTable {
     String getName();

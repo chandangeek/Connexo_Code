@@ -1,10 +1,10 @@
 package com.elster.jupiter.orm;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.google.common.base.Optional;
 
 /**
  * 

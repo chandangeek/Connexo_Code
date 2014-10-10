@@ -1,8 +1,8 @@
 package com.elster.jupiter.orm.query.impl;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public class ChildDataMapper<T> extends AbstractChildDataMapper<T> {
 	}
 
 	@Override
-	void completeFind(Date effectiveDate) {
+	void completeFind(Instant effectiveDate) {
 		String fieldName = getConstraint().getReverseFieldName();
 		if (fieldName != null) {
 			super.completeFind(effectiveDate);

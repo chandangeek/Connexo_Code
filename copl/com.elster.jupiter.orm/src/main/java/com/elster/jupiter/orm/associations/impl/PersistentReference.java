@@ -2,11 +2,11 @@ package com.elster.jupiter.orm.associations.impl;
 
 
 import java.util.Objects;
+import java.util.Optional;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.KeyValue;
-import com.google.common.base.Optional;
 
 public class PersistentReference<T> implements Reference<T> {
 	
@@ -26,17 +26,17 @@ public class PersistentReference<T> implements Reference<T> {
 	
 	@Override
 	public T orNull() {
-		return getOptional().orNull();
+		return getOptional().orElse(null);
 	}
 
 	@Override
 	public T or(T defaultValue) {
-		return getOptional().or(defaultValue);
+		return getOptional().orElse(defaultValue);
 	}
 	
 	@Override
 	public void set(T value) {
-		this.value = Optional.fromNullable(value);
+		this.value = Optional.ofNullable(value);
 		primaryKey = dataMapper.getTable().getPrimaryKey(value);
 		if (value != null && !isPresent()) {
 			throw new IllegalArgumentException("Object " + value + " does not have a valid primary key");
@@ -49,7 +49,7 @@ public class PersistentReference<T> implements Reference<T> {
 			if (isPresent()) {
 				value = dataMapper.getOptional(primaryKey.getKey());
 			} else {
-				value = Optional.absent();
+				value = Optional.empty();
 			} 
 		}
 		return value;

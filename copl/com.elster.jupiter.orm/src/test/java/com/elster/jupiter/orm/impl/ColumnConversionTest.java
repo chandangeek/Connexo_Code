@@ -7,8 +7,6 @@ import static org.mockito.Mockito.when;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Date;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,12 +30,12 @@ public class ColumnConversionTest {
 	
 	@Test
 	public void testDate2Date() {
-		Date date = new Date(110);
-		assertThat(ColumnConversionImpl.DATE2DATE.convert("110")).isEqualTo(date);
-		assertThat(ColumnConversionImpl.DATE2DATE.convertToDb(date)).isEqualTo(new java.sql.Date(110));
+		Instant instant = Instant.ofEpochMilli(110);
+		assertThat(ColumnConversionImpl.DATE2INSTANT.convert("110")).isEqualTo(instant);
+		assertThat(ColumnConversionImpl.DATE2INSTANT.convertToDb(instant)).isEqualTo(new java.sql.Date(110));
 		try {
 			when(rs.getDate(anyInt())).thenReturn(new java.sql.Date(110));
-			assertThat(ColumnConversionImpl.DATE2DATE.convertFromDb(rs,5)).isEqualTo(date);
+			assertThat(ColumnConversionImpl.DATE2INSTANT.convertFromDb(rs,5)).isEqualTo(instant);
 		} catch (SQLException ex) {
 			assertThat(true).isFalse();
 		}
@@ -45,12 +43,12 @@ public class ColumnConversionTest {
 	
 	@Test
 	public void testTimestamp2Date() {
-		Date date = new Date(110);
-		assertThat(ColumnConversionImpl.TIMESTAMP2DATE.convert("110")).isEqualTo(date);
-		assertThat(ColumnConversionImpl.TIMESTAMP2DATE.convertToDb(date)).isEqualTo(new java.sql.Date(110));
+		Instant instant = Instant.ofEpochMilli(110);
+		assertThat(ColumnConversionImpl.TIMESTAMP2INSTANT.convert("110")).isEqualTo(instant);
+		assertThat(ColumnConversionImpl.TIMESTAMP2INSTANT.convertToDb(instant)).isEqualTo(new java.sql.Date(110));
 		try {
 			when(rs.getTimestamp(anyInt())).thenReturn(new java.sql.Timestamp(110));
-			assertThat(ColumnConversionImpl.TIMESTAMP2DATE.convertFromDb(rs,5)).isEqualTo(date);
+			assertThat(ColumnConversionImpl.TIMESTAMP2INSTANT.convertFromDb(rs,5)).isEqualTo(instant);
 		} catch (SQLException ex) {
 			assertThat(true).isFalse();
 		}

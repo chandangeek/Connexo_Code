@@ -1,9 +1,10 @@
 package com.elster.jupiter.orm.associations;
 
+import java.util.Optional;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import com.google.common.base.Optional;
  
 class IsPresentValidator implements ConstraintValidator<IsPresent, Object> {
 	

@@ -1,11 +1,12 @@
 package com.elster.jupiter.orm.associations;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 public class AbstractTemporalAspect<T extends Effectivity> implements TemporalAspect<T> {
 	
@@ -19,10 +20,10 @@ public class AbstractTemporalAspect<T extends Effectivity> implements TemporalAs
 		return values.add(element);
 	}
 	
-	List<T> allEffective(Date when) {
+	List<T> allEffective(Instant when) {
 		ImmutableList.Builder<T> builder = ImmutableList.builder();
 		for (T each : values) {
-			if (each.getInterval().isEffective(when)) {
+			if (each.isEffectiveAt(when)) {
 				builder.add(each);
 			}
 		}
@@ -31,14 +32,10 @@ public class AbstractTemporalAspect<T extends Effectivity> implements TemporalAs
 
 
 	@Override
-	public List<T> effective(Interval interval) {
-		ImmutableList.Builder<T> builder = ImmutableList.builder();
-		for (T each : values) {
-			if (each.getInterval().overlaps(interval)) {
-				builder.add(each);
-			}
-		}
-		return builder.build();
+	public List<T> effective(Range<Instant> range) {
+		return values.stream()
+			.filter(each -> each.getRange().isConnected(range) && !each.getRange().intersection(range).isEmpty())
+			.collect(Collectors.toList());
 	}
 
 

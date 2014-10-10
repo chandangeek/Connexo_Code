@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.associations.TemporalAspect;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.associations.impl.AssociationKind;
 import com.elster.jupiter.orm.associations.impl.PersistentReference;
-import com.google.common.base.Optional;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -20,6 +19,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -195,7 +195,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     Optional<Type> getReferenceParameterType() {
         Field field = getTable().getField(fieldName);
         if (field == null || field.getType() != Reference.class) {
-            return Optional.absent();
+            return Optional.empty();
         } else {
             return Optional.of(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
         }
@@ -203,11 +203,11 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
     Optional<Type> getListParameterType() {
         if (getReverseFieldName() == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
         Field field = getReferencedTable().getField(getReverseFieldName());
         if (field == null || field.getType() != List.class) {
-            return Optional.absent();
+            return Optional.empty();
         } else {
             return Optional.of(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
         }
@@ -251,11 +251,11 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     }
 
     public void setReverseField(Object target) {
-        doSetReverseField(target, Optional.absent());
+        doSetReverseField(target, Optional.empty());
     }
 
     public void setReverseField(Object target, Object initialValue) {
-        doSetReverseField(target, Optional.fromNullable(initialValue));
+        doSetReverseField(target, Optional.ofNullable(initialValue));
     }
 
     private void doSetReverseField(Object target, Optional<?> initialValue) {

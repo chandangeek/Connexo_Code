@@ -4,9 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.JournalEntry;
@@ -21,8 +23,6 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
 
 public class DataMapperReader<T> implements TupleParser<T> {
 	private final DataMapperImpl<T> dataMapper;
@@ -69,7 +69,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
         if (result.size() > 1) {
             throw new NotUniqueException(keyValue.toString());
         }
-        return result.isEmpty() ? Optional.<T>absent() : Optional.of(result.get(0));
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
 	}
 
     List<JournalEntry<T>> findJournals(KeyValue keyValue) throws SQLException {
@@ -133,7 +133,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
             try(PreparedStatement statement = builder.prepare(connection)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while(resultSet.next()) {
-                    	UtcInstant journalTime = new UtcInstant(resultSet.getLong(1));
+                    	Instant journalTime = Instant.ofEpochMilli(resultSet.getLong(1));
                     	T entry = construct(resultSet,2);                    	
                         result.add(new JournalEntry<>(journalTime,entry));
                     }

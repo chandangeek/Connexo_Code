@@ -1,10 +1,10 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.util.conditions.Order;
-import com.google.common.base.Optional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Fetches tuples from the database and converts them to objects

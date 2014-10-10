@@ -3,7 +3,7 @@ package com.elster.jupiter.orm.associations.impl;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -15,7 +15,7 @@ import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 public abstract class AbstractPersistentTemporalAspect<T extends Effectivity> implements TemporalAspect<T> {
 	private final ForeignKeyConstraintImpl constraint;
@@ -39,11 +39,11 @@ public abstract class AbstractPersistentTemporalAspect<T extends Effectivity> im
 	}
 	
 	@Override
-	public List<T> effective(Interval interval) {
-		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffective(interval)),Order.ascending("interval.start")));
+	public List<T> effective(Range<Instant> range) {
+		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffective(range)),Order.ascending("interval.start")));
 	}
 
-	List<T> allEffective(Date date) {
+	List<T> allEffective(Instant date) {
 		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffective(date)),Order.ascending("interval.start")));
 	}
 	

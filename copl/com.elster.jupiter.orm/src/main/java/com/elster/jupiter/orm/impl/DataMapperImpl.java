@@ -8,7 +8,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.google.common.base.Optional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
 	
@@ -183,7 +183,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			if (api.isInstance(cacheVersion)) {
 				return Optional.of(api.cast(cacheVersion)); 
 			} else {
-				return Optional.absent();
+				return Optional.empty();
 			}
 		}
 		try {
@@ -214,7 +214,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Override
 	public Optional<T> lockNoWait(Object... values)  {
 		try {
-			return Optional.fromNullable(reader.lockNoWait(KeyValue.of(values)));
+			return Optional.ofNullable(reader.lockNoWait(KeyValue.of(values)));
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}

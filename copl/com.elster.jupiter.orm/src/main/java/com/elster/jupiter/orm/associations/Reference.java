@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.associations;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 
 public interface Reference<T> {
 	T get();

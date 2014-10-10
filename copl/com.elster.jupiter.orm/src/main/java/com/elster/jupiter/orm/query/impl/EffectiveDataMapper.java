@@ -2,7 +2,7 @@ package com.elster.jupiter.orm.query.impl;
 
 
 import java.lang.reflect.Field;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +51,7 @@ public class EffectiveDataMapper<T> extends AbstractChildDataMapper<T> {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	void completeFind(Date effectiveDate) {
+	void completeFind(Instant effectiveDate) {
 		super.completeFind(effectiveDate);
 		for (Map.Entry<Object,List<T>> entry : getTargetCache().entrySet()) {
 			Field field = getConstraint().reverseField(entry.getKey().getClass());

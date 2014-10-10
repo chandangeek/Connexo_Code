@@ -1,6 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.security.Principal;
@@ -79,13 +79,13 @@ public class LockTest {
     	OrmService ormService = injector.getInstance(OrmService.class);
     	final DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-    		assertThat(dataModel.mapper(DataModel.class).lockNoWait("ORM")).isPresent();
+    		assertThat(dataModel.mapper(DataModel.class).lockNoWait("ORM").isPresent()).isTrue();
     		Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-						assertThat(dataModel.mapper(DataModel.class).lockNoWait("ORM")).isAbsent();
-						assertThat(dataModel.mapper(Table.class).lockNoWait("ORM","ORM_DATAMODEL")).isPresent();
+						assertThat(dataModel.mapper(DataModel.class).lockNoWait("ORM").isPresent()).isFalse();
+						assertThat(dataModel.mapper(Table.class).lockNoWait("ORM","ORM_DATAMODEL").isPresent()).isTrue();
 					}
 				}
     		});

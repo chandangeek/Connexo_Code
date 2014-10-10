@@ -1,10 +1,9 @@
 package com.elster.jupiter.orm.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -22,7 +21,6 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
-import com.google.common.base.Optional;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -63,7 +61,7 @@ public class RefAnyTest {
     public void testRefAny() {   
     	OrmServiceImpl service = (OrmServiceImpl) injector.getInstance(OrmService.class);
     	Optional<?> tableHolder = service.getDataModel("ORM").get().getTable("ORM_TABLE").getOptional("ORM","ORM_TABLE");
-    	assertThat(tableHolder).isPresent();
+    	assertThat(tableHolder.isPresent()).isTrue();
     	RefAny refAny = injector.getInstance(OrmService.class).getDataModels().get(0).asRefAny(tableHolder.get());
     	assertThat(refAny.isPresent()).isTrue();
     }

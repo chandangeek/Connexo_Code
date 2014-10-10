@@ -1,8 +1,7 @@
 package com.elster.jupiter.orm.associations;
 
 import java.util.Objects;
-
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public final class ValueReference<T> implements Reference<T> {
 	
@@ -38,7 +37,7 @@ public final class ValueReference<T> implements Reference<T> {
 
 	@Override
 	public Optional<T> getOptional() {
-		return Optional.fromNullable(value);
+		return Optional.ofNullable(value);
 	}
 
 	@Override

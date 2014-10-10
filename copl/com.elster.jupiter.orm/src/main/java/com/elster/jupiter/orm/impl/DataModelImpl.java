@@ -13,13 +13,13 @@ import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+
 import oracle.jdbc.OracleConnection;
 
 import javax.inject.Inject;
@@ -28,6 +28,7 @@ import javax.validation.ConstraintValidatorFactory;
 import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -146,7 +148,7 @@ public class DataModelImpl implements DataModel {
                 return Optional.of(table.getDataMapper(api));
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
@@ -259,7 +261,7 @@ public class DataModelImpl implements DataModel {
                 return Optional.<TableImpl<?>>of(table);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override

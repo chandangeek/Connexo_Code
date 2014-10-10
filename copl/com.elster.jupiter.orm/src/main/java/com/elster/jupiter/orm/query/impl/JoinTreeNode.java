@@ -2,8 +2,8 @@ package com.elster.jupiter.orm.query.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -133,7 +133,7 @@ final class JoinTreeNode<T>  {
 		return index;		
 	}
 	
-	void completeFind(Date effectiveDate) {
+	void completeFind(Instant effectiveDate) {
 		if (!semiJoin()) {
 			// do children first, so they can set collection relations before postLoad does.
 			children.forEach(child-> child.completeFind(effectiveDate));

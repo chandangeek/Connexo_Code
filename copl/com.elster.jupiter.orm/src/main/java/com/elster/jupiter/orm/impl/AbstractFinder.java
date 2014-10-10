@@ -2,11 +2,11 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.util.conditions.Order;
-import com.google.common.base.Optional;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class AbstractFinder<T> implements Finder<T> {
 
@@ -77,7 +77,7 @@ public abstract class AbstractFinder<T> implements Finder<T> {
         if (candidates.size() > 1) {
         	throw new NotUniqueException(Arrays.toString(values));
         }        
-        return candidates.isEmpty() ? Optional.<T> absent() : Optional.of(candidates.get(0));
+        return candidates.isEmpty() ? Optional.empty() : Optional.of(candidates.get(0));
     }
 
     @Override

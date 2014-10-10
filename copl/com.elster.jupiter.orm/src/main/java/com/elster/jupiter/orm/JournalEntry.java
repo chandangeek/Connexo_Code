@@ -1,21 +1,19 @@
 package com.elster.jupiter.orm;
 
-import com.elster.jupiter.util.time.UtcInstant;
-
-import java.util.Date;
+import java.time.Instant;
 
 public final class JournalEntry<T> implements Comparable<JournalEntry<T>> {
 
-	private final UtcInstant journalTime;
+	private final Instant journalTime;
 	private final T value;
 	
-	public JournalEntry(UtcInstant journalTime, T value) {
+	public JournalEntry(Instant journalTime, T value) {
 		this.journalTime = journalTime;
 		this.value = value;
 	}
 	
-	public Date getJournalTime() {
-		return journalTime.toDate();
+	public Instant getJournalTime() {
+		return journalTime;
 	}
 	
 	public T get() {

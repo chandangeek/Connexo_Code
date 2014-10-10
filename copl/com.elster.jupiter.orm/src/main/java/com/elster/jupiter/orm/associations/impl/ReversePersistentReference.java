@@ -1,11 +1,11 @@
 package com.elster.jupiter.orm.associations.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.associations.Reference;
-import com.google.common.base.Optional;
 
 public class ReversePersistentReference<T> implements Reference<T> {
 	private Optional<T> target;
@@ -21,7 +21,7 @@ public class ReversePersistentReference<T> implements Reference<T> {
 
 	ReversePersistentReference(ForeignKeyConstraint constraint, DataMapper<T> dataMapper, Object owner, T target) {
 		this(constraint,dataMapper,owner);
-		this.target = Optional.fromNullable(target);
+		this.target = Optional.ofNullable(target);
 	}
 	
 	final Optional<T> getTarget() {
@@ -30,7 +30,7 @@ public class ReversePersistentReference<T> implements Reference<T> {
 			if (candidates.size() > 1) {
 				throw new IllegalStateException("More than one reference");
 			}
-			target = candidates.isEmpty() ? Optional.<T>absent() : Optional.of(candidates.get(0));
+			target = candidates.isEmpty() ? Optional.empty() : Optional.of(candidates.get(0));
 		}
 		return target;
 	}
@@ -42,12 +42,12 @@ public class ReversePersistentReference<T> implements Reference<T> {
 
 	@Override
 	public T orNull() {
-		return getTarget().orNull();
+		return getTarget().orElse(null);
 	}
 
 	@Override
 	public T or(T defaultValue) {
-		return getTarget().or(defaultValue);
+		return getTarget().orElse(defaultValue);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class ReversePersistentReference<T> implements Reference<T> {
 		if (constraint.isComposition() && getTarget().isPresent()) {
 			dataMapper.remove(getTarget().get());
 		}
-		target = Optional.absent();
+		target = Optional.empty();
 	}
 	
 	

@@ -8,10 +8,9 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 
 
@@ -20,7 +19,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	private final JoinTreeNode<T> root;
 	private final AliasFactory aliasFactory = new AliasFactory();
 	private Condition restriction = Condition.TRUE;
-	private UtcInstant effectiveInstant;
+	private Instant effectiveInstant;
 	
 	public QueryExecutorImpl(DataMapperImpl<T> mapper) {
 		RootDataMapper<T> rootDataMapper = new RootDataMapper<>(mapper);
@@ -89,7 +88,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		if (result.size() > 1) {
 			throw new NotUniqueException(Arrays.toString(key));
 		}
-		return result.isEmpty() ? Optional.<T>absent() : Optional.of(result.get(0));
+		return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
 	}
 
 	@Override
@@ -119,16 +118,16 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 
 	@Override
-	public Date getEffectiveDate() {
+	public Instant getEffectiveDate() {
 		if (effectiveInstant == null) {
-			effectiveInstant = new UtcInstant(this.root.getTable().getDataModel().getClock().now());
+			effectiveInstant = this.root.getTable().getDataModel().getClock().instant();
 		}
-		return effectiveInstant.toDate();
+		return effectiveInstant;
 	}
 
 	@Override
-	public void setEffectiveDate(Date date) {
-		this.effectiveInstant = new UtcInstant(date);
+	public void setEffectiveDate(Instant instant) {
+		this.effectiveInstant = instant;
 	}
 
 	@Override

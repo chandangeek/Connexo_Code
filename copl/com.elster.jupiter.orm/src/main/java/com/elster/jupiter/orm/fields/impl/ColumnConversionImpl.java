@@ -5,12 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Currency;
-import java.util.Date;
 
 import javax.inject.Inject;
 
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Unit;
 
 // naming convention is DATABASE TYPE 2 JAVATYPE 
@@ -129,24 +127,6 @@ public enum ColumnConversionImpl {
 			return toBoolean(in);
 		}
 	},
-	// number to com.elste.jupiter.time.Instant, waiting for java.time.Instant
-	NUMBER2UTCINSTANT { // 7
-		@Override
-		public Object convertToDb(Object value) {
-			return getTime(value);
-		}	
-		
-		@Override
-		public Object convertFromDb(ResultSet rs, int index) throws SQLException {
-			long value = rs.getLong(index);				 
-			return rs.wasNull() ? null : new UtcInstant(value);
-		}
-		
-		@Override
-		public Object convert(String in) {
-			return  new UtcInstant(Long.valueOf(in));
-		}
-	},
 	// persistence layer will automatically update UtcInstant field to current time
 	NUMBER2NOW { // 8
 		@Override
@@ -156,12 +136,12 @@ public enum ColumnConversionImpl {
 		
 		@Override
 		public Object convertFromDb(ResultSet rs, int index) throws SQLException {
-			return new UtcInstant(rs.getLong(index));
+			return Instant.ofEpochMilli(rs.getLong(index));
 		}		
 		
 		@Override
 		public Object convert(String in) {
-			return  new UtcInstant(Long.valueOf(in));
+			return  Instant.ofEpochMilli(Long.valueOf(in));
 		}
 	},
 	// convert number to enum field by ordinal
@@ -321,39 +301,39 @@ public enum ColumnConversionImpl {
             throw new UnsupportedOperationException();
         }
     },
-    DATE2DATE {
+    DATE2INSTANT {
     	@Override
         public Object convert(String in) {
-            return new java.util.Date(Long.parseLong(in));
+            return Instant.ofEpochMilli(Long.parseLong(in));
         }
 
         @Override
         public Object convertToDb(Object value) {
-        	return value == null ? null : new java.sql.Date(((java.util.Date) value).getTime());
+        	return value == null ? null : new java.sql.Date(((Instant) value).toEpochMilli());
         }
 
         @Override
         public Object convertFromDb(ResultSet rs, int index) throws SQLException {
             java.sql.Date date = rs.getDate(index);
-            return date == null ? null : new java.util.Date(date.getTime());
+            return date == null ? null : Instant.ofEpochMilli(date.getTime());
         }
     	
     }, 
-    TIMESTAMP2DATE {
+    TIMESTAMP2INSTANT {
     	@Override
         public Object convert(String in) {
-            return new java.util.Date(Long.parseLong(in));
+            return Instant.ofEpochMilli(Long.parseLong(in));
         }
 
         @Override
         public Object convertToDb(Object value) {
-        	return value == null ? null : new java.sql.Timestamp(((java.util.Date) value).getTime());
+        	return value == null ? null : new java.sql.Timestamp(((Instant) value).toEpochMilli());
         }
 
         @Override
         public Object convertFromDb(ResultSet rs, int index) throws SQLException {
             java.sql.Timestamp timestamp = rs.getTimestamp(index);
-            return timestamp == null ? null : new java.util.Date(timestamp.getTime());
+            return timestamp == null ? null : Instant.ofEpochMilli(timestamp.getTime());
         }    	
     },
     CLOB2STRING {
@@ -389,21 +369,21 @@ public enum ColumnConversionImpl {
             return rs.getBytes(index);
         }    	
     },
-    NUMBERINUTCSECONDS2DATE {
+    NUMBERINUTCSECONDS2INSTANT {
     	@Override
         public Object convert(String in) {
-    		return new java.util.Date(Long.parseLong(in));
+    		return Instant.ofEpochMilli(Long.parseLong(in));
         }
 
         @Override
         public Object convertToDb(Object value) {
-        	return value == null ? null : ((java.util.Date) value).getTime() / 1000L;
+        	return value == null ? null : ((Instant) value).getEpochSecond();
         }
 
         @Override
         public Object convertFromDb(ResultSet rs, int index) throws SQLException {
         	long value = rs.getLong(index);				 
-			return rs.wasNull() ? null : new Date(value*1000L);
+			return rs.wasNull() ? null : Instant.ofEpochSecond(value);
 		} 	
     },
 	NUMBER2INSTANT {
@@ -436,12 +416,10 @@ public enum ColumnConversionImpl {
 		if (value instanceof Instant) {
 			return ((Instant) value).toEpochMilli();
 		}
-		if (value instanceof Date) {
-			return ((Date) value).getTime();
-		} else if (value instanceof Long) {
+		if (value instanceof Long) {
 			return (Long) value;			
 		} else {
-			return ((UtcInstant) value).getTime();
+			throw new IllegalArgumentException("" + value);
 		}
 	}
 

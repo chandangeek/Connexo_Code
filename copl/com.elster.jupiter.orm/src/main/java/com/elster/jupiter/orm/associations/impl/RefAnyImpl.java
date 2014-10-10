@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.associations.impl;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -11,7 +12,6 @@ import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.util.json.JsonService;
-import com.google.common.base.Optional;
 
 public final class RefAnyImpl implements RefAny {
 	

@@ -1,10 +1,9 @@
 package com.elster.jupiter.orm.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -25,7 +24,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
-import com.google.common.base.Optional;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -88,7 +86,7 @@ public class OrmTest {
     	}
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
     		Optional<Column> column = dataModel.mapper(Column.class).getEager("ORM","ORM_TABLE","NAME");
-    		assertThat(column).isPresent();
+    		assertThat(column.isPresent()).isTrue();
     	}
     }
 }

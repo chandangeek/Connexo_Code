@@ -5,13 +5,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.time.UtcInstant;
 
 public class DataMapperWriter<T> {
 	private final DataMapperImpl<T> dataMapper;
@@ -43,7 +43,7 @@ public class DataMapperWriter<T> {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void persist(T object) throws SQLException {
-		prepare(object,false,new UtcInstant(getTable().getDataModel().getClock()));
+		prepare(object, false, getTable().getDataModel().getClock().instant());
 		try (Connection connection = getConnection(true)) {			
 			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(false))) {
 				int index = 1;	
@@ -84,7 +84,7 @@ public class DataMapperWriter<T> {
 		if (objects.isEmpty()) {
 			return;
 		}
-		UtcInstant now = new UtcInstant(getTable().getDataModel().getClock());
+		Instant now = getTable().getDataModel().getClock().instant();
 		if (getTable().hasAutoIncrementColumns() && getTable().hasChildren()) {
 			for (T tuple : objects) {
 				persist(tuple);
@@ -134,25 +134,25 @@ public class DataMapperWriter<T> {
 		} 
 	}
 		
-	private void journal(Object object,UtcInstant now) throws SQLException {
+	private void journal(Object object, Instant now) throws SQLException {
 		String sql = getSqlGenerator().journalSql();
 		try (Connection connection = getConnection(true)) {						
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {				
 				int index = 1;
-				statement.setLong(index++, now.getTime());
+				statement.setLong(index++, now.toEpochMilli());
 				index = bindPrimaryKey(statement, index, object);
 				statement.executeUpdate();
 			}
 		}
 	}
 	
-	private void journal(List<T> objects,UtcInstant now) throws SQLException {
+	private void journal(List<T> objects, Instant now) throws SQLException {
 		String sql = getSqlGenerator().journalSql();
 		try (Connection connection = getConnection(true)) {						
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {						
 				for (T tuple : objects) {
 					int index = 1;
-					statement.setLong(index++, now.getTime());				
+					statement.setLong(index++, now.toEpochMilli());				
 					index = bindPrimaryKey(statement, index, tuple);
 					statement.addBatch();
 				}
@@ -162,7 +162,7 @@ public class DataMapperWriter<T> {
 	}
 	
 	void update(T object,List<ColumnImpl> columns) throws SQLException {
-		UtcInstant now = new UtcInstant(getTable().getDataModel().getClock());
+		Instant now = getTable().getDataModel().getClock().instant();
 		if (getTable().hasJournal()) {
 			journal(object,now);
 		}
@@ -203,7 +203,7 @@ public class DataMapperWriter<T> {
 	
 	
 	void update(List<T> objects,List<ColumnImpl> columns) throws SQLException {	
-		UtcInstant now = new UtcInstant(getTable().getDataModel().getClock());
+		Instant now = getTable().getDataModel().getClock().instant();
 		if (getTable().hasJournal()) {
 			journal(objects,now);
 		}
@@ -233,7 +233,7 @@ public class DataMapperWriter<T> {
 	
 	public void remove(T object) throws SQLException {		
 		if (getTable().hasJournal()) {
-			journal(object,new UtcInstant(getTable().getDataModel().getClock()));
+			journal(object, getTable().getDataModel().getClock().instant());
 		}
 		try (Connection connection = getConnection(true)) {			
 			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().deleteSql())) {
@@ -248,7 +248,7 @@ public class DataMapperWriter<T> {
 	}
 	
 	public void remove(List<T> objects) throws SQLException {
-		UtcInstant now = new UtcInstant(getTable().getDataModel().getClock());
+		Instant now = getTable().getDataModel().getClock().instant();
 		if (getTable().hasJournal()) {
 			journal(objects,now);
 		}
@@ -289,7 +289,7 @@ public class DataMapperWriter<T> {
 		} 
 	}
 	
-	private void prepare(Object target, boolean update, UtcInstant now) {
+	private void prepare(Object target, boolean update, Instant now) {
 		for (ColumnImpl each : getColumns()) {
 			each.prepare(target,update,now);
 		}

@@ -16,9 +16,9 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.ValidationProviderResolver;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class, InstallService.class}, property = "name=" + OrmService.COMPONENTNAME)
@@ -79,7 +81,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
 
     @Override
     public Optional<DataModelImpl> getDataModel(String name) {
-        return Optional.fromNullable(dataModels.get(name));
+        return Optional.ofNullable(dataModels.get(name));
     }
 
     @Override
@@ -253,7 +255,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
                 return candidate;
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public DataModelImpl getUpgradeDataModel(DataModel model) {
@@ -262,7 +264,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
         processedTables.clear();
         if (existingTablesDataModel != null) {
             for (Table<?> table : model.getTables()) {
-                Optional<ExistingTable> existingJournalTable = Optional.absent();
+                Optional<ExistingTable> existingJournalTable = Optional.empty();
                 if (table.hasJournal()) {
                     existingJournalTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName());
                 }
@@ -286,7 +288,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
                         }
                     }
                 }
-                userTable.addTo(existingModel, Optional.fromNullable(journalTableName));
+                userTable.addTo(existingModel, Optional.ofNullable(journalTableName));
             }
         }
     }

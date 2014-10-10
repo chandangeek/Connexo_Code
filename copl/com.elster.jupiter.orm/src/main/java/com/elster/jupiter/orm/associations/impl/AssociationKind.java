@@ -8,19 +8,19 @@ import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 
 public enum AssociationKind {
 	UNMANAGEDVALUE {
 		@Override
 		public Object create(ForeignKeyConstraintImpl constraint,Field field, Object owner, Optional<?> initialValue) {
-			return initialValue.orNull();
+			return initialValue.orElse(null);
 		}
 	},
 	REFERENCE {
@@ -39,7 +39,7 @@ public enum AssociationKind {
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner, boolean refresh) throws ReflectiveOperationException {
 			Reference reference = (Reference) field.get(owner);
 			if (refresh) {	
-				field.set(owner,create(constraint, field, owner,Optional.absent()));				
+				field.set(owner,create(constraint, field, owner,Optional.empty()));				
 			} else {
 				field.set(owner,create(constraint, field, owner, Optional.of(reference.get())));
 			}
@@ -82,7 +82,7 @@ public enum AssociationKind {
 				}
 			}
 			if (refresh) {						
-				field.set(owner, create(constraint, field, owner,Optional.absent()));
+				field.set(owner, create(constraint, field, owner,Optional.empty()));
 			} else {
 				field.set(owner, create(constraint, field, owner, Optional.of(parts)));				
 			}
@@ -99,7 +99,7 @@ public enum AssociationKind {
 		
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner,boolean refresh) throws ReflectiveOperationException {
 			List<?>  result = ((AbstractTemporalAspect<?>) field.get(owner)).all();
-			field.set(owner,create(constraint,field,owner,Optional.absent()));
+			field.set(owner,create(constraint,field,owner,Optional.empty()));
 			return result;
 		}
 	},
@@ -112,7 +112,7 @@ public enum AssociationKind {
 		
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner,boolean refresh) throws ReflectiveOperationException {
 			List<?>  result = ((AbstractTemporalAspect<?>) field.get(owner)).all();
-			field.set(owner,create(constraint,field,owner,Optional.absent()));
+			field.set(owner,create(constraint,field,owner,Optional.empty()));
 			return result;
 		}
 	};
