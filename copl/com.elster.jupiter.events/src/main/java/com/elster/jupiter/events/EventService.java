@@ -2,7 +2,7 @@ package com.elster.jupiter.events;
 
 
 import com.elster.jupiter.orm.TransactionRequired;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.List;
 

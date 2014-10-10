@@ -15,7 +15,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -31,7 +31,6 @@ import org.osgi.service.event.EventAdmin;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventTypeImplIT {
@@ -101,7 +100,7 @@ public class EventTypeImplIT {
 
                 Optional<EventType> optional = eventService.getEventType(eventType.getTopic());
 
-                assertThat(optional).isPresent();
+                assertThat(optional.isPresent()).isTrue();
                 EventType read = optional.get();
 
                 assertThat(read.getComponent()).isEqualTo("A");

@@ -16,7 +16,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,7 +92,7 @@ public class EventServiceImplTest {
 
     @Test(expected = NoSuchTopicException.class)
     public void testPostEventForNotExistingTopic() {
-        when(eventTypeFactory.getOptional(TOPIC)).thenReturn(Optional.<EventType>absent());
+        when(eventTypeFactory.getOptional(TOPIC)).thenReturn(Optional.empty());
 
         eventService.postEvent(TOPIC, "");
     }

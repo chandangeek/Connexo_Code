@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +24,7 @@ import org.osgi.service.event.Event;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
