@@ -13,6 +13,7 @@ public class ConnectionOverviewInfo {
 
     public List<TaskSummaryInfo> overviews;
     public List<BreakdownSummaryInfo> breakdowns;
+    public List<KpiScoreInfo> kpi;
 
     public ConnectionOverviewInfo() {
     }

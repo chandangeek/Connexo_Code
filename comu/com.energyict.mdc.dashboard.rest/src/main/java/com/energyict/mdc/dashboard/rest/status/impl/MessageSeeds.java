@@ -10,7 +10,7 @@ public enum MessageSeeds implements MessageSeed {
     SUCCESS(1, "Success", "Success"),
     ALL_TASKS_SUCCESSFUL(2, "AllTasksSuccessful", "All tasks successful"),
     SOME_TASKS_FAILED(3, "SomeTasksFailed", "At least one task failed"),
-    PENDING(4, "Pending", "Ongoing"),
+    PENDING(4, "Pending", "Pending"),
     FAILED(5, "Failed", "Failed"),
     BUSY(6, "Busy", "Busy"),
     ON_HOLD(7, "OnHold", "Inactive"),
@@ -29,7 +29,6 @@ public enum MessageSeeds implements MessageSeed {
     OK(20, "OK", "Ok"),
     RESCHEDULED(21, "Rescheduled", "Rescheduled"),
     TIME_ERROR(22, "TimeError", "Time error"),
-    UNEXPECTED_ERROR(22, "UnexpectedError", "Unexpected error"),
     PER_COMMUNICATION_POOL(23, "PerCommunicationPool", "Per communication port pool"),
     PER_CONNECTION_TYPE(24, "PerConnectionType", "Per connection type"),
     PER_DEVICE_TYPE(25, "PerDeviceType", "Per device type"),
@@ -53,8 +52,10 @@ public enum MessageSeeds implements MessageSeed {
     ONLINE(44, "Online", "Online"),
     REMOTE(45, "Remote", "Remote"),
     MOBILE(46, "Mobile", "Mobile"),
-    ;
-
+    UNSUPPORTED_KPI_PERIOD(47, "UnsupportedKpiPeriod", "Read-outs are not available for this period"),
+    ONGOING(48, "Ongoing", "Ongoing" ),
+    UNEXPECTED_ERROR(49, "UnexpectedError", "Unexpected error"),
+    TARGET(50, "Target", "Target");
 
     private final int number;
     private final String key;

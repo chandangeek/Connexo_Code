@@ -9,18 +9,28 @@ import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.impl.TaskStatusBreakdownCounterImpl;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -77,29 +87,49 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(dashboardService.getConnectionTypeBreakdown()).thenReturn(connectionStatusBreakdown);
         DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
         when(dashboardService.getConnectionTasksDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
+        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
+        when(dataCollectionKpiService.findDataCollectionKpi(anyInt())).thenReturn(Optional.of(dataCollectionKpi));
 
 
         ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").request().get(ConnectionOverviewInfo.class);
 
-        Comparator<TaskCounterInfo> counterInfoComparator = new Comparator<TaskCounterInfo>() {
-            @Override
-            public int compare(TaskCounterInfo o1, TaskCounterInfo o2) {
-                return Long.valueOf(o2.count).compareTo(o1.count);
-            }
-        };
+        Comparator<TaskCounterInfo> counterInfoComparator = (o1, o2) -> Long.valueOf(o2.count).compareTo(o1.count);
         assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(3);
         assertThat(connectionOverviewInfo.overviews.get(0).counters).isSortedAccordingTo(counterInfoComparator);
         assertThat(connectionOverviewInfo.overviews.get(1).counters).isSortedAccordingTo(counterInfoComparator);
 
-        Comparator<TaskBreakdownInfo> taskBreakdownInfoComparator = new Comparator<TaskBreakdownInfo>() {
-            @Override
-            public int compare(TaskBreakdownInfo o1, TaskBreakdownInfo o2) {
-                return Long.valueOf(o2.failedCount).compareTo(o1.failedCount);
-            }
-        };
+        Comparator<TaskBreakdownInfo> taskBreakdownInfoComparator = (o1, o2) -> Long.valueOf(o2.failedCount).compareTo(o1.failedCount);
         assertThat(connectionOverviewInfo.breakdowns.get(0).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
+    }
+
+    private DataCollectionKpi mockDataCollectionKpi() {
+        DataCollectionKpi dataCollectionKpi = mock(DataCollectionKpi.class);
+        when(dataCollectionKpi.calculatesConnectionSetupKpi()).thenReturn(true);
+        when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
+        List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14, 0, 0).toInstant(ZoneOffset.UTC)), 10, 80, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14,15, 0).toInstant(ZoneOffset.UTC)), 20, 70, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14,30, 0).toInstant(ZoneOffset.UTC)), 30, 60, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14,45, 0).toInstant(ZoneOffset.UTC)), 40, 50, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15, 0, 0).toInstant(ZoneOffset.UTC)), 50, 40, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15,15, 0).toInstant(ZoneOffset.UTC)), 60, 30, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15,30, 0).toInstant(ZoneOffset.UTC)), 70, 20, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15,45, 0).toInstant(ZoneOffset.UTC)), 80, 10, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 16, 0, 0).toInstant(ZoneOffset.UTC)), 90,  0, 10, 100));
+        when(dataCollectionKpi.getConnectionSetupKpiScores(anyObject())).thenReturn(kpiScores);
+        return dataCollectionKpi;
+    }
+
+    private DataCollectionKpiScore mockDataCollectionKpiScore(Date timeStamp, long success, long ongoing, long failed, long target) {
+        DataCollectionKpiScore mock = mock(DataCollectionKpiScore.class);
+        when(mock.getTimestamp()).thenReturn(timeStamp);
+        when(mock.getSuccess()).thenReturn(BigDecimal.valueOf(success));
+        when(mock.getOngoing()).thenReturn(BigDecimal.valueOf(ongoing));
+        when(mock.getFailed()).thenReturn(BigDecimal.valueOf(failed));
+        when(mock.getTarget()).thenReturn(BigDecimal.valueOf(target));
+        return mock;
     }
 
     private DeviceTypeBreakdown createDeviceTypeBreakdown() {

@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.configuration.rest.impl.MessageSeeds;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;

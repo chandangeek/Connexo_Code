@@ -8,14 +8,14 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import org.mockito.Mock;
-
 import javax.ws.rs.core.Application;
+import org.mockito.Mock;
 
 /**
  * Created by bvn on 9/19/14.
@@ -42,6 +42,8 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     EngineModelService engineModelService;
     @Mock
     ProtocolPluggableService protocolPluggableService;
+    @Mock
+    DataCollectionKpiService dataCollectionKpiService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -63,6 +65,7 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setStatusService(statusService);
         dashboardApplication.setTaskService(taskService);
         dashboardApplication.setTransactionService(transactionService);
+        dashboardApplication.setDataCollectionKpiService(dataCollectionKpiService);
         return dashboardApplication;
     }
 }
