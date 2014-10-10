@@ -64,7 +64,7 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     }
 
     @Override
-    public MeterActivationImpl activate(Date start) {
+    public MeterActivationImpl activate(Instant start) {
         MeterActivationImpl result = meterActivationFactory.get().init(this, start);
         getDataModel().persist(result);
         meterActivations.add(result);

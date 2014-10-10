@@ -171,7 +171,7 @@ public class MeterReadingStorer {
     }
 
     private void createDefaultMeterActivation() {
-        meter.activate(facade.getInterval().getStart());
+        meter.activate(facade.getInterval().getStart().toInstant());
     }
 
     private void storeReadings(List<Reading> readings) {

@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 public interface EndDevice extends IdentifiedObject {

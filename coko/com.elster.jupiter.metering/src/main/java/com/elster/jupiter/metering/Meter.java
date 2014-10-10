@@ -16,7 +16,7 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     List<? extends MeterActivation> getMeterActivations();
 
-    MeterActivation activate(Date date);
+    MeterActivation activate(Instant start);
 
     Optional<MeterActivation> getCurrentMeterActivation();
 

@@ -44,6 +44,8 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,7 +115,7 @@ public class CumulativeChannelTest {
         	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
         	Meter meter = amrSystem.newMeter("myMeter");
         	meter.save();
-        	MeterActivation activation = meter.activate(new DateTime(2014,1,1,0,0,0).toDate());
+        	MeterActivation activation = meter.activate(ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant());
         	String readingTypeCode = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
         			.period(TimeAttribute.MINUTE15)
         			.accumulate(Accumulation.BULKQUANTITY)

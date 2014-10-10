@@ -262,7 +262,7 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
     @Override
-	public MeterActivation activate(Date start) {
+	public MeterActivation activate(Instant start) {
 		MeterActivationImpl result = meterActivationFactory.get().init(this, start);
 		dataModel.persist(result);
 		adopt(result);
@@ -270,7 +270,7 @@ public class UsagePointImpl implements UsagePoint {
 	}
     
     @Override
-	public MeterActivation activate(Meter meter, Date start) {
+	public MeterActivation activate(Meter meter, Instant start) {
 		MeterActivationImpl result = meterActivationFactory.get().init(meter, this, start);
 		dataModel.persist(result);
 		adopt(result);
@@ -296,7 +296,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 	
 	@Override
-	public UsagePointAccountability addAccountability(PartyRole role , Party party , Date start) {
+	public UsagePointAccountability addAccountability(PartyRole role , Party party , Instant start) {
 		UsagePointAccountability accountability = accountabilityFactory.get().init(this, party, role, start);
 		accountabilities.add(accountability);
 		return accountability;

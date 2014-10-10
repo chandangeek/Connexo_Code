@@ -46,10 +46,10 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	Instant getModificationDate();
 	long getVersion();
 
-	MeterActivation activate(Date start);
-	MeterActivation activate(Meter meter, Date start);
+	MeterActivation activate(Instant start);
+	MeterActivation activate(Meter meter, Instant start);
     List<UsagePointAccountability> getAccountabilities();
-	UsagePointAccountability addAccountability(PartyRole role, Party party, Date start);
+	UsagePointAccountability addAccountability(PartyRole role, Party party, Instant start);
 	Optional<Party> getCustomer(Date when);
 	Optional<Party> getResponsibleParty(Date when, MarketRoleKind marketRole);
 

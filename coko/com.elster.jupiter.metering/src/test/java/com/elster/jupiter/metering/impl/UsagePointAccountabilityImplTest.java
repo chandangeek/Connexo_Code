@@ -7,6 +7,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -15,6 +16,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +30,7 @@ public class UsagePointAccountabilityImplTest {
     private static final long USAGEPOINT_ID = 635154L;
     private static final long PARTY_ID = 56840L;
     private static final String ROLE_MRID = "Zeven";
-    private static final Date START = new DateTime(2013, 4, 14, 17, 20, 4).toDate();
+    private static final Instant START = ZonedDateTime.of(2013, 4, 14, 17, 20, 4, 0,ZoneId.systemDefault()).toInstant();
 
     private UsagePointAccountabilityImpl usagePointAccountability;
 
@@ -98,7 +102,7 @@ public class UsagePointAccountabilityImplTest {
 
     @Test
     public void testGetStart() {
-        assertThat(usagePointAccountability.getStart()).isEqualTo(START);
+        assertThat(usagePointAccountability.getStart().toInstant()).isEqualTo(START);
     }
 
     @Test
@@ -108,15 +112,13 @@ public class UsagePointAccountabilityImplTest {
 
     @Test
     public void testIsCurrentFalse() {
-        when(clock.now()).thenReturn(new Date(START.getTime() - 1));
-
+        when(clock.instant()).thenReturn(START.minusMillis(1L));
         assertThat(usagePointAccountability.isCurrent()).isFalse();
     }
 
     @Test
     public void testIsCurrentTrue() {
-        when(clock.now()).thenReturn(new Date(START.getTime()));
-
+        when(clock.instant()).thenReturn(START);
         assertThat(usagePointAccountability.isCurrent()).isTrue();
     }
 
