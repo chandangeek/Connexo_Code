@@ -3,10 +3,10 @@ package com.elster.jupiter.domain.util;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.google.common.base.Optional;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 /**
  * A Query is the object version of  a database join.
  * Unlike a traditional join, a Query has a main type,
@@ -70,7 +70,7 @@ public interface Query<T> {
      * @return the Java type corresponding to this field name
      */
 	Class<?> getType(String fieldName);
-	Date getEffectiveDate();
-	void  setEffectiveDate(Date date);
+	Instant getEffectiveDate();
+	void  setEffectiveDate(Instant date);
 	void setRestriction(Condition condition);
 }

@@ -3,7 +3,7 @@ package com.elster.jupiter.nls.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.DataModel;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -103,7 +103,7 @@ final class NlsKeyImpl implements NlsKey {
     }
 
     private Optional<String> fallBack(Locale requested) {
-        return Locale.ENGLISH.equals(requested) ? Optional.<String>absent() : translate(Locale.ENGLISH);
+        return Locale.ENGLISH.equals(requested) ? Optional.empty() : translate(Locale.ENGLISH);
     }
 
     private static class Scorer {

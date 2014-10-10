@@ -1,14 +1,14 @@
 package com.elster.jupiter.domain.util.impl;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.google.common.base.Optional;
 
 class QueryImpl<T> implements Query<T> {
 
@@ -81,13 +81,13 @@ class QueryImpl<T> implements Query<T> {
     }
 
     @Override
-    public Date getEffectiveDate() {
+    public Instant getEffectiveDate() {
     	return queryExecutor.getEffectiveDate();
     }
     
     @Override
-    public void setEffectiveDate(Date date) {
-    	queryExecutor.setEffectiveDate(date);
+    public void setEffectiveDate(Instant instant) {
+    	queryExecutor.setEffectiveDate(instant);
     }
 
 	@Override

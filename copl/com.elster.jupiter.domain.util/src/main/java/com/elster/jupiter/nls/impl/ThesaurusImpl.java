@@ -12,10 +12,10 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.google.common.base.Optional;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,7 +77,7 @@ class ThesaurusImpl implements Thesaurus {
                 return defaultMessage;
             }
         }
-        return translations.get(key).translate(getLocale()).or(defaultMessage);
+        return translations.get(key).translate(getLocale()).orElse(defaultMessage);
     }
 
     @Override
@@ -84,7 +85,7 @@ class ThesaurusImpl implements Thesaurus {
         if (!translations.containsKey(key)) {
             return defaultMessage;
         }
-        return translations.get(key).translate(locale).or(defaultMessage);
+        return translations.get(key).translate(locale).orElse(defaultMessage);
     }
 
     Locale getLocale() {
@@ -103,7 +104,7 @@ class ThesaurusImpl implements Thesaurus {
         for (Map.Entry<NlsKey, List<Translation>> entry : map.entrySet()) {
             NlsKey entryKey = entry.getKey();
             Optional<NlsKey> found = dataModel.mapper(NlsKey.class).getOptional(entryKey.getComponent(), entryKey.getLayer(), entryKey.getKey());
-            NlsKeyImpl nlsKey = (NlsKeyImpl) found.or(nlsKeyProvider.get().init(entryKey));
+            NlsKeyImpl nlsKey = (NlsKeyImpl) found.orElseGet(() -> nlsKeyProvider.get().init(entryKey));
             nlsKey.clearTranslations();
             for (Translation translation : entry.getValue()) {
                 nlsKey.add(translation.getLocale(), translation.getTranslation());
@@ -187,6 +188,6 @@ class ThesaurusImpl implements Thesaurus {
     }
 
     private String translate(NlsKeyImpl nlsKey) {
-        return nlsKey.translate(getLocale()).or(nlsKey.getDefaultMessage());
+        return nlsKey.translate(getLocale()).orElse(nlsKey.getDefaultMessage());
     }
 }

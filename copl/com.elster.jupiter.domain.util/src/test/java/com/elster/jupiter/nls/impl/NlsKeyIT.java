@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NlsKeyIT {
@@ -111,8 +110,8 @@ public class NlsKeyIT {
         assertThat(nlsKey.getLayer()).isEqualTo(Layer.DOMAIN);
         assertThat(nlsKey.getKey()).isEqualTo("fiets");
         assertThat(nlsKey.getDefaultMessage()).isEqualTo("defaultMsg");
-        assertThat(nlsKey.translate(Locale.GERMAN)).contains("Fahrrad");
-        assertThat(nlsKey.translate(Locale.FRENCH)).contains("bicyclette");
+        assertThat(nlsKey.translate(Locale.GERMAN).get()).isEqualTo("Fahrrad");
+        assertThat(nlsKey.translate(Locale.FRENCH).get()).isEqualTo("bicyclette");
     }
 
 }

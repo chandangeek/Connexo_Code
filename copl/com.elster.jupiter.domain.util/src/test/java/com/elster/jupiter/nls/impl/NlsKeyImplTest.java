@@ -11,7 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.Locale;
 
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NlsKeyImplTest extends EqualsContractTest {
@@ -61,7 +61,7 @@ public class NlsKeyImplTest extends EqualsContractTest {
         nlsKey.add(Locale.CANADA_FRENCH, "CANADA_FRENCH");
         nlsKey.add(Locale.FRENCH, "FRENCH");
 
-        assertThat(nlsKey.translate(new Locale("fr", "BE"))).contains("FRENCH");
+        assertThat(nlsKey.translate(new Locale("fr", "BE")).get()).isEqualTo("FRENCH");
     }
 
     @Test
@@ -70,7 +70,7 @@ public class NlsKeyImplTest extends EqualsContractTest {
         nlsKey.add(Locale.CANADA_FRENCH, "CANADA_FRENCH");
         nlsKey.add(Locale.FRENCH, "FRENCH");
 
-        assertThat(nlsKey.translate(Locale.CANADA_FRENCH)).contains("CANADA_FRENCH");
+        assertThat(nlsKey.translate(Locale.CANADA_FRENCH).get()).isEqualTo("CANADA_FRENCH");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class NlsKeyImplTest extends EqualsContractTest {
         nlsKey.add(Locale.CANADA_FRENCH, "CANADA_FRENCH");
         nlsKey.add(Locale.FRENCH, "FRENCH");
 
-        assertThat(nlsKey.translate(Locale.FRENCH)).contains("FRENCH");
+        assertThat(nlsKey.translate(Locale.FRENCH).get()).isEqualTo("FRENCH");
     }
 
 }

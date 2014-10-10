@@ -1,7 +1,9 @@
 package com.elster.jupiter.domain.util.impl;
 
+import java.util.Optional;
+
 import com.elster.jupiter.orm.QueryExecutor;
-import com.google.common.base.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,7 +38,7 @@ public class QueryImplTest {
 
         Optional<String> a = query.get("A");
 
-        assertThat(a).contains("Ok");
+        assertThat(a.get()).isEqualTo("Ok");
     }
 
 }
