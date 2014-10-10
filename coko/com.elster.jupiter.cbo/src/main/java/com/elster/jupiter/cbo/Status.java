@@ -1,12 +1,12 @@
 package com.elster.jupiter.cbo;
 
-import com.elster.jupiter.util.time.UtcInstant;
-
 import javax.xml.bind.annotation.XmlTransient;
+
+import java.time.Instant;
 import java.util.Date;
 
 public final class Status implements Cloneable {
-	private UtcInstant dateTime;
+	private Instant dateTime;
 	private String reason;
 	private String remark;
 	private String value;
@@ -18,7 +18,7 @@ public final class Status implements Cloneable {
 		this.value = value;
 		this.reason = reason;
 		this.remark = remark;
-		this.dateTime = dateTime == null ? null : new UtcInstant(dateTime);
+		this.dateTime = dateTime == null ? null : dateTime.toInstant();
 	}
 	
 	public Status(String value , String reason , String remark) {
@@ -42,11 +42,11 @@ public final class Status implements Cloneable {
 	}
 
 	public Date getDateTime() {
-		return dateTime == null ? null : dateTime.toDate();
+		return dateTime == null ? null : Date.from(dateTime);
 	}
 
 	public void setDateTime(Date dateTime) {
-		this.dateTime = dateTime == null ? null : new UtcInstant(dateTime);
+		this.dateTime = dateTime == null ? null : dateTime.toInstant();
 	}
 
 	public void setReason(String reason) {
