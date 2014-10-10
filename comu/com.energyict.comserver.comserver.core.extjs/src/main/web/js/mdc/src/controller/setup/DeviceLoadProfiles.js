@@ -17,6 +17,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
 
     refs: [
         {
+            ref: 'page',
+            selector: 'deviceLoadProfilesSetup'
+        },
+        {
             ref: 'preview',
             selector: 'deviceLoadProfilesSetup #deviceLoadProfilesPreview'
         }
@@ -28,6 +32,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 select: this.showPreview
             },
             '#deviceLoadProfilesActionMenu': {
+                click: this.chooseAction
+            },
+            '#loadProfileActionMenu': {
                 click: this.chooseAction
             }
         });
@@ -71,6 +78,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         loadProfileOfDeviceModel.load(loadProfileId, {
             success: function (rec) {
                 if (!preview.isDestroyed) {
+                    if (!rec.data.validationInfo.validationActive) {
+                        preview.down('#validateNowLoadProfile').hide();
+                        Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].hide();
+                    }
                     preview.down('#deviceLoadProfilesPreviewForm').loadRecord(rec);
                     preview.setLoading(false);
                 }
@@ -83,7 +94,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             routeParams = router.arguments,
-            route;
+            route,
+            filterParams = {};
 
         routeParams.loadProfileId = menu.record.getId();
 
@@ -92,6 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 route = 'devices/device/loadprofiles/loadprofile/channels';
                 break;
             case 'viewData':
+                filterParams.viewOnlySuspects = false;
                 route = 'devices/device/loadprofiles/loadprofile/data';
                 break;
             case 'viewDetails':
@@ -100,10 +113,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             case 'validateNow':
                 me.showValidateNowMessage(menu.record);
                 break;
+            case 'viewSuspects':
+                filterParams.viewOnlySuspects = true;
+                route = 'devices/device/loadprofiles/loadprofile/data';
+                break;
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward(routeParams);
+        route && route.forward(routeParams, filterParams);
     },
 
     showValidateNowMessage: function (record) {
@@ -114,22 +131,30 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 confirmation: function () {
                     me.activateDataValidation(record, this);
                 }
-            }),
-            text = Uni.I18n.translatePlural('deviceloadprofiles.validateNow.statement', me.mRID, 'MDC', 'Validate data of load profile {0}') + '<br><br>' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile');
+            });
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 if (res.hasValidation) {
-                    me.dataValidationLastChecked = res.lastChecked;
+                    if (res.lastChecked) {
+                        me.dataValidationLastChecked = new Date(res.lastChecked);
+                    } else {
+                        me.dataValidationLastChecked = new Date();
+                    }
                     confirmationWindow.add(me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translatePlural('deviceloadprofiles.validateNow', me.mRID, 'MDC', 'Validate data of load profile {0}?'),
+                        title: Uni.I18n.translatePlural('deviceloadprofiles.validateNow', record.get('name'), 'MDC', 'Validate data of load profile {0}?'),
                         msg: ''
                     });
                 } else {
-                    me.getApplication().fireEvent('acknowledge', text);
+                    var title = Uni.I18n.translatePlural('deviceloadprofiles.validateNow.error', record.get('name'), 'MDC', 'Failed to validate data of load profile {0}'),
+                        message = Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile'),
+                        config = {
+                            icon: Ext.MessageBox.WARNING
+                        };
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
                 }
             }
         });
@@ -151,7 +176,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     itemId: 'validateLoadProfileFromDate',
                     editable: false,
                     showToday: false,
-                    value: new Date(me.dataValidationLastChecked),
+                    value: me.dataValidationLastChecked,
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item1', 'MDC', 'The data of load profile will be validated starting from'),
                     labelWidth: 375,
                     labelPad: 0.5
@@ -169,7 +194,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 {
                     xtype: 'displayfield',
                     value: '',
-                    padding: '0 0 -10 0',
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item2', 'MDC', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
                     labelWidth: 500
                 }

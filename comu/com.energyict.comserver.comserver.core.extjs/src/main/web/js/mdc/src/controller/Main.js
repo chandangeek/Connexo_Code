@@ -66,7 +66,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.SearchItemsBulkAction',
         'Mdc.controller.setup.SecuritySettings',
         'Mdc.controller.setup.SetupOverview',
-        'Mdc.controller.setup.ValidationRuleSets'
+        'Mdc.controller.setup.ValidationRuleSets',
+        'Mdc.controller.setup.Messages'
     ],
 
     refs: [
@@ -77,10 +78,10 @@ Ext.define('Mdc.controller.Main', {
     ],
 
     init: function () {
-        var me = this;
+        var me = this,
+            historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
-        if (Uni.Auth.hasPrivilege('privilege.administrate.device') ||
-           (Uni.Auth.hasPrivilege('privilege.view.device'))) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device'])) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
                 href: '#/devices',

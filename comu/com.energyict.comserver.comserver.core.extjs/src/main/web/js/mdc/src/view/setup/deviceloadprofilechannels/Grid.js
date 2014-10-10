@@ -35,9 +35,9 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Grid', {
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    xtype: 'deviceLoadProfileChannelsActionMenu'
-                },
-                flex: 1
+                    xtype: 'deviceLoadProfileChannelsActionMenu',
+                    itemId: 'channelActionMenu'
+                }
             }
         ];
 

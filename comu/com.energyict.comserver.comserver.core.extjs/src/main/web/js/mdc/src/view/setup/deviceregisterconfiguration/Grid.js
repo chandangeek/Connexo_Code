@@ -58,7 +58,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items:'Mdc.view.setup.deviceregisterconfiguration.ActionMenu'
+                menu: {
+                    xtype: 'deviceRegisterConfigurationActionMenu',
+                    itemId: 'registerActionMenu'
+                }
             }
         ];
 

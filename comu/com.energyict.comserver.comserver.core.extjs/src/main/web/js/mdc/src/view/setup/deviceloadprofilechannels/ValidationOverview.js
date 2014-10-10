@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.ValidationOverview', {
                 renderer: function (value, field) {
                     var result = '',
                         url;
-                    if (value.suspectReason) {
+                    if (!Ext.isEmpty(value.suspectReason)) {
                         field.show();
                         Ext.Array.each(value.suspectReason, function (rule) {
                             url = me.router.getRoute('administration/rulesets/overview/rules').buildUrl({ruleSetId: rule.key.ruleSet.id, ruleId: rule.key.id});

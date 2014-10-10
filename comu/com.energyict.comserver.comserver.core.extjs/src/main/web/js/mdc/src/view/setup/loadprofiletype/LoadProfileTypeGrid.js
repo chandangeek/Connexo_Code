@@ -25,7 +25,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
                 dataIndex: 'timeDuration',
                 renderer: function (value) {
                     var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
-
                     return intervalRecord.get('name');
                 },
                 flex: 1
@@ -46,7 +45,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
             items: [
                 '->',
                 {
-                    text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
+                    text: Uni.I18n.translate('loadProfileTypes.add.loadprofileTypes', 'MDC', 'Add load profile types'),
                     itemId: 'addLoadProfileType',
                     xtype: 'button',
                     action: 'addloadprofiletypeaction',

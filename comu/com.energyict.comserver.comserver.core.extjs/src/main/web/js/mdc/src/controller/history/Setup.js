@@ -78,7 +78,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showDeviceTypeLogbookTypesView',
                                     items: {
                                         add: {
-                                            title: 'Add logbook type',
+                                            title: 'Add logbook types',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.DeviceTypes',
                                             action: 'showAddLogbookTypesView'
@@ -92,7 +92,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showDeviceTypeLoadProfileTypesView',
                                     items: {
                                         add: {
-                                            title: 'Add load profile',
+                                            title: 'Add load profiles',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
                                             action: 'showDeviceTypeLoadProfileTypesAddView'
@@ -362,6 +362,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showAddValidationRuleSets'
                                                         }
                                                     }
+                                                },
+                                                //messages routes
+                                                messages: {
+                                                    title: 'Messages',
+                                                    route: 'messages',
+                                                    controller: 'Mdc.controller.setup.Messages',
+                                                    action: 'showMessagesOverview'
                                                 }
                                             }
                                         }
@@ -374,7 +381,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showRegisterMappings',
                                     items: {
                                         add: {
-                                            title: 'Add register type',
+                                            title: 'Add register types',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.RegisterMappings',
                                             action: 'addRegisterMappings'
@@ -777,7 +784,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
                     route: 'add',
                     controller: 'Mdc.controller.setup.Devices',
-                    authorized: Uni.Auth.hasPrivilege('privilege.create.inventoryManagement'),
+                    privileges: ['privilege.create.inventoryManagement'],
                     action: 'showAddDevice'
                 },
                 device: {
@@ -959,7 +966,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
                                                             route: 'data',
                                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
-                                                            action: 'showOverview'
+                                                            action: 'showOverview',
+                                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                                         },
                                                         validation: {
                                                             title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),
@@ -974,7 +982,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: 'Load profile data',
                                             route: 'data',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileData',
-                                            action: 'showOverview'
+                                            action: 'showOverview',
+                                            filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
                                         },
                                         validation: {
                                             title: 'Load profile validation',

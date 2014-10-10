@@ -27,7 +27,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
-                width: 200
+//                width: 200,
+                flex: 1
             }
         ];
 
@@ -35,100 +36,58 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
         if (readingType) {
             accumulationBehavior = readingType.split('.')[3];
         }
-
-        // 1 means cumulative
-        if (accumulationBehavior && accumulationBehavior == 1) {
-            me.columns.push({
-                header: '',
-                dataIndex: 'value',
-
-                renderer: function (value, metaData, record) {
-                    var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                    switch (record.get('validationResult')) {
-                        case 'validationStatus.notValidated':
-                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
-                            break;
-                        case 'validationStatus.ok':
-                            return '<span class="validation-column-align"><span class="icon-validation"></span>';
-                            break;
-                        case 'validationStatus.suspect':
-                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
-                            break;
-                        default:
-                            return '';
-                            break;
-                        }
-                    },
-                    width: 30,
-                    align: 'right'
-                },
-                {
-                    header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
-                    dataIndex: 'value',
-                    flex: 1.5,
-                    align: 'right',
-                    renderer: function (value, metaData, record) {
-                        var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                        return toDisplay;
-                    }
-                },
-                {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
-                dataIndex: 'delta',
-                align: 'right',
-                renderer: function (value, metaData, record) {
-                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                },
-                flex: 1
-            });
-        } else {
-            me.columns.push({
+        me.columns.push(
+            {
                 header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
                 dataIndex: 'value',
                 align: 'right',
-                //todo: refactor component ValidationFlag so we can use it here for rendering the flag
-                renderer: function (value, metaData, record) {
-                    var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                minWidth: 150,
+                flex: 1,
+                renderer: function (data, metaData, record) {
+                    var validationFlag = '';
                     switch (record.get('validationResult')) {
                         case 'validationStatus.notValidated':
-                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
+                            validationFlag = '<span class="icon-validation icon-validation-black"></span>';
                             break;
                         case 'validationStatus.ok':
-                            return '<span class="validation-column-align"><span class="icon-validation"></span>';
+                            validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
                             break;
                         case 'validationStatus.suspect':
-                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
+                            validationFlag = '<span class="icon-validation icon-validation-red"></span>';
                             break;
                         default:
-                            return '';
+                            validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
                             break;
                     }
-                },
-                width: 30
-            },
-            {
-                    header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
-                    dataIndex: 'value',
-                    flex: 1.5,
-                    align: 'right',
-                    renderer: function (value, metaData, record) {
-                        var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                        return toDisplay;
-                    }
-            });
-        }
+                    return !Ext.isEmpty(data)
+                        ? '<span class="validation-column-align">' + data + ' ' + measurementType + ' ' + validationFlag + '</span>'
+                        : '<span class="icon-validation icon-validation-black"></span>';
+                }
+            }
+            /*           {
+             header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
+             dataIndex: 'delta',
+             align: 'right',
+             flex: 1,
+             renderer: function (value, metaData, record) {
+             return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+             }
+             }*/
+        );
 
         me.columns.push({
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
                 flex: 1
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                menu: {
-                    xtype: 'deviceLoadProfileChannelDataActionMenu'
-                }
-            });
+            }
+            /* Commented because of JP-5861
+             ,
+             {
+             xtype: 'uni-actioncolumn',
+             menu: {
+             xtype: 'deviceLoadProfileChannelDataActionMenu'
+             }
+             }*/);
 
         me.callParent(arguments);
     }

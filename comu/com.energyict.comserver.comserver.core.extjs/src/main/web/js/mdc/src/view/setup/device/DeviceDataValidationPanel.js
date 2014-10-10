@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 name: 'allDataValidated',
                                 renderer: function (value) {
                                     return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') :
-                                        '<span class="icon-validation icon-validation-black"></span>&nbsp;&nbsp;&nbsp;' + Uni.I18n.translate('general.no', 'MDC', 'No');
+                                        Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
                                 }
                             },
                             {
@@ -72,12 +72,12 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                         xtype: 'displayfield',
                                         name: 'lastChecked',
                                         renderer: function (value, field) {
-                                            if (!Ext.isEmpty(value)) {
+                                            if (value) {
                                                 field.up('#lastValidationCont').show();
                                                 this.nextSibling('button').setVisible(value ? true : false);
                                                 return Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(value), 'MDC', 'M d, Y H:i');
                                             } else {
-                                                field.up('#lastValidationCont').hide();
+                                                return Uni.I18n.translate('general.never', 'MDC', 'Never');
                                             }
                                         }
                                     },

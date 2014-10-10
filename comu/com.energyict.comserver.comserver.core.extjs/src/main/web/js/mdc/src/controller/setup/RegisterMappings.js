@@ -25,7 +25,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         {ref: 'registerMappingPreview', selector: '#registerMappingPreview'},
         {ref: 'registerMappingPreviewTitle', selector: '#registerMappingPreviewTitle'},
         {ref: 'addRegisterMappingBtn', selector: '#addRegisterMappingBtn'},
-        {ref: 'registerMappingAddGrid', selector: '#registermappingaddgrid'}
+        {ref: 'registerMappingAddGrid', selector: '#register-mapping-add-grid'},
+        {ref: 'addRegisterMappingPanel', selector: '#addRegisterTypePanel'}
     ],
 
     deviceTypeId: null,
@@ -47,6 +48,9 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             },
             '#registerMappingPreview menuitem[action=removeTheRegisterMapping]': {
                 click: this.removeRegisterMappingFromPreview
+            },
+            'registerMappingAdd grid': {
+                selectionchange: this.hideRegisterMappingsErrorPanel
             }
         });
     },
@@ -83,41 +87,55 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
     addRegisterMappings: function (id) {
         var me = this;
-        var widget = Ext.widget('registerMappingAdd', {deviceTypeId: id});
-        me.deviceTypeId = id;
-        this.getAvailableRegisterTypesStore().getProxy().setExtraParam('deviceType', id);
-        this.getAvailableRegisterTypesStore().load(
+
+        var store = Ext.data.StoreManager.lookup('AvailableRegisterTypes');
+        store.getProxy().setExtraParam('deviceType', id);
+        store.getProxy().setExtraParam('filter', Ext.encode([
             {
-                callback: function () {
-                    Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
-                        success: function (deviceType) {
-                            me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            me.getApplication().fireEvent('changecontentevent', widget);
-                        }
-                    });
-                }
+                property: 'available',
+                value: true
             }
-        );
+        ]));
+
+        store.load({
+            callback: function () {
+                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
+                    success: function (deviceType) {
+                        var widget = Ext.widget('registerMappingAdd', {deviceTypeId: id});
+                        me.deviceTypeId = id;
+                        store.fireEvent('load', store);
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                    }
+                });
+            }
+        });
     },
 
     addRegisterMappingsToDeviceType: function () {
         var me = this;
         var registerMappings = this.getRegisterMappingAddGrid().getSelectionModel().getSelection();
         var widget = this.getRegisterMappingAddGrid();
-        widget.setLoading(true);
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
-            success: function (deviceType) {
-                deviceType.registerTypes().add(registerMappings);
-                deviceType.save({
-                    callback: function () {
-                        deviceType.commit();
-                        me.getRegisterTypesOfDevicetypeStore().add(registerMappings);
-                        location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/registertypes';
-                        widget.setLoading(false);
-                    }
-                });
-            }
-        });
+
+        if (registerMappings.length === 0) {
+            me.showRegisterMappingsErrorPanel();
+        } else {
+            widget.setLoading(true);
+            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+                success: function (deviceType) {
+                    deviceType.registerTypes().add(registerMappings);
+                    deviceType.save({
+                        success: function () {
+                            deviceType.commit();
+                            me.getRegisterTypesOfDevicetypeStore().add(registerMappings);
+                            location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/registertypes';
+                            me.getApplication().fireEvent('acknowledge', 'Register type(s) added');
+                            widget.setLoading(false);
+                        }
+                    });
+                }
+            });
+        }
     },
 
     getDeviceTypeIdFromHref: function () {
@@ -192,9 +210,29 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 success: function () {
                     me.getRegisterTypesOfDevicetypeStore().remove(registerMappingToDelete);
                     location.href = '#/administration/devicetypes/' + deviceType.get('id') + '/registertypes';
+                    me.getApplication().fireEvent('acknowledge', 'Register type removed');
                 }
             });
         }
+    },
+
+    showRegisterMappingsErrorPanel: function () {
+        var me = this,
+            formErrorsPanel = me.getAddRegisterMappingPanel().down('#add-register-type-errors'),
+            errorPanel = me.getAddRegisterMappingPanel().down('#add-register-type-selection-error');
+
+        formErrorsPanel.show();
+        errorPanel.show();
+    },
+
+    hideRegisterMappingsErrorPanel: function () {
+        var me = this,
+            formErrorsPanel = me.getAddRegisterMappingPanel().down('#add-register-type-errors'),
+            errorPanel = me.getAddRegisterMappingPanel().down('#add-register-type-selection-error');
+
+        formErrorsPanel.hide();
+        errorPanel.hide();
+
     }
 
 });

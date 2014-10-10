@@ -1,15 +1,17 @@
 Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.comServersGrid',
-    store: 'ComServers',
+    store: Ext.getStore('Mdc.store.ComServers') || Ext.create('Mdc.store.ComServers'),
     overflowY: 'auto',
     itemId: 'comservergrid',
+
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Action',
         'Mdc.view.setup.comserver.ActionMenu'
     ],
+
     columns: [
         {
             header: Uni.I18n.translate('comserver.title.communicationServer', 'MDC', 'Communication server'),

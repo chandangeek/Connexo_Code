@@ -17,14 +17,19 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         {ref: 'loadTypePreview', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypePreview'},
         {ref: 'loadTypeCountContainer', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypesCountContainer'},
         {ref: 'loadTypeEmptyListContainer', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypeEmptyListContainer'},
-        {ref: 'addLoadProfileTypesGrid', selector: '#loadProfileTypesAddToDeviceTypeGrid'},
+        {ref: 'addLoadProfileTypesGrid', selector: '#loadprofile-type-add-grid'},
         {ref: 'uncheckLoadProfileButton', selector: '#uncheckAllLoadProfileTypes'},
-        {ref: 'addLoadProfileTypesSetup', selector: '#loadProfileTypesAddToDeviceTypeSetup' }
+        {ref: 'addLoadProfileTypesSetup', selector: '#loadProfileTypesAddToDeviceTypeSetup' },
+        {ref: 'addLoadProfileTypePanel', selector: '#addLoadProfileTypePanel'}
+    ],
+
+    requires: [
+        'Mdc.store.LoadProfileTypesOnDeviceTypeAvailable'
     ],
 
     stores: [
         'Mdc.store.LoadProfileTypesOnDeviceType',
-        'Mdc.store.LoadProfileTypesOnDeviceTypeAvailable',
+        'LoadProfileTypesOnDeviceTypeAvailable',
         'Mdc.store.Intervals',
         'Mdc.store.LoadProfileTypes'
     ],
@@ -38,12 +43,14 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             'loadProfileTypeOnDeviceTypeSetup loadProfileTypeGrid': {
                 itemclick: this.loadGridItemDetail
             },
-            'loadProfileTypesAddToDeviceTypeSetup loadProfileTypesAddToDeviceTypeGrid': {
-                allitemsadd: this.onAllLoadProfileTypesAdd,
-                selecteditemsadd: this.onSelectedLoadProfileTypesAdd
-            },
             'button[action=loadprofiletypeondevicetypenotificationerrorretry]': {
                 click: this.retrySubmit
+            },
+            'loadProfileTypesAddToDeviceTypeSetup grid': {
+                selectionchange: this.hideLoadProfileTypesErrorPanel
+            },
+            '#addButton[action=addLoadProfileTypeAction]': {
+                click: this.addLoadProfileTypesToDeviceType
             }
         });
 
@@ -78,7 +85,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                 method: 'DELETE',
                 waitMsg: 'Removing...',
                 success: function () {
-                    me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type was removed successfully'));
+                    me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
                     me.store.loadPage(1);
                 },
                 failure: function (response) {
@@ -119,9 +126,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             grid = this.getAddLoadProfileTypesGrid(),
             idsArray = [],
             jsonData;
-
-        // TODO Workaround for not having an empty grid view here: JP-4617
+        var selection = grid.getSelectionModel().getSelection();
         if (Ext.isEmpty(selection)) {
+            me.showLoadProfileTypesErrorPanel();
             return;
         }
 
@@ -141,7 +148,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             method: 'POST',
             jsonData: jsonData,
             success: function () {
-                me.handleSuccessRequest('Load profile types were successfully added to device type');
+                me.handleSuccessRequest('Load profile types added');
             },
 //            failure: function (response) {
 //                me.handleFailureRequest(response, 'Error during adding load profile types to device type', 'loadprofiletypeondevicetypenotificationerrorretry');
@@ -279,51 +286,53 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     },
 
     showDeviceTypeLoadProfileTypesAddView: function (deviceTypeId) {
-        var me = this,
-            availableLoadProfilesStore = me.getStore('Mdc.store.LoadProfileTypesOnDeviceTypeAvailable');
+        var me = this;
+        //  availableLoadProfilesStore = me.getStore('Mdc.store.LoadProfileTypesOnDeviceTypeAvailable');
 
         me.deviceTypeId = deviceTypeId;
         me.store.getProxy().setExtraParam('deviceType', deviceTypeId);
-        availableLoadProfilesStore.getProxy().setExtraParam('deviceType', deviceTypeId);
-        availableLoadProfilesStore.load();
-        me.getApplication().fireEvent('changecontentevent', Ext.widget('loadProfileTypesAddToDeviceTypeSetup', {
-            intervalStore: me.intervalStore,
-            deviceTypeId: deviceTypeId
-        }));
-
-        me.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                me.deviceTypeName = deviceType.get('name');
-                /*me.store.load({ params: { available: true }, callback: function () {
-                    var grid = me.getAddLoadProfileTypesGrid(),
-
-                    // Not a good solution ( need to be replaced with opening web socket connection between server and web application )
-                        autoRefresherTask = {
-                            run: function () {
-                                var addGrid = Ext.ComponentQuery.query('#loadProfileTypesAddToDeviceTypeGrid')[0];
-                                Ext.Ajax.request({
-                                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/loadprofiletypes/',
-                                    method: 'GET',
-                                    params: { available: true },
-                                    success: function (response) {
-                                        if (!me.arrayComparator(Ext.Array.pluck(me.store.data.items, 'data'), Ext.decode(response.responseText, true).data)) {
-                                            if (addGrid) {
-                                                me.store.load({ params: { available: true }});
-                                            } else {
-                                                Ext.TaskManager.stop(autoRefresherTask);
-                                            }
-                                        }
+        this.getLoadProfileTypesOnDeviceTypeAvailableStore().getProxy().setExtraParam('deviceType', deviceTypeId);
+        this.getLoadProfileTypesOnDeviceTypeAvailableStore().load(
+            {
+                callback: function () {
+                    me.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+                        success: function (deviceType) {
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
+                            me.deviceTypeName = deviceType.get('name');
+                            me.intervalStore.load({
+                                    callback: function () {
+                                        var widget = Ext.widget('loadProfileTypesAddToDeviceTypeSetup', {
+                                            intervalStore: me.intervalStore,
+                                            deviceTypeId: deviceTypeId
+                                        });
+                                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                                        me.getApplication().fireEvent('changecontentevent', widget);
+                                        me.getLoadProfileTypesOnDeviceTypeAvailableStore().fireEvent('load', me.getLoadProfileTypesOnDeviceTypeAvailableStore());
                                     }
-                                });
-                            },
-                            interval: 5000
-                        };
-                    Ext.TaskManager.start(autoRefresherTask);
-                    // end
-                }});*/
-            }
-        });
+                                }
+                            )
+                        }
+                    });
+                }
+            });
+    },
+    showLoadProfileTypesErrorPanel: function () {
+        var me = this,
+            formErrorsPanel = me.getAddLoadProfileTypePanel().down('#add-loadprofile-type-errors'),
+            errorPanel = me.getAddLoadProfileTypePanel().down('#add-loadprofile-type-selection-error');
+
+        formErrorsPanel.show();
+        errorPanel.show();
+    },
+
+    hideLoadProfileTypesErrorPanel: function () {
+        var me = this,
+            formErrorsPanel = me.getAddLoadProfileTypePanel().down('#add-loadprofile-type-errors'),
+            errorPanel = me.getAddLoadProfileTypePanel().down('#add-loadprofile-type-selection-error');
+
+        formErrorsPanel.hide();
+        errorPanel.hide();
+
     }
 });
 

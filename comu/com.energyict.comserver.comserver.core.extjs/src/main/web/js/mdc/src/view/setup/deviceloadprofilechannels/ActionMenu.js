@@ -16,6 +16,11 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.ActionMenu', {
             itemId: 'viewDetails',
             text: Uni.I18n.translate('deviceloadprofiles.actionmenu.viewDetails', 'MDC', 'View details'),
             action: 'viewDetails'
+        },
+        {
+            itemId: 'validateNowChannel',
+            text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'MDC', 'Validate now'),
+            action: 'validateNow'
         }
     ]
 });

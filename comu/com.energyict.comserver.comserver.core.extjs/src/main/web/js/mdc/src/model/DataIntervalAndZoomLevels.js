@@ -15,6 +15,6 @@ Ext.define('Mdc.model.DataIntervalAndZoomLevels', {
     getIntervalStart: function (intervalEnd) {
         var all = this.get('all');
 
-        return moment(intervalEnd).subtract(all.timeUnit, all.count).valueOf();
+        return moment(intervalEnd).subtract(all.timeUnit, all.count).toDate();
     }
 });

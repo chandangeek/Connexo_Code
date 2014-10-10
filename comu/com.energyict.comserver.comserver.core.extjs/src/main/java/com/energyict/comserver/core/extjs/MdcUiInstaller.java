@@ -1,118 +1,65 @@
 package com.energyict.comserver.core.extjs;
 
+import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import javax.inject.Inject;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
+import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/02/14
- * Time: 10:15
- */
-@Component(name="com.energyict.mdc.ui",service={InstallService.class},property = {"name=MDC"}, immediate = true)
-public class MdcUiInstaller implements InstallService {
+@Component(name = "com.energyict.comserver.core.extjs", service = {TranslationKeyProvider.class},
+        property = {"name=" + MdcUiInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
+public class MdcUiInstaller implements TranslationKeyProvider {
 
-    public static String COMPONENTNAME = "MDC";
-
-    private volatile Thesaurus thesaurus;
-    private volatile Activator activator;
+    public static final String COMPONENT_NAME = "MDC";
+    public static final String HTTP_RESOURCE_ALIAS = "/mdc";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/mdc";
+    private static final Logger LOGGER = Logger.getLogger(MdcUiInstaller.class.getName());
+    private volatile ServiceRegistration<HttpResource> registration;
 
     public MdcUiInstaller() {
+
     }
 
     @Activate
     public void activate(BundleContext context) {
-        try {
-            activator = new Activator();
-            activator.start(context);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        // EXAMPLE: Below is how to enable local development mode.
+//      HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.bpm.extjs/src/main/web/js/bpm", new FileResolver());
+        registration = context.registerService(HttpResource.class, resource, null);
     }
 
     @Deactivate
     public void deactivate() {
-        if (activator != null) {
-            try {
-                activator.stop(null);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    @Inject
-    public MdcUiInstaller(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
-    }
-
-    @Reference
-    public void setThesaurus(NlsService nlsService){
-        this.thesaurus = nlsService.getThesaurus("MDC", Layer.REST);
+        registration.unregister();
     }
 
     @Override
-    public void install() {
-        createTranslations();
+    public String getComponentName() {
+        return COMPONENT_NAME;
     }
 
-    private void createTranslations() {
-        Properties prop = new Properties();
-        InputStream input = null;
-        List<Translation> translations = new ArrayList<>();
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
         try {
-            input = this.getClass().getClassLoader().getResourceAsStream("i18n.properties");
-            prop.load(input);
-            for (Map.Entry<Object, Object> translationProp : prop.entrySet()) {
-                SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENTNAME, Layer.REST, (String)translationProp.getKey()).defaultMessage((String)translationProp.getValue());
-                translations.add(toTranslation(nlsKey, Locale.ENGLISH,(String)translationProp.getValue()));
-                translations.add(toTranslation(nlsKey, new Locale("stars"),("************************************************************************************************************************************************" +
-                        "****************************************************************************************************************************************************************************************************" +
-                        "******************************************************************************************************************************************************************************************************").substring(0,translationProp.getValue().toString().length())));
-            }
-            thesaurus.addTranslations(translations);
-
-        } catch (UnderlyingSQLFailedException | IOException e) {
-            e.printStackTrace();
+            return SimpleTranslationKey.loadFromInputStream(this.getClass().getClassLoader().getResourceAsStream("i18n.properties"));
+        } catch (IOException e) {
+            LOGGER.severe("Failed to load translations for the '" + COMPONENT_NAME + "' component bundle.");
         }
-    }
-
-    private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
-        return new Translation() {
-            @Override
-            public NlsKey getNlsKey() {
-                return nlsKey;
-            }
-
-            @Override
-            public Locale getLocale() {
-                return locale;
-            }
-
-            @Override
-            public String getTranslation() {
-                return translation;
-            }
-        };
+        return null;
     }
 }

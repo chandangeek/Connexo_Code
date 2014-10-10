@@ -3,9 +3,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
     alias: 'widget.deviceregisterreportgrid-numerical',
     itemId: 'deviceregisterreportgrid',
     store: 'NumericalRegisterData',
-    requires: [
-        'Uni.grid.column.ValidationFlag'
-    ],
 
     columns: {
         items: [
@@ -17,32 +14,34 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 defaultRenderer: function (value) {
                     return Ext.util.Format.date(value, this.format);
                 },
-                width: 200
+                flex: 1
             },
             {
+                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
                 dataIndex: 'value',
-                xtype: 'validation-flag-column',
                 align: 'right',
-                header: '',
-                width: 30
-            },
-            {
-                dataIndex: 'value',
-                header: 'Value',
+                minWidth: 150,
                 flex: 1,
-                align: 'right',
-                renderer: function (value, metaData, record) {
-                        return value + ' ' + record.get('unitOfMeasure') + '</span>';
+                renderer: function (data, metaData, record) {
+                    var validationFlag = '';
+                    switch (record.get('validationResult')) {
+                        case 'validationStatus.notValidated':
+                            validationFlag = '<span class="icon-validation icon-validation-black"></span>';
+                            break;
+                        case 'validationStatus.ok':
+                            validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
+                            break;
+                        case 'validationStatus.suspect':
+                            validationFlag = '<span class="icon-validation icon-validation-red"></span>';
+                            break;
+                        default:
+                            validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
+                            break;
+                    }
+                    return !Ext.isEmpty(data)
+                        ? '<span class="validation-column-align">' + data + ' ' + record.get('unitOfMeasure') + ' ' + validationFlag + '</span>'
+                        : '<span class="icon-validation icon-validation-black"></span>';
                 }
-
-            },
-            {
-                align: 'right',
-                header: '',
-                flex: 6
-            },
-            {
-                xtype: 'uni-actioncolumn'
             }
         ]
     },
