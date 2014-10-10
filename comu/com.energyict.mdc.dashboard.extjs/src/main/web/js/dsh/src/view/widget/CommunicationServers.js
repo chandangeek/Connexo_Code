@@ -25,21 +25,21 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 '<tr>',
                 '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
                 '<td>{children.length} {title}</td>',
-                '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/build/resources/images/shared/icon-info-small.png" /></td>',
+                '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
                 '</tr>',
             '<tpl else>',
                 '<tpl for="values.children">',
                 '<tr id="{comServerId}">',
                 '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{[parent.name]}.png" /></td>',
                 '<td><a href="{href}">{title}</a></td>',
-                '<td style="padding-left: 15px;"><img data-qtitle="{title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/build/resources/images/shared/icon-info-small.png" /></td>',
+                '<td style="padding-left: 15px;"><img data-qtitle="{title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
                 '</tr>',
                 '</tpl>',
             '</tpl>',
             '</tbody>',
             '</tpl>',
             '</table>'
-        ),
+        )
     },
 
     initComponent: function () {
@@ -95,7 +95,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                             html += data.tooltip;
                             return data;
                         });
-                    };
+                    }
                     item.tooltip = html;
 
                     return item;

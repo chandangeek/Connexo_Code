@@ -51,7 +51,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                         style: {
                             lineHeight: 'none'
                         },
-                        icon: '/apps/sky/build/resources/images/form/restore.png'
+                        icon: '/apps/sky/resources/images/form/restore.png'
                     }
                 ]
             }
