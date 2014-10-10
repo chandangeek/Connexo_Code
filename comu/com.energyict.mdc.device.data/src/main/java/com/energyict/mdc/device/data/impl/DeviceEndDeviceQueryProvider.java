@@ -40,11 +40,11 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
         this.meteringService = meteringService;
     }
 
-    public static final String DEVICE_ENDDEVICE_QUERYPRVIDER = DeviceEndDeviceQueryProvider.class.getName();
+    public static final String DEVICE_ENDDEVICE_QUERYPROVIDER = DeviceEndDeviceQueryProvider.class.getName();
 
     @Override
     public String getName() {
-        return DEVICE_ENDDEVICE_QUERYPRVIDER;
+        return DEVICE_ENDDEVICE_QUERYPROVIDER;
     }
 
     @Override
