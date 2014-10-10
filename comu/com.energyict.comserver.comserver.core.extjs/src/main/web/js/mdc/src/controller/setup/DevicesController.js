@@ -1,9 +1,9 @@
 Ext.define('Mdc.controller.setup.DevicesController', {
     extend: 'Ext.app.Controller',
 
-    /*requires: [
+    requires: [
         'Uni.form.filter.FilterCombobox'
-    ],*/
+    ],
 
     /**
      * @cfg {String} itemId prefix for the component
@@ -18,7 +18,7 @@ Ext.define('Mdc.controller.setup.DevicesController', {
                 removeFilter: this.removeTheFilter,
                 clearAllFilters: this.clearFilter
             };
-            control[this.prefix + ' side-filter-combo'] = {
+            control[this.prefix + ' uni-filter-combo'] = {
                 updateTopFilterPanelTagButtons: this.onFilterChange
             };
             control[this.prefix + ' button[action=applyfilter]'] = {
