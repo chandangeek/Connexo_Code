@@ -8,7 +8,6 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -102,12 +100,12 @@ public class UsagePointAccountabilityImplTest {
 
     @Test
     public void testGetStart() {
-        assertThat(usagePointAccountability.getStart().toInstant()).isEqualTo(START);
+        assertThat(usagePointAccountability.getRange().lowerEndpoint()).isEqualTo(START);
     }
 
     @Test
     public void testGetEnd() {
-        assertThat(usagePointAccountability.getEnd()).isNull();
+        assertThat(usagePointAccountability.getRange().hasUpperBound()).isFalse();
     }
 
     @Test

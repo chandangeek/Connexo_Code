@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 

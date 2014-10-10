@@ -3,7 +3,6 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.nls.HasTranslatableName;
 
 import java.time.Instant;
-import java.util.Date;
 
 public interface ServiceCategory extends HasTranslatableName {
 	int getId();

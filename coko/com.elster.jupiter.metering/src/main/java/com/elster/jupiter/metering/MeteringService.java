@@ -4,9 +4,9 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
-import java.util.Optional;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.List;
 
 public interface MeteringService {
@@ -50,7 +50,7 @@ public interface MeteringService {
 
     Condition hasAccountability();
 
-    Condition hasAccountability(Date when);
+    Condition hasAccountability(Instant when);
 
 	Query<Meter> getMeterQuery();
 

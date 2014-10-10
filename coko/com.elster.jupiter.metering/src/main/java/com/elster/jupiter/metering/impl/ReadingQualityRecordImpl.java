@@ -8,14 +8,13 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
 
 import java.time.Instant;
 import java.util.Optional;
 
 import javax.inject.Inject;
-
-import java.util.Date;
 
 public class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
@@ -43,36 +42,37 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     @Inject
     ReadingQualityRecordImpl(DataModel dataModel, MeteringService meteringService, EventService eventService) {
         this.dataModel = dataModel;
-        // for persistence
         this.meteringService = meteringService;
         this.eventService = eventService;
         this.actual = true;
     }
 
-    ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, BaseReadingRecord baseReadingRecord) {
+    ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, BaseReading baseReading) {
         this.channel = channel;
         this.channelId = channel.getId();
-        this.baseReadingRecord = Optional.of(baseReadingRecord);
-        readingTimestamp = baseReadingRecord.getTimeStamp().toInstant();
+        if (baseReading instanceof BaseReadingRecord) {
+        	this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
+        }
+        readingTimestamp = baseReading.getTimeStamp().toInstant();
         this.type = type;
         this.typeCode = type.getCode();
         return this;
     }
 
-    ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, Date timestamp) {
+    ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, Instant timestamp) {
         this.channel = channel;
         this.channelId = channel.getId();
-        readingTimestamp = timestamp.toInstant();
+        readingTimestamp = timestamp;
         this.type = type;
         this.typeCode = type.getCode();
         return this;
     }
 
-    static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, Channel channel, BaseReadingRecord baseReadingRecord) {
-        return dataModel.getInstance(ReadingQualityRecordImpl.class).init(type, channel, baseReadingRecord);
+    static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, Channel channel, BaseReading baseReading) {
+        return dataModel.getInstance(ReadingQualityRecordImpl.class).init(type, channel, baseReading);
     }
 
-    static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, Channel channel, Date timestamp) {
+    static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, Channel channel, Instant timestamp) {
         return dataModel.getInstance(ReadingQualityRecordImpl.class).init(type, channel, timestamp);
     }
 

@@ -28,7 +28,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import java.util.Optional;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -38,7 +37,6 @@ import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -114,9 +112,8 @@ public final class ChannelImpl implements ChannelContract {
         return timeSeries.get();
     }
 
-    public Date getLastDateTime() {
-        Instant instant = timeSeries.get().getLastDateTime();
-        return instant == null ? null : Date.from(instant);
+    public Instant getLastDateTime() {
+        return timeSeries.get().getLastDateTime();
     }
 
     Optional<TemporalAmount> getIntervalLength() {
@@ -209,8 +206,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
 
-    public Optional<BaseReadingRecord> getReading(Date when) {
-        java.util.Optional<TimeSeriesEntry> entryHolder = getTimeSeries().getEntry(when.toInstant());
+    public Optional<BaseReadingRecord> getReading(Instant when) {
+        java.util.Optional<TimeSeriesEntry> entryHolder = getTimeSeries().getEntry(when);
         if (entryHolder.isPresent()) {
             return Optional.of(createReading(isRegular(), entryHolder.get()));
         } else {
@@ -285,12 +282,12 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord) {
-        return ReadingQualityRecordImpl.from(dataModel, type, this, baseReadingRecord);
+    public ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReading baseReading) {
+        return ReadingQualityRecordImpl.from(dataModel, type, this, baseReading);
     }
 
     @Override
-    public ReadingQualityRecord createReadingQuality(ReadingQualityType type, Date timestamp) {
+    public ReadingQualityRecord createReadingQuality(ReadingQualityType type, Instant timestamp) {
         return ReadingQualityRecordImpl.from(dataModel, type, this, timestamp);
     }
 
@@ -336,13 +333,13 @@ public final class ChannelImpl implements ChannelContract {
     }
     
     @Override
-    public Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Date timestamp) {
+    public Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp) {
         Condition condition = ofThisChannel().and(withTimestamp(timestamp)).and(ofType(type));
         return dataModel.mapper(ReadingQualityRecord.class).select(condition).stream().findFirst();
     }
 
-    private Condition withTimestamp(Date timestamp) {
-        return where("readingTimestamp").isEqualTo(timestamp.toInstant());
+    private Condition withTimestamp(Instant timestamp) {
+        return where("readingTimestamp").isEqualTo(timestamp);
     }
 
     @Override
@@ -352,7 +349,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<ReadingQualityRecord> findReadingQuality(Date timestamp) {
+    public List<ReadingQualityRecord> findReadingQuality(Instant timestamp) {
         Condition atTimestamp = ofThisChannel().and(withTimestamp(timestamp));
         return dataModel.mapper(ReadingQualityRecord.class).select(atTimestamp, Order.ascending("readingTimestamp"));
     }
@@ -378,9 +375,9 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<BaseReadingRecord> getReadingsBefore(Date when, int readingCount) {
+    public List<BaseReadingRecord> getReadingsBefore(Instant when, int readingCount) {
         boolean regular = isRegular();
-        List<TimeSeriesEntry> entries = getTimeSeries().getEntriesBefore(when.toInstant(), readingCount);
+        List<TimeSeriesEntry> entries = getTimeSeries().getEntriesBefore(when, readingCount);
         ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             builder.add(createReading(regular, entry));
@@ -389,9 +386,9 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<BaseReadingRecord> getReadingsOnOrBefore(Date when, int readingCount) {
+    public List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, int readingCount) {
         boolean regular = isRegular();
-        List<TimeSeriesEntry> entries = getTimeSeries().getEntriesOnOrBefore(when.toInstant(), readingCount);
+        List<TimeSeriesEntry> entries = getTimeSeries().getEntriesOnOrBefore(when, readingCount);
         ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             builder.add(createReading(regular, entry));
@@ -430,10 +427,10 @@ public final class ChannelImpl implements ChannelContract {
         	if (oldReading.isPresent()) {
         		processStatus = processStatus.or(oldReading.get().getProcesStatus());
         		if (!hasEditQuality) {
-        			this.createReadingQuality(editQualityType, reading.getTimeStamp()).save();
+        			this.createReadingQuality(editQualityType, reading).save();
         		}
         	} else if (!hasEditQuality) {
-        		this.createReadingQuality(addQualityType, reading.getTimeStamp()).save();
+        		this.createReadingQuality(addQualityType, reading).save();
         	}
         	currentQualityRecords.stream()
         		.filter(qualityRecord -> qualityRecord.isSuspect())

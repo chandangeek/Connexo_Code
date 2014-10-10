@@ -5,12 +5,10 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.Interval;
 import java.util.Optional;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 public interface UsagePoint extends IdentifiedObject , ReadingContainer {
@@ -50,8 +48,8 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	MeterActivation activate(Meter meter, Instant start);
     List<UsagePointAccountability> getAccountabilities();
 	UsagePointAccountability addAccountability(PartyRole role, Party party, Instant start);
-	Optional<Party> getCustomer(Date when);
-	Optional<Party> getResponsibleParty(Date when, MarketRoleKind marketRole);
+	Optional<Party> getCustomer(Instant when);
+	Optional<Party> getResponsibleParty(Instant when, MarketRoleKind marketRole);
 
 	boolean hasAccountability(User user);
 
@@ -62,6 +60,6 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 
     void addDetail(UsagePointDetail usagePointDetail);
 
-    UsagePointDetail terminateDetail(UsagePointDetail detail, Date date);
+    UsagePointDetail terminateDetail(UsagePointDetail detail, Instant date);
 	
 }

@@ -30,7 +30,6 @@ import javax.inject.Provider;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -280,11 +279,11 @@ public class UsagePointImpl implements UsagePoint {
     public void adopt(MeterActivationImpl meterActivation) {
     	if (!meterActivations.isEmpty()) {
     		MeterActivationImpl last = meterActivations.get(meterActivations.size() - 1);
-    		if (last.getStart().after(meterActivation.getStart())) {
+    		if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
     			throw new IllegalArgumentException("Invalid start date");
     		} else {
-    			if (last.getEnd() == null || last.getEnd().after(meterActivation.getStart())) {
-    				last.endAt(meterActivation.getStart());
+    			if (!last.getRange().hasUpperBound()  || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+    				last.endAt(meterActivation.getRange().lowerEndpoint());
     			}
     		}
     	}
@@ -329,7 +328,7 @@ public class UsagePointImpl implements UsagePoint {
         Optional<UsagePointDetailImpl> optional = this.getDetail(newDetail.getRange().lowerEndpoint());
         if (optional.isPresent()) {
             UsagePointDetailImpl previousDetail = optional.get();
-            this.terminateDetail(previousDetail, newDetail.getInterval().getStart());
+            this.terminateDetail(previousDetail, newDetail.getRange().lowerEndpoint());
         }
         validateAddingDetail(newDetail);
         detail.add((UsagePointDetailImpl) newDetail);
@@ -343,12 +342,12 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public UsagePointDetail terminateDetail(UsagePointDetail detail, Date date) {
+    public UsagePointDetail terminateDetail(UsagePointDetail detail, Instant date) {
         UsagePointDetailImpl toUpdate = null;
         if (detail.getUsagePoint() == this) {
             toUpdate = (UsagePointDetailImpl) detail;
         }
-        if (toUpdate == null || !detail.getInterval().isEffective(date)) {
+        if (toUpdate == null || !detail.isEffectiveAt(date)) {
             throw new IllegalArgumentException();
         }
         toUpdate.terminate(date);
@@ -376,12 +375,12 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
-	public List<? extends BaseReadingRecord> getReadingsBefore(Date when, ReadingType readingType, int count) {
+	public List<? extends BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
 		return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when,readingType,count);
 	}
 
 	@Override
-	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
+	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType, int count) {
 		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when,readingType,count);
 	}
 
@@ -391,14 +390,14 @@ public class UsagePointImpl implements UsagePoint {
     }
 
 	@Override
-	public Optional<Party> getCustomer(Date when) {
+	public Optional<Party> getCustomer(Instant when) {
 		return getResponsibleParty(when,MarketRoleKind.ENERGYSERVICECONSUMER);
 	}
 
 	@Override
-	public Optional<Party> getResponsibleParty(Date when, MarketRoleKind marketRole) {
+	public Optional<Party> getResponsibleParty(Instant when, MarketRoleKind marketRole) {
 		for (UsagePointAccountability each : getAccountabilities()) {
-			if (each.isEffective(when) && each.getRole().getMRID().equals(marketRole.name())) {
+			if (each.isEffectiveAt(when) && each.getRole().getMRID().equals(marketRole.name())) {
 				return Optional.of(each.getParty());
 			}
 		}

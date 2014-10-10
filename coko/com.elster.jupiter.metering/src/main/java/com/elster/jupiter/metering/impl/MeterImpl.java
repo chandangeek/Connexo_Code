@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -74,11 +73,11 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     void adopt(MeterActivationImpl meterActivation) {
         if (!meterActivations.isEmpty()) {
             MeterActivationImpl last = meterActivations.get(meterActivations.size() - 1);
-            if (last.getStart().after(meterActivation.getStart())) {
-                throw new IllegalArgumentException("Invalid start date");
+            if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                throw new IllegalArgumentException("Invalid start instant");
             } else {
-                if (last.getEnd() == null || last.getEnd().after(meterActivation.getStart())) {
-                    last.endAt(meterActivation.getStart());
+                if (!last.getRange().hasUpperBound() || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                    last.endAt(meterActivation.getRange().lowerEndpoint());
                 }
             }
         }
@@ -96,13 +95,10 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     }
 
     @Override
-    public Optional<MeterActivation> getMeterActivation(Date when) {
-        for (MeterActivation meterActivation : meterActivations) {
-            if (meterActivation.isEffective(when)) {
-                return Optional.of(meterActivation);
-            }
-        }
-        return Optional.empty();
+    public Optional<? extends MeterActivation> getMeterActivation(Instant when) {
+    	return meterActivations.stream()
+    		.filter(meterActivation -> meterActivation.isEffectiveAt(when))
+    		.findFirst();
     }
 
 
@@ -117,13 +113,13 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getReadingsBefore(Date when, ReadingType readingType, int count) {
+    public List<? extends BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
         return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when, readingType, count);
     }
 
 
     @Override
-    public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
+    public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType, int count) {
         return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when, readingType, count);
     }
 

@@ -6,7 +6,6 @@ import static com.elster.jupiter.ids.FieldType.NUMBER;
 import static com.elster.jupiter.ids.FieldType.TEXT;
 
 import com.elster.jupiter.ids.FieldDerivationRule;
-import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.metering.MeteringService;

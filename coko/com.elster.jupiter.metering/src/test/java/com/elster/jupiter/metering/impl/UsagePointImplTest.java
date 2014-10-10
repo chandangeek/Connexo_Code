@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -12,12 +11,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Provider;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -292,12 +289,12 @@ public class UsagePointImplTest {
     public void testGetResponsiblePartyChooseCorrectRole() {
         field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
         PartyRole wrongRole = mock(PartyRole.class);
-        Date now = new Date();
+        Instant now = Instant.now();
         when(wrongRole.getMRID()).thenReturn(MarketRoleKind.BALANCERESPONSIBLEPARTY.name());
         when(acc1.getRole()).thenReturn(wrongRole);
-        when(acc1.isEffective(now)).thenReturn(true);
+        when(acc1.isEffectiveAt(now)).thenReturn(true);
         when(acc2.getRole()).thenReturn(role);
-        when(acc2.isEffective(now)).thenReturn(true);
+        when(acc2.isEffectiveAt(now)).thenReturn(true);
         when(acc2.getParty()).thenReturn(party);
 
         assertThat(usagePoint.getResponsibleParty(now, MarketRoleKind.ENERGYSERVICECONSUMER).get()).isEqualTo(party);
@@ -306,11 +303,11 @@ public class UsagePointImplTest {
     @Test
     public void testGetResponsiblePartyChooseOnlyCurrent() {
     	field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
-    	Date now = new Date();
+    	Instant now = Instant.now();
         when(acc1.getRole()).thenReturn(role);
-        when(acc1.isEffective(now)).thenReturn(false);
+        when(acc1.isEffectiveAt(now)).thenReturn(false);
         when(acc2.getRole()).thenReturn(role);
-        when(acc2.isEffective(now)).thenReturn(true);
+        when(acc2.isEffectiveAt(now)).thenReturn(true);
         when(acc2.getParty()).thenReturn(party);
 
         assertThat(usagePoint.getResponsibleParty(now, MarketRoleKind.ENERGYSERVICECONSUMER).get()).isEqualTo(party);

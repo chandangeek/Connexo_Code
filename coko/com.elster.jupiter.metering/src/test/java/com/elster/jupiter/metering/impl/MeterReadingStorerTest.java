@@ -18,7 +18,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +30,6 @@ import org.mockito.stubbing.Answer;
 
 import javax.inject.Provider;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 

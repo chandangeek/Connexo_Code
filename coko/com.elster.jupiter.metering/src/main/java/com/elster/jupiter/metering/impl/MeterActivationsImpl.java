@@ -5,9 +5,9 @@ import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +39,7 @@ public class MeterActivationsImpl implements ReadingContainer {
 	}
 
 	@Override
-	public List<? extends BaseReadingRecord> getReadingsBefore(Date when, ReadingType readingType, int count) {
+	public List<? extends BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
 		if (meterActivations.isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -52,14 +52,14 @@ public class MeterActivationsImpl implements ReadingContainer {
 	}
 	
 	@Override
-	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
+	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType, int count) {
 		if (meterActivations.isEmpty()) {
 			return Collections.emptyList();
 		}
 		List <BaseReadingRecord> result = new ArrayList<>();
 		result.addAll(last().getReadingsOnOrBefore(when, readingType , count));
 		for (int i = meterActivations.size() - 2 ; i >= 0 && result.size() < count ; i--) {
-			result.addAll(meterActivations.get(i).getReadingsOnOrBefore(when,readingType, count - result.size()));
+			result.addAll(meterActivations.get(i).getReadingsOnOrBefore(when, readingType, count - result.size()));
 		}
 		return result;
 	}

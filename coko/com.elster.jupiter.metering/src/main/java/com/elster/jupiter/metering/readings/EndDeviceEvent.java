@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.Status;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 
 public interface EndDeviceEvent extends IdentifiedObject {

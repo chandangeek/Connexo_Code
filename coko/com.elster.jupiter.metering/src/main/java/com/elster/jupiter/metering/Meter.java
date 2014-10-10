@@ -5,7 +5,6 @@ import java.util.Optional;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 public interface Meter extends EndDevice, ReadingContainer {
@@ -18,9 +17,9 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     MeterActivation activate(Instant start);
 
-    Optional<MeterActivation> getCurrentMeterActivation();
+    Optional<? extends MeterActivation> getCurrentMeterActivation();
 
-    Optional<MeterActivation> getMeterActivation(Date when);
+    Optional<? extends MeterActivation> getMeterActivation(Instant when);
 
     List<? extends ReadingQualityRecord> getReadingQualities(Range<Instant> range);
 

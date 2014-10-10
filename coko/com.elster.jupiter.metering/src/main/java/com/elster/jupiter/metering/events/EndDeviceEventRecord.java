@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 
 public interface EndDeviceEventRecord extends EndDeviceEvent {

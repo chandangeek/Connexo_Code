@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 import java.time.Instant;
-import java.util.Date;
 
 public class ServiceCategoryImpl implements ServiceCategory  {
 	//persistent fields
