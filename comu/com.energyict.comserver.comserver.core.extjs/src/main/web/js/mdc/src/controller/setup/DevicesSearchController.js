@@ -24,12 +24,21 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         {
             ref: 'devicesSearchSideFilterForm',
             selector: 'mdc-search-results-side-filter form'
+        },
+        {
+            ref: 'mdcSearchItems',
+            selector: 'mdc-search-items'
+        },
+        {
+            ref: 'sortToolbar',
+            selector: 'mdc-search-items #sortButtonsContainer'
         }
 
 
     ],
 
-    prefix: '#mdc-search-items',
+    //prefix: '#mdc-search-items',
+    prefix: 'mdc-search-items',
 
     showSearchItems: function () {
         var searchItems = Ext.create('Mdc.view.setup.devicesearch.SearchItems');
@@ -39,44 +48,21 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         store.load();
     },
 
+    getCriteriaPanel: function() {
+        return this.getDevicesSearchFilterPanel();
+    },
+
     getSideFilterForm: function() {
         return this.getDevicesSearchSideFilterForm();
     },
 
-
-    applyFilter: function () {
-        var filterForm = this.getDevicesSearchSideFilterForm();
-        filterForm.updateRecord();
-        filterForm.getRecord().save();
+    getSearchItems: function() {
+        return this.getMdcSearchItems();
     },
 
-    clearFilter: function () {
-        debugger;
-        this.getDevicesSearchSideFilterForm().getRecord().getProxy().destroy();
-    },
-
-    onFilterChange: function (combo) {
-        if (!_.isEmpty(combo.getRawValue())) {
-            var filterView = this.getDevicesSearchFilterPanel();
-            filterView.setFilter(combo.getName(), combo.getFieldLabel(), combo.getRawValue());
-        }
-    },
-
-
-    setFilterView: function () {
-        var filterForm = this.getDevicesSearchSideFilterForm();
-        var filterView = this.getDevicesSearchFilterPanel();
-
-        var serialNumberField = filterForm.down('[name=serialNumber]');
-        var serialNumberValue = serialNumberField.getValue().trim();
-        var mRIDField = filterForm.down('[name=mRID]');
-        var mRIDValue = mRIDField.getValue().trim();
-
-        if (serialNumberValue != "") {
-            filterView.setFilter('serialNumber', serialNumberField.getFieldLabel(), serialNumberValue);
-        }
-        if (mRIDValue != "") {
-            filterView.setFilter('mRID', mRIDField.getFieldLabel(), mRIDValue);
-        }
+    getSortingToolbar: function() {
+        return this.getSortToolbar();
     }
+
+
 });
