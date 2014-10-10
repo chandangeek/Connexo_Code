@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -49,7 +49,7 @@ public class ReadingStorerImplTest {
     @Before
     public void setUp() {
         when(channel.getTimeSeries()).thenReturn(timeSeries);
-        when(channel.getBulkQuantityReadingType()).thenReturn(Optional.absent());
+        when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
        when(idsService.createStorer(true)).thenReturn(storer);
 
         readingStorer = new ReadingStorerImpl(idsService, eventService, true);

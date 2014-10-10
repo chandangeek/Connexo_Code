@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.util.time.Interval;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -18,12 +19,12 @@ public interface EndDevice extends IdentifiedObject {
 	AmrSystem getAmrSystem();	
 	String getAmrId();
 	void save();
-    Date getCreateTime();
-    Date getModTime();
+    Instant getCreateTime();
+    Instant getModTime();
     long getVersion();
     void delete();
 
-    EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Date date);
+    EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Instant instant);
 
     List<EndDeviceEventRecord> getDeviceEvents(Interval interval);
     List<EndDeviceEventRecord> getDeviceEvents(Interval interval, List<EndDeviceEventType> eventTypes);

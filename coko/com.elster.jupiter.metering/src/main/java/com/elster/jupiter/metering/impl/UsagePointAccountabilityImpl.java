@@ -8,17 +8,18 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
+
+import java.time.Instant;
 import java.util.Date;
 
 public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	
 	private Interval interval;
 	private long version;
-	private UtcInstant createTime;
-	private UtcInstant modTime;
+	private Instant createTime;
+	private Instant modTime;
 	private String userName;
 	
 	//Associations
@@ -61,12 +62,12 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 		return version;
 	}
 
-	public Date getCreateTime() {
-		return createTime.toDate();
+	public Instant getCreateTime() {
+		return createTime;
 	}
 
-	public Date getModTime() {
-		return modTime.toDate();
+	public Instant getModTime() {
+		return modTime;
 	}
 
 	public String getUserName() {

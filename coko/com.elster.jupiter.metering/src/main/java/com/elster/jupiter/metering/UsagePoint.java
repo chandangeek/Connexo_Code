@@ -6,8 +6,10 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import java.util.Optional;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -40,8 +42,8 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 
 	void save();
 
-	Date getCreateDate();
-	Date getModificationDate();
+	Instant getCreateDate();
+	Instant getModificationDate();
 	long getVersion();
 
 	MeterActivation activate(Date start);
@@ -55,8 +57,8 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 
     void delete();
 
-    List<? extends UsagePointDetail> getDetail(Interval interval);
-    Optional<? extends UsagePointDetail> getDetail(Date date);
+    List<? extends UsagePointDetail> getDetail(Range<Instant> range);
+    Optional<? extends UsagePointDetail> getDetail(Instant when);
 
     void addDetail(UsagePointDetail usagePointDetail);
 

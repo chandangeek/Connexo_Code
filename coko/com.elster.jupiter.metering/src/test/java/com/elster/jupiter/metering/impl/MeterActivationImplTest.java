@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -28,6 +27,7 @@ import javax.inject.Provider;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,12 +113,12 @@ public class MeterActivationImplTest {
 
     @Test
     public void testCreationRemembersUsagePoint() {
-        assertThat(meterActivation.getUsagePoint()).contains(usagePoint);
+        assertThat(meterActivation.getUsagePoint().get()).isEqualTo(usagePoint);
     }
 
     @Test
     public void testCreationRemembersMeter() {
-        assertThat(meterActivation.getMeter()).contains(meter);
+        assertThat(meterActivation.getMeter().get()).isEqualTo(meter);
     }
 
     @Test

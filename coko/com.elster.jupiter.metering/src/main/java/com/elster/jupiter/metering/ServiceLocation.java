@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.util.geo.Position;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -41,8 +42,8 @@ public interface ServiceLocation extends IdentifiedObject {
 	void setDescription(String description);
 	void save();
     List<UsagePoint> getUsagePoints();
-	Date getCreateDate();
-	Date getModificationDate();
+	Instant getCreateDate();
+	Instant getModificationDate();
 	long getVersion();
 	Position getPosition();
 

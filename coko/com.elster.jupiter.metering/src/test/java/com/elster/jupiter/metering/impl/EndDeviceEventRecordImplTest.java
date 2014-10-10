@@ -33,11 +33,17 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.assertj.core.api.Assertions;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -145,7 +151,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 ((PublisherImpl) injector.getInstance(Publisher.class)).addHandler(subscriber);
                 MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
                 DataModel dataModel = meteringService.getDataModel();
-                Date date = new DateMidnight(2001, 1, 1).toDate();
+                Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
                 EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
 
@@ -155,7 +161,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
                 endDeviceEventRecord.save();
 
-                assertThat(dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date)).contains(endDeviceEventRecord);
+                assertThat(dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date).get()).isEqualTo(endDeviceEventRecord);
                 ArgumentCaptor<LocalEvent> localEventCapture = ArgumentCaptor.forClass(LocalEvent.class);
                 verify(subscriber, times(2)).handle(localEventCapture.capture());
 
@@ -178,7 +184,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
             protected void doPerform() {
                 MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
                 DataModel dataModel = meteringService.getDataModel();
-                Date date = new DateMidnight(2001, 1, 1).toDate();
+                Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
                 EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
 
@@ -191,7 +197,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 endDeviceEventRecord.save();
 
                 Optional<EndDeviceEventRecord> found = dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date);
-                assertThat(found).contains(endDeviceEventRecord);
+                assertThat(found.get()).isEqualTo(endDeviceEventRecord);
                 assertThat(found.get().getProperties()).contains(entry("A", "C"), entry("D", "C"));
             }
         });
@@ -220,7 +226,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
             when(endDevice2.getId()).thenReturn(END_DEVICE_ID + 1);
             when(endDeviceEventType.getMRID()).thenReturn("A");
             when(endDeviceEventType2.getMRID()).thenReturn("B");
-            instanceA = new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
+            instanceA = new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant());
         }
         return instanceA;
     }
@@ -229,7 +235,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     protected Object getInstanceEqualToA() {
         DataModel dataModel = mock(DataModel.class);
         when(dataModel.getInstance(EndDeviceEventRecordImpl.class)).thenReturn(new EndDeviceEventRecordImpl(dataModel, null));
-        return new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
+        return new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant());
     }
 
     EndDeviceEventRecordImpl createEndDeviceEvent() {
@@ -239,9 +245,9 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return ImmutableList.of(
-                createEndDeviceEvent().init(endDevice2, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
-                createEndDeviceEvent().init(endDevice, endDeviceEventType2, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
-                createEndDeviceEvent().init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 42, 0).toDate())
+                createEndDeviceEvent().init(endDevice2, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant()),
+                createEndDeviceEvent().init(endDevice, endDeviceEventType2, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant()),
+                createEndDeviceEvent().init(endDevice, endDeviceEventType,ZonedDateTime.of(2013, 12, 17, 14, 42, 0, 0, ZoneId.systemDefault()).toInstant())
         );
     }
 

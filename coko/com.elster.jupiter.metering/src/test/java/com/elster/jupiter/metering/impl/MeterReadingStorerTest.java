@@ -12,7 +12,12 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -25,6 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import javax.inject.Provider;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +46,7 @@ import static org.mockito.Mockito.when;
 public class MeterReadingStorerTest {
 
     private static final String EVENTTYPECODE = "3.7.12.242";
-    private static final Date DATE = new DateTime(2012, 12, 19, 11, 20, 33, 0).toDate();
+    private static final Instant DATE = ZonedDateTime.of(2012, 12, 19, 11, 20, 33, 0, ZoneId.systemDefault()).toInstant();
     private static final long METER_ID = 165;
     @Mock
     private Meter meter;
@@ -80,7 +86,7 @@ public class MeterReadingStorerTest {
             }
         });
         when(endDeviceEventTypeFactory.getOptional(EVENTTYPECODE)).thenReturn(Optional.of(eventType));
-        when(eventRecordFactory.getOptional(METER_ID, EVENTTYPECODE, DATE)).thenReturn(Optional.<EndDeviceEventRecord>absent());
+        when(eventRecordFactory.getOptional(METER_ID, EVENTTYPECODE, DATE)).thenReturn(Optional.empty());
         when(meter.getId()).thenReturn(METER_ID);
         when(eventType.getMRID()).thenReturn(EVENTTYPECODE);
     }

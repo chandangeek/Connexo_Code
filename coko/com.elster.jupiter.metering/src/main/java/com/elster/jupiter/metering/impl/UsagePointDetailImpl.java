@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import static com.google.common.base.Objects.toStringHelper;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
@@ -17,7 +18,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 public abstract class UsagePointDetailImpl implements UsagePointDetail {
@@ -41,9 +41,9 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
-    private UtcInstant createTime;
+    private Instant createTime;
     @SuppressWarnings("unused")
-    private UtcInstant modTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 

@@ -35,7 +35,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -127,7 +127,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Override
     public Optional<UsagePoint> findUsagePoint(String mRID) {
         List<UsagePoint> usagePoints = dataModel.mapper(UsagePoint.class).select(Operator.EQUAL.compare("mRID", mRID));
-        return usagePoints.isEmpty() ? Optional.<UsagePoint>absent() : Optional.of(usagePoints.get(0));
+        return usagePoints.isEmpty() ? Optional.empty() : Optional.of(usagePoints.get(0));
     }
 
     @Override
@@ -143,7 +143,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Override
     public Optional<EndDevice> findEndDevice(String mRid) {
         List<EndDevice> endDevices = dataModel.mapper(EndDevice.class).select(Operator.EQUAL.compare("mRID", mRid));
-        return endDevices.isEmpty() ? Optional.<EndDevice>absent() : Optional.of(endDevices.get(0));
+        return endDevices.isEmpty() ? Optional.empty() : Optional.of(endDevices.get(0));
     }
 
     @Override

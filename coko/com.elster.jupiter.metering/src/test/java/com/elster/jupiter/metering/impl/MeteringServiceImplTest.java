@@ -12,8 +12,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,7 +84,7 @@ public class MeteringServiceImplTest {
         String mrID = "mrID";
         when(readingTypeFactory.getOptional(mrID)).thenReturn(Optional.of(readingType));
 
-        assertThat(meteringService.getReadingType(mrID)).contains(readingType);
+        assertThat(meteringService.getReadingType(mrID).get()).isEqualTo(readingType);
     }
 
     @Test
@@ -97,7 +99,7 @@ public class MeteringServiceImplTest {
         String mrID = "mrID";
         when(serviceLocationFactory.getUnique("mRID", mrID)).thenReturn(Optional.of(serviceLocation));
 
-        assertThat(meteringService.findServiceLocation(mrID)).contains(serviceLocation);
+        assertThat(meteringService.findServiceLocation(mrID).get()).isEqualTo(serviceLocation);
     }
 
     @Test
@@ -105,14 +107,14 @@ public class MeteringServiceImplTest {
         long id = 156L;
         when(serviceLocationFactory.getOptional(id)).thenReturn(Optional.of(serviceLocation));
 
-        assertThat(meteringService.findServiceLocation(id)).contains(serviceLocation);
+        assertThat(meteringService.findServiceLocation(id).get()).isEqualTo(serviceLocation);
     }
 
     @Test
     public void testGetServiceCategory() {
         when(serviceCategoryTypeCache.getOptional(ServiceKind.GAS)).thenReturn(Optional.of(serviceCategory));
 
-        assertThat(meteringService.getServiceCategory(ServiceKind.GAS)).contains(serviceCategory);
+        assertThat(meteringService.getServiceCategory(ServiceKind.GAS).get()).isEqualTo(serviceCategory);
     }
 
     @Test
@@ -134,7 +136,7 @@ public class MeteringServiceImplTest {
     @Test
     public void testFindServiceLocationJournal() {
         long id = 156L;
-        JournalEntry<ServiceLocation> journalEntry = new JournalEntry<>(new UtcInstant(1455245L), serviceLocation);
+        JournalEntry<ServiceLocation> journalEntry = new JournalEntry<>(Instant.ofEpochMilli(1455245L), serviceLocation);
         when(serviceLocationFactory.getJournal(id)).thenReturn(Arrays.asList(journalEntry));
 
         assertThat(meteringService.findServiceLocationJournal(id))

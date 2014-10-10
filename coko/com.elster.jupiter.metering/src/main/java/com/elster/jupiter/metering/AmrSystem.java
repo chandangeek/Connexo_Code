@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.util.HasName;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public interface AmrSystem extends HasName {
 	int getId();

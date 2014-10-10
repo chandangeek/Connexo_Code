@@ -3,10 +3,11 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+
+import java.time.Instant;
 import java.util.Date;
 
 public class ServiceCategoryImpl implements ServiceCategory  {
@@ -17,9 +18,9 @@ public class ServiceCategoryImpl implements ServiceCategory  {
 	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
+	private Instant createTime;
 	@SuppressWarnings("unused")
-	private UtcInstant modTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 
@@ -82,7 +83,7 @@ public class ServiceCategoryImpl implements ServiceCategory  {
     }
 
     @Override
-    public UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Date start) {
+    public UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Instant start) {
         if (kind.equals(ServiceKind.ELECTRICITY)) {
             return ElectricityDetailImpl.from(dataModel, usagePoint, Interval.startAt(start));
         } else if (kind.equals(ServiceKind.GAS)) {

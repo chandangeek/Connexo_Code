@@ -21,12 +21,14 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,8 +48,8 @@ public class UsagePointImpl implements UsagePoint {
 	private String readRoute;
 	private String servicePriority;
 	private long version;
-	private UtcInstant createTime;
-	private UtcInstant modTime;
+	private Instant createTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 
@@ -240,12 +242,14 @@ public class UsagePointImpl implements UsagePoint {
 		return null;
 	}
 	
-	public Date getCreateDate() {
-		return createTime.toDate();
+	@Override
+	public Instant getCreateDate() {
+		return createTime;
 	}
 	
-	public Date getModificationDate() {
-		return modTime.toDate(); 
+	@Override
+	public Instant getModificationDate() {
+		return modTime; 
 	}
 
 	public long getVersion() {
@@ -311,18 +315,18 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<UsagePointDetailImpl> getDetail(Date date) {
-        return detail.effective(date);
+    public Optional<UsagePointDetailImpl> getDetail(Instant instant) {
+        return detail.effective(instant);
     }
 
     @Override
-    public List<UsagePointDetailImpl> getDetail(Interval interval) {
-        return detail.effective(interval);
+    public List<UsagePointDetailImpl> getDetail(Range<Instant> range) {
+        return detail.effective(range);
     }
 
     @Override
     public void addDetail(UsagePointDetail newDetail) {
-        Optional<UsagePointDetailImpl> optional = this.getDetail(newDetail.getInterval().getStart());
+        Optional<UsagePointDetailImpl> optional = this.getDetail(newDetail.getRange().lowerEndpoint());
         if (optional.isPresent()) {
             UsagePointDetailImpl previousDetail = optional.get();
             this.terminateDetail(previousDetail, newDetail.getInterval().getStart());
@@ -354,7 +358,7 @@ public class UsagePointImpl implements UsagePoint {
     }
     
     private void validateAddingDetail(UsagePointDetail candidate) {
-        for (UsagePointDetail usagePointDetail : detail.effective(candidate.getInterval())) {
+        for (UsagePointDetail usagePointDetail : detail.effective(candidate.getRange())) {
             if (candidate.conflictsWith(usagePointDetail)) {
                 throw new IllegalArgumentException("Conflicts with existing usage point characteristics : " + candidate);
             }
@@ -398,7 +402,7 @@ public class UsagePointImpl implements UsagePoint {
 				return Optional.of(each.getParty());
 			}
 		}
-		return Optional.absent();
+		return Optional.empty();
 	}
 
 

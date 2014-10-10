@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.readings;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -109,7 +109,7 @@ public final class ProfileStatus {
         }
 
         public Optional<String> getCimCode() {
-            return Optional.fromNullable(cimCode);
+            return Optional.ofNullable(cimCode);
         }
     }
 }

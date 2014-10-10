@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ProcessStatus;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -36,7 +37,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
 
 import javax.inject.Provider;
 

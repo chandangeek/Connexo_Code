@@ -9,12 +9,12 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.geo.Position;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 public class ServiceLocationImpl implements ServiceLocation {
@@ -39,8 +39,8 @@ public class ServiceLocationImpl implements ServiceLocation {
 	private boolean needsInspection;
 	private String siteAccessProblem;
 	private long version;
-	private UtcInstant createTime;
-	private UtcInstant modTime;
+	private Instant createTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 	// associations
@@ -248,12 +248,14 @@ public class ServiceLocationImpl implements ServiceLocation {
         return usagePoints;
     }
 
-    public Date getCreateDate() {
-		return createTime.toDate();
+    @Override
+    public Instant getCreateDate() {
+		return createTime;
 	}
 	
-	public Date getModificationDate() {
-		return modTime.toDate();
+    @Override
+	public Instant getModificationDate() {
+		return modTime;
 	}
 	
 	public long getVersion() {

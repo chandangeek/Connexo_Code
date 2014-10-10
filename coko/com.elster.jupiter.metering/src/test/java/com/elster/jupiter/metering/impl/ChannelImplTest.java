@@ -15,7 +15,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import org.joda.time.DateMidnight;
@@ -34,6 +33,7 @@ import java.time.Period;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -182,11 +182,11 @@ public class ChannelImplTest extends EqualsContractTest {
         channel = createChannel().init(meterActivation,ImmutableList.of(readingType1, readingType2));
 
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
-        assertThat(channel.getBulkQuantityReadingType()).isAbsent();
+        assertThat(channel.getBulkQuantityReadingType().isPresent()).isFalse();
         assertThat(channel.getReadingTypes()).hasSize(2)
                 .contains(readingType1)
                 .contains(readingType2);
-        assertThat(channel.getIntervalLength()).isAbsent();
+        assertThat(channel.getIntervalLength().isPresent()).isFalse();
         assertThat(channel.getTimeSeries()).isEqualTo(timeSeries);
     }
 
@@ -215,12 +215,12 @@ public class ChannelImplTest extends EqualsContractTest {
         channel = createChannel().init(meterActivation,ImmutableList.of(readingType1, readingType2, readingType4));
 
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
-        assertThat(channel.getBulkQuantityReadingType()).isAbsent();
+        assertThat(channel.getBulkQuantityReadingType().isPresent()).isFalse();
         assertThat(channel.getReadingTypes()).hasSize(3)
                 .contains(readingType1)
                 .contains(readingType2)
                 .contains(readingType4);
-        assertThat(channel.getIntervalLength()).isAbsent();
+        assertThat(channel.getIntervalLength().isPresent()).isFalse();
         assertThat(channel.getTimeSeries()).isEqualTo(timeSeries);
     }
 

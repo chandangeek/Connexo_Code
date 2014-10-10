@@ -14,11 +14,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Provider;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +38,8 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 	private String utcNumber;
 	private ElectronicAddress electronicAddress;
 	private long version;
-	private UtcInstant createTime;
-	private UtcInstant modTime;
+	private Instant createTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 	
@@ -136,13 +136,13 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 	}
 	
     @Override
-    public Date getCreateTime() {
-        return createTime == null ? null : createTime.toDate();
+    public Instant getCreateTime() {
+        return createTime;
     }
 
     @Override
-    public Date getModTime() {
-        return modTime == null ? null :  modTime.toDate();
+    public Instant getModTime() {
+        return modTime;
     }
 
     @Override
@@ -151,7 +151,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     }
 
     @Override
-    public EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Date date) {
+    public EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Instant date) {
         return deviceEventFactory.get().init(this, type, date);
     }
 
