@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -45,8 +44,8 @@ public final class TimeSeriesImpl implements TimeSeries {
 	private IntervalLengthUnit intervalLengthUnit;
 	private int offset;
 	private long version;
-	private UtcInstant createTime;
-	private UtcInstant modTime;
+	private Instant createTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 	
@@ -182,11 +181,11 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	public Instant getCreateDate() {
-		return createTime.toInstant();
+		return createTime;
 	}
 	
 	public Instant getModDate() {
-		return modTime.toInstant();
+		return modTime;
 	}
 
 	void persist() {

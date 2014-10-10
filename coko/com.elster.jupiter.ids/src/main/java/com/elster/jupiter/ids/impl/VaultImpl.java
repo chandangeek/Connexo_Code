@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
@@ -51,8 +50,8 @@ public class VaultImpl implements Vault {
     private boolean partition;
     private boolean active;
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 
@@ -91,11 +90,11 @@ public class VaultImpl implements Vault {
     }
 
     public Instant getCreateDate() {
-        return createTime.toInstant();
+        return createTime;
     }
 
     public Instant getModDate() {
-        return modTime.toInstant();
+        return modTime;
     }
 
     @Override

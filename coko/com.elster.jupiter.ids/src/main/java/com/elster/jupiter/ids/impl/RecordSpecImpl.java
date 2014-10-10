@@ -1,5 +1,6 @@
 package com.elster.jupiter.ids.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,7 +13,6 @@ import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 
@@ -24,9 +24,9 @@ public final class RecordSpecImpl implements RecordSpec {
 	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
+	private Instant createTime;
 	@SuppressWarnings("unused")
-	private UtcInstant modTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 

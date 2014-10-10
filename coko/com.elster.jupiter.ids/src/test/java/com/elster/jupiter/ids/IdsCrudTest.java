@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -78,8 +77,8 @@ public class IdsCrudTest {
     @Test
     public void testCrud() {
         IdsService idsService = injector.getInstance(IdsService.class);
-        assertThat(idsService.getVault("IDS", 1)).isPresent();
-        assertThat(idsService.getRecordSpec("IDS", 1)).isPresent();
+        assertThat(idsService.getVault("IDS", 1).isPresent()).isTrue();
+        assertThat(idsService.getRecordSpec("IDS", 1).isPresent()).isTrue();
         assertThat(idsService.getRecordSpec("IDS", 1).get().getFieldSpecs()).isNotEmpty();
         Vault vault = idsService.getVault("IDS", 1).get();
         RecordSpec recordSpec = idsService.getRecordSpec("IDS", 1).get();

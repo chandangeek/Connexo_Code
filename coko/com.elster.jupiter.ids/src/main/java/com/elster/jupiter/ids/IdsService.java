@@ -1,6 +1,6 @@
 package com.elster.jupiter.ids;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public interface IdsService {
 	public static final String COMPONENTNAME = "IDS";

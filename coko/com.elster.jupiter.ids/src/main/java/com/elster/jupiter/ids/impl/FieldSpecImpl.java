@@ -6,12 +6,13 @@ import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 
 public class FieldSpecImpl implements FieldSpec {
 	
@@ -21,9 +22,9 @@ public class FieldSpecImpl implements FieldSpec {
 	private FieldType fieldType;
 	private FieldDerivationRule derivationRule;
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
+	private Instant createTime;
 	@SuppressWarnings("unused")
-	private UtcInstant modTime;
+	private Instant modTime;
 	
 	//associations
 	private Reference<RecordSpec> recordSpec = ValueReference.absent();
