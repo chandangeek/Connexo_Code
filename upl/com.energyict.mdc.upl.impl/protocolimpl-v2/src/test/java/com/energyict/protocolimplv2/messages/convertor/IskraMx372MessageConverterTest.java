@@ -34,9 +34,9 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
         OfflineDeviceMessage offlineDeviceMessage;
 
 
-        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_LLS_SECRET);
+        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_LLS_SECRET_HEX);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<Change_LLS_Secret/>", messageEntry.getContent());
+        assertEquals("<Change_LLS_Secret LLSSecret'=\"FF00AA\"> </Change_LLS_Secret>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -137,6 +137,8 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
                 case DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeName:
                 case DeviceMessageConstants.whiteListPhoneNumbersAttributeName:
                     return "number1; number2";
+                case DeviceMessageConstants.newHexPasswordAttributeName:
+                    return "FF00AA";
                 default:
                     return "";
             }

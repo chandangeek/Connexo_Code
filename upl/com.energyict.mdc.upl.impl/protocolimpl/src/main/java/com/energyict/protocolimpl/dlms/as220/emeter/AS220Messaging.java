@@ -4,14 +4,25 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
 import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class AS220Messaging extends AbstractSubMessageProtocol {
 
@@ -83,11 +94,11 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         MessageCategorySpec otherMeterCat = new MessageCategorySpec("[03] Other");
 
         eMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false));
-        //eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(DUMMY_MESSAGE_DISPLAY, DUMMY_MESSAGE, false));
         eMeterCat.addMessageSpec(AS220IEC1107AccessController.createWriteIEC1107ClassMessageSpec(WRITE_RAW_IEC1107_CLASS_DISPLAY, WRITE_RAW_IEC1107_CLASS, true));
 
+        eMeterCat.addMessageSpec(addTimeOfUse(RtuMessageKeyIdConstants.ACTIVITYCALENDAR, ACTIVITY_CALENDAR, false));
         eMeterCat.addMessageSpec(createValueMessage(ACTIVATE_CALENDAR_DISPLAY, ACTIVATE_ACTIVITY_CALENDAR, false, ACTIVITY_CALENDAR_ACTIVATION_TIME));
         eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_THRESHOLD_DISPLAY, SET_LOADLIMIT_THRESHOLD, false, LOADLIMIT_THRESHOLD));
         eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_DURATION_DISPLAY, SET_LOADLIMIT_DURATION, false, LOADLIMIT_DURATION));
@@ -98,6 +109,30 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         categories.add(eMeterCat);
         categories.add(otherMeterCat);
         return categories;
+    }
+
+    /**
+     * Creates a MessageSpec to add ActivityCalendar functionality
+     *
+     * @param keyId    - id for the MessageSpec
+     * @param tagName  - name for the MessageSpec
+     * @param advanced - indicates whether it's an advanced message or not
+     * @return the newly created MessageSpec
+     */
+    private MessageSpec addTimeOfUse(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(CALENDAR_NAME, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(ACTIVATION_DATE, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(ACTIVITY_CALENDAR, false);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
     }
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
@@ -133,16 +168,16 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
             } else if (isMessageTag(SET_LOADLIMIT_DURATION, messageEntry)) {
                 getAs220().getLogger().info("Set LoadLimit duration received");
                 try {
-                getAs220().geteMeter().getLoadLimitController().writeThresholdOverDuration(Integer.valueOf(MessagingTools.getContentOfAttribute(messageEntry, LOADLIMIT_DURATION)));
+                    getAs220().geteMeter().getLoadLimitController().writeThresholdOverDuration(Integer.valueOf(MessagingTools.getContentOfAttribute(messageEntry, LOADLIMIT_DURATION)));
                 } catch (NumberFormatException e) {
                     throw new IOException(MessagingTools.getContentOfAttribute(messageEntry, SET_LOADLIMIT_DURATION) + " is not a valid Threshold duration.");
                 }
-            } else if (isMessageTag(SET_LOADLIMIT_THRESHOLD, messageEntry)){
+            } else if (isMessageTag(SET_LOADLIMIT_THRESHOLD, messageEntry)) {
                 getAs220().getLogger().info("Set LoadLimit threshold received");
                 long threshold = 0;
                 try {
                     threshold = Long.valueOf(MessagingTools.getContentOfAttribute(messageEntry, LOADLIMIT_THRESHOLD));
-                    if(threshold > 0xFFFFFF){
+                    if (threshold > 0xFFFFFF) {
                         threshold = 0xFFFFFF;
                     }
                 } catch (NumberFormatException e) {
@@ -150,7 +185,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
                 }
 
                 getAs220().geteMeter().getLoadLimitController().writeThresholdValue(threshold);
-            } else if (isMessageTag(WRITE_RAW_IEC1107_CLASS, messageEntry)){
+            } else if (isMessageTag(WRITE_RAW_IEC1107_CLASS, messageEntry)) {
                 getAs220().getLogger().info("Write raw EIC1107 class received");
                 new AS220IEC1107AccessController(getAs220()).executeMessage(messageEntry);
             } else if (isMessageTag(DECOMMISSION_ALL_MBUS_DEVICES_TAG, messageEntry)) {
@@ -185,7 +220,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
             try {
                 getAs220().getLogger().info("Decommissioning MBus client " + (i + 1));
                 getMbusClient(i).deinstallSlave();
-                clientsDecommissioned ++;
+                clientsDecommissioned++;
                 getAs220().getLogger().info("Successful decommissioned MBus client " + (i + 1));
             } catch (Exception e) {
                 getAs220().getLogger().info("Failed to decommission MBus client " + (i + 1) + " - probably no MBus client connected. (Error message: " + e.getMessage() + ")");
@@ -200,5 +235,50 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         } else {
             return getAs220().getCosemObjectFactory().getMbusClient(getAs220().getMeterConfig().getMbusClient(physicalAddress).getObisCode(), MbusClientAttributes.VERSION9);
         }
+    }
+
+    @Override
+    public String writeTag(final MessageTag msgTag) {
+        if (msgTag.getName().equals(ACTIVITY_CALENDAR)) {
+            StringBuilder builder = new StringBuilder();
+            addOpeningTag(builder, msgTag.getName());
+            long activationDate = 0;
+            int codeTableId = -1;
+            for (Object maObject : msgTag.getAttributes()) {
+                MessageAttribute ma = (MessageAttribute) maObject;
+                if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR_ACTIVATION_TIME)) {
+                    if (ma.getValue() != null && ma.getValue().length() != 0) {
+                        activationDate = Long.valueOf(ma.getValue());
+                    }
+                } else if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR)) {
+                    if (ma.getValue() != null && ma.getValue().length() != 0) {
+                        codeTableId = Integer.valueOf(ma.getValue());
+                    }
+                }
+            }
+
+            try {
+                String xmlContent = CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate);
+                builder.append(xmlContent);
+            } catch (ParserConfigurationException e) {
+                return null;
+            }
+            addClosingTag(builder, msgTag.getName());
+            return builder.toString();
+        } else {
+            return super.writeTag(msgTag);
+        }
+    }
+
+    private void addOpeningTag(StringBuilder builder, String tagName) {
+        builder.append("<");
+        builder.append(tagName);
+        builder.append(">");
+    }
+
+    private void addClosingTag(StringBuilder builder, String tagName) {
+        builder.append("</");
+        builder.append(tagName);
+        builder.append(">");
     }
 }

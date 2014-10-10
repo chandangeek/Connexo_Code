@@ -61,7 +61,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -165,7 +164,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     public G3Messaging(final DlmsSession session, final Class<? extends AnnotatedMessage>... messages) {
-        super(session.getLogger(), messages);
+        super(session != null ? session.getLogger() : null, messages);
         this.session = session;
     }
 

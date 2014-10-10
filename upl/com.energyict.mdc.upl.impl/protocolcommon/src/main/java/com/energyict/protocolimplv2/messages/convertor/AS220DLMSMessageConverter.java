@@ -4,6 +4,7 @@ import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -12,6 +13,7 @@ import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.AS220ActivityCalendarMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
@@ -38,8 +40,10 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
 
     static {
-
         registry.put(ActivityCalendarDeviceMessage.ACTIVATE_PASSIVE_CALENDAR, new MultipleAttributeMessageEntry("ActivatePassiveCalendar", "ActivationTime"));
+        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND, new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+
         registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("ConnectEmeter"));
         registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("DisconnectEmeter"));
         registry.put(LoadBalanceDeviceMessage.SET_LOAD_LIMIT_DURATION, new MultipleAttributeMessageEntry("SetLoadLimitDuration", "LoadLimitDuration"));
@@ -113,8 +117,11 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
+
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return dateTimeFormat.format((Date) messageAttribute);
+        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+            return convertCodeTableToXML((Code) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(normalThresholdAttributeName)

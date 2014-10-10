@@ -1,24 +1,44 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.dlms.cosem.attributeobjects.*;
-import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
+import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
+import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
+import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TimeZone;
+import java.util.TreeSet;
 
 /**
  * ActivityCalendar implementation for the AS220 Devices
@@ -161,6 +181,12 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
      * @throws java.io.IOException if a parsing exception occurred
      */
     public void parseContent(String content) throws IOException {
+        final String openingTag = "<" + AS220Messaging.ACTIVITY_CALENDAR + ">";
+        final String closingTag = "</" + AS220Messaging.ACTIVITY_CALENDAR + ">";
+        String compressedBase64Content = content.replaceFirst(openingTag, "");
+        compressedBase64Content = compressedBase64Content.replaceFirst(closingTag, "");
+        compressedBase64Content = compressedBase64Content.trim();
+        content = ProtocolTools.decompress(compressedBase64Content);
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

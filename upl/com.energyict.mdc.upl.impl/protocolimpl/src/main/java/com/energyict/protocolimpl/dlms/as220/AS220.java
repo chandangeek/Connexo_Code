@@ -115,6 +115,9 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         return geteMeter().getClockController().getTime();
     }
 
+    /**
+     * The protocol version
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }
