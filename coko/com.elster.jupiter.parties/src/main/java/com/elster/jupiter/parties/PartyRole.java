@@ -1,6 +1,6 @@
 package com.elster.jupiter.parties;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
@@ -16,5 +16,5 @@ public interface PartyRole extends IdentifiedObject {
     void setAliasName(String aliasName);
     
     List<Party> getParties();
-    List<Party> getParties(Date effectiveDate);
+    List<Party> getParties(Instant effectiveInstant);
 }

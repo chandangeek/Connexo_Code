@@ -2,7 +2,7 @@ package com.elster.jupiter.parties.impl;
 
 import static com.google.common.base.Objects.toStringHelper;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -14,7 +14,6 @@ import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 
 public class PartyInRoleImpl implements PartyInRole {
 	
@@ -22,8 +21,8 @@ public class PartyInRoleImpl implements PartyInRole {
 	private Interval interval;
 
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     private String userName;
     
     private Reference<Party> party = ValueReference.absent();
@@ -73,11 +72,11 @@ public class PartyInRoleImpl implements PartyInRole {
         return getRole().equals(other.getRole()) && getParty().equals(other.getParty()) && interval.overlaps(other.getInterval());
     }
 
-    void terminate(Date date) {
+    void terminate(Instant date) {
         if (!interval.isEffective(date)) {
             throw new IllegalArgumentException();
         }
-        interval = interval.withEnd(date);
+        interval = interval.endAt(date);
     }
 
     @Override
@@ -94,11 +93,11 @@ public class PartyInRoleImpl implements PartyInRole {
         return userName;
     }
 
-    public UtcInstant getCreateTime() {
+    public Instant getCreateTime() {
         return createTime;
     }
 
-    public UtcInstant getModTime() {
+    public Instant getModTime() {
         return modTime;
     }
 

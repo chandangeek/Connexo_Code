@@ -21,10 +21,10 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,11 +34,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import javax.validation.ConstraintViolationException;
+
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -115,21 +116,21 @@ public class PartyCrudTest {
         	assertThat(query.select(Condition.TRUE)).hasSize(1);
         	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
         	PartyRole role = partyService.getPartyRoles().get(0);
-        	organization.assumeRole(partyService.getPartyRoles().get(0),new Date());
-        	assertThat(organization.getPartyInRoles(new Date()).get(0).getRole()).isEqualTo(role);
+        	organization.assumeRole(partyService.getPartyRoles().get(0), Instant.now());
+        	assertThat(organization.getPartyInRoles(Instant.now()).get(0).getRole()).isEqualTo(role);
         	Party party = query.select(Condition.TRUE).get(0);
-        	assertThat(party.getPartyInRoles(new Date()).get(0).getRole()).isEqualTo(role);
+        	assertThat(party.getPartyInRoles(Instant.now()).get(0).getRole()).isEqualTo(role);
         	query.setLazy();
         	party = query.select(Condition.TRUE).get(0);
-        	assertThat(party.getPartyInRoles(new Date()).get(0).getRole()).isEqualTo(role);
+        	assertThat(party.getPartyInRoles(Instant.now()).get(0).getRole()).isEqualTo(role);
         	query = partyService.getPartyQuery();
         	Condition condition = Where.where("partyInRoles.interval").isEffective();
         	assertThat(query.select(condition)).isNotEmpty();
-        	query.setEffectiveDate(new Date(0));
+        	query.setEffectiveDate(Instant.EPOCH);
         	assertThat(query.select(condition)).isEmpty();
         	UserService userService = injector.getInstance(UserService.class);
         	User user = userService.findUser("admin").get();
-        	party.appointDelegate(user, new Date(0));
+        	party.appointDelegate(user, Instant.EPOCH);
         	party.save();
         	party = query.select(Condition.TRUE).get(0);
         	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
@@ -140,7 +141,7 @@ public class PartyCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
         	Optional<Party> party = getPartyService().getParty(1);
         	party.get().getCurrentDelegates().size();
-        	for (PartyInRole each : party.get().getPartyInRoles(new Date())) {
+        	for (PartyInRole each : party.get().getPartyInRoles(Instant.now())) {
         		each.getRole().getMRID();
         	}
         	context.commit();
@@ -160,10 +161,10 @@ public class PartyCrudTest {
     		Person person = getPartyService().newPerson("Frank", "Hyldmar");
         	UserService userService = injector.getInstance(UserService.class);
         	User user = userService.findUser("admin").get();
-        	person.appointDelegate(user, new Date(0));
+        	person.appointDelegate(user, Instant.EPOCH);
         	person.save();
         	assertThat(person.getCurrentDelegates()).hasSize(1);
-        	person.appointDelegate(user,new Date());
+        	person.appointDelegate(user, Instant.now());
     		context.commit();
         }
     	try (TransactionContext context = getTransactionService().getContext()) {
@@ -179,10 +180,10 @@ public class PartyCrudTest {
     	try (TransactionContext context = getTransactionService().getContext()) {
     		Organization organization = getPartyService().newOrganization("Elster");
     		PartyRole role = getPartyService().createRole("111", "222", "333", "444", "555");
-    		organization.assumeRole(role, new Date(0));
+    		organization.assumeRole(role, Instant.EPOCH);
     		organization.save();
-    		assertThat(organization.getPartyInRoles(new Date())).hasSize(1);
-    		organization.assumeRole(role, new Date());
+    		assertThat(organization.getPartyInRoles(Instant.now())).hasSize(1);
+    		organization.assumeRole(role, Instant.now());
     		context.commit();
     	}
     }
@@ -199,8 +200,8 @@ public class PartyCrudTest {
     	}
     	try (TransactionContext context = getTransactionService().getContext()) {
     		assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10); // will do sql
-    		assertThat(getPartyService().getRole("M15")).isPresent(); // should not do sql
-    		assertThat(getPartyService().getRole("M1599")).isAbsent(); // will do sql
+    		assertThat(getPartyService().getRole("M15").isPresent()).isTrue(); // should not do sql
+    		assertThat(getPartyService().getRole("M1599").isPresent()).isFalse(); // will do sql
     		context.commit();
     		assertThat(context.getStats().getSqlCount()).isEqualTo(2);
     	}

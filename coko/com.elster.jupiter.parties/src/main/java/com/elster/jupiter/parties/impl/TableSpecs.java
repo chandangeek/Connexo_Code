@@ -51,7 +51,7 @@ public enum TableSpecs {
 			table.column("PATOWNNAME").varChar(NAME_LENGTH).map("postalAddress.townDetail.name").add();
 			table.column("PATOWNSECTION").varChar(NAME_LENGTH).map("postalAddress.townDetail.section").add();
 			table.column("PATOWNSTATE").varChar(NAME_LENGTH).map("postalAddress.townDetail.stateOrProvince").add();			
-			table.column("SASTATUSDATETIME").number().conversion(NUMBER2UTCINSTANT).map("streetAddress.status.dateTime").add();
+			table.column("SASTATUSDATETIME").number().conversion(NUMBER2INSTANT).map("streetAddress.status.dateTime").add();
 			table.column("SASTATUSREASON").varChar(NAME_LENGTH).map("streetAddress.status.reason").add();
 			table.column("SASTATUSREMARK").varChar(NAME_LENGTH).map("streetAddress.status.remark").add();
 			table.column("SASTATUSVALUE").varChar(NAME_LENGTH).map("streetAddress.status.value").add();	

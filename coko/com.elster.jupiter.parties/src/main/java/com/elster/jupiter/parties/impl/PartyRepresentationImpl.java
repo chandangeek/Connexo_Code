@@ -1,5 +1,6 @@
 package com.elster.jupiter.parties.impl;
 
+import java.time.Instant;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -12,7 +13,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.Range;
 
 final class PartyRepresentationImpl implements PartyRepresentation {
 
@@ -21,9 +22,9 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
+	private Instant createTime;
 	@SuppressWarnings("unused")
-	private UtcInstant modTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 	
@@ -40,18 +41,18 @@ final class PartyRepresentationImpl implements PartyRepresentation {
     	this.userService = userService;
     }
     
-	PartyRepresentationImpl init(PartyImpl party, User delegate, Interval interval) {
+	PartyRepresentationImpl init(PartyImpl party, User delegate, Range<Instant> range) {
 		this.party.set(party);
 		this.delegateUser = Objects.requireNonNull(delegate);
 		this.delegate = delegate.getName();
-        this.interval = Objects.requireNonNull(interval);
+        this.interval = Interval.of(Objects.requireNonNull(range));
         return this;
 	}
 	
     @Override
     public User getDelegate() {
         if (delegateUser == null) {
-            delegateUser = userService.findUser(delegate).orNull();
+            delegateUser = userService.findUser(delegate).orElse(null);
         }
 		return delegateUser;
 	}
@@ -61,10 +62,10 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 		return party.get();
 	}
 
-    @Override
-    public Interval getInterval() {
-        return interval;
-    }
+	@Override
+	public Interval getInterval() {
+		return interval;
+	}
 
     @Override
     public boolean isCurrent() {
@@ -72,8 +73,8 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	}
 
     @Override
-    public void setInterval(Interval interval) {
-        this.interval = interval;
+    public void setRange(Range<Instant> range) {
+        this.interval = Interval.of(range);
     }
 
 }

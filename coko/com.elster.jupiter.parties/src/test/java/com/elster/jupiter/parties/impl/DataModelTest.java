@@ -40,11 +40,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 
@@ -112,22 +111,22 @@ public class DataModelTest {
         	assertThat(dataModel.mapper(Organization.class).find()).hasSize(1);
         	assertThat(dataModel.mapper(Person.class).find()).hasSize(0);
         	long id = organization.getId();
-        	assertThat(dataModel.mapper(Party.class).getOptional(id)).isPresent();
-        	assertThat(dataModel.mapper(Organization.class).getOptional(id)).isPresent();
-        	assertThat(dataModel.mapper(Person.class).getOptional(id)).isAbsent();
-        	assertThat(dataModel.mapper(Party.class).getEager(id)).isPresent();
-        	assertThat(dataModel.mapper(Organization.class).getEager(id)).isPresent();
-        	assertThat(dataModel.mapper(Person.class).getEager(id)).isAbsent();
+        	assertThat(dataModel.mapper(Party.class).getOptional(id).isPresent()).isTrue();
+        	assertThat(dataModel.mapper(Organization.class).getOptional(id).isPresent()).isTrue();
+        	assertThat(dataModel.mapper(Person.class).getOptional(id).isPresent()).isFalse();
+        	assertThat(dataModel.mapper(Party.class).getEager(id).isPresent()).isTrue();
+        	assertThat(dataModel.mapper(Organization.class).getEager(id).isPresent()).isTrue();
+        	assertThat(dataModel.mapper(Person.class).getEager(id).isPresent()).isFalse();
         	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
         	PartyRole role = partyService.getPartyRoles().get(0);
-        	organization.assumeRole(role,new Date());
+        	organization.assumeRole(role, Instant.now());
         	Condition condition = Where.where("party.description").isEqualTo(organization.getDescription());
         	assertThat(dataModel.query(PartyInRole.class, Party.class).select(condition,Order.ascending("party"))).hasSize(1);
         	assertThat(dataModel.mapper(Party.class).find("description", organization.getDescription(),Order.descending("description"))).hasSize(1);
         	User user = injector.getInstance(UserService.class).findUser("admin").get();
-        	Date start = new Date();
+        	Instant start = Instant.now();
         	PartyRepresentation representation = organization.appointDelegate(user, start);
-        	representation = dataModel.mapper(PartyRepresentation.class).getOptional(user.getName(),organization.getId(),start.getTime()).get();
+        	representation = dataModel.mapper(PartyRepresentation.class).getOptional(user.getName(),organization.getId(),start.toEpochMilli()).get();
         	dataModel.touch(representation);
         	context.commit();
         }
@@ -165,15 +164,15 @@ public class DataModelTest {
          	assertThat(person.getUserName()).isNull();
          	assertThat(person.getVersion()).isEqualTo(0);
          	person.save();
-         	Date now = new Date();
-         	assertThat(person.getCreateTime()).isBeforeOrEqualsTo(now);
-         	assertThat(person.getModTime()).isBeforeOrEqualsTo(now);
+         	Instant now = Instant.now();
+         	assertThat(person.getCreateTime().isAfter(now)).isFalse();
+         	assertThat(person.getModTime().isAfter(now)).isFalse();
          	assertThat(person.getUserName()).isNotNull();
         	assertThat(person.getVersion()).isEqualTo(1);
          	person.setAliasName("xxxx");
          	person.save();
-         	assertThat(person.getCreateTime()).isBeforeOrEqualsTo(now);
-         	assertThat(person.getModTime()).isAfterOrEqualsTo(now);
+         	assertThat(person.getCreateTime().isAfter(now)).isFalse();
+         	assertThat(person.getModTime().isBefore(now)).isFalse();
          	assertThat(person.getVersion()).isEqualTo(2);
         }
     }
