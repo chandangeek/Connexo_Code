@@ -21,4 +21,9 @@ public interface Privileges {
     String EXECUTE_COM_TASK_3 = "execute.com.task.level3";
     String EXECUTE_COM_TASK_4 = "execute.com.task.level4";
 
+    String EXECUTE_DEVICE_MESSAGE_1 = "execute.device.message.1";
+    String EXECUTE_DEVICE_MESSAGE_2 = "execute.device.message.2";
+    String EXECUTE_DEVICE_MESSAGE_3 = "execute.device.message.3";
+    String EXECUTE_DEVICE_MESSAGE_4 = "execute.device.message.4";
+
 }
