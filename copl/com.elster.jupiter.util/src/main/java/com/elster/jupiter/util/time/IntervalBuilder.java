@@ -1,5 +1,6 @@
 package com.elster.jupiter.util.time;
 
+import java.time.Instant;
 import java.util.Date;
 
 public final class IntervalBuilder {
@@ -13,6 +14,10 @@ public final class IntervalBuilder {
 		if (latest == null || when.after(latest)) {
 			latest = when;
 		}
+	}
+	
+	public void add(Instant instant) {
+		add(Date.from(instant));
 	}
 	
 	public void add(Date when, long length) {

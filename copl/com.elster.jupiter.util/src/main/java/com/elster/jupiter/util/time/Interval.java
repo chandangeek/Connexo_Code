@@ -90,7 +90,7 @@ public final class Interval {
      * @return true if the current time according to the given Clock is contained in this Interval.
      */
 	public boolean isCurrent(Clock clock) {
-		long now = clock.now().getTime();
+		long now = clock.instant().toEpochMilli();
 		return contains(now,EndpointBehavior.CLOSED_OPEN);
 	}
 	
@@ -118,7 +118,7 @@ public final class Interval {
 		return (start == -ETERNITY) ?
 			(end == ETERNITY ? Range.all() : Range.atMost(Instant.ofEpochMilli(end))) :
 			(end == ETERNITY ? 
-					Range.greaterThan(Instant.ofEpochMilli(start)) :
+					Range.atLeast(Instant.ofEpochMilli(start)) :
 					Range.closedOpen(Instant.ofEpochMilli(start), Instant.ofEpochMilli(this.end)));
 	}
 	

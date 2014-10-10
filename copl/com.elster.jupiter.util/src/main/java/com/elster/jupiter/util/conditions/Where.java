@@ -133,12 +133,12 @@ public final class Where {
     }
 
     public Condition isEffective(Range<Instant> range) {
+    	// for isEffective we know the interval has to interpreted as closedOpen
     	Condition result = Condition.TRUE;
     	if (range.hasLowerBound()) {
-    		boolean open = range.lowerBoundType().equals(BoundType.OPEN);
     		Where end = Where.where(field + ".end");
     		long endpoint = range.lowerEndpoint().toEpochMilli();
-            result = result.and(open ? end.isGreaterThan(endpoint) : end.isGreaterThanOrEqual(endpoint));
+            result = result.and(end.isGreaterThan(endpoint));
     	}
     	if (range.hasUpperBound()) {
     		boolean open = range.upperBoundType().equals(BoundType.OPEN);
