@@ -108,6 +108,8 @@ Ext.define('Uni.Loader', {
         me.loadStateManager();
         me.loadStores();
         me.loadVtypes();
+
+        callback();
     },
 
     loadFont: function () {
