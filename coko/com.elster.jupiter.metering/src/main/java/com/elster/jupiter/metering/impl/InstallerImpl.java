@@ -22,13 +22,17 @@ import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
-import org.joda.time.MutableDateTime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.time.Instant;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -159,15 +163,15 @@ public class InstallerImpl {
         }
     }
 
+    private Instant toInstant(YearMonth yearMonth) {
+    	return yearMonth.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    }
     private void createPartitions(Vault vault) {
-        MutableDateTime startOfMonth = new MutableDateTime();
-        startOfMonth.setMillisOfDay(0);
-        startOfMonth.setMonthOfYear(1);
-        startOfMonth.setDayOfMonth(1);
-        vault.activate(startOfMonth.toDate().toInstant());
-        for (int i = 0; i < MONTHS_PER_YEAR; i++) {
-            startOfMonth.addMonths(1);
-            vault.addPartition(startOfMonth.toDate().toInstant());
+    	YearMonth start = YearMonth.now();
+    	vault.activate(toInstant(start));
+        for (int i = 1; i <= MONTHS_PER_YEAR; i++) {
+            YearMonth yearMonth = start.plusMonths(i);
+            vault.addPartition(toInstant(yearMonth));
         }
     }
 

@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
@@ -96,7 +97,7 @@ public abstract class AbstractBaseReadingImplTest {
 				return new ChannelBuilderImpl(dataModel, channelFactory);
 			}
         };
-        meterActivation = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder).init(meter, null, new Date(0));
+        meterActivation = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder).init(meter, null, Instant.EPOCH);
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_PRIMARY_METERED)
         		.measure(MeasurementKind.ENERGY)
         		.in(MetricMultiplier.KILO,ReadingTypeUnit.WATTHOUR)

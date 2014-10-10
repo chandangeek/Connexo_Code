@@ -25,6 +25,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
@@ -42,7 +45,7 @@ public class MeterActivationImplTest {
     private static final String MRID2 = "13.2.2.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID3 = "13.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID4 = "13.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
-    private static final Date ACTIVATION_TIME = new DateTime(1984, 11, 5, 13, 37, 3, 14).toDate();
+    private static final Instant ACTIVATION_TIME = ZonedDateTime.of(1984, 11, 5, 13, 37, 3, 14_000_000, ZoneId.systemDefault()).toInstant();
     private static final long USAGEPOINT_ID = 6546L;
     private static final long METER_ID = 46335L;
     private static final Date END = new DateTime(2166, 8, 6, 8, 35, 0, 0).toDate();
@@ -123,7 +126,7 @@ public class MeterActivationImplTest {
 
     @Test
     public void testCreationRemembersStartDate() {
-        assertThat(meterActivation.getStart()).isEqualTo(ACTIVATION_TIME);
+        assertThat(meterActivation.getStart().toInstant()).isEqualTo(ACTIVATION_TIME);
     }
 
     @Test

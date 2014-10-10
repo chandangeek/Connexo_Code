@@ -58,18 +58,18 @@ public class MeterActivationImpl implements MeterActivation {
         this.channelBuilder = channelBuilder;
     }
 	
-	MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Date start ) {
+	MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Instant start ) {
 		this.meter.set(meter);
 		this.usagePoint.set(usagePoint);
 		this.interval = Interval.startAt(start);
         return this;
 	}
 	
-	MeterActivationImpl init(Meter meter , Date start ) {
+	MeterActivationImpl init(Meter meter , Instant start ) {
         return init(meter,null,start);
 	}
 	
-	MeterActivationImpl init(UsagePoint usagePoint , Date start ) {
+	MeterActivationImpl init(UsagePoint usagePoint , Instant start ) {
 		return init(null,usagePoint,start);
 	}
 	

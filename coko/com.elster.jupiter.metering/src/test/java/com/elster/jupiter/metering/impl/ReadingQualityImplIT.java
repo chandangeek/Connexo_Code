@@ -52,6 +52,9 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -125,7 +128,7 @@ public class ReadingQualityImplIT {
                 when(topicHandler.getClasses()).thenReturn(new Class[]{LocalEventImpl.class});
                 ((PublisherImpl) injector.getInstance(Publisher.class)).addHandler(topicHandler);
 
-                Date date = new DateMidnight(2001, 1, 1).toDate();
+                Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
                 doTest(getMeteringService(), date);
 
                 ArgumentCaptor<LocalEvent> localEventCapture = ArgumentCaptor.forClass(LocalEvent.class);
@@ -147,7 +150,7 @@ public class ReadingQualityImplIT {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                Date date = new DateMidnight(2001, 1, 1).toDate();
+                Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
                 ReadingQualityRecord readingQuality = doTest(getMeteringService(), date);
 
                 when(topicHandler.getClasses()).thenReturn(new Class[]{LocalEventImpl.class});
@@ -177,7 +180,7 @@ public class ReadingQualityImplIT {
         return injector.getInstance(TransactionService.class);
     }
 
-    private ReadingQualityRecord doTest(MeteringService meteringService, Date date) {
+    private ReadingQualityRecord doTest(MeteringService meteringService, Instant date) {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
         usagePoint.save();
@@ -185,7 +188,7 @@ public class ReadingQualityImplIT {
         MeterActivation meterActivation = usagePoint.activate(date);
         Channel channel = meterActivation.createChannel(readingType);
         ReadingStorer regularStorer = meteringService.createNonOverrulingStorer();
-        regularStorer.addReading(channel, new IntervalReadingImpl(date,BigDecimal.valueOf(561561, 2)));
+        regularStorer.addReading(channel, new IntervalReadingImpl(Date.from(date),BigDecimal.valueOf(561561, 2)));
         regularStorer.execute();
         BaseReadingRecord reading = channel.getReading(date).get();
         ReadingQualityRecord readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), reading);

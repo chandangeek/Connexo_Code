@@ -8,6 +8,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +52,7 @@ public class UsagePointImplTest {
     private static final String DESCRIPTION = "description";
     private static final String NAME = "name";
     private static final long ID = 1457L;
-    private static final Date START = new DateTime(2013, 9, 18, 13, 16, 45).toDate();
+    private static final Instant START = ZonedDateTime.of(2013, 9, 18, 13, 16, 45, 0, ZoneId.systemDefault()).toInstant();
 
     private UsagePointImpl usagePoint;
 

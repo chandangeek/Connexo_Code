@@ -34,7 +34,7 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
         this.clock = clock;
     }
 	
-	UsagePointAccountabilityImpl init(UsagePoint usagePoint , Party party , PartyRole role , Date start) {
+	UsagePointAccountabilityImpl init(UsagePoint usagePoint , Party party , PartyRole role , Instant start) {
 		this.usagePoint.set(usagePoint);
 		this.party.set(party);
 		this.role.set(role);

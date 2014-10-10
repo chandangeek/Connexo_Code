@@ -3,6 +3,8 @@ package com.elster.jupiter.metering.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -105,7 +107,7 @@ public class MeterActivationImplIT {
         	AmrSystem system = meteringService.findAmrSystem(1).get();
         	Meter meter = system.newMeter("1");
         	meter.save();
-        	MeterActivation meterActivation = meter.activate(new DateTime(2012, 12, 19, 14, 15, 54, 0).toDate());
+        	MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
         	ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             Channel channel = meterActivation.createChannel(readingType);
             MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
