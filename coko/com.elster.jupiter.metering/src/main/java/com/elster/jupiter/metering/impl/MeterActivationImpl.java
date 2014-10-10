@@ -23,7 +23,6 @@ import javax.inject.Provider;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -98,16 +97,6 @@ public class MeterActivationImpl implements MeterActivation {
         return Collections.unmodifiableList(channels);
     }
 
-    @Override
-	public Date getStart() {
-		return interval.getStart();
-	}
-
-	@Override
-	public Date getEnd() {
-		return interval.getEnd();
-	}
-
 	@Override
 	public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
 		//TODO: check for duplicate channel
@@ -145,7 +134,7 @@ public class MeterActivationImpl implements MeterActivation {
     }
 
 	@Override
-	public List<BaseReadingRecord> getReadingsBefore(Date when, ReadingType readingType, int count) {
+	public List<BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
         Channel channel = getChannel(readingType);
         if (channel == null) {
         	return Collections.emptyList();
@@ -155,7 +144,7 @@ public class MeterActivationImpl implements MeterActivation {
     }
 
 	@Override
-	public List<BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
+	public List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType, int count) {
         Channel channel = getChannel(readingType);
         if (channel == null) {
         	return Collections.emptyList();
@@ -183,17 +172,13 @@ public class MeterActivationImpl implements MeterActivation {
 		return interval.isCurrent(clock);
 	}
 	
-	public boolean isEffective(Date when) {
-		return interval.isEffective(when);
-	}
-
     @Override
     public long getVersion() {
         return version;
     }
 
     @Override
-    public void endAt(Date end) {
+    public void endAt(Instant end) {
         this.interval = interval.withEnd(end);
         save();
     }

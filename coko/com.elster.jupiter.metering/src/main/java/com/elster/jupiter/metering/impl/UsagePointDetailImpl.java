@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 import static com.google.common.base.Objects.toStringHelper;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 
@@ -150,7 +149,7 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         return toStringHelper(this).add("usagePoint", usagePoint).add("interval", interval).toString();
     }
 
-    void terminate(Date date) {
+    void terminate(Instant date) {
         if (!interval.isEffective(date)) {
             throw new IllegalArgumentException();
         }

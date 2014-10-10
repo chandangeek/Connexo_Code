@@ -2,7 +2,6 @@ package com.elster.jupiter.metering;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.Date;
 
 public interface ReadingQualityRecord extends com.elster.jupiter.metering.readings.ReadingQuality {
 

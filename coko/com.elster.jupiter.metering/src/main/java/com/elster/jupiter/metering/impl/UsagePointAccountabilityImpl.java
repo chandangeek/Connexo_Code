@@ -12,7 +12,6 @@ import com.elster.jupiter.util.time.Interval;
 import javax.inject.Inject;
 
 import java.time.Instant;
-import java.util.Date;
 
 public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	
@@ -87,22 +86,8 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	}
 
 	@Override
-	public Date getStart() {
-		return interval.getStart();
-	}
-
-	@Override
-	public Date getEnd() {
-		return interval.getEnd();
-	}
-
-	@Override
 	public boolean isCurrent() {
 		return interval.isCurrent(clock);
 	}
 	
-	@Override
-	public boolean isEffective(Date when) {
-		return interval.isEffective(when);
-	}
 }

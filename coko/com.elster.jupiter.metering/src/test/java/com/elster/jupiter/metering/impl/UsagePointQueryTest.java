@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
@@ -184,7 +183,7 @@ public class UsagePointQueryTest {
         usagePoint.addAccountability(role, party, Instant.now());
         assertThat(query.select(meteringService.hasAccountability())).isNotEmpty();
         assertThat(query.select(Condition.TRUE, Order.descending("mRID").toUpperCase(),Order.ascending("id")).get(0).getMRID()).isEqualTo("mrID9");
-        assertThat(usagePoint.getCustomer(new Date()).get().getMRID()).isEqualTo("Electrabel");
+        assertThat(usagePoint.getCustomer(Instant.now()).get().getMRID()).isEqualTo("Electrabel");
      }
 
 }

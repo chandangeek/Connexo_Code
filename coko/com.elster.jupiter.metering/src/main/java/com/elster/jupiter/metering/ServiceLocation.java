@@ -8,7 +8,6 @@ import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.util.geo.Position;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 public interface ServiceLocation extends IdentifiedObject {

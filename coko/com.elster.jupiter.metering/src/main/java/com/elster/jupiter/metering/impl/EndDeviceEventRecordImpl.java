@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -66,9 +65,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     
     @SuppressWarnings("unused")
 	private long version;
-    @SuppressWarnings("unused")
     private Instant createTime;
-    @SuppressWarnings("unused")
     private Instant modTime;
     private String userName;
 

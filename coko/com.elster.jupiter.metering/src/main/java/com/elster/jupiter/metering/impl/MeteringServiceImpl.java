@@ -35,8 +35,12 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
+
+import java.time.Instant;
 import java.util.Optional;
+
 import com.google.inject.AbstractModule;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -44,8 +48,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
@@ -276,11 +280,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     @Override
     public Condition hasAccountability() {
-        return hasAccountability(clock.now());
+        return hasAccountability(clock.instant());
     }
 
     @Override
-    public Condition hasAccountability(Date when) {
+    public Condition hasAccountability(Instant when) {
         return
                 Where.where("accountabilities.interval").isEffective(when).and(
                         Where.where("accountabilities.party.representations.interval").isEffective(when).and(

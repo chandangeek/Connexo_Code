@@ -14,7 +14,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,12 +28,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Optional;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.*;
 
@@ -48,7 +45,7 @@ public class MeterActivationImplTest {
     private static final Instant ACTIVATION_TIME = ZonedDateTime.of(1984, 11, 5, 13, 37, 3, 14_000_000, ZoneId.systemDefault()).toInstant();
     private static final long USAGEPOINT_ID = 6546L;
     private static final long METER_ID = 46335L;
-    private static final Date END = new DateTime(2166, 8, 6, 8, 35, 0, 0).toDate();
+    private static final Instant END = ZonedDateTime.of(2166, 8, 6, 8, 35, 0, 0, ZoneId.systemDefault()).toInstant();
     private static final long ID = 154177L;
 
     private MeterActivationImpl meterActivation;
@@ -126,7 +123,7 @@ public class MeterActivationImplTest {
 
     @Test
     public void testCreationRemembersStartDate() {
-        assertThat(meterActivation.getStart().toInstant()).isEqualTo(ACTIVATION_TIME);
+        assertThat(meterActivation.getRange().lowerEndpoint()).isEqualTo(ACTIVATION_TIME);
     }
 
     @Test
@@ -137,7 +134,7 @@ public class MeterActivationImplTest {
 
         verify(dataModel.mapper(MeterActivation.class)).update(meterActivation);
 
-        assertThat(meterActivation.getEnd()).isEqualTo(END);
+        assertThat(meterActivation.getRange().upperEndpoint()).isEqualTo(END);
     }
 
 
