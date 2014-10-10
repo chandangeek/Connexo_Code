@@ -11,10 +11,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.UtilModule;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,8 +27,8 @@ import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -92,7 +92,7 @@ public class UserDirectoryIT {
         }
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         UserDirectory userDirectory = found.get();
         assertThat(userDirectory).isInstanceOf(InternalDirectoryImpl.class);
@@ -115,7 +115,7 @@ public class UserDirectoryIT {
         }
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         UserDirectory userDirectory = found.get();
         assertThat(userDirectory).isInstanceOf(ActiveDirectoryImpl.class);
@@ -141,7 +141,7 @@ public class UserDirectoryIT {
         }
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         UserDirectory userDirectory = found.get();
         assertThat(userDirectory).isInstanceOf(ApacheDirectoryImpl.class);
@@ -175,7 +175,7 @@ public class UserDirectoryIT {
 
         Optional<UserDirectory> found = userService.findUserDirectory("LDAP Active Directory");
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         UserDirectory userDirectory = found.get();
         assertThat(userDirectory).isInstanceOf(ActiveDirectoryImpl.class);
@@ -210,7 +210,7 @@ public class UserDirectoryIT {
 
         Optional<UserDirectory> found = userService.findUserDirectory("LDAP Apache Directory");
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         UserDirectory userDirectory = found.get();
         assertThat(userDirectory).isInstanceOf(ApacheDirectoryImpl.class);

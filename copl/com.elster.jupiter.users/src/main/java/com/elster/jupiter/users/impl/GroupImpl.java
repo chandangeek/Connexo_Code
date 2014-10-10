@@ -1,23 +1,22 @@
 package com.elster.jupiter.users.impl;
 
+import static com.elster.jupiter.util.Checks.is;
+
+import java.time.Instant;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.To;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-
-import static com.elster.jupiter.util.Checks.is;
 
 
 final class GroupImpl implements Group , PersistenceAware {
@@ -25,8 +24,8 @@ final class GroupImpl implements Group , PersistenceAware {
 	private long id;
 	private String name;
 	private long version;
-	private UtcInstant createTime;
-	private UtcInstant modTime;
+	private Instant createTime;
+	private Instant modTime;
 	
 	//transient fields
 	private List<PrivilegeInGroup> privilegeInGroups;
@@ -118,13 +117,13 @@ final class GroupImpl implements Group , PersistenceAware {
     }
 
     @Override
-    public Date getCreationDate() {
-        return createTime.toDate();
+    public Instant getCreationDate() {
+        return createTime;
     }
 
     @Override
-    public Date getModifiedDate() {
-        return modTime.toDate();
+    public Instant getModifiedDate() {
+        return modTime;
     }
 
     @Override

@@ -1,13 +1,13 @@
 package com.elster.jupiter.users;
 
-import com.elster.jupiter.util.HasName;
-import com.google.common.base.Optional;
-
 import java.security.Principal;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import com.elster.jupiter.util.HasName;
+import java.util.Optional;
 
 public interface User extends Principal, HasName {
 
@@ -66,7 +66,7 @@ public interface User extends Principal, HasName {
 
     String getLanguage();
 
-    Date getCreationDate();
+    Instant getCreationDate();
 
-    Date getModifiedDate();
+    Instant getModifiedDate();
 }

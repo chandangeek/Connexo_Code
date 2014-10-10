@@ -3,9 +3,10 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
+
+import java.time.Instant;
 import java.util.List;
 
 public class ResourceImpl implements Resource {
@@ -15,7 +16,7 @@ public class ResourceImpl implements Resource {
     private String name;
     private String description;
     @SuppressWarnings("unused")
-    private UtcInstant createTime;
+    private Instant createTime;
     private final DataModel dataModel;
 
     private List<Privilege> privileges;

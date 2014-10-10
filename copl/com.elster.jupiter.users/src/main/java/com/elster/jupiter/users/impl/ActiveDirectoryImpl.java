@@ -4,17 +4,17 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
-
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,7 +82,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             new InitialDirContext(env);
             return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
         } catch (NamingException e) {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

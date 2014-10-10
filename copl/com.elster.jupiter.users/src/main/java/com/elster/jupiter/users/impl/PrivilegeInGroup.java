@@ -1,9 +1,10 @@
 package com.elster.jupiter.users.impl;
 
+import java.time.Instant;
+
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 
@@ -12,7 +13,7 @@ class PrivilegeInGroup {
 	private long groupId;
 	private String privilegeName;
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
+	private Instant createTime;
 	
 	// associations
 	private Privilege privilege;

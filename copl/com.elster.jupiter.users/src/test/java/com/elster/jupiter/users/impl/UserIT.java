@@ -13,10 +13,10 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +28,8 @@ import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Optional;
 
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -95,10 +95,10 @@ public class UserIT {
                 user.save();
 
                 Optional<User> found = userService.findUser("authName");
-                assertThat(found).contains(user);
+                assertThat(found.get()).isEqualTo(user);
                 assertThat(found.get().getDescription()).isEqualTo("description");
                 assertThat(found.get().check("password")).isTrue();
-                assertThat(found.get().getLocale()).contains(Locale.CANADA_FRENCH);
+                assertThat(found.get().getLocale().get()).isEqualTo(Locale.CANADA_FRENCH);
             }
         });
     }

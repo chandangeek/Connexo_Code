@@ -1,7 +1,6 @@
 package com.elster.jupiter.users.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
@@ -96,7 +95,7 @@ public class UserServiceImplTest {
             User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false);
     		user.save();
 
-    		assertThat(userService.findUser(AUTH_NAME)).isPresent();
+    		assertThat(userService.findUser(AUTH_NAME).isPresent()).isTrue();
     		// skip ctx.commit()
     	}
 

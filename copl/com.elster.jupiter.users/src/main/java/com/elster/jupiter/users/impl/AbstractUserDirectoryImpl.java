@@ -3,9 +3,9 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
+import java.time.Instant;
 import java.util.Map;
 
 public abstract class AbstractUserDirectoryImpl implements UserDirectory {
@@ -14,8 +14,8 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     private boolean isDefault;
     protected final DataModel dataModel;
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 

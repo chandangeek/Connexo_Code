@@ -1,7 +1,5 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.orm.DataModel;
-
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

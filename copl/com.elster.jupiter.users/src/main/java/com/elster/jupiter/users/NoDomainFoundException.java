@@ -2,7 +2,6 @@ package com.elster.jupiter.users;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 public class NoDomainFoundException extends LocalizedException {
 

@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.naming.Context;
@@ -14,9 +13,11 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 
 public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     static String TYPE_IDENTIFIER = "APD";
@@ -74,7 +75,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             new InitialDirContext(env);
             return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
         } catch (NamingException e) {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 }

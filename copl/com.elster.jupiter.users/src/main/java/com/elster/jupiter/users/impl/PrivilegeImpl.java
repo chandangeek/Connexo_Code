@@ -5,16 +5,12 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.util.time.UtcInstant;
-
 import javax.inject.Inject;
 
 class PrivilegeImpl implements Privilege {
 	// persistent fields
 	private String name;
     private Reference<Resource> resource = ValueReference.absent();
-	@SuppressWarnings("unused")
 	private final DataModel dataModel;
 
 	@Inject

@@ -1,9 +1,7 @@
 package com.elster.jupiter.users;
 
-import com.elster.jupiter.users.impl.UserImpl;
-import com.google.common.base.Optional;
-
 import java.util.List;
+import java.util.Optional;
 
 public interface UserDirectory {
     public List<Group> getGroups(User user);
@@ -19,5 +17,5 @@ public interface UserDirectory {
 
     void save();
 
-    UserImpl newUser(String userName, String description, boolean allowPwdChange);
+    User newUser(String userName, String description, boolean allowPwdChange);
 }

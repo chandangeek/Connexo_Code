@@ -4,10 +4,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+
 import java.util.List;
+import java.util.Optional;
 
 public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
 
@@ -43,7 +44,7 @@ public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
             return found;
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private boolean checkPassword(User user, String name, String password) {

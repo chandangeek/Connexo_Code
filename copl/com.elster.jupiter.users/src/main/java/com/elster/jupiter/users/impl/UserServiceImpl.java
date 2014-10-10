@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.Module;
 import com.elster.jupiter.users.NoDefaultDomainException;
 import com.elster.jupiter.users.NoDomainFoundException;
@@ -22,8 +21,8 @@ import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -31,9 +30,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -107,13 +108,13 @@ public class UserServiceImpl implements UserService, InstallService {
     @Override
     public Optional<User> authenticateBase64(String base64) {
         if (base64 == null || base64.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         String plainText = new String(DatatypeConverter.parseBase64Binary(base64));
         String[] names = plainText.split(":");
 
         if (names.length <= 1) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         String domain = null;
@@ -199,21 +200,21 @@ public class UserServiceImpl implements UserService, InstallService {
                 return Optional.of(group);
             }
         }
-        return Optional.<Group>absent();
+        return Optional.empty();
     }
 
     @Override
     public Optional<Resource> findResource(String name) {
         Condition condition = Operator.EQUALIGNORECASE.compare("name", name);
         List<Resource> resources = dataModel.query(Resource.class).select(condition);
-        return resources.isEmpty() ? Optional.<Resource>absent() : Optional.of(resources.get(0));
+        return resources.isEmpty() ? Optional.empty() : Optional.of(resources.get(0));
     }
 
     @Override
     public Optional<User> findUser(String authenticationName) {
         Condition condition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
         List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
-        return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));
+        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     @Override
@@ -343,17 +344,17 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public UserDirectory createInternalDirectory(String domain) {
+    public InternalDirectoryImpl createInternalDirectory(String domain) {
         return InternalDirectoryImpl.from(dataModel, domain);
     }
 
     @Override
-    public LdapUserDirectory createActiveDirectory(String domain) {
+    public ActiveDirectoryImpl createActiveDirectory(String domain) {
         return ActiveDirectoryImpl.from(dataModel, domain);
     }
 
     @Override
-    public LdapUserDirectory createApacheDirectory(String domain) {
+    public ApacheDirectoryImpl createApacheDirectory(String domain) {
         return ApacheDirectoryImpl.from(dataModel, domain);
     }
 

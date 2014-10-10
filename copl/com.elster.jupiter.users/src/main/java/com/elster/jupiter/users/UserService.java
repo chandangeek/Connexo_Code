@@ -1,9 +1,9 @@
 package com.elster.jupiter.users;
 
 import com.elster.jupiter.domain.util.Query;
-import com.google.common.base.Optional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
 

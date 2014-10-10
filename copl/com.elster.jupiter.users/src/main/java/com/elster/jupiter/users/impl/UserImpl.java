@@ -7,12 +7,11 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 
+import java.time.Instant;
 import java.util.*;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -26,8 +25,8 @@ public class UserImpl implements User {
     private String description;
     private String ha1;
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     private String languageTag;
     private Reference<UserDirectory> userDirectory = ValueReference.absent();
 
@@ -173,12 +172,12 @@ public class UserImpl implements User {
         }
     }
 
-    public Date getCreateDate() {
-        return createTime.toDate();
+    public Instant getCreateDate() {
+        return createTime;
     }
 
-    public Date getModificationDate() {
-        return modTime.toDate();
+    public Instant getModificationDate() {
+        return modTime;
     }
 
     public long getVersion() {
@@ -251,7 +250,7 @@ public class UserImpl implements User {
     @Override
     public Optional<Locale> getLocale() {
         if (languageTag == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
         return Optional.of(Locale.forLanguageTag(languageTag));
     }
@@ -283,12 +282,12 @@ public class UserImpl implements User {
     }
 
     @Override
-    public Date getCreationDate() {
-        return createTime.toDate();
+    public Instant getCreationDate() {
+        return createTime;
     }
 
     @Override
-    public Date getModifiedDate() {
-        return modTime.toDate();
+    public Instant getModifiedDate() {
+        return modTime;
     }
 }
