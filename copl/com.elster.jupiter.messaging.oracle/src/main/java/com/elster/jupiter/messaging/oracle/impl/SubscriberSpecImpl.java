@@ -7,17 +7,20 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.UtcInstant;
+
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
+
 import org.joda.time.Seconds;
 
 import javax.inject.Inject;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,17 +40,15 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
-    private UtcInstant createTime;
+    private Instant createTime;
     @SuppressWarnings("unused")
-    private UtcInstant modTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 
     private final Reference<DestinationSpec> destination = ValueReference.absent();
 
     private final Collection<OracleConnection> cancellableConnections = Collections.synchronizedSet(new HashSet<OracleConnection>());
-
-    private final Object cancelLock = new Object();
 
     private final DataModel dataModel;
 

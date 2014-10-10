@@ -8,7 +8,7 @@ import com.elster.jupiter.security.thread.RunAs;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import oracle.jdbc.aq.AQMessage;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;

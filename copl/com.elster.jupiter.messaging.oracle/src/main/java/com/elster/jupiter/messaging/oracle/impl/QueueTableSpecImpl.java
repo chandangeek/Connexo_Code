@@ -7,7 +7,7 @@ import com.elster.jupiter.messaging.UnderlyingJmsException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.time.UtcInstant;
+
 import oracle.AQ.AQException;
 import oracle.AQ.AQQueueTable;
 import oracle.AQ.AQQueueTableProperty;
@@ -18,9 +18,11 @@ import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
 
 
 public class QueueTableSpecImpl implements QueueTableSpec {
@@ -34,9 +36,9 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
-    private UtcInstant createTime;
+    private Instant createTime;
     @SuppressWarnings("unused")
-    private UtcInstant modTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 

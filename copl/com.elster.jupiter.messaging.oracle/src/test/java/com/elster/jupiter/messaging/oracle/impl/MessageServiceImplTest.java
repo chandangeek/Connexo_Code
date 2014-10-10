@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import oracle.jdbc.OracleConnection;
 import org.junit.After;
 import org.junit.Before;
@@ -23,7 +23,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -105,42 +104,42 @@ public class MessageServiceImplTest {
     public void testGetQueueTableSpec() {
         when(queueTableSpecFactory.getOptional(QTS)).thenReturn(Optional.of(queueTableSpec));
 
-        assertThat(messageService.getQueueTableSpec(QTS)).contains(queueTableSpec);
+        assertThat(messageService.getQueueTableSpec(QTS).get()).isEqualTo(queueTableSpec);
     }
 
     @Test
     public void testGetQueueTableSpecNotExists() {
-        when(queueTableSpecFactory.getOptional(QTS)).thenReturn(Optional.<QueueTableSpec>absent());
+        when(queueTableSpecFactory.getOptional(QTS)).thenReturn(Optional.empty());
 
-        assertThat(messageService.getQueueTableSpec(QTS)).isAbsent();
+        assertThat(messageService.getQueueTableSpec(QTS).isPresent()).isFalse();
     }
 
     @Test
     public void testGetDestinationSpec() {
         when(destinationSpecFactory.getOptional(DESTINATION)).thenReturn(Optional.of(destination));
 
-        assertThat(messageService.getDestinationSpec(DESTINATION)).contains(destination);
+        assertThat(messageService.getDestinationSpec(DESTINATION).get()).isEqualTo(destination);
     }
 
     @Test
     public void testGetDestinationSpecNotExists() {
-        when(destinationSpecFactory.getOptional(DESTINATION)).thenReturn(Optional.<DestinationSpec>absent());
+        when(destinationSpecFactory.getOptional(DESTINATION)).thenReturn(Optional.empty());
 
-        assertThat(messageService.getDestinationSpec(DESTINATION)).isAbsent();
+        assertThat(messageService.getDestinationSpec(DESTINATION).isPresent()).isFalse();
     }
 
     @Test
     public void testGetSubscriberSpec() {
         when(subscriberSpecFactory.getOptional(DESTINATION, SUBSCRIBER)).thenReturn(Optional.of(subscriberSpec));
 
-        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER)).contains(subscriberSpec);
+        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).get()).isEqualTo(subscriberSpec);
     }
 
     @Test
     public void testGetSubscriberSpecNotExists() {
-        when(subscriberSpecFactory.getOptional(DESTINATION, SUBSCRIBER)).thenReturn(Optional.<SubscriberSpec>absent());
+        when(subscriberSpecFactory.getOptional(DESTINATION, SUBSCRIBER)).thenReturn(Optional.empty());
 
-        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER)).isAbsent();
+        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).isPresent()).isFalse();
     }
 
 }

@@ -12,7 +12,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
 import oracle.AQ.AQQueueTable;
@@ -30,6 +29,7 @@ import javax.jms.Session;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,9 +45,9 @@ class DestinationSpecImpl implements DestinationSpec {
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
-    private UtcInstant createTime;
+    private Instant createTime;
     @SuppressWarnings("unused")
-    private UtcInstant modTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 
