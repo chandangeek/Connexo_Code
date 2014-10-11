@@ -13,7 +13,7 @@ Ext.define('Dsh.view.Communications', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('workspace.dataCommunication.communication.title', 'DSH', 'Communications'),
+            title: Uni.I18n.translate('workspace.dataCommunication.communication.title', 'DSH', 'Communications')
         },
         {
             xtype: 'filter-top-panel',
@@ -23,26 +23,7 @@ Ext.define('Dsh.view.Communications', {
             xtype: 'preview-container',
             grid: {
                 xtype: 'communications-list',
-                itemId: 'communicationslist',
-                dockedItems: [
-                    {
-                        itemId: 'pagingtoolbartop',
-                        xtype: 'pagingtoolbartop',
-                        dock: 'top',
-                        store: 'Dsh.store.CommunicationTasks',
-                        displayMsg: Uni.I18n.translate('communication.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} communications'),
-                        displayMoreMsg: Uni.I18n.translate('communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communications'),
-                        emptyMsg: Uni.I18n.translate('communication.widget.details.emptyMsg', 'DSH', 'There are no communications to display')
-                    },
-                    {
-                        itemId: 'pagingtoolbarbottom',
-                        xtype: 'pagingtoolbarbottom',
-                        store: 'Dsh.store.CommunicationTasks',
-                        dock: 'bottom',
-                        deferLoading: true,
-                        itemsPerPageMsg: Uni.I18n.translate('communication.widget.details.itemsPerPage', 'DSH', 'Communications per page')
-                    }
-                ]
+                itemId: 'communicationslist'
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',

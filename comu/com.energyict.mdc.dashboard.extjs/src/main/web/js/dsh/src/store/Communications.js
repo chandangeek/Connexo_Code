@@ -1,0 +1,25 @@
+Ext.define('Dsh.store.Communications', {
+    extend: 'Ext.data.Store',
+    requires: [
+        'Dsh.model.CommunicationTask'
+    ],
+    model: 'Dsh.model.CommunicationTask',
+    autoLoad: false,
+    remoteFilter: true,
+    url: '/api/dsr/connections/',
+    communicationsPostfix: '/communications',
+    proxy: {
+        type: 'ajax',
+        reader: {
+            type: 'json',
+            root: 'communications',
+            totalProperty: 'total'
+        }
+    },
+    setConnectionId: function (id) {
+        this.getProxy().url = this.url + id + this.communicationsPostfix
+    }
+});
+
+
+

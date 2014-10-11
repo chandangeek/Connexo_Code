@@ -79,6 +79,29 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 xtype: 'uni-actioncolumn'
             }
         ]
+    },
+    initComponent: function () {
+        var me = this;
+        me.dockedItems = [
+            {
+                itemId: 'pagingtoolbartop',
+                xtype: 'pagingtoolbartop',
+                dock: 'top',
+                store: me.store,
+                displayMsg: Uni.I18n.translate('communication.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} communications'),
+                displayMoreMsg: Uni.I18n.translate('communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communications'),
+                emptyMsg: Uni.I18n.translate('communication.widget.details.emptyMsg', 'DSH', 'There are no communications to display')
+            },
+            {
+                itemId: 'pagingtoolbarbottom',
+                xtype: 'pagingtoolbarbottom',
+                store: me.store,
+                dock: 'bottom',
+                deferLoading: true,
+                itemsPerPageMsg: Uni.I18n.translate('communication.widget.details.itemsPerPage', 'DSH', 'Communications per page')
+            }
+        ];
+        me.callParent(arguments);
     }
 });
 

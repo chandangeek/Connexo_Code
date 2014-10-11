@@ -9,7 +9,8 @@ Ext.define('Dsh.controller.Connections', {
     ],
 
     stores: [
-        'Dsh.store.ConnectionTasks'
+        'Dsh.store.ConnectionTasks',
+        'Dsh.store.Communications'
     ],
 
     views: [
@@ -33,16 +34,12 @@ Ext.define('Dsh.controller.Connections', {
             selector: '#connectionsdetails #communicationsdetails'
         },
         {
-            ref: 'communicationContainer',
-            selector: '#connectionsdetails #communicationcontainer'
-        },
-        {
             ref: 'communicationPreview',
             selector: '#connectionsdetails #communicationpreview'
         },
         {
-            ref: 'commTasksTitle',
-            selector: '#connectionsdetails #comtaskstitlepanel'
+            ref: 'communicationsPanel',
+            selector: '#connectionsdetails #communicationspanel'
         },
         {
             ref: 'filterPanel',
@@ -94,46 +91,20 @@ Ext.define('Dsh.controller.Connections', {
     onSelectionChange: function (grid, selected) {
         var me = this,
             preview = me.getConnectionPreview(),
-            commPreview = me.getCommunicationContainer(),
-            commPanel = me.getCommTasksTitle(),
+            commPanel = me.getCommunicationsPanel(),
+            commStore = me.getStore('Dsh.store.Communications'),
             record = selected[0];
-        if (!_.isUndefined(record)) {
-            var commTasksData = record.get('communicationTasks').communicationsTasks;
+        if (!_.isEmpty(record)){
+            var id = record.get('id'),
+                title = ' ' + record.get('title');
             preview.loadRecord(record);
-            preview.setTitle(record.get('title'));
-            preview.show();
-            if (!_.isEmpty(commTasksData)) {
-                commPreview.removeAll(true);
-                var commTasks = Ext.create('Ext.data.Store', {model: 'Dsh.model.CommunicationTask', data: commTasksData});
-                commPreview.add({
-                    xtype: 'preview-container',
-                    grid: {
-                        xtype: 'communications-list',
-                        itemId: 'communicationsdetails',
-                        store: commTasks
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('communication.widget.details.empty.title', 'DSH', 'No communications foundю'),
-                        reasons: [
-                            Uni.I18n.translate('communication.widget.details.empty.list.item1', 'DSH', 'No communications in the system.'),
-                            Uni.I18n.translate('communication.widget.details.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
-                        ]
-                    },
-                    previewComponent: {
-                        xtype: 'preview_communication',
-                        itemId: 'communicationpreview'
-                    }
-                });
-                commPanel.setTitle(Uni.I18n.translate('communication.widget.details.commTasksOf', 'DSH', 'Communication tasks of') + ' ' + record.get('title'));
-                commPanel.show();
-                me.getCommunicationList().getSelectionModel().select(0);
-            } else {
-                commPanel.hide()
-            }
+            commPanel.show();
+            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationsOf', 'DSH', 'Communications of') + title);
+            commStore.setConnectionId(id);
+            commStore.load();
         } else {
-            preview.hide();
-            commPanel.hide();
+            commPanel.hide()
         }
+
     }
 });

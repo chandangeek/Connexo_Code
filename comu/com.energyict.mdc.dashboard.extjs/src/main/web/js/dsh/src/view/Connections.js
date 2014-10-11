@@ -46,14 +46,31 @@ Ext.define('Dsh.view.Connections', {
         },
         {
             ui: 'medium',
-            itemId: 'comtaskstitlepanel',
+            itemId: 'communicationspanel',
             padding: 0,
             margin: '16 0 0 0',
+            hidden: true,
             title: '',
             items: [
                 {
-                    xtype: 'container',
-                    itemId: 'communicationcontainer'
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'communications-list',
+                        itemId: 'communicationsdetails',
+                        store: 'Dsh.store.Communications'
+                    },
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('communication.widget.details.empty.title', 'DSH', 'No communications foundю'),
+                        reasons: [
+                            Uni.I18n.translate('communication.widget.details.empty.list.item1', 'DSH', 'No communications in the system.'),
+                            Uni.I18n.translate('communication.widget.details.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'preview_communication',
+                        itemId: 'communicationpreview'
+                    }
                 }
             ]
         }

@@ -1,6 +1,7 @@
 Ext.define('Dsh.model.ConnectionTask', {
     extend: 'Ext.data.Model',
     fields: [
+        { name: 'id', type: 'auto'},
         { name: 'device', type: 'auto' },
         { name: 'deviceConfiguration', type: 'auto' },
         { name: 'deviceType', type: 'auto' },
