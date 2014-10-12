@@ -21,9 +21,9 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.Map;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.SlopeDetectionRuleTemplate",
-        property = {"uuid=" + SlopeDetectionRuleTemplate.SLOPE_DETECTION_ID},
+        property = {"uuid=" + MeterReadingTemplate.SLOPE_DETECTION_ID},
         service = CreationRuleTemplate.class, immediate = true)
-public class SlopeDetectionRuleTemplate extends AbstractTemplate {
+public class MeterReadingTemplate extends AbstractTemplate {
     public static final String SLOPE_DETECTION_ID = "7b1c7ccc-f248-47c6-81f3-18d123870133";
 
     private volatile MeteringService meteringService;
@@ -47,7 +47,7 @@ public class SlopeDetectionRuleTemplate extends AbstractTemplate {
 
     @Override
     public String getUUID() {
-        return SlopeDetectionRuleTemplate.SLOPE_DETECTION_ID;
+        return MeterReadingTemplate.SLOPE_DETECTION_ID;
     }
 
     @Override
@@ -71,15 +71,15 @@ public class SlopeDetectionRuleTemplate extends AbstractTemplate {
     @Override
     public String getContent() {
         return
-                "package com.energyict.mdc.issue.datacollection;\n" +
-                        "import com.energyict.mdc.issue.datacollection.MeterReadingIssueEvent; \n" +
+            "package com.energyict.mdc.issue.datacollection;\n" +
+            "import com.energyict.mdc.issue.datacollection.event.MeterReadingEvent; \n" +
             "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService; \n" +
             "rule \"Slope detection @{ruleId}\"\n" +
             "when\n" +
-            "\tevent : MeterReadingIssueEvent( readingType.getMRID() == \"@{readingType}\", computeMaxSlope(@{trendPeriod}, @{trendPeriodUnit}) >= @{maxSlope} )\n" +
+            "\tevent : MeterReadingEvent( readingType.getMRID() == \"@{readingType}\", computeMaxSlope(@{trendPeriod}, @{trendPeriodUnit}) >= @{maxSlope} )\n" +
             "then\n" +
             "\tSystem.out.println(\"Slope detection @{ruleId}\");\n" +
-            "\tissueCreationService.createIssue(@{ruleId}, event);\n" +
+            "\tissueCreationService.processIssueEvent(@{ruleId}, event);\n" +
             "end;";
     }
 

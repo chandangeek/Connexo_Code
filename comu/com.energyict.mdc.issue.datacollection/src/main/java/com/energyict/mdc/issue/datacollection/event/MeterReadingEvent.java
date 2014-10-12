@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datacollection;
+package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -20,15 +20,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class MeterReadingIssueEvent implements IssueEvent {
-    private static final Logger LOG = Logger.getLogger(MeterReadingIssueEvent.class.getName());
+public class MeterReadingEvent implements IssueEvent {
+    private static final Logger LOG = Logger.getLogger(MeterReadingEvent.class.getName());
 
     private final Meter meter;
     private final ReadingType readingType;
     private final IssueService issueService;
     private IssueStatus status;
 
-    public MeterReadingIssueEvent(Meter meter, ReadingType readingType, IssueStatus status, IssueService issueService) {
+    public MeterReadingEvent(Meter meter, ReadingType readingType, IssueStatus status, IssueService issueService) {
         this.meter = meter;
         this.readingType = readingType;
         this.issueService = issueService;
@@ -51,14 +51,15 @@ public class MeterReadingIssueEvent implements IssueEvent {
     }
 
     @Override
-    public Optional<? extends Issue> findExistingIssue(Issue baseIssue) {
-        return null;
+    public Optional<? extends Issue> findExistingIssue() {
+        return Optional.absent();
     }
 
     @Override
     public void apply(Issue issue) {
 
     }
+
 
     public ReadingType getReadingType() {
         return readingType;
@@ -67,7 +68,7 @@ public class MeterReadingIssueEvent implements IssueEvent {
     public double computeMaxSlope(int trendPeriod, int trendPeriodUnitId) {
         TrendPeriodUnit unit = TrendPeriodUnit.getById(trendPeriodUnitId);
         if (unit == null) {
-            LOG.warning("Unknown thrend period unit"); // TODO may be it will be better to throw exception?
+            LOG.warning("Unknown thrend period unit");
             return 0d;
         }
         long trendPeriodInMillis = unit.getTrendPeriodInMillis(trendPeriod);

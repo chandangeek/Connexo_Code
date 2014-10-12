@@ -4,40 +4,70 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
+import com.google.common.base.Optional;
+import com.google.inject.Injector;
 
 import javax.inject.Inject;
 import java.util.Map;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class DeviceCommunicationFailureEvent extends DataCollectionEvent {
-
-    private long comTaskId;
+    private Optional<ComTaskExecution> comTask;
 
     @Inject
-    public DeviceCommunicationFailureEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus);
+    public DeviceCommunicationFailureEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
+        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);
     }
 
-    public void wrap(Map<?, ?> rawEvent, DataCollectionEventDescription eventDescription){
-        super.wrap(rawEvent, eventDescription);
+    @Override
+    protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription){
         String comTaskIdAsStr = (String) rawEvent.get(ModuleConstants.FAILED_TASK_IDS);
         if (!is(comTaskIdAsStr).emptyOrOnlyWhiteSpace()){
-            comTaskId = Long.parseLong(comTaskIdAsStr.trim());
+            setComTask(Long.parseLong(comTaskIdAsStr.trim()));
         }
+    }
+
+    @Override
+    protected Condition getConditionForExistingIssue() {
+        return where("comTask").isEqualTo(getComTask());
     }
 
     @Override
     public void apply(Issue issue) {
         if (issue instanceof OpenIssueDataCollection){
             OpenIssueDataCollection dcIssue = (OpenIssueDataCollection) issue;
-            dcIssue.setCommunicationTask(getCommunicationTaskService().findComTaskExecution(comTaskId));
+            dcIssue.setCommunicationTask(getComTask().get());
         }
+    }
+
+    protected Optional<ComTaskExecution> getComTask() {
+        return comTask;
+    }
+
+    protected void setComTask(long comTaskId) {
+        ComTaskExecution comTaskExecution = getCommunicationTaskService().findComTaskExecution(comTaskId);
+        if (comTaskExecution != null) {
+            this.comTask = Optional.of(comTaskExecution);
+        } else {
+            this.comTask = Optional.absent();
+            // Todo: throw exception when we can't find the communication task
+        }
+    }
+
+    @Override
+    public DeviceCommunicationFailureEvent clone() {
+        DeviceCommunicationFailureEvent clone = (DeviceCommunicationFailureEvent) super.clone();
+        clone.comTask = comTask;
+        return clone;
     }
 }

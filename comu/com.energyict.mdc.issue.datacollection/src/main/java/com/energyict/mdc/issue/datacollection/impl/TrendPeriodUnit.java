@@ -6,8 +6,8 @@ import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import org.joda.time.DateTimeConstants;
 
 public enum TrendPeriodUnit {
-    DAYS(1, MessageSeeds.TREND_PERIOD_UNIT_DAYS, DateTimeConstants.MILLIS_PER_DAY),
-    HOURS(2, MessageSeeds.TREND_PERIOD_UNIT_HOURS, DateTimeConstants.MILLIS_PER_HOUR);
+    DAYS(1, MessageSeeds.PARAMETER_TREND_PERIOD_UNIT_DAYS, DateTimeConstants.MILLIS_PER_DAY),
+    HOURS(2, MessageSeeds.PARAMETER_TREND_PERIOD_UNIT_HOURS, DateTimeConstants.MILLIS_PER_HOUR);
 
     private int id;
     private MessageSeed title;

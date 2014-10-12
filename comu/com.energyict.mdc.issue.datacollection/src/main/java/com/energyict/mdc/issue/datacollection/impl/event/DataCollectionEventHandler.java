@@ -41,7 +41,12 @@ public class DataCollectionEventHandler implements MessageHandler {
 
     private List<IssueEvent> createEvents(Map<?, ?> map) {
         List<IssueEvent> events = new ArrayList<>();
-        for (DataCollectionEventDescription description : DataCollectionEventDescription.values()) {
+        for (EventDescription description : DataCollectionEventDescription.values()) {
+            if (description.validateEvent(map)) {
+                createEventsBasedOnDescription(events, map, description);
+            }
+        }
+        for (EventDescription description : DataCollectionResolveEventDescription.values()) {
             if (description.validateEvent(map)) {
                 createEventsBasedOnDescription(events, map, description);
             }
@@ -49,7 +54,7 @@ public class DataCollectionEventHandler implements MessageHandler {
         return events;
     }
 
-    private void createEventsBasedOnDescription(List<IssueEvent> events, Map<?, ?> map, DataCollectionEventDescription description) {
+    private void createEventsBasedOnDescription(List<IssueEvent> events, Map<?, ?> map, EventDescription description) {
         for (Map<?, ?> mapForSingleEvent : description.splitEvents(map)) {
             DataCollectionEvent dcEvent = injector.getInstance(description.getEventClass());
             try {

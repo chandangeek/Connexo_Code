@@ -4,12 +4,12 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
@@ -17,12 +17,13 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.AbstractEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.google.common.base.Optional;
+import com.google.inject.Injector;
 
 import java.util.Date;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.logging.Logger;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public abstract class DataCollectionEvent implements IssueEvent {
-    protected static final Logger LOG = Logger.getLogger(AbstractEvent.class.getName());
+    protected static final Logger LOG = Logger.getLogger(DataCollectionEvent.class.getName());
 
     private final IssueDataCollectionService issueDataCollectionService;
     private final IssueService issueService;
@@ -45,19 +46,26 @@ public abstract class DataCollectionEvent implements IssueEvent {
     private Device device;
     private EndDevice koreDevice;
     private IssueStatus status;
-    private DataCollectionEventDescription eventDescription;
+    private EventDescription eventDescription;
+    private Optional<? extends Issue> existingIssue;
+    private Injector injector;
 
-    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus) {
+    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
         this.issueDataCollectionService = issueDataCollectionService;
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.communicationTaskService = communicationTaskService;
         this.deviceService = deviceService;
         this.thesaurus = thesaurus;
+        this.injector = injector;
     }
 
     protected IssueService getIssueService() {
         return issueService;
+    }
+
+    protected IssueDataCollectionService getIssueDataCollectionService() {
+        return issueDataCollectionService;
     }
 
     protected MeteringService getMeteringService() {
@@ -76,20 +84,35 @@ public abstract class DataCollectionEvent implements IssueEvent {
         return this.thesaurus;
     }
 
-    protected DataCollectionEventDescription getDescription() {
+    protected EventDescription getDescription() {
         if (eventDescription == null){
             throw new IllegalStateException("You are trying to get event description for not initialized event");
         }
         return eventDescription;
     }
 
-    public void wrap(Map<?, ?> rawEvent, DataCollectionEventDescription eventDescription){
+    protected void setDevice(Device device) {
+        this.device = device;
+    }
+
+    protected void setKoreDevice(EndDevice koreDevice) {
+        this.koreDevice = koreDevice;
+    }
+
+    protected void setEventDescription(EventDescription eventDescription) {
+        this.eventDescription = eventDescription;
+    }
+
+    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription){
         this.eventDescription = eventDescription;
         setDefaultIssueStatus();
         getEventDevice(rawEvent);
+        wrapInternal(rawEvent, eventDescription);
     }
 
-    private void setDefaultIssueStatus() {
+    protected abstract void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription);
+
+    protected void setDefaultIssueStatus() {
         Optional<IssueStatus> statusRef = getIssueService().findStatus(IssueStatus.OPEN);
         if (!statusRef.isPresent()) {
             throw new UnableToCreateEventException(thesaurus, MessageSeeds.EVENT_BAD_DATA_NO_STATUS);
@@ -142,13 +165,18 @@ public abstract class DataCollectionEvent implements IssueEvent {
         Date start = getLastSuccessfulCommunicationEnd(concentrator);
         int numberOfDevicesWithEvents = 0;
         try {
-            numberOfDevicesWithEvents = this.getCommunicationTaskService().countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(getDescription().getErrorType(), concentrator, Interval.startAt(start));
+            DataCollectionEventDescription description = DataCollectionEventDescription.valueOf(this.eventDescription.getUniqueKey());
+            if (description != null && description.getErrorType() != null) {
+                numberOfDevicesWithEvents = this.getCommunicationTaskService().countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(description.getErrorType(), concentrator, Interval.startAt(start));
+            }
         } catch (RuntimeException ex){
             LOG.log(Level.WARNING, "Incorrect communication type for concentrator[id={0}]", concentrator.getId());
         }
         return numberOfDevicesWithEvents;
     }
 
+    @SuppressWarnings("unused")
+    // Used in rule engine
     public double computeCurrentThreshold() {
         Device concentrator = device.getPhysicalGateway();
         if (concentrator == null) {
@@ -165,18 +193,8 @@ public abstract class DataCollectionEvent implements IssueEvent {
     }
 
     @Override
-    public Optional<? extends Issue> findExistingIssue(Issue baseIssue) {
-        Query<OpenIssueDataCollection> query = issueDataCollectionService.query(OpenIssueDataCollection.class, OpenIssue.class);
-        List<OpenIssueDataCollection> issues = query.select(where("baseIssue.rule").isEqualTo(baseIssue.getRule()).and(where("baseIssue.device").isEqualTo(getKoreDevice())));
-        if (issues != null && issues.size() > 0){
-            return Optional.of(issues.get(0));
-        }
-        return Optional.absent();
-    }
-
-    @Override
     public String getEventType() {
-        return this.getDescription().name();
+        return eventDescription.getUniqueKey();
     }
 
     @Override
@@ -187,5 +205,47 @@ public abstract class DataCollectionEvent implements IssueEvent {
     @Override
     public EndDevice getKoreDevice() {
         return koreDevice;
+    }
+
+    @Override
+    public Optional<? extends Issue> findExistingIssue() {
+        if (existingIssue == null) {
+            Query<OpenIssueDataCollection> query = getIssueDataCollectionService().query(OpenIssueDataCollection.class);
+            List<OpenIssueDataCollection> theSameIssues = query.select(getConditionForExistingIssue());
+            if (theSameIssues.size() > 0){
+                existingIssue = Optional.of(theSameIssues.get(0));
+            } else {
+                existingIssue = Optional.absent();
+            }
+        }
+        return existingIssue;
+    }
+
+    protected abstract Condition getConditionForExistingIssue();
+
+    protected Long getLong(Map<?, ?> map, String key) {
+        Object contents = map.get(key);
+        return ((Number) contents).longValue();
+    }
+
+    @Override
+    public DataCollectionEvent clone(){
+        DataCollectionEvent clone = injector.getInstance(eventDescription.getEventClass());
+        clone.eventDescription = eventDescription;
+        clone.koreDevice = koreDevice;
+        clone.device = device;
+        return clone;
+    }
+
+    @SuppressWarnings("unused")
+    public DataCollectionEvent cloneForAggregation(){
+        DataCollectionEvent clone = this.clone();
+        clone.device = device.getPhysicalGateway();
+        if (clone.device != null) {
+            clone.koreDevice = findKoreDeviceByDevice();
+        } else {
+            clone.koreDevice = null;
+        }
+        return clone;
     }
 }

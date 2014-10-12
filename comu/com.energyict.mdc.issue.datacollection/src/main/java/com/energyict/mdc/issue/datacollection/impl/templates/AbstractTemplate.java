@@ -1,14 +1,13 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
-import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.ParameterDefinition;
-import com.elster.jupiter.issue.share.cep.ParameterDefinitionContext;
-import com.elster.jupiter.issue.share.cep.ParameterViolation;
+import com.elster.jupiter.issue.share.cep.*;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleParameter;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+import com.google.common.base.Optional;
 
 import java.util.*;
 
@@ -69,6 +68,11 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
             }
         }
         return errors;
+    }
+
+    @Override
+    public Optional<? extends Issue> resolveIssue(CreationRule rule, IssueEvent event) {
+        return Optional.absent();
     }
 
     protected Map<String, ParameterDefinition> getParameterDefinitionsForValidation() {

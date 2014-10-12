@@ -18,10 +18,7 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -68,8 +65,11 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
-        getDataCollectionEventHandler(new CheckEventTypeServiceMock(ConnectionLostEvent.class)).process(message);
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(ConnectionLostEvent.class, ConnectionResolvedEvent.class); // really?
+        getDataCollectionEventHandler(mock).process(message);
+        assertThat(mock.isSuccessfull()).isTrue();
     }
 
     @Test
@@ -78,10 +78,11 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1, 10, 47");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(3);
+        assertThat(service.getCounter()).isEqualTo(2);
     }
 
     @Test
@@ -90,8 +91,11 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
-        getDataCollectionEventHandler(new CheckEventTypeServiceMock(DeviceCommunicationFailureEvent.class)).process(message);
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(DeviceCommunicationFailureEvent.class, ConnectionResolvedEvent.class);
+        getDataCollectionEventHandler(mock).process(message);
+        assertThat(mock.isSuccessfull()).isTrue();
     }
 
     @Test
@@ -100,10 +104,11 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1, 17, 56, 57");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(4);
+        assertThat(service.getCounter()).isEqualTo(6);
     }
 
     @Test
@@ -113,6 +118,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "2,41,");
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, " 1 , 17 ,  , 56 ");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
@@ -125,7 +131,9 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/FAILURE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
-        getDataCollectionEventHandler(new CheckEventTypeServiceMock(UnableToConnectEvent.class)).process(message);
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnableToConnectEvent.class);
+        getDataCollectionEventHandler(mock).process(message);
+        assertThat(mock.isSuccessfull()).isTrue();
     }
 
     @Test
@@ -134,7 +142,9 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
-        getDataCollectionEventHandler(new CheckEventTypeServiceMock(UnknownInboundDeviceEvent.class)).process(message);
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownDeviceEvent.class);
+        getDataCollectionEventHandler(mock).process(message);
+        assertThat(mock.isSuccessfull()).isTrue();
     }
 
     @Test
@@ -143,7 +153,9 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
-        getDataCollectionEventHandler(new CheckEventTypeServiceMock(UnknownOutboundDeviceEvent.class)).process(message);
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownDeviceEvent.class);
+        getDataCollectionEventHandler(mock).process(message);
+        assertThat(mock.isSuccessfull()).isTrue();
     }
 
     private MessageHandler getDataCollectionEventHandler(IssueCreationService issueCreationService) {
@@ -174,17 +186,24 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     protected class CheckEventTypeServiceMock extends IssueCreationServiceImpl {
-        private Class<? extends IssueEvent> expectedClass;
+        private List<Class<? extends IssueEvent>> expectedClasses;
+        private int size = 0;
 
-        public CheckEventTypeServiceMock(Class<? extends IssueEvent> expectedClass){
-            this.expectedClass = expectedClass;
+        public CheckEventTypeServiceMock(Class<? extends IssueEvent>... expectedClasses){
+            this.expectedClasses = new ArrayList<>(Arrays.asList(expectedClasses));
         }
 
         @Override
         public void dispatchCreationEvent(List<IssueEvent> events){
             for (IssueEvent event : events) {
-                assertThat(event.getClass()).isEqualTo(expectedClass);
+                if (!expectedClasses.contains(event.getClass())){
+                    size++;
+                };
             }
+        }
+
+        public boolean isSuccessfull() {
+            return size == 0;
         }
     }
 

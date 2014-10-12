@@ -21,6 +21,7 @@ public final class ModuleConstants {
     public static final String EVENT_TIMESTAMP = "eventTimestamp";
     public static final String FAILED_TASK_IDS = "failedTaskIDs";
     public static final String SKIPPED_TASK_IDS = "skippedTaskIDs";
+    public static final String SUCCESS_TASK_IDS = "successTaskIDs";
     public static final String CONNECTION_TASK_ID = "connectionTaskId";
 
     public static final long MDC_AMR_SYSTEM_ID = 1L;

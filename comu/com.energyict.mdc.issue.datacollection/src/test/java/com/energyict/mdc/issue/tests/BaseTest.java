@@ -16,7 +16,6 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.Message;
@@ -32,9 +31,6 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.RecurrentTaskBuilder;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -68,7 +64,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.kie.api.io.KieResources;
@@ -81,9 +76,7 @@ import org.osgi.service.log.LogService;
 import javax.validation.MessageInterpolator;
 import java.util.List;
 
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public abstract class BaseTest {
     private static Injector injector;

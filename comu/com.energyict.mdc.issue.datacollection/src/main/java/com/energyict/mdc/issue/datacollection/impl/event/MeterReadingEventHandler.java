@@ -13,7 +13,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.issue.datacollection.MeterReadingIssueEvent;
+import com.energyict.mdc.issue.datacollection.event.MeterReadingEvent;
 import com.google.common.base.Optional;
 import org.osgi.service.event.EventConstants;
 
@@ -25,7 +25,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class MeterReadingEventHandler implements MessageHandler {
     private static final Logger LOG = Logger.getLogger(MeterReadingEventHandler.class.getName());
 
-    // TODO make com.elster.jupiter.metering.impl.EventType.METERREADING_CREATED public?
     private static final String METER_READING_EVENT_TOPIC = "com/elster/jupiter/metering/meterreading/CREATED";
     private static final String METER_READING_EVENT_METER_ID = "meterId";
     private static final String METER_READING_EVENT_READING_START = "start";
@@ -67,7 +66,7 @@ public class MeterReadingEventHandler implements MessageHandler {
             Set<ReadingType> readingTypes = meterRef.get().getReadingTypes(new Interval(new Date(readingStart), new Date(readingEnd)));
             List<IssueEvent> events = new ArrayList<>(readingTypes.size());
             for (ReadingType readingType : readingTypes) {
-                events.add(new MeterReadingIssueEvent(meterRef.get(), readingType, status, issueService));
+                events.add(new MeterReadingEvent(meterRef.get(), readingType, status, issueService));
             }
             issueCreationService.dispatchCreationEvent(events);
         }

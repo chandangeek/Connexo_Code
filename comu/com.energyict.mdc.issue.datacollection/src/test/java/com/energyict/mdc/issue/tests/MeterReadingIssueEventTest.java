@@ -9,7 +9,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.energyict.mdc.issue.datacollection.MeterReadingIssueEvent;
+import com.energyict.mdc.issue.datacollection.event.MeterReadingEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.TrendPeriodUnit;
 import org.joda.time.DateTime;
@@ -60,7 +60,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
 
     @Test
     public void testNoReadings() {
-        MeterReadingIssueEvent event = new MeterReadingIssueEvent(meter, readingType, null, null);
+        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, null);
         assertThat(event.computeMaxSlope(1, TrendPeriodUnit.HOURS.getId())).isEqualTo(0.0);
     }
 
@@ -76,7 +76,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
         meter.store(meterReading);
         readingType = getMeteringService().getReadingType(readingTypeCode).get();
 
-        MeterReadingIssueEvent event = new MeterReadingIssueEvent(meter, readingType, null, null);
+        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, null);
         assertThat(event.computeMaxSlope(1, TrendPeriodUnit.HOURS.getId())).isEqualTo(0.0);
     }
 
@@ -103,7 +103,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
         meter.store(meterReading);
         readingType = getMeteringService().getReadingType(readingTypeCode).get();
 
-        MeterReadingIssueEvent event = new MeterReadingIssueEvent(meter, readingType, null, null);
+        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, null);
         assertThat(event.computeMaxSlope(2, TrendPeriodUnit.HOURS.getId())).isEqualTo(4.0);
     }
 
@@ -136,7 +136,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
 
         meter.store(meterReading2);
 
-        MeterReadingIssueEvent event = new MeterReadingIssueEvent(meter, readingType, null, null);
+        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, null);
         assertThat(event.computeMaxSlope(2, TrendPeriodUnit.HOURS.getId())).isEqualTo(100.0);
     }
 

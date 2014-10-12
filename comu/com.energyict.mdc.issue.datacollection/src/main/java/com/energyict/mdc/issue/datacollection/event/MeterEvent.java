@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datacollection;
+package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -6,15 +6,19 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.issue.datacollection.impl.AbstractEvent;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.google.common.base.Optional;
+import com.google.inject.Injector;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -22,19 +26,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class MeterIssueEvent extends AbstractEvent {
+public class MeterEvent extends DataCollectionEvent {
     private String endDeviceEventType;
     private EndDeviceEventRecord eventRecord;
 
     @Inject
-    public MeterIssueEvent(IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus) {
-        super(issueService, meteringService, deviceService, thesaurus);
+    public MeterEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
+        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);
+    }
+
+    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription){
+        setEventDescription(eventDescription);
+        setDefaultIssueStatus();
+        wrapInternal(rawEvent, eventDescription);
     }
 
     @Override
-    public void init(Map<?, ?> rawEvent,  DataCollectionEventDescription eventDescription) {
-        super.init(rawEvent, eventDescription);
-
+    protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
         long timestamp = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP);
         List<EndDeviceEventRecord> deviceEvents = getKoreDevice().getDeviceEvents(new Interval(new Date(timestamp), new Date(timestamp)));
         if (deviceEvents.size() != 1) {
@@ -44,6 +52,7 @@ public class MeterIssueEvent extends AbstractEvent {
         endDeviceEventType = (String) rawEvent.get("endDeviceEventType");
     }
 
+    @Override
     protected void getEventDevice(Map<?, ?> rawEvent) {
         long endDeviceId = getLong(rawEvent, "endDeviceId");
         Optional<Meter> meterRef = getMeteringService().findMeter(endDeviceId);
@@ -66,21 +75,15 @@ public class MeterIssueEvent extends AbstractEvent {
     }
 
     @Override
-    public Optional<? extends Issue> findExistingIssue(Issue baseIssue) {
-        return null;
+    protected Condition getConditionForExistingIssue() {
+        return Condition.FALSE; // TODO which fields are specific for this event?
     }
 
     @Override
     public void apply(Issue issue) {
-
-    }
-
-    @Override
-    protected AbstractEvent cloneInternal() {
-        MeterIssueEvent event = new MeterIssueEvent(getIssueService(), getMeteringService(), getDeviceService(), getThesaurus());
-        event.endDeviceEventType = endDeviceEventType;
-        event.eventRecord = eventRecord;
-        return event;
+        if (issue instanceof OpenIssueDataCollection){
+            // TODO which fields are specific for this event?
+        }
     }
 
     @Override
@@ -89,4 +92,11 @@ public class MeterIssueEvent extends AbstractEvent {
         return concentrator.countNumberOfEndDeviceEvents(Arrays.asList(eventRecord.getEventType()), Interval.startAt(start));
     }
 
+    @Override
+    public DataCollectionEvent clone() {
+        MeterEvent clone = (MeterEvent) super.clone();
+        clone.eventRecord = eventRecord;
+        clone.endDeviceEventType = endDeviceEventType;
+        return clone;
+    }
 }

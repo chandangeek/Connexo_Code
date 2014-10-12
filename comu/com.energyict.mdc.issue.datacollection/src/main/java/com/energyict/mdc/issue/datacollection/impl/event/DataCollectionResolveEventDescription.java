@@ -1,91 +1,65 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-import com.energyict.mdc.issue.datacollection.event.*;
+import com.energyict.mdc.issue.datacollection.event.ConnectionResolvedEvent;
+import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
+import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureResolvedEvent;
+import com.energyict.mdc.issue.datacollection.event.UnknownDeviceResolvedEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import org.osgi.service.event.EventConstants;
 
 import java.util.*;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public enum DataCollectionEventDescription implements EventDescription{
-    CONNECTION_LOST(
+public enum DataCollectionResolveEventDescription implements EventDescription {
+    CONNECTION_LOST_AUTO_RESOLVE(
             "com/energyict/mdc/connectiontask/COMPLETION",
-            CommunicationErrorType.CONNECTION_FAILURE,
-            ConnectionLostEvent.class,
-            MessageSeeds.EVENT_TITLE_CONNECTION_LOST){
+            ConnectionResolvedEvent.class){
         public boolean validateEvent(Map<?, ?> map){
             if (super.validateEvent(map)){
-                return !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
+                return isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS)
+                        && !isEmptyString(map, ModuleConstants.CONNECTION_TASK_ID);
             }
             return false;
         }
     },
 
-    DEVICE_COMMUNICATION_FAILURE(
+    DEVICE_COMMUNICATION_FAILURE_AUTO_RESOLVE(
             "com/energyict/mdc/connectiontask/COMPLETION",
-            CommunicationErrorType.COMMUNICATION_FAILURE,
-            DeviceCommunicationFailureEvent.class,
-            MessageSeeds.EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE){
+            DeviceCommunicationFailureResolvedEvent.class){
         public boolean validateEvent(Map<?, ?> map){
             if (super.validateEvent(map)){
-                return !isEmptyString(map, ModuleConstants.FAILED_TASK_IDS);
+                return !isEmptyString(map, ModuleConstants.SUCCESS_TASK_IDS);
             }
             return false;
         }
 
         @Override
         public List<Map<?, ?>> splitEvents(Map<?, ?> map) {
-            return splitEventsByKey(map, ModuleConstants.FAILED_TASK_IDS);
+            return splitEventsByKey(map, ModuleConstants.SUCCESS_TASK_IDS);
         }
     },
 
-    UNABLE_TO_CONNECT(
-            "com/energyict/mdc/connectiontask/FAILURE",
-            CommunicationErrorType.CONNECTION_SETUP_FAILURE,
-            UnableToConnectEvent.class,
-            MessageSeeds.EVENT_TITLE_UNABLE_TO_CONNECT),
+    UNABLE_TO_CONNECT_AUTO_RESOLVE(
+            "com/energyict/mdc/connectiontask/COMPLETION",
+            ConnectionResolvedEvent.class),
 
-    UNKNOWN_INBOUND_DEVICE(
-            "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE",
-            null,
-            UnknownDeviceEvent.class,
-            MessageSeeds.EVENT_TITLE_UNKNOWN_INBOUND_DEVICE){
-    },
-
-    UNKNOWN_OUTBOUND_DEVICE(
-            "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE",
-            null,
-            UnknownDeviceEvent.class,
-            MessageSeeds.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE),
-
-    METER_EVENT(
+    UNKNOWN_DEVICE_EVENT_AUTO_RESOLVE(
             "com/elster/jupiter/metering/enddeviceevent/CREATED",
-            null,
-            MeterEvent.class,
-            MessageSeeds.EVENT_TITLE_DEVICE_EVENT);
+            UnknownDeviceResolvedEvent.class);
 
     private String topic;
-    private CommunicationErrorType errorType;
-    private MessageSeeds title;
     private Class<? extends DataCollectionEvent> eventClass;
 
-    private DataCollectionEventDescription(String topic, CommunicationErrorType errorType, Class<? extends DataCollectionEvent> eventClass, MessageSeeds title) {
+    private DataCollectionResolveEventDescription(String topic, Class<? extends DataCollectionEvent> eventClass) {
         this.topic = topic;
-        this.errorType = errorType;
         this.eventClass = eventClass;
-        this.title = title;
     }
 
-    public CommunicationErrorType getErrorType() {
-        return errorType;
-    }
-
-    public MessageSeeds getTitle() {
-        return title;
+    @Override
+    public boolean canBeAggregated() {
+        return false;
     }
 
     @Override
@@ -102,11 +76,6 @@ public enum DataCollectionEventDescription implements EventDescription{
     @Override
     public List<Map<?, ?>> splitEvents(Map<?, ?> map){
         return Collections.singletonList(map);
-    }
-
-    @Override
-    public boolean canBeAggregated() {
-        return getErrorType() != null;
     }
 
     @Override

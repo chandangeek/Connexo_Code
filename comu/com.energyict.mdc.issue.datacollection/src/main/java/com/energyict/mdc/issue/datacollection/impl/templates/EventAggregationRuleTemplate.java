@@ -19,14 +19,13 @@ import org.osgi.service.component.annotations.Reference;
         property = {"uuid=" + EventAggregationRuleTemplate.TEMPLATE_UUID},
         service = CreationRuleTemplate.class, immediate = true)
 public class EventAggregationRuleTemplate extends AbstractTemplate {
-    
     public static final String TEMPLATE_UUID = "2f20a62e-3361-33c9-afc4-2f68618a6af7";
-
     private volatile MeteringService meteringService;
+
     @Activate
     public void activate(){
         addParameterDefinition(new ThresholdParameter(getThesaurus()));
-        addParameterDefinition(new EventTypeParameter(getThesaurus(), meteringService));
+        addParameterDefinition(new EventTypeParameter(true, getThesaurus(), meteringService));
     }
 
     @Reference
@@ -57,16 +56,16 @@ public class EventAggregationRuleTemplate extends AbstractTemplate {
     @Override
     public String getContent() {
         return "package com.energyict.mdc.issue.datacollection\n" +
-                "import com.energyict.mdc.issue.datacollection.impl.AbstractEvent;\n" +
+                "import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Events from meters of concentrator @{ruleId}\"\n"+
                 "when\n"+
-                "\tevent : AbstractEvent( eventType == \"@{eventType}\" )\n"+
+                "\tevent : DataCollectionEvent( eventType == \"@{eventType}\" )\n"+
                 "\teval( event.computeCurrentThreshold() > @{threshold} )\n"+
                 "then\n"+
                 "\tSystem.out.println(\"Events from meters of concentrator @{ruleId}\");\n"+
-                "\tAbstractEvent eventClone = event.cloneForAggregation();\n"+
-                "\tissueCreationService.createIssue(@{ruleId}, eventClone);\n"+
+                "\tDataCollectionEvent eventClone = event.cloneForAggregation();\n"+
+                "\tissueCreationService.processIssueEvent(@{ruleId}, eventClone);\n"+
                 "end";
     }
 

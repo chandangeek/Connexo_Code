@@ -2,20 +2,23 @@ package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.impl.templates.params.DataCollectionEventsParameter;
+import com.energyict.mdc.issue.datacollection.impl.templates.params.AutoResolutionParameter;
+import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.List;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate",
            property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID},
@@ -26,21 +29,23 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
 
     private volatile MeteringService meteringService;
     private volatile IssueDataCollectionService issueDataCollectionService;
+    private volatile IssueService issueService;
 
     public BasicDatacollectionRuleTemplate() {
     }
 
     @Inject
-    public BasicDatacollectionRuleTemplate(MeteringService meteringService, IssueDataCollectionService issueDataCollectionService, NlsService nlsService) {
+    public BasicDatacollectionRuleTemplate(MeteringService meteringService, IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService) {
         setMeteringService(meteringService);
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
-        activate();
+        setIssueService(issueService);
     }
 
     @Activate
     public void activate(){
-        addParameterDefinition(new DataCollectionEventsParameter(getThesaurus()));
+        addParameterDefinition(new EventTypeParameter(false, getThesaurus(), meteringService));
+        addParameterDefinition(new AutoResolutionParameter(getThesaurus()));
     }
 
     @Reference
@@ -51,6 +56,11 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
     @Reference
     public final void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
         this.issueDataCollectionService = issueDataCollectionService;
+    }
+
+    @Reference
+    public final void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
     }
 
     @Reference
@@ -76,27 +86,41 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
     @Override
     public String getContent() {
         return "package com.energyict.mdc.issue.datacollection\n" +
-               "import com.energyict.mdc.issue.datacollection.impl.AbstractEvent;\n" +
+               "import com.energyict.mdc.issue.event.DataCollectionEvent;\n" +
                "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                "rule \"Basic datacollection rule @{ruleId}\"\n"+
                "when\n"+
                "\tevent : DataCollectionEvent( eventType == \"@{eventType}\" )\n"+
                "then\n"+
                "\tSystem.out.println(\"Basic datacollection rule @{ruleId}\");\n"+
-               "\tissueCreationService.createIssue(@{ruleId}, event);\n"+
+               "\tissueCreationService.processIssueEvent(@{ruleId}, event);\n"+
                "end";
     }
 
     @Override
     public Optional<? extends Issue> createIssue(Issue baseIssue, IssueEvent event) {
-        if(event.findExistingIssue(baseIssue).isPresent()){
-            // TODO change status or do other stuff
-        } else {
+        if(!event.findExistingIssue().isPresent()){
             OpenIssueDataCollection issue = issueDataCollectionService.createIssue(baseIssue);
             event.apply(issue);
             issue.save();
             return Optional.of(issue);
         }
         return Optional.absent();
+    }
+
+    @Override
+    public Optional<? extends Issue> resolveIssue(CreationRule rule, IssueEvent event) {
+        List<CreationRuleParameter> ruleParameters = rule.getParameters();
+        Optional<? extends Issue> issue = event.findExistingIssue();
+        if (issue.isPresent() && !issue.get().getStatus().isHistorical()){
+            for (CreationRuleParameter parameter : ruleParameters) {
+                if (AutoResolutionParameter.AUTO_RESOLUTION_PARAMETER_KEY.equalsIgnoreCase(parameter.getKey())){
+                    OpenIssue openIssue = (OpenIssue) issue.get();
+                    issue = Optional.of(openIssue.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
+                    break;
+                }
+            }
+        }
+        return issue;
     }
 }

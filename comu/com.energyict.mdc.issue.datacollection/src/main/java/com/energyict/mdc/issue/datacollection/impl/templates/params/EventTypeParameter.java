@@ -4,7 +4,6 @@ import com.elster.jupiter.issue.share.cep.*;
 import com.elster.jupiter.issue.share.cep.controls.ComboBoxControl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 
@@ -15,79 +14,25 @@ import java.util.Map;
 
 public class EventTypeParameter extends TranslatedParameter {
 
-    private static class EventTypeParameterConstraint implements ParameterConstraint {
-        @Override
-        public boolean isOptional() {
-            return false;
-        }
-
-        @Override
-        public String getRegexp() {
-            return null;
-        }
-
-        @Override
-        public Integer getMin() {
-            return null;
-        }
-
-        @Override
-        public Integer getMax() {
-            return null;
-        }
-
-        @Override
-        public List<ParameterViolation> validate(String value, String paramKey) {
-            throw new IllegalAccessError("This method shouldn't be called!");
-        }
-
-        public List<ParameterViolation> validate(String value, String paramKey, MeteringService meteringService) {
-            List<ParameterViolation> errors = new ArrayList<ParameterViolation>();
-            if (value == null) {
-                errors.add(new ParameterViolation(paramKey, MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), IssueDataCollectionService.COMPONENT_NAME));
-                return errors;
-            }
-            if (!validateValueInEventDescriptions(value) && !validateValueInEndDeviceEventTypes(meteringService, value)) {
-                errors.add(new ParameterViolation(paramKey, MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_INCORRECT.getKey(), IssueDataCollectionService.COMPONENT_NAME, value));
-                return errors;
-            }
-            return errors;
-        }
-
-        private boolean validateValueInEventDescriptions(String value) {
-            for (DataCollectionEventDescription eventDescription : DataCollectionEventDescription.values()) {
-                if (eventDescription.getErrorType() == null) {
-                    continue;
-                }
-                if (eventDescription.getTopic().equalsIgnoreCase(value)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private boolean validateValueInEndDeviceEventTypes(MeteringService meteringService, String value) {
-            // TODO search in DB and set return value to FALSE by default
-            return true;
-        }
-    }
-
     private static final EventTypeParameterConstraint CONSTRAINT = new EventTypeParameterConstraint();
+    public static final String EVENT_TYPE_PARAMETER_KEY = "eventType";
 
     private List<Object> eventTypes;
     private final MeteringService meteringService;
     private Object defaultValue;
+    private boolean isAggregation;
 
-    public EventTypeParameter(Thesaurus thesaurus, MeteringService meteringService) {
+    public EventTypeParameter(boolean isAggregation, Thesaurus thesaurus, MeteringService meteringService) {
         super(thesaurus);
         this.meteringService = meteringService;
+        this.isAggregation = isAggregation;
         setEventTypes(null);
     }
 
-    private void setEventTypes(String userValue) {
+    private void setEventTypes(String userInput) {
         eventTypes = new ArrayList<>();
-        searchEventTypesInEventDescriptions(userValue);
-        searchEventTypesInEndDeviceEventTypes(userValue);
+        searchEventTypesInEventDescriptions(userInput);
+        searchEventTypesInEndDeviceEventTypes(userInput);
     }
 
     private void setDefaultValue(String userValue) {
@@ -95,6 +40,7 @@ public class EventTypeParameter extends TranslatedParameter {
             for (Object eventType : eventTypes) {
                 if (((ComboBoxControl.Values) eventType).id.equals(userValue)) {
                     defaultValue = eventType;
+                    break;
                 }
             }
         }
@@ -102,14 +48,17 @@ public class EventTypeParameter extends TranslatedParameter {
 
     private void searchEventTypesInEventDescriptions(String userValue) {
         for (DataCollectionEventDescription eventDescription : DataCollectionEventDescription.values()) {
-            if (eventDescription.getErrorType() == null) {
+            // Always skip the Meter event because it will be replaced by set of end device event types
+            // or skip event type which doesn't support the aggregation (of course when we request aggregation)
+            if (isAggregation && !eventDescription.canBeAggregated()
+                    || DataCollectionEventDescription.METER_EVENT.equals(eventDescription)) {
                 continue;
             }
             String title = getString(eventDescription.getTitle());
             // TODO remove 'true' when search will be implemented
-            if (userValue != null && title.contains(userValue) || true) {
+            if (userValue == null || title.contains(userValue) || true) {
                 ComboBoxControl.Values info = new ComboBoxControl.Values();
-                info.id = eventDescription.getTopic();
+                info.id = eventDescription.getUniqueKey();
                 info.title = getString(eventDescription.getTitle());
                 eventTypes.add(info);
             }
@@ -160,7 +109,7 @@ public class EventTypeParameter extends TranslatedParameter {
         Object incomingValue = parameters.get(this.getKey());
         if (incomingValue != null) {
             String stringIncomingValue = (String) incomingValue;
-            EventTypeParameter definition = new EventTypeParameter(getThesaurus(), meteringService);
+            EventTypeParameter definition = new EventTypeParameter(isAggregation, getThesaurus(), meteringService);
             definition.setEventTypes(stringIncomingValue);
             definition.setDefaultValue(stringIncomingValue);
             return definition;
@@ -170,7 +119,7 @@ public class EventTypeParameter extends TranslatedParameter {
 
     @Override
     public String getKey() {
-        return "eventType";
+        return EVENT_TYPE_PARAMETER_KEY;
     }
 
     @Override
@@ -200,6 +149,6 @@ public class EventTypeParameter extends TranslatedParameter {
 
     @Override
     public List<ParameterViolation> validate(String value, ParameterDefinitionContext context) {
-        return CONSTRAINT.validate(value, context.wrapKey(getKey()), meteringService);
+        return CONSTRAINT.validate(value, context.wrapKey(getKey()), meteringService, isAggregation);
     }
 }
