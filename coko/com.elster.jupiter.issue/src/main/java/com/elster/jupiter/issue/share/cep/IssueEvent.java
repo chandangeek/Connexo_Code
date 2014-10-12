@@ -10,6 +10,6 @@ public interface IssueEvent {
     IssueStatus getStatus();
     EndDevice getKoreDevice();
 
-    Optional<? extends Issue> findExistingIssue(Issue baseIssue);
+    Optional<? extends Issue> findExistingIssue();
     void apply(Issue issue);
 }

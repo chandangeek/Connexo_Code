@@ -16,4 +16,5 @@ public interface CreationRuleTemplate {
     Map<String, ParameterDefinition> getParameterDefinitions();
     List<ParameterViolation> validate(CreationRule rule);
     Optional<? extends Issue> createIssue(Issue issue, IssueEvent event);
+    Optional<? extends Issue> resolveIssue(CreationRule rule, IssueEvent event);
 }

@@ -205,6 +205,13 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     }
 
     @Override
+    public void processIssueResolveEvent(long ruleId, IssueEvent event) {
+        CreationRule firedRule = findCreationRule(ruleId).orNull();
+        CreationRuleTemplate template = firedRule.getTemplate();
+        template.resolveIssue(firedRule, event);
+    }
+
+    @Override
     public boolean reReadRules() {
         return createKnowledgeBase();
     }

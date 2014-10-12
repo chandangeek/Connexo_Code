@@ -23,5 +23,6 @@ public interface IssueCreationService {
 
     void dispatchCreationEvent(List<IssueEvent> events);
     void processIssueEvent(long ruleId, IssueEvent event);
+    void processIssueResolveEvent(long ruleId, IssueEvent event);
     boolean reReadRules();
 }

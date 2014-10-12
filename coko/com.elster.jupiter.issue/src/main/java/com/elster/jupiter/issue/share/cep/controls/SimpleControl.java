@@ -6,6 +6,7 @@ public class SimpleControl implements ParameterControl {
     public static final SimpleControl TEXT_FIELD = new SimpleControl("textfield");
     public static final SimpleControl TEXT_AREA = new SimpleControl("textArea");
     public static final SimpleControl NUMBER_FIELD = new SimpleControl("numberfield");
+    public static final SimpleControl CHECKBOX_FIELD = new SimpleControl("checkBox");
 
     private String xtype;
 

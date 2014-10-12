@@ -2,10 +2,7 @@ package com.elster.jupiter.issue.impl.actions.parameters;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.cep.AbstractParameterDefinition;
-import com.elster.jupiter.issue.share.cep.ParameterConstraint;
-import com.elster.jupiter.issue.share.cep.ParameterControl;
-import com.elster.jupiter.issue.share.cep.ParameterViolation;
+import com.elster.jupiter.issue.share.cep.*;
 import com.elster.jupiter.issue.share.cep.controls.ComboBoxControl;
 import com.elster.jupiter.issue.share.entity.AssigneeTeam;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -18,6 +15,7 @@ import java.util.List;
 
 public class AssigneeGroupParameter extends AbstractParameterDefinition {
 
+    private static final ParameterConstraint CONSTRAINT = new NoParameterConstraint(false);
     private final Thesaurus thesaurus;
     private final IssueService issueService;
 
@@ -52,32 +50,7 @@ public class AssigneeGroupParameter extends AbstractParameterDefinition {
 
     @Override
     public ParameterConstraint getConstraint() {
-        return new ParameterConstraint() {
-            @Override
-            public boolean isOptional() {
-                return false;
-            }
-
-            @Override
-            public String getRegexp() {
-                return null;
-            }
-
-            @Override
-            public Integer getMin() {
-                return null;
-            }
-
-            @Override
-            public Integer getMax() {
-                return null;
-            }
-
-            @Override
-            public List<ParameterViolation> validate(String value, String paramKey) {
-                return Collections.emptyList();
-            }
-        };
+        return CONSTRAINT;
     }
 
     @Override
