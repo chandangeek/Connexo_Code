@@ -1,6 +1,6 @@
 package com.elster.jupiter.license;
 
-import com.elster.jupiter.util.time.UtcInstant;
+import java.time.Instant;
 
 import java.util.Properties;
 
@@ -25,9 +25,9 @@ public interface License {
 
     String getDescription();
 
-    UtcInstant getExpiration();
+    Instant getExpiration();
 
-    UtcInstant getActivation();
+    Instant getActivation();
 
     int getGracePeriodInDays();
 

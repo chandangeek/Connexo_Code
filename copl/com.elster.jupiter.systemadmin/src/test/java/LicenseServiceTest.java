@@ -18,15 +18,13 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTimeZone;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -40,6 +38,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.security.SignedObject;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -130,7 +131,7 @@ public class LicenseServiceTest {
         assertThat(mtrLicense.get().getStatus()).isEqualTo(License.Status.ACTIVE);
         assertThat(mtrLicense.get().getType()).isEqualTo(License.Type.EVALUATION);
         assertThat(mtrLicense.get().getGracePeriodInDays()).isEqualTo(5);
-        assertThat(mtrLicense.get().getExpiration()).isEqualTo(new UtcInstant(new DateMidnight(9999, 12, 31, DateTimeZone.UTC).toDate()));
+        assertThat(mtrLicense.get().getExpiration()).isEqualTo(LocalDate.of(9999, 12, 31).atStartOfDay(ZoneId.of("UTC")).toInstant());
         assertThat(mtrLicense.get().getLicensedValues()).hasSize(2);
 
         Optional<Properties> mtrLicensedValues = getLicenseService().getLicensedValuesForApplication("MTR");
@@ -146,7 +147,7 @@ public class LicenseServiceTest {
         assertThat(isuLicense.get().getStatus()).isEqualTo(License.Status.ACTIVE);
         assertThat(isuLicense.get().getType()).isEqualTo(License.Type.EVALUATION);
         assertThat(isuLicense.get().getGracePeriodInDays()).isEqualTo(5);
-        assertThat(isuLicense.get().getExpiration()).isEqualTo(new UtcInstant(new DateMidnight(9999, 12, 31, DateTimeZone.UTC).toDate()));
+        assertThat(isuLicense.get().getExpiration()).isEqualTo(LocalDate.of(9999, 12, 31).atStartOfDay(ZoneId.of("UTC")).toInstant());
         assertThat(isuLicense.get().getLicensedValues()).hasSize(0);
 
         Optional<Properties> otherLicensedValues = getLicenseService().getLicensedValuesForApplication("OTH");
@@ -178,14 +179,14 @@ public class LicenseServiceTest {
         Optional<String> licensedValue = getLicenseService().getLicensedValue("MTR", "key1");
         assertThat(licensedValue.isPresent()).isTrue();
         assertThat(licensedValue.get()).isEqualTo("test");
-        UtcInstant firstActivationDate = getLicenseService().getLicenseForApplication("MTR").get().getActivation();
+        Instant firstActivationDate = getLicenseService().getLicenseForApplication("MTR").get().getActivation();
         Set<String> updatedLicenses = getLicenseService().addLicense(getResource("updatedMTRLicense.lic"));
         assertThat(updatedLicenses).hasSize(1);
         assertThat(updatedLicenses).containsExactly("MTR");
         licensedValue = getLicenseService().getLicensedValue("MTR", "key1");
         assertThat(licensedValue.isPresent()).isTrue();
         assertThat(licensedValue.get()).isEqualTo("test2");
-        assertThat(getLicenseService().getLicenseForApplication("MTR").get().getActivation().after(firstActivationDate));
+        assertThat(getLicenseService().getLicenseForApplication("MTR").get().getActivation().isAfter(firstActivationDate));
     }
 
     @Test(expected = InvalidLicenseException.class)

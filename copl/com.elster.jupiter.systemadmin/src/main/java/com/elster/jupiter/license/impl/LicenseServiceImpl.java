@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -144,7 +144,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
             properties.putAll(license.get().getLicensedValues());
             return Optional.of(properties);
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -152,9 +152,9 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
     public Optional<String> getLicensedValue(String applicationKey, String licensedKey) {
         Optional<Properties> licensedValuesForApplication = getLicensedValuesForApplication(applicationKey);
         if (licensedValuesForApplication.isPresent()) {
-            return Optional.fromNullable(licensedValuesForApplication.get().getProperty(licensedKey));
+            return Optional.ofNullable(licensedValuesForApplication.get().getProperty(licensedKey));
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

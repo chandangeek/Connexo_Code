@@ -1,6 +1,6 @@
 package com.elster.jupiter.license;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.security.SignedObject;
 import java.util.List;

@@ -3,14 +3,10 @@ package com.elster.jupiter.license.impl;
 import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.UtcInstant;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Days;
-import org.joda.time.LocalDate;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,8 +18,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.SignedObject;
 import java.security.spec.InvalidKeySpecException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -46,12 +45,10 @@ public class LicenseImpl implements License {
     private transient Properties properties;
     private String info;
     @SuppressWarnings("unused")
-    private UtcInstant createTime;
-    @SuppressWarnings("unused")
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
-    @SuppressWarnings("unused")
     private long version;
 
     private SignedObject getSignedObject() throws IOException, ClassNotFoundException {
@@ -71,7 +68,7 @@ public class LicenseImpl implements License {
                 if (!appKey.equals(newProperties.getProperty(LICENSE_APP_KEY))) {
                     throw InvalidLicenseException.licenseForOtherApp();
                 }
-                if (getUtcInstant(LICENSE_CREATION_DATE_KEY, newProperties).before(getUtcInstant(LICENSE_CREATION_DATE_KEY, getProperties()))) {
+                if (getInstant(LICENSE_CREATION_DATE_KEY, newProperties).isBefore(getInstant(LICENSE_CREATION_DATE_KEY, getProperties()))) {
                     throw InvalidLicenseException.newerLicenseAlreadyExists();
                 }
             } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException | ClassNotFoundException e) {
@@ -133,7 +130,7 @@ public class LicenseImpl implements License {
 
     @Override
     public Status getStatus() {
-        return getExpiration().before(new Date()) ? Status.EXPIRED : Status.ACTIVE;
+        return getExpiration().isBefore(Instant.now()) ? Status.EXPIRED : Status.ACTIVE;
     }
 
     @Override
@@ -142,21 +139,22 @@ public class LicenseImpl implements License {
     }
 
     @Override
-    public UtcInstant getExpiration() {
-        return getUtcInstant(LICENSE_EXPIRATION_DATE_KEY, getProperties());
+    public Instant getExpiration() {
+        return getInstant(LICENSE_EXPIRATION_DATE_KEY, getProperties());
     }
 
     @Override
-    public UtcInstant getActivation() {
+    public Instant getActivation() {
         return modTime;
     }
 
     @Override
     public int getGracePeriodInDays() {
         int gracePeriod = getInt(LICENSE_GRACE_PERIOD_KEY, getProperties());
-        if (Status.EXPIRED.equals(getStatus())) {
-            DateTime endOfGracePeriod = new DateTime(getExpiration().getTime(), DateTimeZone.UTC).plusDays(gracePeriod);
-            gracePeriod = Math.max(0, Days.daysBetween(LocalDate.now(), endOfGracePeriod.toLocalDate()).getDays());
+        if (Status.EXPIRED.equals(getStatus())) {        	
+        	LocalDate expirationDay = getExpiration().atOffset(ZoneOffset.UTC).toLocalDate();
+        	LocalDate endOfGracePeriod = expirationDay.plusDays(gracePeriod);
+            gracePeriod = (int) Math.max(0, ChronoUnit.DAYS.between(LocalDate.now(), endOfGracePeriod));
         }
         return gracePeriod;
     }
@@ -184,10 +182,10 @@ public class LicenseImpl implements License {
         return props;
     }
 
-    private UtcInstant getUtcInstant(String key, Properties properties) {
+    private Instant getInstant(String key, Properties properties) {
         try {
             long creationTimeStamp = Long.parseLong(properties.getProperty(key, "not present"));
-            return new UtcInstant(creationTimeStamp);
+            return Instant.ofEpochMilli(creationTimeStamp);
         } catch (NumberFormatException e) {
             throw new InvalidLicenseException(e);
         }
