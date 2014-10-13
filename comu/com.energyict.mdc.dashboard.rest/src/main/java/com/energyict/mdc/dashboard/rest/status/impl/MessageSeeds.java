@@ -55,7 +55,9 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_KPI_PERIOD(47, "UnsupportedKpiPeriod", "Read-outs are not available for this period"),
     ONGOING(48, "Ongoing", "Ongoing" ),
     UNEXPECTED_ERROR(49, "UnexpectedError", "Unexpected error"),
-    TARGET(50, "Target", "Target");
+    TARGET(50, "Target", "Target"),
+    NO_SUCH_END_DEVICE_GROUP(51, "NoSuchEndDeviceGroup", "No query end device group exists with id ''{0}''"),
+    ;
 
     private final int number;
     private final String key;

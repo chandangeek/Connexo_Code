@@ -1,7 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.engine.model.security.Privileges;
 import com.google.common.base.Optional;
 import javax.annotation.security.RolesAllowed;
@@ -9,8 +10,8 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -21,11 +22,13 @@ public class ConnectionOverviewResource {
 
     private final ConnectionOverviewInfoFactory connectionOverviewInfoFactory;
     private final MeteringGroupsService meteringGroupService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public ConnectionOverviewResource(ConnectionOverviewInfoFactory connectionOverviewInfoFactory, MeteringGroupsService meteringGroupService) {
+    public ConnectionOverviewResource(ConnectionOverviewInfoFactory connectionOverviewInfoFactory, MeteringGroupsService meteringGroupService, ExceptionFactory exceptionFactory) {
         this.connectionOverviewInfoFactory = connectionOverviewInfoFactory;
         this.meteringGroupService = meteringGroupService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -40,12 +43,13 @@ public class ConnectionOverviewResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
-    @Path("/{mrid}")
-    public ConnectionOverviewInfo getConnectionOverview(@PathParam("mrid") String mrid) throws Exception {
+    public ConnectionOverviewInfo getConnectionOverview(@QueryParam("deviceGroupId") Long deviceGroupId) throws Exception {
 
-        Optional<EndDeviceGroup> endDeviceGroup = meteringGroupService.findEndDeviceGroup(mrid);
-
-        return connectionOverviewInfoFactory.asInfo(endDeviceGroup.get());
+        Optional<QueryEndDeviceGroup> optional = meteringGroupService.findQueryEndDeviceGroup(deviceGroupId);
+        if (!optional.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
+        }
+        return connectionOverviewInfoFactory.asInfo(optional.get());
     }
 
 }
