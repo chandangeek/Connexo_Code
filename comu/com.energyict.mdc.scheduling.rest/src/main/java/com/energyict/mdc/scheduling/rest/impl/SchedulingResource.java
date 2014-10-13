@@ -76,9 +76,16 @@ public class SchedulingResource {
         if (mrid != null && available) {
             Device device = deviceService.findByUniqueMrid(mrid);
             List<ComSchedule> possibleComSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
+            if(possibleComSchedules.size()==0){
+//                throw new WebApplicationException(MessageSeeds.NO_SHARED_SCHEDULES_DEFINED, Response.Status.NOT_FOUND);
+            }
             List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-            for (ComSchedule comSchedule : possibleComSchedules) {
-                if (isValidComSchedule(comSchedule, comTaskExecutions, device.getDeviceConfiguration().getComTaskEnablements())) {
+            List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
+            if(comTaskEnablements.size()==0){
+//                throw new WebApplicationException(MessageSeeds.NO_COMTASKS_DEFINED_ON_CONFIGURATION, Response.Status.NOT_FOUND);
+            }
+            for(ComSchedule comSchedule:possibleComSchedules){
+                if(isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)){
                     comSchedules.add(comSchedule);
                 }
             }
