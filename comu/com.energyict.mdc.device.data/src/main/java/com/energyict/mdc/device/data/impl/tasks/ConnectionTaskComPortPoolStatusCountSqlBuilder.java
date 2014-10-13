@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.time.Clock;
+
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -18,8 +22,8 @@ public class ConnectionTaskComPortPoolStatusCountSqlBuilder extends AbstractConn
 
     private ServerConnectionTaskStatus taskStatus;
 
-    public ConnectionTaskComPortPoolStatusCountSqlBuilder(ServerConnectionTaskStatus taskStatus, Clock clock) {
-        super(clock);
+    public ConnectionTaskComPortPoolStatusCountSqlBuilder(ServerConnectionTaskStatus taskStatus, Clock clock, QueryEndDeviceGroup deviceGroup, QueryExecutor<Device> deviceQueryExecutor) {
+        super(clock, deviceGroup, deviceQueryExecutor);
         this.taskStatus = taskStatus;
     }
 
@@ -46,6 +50,7 @@ public class ConnectionTaskComPortPoolStatusCountSqlBuilder extends AbstractConn
 
     private void appendWhereClause() {
         this.appendWhereClause(this.taskStatus);
+        this.appendDeviceSql();
     }
 
     private void appendGroupByClause() {

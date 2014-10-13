@@ -46,4 +46,9 @@ public interface DataCollectionKpiScore extends Comparable<DataCollectionKpiScor
      */
     public BigDecimal getValue(TaskStatus status);
 
+    public BigDecimal getSuccess();
+
+    public BigDecimal getOngoing();
+
+    public BigDecimal getFailed();
 }

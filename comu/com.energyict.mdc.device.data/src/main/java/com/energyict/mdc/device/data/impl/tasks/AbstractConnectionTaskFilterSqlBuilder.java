@@ -1,7 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
@@ -20,25 +23,31 @@ import java.util.Set;
  */
 public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilterSqlBuilder {
 
-    private Set<ConnectionTypePluggableClass> connectionTypes;
-    private Set<ComPortPool> comPortPools;
-    private Set<DeviceType> deviceTypes;
+    private final Set<ConnectionTypePluggableClass> connectionTypes;
+    private final Set<ComPortPool> comPortPools;
+    private final Set<DeviceType> deviceTypes;
+    private final QueryEndDeviceGroup deviceGroup;
+    private final QueryExecutor<Device> queryExecutor;
     private boolean appendLastComSessionJoinClause;
 
-    public AbstractConnectionTaskFilterSqlBuilder(Clock clock) {
+    public AbstractConnectionTaskFilterSqlBuilder(Clock clock, QueryEndDeviceGroup deviceGroup, QueryExecutor<Device> queryExecutor) {
         super(clock);
         this.connectionTypes = new HashSet<>();
         this.comPortPools = new HashSet<>();
         this.deviceTypes = new HashSet<>();
         this.appendLastComSessionJoinClause = false;
+        this.deviceGroup = deviceGroup;
+        this.queryExecutor = queryExecutor;
     }
 
-    public AbstractConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock) {
+    public AbstractConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
         super(clock);
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);
         this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
         this.appendLastComSessionJoinClause = filterSpecification.useLastComSession;
+        this.deviceGroup = filterSpecification.deviceGroup;
+        this.queryExecutor = deviceQueryExecutor;
     }
 
     protected void appendWhereClause(ServerConnectionTaskStatus taskStatus) {
@@ -76,6 +85,15 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
 
     private void appendDeviceTypeSql() {
         this.appendDeviceTypeSql(this.connectionTaskAliasName(), this.deviceTypes);
+    }
+
+    protected void appendDeviceSql() {
+        if (this.deviceGroup != null) {
+            this.appendWhereOrAnd();
+            this.append("ct.device in (");
+            this.append(this.queryExecutor.asFragment(this.deviceGroup.getCondition(), "id"));
+            this.append(")");
+        }
     }
 
     private boolean requiresLastComSessionClause() {

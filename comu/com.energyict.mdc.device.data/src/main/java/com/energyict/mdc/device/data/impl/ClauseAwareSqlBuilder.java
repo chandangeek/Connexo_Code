@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
 import com.elster.jupiter.util.time.Clock;
 
@@ -39,6 +40,10 @@ public class ClauseAwareSqlBuilder {
      */
     public void appendWhereOrAnd () {
         this.where.orAnd(this.actualBuilder);
+    }
+
+    public void append(SqlFragment sqlFragment) {
+        this.actualBuilder.add(sqlFragment);
     }
 
     /**

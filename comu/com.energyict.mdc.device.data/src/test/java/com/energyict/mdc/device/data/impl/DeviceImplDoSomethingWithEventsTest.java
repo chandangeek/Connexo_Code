@@ -9,7 +9,6 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -386,6 +385,11 @@ public class DeviceImplDoSomethingWithEventsTest {
             }
 
             @Override
+            public List<EventType> getEventTypesForComponent(String component) {
+                return this.eventService.getEventTypesForComponent(component);
+            }
+
+            @Override
             public void postEvent(String topic, Object source) {
                 eventService.postEvent(topic, source);
             }
@@ -405,6 +409,7 @@ public class DeviceImplDoSomethingWithEventsTest {
             public Optional<EventType> getEventType(String topic) {
                 return eventService.getEventType(topic);
             }
+
         }
 
     }

@@ -24,7 +24,7 @@ public enum ServerConnectionTaskStatus {
     /**
      * @see TaskStatus#OnHold
      */
-    Paused {
+    OnHold {
         @Override
         public TaskStatus getPublicStatus() {
             return TaskStatus.OnHold;
@@ -50,12 +50,12 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.addObject(ConnectionTaskImpl.INBOUND_DISCRIMINATOR);
             sqlBuilder.append(" and ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status = 1)");
+            sqlBuilder.append(".status > 0)");
             sqlBuilder.append("     or (discriminator =");
             sqlBuilder.addObject(ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR);
             sqlBuilder.append(" and (");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status = 1 or ");
+            sqlBuilder.append(".status > 0 or ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextExecutionTimestamp is null)))");
         }
@@ -115,7 +115,8 @@ public enum ServerConnectionTaskStatus {
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
             Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return nextExecutionTimestamp != null && now.getTime() >= nextExecutionTimestamp.getTime();
+            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (nextExecutionTimestamp != null && now.getTime() >= nextExecutionTimestamp.getTime());
         }
 
         @Override
@@ -128,10 +129,13 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".id and cte.obsolete_date is null and comport is not null) and ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.append("and ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(connectionTaskTableName);
+            sqlBuilder.append(".lastExecutionFailed = 0 ");
+            sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".status = 0 ");
-            sqlBuilder.append("and ");
+            sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp <=");
             sqlBuilder.addLong(this.asSeconds(clock.now()));
@@ -150,7 +154,8 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            return task.getLastSuccessfulCommunicationEnd() == null && task.getCurrentRetryCount() == 0;
+            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (task.getLastSuccessfulCommunicationEnd() == null && task.getCurrentRetryCount() == 0);
         }
 
         @Override
@@ -192,7 +197,8 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            return this.strictlyBetween(task.getCurrentRetryCount(), 0, task.getMaxNumberOfTries());
+            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (this.strictlyBetween(task.getCurrentRetryCount(), 0, task.getMaxNumberOfTries()));
         }
 
         @Override
@@ -231,8 +237,9 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            return task.lastExecutionFailed()
-                    && task.getCurrentRetryCount() == 0;
+            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && task.lastExecutionFailed()
+                && task.getCurrentRetryCount() == 0;
         }
 
         @Override
@@ -278,7 +285,8 @@ public enum ServerConnectionTaskStatus {
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
             Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() >= now.getTime();
+            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() >= now.getTime());
         }
 
         @Override

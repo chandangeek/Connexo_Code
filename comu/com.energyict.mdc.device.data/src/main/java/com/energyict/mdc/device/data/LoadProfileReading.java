@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -18,7 +19,7 @@ public interface LoadProfileReading {
 
     void setInterval(Interval interval);
 
-    Map<Channel, BigDecimal> getChannelValues();
+    Map<Channel, IntervalReadingRecord> getChannelValues();
 
     Map<Channel, DataValidationStatus> getChannelValidationStates();
 
