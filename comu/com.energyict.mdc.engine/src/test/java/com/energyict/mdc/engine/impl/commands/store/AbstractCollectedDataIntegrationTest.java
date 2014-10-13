@@ -25,6 +25,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -36,6 +37,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -43,6 +45,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
@@ -54,6 +57,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import java.security.Principal;
 import java.util.Calendar;
@@ -68,6 +72,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -134,6 +139,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new MasterDataModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new SchedulingModule(),
+                new KpiModule(),
+                new TaskModule(),
                 new TasksModule(),
                 new IssuesModule());
         initializeTopModuleInATransaction();
@@ -256,6 +263,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(LogService.class).toInstance(mock(LogService.class));
         }
 
     }
