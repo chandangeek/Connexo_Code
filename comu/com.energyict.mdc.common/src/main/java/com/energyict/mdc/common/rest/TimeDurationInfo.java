@@ -3,7 +3,7 @@ package com.energyict.mdc.common.rest;
 import com.elster.jupiter.time.TimeDuration;
 
 public class TimeDurationInfo {
-    public int count;
+    public long count;
     public String timeUnit = TimeDuration.TimeUnit.SECONDS.getDescription();
 
     public TimeDurationInfo() {
