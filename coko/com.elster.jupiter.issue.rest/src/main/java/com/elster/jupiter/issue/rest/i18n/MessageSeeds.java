@@ -2,13 +2,14 @@ package com.elster.jupiter.issue.rest.i18n;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
 
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     ISSUE_ASSIGNEE_ME (0001, "IssueAssigneeMe", "Me", Level.SEVERE),
     ISSUE_ASSIGNEE_UNASSIGNED (0002, "IssueAssigneeUnassigned", "Unassigned", Level.SEVERE),

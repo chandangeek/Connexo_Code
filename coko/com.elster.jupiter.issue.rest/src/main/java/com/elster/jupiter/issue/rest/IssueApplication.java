@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.rest;
 
 
+import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
 import com.elster.jupiter.issue.rest.i18n.TranslationInstaller;
 import com.elster.jupiter.issue.rest.resource.*;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptionMapper;
@@ -9,9 +10,7 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
@@ -27,8 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.issue.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/isu", "name=" + IssueApplication.ISSUE_REST_COMPONENT})
-public class IssueApplication extends Application implements BinderProvider, InstallService {
+@Component(name = "com.elster.jupiter.issue.rest", service = {Application.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/isu", "name=" + IssueApplication.ISSUE_REST_COMPONENT})
+public class IssueApplication extends Application implements BinderProvider, InstallService, TranslationKeyProvider {
     public static final String ISSUE_REST_COMPONENT = "ISR";
 
     private volatile TransactionService transactionService;
@@ -126,11 +125,25 @@ public class IssueApplication extends Application implements BinderProvider, Ins
 
     @Override
     public final void install() {
-        new TranslationInstaller(thesaurus).createTranslations();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("NLS");
+    }
+
+    @Override
+    public String getComponentName() {
+        return ISSUE_REST_COMPONENT;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }
