@@ -15,11 +15,13 @@ Ext.define('Usr.controller.history.UserManagement', {
                     title: Uni.I18n.translate('group.title', 'USR', 'Roles'),
                     route: 'roles',
                     controller: 'Usr.controller.Group',
+                    privileges: ['privilege.administrate.userAndRole','privilege.view.userAndRole'],
                     items: {
                         edit: {
                             title: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
                             route: '{id}/edit',
                             controller: 'Usr.controller.GroupEdit',
+                            privileges: ['privilege.administrate.userAndRole'],
                             action: 'showEditOverview',
                             callback: function (route) {
                                 this.getApplication().on('editRole', function (record) {
@@ -34,6 +36,7 @@ Ext.define('Usr.controller.history.UserManagement', {
                             title: Uni.I18n.translate('general.add', 'USR', 'Add'),
                             route: 'add',
                             controller: 'Usr.controller.GroupEdit',
+                            privileges: ['privilege.administrate.userAndRole'],
                             action: 'showCreateOverview'
                         }
                     }
@@ -42,11 +45,13 @@ Ext.define('Usr.controller.history.UserManagement', {
                     title: Uni.I18n.translate('user.title', 'USR', 'Users'),
                     route: 'users',
                     controller: 'Usr.controller.User',
+                    privileges: ['privilege.administrate.userAndRole','privilege.view.userAndRole'],
                     items: {
                         edit: {
                             title: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
                             route: '{id}/edit',
                             controller: 'Usr.controller.UserEdit',
+                            privileges: ['privilege.administrate.userAndRole'],
                             action: 'showEditOverview',
                             callback: function (route) {
                                 this.getApplication().on('editUser', function (record) {

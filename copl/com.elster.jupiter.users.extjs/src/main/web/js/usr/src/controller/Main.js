@@ -33,7 +33,7 @@ Ext.define('Usr.controller.Main', {
     },
 
     initMenu: function () {
-        if (Uni.Auth.hasPrivilege('privilege.view.userAndRole')) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.userAndRole','privilege.view.userAndRole'])) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'USR', 'Administration'),
                 glyph: 'settings',
@@ -45,23 +45,19 @@ Ext.define('Usr.controller.Main', {
 
             var usersItems = [];
 
-            if (Uni.Auth.hasPrivilege('privilege.view.userAndRole')) {
-                usersItems.push(
-                    {
-                        text: Uni.I18n.translate('general.users', 'USR', 'Users'),
-                        href: '#/administration/users'
-                    }
-                );
-            }
+            usersItems.push(
+                {
+                    text: Uni.I18n.translate('general.users', 'USR', 'Users'),
+                    href: '#/administration/users'
+                }
+            );
 
-            if (Uni.Auth.hasPrivilege('privilege.view.userAndRole')) {
-                usersItems.push(
-                    {
-                        text: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
-                        href: '#/administration/roles'
-                    }
-                );
-            }
+            usersItems.push(
+                {
+                    text: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
+                    href: '#/administration/roles'
+                }
+            );
 
             var users = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.userManagement', 'USR', 'User management'),
