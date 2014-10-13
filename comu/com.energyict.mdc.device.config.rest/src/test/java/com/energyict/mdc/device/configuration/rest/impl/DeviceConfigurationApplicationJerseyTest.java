@@ -13,8 +13,9 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
-import javax.ws.rs.core.Application;
 import org.mockito.Mock;
+
+import javax.ws.rs.core.Application;
 
 /**
  * Created by bvn on 9/19/14.

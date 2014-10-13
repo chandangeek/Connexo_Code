@@ -38,10 +38,11 @@ import javax.ws.rs.core.Application;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-@Component(name = "com.energyict.dtc.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/dtc", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.dtc.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dtc", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
 public class DeviceConfigurationApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "DCR";
@@ -173,36 +174,41 @@ public class DeviceConfigurationApplication extends Application implements Insta
         installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, messageSeeds.toArray(new MessageSeed[messageSeeds.size()]));
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS", "MDS");
+    }
+
     private Set<MessageSeed> camouflagePhenomenaAsMessageSeeds() {
         Set<MessageSeed> messageSeedSet = new HashSet<>();
         for (final Phenomenon phenomenon : masterDataService.findAllPhenomena()) {
             messageSeedSet.add(
-                new MessageSeed() {
-                    @Override
-                    public String getModule() {
-                        return DeviceConfigurationApplication.COMPONENT_NAME;
-                    }
+                    new MessageSeed() {
+                        @Override
+                        public String getModule() {
+                            return DeviceConfigurationApplication.COMPONENT_NAME;
+                        }
 
-                    @Override
-                    public int getNumber() {
-                        return (int) phenomenon.getId();
-                    }
+                        @Override
+                        public int getNumber() {
+                            return (int) phenomenon.getId();
+                        }
 
-                    @Override
-                    public String getKey() {
-                        return phenomenon.getName();
-                    }
+                        @Override
+                        public String getKey() {
+                            return phenomenon.getName();
+                        }
 
-                    @Override
-                    public String getDefaultFormat() {
-                        return phenomenon.getName();
-                    }
+                        @Override
+                        public String getDefaultFormat() {
+                            return phenomenon.getName();
+                        }
 
-                    @Override
-                    public Level getLevel() {
-                        return Level.SEVERE;
-                    }
-                });
+                        @Override
+                        public Level getLevel() {
+                            return Level.SEVERE;
+                        }
+                    });
         }
         return messageSeedSet;
     }
