@@ -10,7 +10,7 @@ Ext.define('Dsh.model.Filter', {
     },
     fields: [
         { name: 'currentStates', type: 'auto' },
-        { name: 'latestStatus', type: 'auto' },
+        { name: 'latestStates', type: 'auto' },
         { name: 'latestResults', type: 'auto' },
         { name: 'comPortPools', type: 'auto' },
         { name: 'comSchedules', type: 'auto' },

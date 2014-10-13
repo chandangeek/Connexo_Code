@@ -41,7 +41,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 },
                 {
                     itemId: 'latest-status',
-                    name: 'latestStatus',
+                    name: 'latestStates',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestStatus', 'DSH', 'Latest status'),
                     displayField: 'localizedValue',
                     valueField: 'successIndicator',

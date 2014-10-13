@@ -61,7 +61,7 @@ Ext.define('Dsh.view.Connections', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('communication.widget.details.empty.title', 'DSH', 'No communications foundю'),
+                        title: Uni.I18n.translate('communication.widget.details.empty.title', 'DSH', 'No communications found'),
                         reasons: [
                             Uni.I18n.translate('communication.widget.details.empty.list.item1', 'DSH', 'No communications in the system.'),
                             Uni.I18n.translate('communication.widget.details.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
