@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datacollection.rest.i18n;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 
@@ -8,7 +9,7 @@ import java.text.MessageFormat;
 import java.util.logging.Level;
 
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     ;
 

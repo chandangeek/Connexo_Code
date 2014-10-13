@@ -4,15 +4,13 @@ import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptio
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.rest.i18n.TranslationInstaller;
+import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
@@ -25,8 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.issue.datacollection.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/idc", "name=" + IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT})
-public class IssueDataCollectionApplication extends Application implements BinderProvider, InstallService {
+@Component(name = "com.energyict.mdc.issue.datacollection.rest", service = {Application.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/idc", "name=" + IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT})
+public class IssueDataCollectionApplication extends Application implements BinderProvider, InstallService, TranslationKeyProvider {
     public static final String ISSUE_DATACOLLECTION_REST_COMPONENT = "IDR";
 
     private volatile TransactionService transactionService;
@@ -100,13 +98,29 @@ public class IssueDataCollectionApplication extends Application implements Binde
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST);
     }
+
     @Override
-    public final void install() {
-        new TranslationInstaller(thesaurus).createTranslations();
+    public void install() {
+        // do nothing
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("NLS", "IDC", "ISR");
+    }
+
+    @Override
+    public String getComponentName() {
+        return ISSUE_DATACOLLECTION_REST_COMPONENT;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }
