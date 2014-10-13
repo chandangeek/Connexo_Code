@@ -10,7 +10,6 @@ import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -43,18 +42,16 @@ public class ConnectionOverviewInfoFactory {
     private final SummaryInfoFactory summaryInfoFactory;
     private final Thesaurus thesaurus;
     private final DashboardService dashboardService;
-    private final ConnectionTaskService connectionTaskService;
     private final ExceptionFactory exceptionFactory;
     private final DataCollectionKpiService dataCollectionKpiService;
 
     @Inject
-    public ConnectionOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory, DataCollectionKpiService dataCollectionKpiService) {
+    public ConnectionOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, ExceptionFactory exceptionFactory, DataCollectionKpiService dataCollectionKpiService) {
         this.breakdownFactory = breakdownFactory;
         this.overviewFactory = overviewFactory;
         this.summaryInfoFactory = summaryInfoFactory;
         this.thesaurus = thesaurus;
         this.dashboardService = dashboardService;
-        this.connectionTaskService = connectionTaskService;
         this.exceptionFactory = exceptionFactory;
         this.dataCollectionKpiService = dataCollectionKpiService;
     }
@@ -65,7 +62,7 @@ public class ConnectionOverviewInfoFactory {
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown(endDeviceGroup);
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown(endDeviceGroup);
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup);
-        SummaryData summaryData = new SummaryData(taskStatusOverview, connectionTaskService.countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
+        SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(0).get();
         return getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData, dataCollectionKpi);
     }
@@ -76,13 +73,32 @@ public class ConnectionOverviewInfoFactory {
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
-        SummaryData summaryData = new SummaryData(taskStatusOverview, connectionTaskService.countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
-        DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(0).get();
-        return getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData, dataCollectionKpi);
+        SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
+        return getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData);
+    }
+
+    private ConnectionOverviewInfo getConnectionOverviewInfo(TaskStatusOverview taskStatusOverview, ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, ComPortPoolBreakdown comPortPoolBreakdown, ConnectionTypeBreakdown connectionTypeBreakdown, DeviceTypeBreakdown deviceTypeBreakdown, SummaryData summaryData) {
+        ConnectionOverviewInfo info = new ConnectionOverviewInfo();
+        info.connectionSummary = summaryInfoFactory.from(summaryData);
+
+        info.overviews=new ArrayList<>(2);
+        info.overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.currentStates, taskStatusAdapter)); // JP-4278
+        TaskSummaryInfo perLatestResultOverview = overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResults, COM_SESSION_SUCCESS_INDICATOR_ADAPTER);
+        addAtLeastOntTaskFailedCounter(comSessionSuccessIndicatorOverview, perLatestResultOverview); // JP-5868
+        info.overviews.add(perLatestResultOverview); // JP-4280
+        overviewFactory.sortAllOverviews(info.overviews);
+
+        info.breakdowns=new ArrayList<>(3);
+        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), MessageSeeds.PER_COMMUNICATION_POOL.getDefaultFormat()), comPortPoolBreakdown, FilterOption.comPortPools)); // JP-4281
+        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), MessageSeeds.PER_CONNECTION_TYPE.getDefaultFormat()), connectionTypeBreakdown, FilterOption.connectionTypes)); // JP-4283
+        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), MessageSeeds.PER_DEVICE_TYPE.getDefaultFormat()), deviceTypeBreakdown, FilterOption.deviceTypes)); // JP-4284
+        breakdownFactory.sortAllBreakdowns(info.breakdowns);
+
+        return info;
     }
 
     private ConnectionOverviewInfo getConnectionOverviewInfo(TaskStatusOverview taskStatusOverview, ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, ComPortPoolBreakdown comPortPoolBreakdown, ConnectionTypeBreakdown connectionTypeBreakdown, DeviceTypeBreakdown deviceTypeBreakdown, SummaryData summaryData, DataCollectionKpi dataCollectionKpi) {
-        ConnectionOverviewInfo info = new ConnectionOverviewInfo();
+        ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview,comSessionSuccessIndicatorOverview,comPortPoolBreakdown,connectionTypeBreakdown,deviceTypeBreakdown,summaryData);
         if (dataCollectionKpi.calculatesConnectionSetupKpi()) {
             info.kpi = new ArrayList<>();
             KpiScoreInfo success = new KpiScoreInfo(MessageSeeds.SUCCESS.getKey());
@@ -101,24 +117,7 @@ public class ConnectionOverviewInfoFactory {
                 failed.addKpi(kpiScore.getTimestamp(), kpiScore.getFailed());
                 target.addKpi(kpiScore.getTimestamp(), kpiScore.getTarget());
             }
-
         }
-
-        info.connectionSummary = summaryInfoFactory.from(summaryData);
-
-        info.overviews=new ArrayList<>(2);
-        info.overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.currentStates, taskStatusAdapter)); // JP-4278
-        TaskSummaryInfo perLatestResultOverview = overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResults, COM_SESSION_SUCCESS_INDICATOR_ADAPTER);
-        addAtLeastOntTaskFailedCounter(comSessionSuccessIndicatorOverview, perLatestResultOverview); // JP-5868
-        info.overviews.add(perLatestResultOverview); // JP-4280
-        overviewFactory.sortAllOverviews(info.overviews);
-
-        info.breakdowns=new ArrayList<>(3);
-        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), MessageSeeds.PER_COMMUNICATION_POOL.getDefaultFormat()), comPortPoolBreakdown, FilterOption.comPortPools)); // JP-4281
-        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), MessageSeeds.PER_CONNECTION_TYPE.getDefaultFormat()), connectionTypeBreakdown, FilterOption.connectionTypes)); // JP-4283
-        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), MessageSeeds.PER_DEVICE_TYPE.getDefaultFormat()), deviceTypeBreakdown, FilterOption.deviceTypes)); // JP-4284
-        breakdownFactory.sortAllBreakdowns(info.breakdowns);
-
         return info;
     }
 

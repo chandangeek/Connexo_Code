@@ -76,7 +76,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
     }
 
     @Test
-    public void testGetOverview() throws UnsupportedEncodingException {
+    public void testGetOverviewWithoutDeviceGroup() throws UnsupportedEncodingException {
         TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
         when(dashboardService.getConnectionTaskStatusOverview()).thenReturn(taskStatusOverview);
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
@@ -102,6 +102,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(0).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
+        assertThat(connectionOverviewInfo.kpi).isNull();
     }
 
     private DataCollectionKpi mockDataCollectionKpi() {

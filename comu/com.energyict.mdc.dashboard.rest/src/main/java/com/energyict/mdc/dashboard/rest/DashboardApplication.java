@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -44,16 +45,15 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Insert your comments here.
@@ -80,6 +80,7 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     @Reference
     public void setStatusService(StatusService statusService) {
@@ -145,6 +146,11 @@ public class DashboardApplication extends Application implements InstallService 
     @Reference
     public void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
         this.dataCollectionKpiService = dataCollectionKpiService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Override
@@ -215,6 +221,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(CommunicationOverviewInfoFactory.class).to(CommunicationOverviewInfoFactory.class);
             bind(ComServerStatusInfoFactory.class).to(ComServerStatusInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
         }
     }
 

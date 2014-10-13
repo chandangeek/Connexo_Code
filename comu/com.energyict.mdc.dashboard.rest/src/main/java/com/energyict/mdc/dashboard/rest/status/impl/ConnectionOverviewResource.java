@@ -35,21 +35,17 @@ public class ConnectionOverviewResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
-    public ConnectionOverviewInfo getConnectionOverview() throws Exception {
-        return connectionOverviewInfoFactory.asInfo();
-    }
-
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public ConnectionOverviewInfo getConnectionOverview(@QueryParam("deviceGroupId") Long deviceGroupId) throws Exception {
 
-        Optional<QueryEndDeviceGroup> optional = meteringGroupService.findQueryEndDeviceGroup(deviceGroupId);
-        if (!optional.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
+        if (deviceGroupId!=null) {
+            Optional<QueryEndDeviceGroup> optional = meteringGroupService.findQueryEndDeviceGroup(deviceGroupId);
+            if (!optional.isPresent()) {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
+            }
+            return connectionOverviewInfoFactory.asInfo(optional.get());
+        } else {
+            return connectionOverviewInfoFactory.asInfo();
         }
-        return connectionOverviewInfoFactory.asInfo(optional.get());
     }
 
 }
