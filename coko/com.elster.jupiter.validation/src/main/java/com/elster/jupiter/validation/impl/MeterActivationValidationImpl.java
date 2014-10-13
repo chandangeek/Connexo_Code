@@ -179,12 +179,13 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
                 .forEach(c -> validateChannel(c, interval));
     }
 
+    // given interval is interpreted as consumption interval for cumulative
     private void validateChannel(Channel channel, Interval interval) {
         Date earliestLastChecked = null;
         List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
-            Interval intervalToValidate = intervalToValidate(channelValidation, interval, channel);
+            Interval intervalToValidate = intervalToValidate(channelValidation, interval); // this interval is to be interpreted closed-closed
             Date lastChecked = null;
             for (IValidationRule validationRule : activeRules) {
                 lastChecked = validationRule.validateChannel(channel, intervalToValidate);
@@ -205,15 +206,19 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         }
     }
 
-    private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval, Channel channel) {
+    private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval) {
         Date lastChecked = getLatestDate(channelValidation.getLastChecked(), firstReadingTime(channelValidation));
-        return new Interval(getEarliestDate(lastChecked, interval.getStart()), getLatestDate(channel.getLastDateTime(), interval.getEnd()));
+        return new Interval(getEarliestDate(lastChecked, adjusted(channelValidation, interval.getStart())), getLatestDate(channelValidation.getChannel().getLastDateTime(), interval.getEnd()));
+    }
+
+    private Date adjusted(ChannelValidationImpl channelValidation, Date date) {
+        int minutes = channelValidation.getChannel().getMainReadingType().getMeasuringPeriod().getMinutes();
+        Instant start = date.toInstant();
+        return Date.from(start.plus(minutes, ChronoUnit.MINUTES));
     }
 
     private Date firstReadingTime(ChannelValidationImpl channelValidation) {
-        int minutes = channelValidation.getChannel().getMainReadingType().getMeasuringPeriod().getMinutes();
-        Instant start = channelValidation.getChannel().getMeterActivation().getInterval().getStart().toInstant();
-        return Date.from(start.plus(minutes, ChronoUnit.MINUTES));
+        return adjusted(channelValidation, channelValidation.getChannel().getMeterActivation().getInterval().getStart());
     }
 
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {

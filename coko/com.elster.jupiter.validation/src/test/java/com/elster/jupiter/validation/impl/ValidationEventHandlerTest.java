@@ -1,10 +1,12 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
@@ -49,6 +51,8 @@ public class ValidationEventHandlerTest {
     private LocalEvent localEvent;
     @Mock
     private Clock clock;
+    @Mock
+    private ReadingType readingType;
 
     @Before
     public void setUp() {
@@ -64,6 +68,10 @@ public class ValidationEventHandlerTest {
         when(channel1.getMeterActivation()).thenReturn(meterActivation1);
         when(channel2.getMeterActivation()).thenReturn(meterActivation1);
         when(channel3.getMeterActivation()).thenReturn(meterActivation2);
+        when(channel1.getMainReadingType()).thenReturn(readingType);
+        when(channel2.getMainReadingType()).thenReturn(readingType);
+        when(channel3.getMainReadingType()).thenReturn(readingType);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
 
         when(localEvent.getSource()).thenReturn(readingStorer);
         when(localEvent.getType()).thenReturn(eventType);

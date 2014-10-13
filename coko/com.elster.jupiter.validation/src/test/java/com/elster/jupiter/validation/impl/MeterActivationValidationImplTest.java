@@ -12,6 +12,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.google.common.base.Optional;
 import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.when;
 public class MeterActivationValidationImplTest {
 
     private static final Date DATE1 = new DateMidnight(2012, 11, 19).toDate();
+    private static final Date DATE1AND15 = new DateTime(2012, 11, 19, 0, 15, 0).toDate();
     private static final Date DATE2 = new DateMidnight(2012, 12, 19).toDate();
     private static final Date DATE3 = new DateMidnight(2012, 12, 24).toDate();
     private static final Date DATE4 = new DateMidnight(2012, 12, 1).toDate();
@@ -119,7 +121,7 @@ public class MeterActivationValidationImplTest {
     @Test
     public void testValidateOneRuleAppliesToOneChannel() throws Exception {
         doReturn(Collections.singleton(readingType1)).when(rule1).getReadingTypes();
-        when(rule1.validateChannel(channel1, INTERVAL)).thenReturn(DATE4);
+        when(rule1.validateChannel(channel1, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE4);
         when(channel1.getLastDateTime()).thenReturn(DATE4);
 
         meterActivationValidation.validate(INTERVAL);
@@ -135,10 +137,10 @@ public class MeterActivationValidationImplTest {
     public void testValidateBothRulesApplyToBothChannels() throws Exception {
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule1).getReadingTypes();
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule2).getReadingTypes();
-        when(rule1.validateChannel(channel1, INTERVAL)).thenReturn(DATE4);
-        when(rule1.validateChannel(channel2, INTERVAL)).thenReturn(DATE2);
-        when(rule2.validateChannel(channel1, INTERVAL)).thenReturn(DATE2);
-        when(rule2.validateChannel(channel2, INTERVAL)).thenReturn(DATE4);
+        when(rule1.validateChannel(channel1, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE4);
+        when(rule1.validateChannel(channel2, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE2);
+        when(rule2.validateChannel(channel1, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE2);
+        when(rule2.validateChannel(channel2, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE4);
         when(channel1.getLastDateTime()).thenReturn(DATE4);
         when(channel2.getLastDateTime()).thenReturn(DATE4);
 

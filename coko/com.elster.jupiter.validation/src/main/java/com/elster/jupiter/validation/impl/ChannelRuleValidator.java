@@ -35,8 +35,9 @@ class ChannelRuleValidator {
         this.rule = rule;
     }
 
+    // interval is interpreted as closed
     Date validateReadings(Channel channel, Interval interval) {
-        ListMultimap<Date, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, intervalToRequest(interval));
+        ListMultimap<Date, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, interval);
         Optional<Date> lastChecked = channel.getReadingTypes().stream()
                 .filter(r -> rule.getReadingTypes().contains(r))
                 .map(r -> validateReadings(channel, interval, r, existingReadingQualities))
@@ -68,15 +69,12 @@ class ChannelRuleValidator {
 
     private Stream<ValidatedResult> validatedResults(Validator validator, Channel channel, ReadingType channelReadingType, Interval interval) {
         if (channel.isRegular()) {
-            return channel.getIntervalReadings(channelReadingType, intervalToRequest(interval)).stream()
+            Interval toRequest = interval.withStart(new Date(interval.getStart().getTime() - 1));
+            return channel.getIntervalReadings(channelReadingType, toRequest).stream()
                     .map(intervalReading -> new ReadingTarget(intervalReading, validator.validate(intervalReading)));
         }
         return channel.getRegisterReadings(channelReadingType, interval).stream()
                 .map(readingRecord -> new ReadingTarget(readingRecord, validator.validate(readingRecord)));
-    }
-
-    private Interval intervalToRequest(Interval interval) {
-        return interval.withStart(new Date(interval.getStart().getTime() - 1));
     }
 
     private ListMultimap<Date, ReadingQualityRecord> getExistingReadingQualities(Channel channel, Interval interval) {
@@ -134,7 +132,7 @@ class ChannelRuleValidator {
 
         @Override
         public Optional<BaseReadingRecord> getReadingRecord() {
-            return null;
+            return Optional.empty();
         }
 
         @Override

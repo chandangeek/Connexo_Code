@@ -1,5 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -360,8 +363,32 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         meterActivationValidation.getChannelValidations().stream()
                 .map(ChannelValidation::getChannel)
                 .flatMap(c -> c.findReadingQuality(interval).stream())
-                .filter(IS_VALIDATION_QUALITY)
+                .filter(isValidationQuality())
                 .forEach(ReadingQualityRecord::delete);
+    }
+
+    private Predicate<ReadingQualityRecord> isValidationQuality() {
+        return isSuspect().or(isValidationRuleQuality());
+    }
+
+    private Predicate<ReadingQualityRecord> isValidationRuleQuality() {
+        return isOfMDM().and(isOfValidationRule().or(isMissing()));
+    }
+
+    private Predicate<ReadingQualityRecord> isMissing() {
+        return q -> QualityCodeIndex.KNOWNMISSINGREAD.equals(q.getType().qualityIndex().orElse(null));
+    }
+
+    private Predicate<ReadingQualityRecord> isOfValidationRule() {
+        return q -> QualityCodeCategory.VALIDATION.equals(q.getType().category().orElse(null));
+    }
+
+    private Predicate<ReadingQualityRecord> isOfMDM() {
+        return q -> QualityCodeSystem.MDM.equals(q.getType().system().orElse(null));
+    }
+
+    private Predicate<ReadingQualityRecord> isSuspect() {
+        return q -> QualityCodeIndex.SUSPECT.equals(q.getType().qualityIndex().orElse(null));
     }
 
     private boolean isValidationActive(MeterActivation meterActivation) {

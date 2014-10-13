@@ -4,19 +4,15 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.function.Predicate;
 
 public interface ValidationService {
 
     String COMPONENTNAME = "VAL";
-
-    Predicate<ReadingQuality> IS_VALIDATION_QUALITY = q -> q.getTypeCode().startsWith("3.6");
 
     /**
      * Mangagement of ruleSets and ules *

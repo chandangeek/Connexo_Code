@@ -295,6 +295,9 @@ public class ValidationServiceImplTest {
         when(readingQuality1.getTypeCode()).thenReturn("3.6.1");
         when(readingQuality2.getTypeCode()).thenReturn("1.0.0");
         when(readingQuality3.getTypeCode()).thenReturn("3.6.2");
+        when(readingQuality1.getType()).thenReturn(new ReadingQualityType("3.6.1"));
+        when(readingQuality2.getType()).thenReturn(new ReadingQualityType("1.0.0"));
+        when(readingQuality3.getType()).thenReturn(new ReadingQualityType("3.6.2"));
 
         ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
 

@@ -8,9 +8,11 @@ import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
+import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,13 +51,22 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
         Map<MeterActivation, Interval> toValidate = new HashMap<>();
         for (Map.Entry<Channel, Interval> entry : storer.getScope().entrySet()) {
             MeterActivation meterActivation = entry.getKey().getMeterActivation();
+            Interval adjustedInterval = adjust(entry.getKey(), entry.getValue());
             if (!toValidate.containsKey(meterActivation)) {
-                toValidate.put(meterActivation, entry.getValue());
+                toValidate.put(meterActivation, adjustedInterval);
             } else {
-                Interval span = toValidate.get(meterActivation).spanToInclude(entry.getValue());
+                Interval span = toValidate.get(meterActivation).spanToInclude(adjustedInterval);
                 toValidate.put(meterActivation, span);
             }
         }
         return toValidate;
+    }
+
+    private Interval adjust(Channel channel, Interval interval) {
+        int minutes = channel.getMainReadingType().getMeasuringPeriod().getMinutes();
+        if (minutes == 0) {
+            return interval;
+        }
+        return interval.withStart(new Date(interval.getStart().getTime() - DateTimeConstants.MILLIS_PER_MINUTE * minutes));
     }
 }
