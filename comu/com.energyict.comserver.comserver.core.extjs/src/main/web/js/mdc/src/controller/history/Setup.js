@@ -852,6 +852,19 @@ Ext.define('Mdc.controller.history.Setup', {
                                         }, {single: true});
                                         return this;
                                     }
+                                },
+                                history: {
+                                    title: 'Show connection history',
+                                    route: '{connectionMethodId}/history',
+                                    controller: 'Mdc.controller.setup.DeviceConnectionHistory',
+                                    action: 'showDeviceConnectionMethodHistory',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadConnectionMethod', function (record) {
+                                            route.setTitle('\''+ record.get('name') + '\' history');
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
                                 }
                             }
                         },

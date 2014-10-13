@@ -58,7 +58,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 editDeviceConnectionMethod: this.editDeviceConnectionMethodHistory,
                 deleteDeviceConnectionMethod: this.deleteDeviceConnectionMethod,
                 toggleDefault: this.toggleDefaultDeviceConnectionMethod,
-                toggleActive: this.toggleActiveDeviceconnectionMethod
+                toggleActive: this.toggleActiveDeviceconnectionMethod,
+                viewConnectionHistory: this.viewConnectionHistory
             },
             '#deviceConnectionMethodPreview menuitem[action=editDeviceConnectionMethod]': {
                 click: this.editDeviceConnectionMethodHistoryFromPreview
@@ -92,6 +93,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             },
             '#deviceConnectionMethodEdit #activateConnWindowRadiogroup': {
                 change: this.activateConnWindow
+            },
+            '#deviceConnectionMethodPreview menuitem[action=viewConnectionHistory]': {
+                click: this.viewConnectionHistoryFromPreview
             }
         });
     },
@@ -166,6 +170,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     editDeviceConnectionMethodHistoryFromPreview: function () {
         this.editDeviceConnectionMethodHistory(this.getDeviceConnectionMethodPreviewForm().getRecord());
+    },
+
+    viewConnectionHistory:function(record){
+        location.href = '#/devices/' + this.mrid + '/connectionmethods/' + record.get('id') + '/history';
+    },
+
+    viewConnectionHistoryFromPreview:function(){
+        this.viewConnectionHistory(this.getDeviceConnectionMethodPreviewForm().getRecord());
     },
 
     showAddDeviceConnectionMethodView: function (mrid, direction) {

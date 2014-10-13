@@ -25,6 +25,11 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMe
             text: Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate'),
             itemId: 'toggleActiveMenuItem',
             action: 'toggleActive'
+        },
+        {
+            text: Uni.I18n.translate('deviceconnectionmethod.viewHistory', 'MDC', 'View history'),
+            itemId: 'viewConnectionHistoryItem',
+            action: 'viewConnectionHistory'
         }
     ]
 });

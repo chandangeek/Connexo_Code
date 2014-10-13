@@ -29,6 +29,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceConfigurationLogbooks',
         'Mdc.controller.setup.DeviceConfigurations',
         'Mdc.controller.setup.DeviceConnectionMethods',
+        'Mdc.controller.setup.DeviceConnectionHistory',
         'Mdc.controller.setup.DeviceDataValidation',
         'Mdc.controller.setup.DeviceGroups',
         'Mdc.controller.setup.DeviceLoadProfileChannelData',
