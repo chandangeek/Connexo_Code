@@ -18,7 +18,7 @@ public class TimeDurationInfo {
         this.timeUnit=TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode());
     }
 
-    public TimeDurationInfo(int seconds) {
+    public TimeDurationInfo(long seconds) {
         this.count=seconds;
         this.timeUnit=TimeDuration.TimeUnit.SECONDS.getDescription();
     }
