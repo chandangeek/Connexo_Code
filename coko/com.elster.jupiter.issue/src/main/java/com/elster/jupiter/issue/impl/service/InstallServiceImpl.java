@@ -141,7 +141,7 @@ public class InstallServiceImpl implements InstallService {
 
         RecurrentTaskBuilder taskBuilder = taskService.newBuilder();
         taskBuilder.setName(ISSUE_OVERDUE_TASK_NAME);
-        taskBuilder.setCronExpression(ISSUE_OVERDUE_TASK_SCHEDULE);
+        taskBuilder.setScheduleExpressionString(ISSUE_OVERDUE_TASK_SCHEDULE);
         taskBuilder.setDestination(destination);
         taskBuilder.setPayLoad("payload");
         taskBuilder.scheduleImmediately();
