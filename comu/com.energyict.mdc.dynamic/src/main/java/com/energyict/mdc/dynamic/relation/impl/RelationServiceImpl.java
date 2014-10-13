@@ -1,13 +1,5 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.energyict.mdc.common.BusinessObject;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
-
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,6 +7,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.BusinessObject;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationParticipant;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -23,6 +22,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,7 +31,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (10:28)
  */
-@Component(name="com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
+@Component(name = "com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
 public class RelationServiceImpl implements RelationService, ServiceLocator, InstallService {
 
     private volatile DataModel dataModel;
@@ -79,7 +79,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     }
 
     @Reference
-    public void setOrmService (OrmService ormService) {
+    public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel(COMPONENT_NAME, "ComServer dynamic relations");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
@@ -88,12 +88,12 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     }
 
     @Reference
-    public void setNlsService (NlsService nlsService) {
+    public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Activate
-    public void activate () {
+    public void activate() {
         Bus.setServiceLocator(this);
         this.dataModel.register(this.getModule());
     }
@@ -103,8 +103,13 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         new Installer(this.dataModel, this.thesaurus).install(true, true);
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT", "NLS");
+    }
+
     @Deactivate
-    public void deactivate () {
+    public void deactivate() {
         Bus.clearServiceLocator(this);
     }
 
@@ -135,8 +140,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         List<RelationType> relationTypes = this.ormClient.getRelationTypeFactory().find("name", name);
         if (relationTypes.isEmpty()) {
             return null;
-        }
-        else {
+        } else {
             return relationTypes.get(0);
         }
     }
