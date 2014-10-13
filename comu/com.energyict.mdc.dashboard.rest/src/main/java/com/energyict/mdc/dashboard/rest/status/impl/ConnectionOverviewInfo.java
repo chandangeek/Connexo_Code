@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.common.rest.IdWithNameInfo;
 import java.util.List;
 
 /**
@@ -15,10 +14,25 @@ public class ConnectionOverviewInfo {
     public List<TaskSummaryInfo> overviews;
     public List<BreakdownSummaryInfo> breakdowns;
     public List<KpiScoreInfo> kpi;
-    public IdWithNameInfo deviceGroup;
+    public DeviceGroupFilterInfo deviceGroup;
 
     public ConnectionOverviewInfo() {
     }
 
 }
+
+class DeviceGroupFilterInfo {
+    public Object id;
+    public String name;
+    public String alias = FilterOption.deviceGroups.name(); // Should be in JSON answer
+
+    public DeviceGroupFilterInfo() {
+    }
+
+    public DeviceGroupFilterInfo(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+}
+
 
