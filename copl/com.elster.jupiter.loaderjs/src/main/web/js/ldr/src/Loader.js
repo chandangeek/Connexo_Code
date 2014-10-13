@@ -37,7 +37,9 @@ Ext.define('Ldr.Loader', {
      * @param {Object} scope Scope
      */
     onTranslationsLoad: function (scope) {
-        scope.loadApp(scope);
+        if (!scope.isAppScriptLoaded(scope)) {
+            scope.loadApp(scope);
+        }
     },
 
     /**
@@ -107,6 +109,26 @@ Ext.define('Ldr.Loader', {
                 // TODO Redirect to an error page.
             }
         });
+    },
+
+    /**
+     * Checks whether the app script has already been loaded.
+     *
+     * @param scope
+     * @returns {boolean}
+     */
+    isAppScriptLoaded: function (scope) {
+        var scripts = document.scripts;
+
+        for (var i = 0; i < scripts.length; i++) {
+            var script = scripts[i];
+
+            if (script.src.indexOf(scope.appScript) > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 });
 
