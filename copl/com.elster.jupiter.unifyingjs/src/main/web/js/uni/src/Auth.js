@@ -5,27 +5,14 @@
  */
 Ext.define('Uni.Auth', {
     singleton: true,
-    requires: ['Uni.store.Privileges'],
 
-    /**
-     * Loads the privileges for the current user.
-     *
-     * @param {Function} [callback] Callback after loading
-     */
-    load: function (callback) {
-        callback = (typeof callback !== 'undefined') ? callback : function () {
-        };
-
-        Uni.store.Privileges.load({
-            callback: function () {
-                callback();
-            }
-        });
-    },
+    requires: [
+        'Ldr.store.Privileges'
+    ],
 
     hasPrivilege: function (privilege) {
-        for (var i = 0; i < Uni.store.Privileges.getCount(); i++) {
-            if (privilege === Uni.store.Privileges.getAt(i).get('name')) {
+        for (var i = 0; i < Ldr.store.Privileges.getCount(); i++) {
+            if (privilege === Ldr.store.Privileges.getAt(i).get('name')) {
                 return true;
             }
         }
