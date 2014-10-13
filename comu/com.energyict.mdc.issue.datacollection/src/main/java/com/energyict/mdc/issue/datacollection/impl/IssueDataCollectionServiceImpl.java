@@ -2,11 +2,11 @@ package com.energyict.mdc.issue.datacollection.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -39,9 +39,9 @@ import java.util.List;
 @Component(name = "com.energyict.mdc.issue.datacollection", service = {InstallService.class, IssueDataCollectionService.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
 public class IssueDataCollectionServiceImpl implements InstallService, IssueDataCollectionService {
     private volatile IssueService issueService;
+    private volatile IssueActionService issueActionService;
     private volatile MessageService messageService;
     private volatile QueryService queryService;
-    private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
 
     private volatile DeviceService deviceService;
@@ -51,10 +51,10 @@ public class IssueDataCollectionServiceImpl implements InstallService, IssueData
     }
 
     @Inject
-    public IssueDataCollectionServiceImpl(IssueService issueService, MessageService messageService, NlsService nlsService, OrmService ormService, QueryService queryService, DeviceService deviceService){
+    public IssueDataCollectionServiceImpl(IssueService issueService, IssueActionService issueActionService, MessageService messageService, NlsService nlsService, OrmService ormService, QueryService queryService, DeviceService deviceService){
         setMessageService(messageService);
         setIssueService(issueService);
-        setEventService(eventService);
+        setIssueActionService(issueActionService);
         setNlsService(nlsService);
         setOrmService(ormService);
         setQueryService(queryService);
@@ -84,7 +84,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, IssueData
     @Override
     public void install() {
         new TranslationInstaller(thesaurus).createTranslations();
-        new Installer(dataModel, issueService, messageService, eventService, thesaurus).install();
+        new Installer(dataModel, issueService, issueActionService, messageService).install();
     }
 
     @Override
@@ -98,13 +98,13 @@ public class IssueDataCollectionServiceImpl implements InstallService, IssueData
     }
 
     @Reference
-    public final void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
+    public final void setIssueActionService(IssueActionService issueActionService) {
+        this.issueActionService = issueActionService;
     }
 
     @Reference
-    public final void setEventService(EventService eventService) {
-        this.eventService = eventService;
+    public final void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Reference

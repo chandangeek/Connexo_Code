@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -21,16 +22,17 @@ import java.util.Map;
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class DeviceCommunicationFailureEvent extends DataCollectionEvent {
+public class DeviceCommunicationFailureEvent extends ConnectionEvent {
     private Optional<ComTaskExecution> comTask;
 
     @Inject
-    public DeviceCommunicationFailureEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);
+    public DeviceCommunicationFailureEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
+        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, connectionTaskService, thesaurus, injector);
     }
 
     @Override
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription){
+        super.wrapInternal(rawEvent, eventDescription);
         String comTaskIdAsStr = (String) rawEvent.get(ModuleConstants.FAILED_TASK_IDS);
         if (!is(comTaskIdAsStr).emptyOrOnlyWhiteSpace()){
             setComTask(Long.parseLong(comTaskIdAsStr.trim()));
@@ -39,7 +41,7 @@ public class DeviceCommunicationFailureEvent extends DataCollectionEvent {
 
     @Override
     protected Condition getConditionForExistingIssue() {
-        return where("comTask").isEqualTo(getComTask());
+        return where("comTask").isEqualTo(getComTask()).and(super.getConditionForExistingIssue());
     }
 
     @Override
@@ -47,6 +49,7 @@ public class DeviceCommunicationFailureEvent extends DataCollectionEvent {
         if (issue instanceof OpenIssueDataCollection){
             OpenIssueDataCollection dcIssue = (OpenIssueDataCollection) issue;
             dcIssue.setCommunicationTask(getComTask().get());
+            dcIssue.setConnectionTask(getConnectionTask().get());
         }
     }
 

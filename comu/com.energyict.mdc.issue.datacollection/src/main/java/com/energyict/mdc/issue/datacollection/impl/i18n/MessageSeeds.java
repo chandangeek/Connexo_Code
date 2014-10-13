@@ -66,6 +66,7 @@ public enum MessageSeeds implements MessageSeed {
 
     // Actions 1501 -
     ACTION_RETRY_NOW(1501, "ActionRetryNow", "Retry now", Level.INFO),
+    ACTION_RETRY(1502, "ActionRetry", "Retry", Level.INFO),
     ;
 
     private final int number;

@@ -62,4 +62,11 @@ public abstract class ConnectionEvent extends DataCollectionEvent{
         this.connectionTask = getConnectionTaskService().findConnectionTask(connectionTaskId);
         // TODO throw exception when we can't find the connection task
     }
+
+    @Override
+    public ConnectionEvent clone() {
+        ConnectionEvent clone = (ConnectionEvent) super.clone();
+        clone.connectionTask = connectionTask;
+        return clone;
+    }
 }

@@ -2,14 +2,18 @@ package com.energyict.mdc.issue.datacollection.impl.install;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
 import com.energyict.mdc.issue.datacollection.impl.database.CreateIssueViewOperation;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 
@@ -17,13 +21,13 @@ public class Installer {
 
     private final MessageService messageService;
     private final IssueService issueService;
-    private final EventService eventService;
+    private final IssueActionService issueActionService;
     private final DataModel dataModel;
 
-    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService) {
         this.issueService = issueService;
+        this.issueActionService = issueActionService;
         this.messageService = messageService;
-        this.eventService = eventService;
         this.dataModel = dataModel;
     }
 
@@ -35,6 +39,7 @@ public class Installer {
         setAQSubscriber();
         IssueType issueType = setSupportedIssueType();
         setDataCollectionReasons(issueType);
+        createActionTypes();
     }
 
     private IssueType setSupportedIssueType() {
@@ -66,6 +71,12 @@ public class Installer {
         issueService.createReason(ModuleConstants.REASON_SLOPE_DETECTION, issueType, MessageSeeds.ISSUE_REASON_SLOPE_DETECTION);
     }
 
+    private void createActionTypes(){
+        IssueType type = null;
+        issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryCommunicationTaskAction.class.getName(), type);
+        issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryCommunicationTaskNowAction.class.getName(), type);
+        issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryConnectionTaskAction.class.getName(), type);
+    }
 
 }
 
