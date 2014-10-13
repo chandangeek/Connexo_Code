@@ -673,7 +673,6 @@
         <module>../com.energyict.mdc.protocol.pluggable</module>
         <module>../com.energyict.mdc.masterdata</module>
         <module>../com.energyict.mdc.masterdata.rest</module>
-        <module>../com.energyict.mdc.masterdata.extjs</module>
         <module>../com.energyict.mdc.device.config</module>
         <module>../com.energyict.mdc.device.config.rest</module>
         <module>../com.energyict.mdc.device.data</module>
