@@ -16,6 +16,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Set;
 
 public class NumericalReadingInfo extends ReadingInfo {
@@ -64,7 +65,7 @@ public class NumericalReadingInfo extends ReadingInfo {
 
     @Override
     protected BaseReading createNew(Register register) {
-        BaseReading reading = new ReadingImpl(register.getReadingType().getMRID(), this.value, this.timeStamp);
+        BaseReading reading = new ReadingImpl(register.getReadingType().getMRID(), this.value, this.id == null ? this.timeStamp : new Date(this.id));
         return reading;
     }
 }
