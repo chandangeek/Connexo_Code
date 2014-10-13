@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -12,9 +14,6 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -28,9 +27,9 @@ import java.util.List;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "direction")
 @JsonSubTypes({
-     @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
-     @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Outbound") })
-public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends ComPortPool,? extends PartialConnectionTask>> {
+        @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
+        @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Outbound")})
+public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> {
 
     public long id;
     public String name;
@@ -51,13 +50,13 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public ConnectionMethodInfo() {
     }
 
-    protected ConnectionMethodInfo(ConnectionTask<?,?> connectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
-        this.id=connectionTask.getId();
-        this.name= connectionTask.getName();
+    protected ConnectionMethodInfo(ConnectionTask<?, ?> connectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
+        this.id = connectionTask.getId();
+        this.name = connectionTask.getName();
         this.status = connectionTask.getStatus();
-        this.connectionType= connectionTask.getPartialConnectionTask().getPluggableClass().getName();
-        this.comPortPool= connectionTask.getComPortPool()!=null?connectionTask.getComPortPool().getName():null;
-        this.isDefault= connectionTask.isDefault();
+        this.connectionType = connectionTask.getPartialConnectionTask().getPluggableClass().getName();
+        this.comPortPool = connectionTask.getComPortPool() != null ? connectionTask.getComPortPool().getName() : null;
+        this.isDefault = connectionTask.isDefault();
         List<PropertySpec> propertySpecs = connectionTask.getConnectionType().getPropertySpecs();
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         this.properties = new ArrayList<>();
@@ -66,10 +65,10 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
 
 
     protected void writeTo(T connectionTask, PartialConnectionTask partialConnectionTask, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils) {
-        if (this.properties !=null) {
+        if (this.properties != null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
-                if (propertyValue!=null) {
+                if (propertyValue != null) {
                     connectionTask.setProperty(propertySpec.getName(), propertyValue);
                 } else {
                     connectionTask.removeProperty(propertySpec.getName());
@@ -79,6 +78,6 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     }
 
 
-    public abstract ConnectionTask<?,?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
+    public abstract ConnectionTask<?, ?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
 
 }

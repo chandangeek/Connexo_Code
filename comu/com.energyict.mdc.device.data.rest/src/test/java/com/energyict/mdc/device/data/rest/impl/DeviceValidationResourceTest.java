@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,14 +30,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -170,14 +168,13 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(validationService.getEvaluator(eq(meter), any(Interval.class))).thenReturn(evaluator);
-        when(suspect.getTypeCode()).thenReturn("3.0.1");
-        when(notSuspect.getTypeCode()).thenReturn("0");
+        when(suspect.getTypeCode()).thenReturn("3.5.258");
+        when(notSuspect.getTypeCode()).thenReturn("0.0.0");
+        when(suspect.getType()).thenReturn(new ReadingQualityType("3.5.258"));
+        when(notSuspect.getType()).thenReturn(new ReadingQualityType("0.0.0"));
 
         Interval regInterval1 = new Interval(Date.from(fromReg.toInstant()), Date.from(to.toInstant()));
-        when(evaluator.getValidationStatus(channel4, regInterval1)).thenReturn(Arrays.asList(validationStatus1));
         Date toNow = Date.from(ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
-        Interval regInterval2 = new Interval(Date.from(to.toInstant()), toNow);
-        when(evaluator.getValidationStatus(channel7, regInterval2)).thenReturn(Arrays.asList(validationStatus2, validationStatus3));
         Interval wholeRegInterval = new Interval(Date.from(fromReg.toInstant()), toNow);
         when(deviceValidation.getValidationStatus(eq(register1), anyList(), eq(wholeRegInterval))).thenReturn(Arrays.asList(validationStatus1, validationStatus2, validationStatus3));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus1).getReadingQualities();
@@ -186,11 +183,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
         ZonedDateTime fromCh = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
         Interval chInterval1 = new Interval(Date.from(fromCh.toInstant()), Date.from(to.toInstant()));
-        when(evaluator.getValidationStatus(channel5, chInterval1)).thenReturn(Arrays.asList(validationStatus4));
-        when(evaluator.getValidationStatus(channel6, chInterval1)).thenReturn(Collections.emptyList());
         Interval chInterval2 = new Interval(Date.from(to.toInstant()), toNow);
-        when(evaluator.getValidationStatus(channel8, chInterval2)).thenReturn(Collections.emptyList());
-        when(evaluator.getValidationStatus(channel9, chInterval2)).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
         Interval wholeInterval = new Interval(Date.from(fromCh.toInstant()), toNow);
         when(deviceValidation.getValidationStatus(eq(ch1), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus4));
         when(deviceValidation.getValidationStatus(eq(ch2), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus5, validationStatus6));

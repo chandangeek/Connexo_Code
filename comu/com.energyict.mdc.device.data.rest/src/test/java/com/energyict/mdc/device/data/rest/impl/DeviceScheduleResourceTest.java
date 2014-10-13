@@ -39,7 +39,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
-        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        List<Map<String, Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
         assertThat(schedules).hasSize(0);
     }
 
@@ -55,7 +55,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
-        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        List<Map<String, Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
         assertThat(schedules).hasSize(1);
         assertThat(schedules.get(0))
                 .containsKey("name")
@@ -88,7 +88,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
-        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        List<Map<String, Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
         assertThat(schedules).hasSize(1);
         assertThat(schedules.get(0).get("type")).isEqualTo("ADHOC");
         assertThat(schedules.get(0))
@@ -120,12 +120,12 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.isScheduledManually()).thenReturn(true);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
-        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
-        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        List<Map<String, Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
         assertThat(schedules).hasSize(1);
         assertThat(schedules.get(0).get("type")).isEqualTo("INDIVIDUAL");
         assertThat(schedules.get(0))
@@ -158,12 +158,12 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
         when(comTaskExecution.getComSchedule()).thenReturn(mock(ComSchedule.class));
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
-        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
-        List<Map<String,Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
+        List<Map<String, Object>> schedules = (List<Map<String, Object>>) response.get("schedules");
         assertThat(schedules).hasSize(1);
         assertThat(schedules.get(0).get("type")).isEqualTo("SCHEDULED");
         assertThat(schedules.get(0))
@@ -181,7 +181,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     public void testCreateScheduledComTaskExecutionFromEnablement() throws Exception {
         SchedulingInfo schedulingInfo = new SchedulingInfo();
         schedulingInfo.id = 111;
-        schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
 
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
@@ -200,19 +200,19 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
-        when(device.newManuallyScheduledComTaskExecution(comTaskEnablement,protocolDialectConfigurationProperties,schedulingInfo.schedule.asTemporalExpression())).thenReturn(comTaskExecutionBuilder);
+        when(device.newManuallyScheduledComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties, schedulingInfo.schedule.asTemporalExpression())).thenReturn(comTaskExecutionBuilder);
 
         Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(comTaskExecutionBuilder, times(1)).add();
-        verify(device,times(1)).newManuallyScheduledComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties, schedulingInfo.schedule.asTemporalExpression());
+        verify(device, times(1)).newManuallyScheduledComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties, schedulingInfo.schedule.asTemporalExpression());
     }
 
     @Test
     public void testChangeScheduleOnManuallyScheduledComTaskExecution() throws Exception {
         SchedulingInfo schedulingInfo = new SchedulingInfo();
         schedulingInfo.id = 111;
-        schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
 
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
@@ -230,7 +230,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.isScheduledManually()).thenReturn(true);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
-        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
 
         ManuallyScheduledComTaskExecutionUpdater scheduledComTaskExecutionUpdater = mock(ManuallyScheduledComTaskExecutionUpdater.class);
@@ -239,8 +239,8 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        verify(scheduledComTaskExecutionUpdater,times(1)).scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression());
-        verify(scheduledComTaskExecutionUpdater,times(1)).update();
+        verify(scheduledComTaskExecutionUpdater, times(1)).scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression());
+        verify(scheduledComTaskExecutionUpdater, times(1)).update();
     }
 
     @Test
@@ -264,17 +264,17 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.isScheduledManually()).thenReturn(true);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
-        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5),TimeDuration.minutes(5)));
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
 
 
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        verify(device,times(1)).removeComTaskExecution(comTaskExecution);
+        verify(device, times(1)).removeComTaskExecution(comTaskExecution);
     }
 
     @Test
-    public void testRunAdHocComTaskFromEnablement() throws Exception{
+    public void testRunAdHocComTaskFromEnablement() throws Exception {
         SchedulingInfo schedulingInfo = new SchedulingInfo();
         schedulingInfo.id = 111;
 
@@ -295,13 +295,13 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
-        when(device.newAdHocComTaskExecution(comTaskEnablement,protocolDialectConfigurationProperties)).thenReturn(comTaskExecutionBuilder);
+        when(device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties)).thenReturn(comTaskExecutionBuilder);
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
 
         Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(comTaskExecutionBuilder, times(1)).add();
-        verify(comTaskExecution,times(1)).scheduleNow();
+        verify(comTaskExecution, times(1)).scheduleNow();
     }
 }

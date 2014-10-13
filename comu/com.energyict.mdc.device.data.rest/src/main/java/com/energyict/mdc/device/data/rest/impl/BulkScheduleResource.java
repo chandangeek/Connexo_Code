@@ -1,15 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
 import javax.annotation.security.RolesAllowed;
@@ -45,7 +44,7 @@ public class BulkScheduleResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.SCHEDULE_DEVICE)
-    public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters){
+    public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters) {
         BulkAction action = new BulkAction() {
             @Override
             public void doAction(Device device, ComSchedule schedule) {
@@ -59,7 +58,7 @@ public class BulkScheduleResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.SCHEDULE_DEVICE)
-    public Response deleteComScheduleFromDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters){
+    public Response deleteComScheduleFromDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters) {
         BulkAction action = new BulkAction() {
             @Override
             public void doAction(Device device, ComSchedule schedule) {
@@ -75,7 +74,7 @@ public class BulkScheduleResource {
         Map<String, DeviceHolder> deviceMap = getDeviceMapForBulkAction(request, response, queryParameters);
         for (Long scheduleId : request.scheduleIds) {
             Optional<ComSchedule> scheduleRef = schedulingService.findSchedule(scheduleId);
-            if (!scheduleRef.isPresent()){
+            if (!scheduleRef.isPresent()) {
                 String failMessage = MessageSeeds.NO_SUCH_COM_SCHEDULE.format(thesaurus, scheduleId);
                 response.nextAction(failMessage).failCount = deviceMap.size();
             } else {
@@ -92,16 +91,16 @@ public class BulkScheduleResource {
         }
     }
 
-    private void processSchedule (DeviceHolder holder, ComSchedule schedule, BulkAction action, ComSchedulesBulkInfo response) {
+    private void processSchedule(DeviceHolder holder, ComSchedule schedule, BulkAction action, ComSchedulesBulkInfo response) {
         Device device = holder.get();
-        try{
+        try {
             action.doAction(device, schedule);
             device.save();
             response.success();
-        } catch (LocalizedException localizedEx){
+        } catch (LocalizedException localizedEx) {
             response.fail(DeviceInfo.from(device), localizedEx.getLocalizedMessage(), localizedEx.getClass().getSimpleName());
-        } catch (ConstraintViolationException validationException){
-            response.fail(DeviceInfo.from(device),getMessageForConstraintViolation(validationException, device, schedule),
+        } catch (ConstraintViolationException validationException) {
+            response.fail(DeviceInfo.from(device), getMessageForConstraintViolation(validationException, device, schedule),
                     validationException.getClass().getSimpleName());
             holder.obsolete();
         }
@@ -110,18 +109,18 @@ public class BulkScheduleResource {
     private Map<String, DeviceHolder> getDeviceMapForBulkAction(BulkRequestInfo request, ComSchedulesBulkInfo response, StandardParametersBean queryParameters) {
         Map<String, DeviceHolder> deviceMap = new HashMap<>();
         String loadAllDevicesAsStr = queryParameters.getFirst(LOAD_ALL_DEVICES);
-        if(Boolean.parseBoolean(loadAllDevicesAsStr)) {
+        if (Boolean.parseBoolean(loadAllDevicesAsStr)) {
             Condition condition = resourceHelper.getQueryConditionForDevice(queryParameters);
             Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
             List<Device> allDevices = allDevicesFinder.find();
-            for(Device device : allDevices) {
+            for (Device device : allDevices) {
                 deviceMap.put(device.getmRID(), new DeviceHolder(device));
             }
         } else {
             for (String mrid : request.deviceMRIDs) {
                 try {
                     deviceMap.put(mrid, new DeviceHolder(resourceHelper.findDeviceByMrIdOrThrowException(mrid)));
-                } catch (LocalizedException ex){
+                } catch (LocalizedException ex) {
                     DeviceInfo deviceInfo = new DeviceInfo();
                     deviceInfo.mRID = mrid;
                     response.generalFail(deviceInfo, ex.getLocalizedMessage(), ex.getClass().getSimpleName());
@@ -132,7 +131,7 @@ public class BulkScheduleResource {
     }
 
     private String getMessageForConstraintViolation(ConstraintViolationException ex, Device device, ComSchedule schedule) {
-        if (ex.getConstraintViolations() != null && ex.getConstraintViolations().size() > 0){
+        if (ex.getConstraintViolations() != null && ex.getConstraintViolations().size() > 0) {
             return ex.getConstraintViolations().iterator().next().getMessage();
         }
         return MessageSeeds.DEVICE_VALIDATION_BULK_MSG.format(thesaurus, schedule.getName(), device.getName());
@@ -153,21 +152,21 @@ public class BulkScheduleResource {
             this.device = device;
         }
 
-        public Device get(){
+        public Device get() {
             // We need to reload device because comTaskExecution collection
             // could contain bad schedule from previous iteration
-            if (obsolete){
+            if (obsolete) {
                 reload();
             }
             return device;
         }
 
-        private void reload(){
+        private void reload() {
             device = deviceService.findByUniqueMrid(device.getmRID());
             obsolete = false;
         }
 
-        public void obsolete(){
+        public void obsolete() {
             obsolete = true;
         }
     }

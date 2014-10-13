@@ -13,7 +13,7 @@ public class DeviceGroupInfo {
     public String mRID;
     public String name;
     public boolean dynamic;
-    public List<SearchCriteriaInfo> criteria = new ArrayList<SearchCriteriaInfo>();
+    public List<SearchCriteriaInfo> criteria = new ArrayList<>();
 
     public DeviceGroupInfo() {
     }
@@ -33,7 +33,7 @@ public class DeviceGroupInfo {
     }
 
     public static List<DeviceGroupInfo> from(List<EndDeviceGroup> endDeviceGroups) {
-        List<DeviceGroupInfo> deviceGroupsInfos = new ArrayList<DeviceGroupInfo>();
+        List<DeviceGroupInfo> deviceGroupsInfos = new ArrayList<>();
         for (EndDeviceGroup endDeviceGroup : endDeviceGroups) {
             deviceGroupsInfos.add(DeviceGroupInfo.from(endDeviceGroup));
         }

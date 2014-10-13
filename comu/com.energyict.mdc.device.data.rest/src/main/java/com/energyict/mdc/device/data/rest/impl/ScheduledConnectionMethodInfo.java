@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -12,9 +14,6 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -26,15 +25,15 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
 
     public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
-        this.connectionStrategy=scheduledConnectionTask.getConnectionStrategy();
-        this.allowSimultaneousConnections=scheduledConnectionTask.isSimultaneousConnectionsAllowed();
-        this.rescheduleRetryDelay = scheduledConnectionTask.getRescheduleDelay()!=null?new TimeDurationInfo(scheduledConnectionTask.getRescheduleDelay()):null;
-        if (scheduledConnectionTask.getCommunicationWindow()!=null) {
-            this.comWindowStart=scheduledConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
-            this.comWindowEnd=scheduledConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
+        this.connectionStrategy = scheduledConnectionTask.getConnectionStrategy();
+        this.allowSimultaneousConnections = scheduledConnectionTask.isSimultaneousConnectionsAllowed();
+        this.rescheduleRetryDelay = scheduledConnectionTask.getRescheduleDelay() != null ? new TimeDurationInfo(scheduledConnectionTask.getRescheduleDelay()) : null;
+        if (scheduledConnectionTask.getCommunicationWindow() != null) {
+            this.comWindowStart = scheduledConnectionTask.getCommunicationWindow().getStart().getMillis() / 1000;
+            this.comWindowEnd = scheduledConnectionTask.getCommunicationWindow().getEnd().getMillis() / 1000;
         }
-        this.nextExecutionSpecs =scheduledConnectionTask.getNextExecutionSpecs()!=null?
-                TemporalExpressionInfo.from(scheduledConnectionTask.getNextExecutionSpecs().getTemporalExpression()):null;
+        this.nextExecutionSpecs = scheduledConnectionTask.getNextExecutionSpecs() != null ?
+                TemporalExpressionInfo.from(scheduledConnectionTask.getNextExecutionSpecs().getTemporalExpression()) : null;
     }
 
     @Override
@@ -47,7 +46,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
 
     private void writeCommonFields(ScheduledConnectionTask scheduledConnectionTask, EngineModelService engineModelService) {
         scheduledConnectionTask.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
-        if (this.comWindowEnd!=null && this.comWindowStart!=null) {
+        if (this.comWindowEnd != null && this.comWindowStart != null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
@@ -58,14 +57,14 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     }
 
     @Override
-    public ConnectionTask<?,?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask) {
+    public ConnectionTask<?, ?> createTask(EngineModelService engineModelService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask) {
         if (!PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
             throw new WebApplicationException("Expected partial connection task to be 'Outbound'", Response.Status.BAD_REQUEST);
         }
 
         OutboundComPortPool outboundComPortPool = null;
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
-            outboundComPortPool=(OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool);
+            outboundComPortPool = (OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool);
         }
 
         PartialScheduledConnectionTask partialScheduledConnectionTask = (PartialScheduledConnectionTask) partialConnectionTask;
@@ -80,10 +79,10 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         }
 
         //--- adding properties
-        if (this.properties !=null) {
+        if (this.properties != null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
-                if (propertyValue!=null) {
+                if (propertyValue != null) {
                     scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), propertyValue);
                 } else {
                     scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), null);
