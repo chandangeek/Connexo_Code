@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -18,7 +17,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-10 (15:04)
  */
-@Component(name="com.energyict.mdc.device.data.delete.securitypropertyset.eventhandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.data.delete.securitypropertyset.eventhandler", service = TopicHandler.class, immediate = true)
 public class SecurityPropertySetDeletionHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/device/config/securitypropertyset/VALIDATE_DELETE";

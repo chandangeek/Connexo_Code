@@ -4,9 +4,9 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.masterdata.LogBookType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,12 +16,12 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Tests the {@link com.energyict.mdc.device.data.impl.LogBookImpl} component
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 26/03/14
  * Time: 10:29
  */
-public class LogBookImplTest extends PersistenceIntegrationTest{
+public class LogBookImplTest extends PersistenceIntegrationTest {
 
     private static final ObisCode logBookObiscode = ObisCode.fromString("0.0.99.98.0.255");
 
@@ -72,7 +72,7 @@ public class LogBookImplTest extends PersistenceIntegrationTest{
         assertThat(reloadedDevice.getLogBooks().get(0).getDeviceObisCode()).isEqualTo(logBookObiscode);
     }
 
-    private LogBook getReloadedLogBook(Device device){
+    private LogBook getReloadedLogBook(Device device) {
         Device reloadedDevice = getReloadedDevice(device);
         return (LogBook) reloadedDevice.getLogBooks().get(0);
     }

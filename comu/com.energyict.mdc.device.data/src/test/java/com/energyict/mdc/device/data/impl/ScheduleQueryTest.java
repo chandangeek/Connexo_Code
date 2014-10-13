@@ -13,10 +13,11 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import org.junit.Test;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -66,7 +67,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         return outboundComPort;
     }
 
-    private OutboundComPort createComPortInOtherComPortPool(){
+    private OutboundComPort createComPortInOtherComPortPool() {
         OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
         onlineComServer.setName("ComServer");
         onlineComServer.setStoreTaskQueueSize(1);

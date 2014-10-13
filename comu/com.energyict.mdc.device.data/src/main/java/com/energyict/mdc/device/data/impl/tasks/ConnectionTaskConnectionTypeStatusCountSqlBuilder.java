@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.time.Clock;
+
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import com.elster.jupiter.util.time.Clock;
 
 /**
  * Builds the SQL query thats counts {@link ConnectionTask}s
@@ -20,8 +22,8 @@ public class ConnectionTaskConnectionTypeStatusCountSqlBuilder extends AbstractC
 
     private ServerConnectionTaskStatus taskStatus;
 
-    public ConnectionTaskConnectionTypeStatusCountSqlBuilder(ServerConnectionTaskStatus taskStatus, Clock clock) {
-        super(clock);
+    public ConnectionTaskConnectionTypeStatusCountSqlBuilder(ServerConnectionTaskStatus taskStatus, Clock clock, QueryEndDeviceGroup deviceGroup, QueryExecutor<Device> deviceQueryExecutor) {
+        super(clock, deviceGroup, deviceQueryExecutor);
         this.taskStatus = taskStatus;
     }
 
@@ -48,6 +50,7 @@ public class ConnectionTaskConnectionTypeStatusCountSqlBuilder extends AbstractC
 
     private void appendWhereClause() {
         this.appendWhereClause(this.taskStatus);
+        this.appendDeviceSql();
     }
 
     private void appendGroupByClause() {

@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.event.EventConstants;
 
 import java.util.Map;
@@ -52,8 +51,7 @@ public class ComTaskEnablementPriorityMessageHandler implements MessageHandler {
         Object contents = messageProperties.get(key);
         if (contents instanceof Long) {
             return (Long) contents;
-        }
-        else {
+        } else {
             return ((Integer) contents).longValue();
         }
     }
@@ -62,8 +60,7 @@ public class ComTaskEnablementPriorityMessageHandler implements MessageHandler {
         Object contents = messageProperties.get(key);
         if (contents instanceof Integer) {
             return (Integer) contents;
-        }
-        else {
+        } else {
             return null;
         }
     }

@@ -1,5 +1,38 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.IntermittentInterval;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -21,8 +54,8 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -71,40 +104,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.IntermittentInterval;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -161,12 +160,12 @@ public class DeviceImpl implements Device {
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED_KEY + "}")
-    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED_KEY + "}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED_KEY + "}")
     private String mRID;
-    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String serialNumber;
     private String timeZoneId;
     private TimeZone timeZone;
@@ -197,21 +196,21 @@ public class DeviceImpl implements Device {
 
     @Inject
     public DeviceImpl(
-                DataModel dataModel,
-                EventService eventService,
-                Thesaurus thesaurus,
-                Clock clock,
-                MeteringService meteringService,
-                ValidationService validationService,
-                ServerConnectionTaskService connectionTaskService,
-                ServerCommunicationTaskService communicationTaskService,
-                DeviceService deviceService,
-                SecurityPropertyService securityPropertyService,
-                Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
-                Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
-                Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
-                Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
-                Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
+            DataModel dataModel,
+            EventService eventService,
+            Thesaurus thesaurus,
+            Clock clock,
+            MeteringService meteringService,
+            ValidationService validationService,
+            ServerConnectionTaskService connectionTaskService,
+            ServerCommunicationTaskService communicationTaskService,
+            DeviceService deviceService,
+            SecurityPropertyService securityPropertyService,
+            Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
+            Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
+            Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
+            Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
+            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
@@ -565,7 +564,7 @@ public class DeviceImpl implements Device {
 
     private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.connectionTask(null);
             comTaskExecutionUpdater.useDefaultConnectionTask(true);
             comTaskExecutionUpdater.update();
@@ -575,7 +574,7 @@ public class DeviceImpl implements Device {
     private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         ConnectionTask<?, ?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTaskForGateway);
             comTaskExecutionUpdater.update();
         }
@@ -931,7 +930,7 @@ public class DeviceImpl implements Device {
         } else {
             createNewLocalDialectProperties(dialectName);
         }
-        if((dialectProperties != null) && !this.dirtyDialectProperties.contains(dialectProperties)){
+        if ((dialectProperties != null) && !this.dirtyDialectProperties.contains(dialectProperties)) {
             this.dirtyDialectProperties.add(dialectProperties);
         }
     }
@@ -1059,14 +1058,15 @@ public class DeviceImpl implements Device {
 
     List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        List<LoadProfileReading> loadProfileReadings=Collections.emptyList();
-        boolean meterHasData=false;
+        List<LoadProfileReading> loadProfileReadings = Collections.emptyList();
+        boolean meterHasData = false;
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval, meter.get());
+                Interval capped = interval.withEnd(lastReadingCapped(loadProfile, interval).toDate());
                 for (Channel channel : loadProfile.getChannels()) {
-                    meterHasData |= this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
+                    meterHasData |= this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
                 }
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
@@ -1079,13 +1079,14 @@ public class DeviceImpl implements Device {
 
     List<LoadProfileReading> getChannelData(Channel channel, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        List<LoadProfileReading> loadProfileReadings=Collections.emptyList();
+        List<LoadProfileReading> loadProfileReadings = Collections.emptyList();
         boolean meterHasData;
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval, meter.get());
-                meterHasData = this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
+                Interval capped = interval.withEnd(lastReadingCapped(channel.getLoadProfile(), interval).toDate());
+                meterHasData = this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
                 }
@@ -1108,21 +1109,22 @@ public class DeviceImpl implements Device {
 
     /**
      * Adds meter readings for a single channel the timeslot-map.
-     * @param interval The interval over which meter readings are requested
-     * @param meter The meter for which readings are requested
-     * @param mdcChannel The meter's channel for which readings are requested
+     *
+     * @param interval                    The interval over which meter readings are requested
+     * @param meter                       The meter for which readings are requested
+     * @param mdcChannel                  The meter's channel for which readings are requested
      * @param sortedLoadProfileReadingMap The map to add the readings too in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
     private boolean addChannelDataToMap(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
-        boolean meterHasData=false;
+        boolean meterHasData = false;
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, interval);
         for (MeterActivation meterActivation : meterActivations) {
             Interval meterActivationInterval = meterActivation.getInterval().intersection(interval);
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
             if (!meterReadings.isEmpty()) {
-                meterHasData=true;
+                meterHasData = true;
             }
             java.util.Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
@@ -1131,12 +1133,14 @@ public class DeviceImpl implements Device {
                         .filter(s -> s.getReadingTimestamp().after(meterActivationInterval.getStart()))
                         .forEach(s -> {
                             LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(s.getReadingTimestamp());
-                            loadProfileReading.setDataValidationStatus(mdcChannel, s);
+                            if (loadProfileReading != null) {
+                                loadProfileReading.setDataValidationStatus(mdcChannel, s);
+                            }
                         });
             }
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                loadProfileReading.setChannelData(mdcChannel, meterReading.getValue());
+                loadProfileReading.setChannelData(mdcChannel, meterReading);
                 loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
@@ -1158,9 +1162,9 @@ public class DeviceImpl implements Device {
      * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value), just a list of placeholders for each reading
      * interval within the requestInterval for all datetimes that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile The LoadProfile
+     * @param loadProfile     The LoadProfile
      * @param requestInterval interval over which user wants to see readings
-     * @param meter The Meter
+     * @param meter           The Meter
      * @return
      */
     private Map<Date, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval requestInterval, Meter meter) {
@@ -1169,12 +1173,7 @@ public class DeviceImpl implements Device {
         Map<Date, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         Period period = Period.seconds(loadProfile.getInterval().getSeconds());
         DateTime timeIndex = new DateTime(requestInterval.getStart().getTime() - (requestInterval.getStart().getTime() % period.toStandardDuration().getMillis())); // round start time to interval boundary
-        DateTime endTime;
-        if (loadProfile.getLastReading()!=null && requestInterval.getEnd().after(loadProfile.getLastReading())) {
-            endTime=new DateTime(loadProfile.getLastReading().getTime());
-        } else {
-            endTime=new DateTime(requestInterval.getEnd().getTime());
-        }
+        DateTime endTime = lastReadingCapped(loadProfile, requestInterval);
         while (timeIndex.compareTo(endTime) < 0) {
             DateTime intervalEnd = timeIndex.plus(period);
             if (meterActivationIntervals.contains(timeIndex.toDate())) {
@@ -1187,18 +1186,26 @@ public class DeviceImpl implements Device {
         return loadProfileReadingMap;
     }
 
+    private DateTime lastReadingCapped(LoadProfile loadProfile, Interval requestInterval) {
+        DateTime endTime;
+        if (loadProfile.getLastReading() != null && requestInterval.getEnd().after(loadProfile.getLastReading())) {
+            endTime = new DateTime(loadProfile.getLastReading().getTime());
+        } else {
+            endTime = new DateTime(requestInterval.getEnd().getTime());
+        }
+        return endTime;
+    }
+
     Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 return this.getLastReadingsFor(register, meter.get());
-            }
-            else {
+            } else {
                 return Optional.absent();
             }
-        }
-        else {
+        } else {
             return Optional.absent();
         }
     }
@@ -1282,7 +1289,7 @@ public class DeviceImpl implements Device {
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * that overlap with the {@link Interval}, where the most recent activations are returned first.
      *
-     * @param meter The Meter
+     * @param meter    The Meter
      * @param interval The Interval
      * @return The List of MeterActivation
      */
@@ -1301,8 +1308,7 @@ public class DeviceImpl implements Device {
     private Optional<ReadingRecord> getLast(List<ReadingRecord> readings) {
         if (readings.isEmpty()) {
             return Optional.absent();
-        }
-        else {
+        } else {
             return Optional.of(readings.get(readings.size() - 1));
         }
     }
@@ -1837,7 +1843,7 @@ public class DeviceImpl implements Device {
             }
         };
 
-        ReadingType getReadingType (RegisterSpec registerSpec) {
+        ReadingType getReadingType(RegisterSpec registerSpec) {
             return registerSpec.getRegisterType().getReadingType();
         }
 

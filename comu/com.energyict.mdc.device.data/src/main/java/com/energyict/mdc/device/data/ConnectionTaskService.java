@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.google.common.base.Optional;
 
 import java.util.Date;
@@ -48,7 +49,7 @@ public interface ConnectionTaskService {
      * Note that there can be only one such ConnectionTask.
      *
      * @param partialConnectionTask The PartialConnectionTask
-     * @param device The Device
+     * @param device                The Device
      * @return The ConnectionTask or <code>null</code> if there is no such ConnectionTask yet
      */
     public Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device);
@@ -117,6 +118,16 @@ public interface ConnectionTaskService {
     public Map<TaskStatus, Long> getConnectionTaskStatusCount();
 
     /**
+     * Counts all {@link ConnectionTask}s that relate to
+     * {@link com.energyict.mdc.device.data.Device}s
+     * that are part of the specified {@link QueryEndDeviceGroup},
+     * grouping them by their respective {@link TaskStatus}.
+     *
+     * @return The numbers, broken down by TaskStatus
+     */
+    public Map<TaskStatus, Long> getConnectionTaskStatusCount(QueryEndDeviceGroup deviceGroup);
+
+    /**
      * Counts all {@link ConnectionTask}s whose current status is
      * in the Set of {@link TaskStatus} grouping them by
      * {@link com.energyict.mdc.engine.model.ComPortPool}.
@@ -125,6 +136,18 @@ public interface ConnectionTaskService {
      * @return The numbers, broken down by ComPortPool and TaskStatus
      */
     public Map<ComPortPool, Map<TaskStatus, Long>> getComPortPoolBreakdown(Set<TaskStatus> taskStatuses);
+
+    /**
+     * Counts all {@link ConnectionTask}s that relate to
+     * {@link com.energyict.mdc.device.data.Device}s
+     * that are part of the specified {@link QueryEndDeviceGroup}
+     * and whose current status is in the Set of {@link TaskStatus}
+     * grouping them by {@link com.energyict.mdc.engine.model.ComPortPool}.
+     *
+     * @param taskStatuses The Set of TaskStatus
+     * @return The numbers, broken down by ComPortPool and TaskStatus
+     */
+    public Map<ComPortPool, Map<TaskStatus, Long>> getComPortPoolBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup);
 
     /**
      * Counts all {@link ConnectionTask}s whose current status is
@@ -137,6 +160,18 @@ public interface ConnectionTaskService {
     public Map<DeviceType, Map<TaskStatus, Long>> getDeviceTypeBreakdown(Set<TaskStatus> taskStatuses);
 
     /**
+     * Counts all {@link ConnectionTask}s that relate to
+     * {@link com.energyict.mdc.device.data.Device}s
+     * that are part of the specified {@link QueryEndDeviceGroup}
+     * and whose current status is in the Set of {@link TaskStatus}
+     * grouping them by {@link com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass}.
+     *
+     * @param taskStatuses The Set of TaskStatus
+     * @return The numbers, broken down by DeviceType and TaskStatus
+     */
+    public Map<DeviceType, Map<TaskStatus, Long>> getDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup);
+
+    /**
      * Counts all {@link ConnectionTask}s whose current status is
      * in the Set of {@link TaskStatus} grouping them by
      * {@link com.energyict.mdc.device.config.DeviceType}.
@@ -147,11 +182,23 @@ public interface ConnectionTaskService {
     public Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> getConnectionTypeBreakdown(Set<TaskStatus> taskStatuses);
 
     /**
+     * Counts all {@link ConnectionTask}s that relate to
+     * {@link com.energyict.mdc.device.data.Device}s
+     * that are part of the specified {@link QueryEndDeviceGroup}
+     * and whose current status is in the Set of {@link TaskStatus}
+     * grouping them by {@link com.energyict.mdc.device.config.DeviceType}.
+     *
+     * @param taskStatuses The Set of TaskStatus
+     * @return The numbers, broken down by DeviceType and TaskStatus
+     */
+    public Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> getConnectionTypeBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup);
+
+    /**
      * Finds all {@link ConnectionTask}s that match the specified filter.
      *
-     * @param filter The ConnectionTaskFilter
+     * @param filter    The ConnectionTaskFilter
      * @param pageStart The first ConnectionTask
-     * @param pageSize The maximum number of ConnectionTasks
+     * @param pageSize  The maximum number of ConnectionTasks
      * @return The List of ConnectionTask
      */
     public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter, int pageStart, int pageSize);
@@ -183,7 +230,7 @@ public interface ConnectionTaskService {
      * Note that this MUST run in an existing transactional context.
      *
      * @param connectionTask The ConnectionTask
-     * @param comServer The ComServer that is about to execute the ConnectionTask
+     * @param comServer      The ComServer that is about to execute the ConnectionTask
      * @return <code>true</code> iff the lock succeeds
      */
     public <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComServer comServer);

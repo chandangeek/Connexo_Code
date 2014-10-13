@@ -11,9 +11,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
-
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ public class Installer {
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_NAME = "COMSCHED_RECALCULATOR";
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME = "COMSCHED_BATCH_OBSOLETE";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    private static final int KPI_CALCULATOR_TASK_RETRY_DELAY = 60;
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -59,37 +60,46 @@ public class Installer {
         try {
             this.createPrivileges();
             this.assignPrivilegesToDefaultRoles();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
         this.createEventTypes();
         this.createTranslations();
         this.createMessageHandlers();
         this.createMasterData();
+        this.createKpiCalculatorDestination();
+    }
+
+    private void createKpiCalculatorDestination() {
+        DestinationSpec destination =
+                this.messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get().
+                        createDestinationSpec(
+                                DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION,
+                                KPI_CALCULATOR_TASK_RETRY_DELAY);
+        destination.activate();
+        destination.subscribe(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER);
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "device.devices", "device.devices.description", new String[] {Privileges.ADMINISTRATE_DEVICE, Privileges.VIEW_DEVICE, Privileges.VALIDATE_DEVICE, Privileges.SCHEDULE_DEVICE});
-        this.userService.createResourceWithPrivileges("MDC", "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", new String[] {Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT, Privileges.CREATE_INVENTORY_MANAGEMENT});
-        this.userService.createResourceWithPrivileges("MDC", "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", new String[] {Privileges.ADMINISTRATE_DEVICE_SECURITY, Privileges.VIEW_DEVICE_SECURITY});
+        this.userService.createResourceWithPrivileges("MDC", "device.devices", "device.devices.description", new String[]{Privileges.ADMINISTRATE_DEVICE, Privileges.VIEW_DEVICE, Privileges.VALIDATE_DEVICE, Privileges.SCHEDULE_DEVICE});
+        this.userService.createResourceWithPrivileges("MDC", "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", new String[]{Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT, Privileges.CREATE_INVENTORY_MANAGEMENT});
+        this.userService.createResourceWithPrivileges("MDC", "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", new String[]{Privileges.ADMINISTRATE_DEVICE_SECURITY, Privileges.VIEW_DEVICE_SECURITY});
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[]{
                 Privileges.ADMINISTRATE_DEVICE, Privileges.VIEW_DEVICE, Privileges.VALIDATE_DEVICE, Privileges.SCHEDULE_DEVICE,
                 Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT, Privileges.CREATE_INVENTORY_MANAGEMENT,
                 Privileges.ADMINISTRATE_DEVICE_SECURITY, Privileges.VIEW_DEVICE_SECURITY
         });
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_DEVICE});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[]{Privileges.VIEW_DEVICE});
     }
 
     private void createMessageHandlers() {
         try {
             this.createMessageHandler(COMSCHEDULE_RECALCULATOR_MESSAGING_NAME);
             this.createMessageHandler(COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
     }
@@ -111,8 +121,7 @@ public class Installer {
             try {
                 SimpleNlsKey nlsKey = SimpleNlsKey.key(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 this.logger.severe(e.getMessage());
             }
         }

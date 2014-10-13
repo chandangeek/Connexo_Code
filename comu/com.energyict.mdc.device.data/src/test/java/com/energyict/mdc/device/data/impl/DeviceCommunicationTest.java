@@ -39,6 +39,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.List;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
@@ -362,7 +364,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
             @Override
             public boolean matches(List<ConnectionTask<?, ?>> value) {
                 int tripleMatch = 0b0000;
-                for (ConnectionTask<?,?> connectionTask : value) {
+                for (ConnectionTask<?, ?> connectionTask : value) {
                     if (connectionTask.getId() == scheduledConnectionTask.getId() && connectionTask.getPartialConnectionTask().getId() == partialScheduledConnectionTask.getId()) {
                         tripleMatch |= 0b0001;
                     }
@@ -446,8 +448,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
 
         TemporalExpression newTemporalExpression = new TemporalExpression(TimeDuration.minutes(5));
         device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask)
-        .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
-        .setNextExecutionSpecsFrom(newTemporalExpression).add();
+                .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .setNextExecutionSpecsFrom(newTemporalExpression).add();
 
         Device reloadedDevice = getReloadedDevice(device);
         List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();

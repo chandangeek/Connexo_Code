@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -8,11 +11,12 @@ import com.energyict.mdc.device.config.impl.EventType;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.google.common.base.Optional;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.EventConstants;
 
 import java.util.Arrays;
@@ -20,14 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComTaskEnablementConnectionMessageHandler} component,
@@ -64,7 +61,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     private JsonService jsonService = new JsonServiceImpl();
 
     @Before
-    public void initializeMocks () {
+    public void initializeMocks() {
         when(this.deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(this.comTask.getId()).thenReturn(COMTASK_ID);
         when(this.comTaskEnablement.getId()).thenReturn(COMTASK_ENABLEMENT_ID);
@@ -86,7 +83,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
      * the message is ignored.
      */
     @Test
-    public void testProcessUnIntendedMessage () {
+    public void testProcessUnIntendedMessage() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("id", 97);
         messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
@@ -102,7 +99,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     @Test
-    public void testSwitchOnUsingDefaultConnectionEventData () {
+    public void testSwitchOnUsingDefaultConnectionEventData() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
         messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
@@ -119,7 +116,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     @Test
-    public void testSwitchOffUsingDefaultConnectionEventData () {
+    public void testSwitchOffUsingDefaultConnectionEventData() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
         messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
@@ -136,7 +133,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     @Test
-    public void testSwitchFromDefaultToTask () {
+    public void testSwitchFromDefaultToTask() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
         messageProperties.put("partialConnectionTaskId", PARTIAL_CONNECTION_TASK_ID1);
@@ -154,7 +151,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     @Test
-    public void testSwitchFromTaskToDefault () {
+    public void testSwitchFromTaskToDefault() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
         messageProperties.put("partialConnectionTaskId", PARTIAL_CONNECTION_TASK_ID1);
@@ -172,7 +169,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     @Test
-    public void testSwitchBetweenTasks () {
+    public void testSwitchBetweenTasks() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
         messageProperties.put("oldPartialConnectionTaskId", PARTIAL_CONNECTION_TASK_ID1);
@@ -191,7 +188,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     @Test
-    public void testStartUsingTask () {
+    public void testStartUsingTask() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
         messageProperties.put("partialConnectionTaskId", PARTIAL_CONNECTION_TASK_ID2);
@@ -209,7 +206,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     @Test
-    public void testRemoveTask () {
+    public void testRemoveTask() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
         messageProperties.put("partialConnectionTaskId", PARTIAL_CONNECTION_TASK_ID2);
@@ -226,15 +223,15 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         verify(this.communicationTaskService).removePreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask2);
     }
 
-    private JsonService getJsonService () {
+    private JsonService getJsonService() {
         return this.jsonService;
     }
 
-    private ComTaskEnablementConnectionMessageHandler newHandler () {
+    private ComTaskEnablementConnectionMessageHandler newHandler() {
         return new ComTaskEnablementConnectionMessageHandler(this.getJsonService(), this.deviceConfigurationService, this.communicationTaskService);
     }
 
-    private ComTaskEnablementConnectionMessageHandler newHandler (JsonService jsonService) {
+    private ComTaskEnablementConnectionMessageHandler newHandler(JsonService jsonService) {
         return new ComTaskEnablementConnectionMessageHandler(jsonService, this.deviceConfigurationService, this.communicationTaskService);
     }
 

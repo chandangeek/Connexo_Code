@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -29,15 +37,6 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.Range;
 
@@ -50,7 +49,7 @@ import java.util.Map;
  * Provides code and structural reuse opportunities for
  * components that intend to provide an implementation
  * for the {@link ComTaskExecution} interface.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 11/04/14
  * Time: 15:09
@@ -124,8 +123,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.plannedPriority = comTaskEnablement.getPriority();
         if (comTaskEnablement.usesDefaultConnectionTask() || !comTaskEnablement.hasPartialConnectionTask()) {
             this.setUseDefaultConnectionTask(true);
-        }
-        else if (comTaskEnablement.hasPartialConnectionTask()) {
+        } else if (comTaskEnablement.hasPartialConnectionTask()) {
             this.setMatchingConnectionTaskOrUseDefaultIfNotFound(device, comTaskEnablement);
         }
     }
@@ -271,19 +269,17 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.connectionTask.set(connectionTask);
         if (connectionTask != null) {
             this.connectionTaskId = connectionTask.getId();
-        }
-        else {
+        } else {
             this.connectionTaskId = 0;
         }
     }
 
     @Override
-    public boolean usesSameConnectionTaskAs (ComTaskExecution anotherTask) {
+    public boolean usesSameConnectionTaskAs(ComTaskExecution anotherTask) {
         if (anotherTask instanceof ComTaskExecutionImpl) {
             ComTaskExecutionImpl comTaskExecution = (ComTaskExecutionImpl) anotherTask;
             return this.connectionTaskId == comTaskExecution.connectionTaskId;
-        }
-        else {
+        } else {
             return this.connectionTaskId == anotherTask.getConnectionTask().getId();
         }
     }
@@ -300,8 +296,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
                 this.lastSession.set(session);
                 this.post();
             }
-        }
-        else {
+        } else {
             this.lastSession.set(session);
             this.post();
         }
@@ -331,7 +326,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         return this.plannedPriority;
     }
 
-    protected void setPlannedPriority (int plannedPriority) {
+    protected void setPlannedPriority(int plannedPriority) {
         this.plannedPriority = plannedPriority;
     }
 
@@ -700,7 +695,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
             this.comTaskExecution = instance;
         }
 
-        protected CI getComTaskExecution () {
+        protected CI getComTaskExecution() {
             return this.comTaskExecution;
         }
 
@@ -748,7 +743,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
             this.self = clazz.cast(this);
         }
 
-        protected CI getComTaskExecution () {
+        protected CI getComTaskExecution() {
             return this.comTaskExecution;
         }
 

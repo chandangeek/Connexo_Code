@@ -13,6 +13,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -1079,9 +1080,9 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
             if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
-                for (Map.Entry<Channel, BigDecimal> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
+                for (Map.Entry<Channel, IntervalReadingRecord> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
-                    assertThat(channelBigDecimalEntry.getValue()).isEqualTo(readingValue);
+                    assertThat(channelBigDecimalEntry.getValue().getValue()).isEqualTo(readingValue);
                 }
             }
         }
@@ -1121,9 +1122,9 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
             if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
-                for (Map.Entry<Channel, BigDecimal> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
+                for (Map.Entry<Channel, IntervalReadingRecord> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
-                    assertThat(channelBigDecimalEntry.getValue()).isEqualTo(readingValue);
+                    assertThat(channelBigDecimalEntry.getValue().getValue()).isEqualTo(readingValue);
                 }
             }
         }
@@ -1160,9 +1161,9 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
             if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
-                for (Map.Entry<Channel, BigDecimal> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
+                for (Map.Entry<Channel, IntervalReadingRecord> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
-                    assertThat(channelBigDecimalEntry.getValue()).isEqualTo(readingValue);
+                    assertThat(channelBigDecimalEntry.getValue().getValue()).isEqualTo(readingValue);
                 }
             }
         }

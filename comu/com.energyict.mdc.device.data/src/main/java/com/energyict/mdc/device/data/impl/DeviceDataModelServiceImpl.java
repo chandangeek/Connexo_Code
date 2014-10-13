@@ -22,6 +22,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -36,6 +37,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Clock;
@@ -56,6 +58,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +84,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile UserService userService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
+    private volatile TaskService taskService;
     private volatile Clock clock;
     private volatile KpiService kpiService;
 
@@ -103,7 +107,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
-                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService,
+                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, TaskService taskService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
@@ -115,6 +119,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setRelationService(relationService);
         this.setClock(clock);
         this.setKpiService(kpiService);
+        this.setTaskService(taskService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
@@ -126,6 +131,23 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setUserService(userService);
         this.activate(bundleContext);
         this.install(true);
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList(
+                OrmService.COMPONENTNAME,
+                EventService.COMPONENTNAME,
+                NlsService.COMPONENTNAME,
+                MessageService.COMPONENTNAME,
+                UserService.COMPONENTNAME,
+                DeviceConfigurationService.COMPONENTNAME,
+                PluggableService.COMPONENTNAME,
+                EngineModelService.COMPONENT_NAME,
+                SchedulingService.COMPONENT_NAME,
+                com.energyict.mdc.tasks.TaskService.COMPONENT_NAME,
+                KpiService.COMPONENT_NAME,
+                TaskService.COMPONENTNAME);
     }
 
     @Override
@@ -273,6 +295,16 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.kpiService = kpiService;
     }
 
+    @Override
+    public TaskService taskService() {
+        return taskService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -294,6 +326,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(UserService.class).toInstance(userService);
                 bind(EngineModelService.class).toInstance(engineModelService);
                 bind(KpiService.class).toInstance(kpiService);
+                bind(TaskService.class).toInstance(taskService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(ServerConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);

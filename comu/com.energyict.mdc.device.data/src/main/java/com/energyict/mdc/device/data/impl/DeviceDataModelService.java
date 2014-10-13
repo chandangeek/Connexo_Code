@@ -16,6 +16,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Clock;
 
@@ -41,6 +42,8 @@ public interface DeviceDataModelService {
 
     public KpiService kpiService();
 
+    public TaskService taskService();
+
     public ProtocolPluggableService protocolPluggableService();
 
     public DeviceConfigurationService deviceConfigurationService();
@@ -52,6 +55,7 @@ public interface DeviceDataModelService {
     public ServerDeviceService deviceService();
 
     public DataCollectionKpiService dataCollectionKpiService();
+
 
     public void executeUpdate(SqlBuilder sqlBuilder);
 

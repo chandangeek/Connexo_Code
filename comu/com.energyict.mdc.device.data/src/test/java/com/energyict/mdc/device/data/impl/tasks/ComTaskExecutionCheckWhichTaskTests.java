@@ -12,11 +12,12 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the check for which task this ComTaskExecution is configured.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/04/14
  * Time: 09:39
@@ -248,7 +249,7 @@ public class ComTaskExecutionCheckWhichTaskTests {
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
         RegistersTask registersTask = mock(RegistersTask.class);
-        BasicCheckTask  basicCheckTask = mock(BasicCheckTask.class);
+        BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
         ClockTask clockTask = mock(ClockTask.class);
         TopologyTask topologyTask = mock(TopologyTask.class);
         StatusInformationTask statusInformationTask = mock(StatusInformationTask.class);

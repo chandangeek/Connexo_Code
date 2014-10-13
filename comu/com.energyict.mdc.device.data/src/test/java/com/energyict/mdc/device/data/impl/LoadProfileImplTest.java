@@ -1,5 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -16,24 +25,14 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.ReadingType;
 import com.google.common.base.Optional;
 import org.fest.assertions.core.Condition;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,7 +40,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the persistent {@link com.energyict.mdc.device.data.impl.LoadProfileImpl} component
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/18/14
  * Time: 9:36 AM
@@ -104,8 +103,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
             Phenomenon phenomenon = inMemoryPersistence.getMasterDataService().newPhenomenon(name, unit);
             phenomenon.save();
             return phenomenon;
-        }
-        else {
+        } else {
             return phenomenonByUnit.get();
         }
     }
@@ -133,8 +131,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         RegisterType registerType;
         if (xRegisterType.isPresent()) {
             registerType = xRegisterType.get();
-        }
-        else {
+        } else {
             registerType = inMemoryPersistence.getMasterDataService().newRegisterType(name, obisCode, unit, readingType, timeOfUse);
             registerType.save();
         }
@@ -221,16 +218,16 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
                 int obisCode1Match = 0;
                 int obisCode2Match = 0;
                 for (Channel channel : value) {
-                    if(channel.getDevice().getId() == masterWithLoadProfile.getId()){
+                    if (channel.getDevice().getId() == masterWithLoadProfile.getId()) {
                         masterChannels++;
                     }
-                    if(channel.getDevice().getId() == slave.getId()){
+                    if (channel.getDevice().getId() == slave.getId()) {
                         slaveChannels++;
                     }
-                    if(channel.getRegisterTypeObisCode().equals(obisCode1)){
+                    if (channel.getRegisterTypeObisCode().equals(obisCode1)) {
                         obisCode1Match++;
                     }
-                    if(channel.getRegisterTypeObisCode().equals(obisCode2)){
+                    if (channel.getRegisterTypeObisCode().equals(obisCode2)) {
                         obisCode2Match++;
                     }
                 }
@@ -432,11 +429,11 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
             public boolean matches(List<Channel> value) {
                 int count = 0;
                 for (Channel channel : value) {
-                    if(channel.getRegisterTypeObisCode().equals(obisCode1)){
+                    if (channel.getRegisterTypeObisCode().equals(obisCode1)) {
                         count |= 0b0001;
                         assertThat(channel.getUnit()).isEqualTo(unit1);
                     }
-                    if(channel.getRegisterTypeObisCode().equals(obisCode2)){
+                    if (channel.getRegisterTypeObisCode().equals(obisCode2)) {
                         count |= 0b0010;
                         assertThat(channel.getUnit()).isEqualTo(unit2);
                     }

@@ -1,7 +1,16 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
@@ -29,13 +38,6 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
@@ -147,9 +149,10 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device) {
-        Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
-                          and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()).
-                          and(where(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).isEqualTo(partialConnectionTask));
+        Condition condition =
+                    where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
+                and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()).
+                and(where(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).isEqualTo(partialConnectionTask));
         List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
         if (connectionTasks.isEmpty()) {
             return Optional.absent();
@@ -161,8 +164,9 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public List<ConnectionTask> findConnectionTasksByDevice(Device device) {
-        Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
-                          and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+        Condition condition =
+                    where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
+                and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
     }
 
@@ -205,22 +209,27 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public Map<TaskStatus, Long> getConnectionTaskStatusCount() {
+        return this.getConnectionTaskStatusCount(null);
+    }
+
+    @Override
+    public Map<TaskStatus, Long> getConnectionTaskStatusCount(QueryEndDeviceGroup deviceGroup) {
         ClauseAwareSqlBuilder sqlBuilder = null;
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(EnumSet.allOf(TaskStatus.class))) {
             // Check first pass
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
-                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroup);
             }
             else {
                 sqlBuilder.unionAll();
-                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroup);
             }
         }
         return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
     }
 
-    private Set<ServerConnectionTaskStatus> taskStatusesForCounting (Set<TaskStatus> taskStatuses) {
+    private Set<ServerConnectionTaskStatus> taskStatusesForCounting(Set<TaskStatus> taskStatuses) {
         Set<ServerConnectionTaskStatus> serverTaskStatuses = EnumSet.noneOf(ServerConnectionTaskStatus.class);
         for (TaskStatus taskStatus : taskStatuses) {
             serverTaskStatuses.add(ServerConnectionTaskStatus.forTaskStatus(taskStatus));
@@ -228,30 +237,55 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         return serverTaskStatuses;
     }
 
-    private void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus) {
-        ConnectionTaskCurrentStateCounterSqlBuilder countingFilter = new ConnectionTaskCurrentStateCounterSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+    private void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus, QueryEndDeviceGroup deviceGroup) {
+        ConnectionTaskCurrentStateCounterSqlBuilder countingFilter =
+                new ConnectionTaskCurrentStateCounterSqlBuilder(
+                        taskStatus,
+                        this.deviceDataModelService.clock(),
+                        deviceGroup,
+                        this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
+    }
+
+    /**
+     * Returns a QueryExecutor that supports building a subquery to match
+     * that the ConnectionTask's device is in a QueryEndDeviceGroup.
+     *
+     * @return The QueryExecutor
+     */
+    private QueryExecutor<Device> deviceFromDeviceGroupQueryExecutor() {
+        return this.deviceDataModelService.dataModel().query(Device.class, DeviceType.class, DeviceConfiguration.class);
     }
 
     @Override
     public Map<ComPortPool, Map<TaskStatus, Long>> getComPortPoolBreakdown(Set<TaskStatus> taskStatuses) {
+        return getComPortPoolBreakdown(taskStatuses, null);
+    }
+
+    @Override
+    public Map<ComPortPool, Map<TaskStatus, Long>> getComPortPoolBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup) {
         ClauseAwareSqlBuilder sqlBuilder = null;
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
-                this.countByComPortPoolAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByComPortPoolAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroup);
             }
             else {
                 sqlBuilder.unionAll();
-                this.countByComPortPoolAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByComPortPoolAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroup);
             }
         }
         return this.injectComPortPoolsAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
     }
 
-    private void countByComPortPoolAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus) {
-        ConnectionTaskComPortPoolStatusCountSqlBuilder countingFilter = new ConnectionTaskComPortPoolStatusCountSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+    private void countByComPortPoolAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus, QueryEndDeviceGroup deviceGroup) {
+        ConnectionTaskComPortPoolStatusCountSqlBuilder countingFilter =
+                new ConnectionTaskComPortPoolStatusCountSqlBuilder(
+                        taskStatus,
+                        this.deviceDataModelService.clock(),
+                        deviceGroup,
+                        this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
     }
 
@@ -262,23 +296,33 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public Map<DeviceType, Map<TaskStatus, Long>> getDeviceTypeBreakdown(Set<TaskStatus> taskStatuses) {
+        return this.getDeviceTypeBreakdown(taskStatuses, null);
+    }
+
+    @Override
+    public Map<DeviceType, Map<TaskStatus, Long>> getDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup) {
         ClauseAwareSqlBuilder sqlBuilder = null;
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
-                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroup);
             }
             else {
                 sqlBuilder.unionAll();
-                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroup);
             }
         }
         return this.injectDeviceTypesAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
     }
 
-    private void countByDeviceTypeAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus) {
-        ConnectionTaskDeviceTypeStatusCountSqlBuilder countingFilter = new ConnectionTaskDeviceTypeStatusCountSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+    private void countByDeviceTypeAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus, QueryEndDeviceGroup deviceGroup) {
+        ConnectionTaskDeviceTypeStatusCountSqlBuilder countingFilter =
+                new ConnectionTaskDeviceTypeStatusCountSqlBuilder(
+                        taskStatus,
+                        this.deviceDataModelService.clock(),
+                        deviceGroup,
+                        this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
     }
 
@@ -289,23 +333,33 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> getConnectionTypeBreakdown(Set<TaskStatus> taskStatuses) {
+        return this.getConnectionTypeBreakdown(taskStatuses, null);
+    }
+
+    @Override
+    public Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> getConnectionTypeBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup) {
         ClauseAwareSqlBuilder sqlBuilder = null;
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
-                this.countByConnectionTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByConnectionTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroup);
             }
             else {
                 sqlBuilder.unionAll();
-                this.countByConnectionTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByConnectionTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroup);
             }
         }
         return this.injectConnectionTypesAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
     }
 
-    private void countByConnectionTypeAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus) {
-        ConnectionTaskConnectionTypeStatusCountSqlBuilder countingFilter = new ConnectionTaskConnectionTypeStatusCountSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+    private void countByConnectionTypeAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus, QueryEndDeviceGroup deviceGroup) {
+        ConnectionTaskConnectionTypeStatusCountSqlBuilder countingFilter =
+                new ConnectionTaskConnectionTypeStatusCountSqlBuilder(
+                        taskStatus,
+                        this.deviceDataModelService.clock(),
+                        deviceGroup,
+                        this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
     }
 
@@ -342,7 +396,11 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter, int pageStart, int pageSize) {
-        ConnectionTaskFilterSqlBuilder sqlBuilder = new ConnectionTaskFilterSqlBuilder(filter, this.deviceDataModelService.clock());
+        ConnectionTaskFilterSqlBuilder sqlBuilder =
+                new ConnectionTaskFilterSqlBuilder(
+                        filter,
+                        this.deviceDataModelService.clock(),
+                        this.deviceFromDeviceGroupQueryExecutor());
         DataMapper<ConnectionTask> dataMapper = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class);
         return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
     }
@@ -382,8 +440,8 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     private boolean isPreviousDefault(ConnectionTask newDefaultConnectionTask, ConnectionTask connectionTask) {
-        return  connectionTask.isDefault()
-            && (   (newDefaultConnectionTask == null)
+        return connectionTask.isDefault()
+                && ((newDefaultConnectionTask == null)
                 || (connectionTask.getId() != newDefaultConnectionTask.getId()));
     }
 
@@ -401,13 +459,11 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                     e.printStackTrace();
                     throw e;
                 }
-            }
-            else {
+            } else {
                 // No database lock but business lock is already set
                 return null;
             }
-        }
-        else {
+        } else {
             // ConnectionTask no longer exists, attempt to lock fails
             return null;
         }
@@ -418,7 +474,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         this.unlockConnectionTask((ConnectionTaskImpl) connectionTask);
     }
 
-    private void unlockConnectionTask (ConnectionTaskImpl connectionTask) {
+    private void unlockConnectionTask(ConnectionTaskImpl connectionTask) {
         connectionTask.setExecutingComServer(null);
         connectionTask.save();
     }
@@ -436,7 +492,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     @Override
     public boolean hasConnectionTasks(PartialConnectionTask partialConnectionTask) {
         Condition condition = where(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).isEqualTo(partialConnectionTask).
-                          and(where(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull());
+                and(where(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull());
         List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().query(ConnectionTask.class).select(condition, new Order[0], false, new String[0], 1, 1);
         return !connectionTasks.isEmpty();
     }
@@ -487,8 +543,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
             sqlBuilder.append(" and nextexecutiontimestamp >");
             sqlBuilder.addLong(this.toSeconds(this.deviceDataModelService.clock().now()));
             sqlBuilder.append(" and ct.comserver is null and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.lastsuccessfulcommunicationend is not null");
-        }
-        else {
+        } else {
             sqlBuilder.append(" and ct.nextexecutiontimestamp is not null");
         }
         sqlBuilder.append(" and ");
@@ -499,8 +554,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                     return resultSet.getLong(1);
                 }
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return 0;
@@ -515,8 +569,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     private void appendConnectionTypeHeatMapComTaskExecutionSessionConditions(boolean atLeastOneFailingComTask, SqlBuilder sqlBuilder) {
         if (atLeastOneFailingComTask) {
             sqlBuilder.append("cs.successindicator = 0 and");
-        }
-        else {
+        } else {
             sqlBuilder.append(" not");
         }
         sqlBuilder.append(" exists (select * from ");
@@ -538,8 +591,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         Map<ComSession.SuccessIndicator, Long> counters = new HashMap<>();
         try (PreparedStatement stmnt = builder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
             this.fetchSuccessIndicatorCounters(stmnt, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -565,8 +617,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     private EnumSet<ComSession.SuccessIndicator> successIndicatorComplement(Set<ComSession.SuccessIndicator> successIndicators) {
         if (successIndicators.isEmpty()) {
             return EnumSet.allOf(ComSession.SuccessIndicator.class);
-        }
-        else {
+        } else {
             return EnumSet.complementOf(EnumSet.copyOf(successIndicators));
         }
     }
@@ -628,8 +679,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchConnectionTypeHeatMapCounters(SqlBuilder builder) {
         try (PreparedStatement stmnt = builder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
             return this.fetchConnectionTypeHeatMapCounters(stmnt);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
     }
@@ -680,8 +730,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     private void addSuccessIndicatorCounter(List<Long> targetCounters, Map<ComSession.SuccessIndicator, Long> sourceCounters, ComSession.SuccessIndicator successIndicator) {
         if (sourceCounters != null) {
             targetCounters.add(sourceCounters.get(successIndicator));
-        }
-        else {
+        } else {
             targetCounters.add(0L);
         }
     }

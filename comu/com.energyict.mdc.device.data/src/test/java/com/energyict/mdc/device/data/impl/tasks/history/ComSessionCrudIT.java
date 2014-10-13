@@ -24,12 +24,13 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -96,6 +97,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import java.security.Principal;
 import java.util.Arrays;
@@ -106,6 +108,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -146,7 +149,6 @@ public class ComSessionCrudIT {
     private DeviceType deviceType;
     private DeviceConfiguration deviceConfiguration;
     private Device device;
-    private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     private ProtocolPluggableService protocolPluggableService;
     private EngineModelService engineModelService;
     private ScheduledConnectionTask connectionTask;
@@ -188,7 +190,8 @@ public class ComSessionCrudIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(KpiService.class).toInstance(kpiService);
+            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(LogService.class).toInstance(mock(LogService.class));
         }
 
     }
@@ -215,6 +218,8 @@ public class ComSessionCrudIT {
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
                 new ProtocolApiModule(),
+                new KpiModule(),
+                new TaskModule(),
                 new TasksModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -307,7 +312,7 @@ public class ComSessionCrudIT {
             onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
             onlineComServer.setNumberOfStoreTaskThreads(2);
             comport = onlineComServer.newOutboundComPort("comport", 1)
-                .comPortType(ComPortType.TCP).add();
+                    .comPortType(ComPortType.TCP).add();
             onlineComServer.save();
 
             comTask = taskService.newComTask("comtask");
@@ -359,8 +364,8 @@ public class ComSessionCrudIT {
 
         ComSession foundSession = found.get();
 
-        assertThat(foundSession.getStartDate()).isEqualTo(startTime);
-        assertThat(foundSession.getStopDate()).isEqualTo(stopTime);
+        assertThat(Date.from(foundSession.getStartDate())).isEqualTo(startTime);
+        assertThat(Date.from(foundSession.getStopDate())).isEqualTo(stopTime);
         assertThat(foundSession.getSuccessIndicator()).isEqualTo(ComSession.SuccessIndicator.Success);
         Assertions.assertThat(EqualById.byId(foundSession.getConnectionTask())).isEqualTo(EqualById.byId(connectionTask));
         Assertions.assertThat(EqualById.byId(foundSession.getComPortPool())).isEqualTo(EqualById.byId(outboundTcpipComPortPool));

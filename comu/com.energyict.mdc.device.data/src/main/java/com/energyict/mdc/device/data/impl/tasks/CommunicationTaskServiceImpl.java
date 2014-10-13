@@ -103,7 +103,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         List<ComPortPool> containingComPortPoolsForComServer = this.deviceDataModelService.engineModelService().findContainingComPortPoolsForComServer(comServer);
         for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
             this.releaseTimedOutComTasks((OutboundComPortPool) comPortPool);
-            waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool)comPortPool).getTaskExecutionTimeout().getSeconds());
+            waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool) comPortPool).getTaskExecutionTimeout().getSeconds());
         }
         if (waitTime <= 0) {
             return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
@@ -120,7 +120,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         }
     }
 
-    private void releaseTimedOutComTasks(OutboundComPortPool outboundComPortPool){
+    private void releaseTimedOutComTasks(OutboundComPortPool outboundComPortPool) {
         long now = this.toSeconds(this.deviceDataModelService.clock().now());
         int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
         this.deviceDataModelService.executeUpdate(this.releaseTimedOutComTaskExecutionsSqlBuilder(outboundComPortPool, now, timeOutSeconds));
@@ -143,7 +143,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public List<ComTaskExecution> findComTaskExecutionsByFilter(ComTaskExecutionFilterSpecification filter, int pageStart, int pageSize) {
         ComTaskExecutionFilterSqlBuilder sqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, this.deviceDataModelService.clock());
         DataMapper<ComTaskExecution> dataMapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
-        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart+1, pageSize)); // SQL is 1-based
+        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
     }
 
     private List<ComTaskExecution> fetchComTaskExecutions(DataMapper<ComTaskExecution> dataMapper, SqlBuilder sqlBuilder) {
@@ -172,8 +172,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
-            }
-            else {
+            } else {
                 sqlBuilder.unionAll();
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             }
@@ -181,11 +180,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
     }
 
-    private Set<ServerComTaskStatus> taskStatusesForCounting (ComTaskExecutionFilterSpecification filter) {
+    private Set<ServerComTaskStatus> taskStatusesForCounting(ComTaskExecutionFilterSpecification filter) {
         return taskStatusesForCounting(filter.taskStatuses);
     }
 
-    private Set<ServerComTaskStatus> taskStatusesForCounting (Set<TaskStatus> taskStatuses) {
+    private Set<ServerComTaskStatus> taskStatusesForCounting(Set<TaskStatus> taskStatuses) {
         Set<ServerComTaskStatus> serverTaskStatuses = EnumSet.noneOf(ServerComTaskStatus.class);
         for (TaskStatus taskStatus : taskStatuses) {
             serverTaskStatuses.add(ServerComTaskStatus.forTaskStatus(taskStatus));
@@ -214,8 +213,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
                 this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
-            }
-            else {
+            } else {
                 sqlBuilder.unionAll();
                 this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
             }
@@ -243,8 +241,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
-            }
-            else {
+            } else {
                 sqlBuilder.unionAll();
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
             }
@@ -286,7 +283,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask) {
         List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(device, defaultConnectionTask);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?,?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTask);
             comTaskExecutionUpdater.update();
         }
@@ -297,7 +294,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
      * the default {@link ConnectionTask} for the entire topology of the specified Device,
      * but are not linked yet to the given Default connectionTask
      *
-     * @param device the Device for which we need to search the ComTaskExecution
+     * @param device         the Device for which we need to search the ComTaskExecution
      * @param connectionTask the 'new' default ConnectionTask
      * @return The List of ComTaskExecution
      */
@@ -510,8 +507,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                     return count != 0;
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
         return false;
@@ -532,14 +528,12 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 long minId = resultSet.getLong(0);
                 if (resultSet.wasNull()) {
                     return Optional.absent();    // There were not ComTaskExecutions
-                }
-                else {
+                } else {
                     long maxId = resultSet.getLong(1);
                     return Optional.of(new ScheduledComTaskExecutionIdRange(comScheduleId, minId, maxId));
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new UnderlyingSQLFailedException(e);
         }
@@ -561,8 +555,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             preparedStatement.setLong(3, idRange.minId);
             preparedStatement.setLong(4, idRange.maxId);
             preparedStatement.executeUpdate();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
@@ -787,8 +780,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         List<ComTaskExecutionSession> allSessions = page.find();
         if (allSessions.isEmpty()) {
             return Optional.absent();
-        }
-        else {
+        } else {
             return Optional.of(allSessions.get(0));
         }
     }
@@ -844,8 +836,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(SqlBuilder builder) {
         try (PreparedStatement stmnt = builder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
             return this.fetchComTaskHeatMapCounters(stmnt);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
     }
@@ -890,8 +881,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         Map<CompletionCode, Long> counters = new HashMap<>();
         try (PreparedStatement stmnt = builder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
             this.fetchCompletionCodeCounters(stmnt, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -917,8 +907,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private EnumSet<CompletionCode> completionCodeComplement(Set<CompletionCode> completionCodes) {
         if (completionCodes.isEmpty()) {
             return EnumSet.allOf(CompletionCode.class);
-        }
-        else {
+        } else {
             return EnumSet.complementOf(EnumSet.copyOf(completionCodes));
         }
     }
@@ -940,8 +929,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
              * so there is no way to count the number of slave devices
              * that had a connection setup failure. */
             return 0;
-        }
-        else {
+        } else {
             int numberOfDevices = 0;
             List<CommunicationTopologyEntry> communicationTopologies = device.getAllCommunicationTopologies(interval);
             for (CommunicationTopologyEntry communicationTopologyEntry : communicationTopologies) {
@@ -1012,8 +1000,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (Condition condition : conditions) {
             if (superCondition == null) {
                 superCondition = condition;
-            }
-            else {
+            } else {
                 superCondition = superCondition.and(condition);
             }
         }

@@ -1,15 +1,14 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.event.EventConstants;
 
 import java.util.EnumSet;
@@ -48,6 +47,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
 
     private interface ServiceLocator {
         public DeviceConfigurationService deviceConfigurationService();
+
         public ServerCommunicationTaskService communicationTaskService();
     }
 
@@ -77,7 +77,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
             return deviceConfigurationService;
         }
 
-        protected ComTaskEnablement getComTaskEnablement () {
+        protected ComTaskEnablement getComTaskEnablement() {
             return this.deviceConfigurationService.findComTaskEnablement(this.getLong("comTaskEnablementId")).get();
         }
 
@@ -85,8 +85,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
             Object contents = this.messageProperties.get(key);
             if (contents instanceof Long) {
                 return (Long) contents;
-            }
-            else {
+            } else {
                 return ((Integer) contents).longValue();
             }
         }
@@ -98,7 +97,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
             super(deviceConfigurationService, messageProperties);
         }
 
-        private PartialConnectionTask getPartialConnectionTask () {
+        private PartialConnectionTask getPartialConnectionTask() {
             return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
         }
     }
@@ -108,7 +107,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
             super(deviceConfigurationService, messageProperties);
         }
 
-        private PartialConnectionTask getPartialConnectionTask () {
+        private PartialConnectionTask getPartialConnectionTask() {
             return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
         }
     }
@@ -130,11 +129,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
             super(deviceConfigurationService, messageProperties);
         }
 
-        private PartialConnectionTask getNewPartialConnectionTask () {
+        private PartialConnectionTask getNewPartialConnectionTask() {
             return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("newPartialConnectionTaskId")).get();
         }
 
-        private PartialConnectionTask getOldPartialConnectionTask () {
+        private PartialConnectionTask getOldPartialConnectionTask() {
             return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("oldPartialConnectionTaskId")).get();
         }
 
@@ -145,7 +144,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
             super(deviceConfigurationService, messageProperties);
         }
 
-        private PartialConnectionTask getPartialConnectionTask () {
+        private PartialConnectionTask getPartialConnectionTask() {
             return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
         }
     }
@@ -155,7 +154,7 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
             super(deviceConfigurationService, messageProperties);
         }
 
-        private PartialConnectionTask getPartialConnectionTask () {
+        private PartialConnectionTask getPartialConnectionTask() {
             return getDeviceConfigurationService().getPartialConnectionTask(this.getLong("partialConnectionTaskId")).get();
         }
     }
@@ -276,11 +275,11 @@ public class ComTaskEnablementConnectionMessageHandler implements MessageHandler
 
         abstract void process(Map<String, Object> messageProperties, ServiceLocator serviceLocator);
 
-        private String topic () {
+        private String topic() {
             return "com/energyict/mdc/device/config/comtaskenablement/" + this.name();
         }
 
-        private static ActualEventHandler forTopic (String topic) {
+        private static ActualEventHandler forTopic(String topic) {
             Set<ActualEventHandler> candidates = EnumSet.range(SWITCH_ON_DEFAULT, REMOVE_TASK);
             for (ActualEventHandler actualEventHandler : candidates) {
                 if (actualEventHandler.topic().equals(topic)) {

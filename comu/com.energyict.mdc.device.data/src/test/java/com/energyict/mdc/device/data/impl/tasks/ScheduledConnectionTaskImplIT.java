@@ -44,6 +44,11 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import org.assertj.core.api.Condition;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeConstants;
+import org.junit.After;
+import org.junit.Test;
 import com.elster.jupiter.time.TemporalExpression;
 
 import java.sql.SQLException;
@@ -54,12 +59,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
-
-import org.assertj.core.api.Condition;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -1715,7 +1714,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
             @Override
             public boolean matches(List<ComTaskExecution> comTaskExecutions) {
                 for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                    if(!comTaskExecution.getNextExecutionTimestamp().equals(triggerDate)){
+                    if (!comTaskExecution.getNextExecutionTimestamp().equals(triggerDate)) {
                         return false;
                     }
                 }

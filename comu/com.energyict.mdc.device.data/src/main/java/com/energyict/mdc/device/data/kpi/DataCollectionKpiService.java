@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.kpi;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;

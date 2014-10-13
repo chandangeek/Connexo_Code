@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -23,9 +25,8 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import org.assertj.core.api.Condition;
+import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -39,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the ComTaskExecutionImpl component
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 14/04/14
  * Time: 14:40
@@ -102,7 +103,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
-    public void scheduleTwice () {
+    public void scheduleTwice() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComSchedule comSchedule1 = createComSchedule("ComSchedule1", comTaskEnablement.getComTask());
         ComSchedule comSchedule2 = createComSchedule("ComSchedule2", comTaskEnablement.getComTask());
