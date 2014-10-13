@@ -60,7 +60,6 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             }
         ];
         this.callParent(arguments);
-        this.reload();
     },
 
     serverTpl: new Ext.XTemplate(
@@ -87,6 +86,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             elm = me.down('#servers-dataview'),
             store = Ext.getStore(me.store);
 
+        elm.setLoading();
         store.load(function () {
             var groups = store.getGroups().map(function (item) {
                 item.title = Uni.I18n.translate('overview.widget.communicationServers.title.' + item.name, 'DSH', item.name);
@@ -121,6 +121,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 fields: ['children', 'name', 'title', 'tooltip', 'expand'],
                 data: groups
             }));
+            elm.setLoading(false);
         });
     }
 });
