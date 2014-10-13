@@ -98,8 +98,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         previewContainer.removeAll();
         previewContainer.add(widget);
         if (!record.data.detailedValidationInfo.validationActive) {
-            Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].hide();
             widget.down('#validateNowRegister').hide();
+            Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].hide();
+        } else {
+            widget.down('#validateNowRegister').show();
+            Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].show();
         }
         widget.down('#deviceRegisterConfigurationActionMenu').record = record;
     },
