@@ -8,7 +8,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
 
     tbar: {
         xtype: 'container',
-        html: '<h3>' + Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Down communication servers') + '</h3>',
+        html: '<h3>' + Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Communication servers') + '</h3>',
         itemId: 'connection-summary-title-panel'
     },
 
