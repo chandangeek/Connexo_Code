@@ -1,5 +1,14 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -13,23 +22,13 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -40,6 +39,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,7 +48,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:41)
  */
-@Component(name="com.energyict.mdc.masterdata", service = {MasterDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.masterdata", service = {MasterDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
 public class MasterDataServiceImpl implements MasterDataService, ReferencePropertySpecFinderProvider, InstallService {
 
     private volatile DataModel dataModel;
@@ -180,8 +180,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
             Optional<Phenomenon> xPhenomenon = this.findPhenomenonByUnit(unit);
             if (!xPhenomenon.isPresent()) {
                 throw new UnitHasNoMatchingPhenomenonException(unit);
-            }
-            else {
+            } else {
                 phenomenon = xPhenomenon.get();
             }
         }
@@ -312,6 +311,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     private void install(boolean exeuteDdl, boolean createDefaults) {
         new Installer(this.dataModel, this.thesaurus, eventService, this.meteringService, this.mdcReadingTypeUtilService, this).install(exeuteDdl, createDefaults);
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT", "NLS", "MTR");
     }
 
     @Override
