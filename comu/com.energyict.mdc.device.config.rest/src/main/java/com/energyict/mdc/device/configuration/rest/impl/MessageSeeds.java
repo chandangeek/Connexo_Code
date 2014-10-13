@@ -39,6 +39,11 @@ public enum MessageSeeds implements MessageSeed {
     VIEW_DEVICE_SECURITY_PROPERTIES_3(31, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_3, "View device security properties (level 3)"),
     VIEW_DEVICE_SECURITY_PROPERTIES_4(32, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_4, "View device security properties (level 4)"),
     UNKNOWN_PRIVILEGE_ID(33, "NoSuchExecutionLevels", "No such execution levels: {0}"),
+    NO_SUCH_DEVICE_MESSAGE_SPEC(34, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
+    EXECUTE_DEVICE_MESSAGE_LEVEL1(35, Privileges.EXECUTE_DEVICE_MESSAGE_1, "Level 1"),
+    EXECUTE_DEVICE_MESSAGE_LEVEL2(36, Privileges.EXECUTE_DEVICE_MESSAGE_2, "Level 2"),
+    EXECUTE_DEVICE_MESSAGE_LEVEL3(37, Privileges.EXECUTE_DEVICE_MESSAGE_3, "Level 3"),
+    EXECUTE_DEVICE_MESSAGE_LEVEL4(38, Privileges.EXECUTE_DEVICE_MESSAGE_4, "Level 4"),
     ;
 
     private final int number;
