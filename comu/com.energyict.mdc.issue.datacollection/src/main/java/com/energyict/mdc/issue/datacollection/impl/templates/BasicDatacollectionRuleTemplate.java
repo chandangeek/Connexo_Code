@@ -104,6 +104,12 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
             event.apply(issue);
             issue.save();
             return Optional.of(issue);
+        } else {
+            OpenIssueDataCollection dcIssue = (OpenIssueDataCollection) event.findExistingIssue().get();
+            if (IssueStatus.IN_PROGRESS.equals(dcIssue.getStatus().getKey())){
+                dcIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
+                dcIssue.save();
+            }
         }
         return Optional.absent();
     }

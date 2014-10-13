@@ -61,8 +61,11 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_REASON_TIME_SYNC_FAILED(1007, "IssueReasonSyncFailed", "Time sync failed", Level.INFO),
     ISSUE_REASON_SLOPE_DETECTION(1008, "IssueReasonSlopeDetection", "Slope detection", Level.INFO),
 
-    // Validation 1101 -
+    // Validation 1101 - 1499
     FIELD_CAN_NOT_BE_EMPTY (1101, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
+
+    // Actions 1501 -
+    ACTION_RETRY_NOW(1501, "ActionRetryNow", "Retry now", Level.INFO),
     ;
 
     private final int number;
@@ -111,6 +114,13 @@ public enum MessageSeeds implements MessageSeed {
         return MessageFormat.format(text, args);
     }
 
+    public String getTranslated(Thesaurus thesaurus, Object... args){
+        if (thesaurus == null) {
+            throw new IllegalArgumentException("Thesaurus can't be null");
+        }
+        String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
+        return MessageFormat.format(translated, args);
+    }
 
     public static MessageSeeds getByKey(String key) {
         if (key != null) {

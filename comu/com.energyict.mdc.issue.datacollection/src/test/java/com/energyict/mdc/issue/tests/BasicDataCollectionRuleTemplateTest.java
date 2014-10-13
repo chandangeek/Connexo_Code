@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.event.UnknownDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
@@ -26,7 +27,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
-import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,8 +92,31 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         }
     }
 
-    @Test
 
+    @Test
+    public void testInProgressToOpenTransfer(){
+        try (TransactionContext context = getContext()){
+            CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+            Meter meter = createMeter("1", "mrid");
+            Issue baseIssue = getBaseIssue(rule, meter);
+            baseIssue.save();
+
+            OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
+            idcIssue.init(baseIssue);
+            idcIssue.setDeviceSerialNumber("1");
+            idcIssue.setStatus(getIssueService().findStatus(IssueStatus.IN_PROGRESS).get());
+            idcIssue.save();
+            baseIssue = getBaseIssue(rule, meter);
+            BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
+            UnknownDeviceEvent event = getUnknownDeviceEvent(1L);
+            assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
+            Optional<OpenIssueDataCollection> openIssue = getIssueDataCollectionService().findOpenIssue(idcIssue.getId());
+            assertThat(openIssue.isPresent()).isTrue();
+            assertThat(openIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
+        }
+    }
+
+    @Test
     public void testResolveIssue(){
         try (TransactionContext context = getContext()) {
             // Create base issue
