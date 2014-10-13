@@ -4,11 +4,11 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link CollectedDeviceCacheCommand} component
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/09/12
  * Time: 15:12
@@ -52,7 +52,7 @@ public class CollectedDeviceCacheCommandTest {
     private ServiceProvider serviceProvider;
 
     @Before
-    public void setupServiceProvider () {
+    public void setupServiceProvider() {
         when(this.serviceProvider.engineService()).thenReturn(this.engineService);
         ServiceProvider.instance.set(this.serviceProvider);
     }
@@ -113,7 +113,7 @@ public class CollectedDeviceCacheCommandTest {
         assertThat(journalMessage).isEqualTo(CollectedDeviceCacheCommand.class.getSimpleName() + " {deviceIdentifier: id 654}");
     }
 
-    private DeviceIdentifier getMockedDeviceIdentifier(){
+    private DeviceIdentifier getMockedDeviceIdentifier() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(deviceIdentifier.findDevice()).thenReturn(this.device);
@@ -138,11 +138,11 @@ public class CollectedDeviceCacheCommandTest {
             this.changed = changedState;
         }
 
-        protected void updateDescription(final String newDescription){
+        protected void updateDescription(final String newDescription) {
             this.description = newDescription;
         }
 
-        protected String getDescription(){
+        protected String getDescription() {
             return this.description;
         }
     }

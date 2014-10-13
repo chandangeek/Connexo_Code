@@ -20,17 +20,17 @@ public class ComTaskExecutionRequestType extends IdBusinessObjectRequestType {
     }
 
     @Override
-    protected String getBusinessObjectTypeName () {
+    protected String getBusinessObjectTypeName() {
         return "comtaskexecution";
     }
 
     @Override
-    protected Request newRequestForAll () {
+    protected Request newRequestForAll() {
         return new AllComTaskExecutionsRequest();
     }
 
     @Override
-    protected Request newRequestFor (Set<Long> ids) {
+    protected Request newRequestFor(Set<Long> ids) {
         return new ComTaskExecutionRequest(this.communicationTaskService, ids);
     }
 

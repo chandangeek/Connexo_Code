@@ -108,7 +108,7 @@ public class WebSocketQueryApiServiceTest {
                 new UserModule(),
                 new TransactionModule(false),
                 new EngineModelModule());
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(ProtocolPluggableService.class); // fake call to make sure component is initialized
@@ -138,7 +138,7 @@ public class WebSocketQueryApiServiceTest {
      * Executes the {@link ComServerDAO#getThisComServer()} method.
      */
     @Test
-    public void testGetThisComServer () throws SQLException, BusinessException, JSONException {
+    public void testGetThisComServer() throws SQLException, BusinessException, JSONException {
         OnlineComServer comServer = this.createComServerForThisMachine();
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
         when(runningComServer.getComServer()).thenReturn(comServer);
@@ -163,7 +163,7 @@ public class WebSocketQueryApiServiceTest {
      * for an {@link OnlineComServer}.
      */
     @Test
-    public void testGetOnlineComServer () throws SQLException, BusinessException, JSONException {
+    public void testGetOnlineComServer() throws SQLException, BusinessException, JSONException {
         String hostName = "online.WebSocketQueryApiServiceTest";
         OnlineComServer comServer = this.createOnlineComServer(hostName);
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
@@ -189,7 +189,7 @@ public class WebSocketQueryApiServiceTest {
      * for an {@link RemoteComServer}.
      */
     @Test
-    public void testGetRemoteComServer () throws SQLException, BusinessException, JSONException {
+    public void testGetRemoteComServer() throws SQLException, BusinessException, JSONException {
         String onlineHostName = "online.testGetRemoteComServer";
         OnlineComServer onlineComServer = this.createOnlineComServer(onlineHostName);
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
@@ -216,7 +216,7 @@ public class WebSocketQueryApiServiceTest {
      * Executes the {@link ComServerDAO#getComServer(String)} method.
      */
     @Test
-    public void testGetComServerThatDoesNotExist () throws SQLException, BusinessException, JSONException {
+    public void testGetComServerThatDoesNotExist() throws SQLException, BusinessException, JSONException {
         OnlineComServer comServer = this.createOnlineComServer("testGetComServerThatDoesNotExist");
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
         when(runningComServer.getComServer()).thenReturn(comServer);
@@ -241,7 +241,7 @@ public class WebSocketQueryApiServiceTest {
      * for a ComPort that was not changed.
      */
     @Test
-    public void testRefreshComPortWithoutChanges () throws SQLException, BusinessException, JSONException {
+    public void testRefreshComPortWithoutChanges() throws SQLException, BusinessException, JSONException {
         String onlineHostName = "online.testRefreshComPortWithoutChanges";
         OnlineComServer onlineComServer = this.createOnlineComServer(onlineHostName);
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
@@ -271,7 +271,7 @@ public class WebSocketQueryApiServiceTest {
      * for a ComPort that was changed.
      */
     @Test
-    public void testRefreshComPortWithChanges () throws SQLException, BusinessException, JSONException {
+    public void testRefreshComPortWithChanges() throws SQLException, BusinessException, JSONException {
         String onlineHostName = "online.testRefreshComPortWithChanges";
         OnlineComServer onlineComServer = this.createOnlineComServer(onlineHostName);
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
@@ -301,13 +301,13 @@ public class WebSocketQueryApiServiceTest {
         assertThat(receivedMessage).contains(comPort.getName());
     }
 
-    private void updateComPortModificationDate (ComPort comPort, Date modificationDate) throws SQLException {
+    private void updateComPortModificationDate(ComPort comPort, Date modificationDate) throws SQLException {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.append("update mdc_comport set mod_date = ?");
         sqlBuilder.bindDate(modificationDate);
         sqlBuilder.append(" where id = ?");
         sqlBuilder.bindLong(comPort.getId());
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             try (Connection connection = dataModel.getConnection(true)) {
                 try (PreparedStatement statement = sqlBuilder.getStatement(connection)) {
                     statement.executeUpdate();
@@ -317,7 +317,7 @@ public class WebSocketQueryApiServiceTest {
         }
     }
 
-    private String getThisComServerQueryString (String queryId) throws JSONException {
+    private String getThisComServerQueryString(String queryId) throws JSONException {
         JSONWriter queryWriter = new JSONStringer().object();
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.QUERY_ID).value(queryId);
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.METHOD).value(QueryMethod.GetThisComServer.name());
@@ -325,7 +325,7 @@ public class WebSocketQueryApiServiceTest {
         return queryWriter.toString();
     }
 
-    private String getComServerQueryString (String queryId, String hostName) throws JSONException {
+    private String getComServerQueryString(String queryId, String hostName) throws JSONException {
         JSONWriter queryWriter = new JSONStringer().object();
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.QUERY_ID).value(queryId);
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.METHOD).value(QueryMethod.GetComServer.name());
@@ -334,7 +334,7 @@ public class WebSocketQueryApiServiceTest {
         return queryWriter.toString();
     }
 
-    private String getRefreshComPortQueryString (String queryId, ComPort comPort) throws JSONException {
+    private String getRefreshComPortQueryString(String queryId, ComPort comPort) throws JSONException {
         JSONWriter queryWriter = new JSONStringer().object();
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.QUERY_ID).value(queryId);
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.METHOD).value(QueryMethod.RefreshComPort.name());
@@ -344,12 +344,12 @@ public class WebSocketQueryApiServiceTest {
         return queryWriter.toString();
     }
 
-    private OnlineComServer createComServerForThisMachine () {
+    private OnlineComServer createComServerForThisMachine() {
         return this.createOnlineComServer(HostName.getCurrent());
     }
 
-    private OnlineComServer createOnlineComServer (String hostName) {
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+    private OnlineComServer createOnlineComServer(String hostName) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
             onlineComServer.setName(hostName);
             onlineComServer.setActive(true);
@@ -367,8 +367,8 @@ public class WebSocketQueryApiServiceTest {
         }
     }
 
-    private RemoteComServer createRemoteComServer (String hostName, OnlineComServer onlineComServer) {
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+    private RemoteComServer createRemoteComServer(String hostName, OnlineComServer onlineComServer) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             RemoteComServer remoteComServer = this.doCreateRemoteComServer(hostName, onlineComServer);
             ctx.commit();
             return remoteComServer;
@@ -388,8 +388,8 @@ public class WebSocketQueryApiServiceTest {
         return remoteComServer;
     }
 
-    private RemoteComServer createRemoteComServerWithOneOutboundComPort (String hostName, OnlineComServer onlineComServer) {
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+    private RemoteComServer createRemoteComServerWithOneOutboundComPort(String hostName, OnlineComServer onlineComServer) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             RemoteComServer remoteComServer = this.doCreateRemoteComServer(hostName, onlineComServer);
             OutboundComPort.OutboundComPortBuilder portBuilder = remoteComServer.newOutboundComPort("TCP", 1);
             portBuilder.comPortType(ComPortType.TCP);
@@ -404,65 +404,65 @@ public class WebSocketQueryApiServiceTest {
 
         private String receivedMessage;
 
-        private String getReceivedMessage () {
+        private String getReceivedMessage() {
             return receivedMessage;
         }
 
         @Override
-        public String getProtocol () {
+        public String getProtocol() {
             return null;
         }
 
         @Override
-        public void sendMessage (String data) throws IOException {
+        public void sendMessage(String data) throws IOException {
             this.receivedMessage = data;
         }
 
         @Override
-        public void sendMessage (byte[] data, int offset, int length) throws IOException {
+        public void sendMessage(byte[] data, int offset, int length) throws IOException {
         }
 
         @Override
-        public void disconnect () {
+        public void disconnect() {
         }
 
         @Override
-        public void close () {
+        public void close() {
         }
 
         @Override
-        public void close (int closeCode, String message) {
+        public void close(int closeCode, String message) {
         }
 
         @Override
-        public boolean isOpen () {
+        public boolean isOpen() {
             return true;
         }
 
         @Override
-        public void setMaxIdleTime (int ms) {
+        public void setMaxIdleTime(int ms) {
         }
 
         @Override
-        public void setMaxTextMessageSize (int size) {
+        public void setMaxTextMessageSize(int size) {
         }
 
         @Override
-        public void setMaxBinaryMessageSize (int size) {
+        public void setMaxBinaryMessageSize(int size) {
         }
 
         @Override
-        public int getMaxIdleTime () {
+        public int getMaxIdleTime() {
             return 0;
         }
 
         @Override
-        public int getMaxTextMessageSize () {
+        public int getMaxTextMessageSize() {
             return Integer.MAX_VALUE;
         }
 
         @Override
-        public int getMaxBinaryMessageSize () {
+        public int getMaxBinaryMessageSize() {
             return 0;
         }
     }
@@ -475,7 +475,7 @@ public class WebSocketQueryApiServiceTest {
         private MockModule(BundleContext bundleContext) {
             super();
             this.bundleContext = bundleContext;
-            this.eventAdmin =  mock(EventAdmin.class);
+            this.eventAdmin = mock(EventAdmin.class);
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
         }
 

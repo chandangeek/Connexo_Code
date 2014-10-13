@@ -79,7 +79,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Test to check if the organizeComCommands() method on the interface GenericDeviceProtocol is triggered correctly
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 30/01/13
  * Time: 9:11
@@ -151,7 +151,7 @@ public class JobExecutionTest {
     private CommandRootImpl root;
     private CommandRootImpl root2;
 
-    public void setupServiceProvider () {
+    public void setupServiceProvider() {
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
         this.serviceProvider.setIssueService(this.issueService);
@@ -166,19 +166,19 @@ public class JobExecutionTest {
     }
 
     @After
-    public void restServiceProvider () {
+    public void restServiceProvider() {
         ServiceProvider.instance.set(null);
     }
 
     @Before
-    public void setupEventPublisher () {
+    public void setupEventPublisher() {
         this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
         when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
     }
 
     @After
-    public void resetEventPublisher () {
+    public void resetEventPublisher() {
         EventPublisherImpl.setInstance(null);
     }
 
@@ -205,11 +205,11 @@ public class JobExecutionTest {
 
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), eq(this.device), any(Date.class))).
-            thenReturn(mock(ComTaskExecutionSessionBuilder.class));
+                thenReturn(mock(ComTaskExecutionSessionBuilder.class));
         when(this.connectionTaskService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).
-            thenReturn(comSessionBuilder);
+                thenReturn(comSessionBuilder);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(this.deviceConfiguration))).
-            thenReturn(Optional.of(this.comTaskEnablement));
+                thenReturn(Optional.of(this.comTaskEnablement));
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.comTaskEnablement.getSecurityPropertySet()).thenReturn(this.securityPropertySet);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);

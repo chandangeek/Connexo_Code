@@ -1,5 +1,11 @@
 package com.energyict.mdc.engine;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -21,13 +27,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.SocketService;
 
@@ -37,7 +36,7 @@ import com.energyict.protocols.mdc.services.SocketService;
  * Time: 13:24
  */
 public class FakeServiceProvider
-    implements
+        implements
         ServiceProvider,
         ComChannelBasedComPortListenerImpl.ServiceProvider,
         AbstractComServerEventImpl.ServiceProvider,

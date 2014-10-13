@@ -69,7 +69,7 @@ public class RunningComServerChangesTest {
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before
-    public void setupServiceProvider () {
+    public void setupServiceProvider() {
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setEngineService(this.engineService);
         this.serviceProvider.setEngineModelService(this.engineModelService);
@@ -79,14 +79,14 @@ public class RunningComServerChangesTest {
     }
 
     @Before
-    public void setupManagementBeanFactory () {
+    public void setupManagementBeanFactory() {
         when(this.managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(this.comServerMonitor);
         ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
         when(comServerMonitor.getEventApiStatistics()).thenReturn(this.eventApiStatistics);
     }
 
     @After
-    public void resetServiceProvider () {
+    public void resetServiceProvider() {
         ServiceProvider.instance.set(null);
     }
 
@@ -110,7 +110,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testAddOutboundComPort () throws InterruptedException, BusinessException, SQLException {
+    public void testAddOutboundComPort() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         comServerDAO.addEmptyComServer();
         OnlineComServer comServer = (OnlineComServer) comServerDAO.getThisComServer();
@@ -139,7 +139,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testAddOutboundComPortThatShouldBeIgnored () throws InterruptedException, BusinessException, SQLException {
+    public void testAddOutboundComPortThatShouldBeIgnored() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         comServerDAO.addEmptyComServer();
         OnlineComServer comServer = (OnlineComServer) comServerDAO.getThisComServer();
@@ -164,7 +164,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testDeactivateOutboundComPort () throws InterruptedException, BusinessException, SQLException {
+    public void testDeactivateOutboundComPort() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         MockOnlineComServer comServer = comServerDAO.addComServer(2, 0);
         OutboundComPort firstComPort = comServer.getOutboundComPort(1);
@@ -202,7 +202,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testDeleteOutboundComPort () throws InterruptedException, BusinessException, SQLException {
+    public void testDeleteOutboundComPort() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         MockOnlineComServer comServer = comServerDAO.addComServer(2, 0);
         OutboundComPort firstComPort = comServer.getOutboundComPort(1);
@@ -240,7 +240,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testSetNumberOfSimultaneousOutboundConnectionsOnComPort () throws InterruptedException, BusinessException, SQLException {
+    public void testSetNumberOfSimultaneousOutboundConnectionsOnComPort() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         MockOnlineComServer comServer = comServerDAO.addComServer(2, 0);
         MockOutboundComPort firstComPort = comServer.getOutboundComPort(1);
@@ -284,7 +284,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testAddInboundComPort () throws InterruptedException, BusinessException, SQLException {
+    public void testAddInboundComPort() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         comServerDAO.addEmptyComServer();
         OnlineComServer comServer = (OnlineComServer) comServerDAO.getThisComServer();
@@ -313,7 +313,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testAddInboundComPortThatShouldBeIgnored () throws InterruptedException, BusinessException, SQLException {
+    public void testAddInboundComPortThatShouldBeIgnored() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         comServerDAO.addEmptyComServer();
         OnlineComServer comServer = (OnlineComServer) comServerDAO.getThisComServer();
@@ -338,7 +338,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testDeactivateInboundComPort () throws InterruptedException, BusinessException, SQLException {
+    public void testDeactivateInboundComPort() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         MockOnlineComServer comServer = comServerDAO.addComServer(0, 2);
         InboundComPort firstComPort = comServer.getInboundComPort(1);
@@ -376,7 +376,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testDeleteInboundComPort () throws InterruptedException, BusinessException, SQLException {
+    public void testDeleteInboundComPort() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         MockOnlineComServer comServer = comServerDAO.addComServer(0, 2);
         InboundComPort firstComPort = comServer.getInboundComPort(1);
@@ -414,7 +414,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testSetNumberOfSimultaneousInboundConnectionsOnComPort () throws InterruptedException, BusinessException, SQLException {
+    public void testSetNumberOfSimultaneousInboundConnectionsOnComPort() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         MockOnlineComServer comServer = comServerDAO.addComServer(0, 2);
         InboundComPort firstComPort = comServer.getInboundComPort(1);
@@ -458,7 +458,7 @@ public class RunningComServerChangesTest {
     }
 
     @Test
-    public void testChangeSchedulingInterPollDelay () throws InterruptedException, BusinessException, SQLException {
+    public void testChangeSchedulingInterPollDelay() throws InterruptedException, BusinessException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         MockOnlineComServer comServer = comServerDAO.addComServer(2, 0);
         MockOutboundComPort firstComPort = comServer.getOutboundComPort(1);
@@ -515,7 +515,7 @@ public class RunningComServerChangesTest {
             this.applyChangesLatch.countDown();
         }
 
-        private void waitForApplyChanges () throws InterruptedException {
+        private void waitForApplyChanges() throws InterruptedException {
             this.applyChangesLatch.await(10, TimeUnit.SECONDS);
         }
 

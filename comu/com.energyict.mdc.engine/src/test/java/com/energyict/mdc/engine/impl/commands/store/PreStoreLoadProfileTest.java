@@ -1,5 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -19,17 +26,15 @@ import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -37,22 +42,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the store functionality of the {@link CollectedLoadProfileDeviceCommand}
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 13/01/14
  * Time: 15:30

@@ -1,5 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -54,14 +60,15 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -70,27 +77,17 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link ScheduledJobImpl} component.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 10/07/12
  * Time: 15:42
@@ -183,13 +180,13 @@ public class ScheduledJobImplTest {
     }
 
     @Before
-    public void setupEventPublisher () {
+    public void setupEventPublisher() {
         when(this.eventPublisher.serviceProvider()).thenReturn(this.serviceProvider);
         EventPublisherImpl.setInstance(this.eventPublisher);
     }
 
     @After
-    public void resetEventPublisher () {
+    public void resetEventPublisher() {
         EventPublisherImpl.setInstance(null);
     }
 

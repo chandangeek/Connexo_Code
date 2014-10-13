@@ -29,18 +29,17 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
     }
 
     @Override
-    public final void execute (ComServerDAO comServerDAO) {
+    public final void execute(ComServerDAO comServerDAO) {
         try {
-        	this.doExecute(comServerDAO);
-        }
-        finally {
+            this.doExecute(comServerDAO);
+        } finally {
             if (this.getExecutionLogger() != null) {
                 this.getExecutionLogger().executed(this);
             }
         }
     }
 
-    protected abstract void doExecute (ComServerDAO comServerDAO);
+    protected abstract void doExecute(ComServerDAO comServerDAO);
 
     protected IssueService getIssueService() {
         return ServiceProvider.instance.get().issueService();
@@ -50,36 +49,36 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
         return ServiceProvider.instance.get().clock();
     }
 
-    protected DeviceService getDeviceDataService(){
+    protected DeviceService getDeviceDataService() {
         return ServiceProvider.instance.get().deviceDataService();
     }
 
-    protected MdcReadingTypeUtilService getMdcReadingTypeUtilService(){
+    protected MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
         return ServiceProvider.instance.get().mdcReadingTypeUtilService();
     }
 
-    protected EngineService getEngineService(){
+    protected EngineService getEngineService() {
         return ServiceProvider.instance.get().engineService();
     }
 
     @Override
-    public void executeDuringShutdown (ComServerDAO comServerDAO) {
+    public void executeDuringShutdown(ComServerDAO comServerDAO) {
         /* Default is NOT to execute during shutdown
          * Really urgent subclasses will override this
          * and call the execute method instead. */
     }
 
     @Override
-    public ComServer.LogLevel getJournalingLogLevel () {
+    public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.DEBUG;
     }
 
     @Override
-    public void logExecutionWith (ExecutionLogger logger) {
+    public void logExecutionWith(ExecutionLogger logger) {
         this.logger = logger;
     }
 
-    protected ExecutionLogger getExecutionLogger () {
+    protected ExecutionLogger getExecutionLogger() {
         return this.logger;
     }
 

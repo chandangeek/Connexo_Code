@@ -1,12 +1,10 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
-import com.energyict.mdc.device.data.LogBookService;
-
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.energyict.mdc.device.data.LogBookService;
+import org.junit.BeforeClass;
 
 import java.util.Arrays;
-
-import org.junit.*;
 
 import static org.mockito.Mockito.mock;
 
@@ -25,7 +23,7 @@ public class LogBookIdentifierByIdImplEqualityTest extends EqualsContractTest {
     private static LogBookIdentifierByIdImpl instanceA;
 
     @BeforeClass
-    public static void setup () {
+    public static void setup() {
         logBookService = mock(LogBookService.class);
         instanceA = new LogBookIdentifierByIdImpl(LOGBOOK_ID_A, logBookService);
     }

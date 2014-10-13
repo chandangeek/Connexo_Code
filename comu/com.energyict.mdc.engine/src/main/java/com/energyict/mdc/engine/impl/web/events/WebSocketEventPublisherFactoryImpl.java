@@ -5,7 +5,6 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.engine.model.EngineModelService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -29,32 +30,26 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
-import com.elster.jupiter.util.time.Clock;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.logging.Logger;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.logging.Logger;
+
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the DeviceProtocolCommandCreator
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 10/10/12
  * Time: 8:49
@@ -103,7 +98,7 @@ public class DeviceProtocolCommandCreatorTest {
     }
 
     @Test
-    public void testCommandCreationOrder(){
+    public void testCommandCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), serviceProvider));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
@@ -112,12 +107,12 @@ public class DeviceProtocolCommandCreatorTest {
         when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
 
-        DeviceProtocolCommandCreator commandCreator =new DeviceProtocolCommandCreator();
+        DeviceProtocolCommandCreator commandCreator = new DeviceProtocolCommandCreator();
         commandCreator.createCommands(
-                            root,
-                            TypedProperties.empty(),
-                            ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                            device,
+                root,
+                TypedProperties.empty(),
+                ComChannelPlaceHolder.forKnownComChannel(comChannel),
+                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
@@ -132,7 +127,7 @@ public class DeviceProtocolCommandCreatorTest {
     }
 
     @Test
-    public void testMiddleStateCreationOrder(){
+    public void testMiddleStateCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), serviceProvider));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
@@ -141,12 +136,12 @@ public class DeviceProtocolCommandCreatorTest {
         when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createMiddleDeviceComTaskExecutionSteps();
 
-        DeviceProtocolCommandCreator commandCreator =new DeviceProtocolCommandCreator();
+        DeviceProtocolCommandCreator commandCreator = new DeviceProtocolCommandCreator();
         commandCreator.createCommands(
-                            root,
-                            TypedProperties.empty(),
-                            ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                            device,
+                root,
+                TypedProperties.empty(),
+                ComChannelPlaceHolder.forKnownComChannel(comChannel),
+                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
@@ -172,12 +167,12 @@ public class DeviceProtocolCommandCreatorTest {
         when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createLastDeviceComTaskExecutionSteps();
 
-        DeviceProtocolCommandCreator commandCreator =new DeviceProtocolCommandCreator();
+        DeviceProtocolCommandCreator commandCreator = new DeviceProtocolCommandCreator();
         commandCreator.createCommands(
-                            root,
-                            TypedProperties.empty(),
-                            ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                            device,
+                root,
+                TypedProperties.empty(),
+                ComChannelPlaceHolder.forKnownComChannel(comChannel),
+                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
@@ -190,11 +185,11 @@ public class DeviceProtocolCommandCreatorTest {
         verify(root, times(0)).addCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
     }
 
-    private ExecutionContext newTestExecutionContext () {
+    private ExecutionContext newTestExecutionContext() {
         return newTestExecutionContext(Logger.getAnonymousLogger());
     }
 
-    private ExecutionContext newTestExecutionContext (Logger logger) {
+    private ExecutionContext newTestExecutionContext(Logger logger) {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPortPool comPortPool = mock(ComPortPool.class);

@@ -1,5 +1,12 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -61,14 +68,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 
 import java.text.DateFormat;
@@ -182,15 +181,12 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (reloaded.isPresent()) {
             if (reloaded.get().isObsolete()) {
                 return null;
-            }
-            else if (reloaded.get().getModificationDate().after(comServer.getModificationDate())) {
+            } else if (reloaded.get().getModificationDate().after(comServer.getModificationDate())) {
                 return reloaded.get();
-            }
-            else {
+            } else {
                 return comServer;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -578,13 +574,11 @@ public class ComServerDAOImpl implements ComServerDAO {
         InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
         if (connectionTask == null) {
             return null;
-        }
-        else {
+        } else {
             SecurityPropertySet securityPropertySet = this.getSecurityPropertySet(device, connectionTask);
             if (securityPropertySet == null) {
                 return null;
-            }
-            else {
+            } else {
                 return device.getSecurityProperties(securityPropertySet);
             }
         }
