@@ -1,10 +1,5 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,6 +8,10 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -21,11 +20,13 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link DeviceProtocolService} interface
  * and registers as a OSGi component.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 06/11/13
  * Time: 11:03
@@ -87,9 +88,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     public Class loadProtocolClass(String javaClassName) {
         try {
             return this.getClass().getClassLoader().loadClass(javaClassName);
-        }
-        catch (ClassNotFoundException e) {
-            throw new ProtocolCreationException (MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, javaClassName);
+        } catch (ClassNotFoundException e) {
+            throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, javaClassName);
         }
     }
 
@@ -157,4 +157,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         new Installer(this.dataModel, this.thesaurus).install(true);
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "NLS");
+    }
 }
