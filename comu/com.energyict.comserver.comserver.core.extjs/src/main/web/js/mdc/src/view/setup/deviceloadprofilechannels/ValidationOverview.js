@@ -45,12 +45,12 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.ValidationOverview', {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation.lastChecked', 'MDC', 'Last checked'),
                 itemId: 'lastCheckedCont',
+                width: '100%',
                 layout: 'hbox',
                 items: [
                     {
                         xtype: 'displayfield',
                         name: 'lastChecked_formatted',
-                        //margin: '3 0 0 0',
                         renderer: function (value, field) {
                             if (!_.isEmpty(value)) {
                                 field.up('#lastCheckedCont').show();
