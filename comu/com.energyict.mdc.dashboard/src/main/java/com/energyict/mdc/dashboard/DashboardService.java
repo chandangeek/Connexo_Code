@@ -19,6 +19,8 @@ public interface DashboardService {
 
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview();
 
+    public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(QueryEndDeviceGroup deviceGroup);
+
     public ComPortPoolBreakdown getComPortPoolBreakdown();
 
     public ComPortPoolBreakdown getComPortPoolBreakdown(QueryEndDeviceGroup deviceGroup);
@@ -33,9 +35,15 @@ public interface DashboardService {
 
     public ConnectionTypeHeatMap getConnectionTypeHeatMap();
 
+    public ConnectionTypeHeatMap getConnectionTypeHeatMap(QueryEndDeviceGroup queryEndDeviceGroup);
+
     public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap();
 
+    public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup);
+
     public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap();
+
+    public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap(QueryEndDeviceGroup deviceGroup);
 
     public TaskStatusOverview getCommunicationTaskStatusOverview();
 

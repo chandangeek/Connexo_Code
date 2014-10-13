@@ -85,8 +85,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview() {
+        return this.getComSessionSuccessIndicatorOverview(this.connectionTaskService::getConnectionTaskLastComSessionSuccessIndicatorCount);
+    }
+
+    @Override
+    public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(QueryEndDeviceGroup deviceGroup) {
+        return this.getComSessionSuccessIndicatorOverview(() -> this.connectionTaskService.getConnectionTaskLastComSessionSuccessIndicatorCount(deviceGroup));
+    }
+
+    private ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(Supplier<Map<ComSession.SuccessIndicator, Long>> successIndicatorCountSupplier) {
         ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(this.connectionTaskService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
-        Map<ComSession.SuccessIndicator, Long> successIndicatorCount = this.connectionTaskService.getConnectionTaskLastComSessionSuccessIndicatorCount();
+        Map<ComSession.SuccessIndicator, Long> successIndicatorCount = successIndicatorCountSupplier.get();
         for (ComSession.SuccessIndicator successIndicator : ComSession.SuccessIndicator.values()) {
             overview.add(new CounterImpl<>(successIndicator, successIndicatorCount.get(successIndicator)));
         }
@@ -181,6 +190,11 @@ public class DashboardServiceImpl implements DashboardService {
         return this.getConnectionTypeHeatMap(this.connectionTaskService::getConnectionTypeHeatMap);
     }
 
+    @Override
+    public ConnectionTypeHeatMap getConnectionTypeHeatMap(QueryEndDeviceGroup deviceGroup) {
+        return this.getConnectionTypeHeatMap(() -> this.connectionTaskService.getConnectionTypeHeatMap(deviceGroup));
+    }
+
     private ConnectionTypeHeatMap getConnectionTypeHeatMap(Supplier<Map<ConnectionTypePluggableClass, List<Long>>> rawDataSupplier) {
         ConnectionTypeHeatMapImpl heatMap = new ConnectionTypeHeatMapImpl();
         Map<ConnectionTypePluggableClass, List<Long>> rawData = rawDataSupplier.get();
@@ -195,8 +209,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap() {
+        return this.getConnectionsDeviceTypeHeatMap(this.connectionTaskService::getConnectionsDeviceTypeHeatMap);
+    }
+
+    @Override
+    public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup) {
+        return this.getConnectionsDeviceTypeHeatMap(() -> this.connectionTaskService.getConnectionsDeviceTypeHeatMap(deviceGroup));
+    }
+
+    private ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap(Supplier<Map<DeviceType, List<Long>>> rawDataSupplier) {
         ConnectionTaskDeviceTypeHeatMapImpl heatMap = new ConnectionTaskDeviceTypeHeatMapImpl();
-        Map<DeviceType, List<Long>> rawData = this.connectionTaskService.getConnectionsDeviceTypeHeatMap();
+        Map<DeviceType, List<Long>> rawData = rawDataSupplier.get();
         for (DeviceType deviceType : rawData.keySet()) {
             List<Long> counters = rawData.get(deviceType);
             ConnectionTaskHeatMapRowImpl<DeviceType> heatMapRow = new ConnectionTaskHeatMapRowImpl<>(deviceType);
@@ -205,11 +228,19 @@ public class DashboardServiceImpl implements DashboardService {
         }
         return heatMap;
     }
-
     @Override
     public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap() {
+        return this.getConnectionsComPortPoolHeatMap(this.connectionTaskService::getConnectionsComPortPoolHeatMap);
+    }
+
+    @Override
+    public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap(QueryEndDeviceGroup deviceGroup) {
+        return this.getConnectionsComPortPoolHeatMap(() -> this.connectionTaskService.getConnectionsComPortPoolHeatMap(deviceGroup));
+    }
+
+    private ComPortPoolHeatMap getConnectionsComPortPoolHeatMap(Supplier<Map<ComPortPool, List<Long>>> rawDataSupplier) {
         ComPortPoolHeatMapImpl heatMap = new ComPortPoolHeatMapImpl();
-        Map<ComPortPool, List<Long>> rawData = this.connectionTaskService.getConnectionsComPortPoolHeatMap();
+        Map<ComPortPool, List<Long>> rawData = rawDataSupplier.get();
         for (ComPortPool comPortPool : rawData.keySet()) {
             List<Long> counters = rawData.get(comPortPool);
             ConnectionTaskHeatMapRowImpl<ComPortPool> heatMapRow = new ConnectionTaskHeatMapRowImpl<>(comPortPool);
@@ -218,7 +249,6 @@ public class DashboardServiceImpl implements DashboardService {
         }
         return heatMap;
     }
-
     private ComSessionSuccessIndicatorOverview newComSessionSuccessIndicatorOverview(List<Long> counters) {
         Iterator<Long> successIndicatorValues = counters.iterator();
         ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(successIndicatorValues.next());
