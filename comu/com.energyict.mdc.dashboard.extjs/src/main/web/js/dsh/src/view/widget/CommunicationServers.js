@@ -22,11 +22,19 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             '<tpl for=".">',
             '<tbody class="comserver">',
             '<tpl if="!values.expand">',
-                '<tr>',
-                '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
-                '<td>{children.length} {title}</td>',
-                '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
-                '</tr>',
+                '<tpl if="children">',
+                    '<tr>',
+                    '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
+                    '<td>{children.length} {title}</td>',
+                    '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
+                    '</tr>',
+                '<tpl else>',
+                    '<tr>',
+                    '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
+                    '<td>{title}</td>',
+                    '<td style="padding-left: 15px;"></td>',
+                    '</tr>',
+                '</tpl>',
             '<tpl else>',
                 '<tpl for="values.children">',
                 '<tr id="{comServerId}">',
@@ -80,26 +88,38 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             store = Ext.getStore(me.store);
 
         store.load(function () {
+            var groups = store.getGroups().map(function (item) {
+                item.title = Uni.I18n.translate('overview.widget.communicationServers.title.' + item.name, 'DSH', item.name);
+                item.expand = (item.name === 'blocked' && item.children && item.children.length < 5);
+                var html = '';
+                if (item.children) {
+                    item.children = item.children.map(function(server) {
+                        var data = server.getData();
+                        data.title = data.comServerName + ' ' + Uni.I18n.translate('overview.widget.communicationServers.status.' + item.name, 'DSH', item.name);
+                        data.href = me.router.getRoute('administration/comservers/detail/overview').buildUrl({id: data.comServerId});
+                        data.tooltip = me.serverTpl.apply(data);
+                        html += data.tooltip;
+                        return data;
+                    });
+                }
+                item.tooltip = html;
+
+                return item;
+            });
+            var keys = _.pluck(groups, 'name');
+            var items = ['running', 'blocked', 'stopped'];
+
+            _.difference(items, keys).map(function(item) {
+                groups.push({
+                    name: item,
+                    title: Uni.I18n.translate('overview.widget.communicationServers.empty.' + item, 'DSH', item),
+                    expand: false
+                })
+            });
+
             elm.bindStore(Ext.create('Ext.data.Store', {
                 fields: ['children', 'name', 'title', 'tooltip', 'expand'],
-                data: store.getGroups().map(function (item) {
-                    item.title = Uni.I18n.translate('overview.widget.communicationServers.title.' + item.name, 'DSH', item.name);
-                    item.expand = (item.name === 'blocked' && item.children && item.children.length < 5);
-                    var html = '';
-                    if (item.children) {
-                        item.children = item.children.map(function(server) {
-                            var data = server.getData();
-                            data.title = data.comServerName + ' ' + Uni.I18n.translate('overview.widget.communicationServers.status.' + item.name, 'DSH', item.name);
-                            data.href = me.router.getRoute('administration/comservers/detail/overview').buildUrl({id: data.comServerId});
-                            data.tooltip = me.serverTpl.apply(data);
-                            html += data.tooltip;
-                            return data;
-                        });
-                    }
-                    item.tooltip = html;
-
-                    return item;
-                })
+                data: groups
             }));
         });
     }
