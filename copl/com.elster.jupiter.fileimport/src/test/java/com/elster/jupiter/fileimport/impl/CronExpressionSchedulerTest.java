@@ -1,7 +1,10 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.util.cron.CronExpression;
-import com.elster.jupiter.util.time.Clock;
+
+import java.time.Clock;
+import java.time.Instant;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +14,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -22,7 +24,7 @@ public class CronExpressionSchedulerTest {
 
     private CronExpressionScheduler scheduler;
 
-    private static final Date now = new Date(10), firstOccurrence = new Date(20), secondOccurrence = new Date(30);
+    private static final Instant now = Instant.ofEpochMilli(10), firstOccurrence =Instant.ofEpochMilli(20), secondOccurrence = Instant.ofEpochMilli(30);
 
     @Mock
     private CronJob cronJob;
@@ -40,8 +42,7 @@ public class CronExpressionSchedulerTest {
         when(cronJob.getSchedule()).thenReturn(cronExpression);
         when(cronExpression.nextAfter(now)).thenReturn(firstOccurrence);
         when(cronExpression.nextAfter(firstOccurrence)).thenReturn(secondOccurrence);
-        when(clock.now()).thenReturn(now, firstOccurrence, secondOccurrence);
-//        when(serviceLocator.getClock()).thenReturn(clock);
+        when(clock.instant()).thenReturn(now, firstOccurrence, secondOccurrence);
     }
 
     @After

@@ -7,8 +7,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.cron.CronExpression;
-import com.elster.jupiter.util.time.Clock;
+
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,12 +27,10 @@ import java.io.File;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
@@ -38,8 +39,8 @@ import static org.mockito.Mockito.when;
 public class FileImportServiceImplTest {
 
     private static final File IMPORT_DIRECTORY = new File("/import");
-    private static final Date NOW = new Date(10L);
-    private static final Date NEXT = new Date(20L);
+    private static final Instant NOW = Instant.ofEpochMilli(10L);
+    private static final Instant NEXT = Instant.ofEpochMilli(20L);
     private FileImportServiceImpl fileImportService;
 
     @Mock
@@ -106,7 +107,7 @@ public class FileImportServiceImplTest {
         when(importScheduleFactory.find()).thenReturn(Arrays.asList(importSchedule));
         when(importSchedule.getImportDirectory()).thenReturn(IMPORT_DIRECTORY);
         when(importSchedule.getScheduleExpression()).thenReturn(cronExpression);
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(cronExpression.nextAfter(NOW)).thenReturn(NEXT);
 
         try {

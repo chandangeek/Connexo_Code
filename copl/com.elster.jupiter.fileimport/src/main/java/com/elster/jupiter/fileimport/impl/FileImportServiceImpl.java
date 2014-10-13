@@ -18,7 +18,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Only;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;

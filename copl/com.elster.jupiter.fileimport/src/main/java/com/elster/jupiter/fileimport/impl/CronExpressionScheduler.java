@@ -1,9 +1,9 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.util.cron.CronExpression;
-import com.elster.jupiter.util.time.Clock;
 
-import java.util.Date;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,10 +32,10 @@ class CronExpressionScheduler {
      * @param cronJob
      */
     public void submitOnce(CronJob cronJob) {
-        Date now = clock.now();
-        Date next = cronJob.getSchedule().nextAfter(now);
+        Instant now = clock.instant();
+        Instant next = cronJob.getSchedule().nextAfter(now);
         if (next != null) {
-            long delay = next.getTime() - now.getTime();
+            long delay = next.toEpochMilli() - now.toEpochMilli();
             scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS);
         }
     }
