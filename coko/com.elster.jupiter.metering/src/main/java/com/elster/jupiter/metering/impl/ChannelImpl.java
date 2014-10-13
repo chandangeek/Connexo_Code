@@ -316,12 +316,12 @@ public final class ChannelImpl implements ChannelContract {
 
     @Override
     public List<ReadingQualityRecord> findReadingQuality(Interval interval) {
-        return findReadingQuality(interval.toOpenClosedRange());
+        return findReadingQuality(interval.toClosedRange());
     }
 
     @Override
     public List<ReadingQualityRecord> findActualReadingQuality(Interval interval) {
-        return findActualReadingQuality(interval.toOpenClosedRange());
+        return findActualReadingQuality(interval.toClosedRange());
     }
 
     private Condition inRange(Range<Instant> range) {
