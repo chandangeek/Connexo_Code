@@ -414,10 +414,6 @@ public class DeviceImplDoSomethingWithEventsTest {
                 return eventService.getEventType(topic);
             }
 
-            @Override
-            public List<EventType> getEventTypesForComponent(String component) {
-                return eventService.getEventTypesForComponent(component);
-            }
         }
 
     }
