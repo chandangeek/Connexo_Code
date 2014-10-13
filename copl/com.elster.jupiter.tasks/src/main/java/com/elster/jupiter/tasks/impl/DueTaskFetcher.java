@@ -6,14 +6,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.time.Clock;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 class DueTaskFetcher {
@@ -46,9 +46,9 @@ class DueTaskFetcher {
     }
 
     private Iterable<RecurrentTask> dueTasks(Connection connection) throws SQLException {
-        Date now = clock.now();
+        Instant now = clock.instant();
         try (PreparedStatement statement = connection.prepareStatement("select id, name, cronstring, nextexecution, payload, destination from TSK_RECURRENT_TASK where nextExecution < ?")) {
-            statement.setLong(1, now.getTime());
+            statement.setLong(1, now.toEpochMilli());
             try (ResultSet resultSet = statement.executeQuery()) {
                 return getRecurrentTasks(resultSet);
             }
@@ -68,7 +68,7 @@ class DueTaskFetcher {
         String name = resultSet.getString(NAME_INDEX);
         String cronString = resultSet.getString(CRON_INDEX);
         long nextExecutionLong = resultSet.getLong(NEXT_EXECUTION_INDEX);
-        Date nextExecution = resultSet.wasNull() ? null : new Date(nextExecutionLong);
+        Instant nextExecution = resultSet.wasNull() ? null : Instant.ofEpochMilli(nextExecutionLong);
         String payload = resultSet.getString(PAYLOAD_INDEX);
         String destination = resultSet.getString(DESTINATION_INDEX);
         DestinationSpec destinationSpec = messageService.getDestinationSpec(destination).get();

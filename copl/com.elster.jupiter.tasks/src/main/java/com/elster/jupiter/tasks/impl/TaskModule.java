@@ -6,7 +6,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.osgi.service.log.LogService;

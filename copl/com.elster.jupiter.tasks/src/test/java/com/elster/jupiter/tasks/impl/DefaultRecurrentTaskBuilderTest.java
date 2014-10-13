@@ -6,7 +6,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.time.Clock;
+
+import java.time.Clock;
+import java.time.Instant;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,8 +19,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.util.Date;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -26,8 +27,8 @@ public class DefaultRecurrentTaskBuilderTest {
 
     private static final String NAME = "name";
     private static final String PAYLOAD = "PAYLOAD";
-    private static final Date NOW = new Date(123456);
-    private static final Date FIRST = new Date(124000);
+    private static final Instant NOW = Instant.ofEpochMilli(123456);
+    private static final Instant FIRST = Instant.ofEpochMilli(124000);
     private static final String CRON_STRING = "0 * * * * ? *";
     private DefaultRecurrentTaskBuilder defaultRecurrentTaskBuilder;
 
@@ -55,7 +56,7 @@ public class DefaultRecurrentTaskBuilderTest {
 
         defaultRecurrentTaskBuilder = new DefaultRecurrentTaskBuilder(dataModel, cronExpressionParser);
 
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(cronExpressionParser.parse(CRON_STRING)).thenReturn(cronExpression);
         when(cronExpression.nextAfter(NOW)).thenReturn(FIRST);
     }

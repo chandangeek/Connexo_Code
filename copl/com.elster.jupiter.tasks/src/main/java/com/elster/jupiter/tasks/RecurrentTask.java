@@ -1,9 +1,10 @@
 package com.elster.jupiter.tasks;
 
+import java.time.Instant;
+
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.util.HasName;
 
-import java.util.Date;
 
 /**
  * Models a task that should put a message on the task queue recurrently.
@@ -18,7 +19,7 @@ public interface RecurrentTask extends HasName {
 
     String getPayLoad();
 
-    Date getNextExecution();
+    Instant getNextExecution();
 
     TaskOccurrence createTaskOccurrence();
 

@@ -8,7 +8,8 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.util.Date;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -29,8 +30,8 @@ public class RecurrentTaskImplTest {
 
     private static final String PAYLOAD = "payload";
     private static final String NAME = "name";
-    private static final Date NOW = new Date(5000000);
-    private static final Date NEXT = new Date(6000000);
+    private static final Instant NOW = Instant.ofEpochMilli(5000000);
+    private static final Instant NEXT = Instant.ofEpochMilli(6000000);
 
     private RecurrentTaskImpl recurrentTask;
 
@@ -64,7 +65,8 @@ public class RecurrentTaskImplTest {
 
         recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, clock).init(NAME, cronExpression, destination, PAYLOAD);
 
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(cronExpression.nextAfter(NOW)).thenReturn(NEXT);
     }
 

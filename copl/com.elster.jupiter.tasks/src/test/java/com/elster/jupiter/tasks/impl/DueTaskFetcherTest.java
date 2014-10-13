@@ -7,8 +7,11 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +25,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -32,7 +34,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DueTaskFetcherTest {
 
-    private static final Date NOW = new Date(65464161);
+    private static final Instant NOW = Instant.ofEpochMilli(65464161);
     private static final long ID = 1631;
     private static final String NAME = "name";
     private static final String CRON = "0 * * * * ? *";
@@ -67,7 +69,7 @@ public class DueTaskFetcherTest {
 //        when(serviceLocator.getMessageService()).thenReturn(messageService);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(messageService.getDestinationSpec(DESTINATION)).thenReturn(Optional.of(destination));
         when(cronExpressionParser.parse(CRON)).thenReturn(cronExpression);
         when(dataModel.getConnection(false)).thenReturn(connection);
@@ -101,7 +103,7 @@ public class DueTaskFetcherTest {
         when(resultSet.getLong(1)).thenReturn(ID);
         when(resultSet.getString(2)).thenReturn(NAME);
         when(resultSet.getString(3)).thenReturn(CRON);
-        when(resultSet.getLong((4))).thenReturn(NOW.getTime());
+        when(resultSet.getLong((4))).thenReturn(NOW.toEpochMilli());
         when(resultSet.wasNull()).thenReturn(false);
         when(resultSet.getString(5)).thenReturn(PAYLOAD);
         when(resultSet.getString(6)).thenReturn(DESTINATION);

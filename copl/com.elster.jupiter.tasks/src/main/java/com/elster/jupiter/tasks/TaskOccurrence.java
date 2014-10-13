@@ -1,12 +1,12 @@
 package com.elster.jupiter.tasks;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface TaskOccurrence {
 
     String getPayLoad();
 
-    Date getTriggerTime();
+    Instant getTriggerTime();
 
     RecurrentTask getRecurrentTask();
 

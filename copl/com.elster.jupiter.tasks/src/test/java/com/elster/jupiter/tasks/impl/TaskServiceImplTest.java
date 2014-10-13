@@ -13,9 +13,13 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
-import org.joda.time.DateTime;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,12 +33,10 @@ import org.mockito.stubbing.Answer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -44,7 +46,7 @@ import static org.mockito.Mockito.when;
 public class TaskServiceImplTest {
 
     private static final long ID = 15;
-    private static final Date NOW = new DateTime(2013, 9, 10, 14, 47, 24).toDate();
+    private static final Instant NOW = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.systemDefault()).toInstant();
     private TaskServiceImpl taskService;
 
     @Mock
@@ -90,7 +92,7 @@ public class TaskServiceImplTest {
                 return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
             }
         });
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
 
         taskService = new TaskServiceImpl();
         taskService.setDueTaskFetcher(dueTaskFetcher);
@@ -124,14 +126,14 @@ public class TaskServiceImplTest {
     public void testGetRecurrentTaskById() {
         when(recurrentTaskFactory.getOptional(ID)).thenReturn(Optional.of(recurrentTask));
 
-        assertThat(taskService.getRecurrentTask(ID)).contains(recurrentTask);
+        assertThat(taskService.getRecurrentTask(ID).get()).isEqualTo(recurrentTask);
     }
 
     @Test
     public void testGetRecurrentTaskByIdNotFound() {
-        when(recurrentTaskFactory.getOptional(ID)).thenReturn(Optional.<RecurrentTask>absent());
+        when(recurrentTaskFactory.getOptional(ID)).thenReturn(Optional.empty());
 
-        assertThat(taskService.getRecurrentTask(ID)).isAbsent();
+        assertThat(taskService.getRecurrentTask(ID).isPresent()).isFalse();
     }
 
     @Test

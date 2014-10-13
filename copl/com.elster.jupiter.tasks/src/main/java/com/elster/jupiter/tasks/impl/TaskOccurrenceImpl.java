@@ -3,35 +3,34 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
-import java.util.Date;
+
+import java.time.Instant;
 
 class TaskOccurrenceImpl implements TaskOccurrence {
 
     private long id;
     private long recurrentTaskId;
     private RecurrentTask recurrentTask;
-    private UtcInstant triggerTime;
+    private Instant triggerTime;
 
     private final DataModel dataModel;
 
-    @SuppressWarnings("unused")
     @Inject
 	TaskOccurrenceImpl(DataModel dataModel) {
         // for persistence
         this.dataModel = dataModel;
     }
 
-    TaskOccurrenceImpl init(RecurrentTask recurrentTask, Date triggerTime) {
+    TaskOccurrenceImpl init(RecurrentTask recurrentTask, Instant triggerTime) {
         this.recurrentTask = recurrentTask;
         this.recurrentTaskId = recurrentTask.getId();
-        this.triggerTime = new UtcInstant(triggerTime);
+        this.triggerTime = triggerTime;
         return this;
     }
 
-    static TaskOccurrenceImpl from(DataModel dataModel, RecurrentTask recurrentTask, Date triggerTime) {
+    static TaskOccurrenceImpl from(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime) {
         return dataModel.getInstance(TaskOccurrenceImpl.class).init(recurrentTask, triggerTime);
     }
 
@@ -46,8 +45,8 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     }
 
     @Override
-    public Date getTriggerTime() {
-        return triggerTime.toDate();
+    public Instant getTriggerTime() {
+        return triggerTime;
     }
 
     @Override

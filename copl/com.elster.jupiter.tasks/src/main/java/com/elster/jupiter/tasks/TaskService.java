@@ -1,7 +1,7 @@
 package com.elster.jupiter.tasks;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public interface TaskService {
 

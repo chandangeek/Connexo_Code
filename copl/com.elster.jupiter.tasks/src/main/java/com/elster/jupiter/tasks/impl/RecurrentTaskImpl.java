@@ -7,11 +7,11 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.UtcInstant;
+import java.time.Clock;
 
 import javax.inject.Inject;
-import java.util.Date;
+
+import java.time.Instant;
 
 class RecurrentTaskImpl implements RecurrentTask {
 
@@ -19,7 +19,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String name;
     private transient CronExpression cronExpression;
     private String cronString;
-    private UtcInstant nextExecution;
+    private Instant nextExecution;
     private String payload;
     private String destination;
     private transient DestinationSpec destinationSpec;
@@ -29,7 +29,6 @@ class RecurrentTaskImpl implements RecurrentTask {
     private final MessageService messageService;
     private final DataModel dataModel;
 
-    @SuppressWarnings("unused")
     @Inject
 	RecurrentTaskImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, MessageService messageService, Clock clock) {
         this.dataModel = dataModel;
@@ -64,7 +63,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public void updateNextExecution() {
-        nextExecution = new UtcInstant(getCronExpression().nextAfter(clock.now()));
+        nextExecution = getCronExpression().nextAfter(clock.instant());
     }
 
     private CronExpression getCronExpression() {
@@ -88,13 +87,13 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
-    public Date getNextExecution() {
-        return nextExecution == null ? null : nextExecution.toDate();
+    public Instant getNextExecution() {
+        return nextExecution;
     }
 
     @Override
     public TaskOccurrence createTaskOccurrence() {
-        TaskOccurrence occurrence = TaskOccurrenceImpl.from(dataModel, this, clock.now());
+        TaskOccurrence occurrence = TaskOccurrenceImpl.from(dataModel, this, clock.instant());
         occurrence.save();
         return occurrence;
     }
@@ -119,8 +118,8 @@ class RecurrentTaskImpl implements RecurrentTask {
         return name;
     }
 
-    public void setNextExecution(Date nextExecution) {
-        this.nextExecution = new UtcInstant(nextExecution);
+    public void setNextExecution(Instant nextExecution) {
+        this.nextExecution = nextExecution;
     }
 
     @Override

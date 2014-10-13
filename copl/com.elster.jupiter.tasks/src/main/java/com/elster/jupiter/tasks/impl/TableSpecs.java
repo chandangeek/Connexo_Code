@@ -8,7 +8,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.Table.*;
 
 enum TableSpecs {
@@ -20,7 +20,7 @@ enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
-            table.column("NEXTEXECUTION").type("number").conversion(NUMBER2UTCINSTANT).map("nextExecution").add();
+            table.column("NEXTEXECUTION").type("number").conversion(NUMBER2INSTANT).map("nextExecution").add();
             table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             table.column("DESTINATION").type("varchar2(30)").notNull().map("destination").add();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
@@ -32,7 +32,7 @@ enum TableSpecs {
             table.map(TaskOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column recurrentIdColumn = table.column("RECURRENTTASKID").type("number").notNull().conversion(NUMBER2LONG).map("recurrentTaskId").add();
-            table.column("TRIGGERTIME").type("number").conversion(NUMBER2UTCINSTANT).map("triggerTime").add();
+            table.column("TRIGGERTIME").type("number").conversion(NUMBER2INSTANT).map("triggerTime").add();
             table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).onDelete(DeleteRule.CASCADE).map("recurrentTask").on(recurrentIdColumn).add();
             table.primaryKey("TSK_PK_TASK_OCCURRENCE").on(idColumn).add();
         }
