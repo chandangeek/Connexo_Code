@@ -93,7 +93,6 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().taskStatuses).contains(TaskStatus.Busy).contains(TaskStatus.OnHold).hasSize(2);
-
     }
 
     @Test
