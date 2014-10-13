@@ -52,7 +52,9 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
     loadChart: function (store, xTitle) {
         if (store.getCount() > 0) {
-            store.sort([{property: 'displayValue', direction: 'DESC'}]);
+            store.sort([
+                {property: 'displayValue', direction: 'DESC'}
+            ]);
             var me = this,
                 ycat = [],
                 xcat = store.collect('displayValue');
@@ -68,8 +70,9 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
     initComponent: function () {
         var me = this,
-            xTitle = '',
-            store = Ext.getStore(me.store);
+            xTitle = '';
+
+        me.store = Ext.getStore(me.store || 'ext-empty-store');
 
         if (me.parent == 'connections') {
             me.tbar = [
@@ -97,40 +100,46 @@ Ext.define('Dsh.view.widget.HeatMap', {
                     html: '<h2>' + Uni.I18n.translate('overview.widget.communications.heatmap.combineLabel', 'DSH', 'Combine latest result and device type') + '</h2>'
                 }
             ];
-            xTitle = 'Device types'
         }
         this.callParent(arguments);
 
         if (me.parent == 'connections') {
             var combo = me.getCombo();
             combo.on('change', function (combo, newValue) {
-                store.proxy.extraParams.filter = '[{"property":"breakdown","value": "' + newValue + '"}]';
-                xTitle = combo.getDisplayValue();
-                store.load();
+                me.store.proxy.extraParams.filter = '[{"property":"breakdown", "value": "' + newValue + '"}]';
+                me.reload();
             });
 
-            combo.getStore().on('load', function (store) {
-                if (store.getCount() > 0) {
-                    var val = store.getAt(1);
-                    combo.select(val);
+            combo.getStore().load(function () {
+                if (combo.getStore().getCount() > 0) {
+                    combo.select(combo.getStore().getAt(1));
                 }
-            });
+            })
         } else if (me.parent == 'communications') {
-            store.load();
+            me.reload();
         }
+    },
 
+    reload: function () {
+        var me = this,
+            store = me.store;
+
+        me.setLoading();
         store.on('load', function () {
             var cmp = me.down('#heatmapchart');
             if (store.count() && cmp) {
                 me.show();
                 cmp.setHeight(store.count() * 100);
                 me.renderChart(cmp.getEl().down('.x-panel-body').dom);
-                me.loadChart(store, xTitle);
+                me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device types');
                 cmp.doLayout();
             } else {
                 me.hide();
             }
+            me.setLoading(false);
         });
+
+        store.load();
     },
 
     renderChart: function (container) {
