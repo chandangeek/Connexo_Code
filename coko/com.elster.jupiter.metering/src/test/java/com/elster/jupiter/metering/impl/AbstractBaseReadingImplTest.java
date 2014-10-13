@@ -37,7 +37,6 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-
 import java.time.Clock;
 
 import javax.inject.Provider;

@@ -185,7 +185,7 @@ public class ReadingQualityImplIT {
         MeterActivation meterActivation = usagePoint.activate(date);
         Channel channel = meterActivation.createChannel(readingType);
         ReadingStorer regularStorer = meteringService.createNonOverrulingStorer();
-        regularStorer.addReading(channel, new IntervalReadingImpl(date,BigDecimal.valueOf(561561, 2)));
+        regularStorer.addReading(channel, new IntervalReadingImpl(date, BigDecimal.valueOf(561561, 2)));
         regularStorer.execute();
         BaseReadingRecord reading = channel.getReading(date).get();
         ReadingQualityRecord readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), reading);

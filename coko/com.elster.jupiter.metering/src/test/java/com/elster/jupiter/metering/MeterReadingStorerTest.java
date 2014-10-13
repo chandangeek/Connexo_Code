@@ -33,7 +33,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

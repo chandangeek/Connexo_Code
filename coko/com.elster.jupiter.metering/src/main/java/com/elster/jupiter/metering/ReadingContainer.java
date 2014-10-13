@@ -3,7 +3,6 @@ package com.elster.jupiter.metering;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-
 import com.google.common.collect.Range;
 
 public interface ReadingContainer {

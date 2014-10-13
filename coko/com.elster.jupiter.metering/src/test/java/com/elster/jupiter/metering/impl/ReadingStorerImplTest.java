@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.google.common.collect.Range;
-
 import java.time.Instant;
 import java.util.Optional;
 

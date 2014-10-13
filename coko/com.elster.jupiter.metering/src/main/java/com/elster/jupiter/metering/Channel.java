@@ -16,9 +16,7 @@ public interface Channel {
     List<BaseReadingRecord> getReadings(Range<Instant> interval);
 	ReadingType getMainReadingType();
 	Optional<? extends ReadingType> getBulkQuantityReadingType();
-
     long getVersion();
-
     List<ReadingRecord> getRegisterReadings(ReadingType readingType, Range<Instant> interval);
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Range<Instant> interval);
     List<BaseReadingRecord> getReadings(ReadingType readingType, Range<Instant> interval);
@@ -33,7 +31,7 @@ public interface Channel {
     boolean isRegular();
     List<BaseReadingRecord> getReadingsBefore(Instant when, int readingCount);
     List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, int readingCount);
-	boolean hasMacroPeriod();
+    boolean hasMacroPeriod();
     boolean hasData();
 	void editReadings(List<? extends BaseReading> readings);
 	void removeReadings(List<? extends BaseReadingRecord> readings);

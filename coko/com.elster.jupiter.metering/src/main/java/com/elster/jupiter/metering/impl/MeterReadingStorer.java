@@ -291,5 +291,5 @@ public class MeterReadingStorer {
         newReadingQuality.setComment(readingQuality.getComment());
         return newReadingQuality;
     }
-
 }
+

@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.orm.associations.Effectivity;
-
 import java.time.Instant;
 import java.util.Optional;
 import java.util.List;
