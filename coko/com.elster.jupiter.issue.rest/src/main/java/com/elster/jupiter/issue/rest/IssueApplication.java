@@ -2,7 +2,6 @@ package com.elster.jupiter.issue.rest;
 
 
 import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
-import com.elster.jupiter.issue.rest.i18n.TranslationInstaller;
 import com.elster.jupiter.issue.rest.resource.*;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptionMapper;
 import com.elster.jupiter.issue.share.service.IssueActionService;
