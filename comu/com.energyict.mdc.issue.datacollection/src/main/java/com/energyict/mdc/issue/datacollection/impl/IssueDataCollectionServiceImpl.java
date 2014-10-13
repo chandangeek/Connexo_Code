@@ -9,9 +9,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -22,7 +20,7 @@ import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollecti
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.database.TableSpecs;
-import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationInstaller;
+import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.install.Installer;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 import com.google.common.base.Optional;
@@ -36,8 +34,8 @@ import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
 
-@Component(name = "com.energyict.mdc.issue.datacollection", service = {InstallService.class, IssueDataCollectionService.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
-public class IssueDataCollectionServiceImpl implements InstallService, IssueDataCollectionService {
+@Component(name = "com.energyict.mdc.issue.datacollection", service = {InstallService.class, TranslationKeyProvider.class, IssueDataCollectionService.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
+public class IssueDataCollectionServiceImpl implements InstallService, TranslationKeyProvider, IssueDataCollectionService {
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
     private volatile MessageService messageService;
@@ -83,7 +81,6 @@ public class IssueDataCollectionServiceImpl implements InstallService, IssueData
 
     @Override
     public void install() {
-        new TranslationInstaller(thesaurus).createTranslations();
         new Installer(dataModel, issueService, issueActionService, messageService).install();
     }
 
@@ -166,5 +163,20 @@ public class IssueDataCollectionServiceImpl implements InstallService, IssueData
         Query<T> query = queryService.wrap(queryExecutor);
         query.setEager();
         return query;
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }

@@ -2,13 +2,14 @@ package com.energyict.mdc.issue.datacollection.impl.i18n;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
 
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // Templates 1 - 99
     BASIC_TEMPLATE_DATACOLLECTION_NAME(1, "TemapleBasicDataCollectionName", "Create issue when specific event occurs", Level.INFO),
