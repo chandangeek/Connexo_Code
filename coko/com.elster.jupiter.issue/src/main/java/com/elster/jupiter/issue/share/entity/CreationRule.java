@@ -1,7 +1,7 @@
 package com.elster.jupiter.issue.share.entity;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import java.time.Instant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.List;
 
@@ -30,8 +30,8 @@ public interface CreationRule extends Entity {
     CreationRuleTemplate getTemplate();
     void setTemplateUuid(String templateName);
 
-    Instant getObsoleteTime();
-    void setObsoleteTime(Instant obsoleteTime);
+    UtcInstant getObsoleteTime();
+    void setObsoleteTime(UtcInstant obsoleteTime);
 
     List<CreationRuleParameter> getParameters();
     List<CreationRuleAction> getActions();

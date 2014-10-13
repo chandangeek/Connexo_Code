@@ -9,7 +9,7 @@ import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
-import java.util.Optional;
+import com.google.common.base.Optional;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +40,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
             List<CreationRule> rules = getIssueCreationService().getCreationRuleQuery().select(Condition.TRUE);
             assertThat(rules).isNotEmpty();
 
-            CreationRule rule = getIssueCreationService().findCreationRule(id).orElse(null);
+            CreationRule rule = getIssueCreationService().findCreationRule(id).orNull();
             assertThat(rule).isNotNull();
 
             rule.addParameter("key", "value");
@@ -49,12 +49,12 @@ public class IssueCreationServiceImplTest extends BaseTest {
         }
         // Clear parameters
         try (TransactionContext context = getContext()){
-            CreationRule rule = getIssueCreationService().findCreationRule(id).orElse(null);
+            CreationRule rule = getIssueCreationService().findCreationRule(id).orNull();
             assertThat(rule.getParameters()).hasSize(1);
             rule.getParameters().clear();
             rule.save();
 
-            rule = getIssueCreationService().findCreationRule(id).orElse(null);
+            rule = getIssueCreationService().findCreationRule(id).orNull();
             assertThat(rule.getParameters()).hasSize(0);
         }
     }
@@ -66,19 +66,19 @@ public class IssueCreationServiceImplTest extends BaseTest {
             CreationRule rule = getSimpleCreationRule();
             rule.save();
             rule.delete();
-            rule = getIssueCreationService().findCreationRule(rule.getId()).orElse(null);
+            rule = getIssueCreationService().findCreationRule(rule.getId()).orNull();
             assertThat(rule).isNull();
 
             // Delete when some issue has reference
             rule = getSimpleCreationRule();
             rule.save();
             OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
-            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull());
+            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orNull());
             issue.setRule(rule);
             issue.save();
             rule.delete();
-            rule = getIssueCreationService().findCreationRule(rule.getId()).orElse(null);
+            rule = getIssueCreationService().findCreationRule(rule.getId()).orNull();
             assertThat(rule).isNotNull();
             assertThat(rule.getObsoleteTime()).isNotNull();
 
@@ -86,7 +86,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
             rule = getSimpleCreationRule();
             rule.save();
             issue.setRule(rule);
-            issue.close(getIssueService().findStatus(IssueStatus.WONT_FIX).orElse(null));
+            issue.close(getIssueService().findStatus(IssueStatus.WONT_FIX).orNull());
             rule.delete();
             assertThat(rule).isNotNull();
             assertThat(rule.getObsoleteTime()).isNotNull();
@@ -115,20 +115,20 @@ public class IssueCreationServiceImplTest extends BaseTest {
             Query<CreationRuleAction> actionQuery = getIssueCreationService().getCreationRuleActionQuery();
             List<CreationRuleAction> actionList = actionQuery.select(Condition.TRUE);
             assertThat(actionList).isNotEmpty();
-            CreationRule foundRule = getIssueCreationService().findCreationRule(rule.getId()).orElse(null);
+            CreationRule foundRule = getIssueCreationService().findCreationRule(rule.getId()).orNull();
             assertThat(foundRule.getActions()).isNotEmpty();
             assertThat(foundRule.getActions().get(0).getParameters()).hasSize(1);
 
             Optional<CreationRuleAction> foundActionRef = getIssueCreationService()
                     .findCreationRuleAction(foundRule.getActions().get(0).getId());
-            assertThat(foundActionRef).isNotEqualTo(Optional.empty());
+            assertThat(foundActionRef).isNotEqualTo(Optional.absent());
         }
     }
 
     @Test
     public void testRuleTemplates() {
         Optional<CreationRuleTemplate> templateRef = getIssueCreationService().findCreationRuleTemplate("fakeUuid");
-        assertThat(templateRef).isEqualTo(Optional.empty());
+        assertThat(templateRef).isEqualTo(Optional.absent());
         List<CreationRuleTemplate> templates = getIssueCreationService().getCreationRuleTemplates();
         assertThat(templates).isEmpty();
 
@@ -152,7 +152,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
 
         try (TransactionContext context = getContext()) {
             CreationRule rule = getSimpleCreationRule();
-            IssueReason reason = getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null);
+            IssueReason reason = getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull();
             rule.setReason(reason);
             rule.save();
 

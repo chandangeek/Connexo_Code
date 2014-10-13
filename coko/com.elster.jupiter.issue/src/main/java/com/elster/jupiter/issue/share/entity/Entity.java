@@ -1,13 +1,13 @@
 package com.elster.jupiter.issue.share.entity;
 
-import java.time.Instant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public interface Entity {
 
     long getId();
     long getVersion();
-    Instant getCreateTime();
-    Instant getModTime();
+    UtcInstant getCreateTime();
+    UtcInstant getModTime();
     String getUserName();
 
     // Operational methods

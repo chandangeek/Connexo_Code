@@ -8,7 +8,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
-import java.util.Optional;
+import com.google.common.base.Optional;
 
 import java.util.List;
 import java.util.Map;

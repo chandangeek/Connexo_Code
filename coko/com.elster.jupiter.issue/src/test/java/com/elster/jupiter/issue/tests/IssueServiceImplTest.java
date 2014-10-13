@@ -10,7 +10,7 @@ import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
-import java.util.Optional;
+import com.google.common.base.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -54,8 +54,8 @@ public class IssueServiceImplTest extends BaseTest{
         }
         try (TransactionContext context = getContext()) {
             OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
-            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull());
+            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orNull());
             issue.setRule(getSimpleCreationRule());
             issue.assignTo(null);
             issue.assignTo(role);
@@ -64,19 +64,19 @@ public class IssueServiceImplTest extends BaseTest{
         // Check that we save correct assignee for closed issues
         try (TransactionContext context = getContext()) {
             OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
-            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull());
+            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orNull());
             issue.setRule(getSimpleCreationRule());
             issue.assignTo(null);
             issue.assignTo(role);
             issue.save();
-            issue.close(getIssueService().findStatus(IssueStatus.RESOLVED).orElse(null));
-            Issue closedIssue = getIssueService().findHistoricalIssue(issue.getId()).orElse(null);
+            issue.close(getIssueService().findStatus(IssueStatus.RESOLVED).orNull());
+            Issue closedIssue = getIssueService().findHistoricalIssue(issue.getId()).orNull();
             assertThat(closedIssue).isNotNull();
             IssueAssignee assignee = closedIssue.getAssignee();
             assertThat(assignee).isNotNull();
-            assertThat(getIssueService().findAssigneeTeam(closedIssue.getAssignee().getId())).isEqualTo(Optional.empty());
-            assertThat(getIssueService().findAssigneeRole(closedIssue.getAssignee().getId())).isNotEqualTo(Optional.empty());
+            assertThat(getIssueService().findAssigneeTeam(closedIssue.getAssignee().getId())).isEqualTo(Optional.absent());
+            assertThat(getIssueService().findAssigneeRole(closedIssue.getAssignee().getId())).isNotEqualTo(Optional.absent());
             assertThat(assignee.getId()).isEqualTo(role.getId());
             assertThat(assignee.getName()).isEqualTo(role.getName());
             assertThat(getIssueService().checkIssueAssigneeType("ALIEN")).isFalse();
@@ -101,7 +101,7 @@ public class IssueServiceImplTest extends BaseTest{
         Issue issue = createIssueMinInfo();
         try (TransactionContext context = getContext()) {
             Optional<User> userRef = getUserService().findUser("admin");
-            assertThat(userRef).isNotEqualTo(Optional.empty());
+            assertThat(userRef).isNotEqualTo(Optional.absent());
             issue.addComment("comment", userRef.get());
             issue.save();
             context.commit();
@@ -110,7 +110,7 @@ public class IssueServiceImplTest extends BaseTest{
         List<IssueComment> issueCommentList = commentQuery.select(Condition.TRUE);
         assertThat(issueCommentList).isNotEmpty();
         Optional<IssueComment> commentRef = getIssueService().findComment(issueCommentList.get(0).getId());
-        assertThat(commentRef).isNotEqualTo(Optional.empty());
+        assertThat(commentRef).isNotEqualTo(Optional.absent());
         assertThat(commentRef.get().getComment()).isEqualTo("comment");
     }
 

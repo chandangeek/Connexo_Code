@@ -9,7 +9,7 @@ import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
-import java.util.Optional;
+import com.google.common.base.Optional;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -26,11 +26,11 @@ public class IssueActionServiceImplTest extends BaseTest {
 
         IssueActionType type = new IssueActionTypeImpl(getDataModel(), getIssueActionService());
         Optional<IssueType> issueTypeRef = getIssueService().findIssueType("datacollection");
-        assertThat(issueTypeRef).isNotEqualTo(Optional.empty());
+        assertThat(issueTypeRef).isNotEqualTo(Optional.absent());
         try (TransactionContext context = getContext()) {
             IssueActionType actionType = getIssueActionService().createActionType("fakefactoryId", "classname", issueTypeRef.get());
             Optional<IssueActionType> foundIssueTypeRef = getIssueActionService().findActionType(actionType.getId());
-            assertThat(foundIssueTypeRef).isNotEqualTo(Optional.empty());
+            assertThat(foundIssueTypeRef).isNotEqualTo(Optional.absent());
             type = foundIssueTypeRef.get();
         }
         try {

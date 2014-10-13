@@ -12,17 +12,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
-
-import java.time.Instant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -44,7 +43,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 128, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
     private String templateUuid;
-    private Instant obsoleteTime;
+    private UtcInstant obsoleteTime;
 
     private List<CreationRuleParameter> parameters = new ArrayList<>();
     private List<CreationRuleAction> actions = new ArrayList<>();
@@ -133,7 +132,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     @Override
     public CreationRuleTemplate getTemplate() {
-        return issueCreationService.findCreationRuleTemplate(getTemplateUuid()).orElse(null);
+        return issueCreationService.findCreationRuleTemplate(getTemplateUuid()).orNull();
     }
 
     @Override
@@ -142,12 +141,12 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     }
 
     @Override
-    public Instant getObsoleteTime() {
+    public UtcInstant getObsoleteTime() {
         return obsoleteTime;
     }
 
     @Override
-    public void setObsoleteTime(Instant obsoleteTime) {
+    public void setObsoleteTime(UtcInstant obsoleteTime) {
         this.obsoleteTime = obsoleteTime;
     }
 
@@ -214,7 +213,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         if (referencedIssues.size() == 0){
             super.delete(); // delete from table
         } else {
-            this.setObsoleteTime(Instant.now()); // mark obsolete
+            this.setObsoleteTime(new UtcInstant(new Date())); // mark obsolete
             this.save();
         }
     }

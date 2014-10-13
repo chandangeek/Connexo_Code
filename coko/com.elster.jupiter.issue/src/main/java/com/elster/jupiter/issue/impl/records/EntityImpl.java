@@ -1,18 +1,17 @@
 package com.elster.jupiter.issue.impl.records;
 
-import java.time.Instant;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public abstract class EntityImpl implements Entity {
     private long id;
 
     // Audit fields
     private long version;
-    private Instant createTime;
-    private Instant modTime;
+    private UtcInstant createTime;
+    private UtcInstant modTime;
     private String userName;
 
     private DataModel dataModel;
@@ -44,20 +43,20 @@ public abstract class EntityImpl implements Entity {
     }
 
     @Override
-    public Instant getCreateTime() {
+    public UtcInstant getCreateTime() {
         return createTime;
     }
 
-    void setCreateTime(Instant createTime) {
+    void setCreateTime(UtcInstant createTime) {
         this.createTime = createTime;
     }
 
     @Override
-    public Instant getModTime() {
+    public UtcInstant getModTime() {
         return modTime;
     }
 
-    void setModTime(Instant modTime) {
+    void setModTime(UtcInstant modTime) {
         this.modTime = modTime;
     }
 

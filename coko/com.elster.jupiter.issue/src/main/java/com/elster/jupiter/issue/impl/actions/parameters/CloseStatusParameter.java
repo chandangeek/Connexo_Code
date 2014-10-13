@@ -59,7 +59,7 @@ public class CloseStatusParameter extends AbstractParameterDefinition {
             @Override
             public List<ParameterViolation> validate(String value, String paramKey) {
                 List<ParameterViolation> errors = new ArrayList<>();
-                IssueStatus closeStatus = issueService.findStatus(value).orElse(null);
+                IssueStatus closeStatus = issueService.findStatus(value).orNull();
                 if(closeStatus == null || !closeStatus.isHistorical()) {
                     errors.add(new ParameterViolation(paramKey, MessageSeeds.ACTION_WRONG_STATUS.getTranslated(thesaurus)));
                 }

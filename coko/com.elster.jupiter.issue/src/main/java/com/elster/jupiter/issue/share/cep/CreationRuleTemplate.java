@@ -2,7 +2,7 @@ package com.elster.jupiter.issue.share.cep;
 
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
-import java.util.Optional;
+import com.google.common.base.Optional;
 
 import java.util.List;
 import java.util.Map;

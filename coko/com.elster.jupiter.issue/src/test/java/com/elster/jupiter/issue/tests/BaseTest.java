@@ -188,7 +188,7 @@ public class BaseTest {
         rule.setName("Simple Rule");
         rule.setComment("Comment for rule");
         rule.setContent("Empty content");
-        rule.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
+        rule.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull());
         rule.setDueInValue(15L);
         rule.setDueInType(DueInType.DAY);
         rule.setTemplateUuid("Parent template uuid");
@@ -199,8 +199,8 @@ public class BaseTest {
     protected OpenIssue createIssueMinInfo() {
         try (TransactionContext context = getContext()) {
             OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
-            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+            issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orNull());
+            issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orNull());
             issue.setRule(getSimpleCreationRule());
             issue.save();
             context.commit();
