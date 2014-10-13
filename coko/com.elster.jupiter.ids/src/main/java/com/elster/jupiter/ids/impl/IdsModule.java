@@ -2,7 +2,7 @@ package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 

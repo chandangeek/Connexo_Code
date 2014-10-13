@@ -9,7 +9,7 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -249,7 +249,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         void execute(StorerStatsImpl stats, boolean overrules) throws SQLException {
             try (Connection connection = dataModel.getConnection(true)) {
                 setOldEntries(connection);
-                long now = clock.now().getTime();
+                long now = clock.millis();
                 addInserts(connection, now);
                 if (overrules) {
                     if (vault.hasJournal()) {

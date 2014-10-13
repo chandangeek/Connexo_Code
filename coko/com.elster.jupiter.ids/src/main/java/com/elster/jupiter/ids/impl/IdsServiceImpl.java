@@ -8,7 +8,7 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;

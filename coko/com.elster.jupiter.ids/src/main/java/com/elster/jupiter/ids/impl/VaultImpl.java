@@ -399,12 +399,12 @@ public class VaultImpl implements Vault {
                 if (interval.getStart() == null) {
                     statement.setLong(FROM_COLUMN_INDEX, Long.MIN_VALUE);
                 } else {
-                    statement.setLong(FROM_COLUMN_INDEX, interval.getStart().getTime());
+                    statement.setLong(FROM_COLUMN_INDEX, interval.getStart().toEpochMilli());
                 }
                 if (interval.getEnd() == null) {
                     statement.setLong(TO_COLUMN_INDEX, Long.MAX_VALUE);
                 } else {
-                    statement.setLong(TO_COLUMN_INDEX, interval.getEnd().getTime());
+                    statement.setLong(TO_COLUMN_INDEX, interval.getEnd().toEpochMilli());
                 }
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
