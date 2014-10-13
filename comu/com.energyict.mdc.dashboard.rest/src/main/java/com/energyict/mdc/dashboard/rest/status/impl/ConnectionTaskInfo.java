@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * Created by bvn on 8/11/14.
  */
 public class ConnectionTaskInfo {
-
+    public long id;
     public IdWithNameInfo device;
     public IdWithNameInfo deviceConfiguration;
     public IdWithNameInfo deviceType;

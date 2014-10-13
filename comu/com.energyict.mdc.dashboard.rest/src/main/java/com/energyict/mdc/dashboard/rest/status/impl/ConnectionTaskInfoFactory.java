@@ -40,6 +40,7 @@ public class ConnectionTaskInfoFactory {
     public ConnectionTaskInfo from(ConnectionTask<?, ?> connectionTask, Optional<ComSession> lastComSessionOptional, List<ComTaskExecution> comTaskExecutions) throws Exception {
         ConnectionTaskInfo info = new ConnectionTaskInfo();
         Device device = connectionTask.getDevice();
+        info.id=connectionTask.getId();
         info.device=new IdWithNameInfo(device.getmRID(), device.getName());
         info.deviceType=new IdWithNameInfo(device.getDeviceType());
         info.deviceConfiguration=new IdWithNameInfo(device.getDeviceConfiguration());
