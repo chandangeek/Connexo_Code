@@ -406,6 +406,12 @@ public class ComTaskImpl implements ComTask, HasId {
         }
 
         @Override
+        public MessagesTask.MessagesTaskBuilder setMessageTaskType(MessagesTask.MessageTaskType messageTaskType) {
+            messagesTask.setMessageTaskType(messageTaskType);
+            return this;
+        }
+
+        @Override
         public MessagesTask.MessagesTaskBuilder deviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories) {
             messagesTask.setDeviceMessageCategories(deviceMessageCategories);
             return this;

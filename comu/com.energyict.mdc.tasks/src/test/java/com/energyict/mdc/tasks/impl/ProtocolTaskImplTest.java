@@ -1,5 +1,7 @@
 package com.energyict.mdc.tasks.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -18,18 +20,13 @@ import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import org.assertj.core.api.Condition;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.assertj.core.api.Condition;
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for the {@link ComTaskImpl} component.
@@ -387,13 +384,13 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.save();
 
         ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
-        MessagesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+        MessagesTaskImpl taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         DeviceMessageCategory deviceMessageCategory2 = this.getDeviceMessageCategory(2);
         taskByType.setDeviceMessageCategories(Arrays.asList(deviceMessageCategory, deviceMessageCategory2));
         taskByType.save();
 
         ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
-        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTask.class);
+        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(taskByType.getDeviceMessageCategories()).hasSize(2);
@@ -410,12 +407,12 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.save();
 
         ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
-        MessagesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+        MessagesTaskImpl taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         taskByType.setDeviceMessageCategories(Arrays.asList(deviceMessageCategory2)); // we dropped spec1
         taskByType.save();
 
         ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
-        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTask.class);
+        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(taskByType.getDeviceMessageCategories()).hasSize(1);
@@ -433,13 +430,13 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.save();
 
         ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
-        MessagesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+        MessagesTaskImpl taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         DeviceMessageCategory deviceMessageCategory3 = this.getDeviceMessageCategory(3);
         taskByType.setDeviceMessageCategories(Arrays.asList(deviceMessageCategory2, deviceMessageCategory3)); // we dropped spec1 but added spec3
         taskByType.save();
 
         ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
-        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTask.class);
+        taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(taskByType.getDeviceMessageCategories()).hasSize(2);
@@ -715,4 +712,124 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         return this.getDeviceMessageService().findCategoryById(categoryId).orElseThrow(() -> new RuntimeException("Setup failure: unable to find DeviceMessageCategory with id " + categoryId));
     }
 
+    @Test
+    @Transactional
+    public void initialMessageTaskIsSetToNoneTest() {
+        ComTask simpleComTask = createSimpleComTask();
+        MessagesTask messagesTask = simpleComTask.createMessagesTask().add();
+
+        assertThat(messagesTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.NONE);
+    }
+
+    @Test
+    @Transactional
+    public void setMessageTaskToAllMessagesTest() {
+        ComTask simpleComTask = createSimpleComTask();
+        MessagesTask messagesTask = simpleComTask.createMessagesTask().setMessageTaskType(MessagesTask.MessageTaskType.ALL).add();
+        simpleComTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
+        MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.ALL);
+    }
+
+    @Test
+    @Transactional
+    public void setMessageTaskCategoriesSetTaskTypeToSelectedTest() {
+        ComTask simpleComTask = createSimpleComTask();
+        List<DeviceMessageCategory> categories = Arrays.asList(getDeviceMessageCategory(1), getDeviceMessageCategory(2));
+        MessagesTask messagesTask = simpleComTask.createMessagesTask().deviceMessageCategories(categories).add();
+        simpleComTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
+        MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.SELECTED);
+    }
+
+    @Test
+    @Transactional
+    public void updateMessageTaskToNoneTest() {
+        ComTask simpleComTask = createSimpleComTask();
+        MessagesTask messagesTask = simpleComTask.createMessagesTask().setMessageTaskType(MessagesTask.MessageTaskType.ALL).add();
+        simpleComTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        reloadedMessageTask.setMessageTaskType(MessagesTask.MessageTaskType.NONE);
+        reloadedMessageTask.save();
+
+        reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.NONE);
+    }
+
+
+    @Test
+    @Transactional
+    public void updateMessagesTaskToNoneDeletesCategoriesTest() {
+        ComTask simpleComTask = createSimpleComTask();
+        List<DeviceMessageCategory> categories = Arrays.asList(getDeviceMessageCategory(1), getDeviceMessageCategory(2));
+        MessagesTask messagesTask = simpleComTask.createMessagesTask().deviceMessageCategories(categories).add();
+        simpleComTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        reloadedMessageTask.setMessageTaskType(MessagesTask.MessageTaskType.NONE);
+        reloadedMessageTask.save();
+
+        reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.NONE);
+        assertThat(reloadedMessageTask.getDeviceMessageCategories()).hasSize(0);
+    }
+
+    @Test
+    @Transactional
+    public void updateMessagesTaskWithCategoriesFromNoneTypeTest() {
+        List<DeviceMessageCategory> categories = Arrays.asList(getDeviceMessageCategory(1), getDeviceMessageCategory(2));
+        ComTask simpleComTask = createSimpleComTask();
+        MessagesTask messagesTask = simpleComTask.createMessagesTask().setMessageTaskType(MessagesTask.MessageTaskType.NONE).add();
+        simpleComTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        reloadedMessageTask.setDeviceMessageCategories(categories);
+        reloadedMessageTask.save();
+
+        reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.SELECTED);
+        assertThat(reloadedMessageTask.getDeviceMessageCategories()).hasSize(2);
+    }
+
+    @Test
+    @Transactional
+    public void updateMessagesTaskWithCategoriesFromAllTypeTest() {
+        List<DeviceMessageCategory> categories = Arrays.asList(getDeviceMessageCategory(1), getDeviceMessageCategory(2));
+        ComTask simpleComTask = createSimpleComTask();
+        MessagesTask messagesTask = simpleComTask.createMessagesTask().setMessageTaskType(MessagesTask.MessageTaskType.ALL).add();
+        simpleComTask.save();
+
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        reloadedMessageTask.setDeviceMessageCategories(categories);
+        reloadedMessageTask.save();
+
+        reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
+
+        assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.SELECTED);
+        assertThat(reloadedMessageTask.getDeviceMessageCategories()).hasSize(2);
+    }
 }
