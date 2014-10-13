@@ -1,6 +1,6 @@
 package com.elster.jupiter.domain.util.impl;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import org.osgi.service.component.annotations.Component;
 
 import com.elster.jupiter.domain.util.Query;
@@ -33,7 +33,7 @@ public class QueryServiceImpl implements QueryService {
 
 	@Override
 	public Condition isCurrent(String name) {
-		long now = clock.now().getTime();
+		long now = clock.instant().toEpochMilli();
 		Condition condition = Operator.LESSTHANOREQUAL.compare( name + ".start" , now);
 		condition.and(Operator.GREATERTHAN.compare(name + ".stop", now));
 		return condition;
