@@ -375,7 +375,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private List<ComTaskExecution> findDependentComTaskExecutions() {
-        return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this);
+        return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this).find();
     }
 
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle

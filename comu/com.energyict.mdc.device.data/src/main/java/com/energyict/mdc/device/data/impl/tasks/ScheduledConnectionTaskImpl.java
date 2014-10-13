@@ -623,7 +623,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public List<ComTaskExecution> getScheduledComTasks() {
-        return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this);
+        return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this).find();
     }
 
     private enum PostingMode {
