@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.devicesearch.SearchItems', {
         {
             xtype: 'filter-top-panel'
         },
-        {
+        /*{
             xtype: 'filter-toolbar',
             title: Uni.I18n.translate('searchItems.filter.sort', 'MDC', 'Sort'),
             itemId: 'sortButtonsContainer',
@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicesearch.SearchItems', {
                     }
                 }
             ]
-        },
+        },*/
         {
             xtype: 'mdc-search-results'
         }

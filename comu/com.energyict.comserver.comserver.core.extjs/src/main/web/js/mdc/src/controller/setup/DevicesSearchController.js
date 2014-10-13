@@ -28,11 +28,11 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         {
             ref: 'mdcSearchItems',
             selector: 'mdc-search-items'
-        },
+        }/*,
         {
             ref: 'sortToolbar',
             selector: 'mdc-search-items #sortButtonsContainer'
-        }
+        }*/
 
 
     ],
@@ -53,15 +53,15 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
 
     getSideFilterForm: function() {
         return this.getDevicesSearchSideFilterForm();
-    },
+    }//,
 
-    getSearchItems: function() {
+    /*getSearchItems: function() {
         return this.getMdcSearchItems();
     },
 
     getSortingToolbar: function() {
         return this.getSortToolbar();
-    }
+    }*/
 
 
 });

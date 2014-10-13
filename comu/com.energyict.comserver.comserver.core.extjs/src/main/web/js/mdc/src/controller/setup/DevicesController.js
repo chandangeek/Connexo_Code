@@ -19,7 +19,7 @@ Ext.define('Mdc.controller.setup.DevicesController', {
         if (this.prefix) {
             var control = {};
 
-            control[this.prefix + ' devices-sort-menu'] = {
+            /*control[this.prefix + ' devices-sort-menu'] = {
                 click: this.chooseSort
             };
 
@@ -28,7 +28,7 @@ Ext.define('Mdc.controller.setup.DevicesController', {
             };
             control[this.prefix + ' filter-toolbar button[action=clear]'] = {
                 click: this.clearSort
-            };
+            };*/
             control[this.prefix + ' filter-top-panel'] = {
                 removeFilter: this.removeTheFilter,
                 clearAllFilters: this.clearFilter
@@ -52,15 +52,15 @@ Ext.define('Mdc.controller.setup.DevicesController', {
         this.callParent(arguments);
     },
 
-    clearSort: function (btn) {
+    /*clearSort: function (btn) {
         var sortContainer = this.getSortingToolbar().getContainer();
         sortContainer.items.each(function (btns) {
             btns.destroy();
         });
         this.applyFilter();
-    },
+    },*/
 
-    applySort: function () {
+    /*applySort: function () {
         var sortContainer = this.getSortingToolbar().getContainer();
             store = this.getStore('Mdc.store.Devices'),
             sortItems = [];
@@ -72,9 +72,9 @@ Ext.define('Mdc.controller.setup.DevicesController', {
             sortItems.push({property: btns.sortName, direction: dir});
         });
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sortItems));
-    },
+    },*/
 
-    switchSort: function (btn) {
+    /*switchSort: function (btn) {
         btn.sortDirection = btn.sortDirection == Uni.component.sort.model.Sort.ASC
             ? Uni.component.sort.model.Sort.DESC
             : Uni.component.sort.model.Sort.ASC;
@@ -83,9 +83,9 @@ Ext.define('Mdc.controller.setup.DevicesController', {
             : 'x-btn-sort-item-desc';
         btn.setIconCls(iconCls);
         this.applyFilter();
-    },
+    },*/
 
-    chooseSort: function (menu, item) {
+    /*chooseSort: function (menu, item) {
        var sortContainer = this.getSortingToolbar().getContainer();
        var value = item.value;
 
@@ -108,9 +108,9 @@ Ext.define('Mdc.controller.setup.DevicesController', {
                 break;
         }
         this.applyFilter();
-    },
+    },*/
 
-    createSortButton: function (button, container, name, sortName, text) {
+    /*createSortButton: function (button, container, name, sortName, text) {
         if (Ext.isEmpty(button)) {
             container.add({
                 xtype: 'sort-item-btn',
@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.DevicesController', {
                 sortDirection: Uni.component.sort.model.Sort.ASC
             });
         }
-    },
+    },*/
 
     initFilter: function () {
         var router = this.getController('Uni.controller.history.Router');
@@ -130,7 +130,7 @@ Ext.define('Mdc.controller.setup.DevicesController', {
     },
 
     applyFilter: function () {
-        this.applySort();
+        //this.applySort();
         var filterForm = this.getSideFilterForm();
         filterForm.updateRecord();
         filterForm.getRecord().save();
@@ -177,9 +177,9 @@ Ext.define('Mdc.controller.setup.DevicesController', {
 
     getSideFilterForm: function() {},
 
-    getSortingToolbar: function() {},
+    //getSortingToolbar: function() {},
 
-    getSearchItems: function() {},
+    //getSearchItems: function() {},
 
     getCriteriaPanel: function() {}
 });
