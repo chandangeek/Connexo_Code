@@ -44,13 +44,14 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
 
     private int count;
     private TimeUnit timeUnit;
+    private int timeUnitCode;
 
     /**
      * Creates a new TimeDuration of zero seconds.
      */
-    public TimeDuration() {
-        this.count = 0;
-        this.timeUnit = TimeUnit.SECONDS;
+    private TimeDuration() {
+        count = 0;
+        timeUnitCode = -1;
     }
 
     /**
@@ -66,6 +67,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     public TimeDuration(int count, TimeUnit timeUnit) {
         this.count = count;
         this.timeUnit = timeUnit;
+        this.timeUnitCode = timeUnit.getCode();
         //validate that the number of seconds doesn't cause an int overflow.
         if (causesIntOverflow(count, this.timeUnit)) {
             throw new IllegalArgumentException("Invalid time duration");
@@ -193,7 +195,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
             return this;
         }
         else {
-            return new TimeDuration(-count, this.timeUnit);
+            return new TimeDuration(-count, this.getTimeUnit());
         }
     }
 
@@ -213,10 +215,12 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
             return;
         }
         timeUnit = Arrays.stream(TimeUnit.values())
+                .filter(t -> t.inSeconds != 0)
                 .filter(t -> seconds % t.inSeconds == 0)
                 .findFirst()
                 .orElse(SECONDS);
         count = seconds / timeUnit.inSeconds;
+        timeUnitCode = timeUnit.getCode();
     }
 
     public TimeDuration(String stringValue) {
@@ -258,6 +262,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
             }
 //            default: throw new InvalidValueException("UnknownTimeUnit", "Unknown time unit", "timeUnit", timeUnitAsString);
         }
+        timeUnitCode = timeUnit.getCode();
     }
 
     /**
@@ -275,10 +280,13 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      * @return the receiver's time unit code
      */
     public int getTimeUnitCode() {
-        return timeUnit.code;
+        return timeUnitCode;
     }
 
     public TimeUnit getTimeUnit() {
+        if (timeUnit == null) {
+            timeUnit = TimeUnit.forCode(timeUnitCode);
+        }
         return timeUnit;
     }
 
@@ -292,7 +300,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     }
 
     private int getCalendarField() {
-        return timeUnit.code;
+        return timeUnitCode;
     }
 
     /**
@@ -316,7 +324,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      * @return a string representation
      */
     public String toString() {
-        return getCount() + " " + timeUnit.description;
+        return getCount() + " " + getTimeUnit().description;
     }
 
     /**
@@ -360,8 +368,8 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     public void truncate(Calendar calendar) {
         if (!isEmpty()) {
             // clear fields smaller than time unit
-            if (timeUnit == MILLISECONDS || timeUnit == SECONDS ||
-                    timeUnit == MINUTES || timeUnit == HOURS) {
+            if (getTimeUnit() == MILLISECONDS || getTimeUnit() == SECONDS ||
+                    getTimeUnit() == MINUTES || getTimeUnit() == HOURS) {
                 long millis = calendar.getTimeInMillis();
                 long intervalInMillis = this.getSeconds() * MILLIS_PER_SECOND;
                 millis = (millis / intervalInMillis) * intervalInMillis;
@@ -409,11 +417,11 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      * @return the number of seconds in the TimeDuration
      */
     public int getSeconds() {
-        switch (timeUnit) {
+        switch (getTimeUnit()) {
             case MILLISECONDS:
                 return count / MILLIS_PER_SECOND;
             default:
-                return timeUnit.inSeconds * count;
+                return getTimeUnit().inSeconds * count;
         }
     }
 
@@ -426,7 +434,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      * @return the number of milliseconds in the TimeDuration
      */
     public long getMilliSeconds() {
-        switch (timeUnit) {
+        switch (getTimeUnit()) {
             case MILLISECONDS:
                 return count;
             default:
@@ -539,7 +547,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     }
 
     private boolean causesIntOverflow(int count, TimeUnit timeUnit) {
-        return count > timeUnit.maxCount;
+        return count > getTimeUnit().maxCount;
     }
 
     // Expects a string in the form <count>-<unit code>
