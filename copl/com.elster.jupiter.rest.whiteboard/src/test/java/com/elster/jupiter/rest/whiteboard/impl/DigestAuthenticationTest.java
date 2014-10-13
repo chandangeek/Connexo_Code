@@ -2,7 +2,7 @@ package com.elster.jupiter.rest.whiteboard.impl;
 
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

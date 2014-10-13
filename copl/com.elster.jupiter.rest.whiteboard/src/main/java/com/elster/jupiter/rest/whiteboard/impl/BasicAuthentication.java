@@ -8,7 +8,7 @@ import org.osgi.service.http.HttpContext;
 
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class BasicAuthentication implements Authentication {
 	private final UserService userService;

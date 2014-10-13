@@ -6,7 +6,7 @@ import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Strings;
 
 import org.glassfish.jersey.filter.LoggingFilter;
@@ -158,7 +158,7 @@ public class WhiteBoard {
     
     private Optional<String> getAlias(Map<String,Object> properties) {
     	String alias = (String) properties.get("alias");
-    	return alias == null ? Optional.<String>absent() : Optional.of("/api" + alias);
+    	return alias == null ? Optional.empty() : Optional.of("/api" + alias);
     }
 
     @Activate
