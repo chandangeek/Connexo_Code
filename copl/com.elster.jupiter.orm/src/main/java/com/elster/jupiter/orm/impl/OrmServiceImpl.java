@@ -15,7 +15,7 @@ import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
