@@ -219,7 +219,6 @@ public class ComSessionCrudIT {
                 new MasterDataModule(),
                 new ProtocolApiModule(),
                 new KpiModule(),
-                new TaskModule(),
                 new TasksModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
