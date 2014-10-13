@@ -20,15 +20,18 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.sch.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/scr", "name=" + MasterSchedulingApplication.COMPONENT_NAME})
+import javax.ws.rs.core.Application;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Component(name = "com.energyict.sch.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/scr", "name=" + MasterSchedulingApplication.COMPONENT_NAME})
 public class MasterSchedulingApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "SCR";
@@ -114,6 +117,11 @@ public class MasterSchedulingApplication extends Application implements InstallS
     @Override
     public void install() {
         new Installer(thesaurus).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS");
     }
 
     class HK2Binder extends AbstractBinder {
