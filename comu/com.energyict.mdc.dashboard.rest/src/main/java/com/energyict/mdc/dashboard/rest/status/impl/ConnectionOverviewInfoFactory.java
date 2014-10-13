@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
@@ -64,7 +65,7 @@ public class ConnectionOverviewInfoFactory {
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup);
         SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(0).get();
-        return getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData, dataCollectionKpi);
+        return getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData, dataCollectionKpi, endDeviceGroup);
     }
 
     public ConnectionOverviewInfo asInfo() {
@@ -97,8 +98,9 @@ public class ConnectionOverviewInfoFactory {
         return info;
     }
 
-    private ConnectionOverviewInfo getConnectionOverviewInfo(TaskStatusOverview taskStatusOverview, ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, ComPortPoolBreakdown comPortPoolBreakdown, ConnectionTypeBreakdown connectionTypeBreakdown, DeviceTypeBreakdown deviceTypeBreakdown, SummaryData summaryData, DataCollectionKpi dataCollectionKpi) {
+    private ConnectionOverviewInfo getConnectionOverviewInfo(TaskStatusOverview taskStatusOverview, ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, ComPortPoolBreakdown comPortPoolBreakdown, ConnectionTypeBreakdown connectionTypeBreakdown, DeviceTypeBreakdown deviceTypeBreakdown, SummaryData summaryData, DataCollectionKpi dataCollectionKpi, QueryEndDeviceGroup endDeviceGroup) {
         ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview,comSessionSuccessIndicatorOverview,comPortPoolBreakdown,connectionTypeBreakdown,deviceTypeBreakdown,summaryData);
+        info.deviceGroup = new IdWithNameInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
         if (dataCollectionKpi.calculatesConnectionSetupKpi()) {
             info.kpi = new ArrayList<>();
             KpiScoreInfo success = new KpiScoreInfo(MessageSeeds.SUCCESS.getKey());

@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
@@ -87,9 +88,6 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(dashboardService.getConnectionTypeBreakdown()).thenReturn(connectionStatusBreakdown);
         DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
         when(dashboardService.getConnectionTasksDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
-        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
-        when(dataCollectionKpiService.findDataCollectionKpi(anyInt())).thenReturn(Optional.of(dataCollectionKpi));
-
 
         ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").request().get(ConnectionOverviewInfo.class);
 
@@ -103,6 +101,43 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.kpi).isNull();
+    }
+
+    @Test
+    public void testGetOverviewWithDeviceGroup() throws UnsupportedEncodingException {
+        int deviceGroupId = 123;
+
+        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
+        QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
+        when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
+        when(dashboardService.getComSessionSuccessIndicatorOverview()).thenReturn(comSessionSuccessIndicatorOverview);
+        ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
+        when(dashboardService.getComPortPoolBreakdown(endDeviceGroup)).thenReturn(comPortPoolBreakdown);
+        ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
+        when(dashboardService.getConnectionTypeBreakdown(endDeviceGroup)).thenReturn(connectionStatusBreakdown);
+        DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
+        when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
+        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
+        when(dataCollectionKpiService.findDataCollectionKpi(anyInt())).thenReturn(Optional.of(dataCollectionKpi));
+        when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
+
+        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("deviceGroupId", deviceGroupId).request().get(ConnectionOverviewInfo.class);
+
+        Comparator<TaskCounterInfo> counterInfoComparator = (o1, o2) -> Long.valueOf(o2.count).compareTo(o1.count);
+        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(3);
+        assertThat(connectionOverviewInfo.overviews.get(0).counters).isSortedAccordingTo(counterInfoComparator);
+        assertThat(connectionOverviewInfo.overviews.get(1).counters).isSortedAccordingTo(counterInfoComparator);
+
+        Comparator<TaskBreakdownInfo> taskBreakdownInfoComparator = (o1, o2) -> Long.valueOf(o2.failedCount).compareTo(o1.failedCount);
+        assertThat(connectionOverviewInfo.breakdowns.get(0).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
+        assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
+        assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
+        assertThat(connectionOverviewInfo.kpi).isNotNull();
+        assertThat(connectionOverviewInfo.kpi.get(0).name).isEqualTo("Success");
+        assertThat(connectionOverviewInfo.kpi.get(1).name).isEqualTo("Ongoing");
+        assertThat(connectionOverviewInfo.kpi.get(2).name).isEqualTo("Failed");
+        assertThat(connectionOverviewInfo.kpi.get(3).name).isEqualTo("Target");
     }
 
     private DataCollectionKpi mockDataCollectionKpi() {
