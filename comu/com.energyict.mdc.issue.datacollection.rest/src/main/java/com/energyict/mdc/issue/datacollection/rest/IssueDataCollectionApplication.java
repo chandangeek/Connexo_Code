@@ -21,6 +21,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/idc", "name=" + IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT})
@@ -101,5 +103,10 @@ public class IssueDataCollectionApplication extends Application implements Binde
     @Override
     public final void install() {
         new TranslationInstaller(thesaurus).createTranslations();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS", "IDC", "ISR");
     }
 }
