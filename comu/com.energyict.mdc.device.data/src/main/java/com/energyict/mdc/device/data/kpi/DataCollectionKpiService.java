@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.kpi;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.math.BigDecimal;
@@ -28,7 +30,7 @@ public interface DataCollectionKpiService {
      */
     public Set<TaskStatus> MONITORED_STATUSSES = EnumSet.of(TaskStatus.Waiting, TaskStatus.Pending, TaskStatus.Failed);
 
-    public DataCollectionKpiBuilder newDataCollectionKpi(EndDeviceGroup group);
+    public DataCollectionKpiBuilder newDataCollectionKpi(QueryEndDeviceGroup group);
 
     /**
      * Finds all {@link DataCollectionKpi} that are defined in the system.
@@ -44,6 +46,14 @@ public interface DataCollectionKpiService {
      * @return The DataCollectionKpi
      */
     public Optional<DataCollectionKpi> findDataCollectionKpi(long id);
+
+    /**
+     * Finds the {@link DataCollectionKpi} for the specified {@link QueryEndDeviceGroup}.
+     *
+     * @param group The QueryEndDeviceGroup
+     * @return The DataCollectionKpi
+     */
+    public Optional<DataCollectionKpi> findDataCollectionKpi(QueryEndDeviceGroup group);
 
     /**
      * Models behavior to build a new {@link DataCollectionKpi}.
