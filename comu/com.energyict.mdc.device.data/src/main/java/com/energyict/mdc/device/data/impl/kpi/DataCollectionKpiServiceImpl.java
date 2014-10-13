@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.elster.jupiter.kpi.KpiBuilder;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 
+import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.google.inject.Inject;
 
@@ -49,7 +48,8 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
 
     @Override
     public Optional<DataCollectionKpi> findDataCollectionKpi(QueryEndDeviceGroup group) {
-        com.google.common.base.Optional<DataCollectionKpi> dataCollectionDeviceGroup = this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getUnique(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP.fieldName(), group);
+        com.google.common.base.Optional<DataCollectionKpi> dataCollectionDeviceGroup = this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getUnique(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP
+                .fieldName(), group);
         if (dataCollectionDeviceGroup.isPresent()) {
             return Optional.of(dataCollectionDeviceGroup.get());
         }
@@ -90,7 +90,7 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         private KpiBuilder communicationKpiBuilder;
         private DataCollectionKpiBuilderState state = DataCollectionKpiBuilderState.INCOMPLETE;
 
-        private DataCollectionKpiBuilderImpl(EndDeviceGroup group) {
+        private DataCollectionKpiBuilderImpl(QueryEndDeviceGroup group) {
             this.underConstruction = deviceDataModelService.dataModel().getInstance(DataCollectionKpiImpl.class).initialize(group);
         }
 
