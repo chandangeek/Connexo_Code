@@ -4,6 +4,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -24,6 +26,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.ComTask;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -157,6 +160,8 @@ public class ComServerDAOImplInboundTest {
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
+        Finder<ComTaskExecution> comTaskExecutionFinder = mockFinder(Collections.emptyList());
+        when(communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutionFinder);
 
         // Business method
         List<SecurityProperty> securityProperties = this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
@@ -191,7 +196,8 @@ public class ComServerDAOImplInboundTest {
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
-        when(this.communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(Arrays.asList(comTaskExecution));
+        Finder<ComTaskExecution> comTaskExecutionFinder = mockFinder(Arrays.asList(comTaskExecution));
+        when(this.communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutionFinder);
 
         // Business method
         this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
@@ -301,6 +307,17 @@ public class ComServerDAOImplInboundTest {
 
         // Asserts
         verify(device).getDeviceProtocolProperties();
+    }
+
+    private <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        return finder;
     }
 
     /* Todo: copy remaining tests from mdc-all::com.energyict.comserver.core.impl.online.ComServerDAOImplInboundTest
