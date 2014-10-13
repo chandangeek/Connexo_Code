@@ -1,18 +1,18 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (13:33)
  */
-@Component(name="com.energyict.mdc.protocols.api", service = {DeviceMessageService.class, InstallService.class}, property = "name=" + DeviceMessageService.COMPONENT_NAME)
+@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageService.class, InstallService.class}, property = "name=" + DeviceMessageService.COMPONENT_NAME)
 public class DeviceMessageServiceImpl implements DeviceMessageService, InstallService {
 
     private volatile PropertySpecService propertySpecService;
@@ -60,6 +60,11 @@ public class DeviceMessageServiceImpl implements DeviceMessageService, InstallSe
     @Override
     public void install() {
         new Installer(this.thesaurus).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS");
     }
 
     @Override
