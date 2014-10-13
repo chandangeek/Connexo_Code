@@ -1,5 +1,17 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -26,31 +38,22 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Insert your comments here.
@@ -58,7 +61,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.mdc.dashboard.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/dsr", "name=" + DashboardApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dsr", "name=" + DashboardApplication.COMPONENT_NAME})
 public class DashboardApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "DSR";
@@ -76,6 +79,8 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile SchedulingService schedulingService;
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
+    private volatile DataCollectionKpiService dataCollectionKpiService;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     @Reference
     public void setStatusService(StatusService statusService) {
@@ -138,6 +143,16 @@ public class DashboardApplication extends Application implements InstallService 
         this.taskService = taskService;
     }
 
+    @Reference
+    public void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
+        this.dataCollectionKpiService = dataCollectionKpiService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -174,6 +189,11 @@ public class DashboardApplication extends Application implements InstallService 
         installer.createTranslations(COMPONENT_NAME, nlsService.getThesaurus(COMPONENT_NAME, Layer.REST), Layer.REST, MessageSeeds.values());
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS");
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -190,6 +210,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(transactionService).to(TransactionService.class);
             bind(schedulingService).to(SchedulingService.class);
+            bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(taskService).to(TaskService.class);
             bind(BreakdownFactory.class).to(BreakdownFactory.class);
             bind(OverviewFactory.class).to(OverviewFactory.class);
@@ -199,6 +220,8 @@ public class DashboardApplication extends Application implements InstallService 
             bind(ConnectionOverviewInfoFactory.class).to(ConnectionOverviewInfoFactory.class);
             bind(CommunicationOverviewInfoFactory.class).to(CommunicationOverviewInfoFactory.class);
             bind(ComServerStatusInfoFactory.class).to(ComServerStatusInfoFactory.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
         }
     }
 

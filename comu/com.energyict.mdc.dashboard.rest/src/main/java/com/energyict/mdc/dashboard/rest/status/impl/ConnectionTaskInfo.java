@@ -6,14 +6,13 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import java.util.Date;
-import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * Created by bvn on 8/11/14.
  */
 public class ConnectionTaskInfo {
-
+    public long id;
     public IdWithNameInfo device;
     public IdWithNameInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
@@ -32,7 +31,6 @@ public class ConnectionTaskInfo {
     public String window;
     public ConnectionStrategyInfo connectionStrategy;
     public Date nextExecution;
-    public ComTaskListInfo communicationTasks;
 }
 
 class LatestStatusInfo {
@@ -53,7 +51,3 @@ class ComTaskCountInfo {
     public long numberOfIncompleteTasks;
 }
 
-class ComTaskListInfo {
-    public int count;
-    public List<ComTaskExecutionInfo> communicationsTasks;
-}

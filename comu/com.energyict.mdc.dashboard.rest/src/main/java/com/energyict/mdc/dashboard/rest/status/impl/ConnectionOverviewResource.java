@@ -1,20 +1,17 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
-import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
-import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
-import com.energyict.mdc.dashboard.DashboardService;
-import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
-import com.energyict.mdc.dashboard.TaskStatusOverview;
-import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.engine.model.security.Privileges;
-
+import com.google.common.base.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -23,31 +20,32 @@ import javax.ws.rs.core.MediaType;
 @Path("/connectionoverview")
 public class ConnectionOverviewResource {
 
-    private final DashboardService dashboardService;
     private final ConnectionOverviewInfoFactory connectionOverviewInfoFactory;
-    private final ConnectionTaskService connectionTaskService;
+    private final MeteringGroupsService meteringGroupService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public ConnectionOverviewResource(DashboardService dashboardService, ConnectionOverviewInfoFactory connectionOverviewInfoFactory, ConnectionTaskService connectionTaskService) {
-        this.dashboardService = dashboardService;
+    public ConnectionOverviewResource(ConnectionOverviewInfoFactory connectionOverviewInfoFactory, MeteringGroupsService meteringGroupService, ExceptionFactory exceptionFactory) {
         this.connectionOverviewInfoFactory = connectionOverviewInfoFactory;
-        this.connectionTaskService = connectionTaskService;
+        this.meteringGroupService = meteringGroupService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
-    public ConnectionOverviewInfo getConnectionOverview() throws Exception {
-        TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
-        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
-        ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
-        ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
-        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
-        SummaryData summaryData = new SummaryData(taskStatusOverview, connectionTaskService.countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
+    public ConnectionOverviewInfo getConnectionOverview(@QueryParam("deviceGroupId") Long deviceGroupId) throws Exception {
 
-            return connectionOverviewInfoFactory.from(summaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,
-                    comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown);
+        if (deviceGroupId!=null) {
+            Optional<QueryEndDeviceGroup> optional = meteringGroupService.findQueryEndDeviceGroup(deviceGroupId);
+            if (!optional.isPresent()) {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
+            }
+            return connectionOverviewInfoFactory.asInfo(optional.get());
+        } else {
+            return connectionOverviewInfoFactory.asInfo();
+        }
     }
 
 }

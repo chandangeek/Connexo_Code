@@ -1,22 +1,21 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import javax.ws.rs.core.Application;
-
 import org.mockito.Mock;
 
 /**
@@ -44,6 +43,10 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     EngineModelService engineModelService;
     @Mock
     ProtocolPluggableService protocolPluggableService;
+    @Mock
+    DataCollectionKpiService dataCollectionKpiService;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -65,6 +68,8 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setStatusService(statusService);
         dashboardApplication.setTaskService(taskService);
         dashboardApplication.setTransactionService(transactionService);
+        dashboardApplication.setDataCollectionKpiService(dataCollectionKpiService);
+        dashboardApplication.setMeteringGroupsService(meteringGroupsService);
         return dashboardApplication;
     }
 }
