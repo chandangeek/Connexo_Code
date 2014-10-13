@@ -5,7 +5,6 @@ import org.osgi.service.log.LogService;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -35,7 +34,7 @@ class LogHandler extends Handler {
 
     private String format(LogRecord record) {
         return String.format(format,
-                dateFrom(record),
+                record.getMillis(),
                 sourceFrom(record),
                 record.getLoggerName(),
                 record.getLevel().getLocalizedName(),
@@ -66,10 +65,6 @@ class LogHandler extends Handler {
             source = record.getLoggerName();
         }
         return source;
-    }
-
-    private Date dateFrom(LogRecord record) {
-        return new Date(record.getMillis());
     }
 
     private String formatMessage(LogRecord record) {
