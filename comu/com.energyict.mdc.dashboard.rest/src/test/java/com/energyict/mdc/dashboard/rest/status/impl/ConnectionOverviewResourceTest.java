@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
@@ -125,7 +126,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
         when(endDeviceGroup.getName()).thenReturn("South region");
 
-        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("deviceGroupId", deviceGroupId).request().get(ConnectionOverviewInfo.class);
+        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(ConnectionOverviewInfo.class);
 
         Comparator<TaskCounterInfo> counterInfoComparator = (o1, o2) -> Long.valueOf(o2.count).compareTo(o1.count);
         assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(3);
