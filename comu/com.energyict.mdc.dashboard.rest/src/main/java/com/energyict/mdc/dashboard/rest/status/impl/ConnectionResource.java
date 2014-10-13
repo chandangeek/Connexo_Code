@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
@@ -56,9 +57,10 @@ public class ConnectionResource {
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final ComTaskExecutionInfoFactory comTaskExecutionInfoFactory;
+    private final MeteringGroupsService meteringGroupsService;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService) {
         super();
         this.connectionTaskService = connectionTaskService;
         this.communicationTaskService = communicationTaskService;
@@ -68,6 +70,7 @@ public class ConnectionResource {
         this.connectionTaskInfoFactory = connectionTaskInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.comTaskExecutionInfoFactory = comTaskExecutionInfoFactory;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @GET
@@ -162,6 +165,11 @@ public class ConnectionResource {
                 end = jsonQueryFilter.getDate(FilterOption.startIntervalTo.name());
             }
             filter.lastSessionStart = new Interval(start, end);
+        }
+
+        if (filterProperties.containsKey(FilterOption.deviceGroups.name())) {
+            filter.deviceGroups = new HashSet<>();
+            jsonQueryFilter.getPropertyList(FilterOption.deviceGroups.name(), new LongAdapter()).stream().forEach(id->filter.deviceGroups.add(meteringGroupsService.findQueryEndDeviceGroup(id).get()));
         }
 
         if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name()) || filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
