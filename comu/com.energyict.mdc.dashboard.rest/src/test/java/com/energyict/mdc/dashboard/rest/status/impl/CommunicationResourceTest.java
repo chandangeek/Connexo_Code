@@ -29,12 +29,12 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.google.common.base.Optional;
-import org.joda.time.Duration;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
