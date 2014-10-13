@@ -21,15 +21,18 @@ import com.energyict.mdc.rest.impl.comserver.ComServerComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.MessageSeeds;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/mdc", "name=" + MdcApplication.COMPONENT_NAME})
+import javax.ws.rs.core.Application;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Component(name = "com.energyict.mdc.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/mdc", "name=" + MdcApplication.COMPONENT_NAME})
 public class MdcApplication extends Application implements InstallService {
     public static final String COMPONENT_NAME = "CCR";
 
@@ -92,6 +95,11 @@ public class MdcApplication extends Application implements InstallService {
     @Override
     public void install() {
         new Installer().createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("NLS");
     }
 
     class HK2Binder extends AbstractBinder {
