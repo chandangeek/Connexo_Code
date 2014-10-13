@@ -67,4 +67,8 @@ public class TimeZoneNeutral implements TestRule {
             }
         }
     }
+
+    public String getSubstitute() {
+        return substitute;
+    }
 }
