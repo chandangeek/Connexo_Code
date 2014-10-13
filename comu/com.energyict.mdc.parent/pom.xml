@@ -597,6 +597,18 @@
   <repositories>
 
     <repository>
+      <id>eict-public-snapshots</id>
+      <name>EnergyICT snapshots repository group</name>
+      <url>http://source.eict.vpdc/nexus/content/groups/public-snapshots/
+      </url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>eict-public</id>
       <name>EnergyICT public releases repository</name>
       <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
