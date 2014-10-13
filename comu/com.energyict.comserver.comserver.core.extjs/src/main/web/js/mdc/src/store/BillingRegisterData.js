@@ -1,8 +1,23 @@
 Ext.define('Mdc.store.BillingRegisterData', {
-    extend: 'Mdc.store.RegisterData',
+    extend: 'Uni.data.store.Filterable',
     requires: [
         'Mdc.model.BillingRegisterData'
     ],
     model: 'Mdc.model.BillingRegisterData',
-    storeId: 'BillingRegisterData'
+    storeId: 'BillingRegisterData',
+    autoLoad: false,
+    proxy: {
+        type: 'rest',
+        url: '/api/ddr/devices/{mRID}/registers/{registerId}/data',
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    },
+    setFilterModel: function (model) {
+        var data = model.getData(),
+            storeProxy = this.getProxy();
+        storeProxy.setExtraParam('onlySuspect', data.onlySuspect);
+        storeProxy.setExtraParam('onlyNonSuspect', data.onlyNonSuspect);
+    }
 });
