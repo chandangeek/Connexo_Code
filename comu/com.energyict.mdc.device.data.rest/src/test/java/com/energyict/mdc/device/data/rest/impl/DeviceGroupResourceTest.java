@@ -33,7 +33,6 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         when(endDeviceGroup.getId()).thenReturn(13L);
         when(endDeviceGroup.getName()).thenReturn("South region");
         when(endDeviceGroup.getMRID()).thenReturn("LAPOPKLQKS");
-        when(endDeviceGroup.getType()).thenReturn("QueryEndDeviceGroup");
         when(endDeviceGroup.isDynamic()).thenReturn(false);
         List<EndDeviceGroup> endDeviceGroups = Arrays.asList(endDeviceGroup);
         when(restQuery.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
@@ -44,7 +43,6 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.devicegroups[0].name")).isEqualTo("South region");
         assertThat(jsonModel.<String>get("$.devicegroups[0].mRID")).isEqualTo("LAPOPKLQKS");
-        assertThat(jsonModel.<String>get("$.devicegroups[0].type")).isEqualTo("QueryEndDeviceGroups");
         assertThat(jsonModel.<Integer>get("$.devicegroups[0].id")).isEqualTo(13);
     }
 
