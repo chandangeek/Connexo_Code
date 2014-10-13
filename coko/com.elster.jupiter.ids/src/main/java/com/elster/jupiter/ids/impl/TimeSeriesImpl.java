@@ -9,7 +9,6 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -258,7 +257,7 @@ public final class TimeSeriesImpl implements TimeSeries {
     }
 
     @Override
-	public List<TimeSeriesEntry> getEntries(Interval interval) {
+	public List<TimeSeriesEntry> getEntries(Range<Instant> interval) {
 		return getVault().getEntries(this, interval);
 	}
 	

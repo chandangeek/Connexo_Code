@@ -9,7 +9,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -99,7 +98,7 @@ public class IdsCrudTest {
             ctx.commit();
         }
         ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
-        Interval interval = Interval.of(dateTime.minusMinutes(15).toInstant(), dateTime.plusMinutes(15).toInstant());
+        Range<Instant> interval = Range.openClosed(dateTime.minusMinutes(15).toInstant(), dateTime.plusMinutes(15).toInstant());
         List<TimeSeriesEntry> entries = ts.getEntries(interval);
         assertThat(entries).hasSize(2);
         assertThat(entries.get(0).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(10));
@@ -108,13 +107,13 @@ public class IdsCrudTest {
         assertThat(ts.getEntriesBefore(ZonedDateTime.of(2015, 1, 1, 0, 0, 0, 0, zoneId).toInstant(), 2)).hasSize(2);
         assertThat(ts.getEntriesOnOrBefore(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, zoneId).toInstant(), 2)).hasSize(1);
         assertThat(ts.getEntriesOnOrBefore(ZonedDateTime.of(2015, 1, 1, 0, 0, 0, 0, zoneId).toInstant(), 2)).hasSize(2);
-        assertThat(ts.getEntries(Interval.sinceEpoch())).hasSize(2);
+        assertThat(ts.getEntries(Range.all())).hasSize(2);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             Range<Instant> range = Range.openClosed(dateTime.toInstant(), dateTime.plusMinutes(15).toInstant());
             ts.removeEntries(range);
-            interval = Interval.of(dateTime.toInstant(), dateTime.plusMinutes(15).toInstant());
+            interval = Range.openClosed(dateTime.toInstant(), dateTime.plusMinutes(15).toInstant());
             assertThat(ts.getEntries(interval)).isEmpty();
-            assertThat(ts.getEntries(Interval.sinceEpoch())).hasSize(1);
+            assertThat(ts.getEntries(Range.atLeast(Instant.EPOCH))).hasSize(1);
         }
     }
 
@@ -140,7 +139,7 @@ public class IdsCrudTest {
             ctx.commit();
         }
         ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, zoneId);
-        List<TimeSeriesEntry> entries = ts.getEntries(Interval.of(dateTime.minusMinutes(15).toInstant(), dateTime.plusMinutes(15).toInstant()));
+        List<TimeSeriesEntry> entries = ts.getEntries(Range.openClosed(dateTime.minusMinutes(15).toInstant(), dateTime.plusMinutes(15).toInstant()));
         assertThat(entries).hasSize(2);
         assertThat(entries.get(0).getString(1)).isEqualTo("Text1");
         assertThat(entries.get(1).getString(1)).isEqualTo("Text2");

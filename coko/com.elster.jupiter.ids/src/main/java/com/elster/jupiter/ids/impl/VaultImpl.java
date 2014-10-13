@@ -9,12 +9,13 @@ import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Joiner;
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -359,7 +360,7 @@ public class VaultImpl implements Vault {
         return builder;
     }
 
-    List<TimeSeriesEntry> getEntries(TimeSeriesImpl timeSeries, Interval interval) {
+    List<TimeSeriesEntry> getEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) {
         try {
             return doGetEntries(timeSeries, interval);
         } catch (SQLException ex) {
@@ -375,13 +376,17 @@ public class VaultImpl implements Vault {
         }
     }
 
-    private String rangeSql(TimeSeriesImpl timeSeries) {
+    private String rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
         StringBuilder builder = selectSql(timeSeries);
-        if (isRegular()) {
-            builder.append(" AND UTCSTAMP > ? and UTCSTAMP <= ? order by UTCSTAMP");
-        } else {
-            builder.append(" AND UTCSTAMP >= ? and UTCSTAMP <= ? order by UTCSTAMP");
+        builder.append(" AND UTCSTAMP >");
+        if (range.hasLowerBound() && range.lowerBoundType() == BoundType.CLOSED) {
+        	builder.append("=");
         }
+        builder.append(" ? and UTCSTAMP <");
+        if (range.hasUpperBound() && range.upperBoundType() == BoundType.CLOSED) {
+        	builder.append("=");
+        }
+        builder.append(" ? order by UTCSTAMP");
         return builder.toString();
     }
 
@@ -391,21 +396,13 @@ public class VaultImpl implements Vault {
         return builder.toString();
     }
 
-    private List<TimeSeriesEntry> doGetEntries(TimeSeriesImpl timeSeries, Interval interval) throws SQLException {
+    private List<TimeSeriesEntry> doGetEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) throws SQLException {
         List<TimeSeriesEntry> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
-            try (PreparedStatement statement = connection.prepareStatement(rangeSql(timeSeries))) {
-                statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
-                if (interval.getStart() == null) {
-                    statement.setLong(FROM_COLUMN_INDEX, Long.MIN_VALUE);
-                } else {
-                    statement.setLong(FROM_COLUMN_INDEX, interval.getStart().toEpochMilli());
-                }
-                if (interval.getEnd() == null) {
-                    statement.setLong(TO_COLUMN_INDEX, Long.MAX_VALUE);
-                } else {
-                    statement.setLong(TO_COLUMN_INDEX, interval.getEnd().toEpochMilli());
-                }
+            try (PreparedStatement statement = connection.prepareStatement(rangeSql(timeSeries,interval))) {
+            	statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
+                statement.setLong(FROM_COLUMN_INDEX, interval.hasLowerBound() ? interval.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
+                statement.setLong(TO_COLUMN_INDEX, interval.hasUpperBound() ? interval.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         result.add(new TimeSeriesEntryImpl(timeSeries, rs));

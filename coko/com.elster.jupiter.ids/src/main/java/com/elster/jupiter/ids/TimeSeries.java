@@ -1,6 +1,5 @@
 package com.elster.jupiter.ids;
 
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -21,7 +20,7 @@ public interface TimeSeries {
 	Vault getVault();
 	RecordSpec getRecordSpec();
 	boolean add(Instant dateTime , boolean overrule , Object... values);
-    List<TimeSeriesEntry> getEntries(Interval interval);
+    List<TimeSeriesEntry> getEntries(Range<Instant> interval);
     Optional<TimeSeriesEntry> getEntry(Instant when);
     List<TimeSeriesEntry> getEntriesBefore(Instant when,int entryCount);
     List<TimeSeriesEntry> getEntriesOnOrBefore(Instant when, int entryCount);

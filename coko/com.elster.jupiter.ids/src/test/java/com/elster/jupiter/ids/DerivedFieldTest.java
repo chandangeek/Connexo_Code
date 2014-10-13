@@ -9,7 +9,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -97,7 +97,7 @@ public class DerivedFieldTest {
 	        ctx.commit();
         }
         ZonedDateTime dateTime = ZonedDateTime.of(2014,1,1,0,0,0,0,defaultZone);
-        List<TimeSeriesEntry> entries = ts.getEntries(Interval.of(dateTime.minusMinutes(15).toInstant(),dateTime.plusMinutes(60).toInstant()));
+        List<TimeSeriesEntry> entries = ts.getEntries(Range.openClosed(dateTime.minusMinutes(15).toInstant(),dateTime.plusMinutes(60).toInstant()));
         assertThat(entries).hasSize(4);
         assertThat(entries.get(0).getBigDecimal(0)).isNull();
         assertThat(entries.get(1).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(90));
