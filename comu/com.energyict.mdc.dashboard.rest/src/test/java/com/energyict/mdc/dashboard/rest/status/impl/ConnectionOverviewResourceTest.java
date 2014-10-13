@@ -101,6 +101,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.kpi).isNull();
+        assertThat(connectionOverviewInfo.deviceGroup).isNull();
     }
 
     @Test
@@ -121,6 +122,8 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
         when(dataCollectionKpiService.findDataCollectionKpi(anyInt())).thenReturn(Optional.of(dataCollectionKpi));
         when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
+        when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
+        when(endDeviceGroup.getName()).thenReturn("South region");
 
         ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("deviceGroupId", deviceGroupId).request().get(ConnectionOverviewInfo.class);
 
@@ -138,6 +141,8 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.kpi.get(1).name).isEqualTo("Ongoing");
         assertThat(connectionOverviewInfo.kpi.get(2).name).isEqualTo("Failed");
         assertThat(connectionOverviewInfo.kpi.get(3).name).isEqualTo("Target");
+        assertThat(connectionOverviewInfo.deviceGroup.id).isEqualTo(123);
+        assertThat(connectionOverviewInfo.deviceGroup.name).isEqualTo("South region");
     }
 
     private DataCollectionKpi mockDataCollectionKpi() {
