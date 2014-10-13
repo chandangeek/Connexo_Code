@@ -5,7 +5,6 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 public final class Where {
@@ -84,23 +83,23 @@ public final class Where {
         return Operator.SOUNDSAS.compare(field, value);
     }
 
-    private Condition compare(Date date, Operator operator) {
+    private Condition compare(Instant date, Operator operator) {
         return date == null ? Condition.TRUE : operator.compare(field, date);
     }
 
-    private Condition after(Date date) {
+    private Condition after(Instant date) {
         return compare(date, Operator.GREATERTHAN);
     }
 
-    private Condition afterOrEqual(Date date) {
+    private Condition afterOrEqual(Instant date) {
         return compare(date, Operator.GREATERTHANOREQUAL);
     }
 
-    private Condition before(Date date) {
+    private Condition before(Instant date) {
         return compare(date, Operator.LESSTHAN);
     }
 
-    private Condition beforeOrEqual(Date date) {
+    private Condition beforeOrEqual(Instant date) {
         return compare(date, Operator.LESSTHANOREQUAL);
     }
 
@@ -122,10 +121,6 @@ public final class Where {
 
     public Condition isEffective() {
         return new Effective(field);
-    }
-
-    public Condition isEffective(Date date) {
-        return where(field + ".start").isLessThanOrEqual(date.getTime()).and(where(field + ".end").isGreaterThan(date.getTime()));
     }
 
     public Condition isEffective(Instant instant) {

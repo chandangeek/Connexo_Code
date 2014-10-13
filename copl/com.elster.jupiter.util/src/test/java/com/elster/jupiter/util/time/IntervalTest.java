@@ -9,8 +9,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
 import java.time.Instant;
-import java.util.Date;
 
 import static com.elster.jupiter.util.time.Interval.EndpointBehavior.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,16 +18,16 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IntervalTest extends EqualsContractTest {
-    private final Date date1 = new Date(1000);
-    private final Date date2 = new Date(2000);
-    private final Date date3 = new Date(3000);
-    private final Date date4 = new Date(4000);
-    private final Date date5 = new Date(5000);
-    private final Date date6 = new Date(6000);
-    private final Date date7 = new Date(7000);
-    private final Date date8 = new Date(8000);
+    private final Instant date1 = Instant.ofEpochMilli(1000);
+    private final Instant date2 = Instant.ofEpochMilli(2000);
+    private final Instant date3 = Instant.ofEpochMilli(3000);
+    private final Instant date4 = Instant.ofEpochMilli(4000);
+    private final Instant date5 = Instant.ofEpochMilli(5000);
+    private final Instant date6 = Instant.ofEpochMilli(6000);
+    private final Instant date7 = Instant.ofEpochMilli(7000);
+    private final Instant date8 = Instant.ofEpochMilli(8000);
 
-    private final Interval interval = new Interval(date3, date6);
+    private final Interval interval = Interval.of(date3, date6);
 
 
     @Mock
@@ -37,117 +37,117 @@ public class IntervalTest extends EqualsContractTest {
 
     @Test
     public void testStartsBeforeEndsAtStart() {
-        assertToNotOverlap(new Interval(date1, date3));
+        assertToNotOverlap(Interval.of(date1, date3));
     }
 
     @Test
     public void testStartsBeforeEndsBefore() {
-        assertToNotOverlap(new Interval(date1, date2));
+        assertToNotOverlap(Interval.of(date1, date2));
     }
 
     @Test
     public void testStartsBeforeEndsIn() {
-        assertToOverlap(new Interval(date1, date4));
+        assertToOverlap(Interval.of(date1, date4));
     }
 
     @Test
     public void testStartsBeforeEndsAtEnd() {
-        assertToOverlap(new Interval(date1, date6));
+        assertToOverlap(Interval.of(date1, date6));
     }
 
     @Test
     public void testStartsBeforeEndsAfter() {
-        assertToOverlap(new Interval(date1, date7));
+        assertToOverlap(Interval.of(date1, date7));
     }
 
     @Test
     public void testStartsAtStartEndsAtStart() {
-        assertToNotOverlap(new Interval(date3, date3));
+        assertToNotOverlap(Interval.of(date3, date3));
     }
 
     @Test
     public void testStartsAtStartEndsIn() {
-        assertToOverlap(new Interval(date3, date4));
+        assertToOverlap(Interval.of(date3, date4));
     }
 
     @Test
     public void testStartsAtStartEndsAtEnd() {
-        assertToOverlap(new Interval(date3, date6));
+        assertToOverlap(Interval.of(date3, date6));
     }
 
     @Test
     public void testStartsAtStartEndsAfter() {
-        assertToOverlap(new Interval(date3, date7));
+        assertToOverlap(Interval.of(date3, date7));
     }
 
     @Test
     public void testStartsWithinEndsIn() {
-        assertToOverlap(new Interval(date4, date5));
+        assertToOverlap(Interval.of(date4, date5));
     }
 
     @Test
     public void testStartsWithinEndsAtEnd() {
-        assertToOverlap(new Interval(date4, date6));
+        assertToOverlap(Interval.of(date4, date6));
     }
 
     @Test
     public void testStartsWithinEndsAfter() {
-        assertToOverlap(new Interval(date4, date7));
+        assertToOverlap(Interval.of(date4, date7));
     }
 
     @Test
     public void testStartsAtEndEndsAtEnd() {
-        assertToNotOverlap(new Interval(date6, date6));
+        assertToNotOverlap(Interval.of(date6, date6));
     }
 
     @Test
     public void testStartsAtEndEndsAfter() {
-        assertToNotOverlap(new Interval(date6, date7));
+        assertToNotOverlap(Interval.of(date6, date7));
     }
 
     @Test
     public void testStartsAfterEndsAfter() {
-        assertToNotOverlap(new Interval(date7, date8));
+        assertToNotOverlap(Interval.of(date7, date8));
     }
 
     @Test
     public void testWithEnd() {
-        Interval newInterval = new Interval(date2, date3).withEnd(date4);
+        Interval newInterval = Interval.of(date2, date3).withEnd(date4);
         assertThat(newInterval.getStart()).isEqualTo(date2);
         assertThat(newInterval.getEnd()).isEqualTo(date4);
     }
 
     @Test
     public void testWithStart() {
-        Interval newInterval = new Interval(date2, date3).withStart(date1);
+        Interval newInterval = Interval.of(date2, date3).withStart(date1);
         assertThat(newInterval.getStart()).isEqualTo(date1);
         assertThat(newInterval.getEnd()).isEqualTo(date3);
     }
 
     @Test
     public void testWithEndFromOpenEnded() {
-        Interval newInterval = new Interval(date2, null).withEnd(date4);
+        Interval newInterval = Interval.of(date2, null).withEnd(date4);
         assertThat(newInterval.getStart()).isEqualTo(date2);
         assertThat(newInterval.getEnd()).isEqualTo(date4);
     }
 
     @Test
     public void testWithStartFromOpenEnded() {
-        Interval newInterval = new Interval(null, date3).withStart(date1);
+        Interval newInterval = Interval.of(null, date3).withStart(date1);
         assertThat(newInterval.getStart()).isEqualTo(date1);
         assertThat(newInterval.getEnd()).isEqualTo(date3);
     }
 
     @Test
     public void testWithEndToOpenEnded() {
-        Interval newInterval = new Interval(date2, date3).withEnd((Instant) null);
+        Interval newInterval = Interval.of(date2, date3).withEnd((Instant) null);
         assertThat(newInterval.getStart()).isEqualTo(date2);
         assertThat(newInterval.getEnd()).isNull();
     }
 
     @Test
     public void testWithStartToOpenEnded() {
-        Interval newInterval = new Interval(date2, date3).withStart(null);
+        Interval newInterval = Interval.of(date2, date3).withStart(null);
         assertThat(newInterval.getStart()).isNull();
         assertThat(newInterval.getEnd()).isEqualTo(date3);
     }
@@ -155,74 +155,74 @@ public class IntervalTest extends EqualsContractTest {
     @Test
     public void testFiniteIntervalContainsTrueWithin() {
     	for (Interval.EndpointBehavior each : Interval.EndpointBehavior.values()) {
-    		assertThat(new Interval(date2, date4).contains(date3,each)).isTrue();
+    		assertThat(Interval.of(date2, date4).contains(date3,each)).isTrue();
     	}
-    	assertThat(new Interval(date2,date4).toClosedOpenRange().contains(date3.toInstant())).isTrue();
-    	assertThat(new Interval(date2,date4).toOpenRange().contains(date3.toInstant())).isTrue();
-    	assertThat(new Interval(date2,date4).toClosedRange().contains(date3.toInstant())).isTrue();
-    	assertThat(new Interval(date2,date4).toOpenClosedRange().contains(date3.toInstant())).isTrue();
+    	assertThat(Interval.of(date2,date4).toClosedOpenRange().contains(date3)).isTrue();
+    	assertThat(Interval.of(date2,date4).toOpenRange().contains(date3)).isTrue();
+    	assertThat(Interval.of(date2,date4).toClosedRange().contains(date3)).isTrue();
+    	assertThat(Interval.of(date2,date4).toOpenClosedRange().contains(date3)).isTrue();
     }
 
     @Test
     public void testFiniteIntervalAtStart() {
-        assertThat(new Interval(date2, date4).contains(date2,CLOSED_OPEN)).isTrue();
-        assertThat(new Interval(date2, date4).toClosedOpenRange().contains(date2.toInstant())).isTrue();
-        assertThat(new Interval(date2, date4).contains(date2,CLOSED_CLOSED)).isTrue();
-        assertThat(new Interval(date2, date4).toClosedRange().contains(date2.toInstant())).isTrue();
-        assertThat(new Interval(date2, date4).contains(date2,OPEN_CLOSED)).isFalse();
-        assertThat(new Interval(date2, date4).toOpenClosedRange().contains(date2.toInstant())).isFalse();
-        assertThat(new Interval(date2, date4).contains(date2,OPEN_OPEN)).isFalse();
-        assertThat(new Interval(date2, date4).toOpenClosedRange().contains(date2.toInstant())).isFalse();
+        assertThat(Interval.of(date2, date4).contains(date2,CLOSED_OPEN)).isTrue();
+        assertThat(Interval.of(date2, date4).toClosedOpenRange().contains(date2)).isTrue();
+        assertThat(Interval.of(date2, date4).contains(date2,CLOSED_CLOSED)).isTrue();
+        assertThat(Interval.of(date2, date4).toClosedRange().contains(date2)).isTrue();
+        assertThat(Interval.of(date2, date4).contains(date2,OPEN_CLOSED)).isFalse();
+        assertThat(Interval.of(date2, date4).toOpenClosedRange().contains(date2)).isFalse();
+        assertThat(Interval.of(date2, date4).contains(date2,OPEN_OPEN)).isFalse();
+        assertThat(Interval.of(date2, date4).toOpenClosedRange().contains(date2)).isFalse();
     }
 
     @Test
     public void testFiniteIntervalAtEnd() {
-        assertThat(new Interval(date2, date4).contains(date4,CLOSED_OPEN)).isFalse();
-        assertThat(new Interval(date2, date4).toClosedOpenRange().contains(date4.toInstant())).isFalse();
-        assertThat(new Interval(date2, date4).contains(date4,OPEN_OPEN)).isFalse();
-        assertThat(new Interval(date2, date4).toOpenRange().contains(date4.toInstant())).isFalse();
-        assertThat(new Interval(date2, date4).contains(date4,CLOSED_CLOSED)).isTrue();
-        assertThat(new Interval(date2, date4).toClosedRange().contains(date4.toInstant())).isTrue();
-        assertThat(new Interval(date2, date4).contains(date4,OPEN_CLOSED)).isTrue();
-        assertThat(new Interval(date2, date4).toOpenClosedRange().contains(date4.toInstant())).isTrue();
+        assertThat(Interval.of(date2, date4).contains(date4,CLOSED_OPEN)).isFalse();
+        assertThat(Interval.of(date2, date4).toClosedOpenRange().contains(date4)).isFalse();
+        assertThat(Interval.of(date2, date4).contains(date4,OPEN_OPEN)).isFalse();
+        assertThat(Interval.of(date2, date4).toOpenRange().contains(date4)).isFalse();
+        assertThat(Interval.of(date2, date4).contains(date4,CLOSED_CLOSED)).isTrue();
+        assertThat(Interval.of(date2, date4).toClosedRange().contains(date4)).isTrue();
+        assertThat(Interval.of(date2, date4).contains(date4,OPEN_CLOSED)).isTrue();
+        assertThat(Interval.of(date2, date4).toOpenClosedRange().contains(date4)).isTrue();
     }
 
     @Test
     public void testInfiniteIntervalContainsTrueWithin() {
     	for (Interval.EndpointBehavior each : Interval.EndpointBehavior.values()) {
-    		assertThat(new Interval(null, null).contains(date3,each)).isTrue();
+    		assertThat(Interval.of(null, null).contains(date3,each)).isTrue();
     	}
-    	assertThat(new Interval(null,null).toClosedOpenRange().contains(date3.toInstant())).isTrue();
-    	assertThat(new Interval(null,null).toOpenRange().contains(date3.toInstant())).isTrue();
-    	assertThat(new Interval(null,null).toClosedRange().contains(date3.toInstant())).isTrue();
-    	assertThat(new Interval(null,null).toOpenClosedRange().contains(date3.toInstant())).isTrue();
+    	assertThat(Interval.of(null,null).toClosedOpenRange().contains(date3)).isTrue();
+    	assertThat(Interval.of(null,null).toOpenRange().contains(date3)).isTrue();
+    	assertThat(Interval.of(null,null).toClosedRange().contains(date3)).isTrue();
+    	assertThat(Interval.of(null,null).toOpenClosedRange().contains(date3)).isTrue();
     }
 
     @Test
     public void testEmptyInterval() {
-        assertThat(new Interval(date2, date2).contains(date2,CLOSED_OPEN)).isFalse();
-        assertThat(new Interval(date2,date2).toClosedOpenRange().contains(date2.toInstant())).isFalse();
-        assertThat(new Interval(date2, date2).contains(date2,OPEN_CLOSED)).isFalse();
-        assertThat(new Interval(date2,date2).toOpenClosedRange().contains(date2.toInstant())).isFalse();
-        assertThat(new Interval(date2, date2).contains(date2,OPEN_OPEN)).isFalse();
-        //assertThat(new Interval(date2,date2).open().contains(date2.toInstant())).isFalse();
-        assertThat(new Interval(date2, date2).contains(date2,CLOSED_CLOSED)).isTrue();
-        assertThat(new Interval(date2,date2).toClosedRange().contains(date2.toInstant())).isTrue();
+        assertThat(Interval.of(date2, date2).contains(date2,CLOSED_OPEN)).isFalse();
+        assertThat(Interval.of(date2,date2).toClosedOpenRange().contains(date2)).isFalse();
+        assertThat(Interval.of(date2, date2).contains(date2,OPEN_CLOSED)).isFalse();
+        assertThat(Interval.of(date2,date2).toOpenClosedRange().contains(date2)).isFalse();
+        assertThat(Interval.of(date2, date2).contains(date2,OPEN_OPEN)).isFalse();
+        //assertThat(Interval.of(date2,date2).open().contains(date2.toInstant())).isFalse();
+        assertThat(Interval.of(date2, date2).contains(date2,CLOSED_CLOSED)).isTrue();
+        assertThat(Interval.of(date2,date2).toClosedRange().contains(date2)).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPreventStartAfterEnd() {
-        new Interval(date4, date3);
+        Interval.of(date4, date3);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPreventStartAfterEndWithEnd() {
-        new Interval(date4, null).withEnd(date3);
+        Interval.of(date4, null).withEnd(date3);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPreventStartAfterEndWithStart() {
-        new Interval(date4, date5).withStart(date6);
+        Interval.of(date4, date5).withStart(date6);
     }
 
     @Test
@@ -234,115 +234,115 @@ public class IntervalTest extends EqualsContractTest {
 
     @Test
     public void testIsCurrentTrue() {
-        when(clock.now()).thenReturn(date3);
+        when(clock.instant()).thenReturn(date3);
 
         assertThat(Interval.startAt(date2).isCurrent(clock)).isTrue();
     }
 
     @Test
     public void testIsCurrentFalse() {
-        when(clock.now()).thenReturn(date3);
+        when(clock.instant()).thenReturn(date3);
 
         assertThat(Interval.startAt(date4).isCurrent(clock)).isFalse();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInterSectionForNonOverlappingThrowsException() {
-        Interval intersection = new Interval(date1, date2).intersection(new Interval(date3, date4));
+        Interval intersection = Interval.of(date1, date2).intersection(Interval.of(date3, date4));
         assertThat(intersection.getStart()).isEqualTo(intersection.getEnd());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInterSectionForAbuttingThrowsException() {
-        Interval intersection = new Interval(date1, date2).intersection(new Interval(date2, date3));
+        Interval intersection = Interval.of(date1, date2).intersection(Interval.of(date2, date3));
         assertThat(intersection.getStart()).isEqualTo(intersection.getEnd());
     }
 
     @Test
     public void testInterSectionForOverlappingStart() {
-        Interval intersection = new Interval(date4, date7).intersection(new Interval(date2, date6));
-        assertThat(intersection).isEqualTo(new Interval(date4, date6));
+        Interval intersection = Interval.of(date4, date7).intersection(Interval.of(date2, date6));
+        assertThat(intersection).isEqualTo(Interval.of(date4, date6));
     }
 
     @Test
     public void testInterSectionForOverlappingEnd() {
-        Interval intersection = new Interval(date4, date7).intersection(new Interval(date5, date8));
-        assertThat(intersection).isEqualTo(new Interval(date5, date7));
+        Interval intersection = Interval.of(date4, date7).intersection(Interval.of(date5, date8));
+        assertThat(intersection).isEqualTo(Interval.of(date5, date7));
     }
 
     @Test
     public void testInterSectionForInner() {
-        Interval intersection = new Interval(date4, date7).intersection(new Interval(date5, date6));
-        assertThat(intersection).isEqualTo(new Interval(date5, date6));
+        Interval intersection = Interval.of(date4, date7).intersection(Interval.of(date5, date6));
+        assertThat(intersection).isEqualTo(Interval.of(date5, date6));
     }
 
     @Test
     public void testInterSectionForOuter() {
-        Interval intersection = new Interval(date5, date6).intersection(new Interval(date4, date7));
-        assertThat(intersection).isEqualTo(new Interval(date5, date6));
+        Interval intersection = Interval.of(date5, date6).intersection(Interval.of(date4, date7));
+        assertThat(intersection).isEqualTo(Interval.of(date5, date6));
     }
 
     @Test
     public void testSpanToIncludeDistinctIntervals() {
-        assertThat(new Interval(date1, date2).spanToInclude(new Interval(date5, date6))).isEqualTo(new Interval(date1, date6));
+        assertThat(Interval.of(date1, date2).spanToInclude(Interval.of(date5, date6))).isEqualTo(Interval.of(date1, date6));
     }
 
     @Test
     public void testSpanToIncludeAbutting() {
-        assertThat(new Interval(date1, date5).spanToInclude(new Interval(date5, date6))).isEqualTo(new Interval(date1, date6));
+        assertThat(Interval.of(date1, date5).spanToInclude(Interval.of(date5, date6))).isEqualTo(Interval.of(date1, date6));
     }
 
     @Test
     public void testSpanToIncludeOverlapping() {
-        assertThat(new Interval(date1, date5).spanToInclude(new Interval(date2, date6))).isEqualTo(new Interval(date1, date6));
+        assertThat(Interval.of(date1, date5).spanToInclude(Interval.of(date2, date6))).isEqualTo(Interval.of(date1, date6));
     }
 
     @Test
     public void testSpanToIncludeAlreadyIncluded() {
-        Interval interval = new Interval(date1, date6);
-        assertThat(interval.spanToInclude(new Interval(date2, date3))).isSameAs(interval);
+        Interval interval = Interval.of(date1, date6);
+        assertThat(interval.spanToInclude(Interval.of(date2, date3))).isSameAs(interval);
     }
 
     @Test
     public void testSpanToIncludeIncludedInArg() {
-        Interval interval = new Interval(date1, date6);
-        assertThat(new Interval(date2, date3).spanToInclude(interval)).isSameAs(interval);
+        Interval interval = Interval.of(date1, date6);
+        assertThat(Interval.of(date2, date3).spanToInclude(interval)).isSameAs(interval);
     }
 
     @Test
     public void testSpanToIncludeTimeBefore() {
-        Interval interval = new Interval(date3, date5);
-        assertThat(interval.spanToInclude(date2)).isEqualTo(new Interval(date2, date5));
+        Interval interval = Interval.of(date3, date5);
+        assertThat(interval.spanToInclude(date2)).isEqualTo(Interval.of(date2, date5));
     }
 
     @Test
     public void testSpanToIncludeTimeAfter() {
-        Interval interval = new Interval(date3, date5);
-        assertThat(interval.spanToInclude(date6)).isEqualTo(new Interval(date3, date6));
+        Interval interval = Interval.of(date3, date5);
+        assertThat(interval.spanToInclude(date6)).isEqualTo(Interval.of(date3, date6));
     }
 
     @Test
     public void testSpanToIncludeTimeAtStart() {
-        Interval interval = new Interval(date3, date5);
+        Interval interval = Interval.of(date3, date5);
         assertThat(interval.spanToInclude(date3)).isSameAs(interval);
     }
 
     @Test
     public void testSpanToIncludeTimeAtEnd() {
-        Interval interval = new Interval(date3, date5);
+        Interval interval = Interval.of(date3, date5);
         assertThat(interval.spanToInclude(date5)).isSameAs(interval);
 
     }
 
     @Test
     public void testSpanToIncludeTimeWithin() {
-        Interval interval = new Interval(date3, date5);
+        Interval interval = Interval.of(date3, date5);
         assertThat(interval.spanToInclude(date4)).isSameAs(interval);
     }
 
     @Test
     public void testDuration() {
-        assertThat(new Interval(date3, date5).durationInMillis()).isEqualTo(2000L);
+        assertThat(Interval.of(date3, date5).durationInMillis()).isEqualTo(2000L);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -352,7 +352,7 @@ public class IntervalTest extends EqualsContractTest {
 
     @Test
     public void testIsInfiniteOnFinite() {
-        assertThat(new Interval(date3, date5).isInfinite()).isFalse();
+        assertThat(Interval.of(date3, date5).isInfinite()).isFalse();
     }
 
     @Test
@@ -362,17 +362,17 @@ public class IntervalTest extends EqualsContractTest {
 
     @Test
     public void testStartsBeforeTrue() {
-        assertThat(new Interval(date3, date5).startsBefore(date4)).isTrue();
+        assertThat(Interval.of(date3, date5).startsBefore(date4)).isTrue();
     }
 
     @Test
     public void testStartsBeforeFalse() {
-        assertThat(new Interval(date3, date5).startsBefore(date2)).isFalse();
+        assertThat(Interval.of(date3, date5).startsBefore(date2)).isFalse();
     }
 
     @Test
     public void testStartsBeforeComparedToStartIsFalse() {
-        assertThat(new Interval(date3, date5).startsBefore(date3)).isFalse();
+        assertThat(Interval.of(date3, date5).startsBefore(date3)).isFalse();
     }
 
     @Test
@@ -387,17 +387,17 @@ public class IntervalTest extends EqualsContractTest {
 
     @Test
     public void testStartsAfterTrue() {
-        assertThat(new Interval(date3, date5).startsAfter(date2)).isTrue();
+        assertThat(Interval.of(date3, date5).startsAfter(date2)).isTrue();
     }
 
     @Test
     public void testStartsAfterFalse() {
-        assertThat(new Interval(date3, date5).startsAfter(date4)).isFalse();
+        assertThat(Interval.of(date3, date5).startsAfter(date4)).isFalse();
     }
 
     @Test
     public void testStartsAfterComparedToStartIsFalse() {
-        assertThat(new Interval(date3, date5).startsAfter(date3)).isFalse();
+        assertThat(Interval.of(date3, date5).startsAfter(date3)).isFalse();
     }
 
     @Test
@@ -412,17 +412,17 @@ public class IntervalTest extends EqualsContractTest {
 
     @Test
     public void testEndsBeforeTrue() {
-        assertThat(new Interval(date3, date5).endsBefore(date6)).isTrue();
+        assertThat(Interval.of(date3, date5).endsBefore(date6)).isTrue();
     }
 
     @Test
     public void testEndsBeforeFalse() {
-        assertThat(new Interval(date3, date5).endsBefore(date4)).isFalse();
+        assertThat(Interval.of(date3, date5).endsBefore(date4)).isFalse();
     }
 
     @Test
     public void testEndsBeforeComparedToEndIsFalse() {
-        assertThat(new Interval(date3, date5).endsBefore(date5)).isFalse();
+        assertThat(Interval.of(date3, date5).endsBefore(date5)).isFalse();
     }
 
     @Test
@@ -437,17 +437,17 @@ public class IntervalTest extends EqualsContractTest {
 
     @Test
     public void testEndsAfterTrue() {
-        assertThat(new Interval(date3, date5).endsAfter(date4)).isTrue();
+        assertThat(Interval.of(date3, date5).endsAfter(date4)).isTrue();
     }
 
     @Test
     public void testEndsAfterFalse() {
-        assertThat(new Interval(date3, date5).endsAfter(date6)).isFalse();
+        assertThat(Interval.of(date3, date5).endsAfter(date6)).isFalse();
     }
 
     @Test
     public void testEndsAfterComparedToEndIsFalse() {
-        assertThat(new Interval(date3, date5).endsAfter(date5)).isFalse();
+        assertThat(Interval.of(date3, date5).endsAfter(date5)).isFalse();
     }
 
     @Test
@@ -472,22 +472,22 @@ public class IntervalTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new Interval(date3, date6);
+        return Interval.of(date3, date6);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return ImmutableList.of(
-                new Interval(date1, date2),
-                new Interval(date1, date3),
-                new Interval(date1, date4),
-                new Interval(date1, date6),
-                new Interval(date1, date7),
-                new Interval(date3, date4),
-                new Interval(date3, date7),
-                new Interval(date4, date6),
-                new Interval(date4, date7),
-                new Interval(date6, date7)
+                Interval.of(date1, date2),
+                Interval.of(date1, date3),
+                Interval.of(date1, date4),
+                Interval.of(date1, date6),
+                Interval.of(date1, date7),
+                Interval.of(date3, date4),
+                Interval.of(date3, date7),
+                Interval.of(date4, date6),
+                Interval.of(date4, date7),
+                Interval.of(date6, date7)
                 );
     }
 

@@ -4,13 +4,13 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,18 +55,15 @@ public final class SqlBuilder implements SqlFragment {
         add(new LongFragment(value));
     }
 
-    @SuppressWarnings("unused")
     public void addNull(int sqlType) {
         add(new NullFragment(sqlType));
     }
 
-    @SuppressWarnings("unused")
-    public void addTimestamp(Date date) {
+    public void addTimestamp(Instant date) {
         add(new TimestampFragment(date));
     }
 
-    @SuppressWarnings("unused")
-    public void addDate(Date date) {
+    public void addDate(Instant date) {
         add(new DateFragment(date));
     }
 
@@ -256,42 +253,30 @@ public final class SqlBuilder implements SqlFragment {
     }
 
     private static class TimestampFragment extends SimpleFragment {
-        private final Date date;
+        private final Instant instant;
 
-        public TimestampFragment(Date date) {
-            this.date = date;
+        public TimestampFragment(Instant instant) {
+            this.instant = instant;
         }
 
         @Override
         public int bind(PreparedStatement statement, int position) throws SQLException {
-            Timestamp ts = null;
-            if (date != null) {
-                if (date instanceof Timestamp) {
-                    ts = (Timestamp) date;
-                } else {
-                    ts = new Timestamp(date.getTime());
-                }
-            }
+            Timestamp ts = instant == null ? null : new Timestamp(instant.toEpochMilli());
             statement.setTimestamp(position, ts);
             return position + 1;
         }
     }
 
     private static class DateFragment extends SimpleFragment {
-        private final Date date;
+        private final Instant instant;
 
-        public DateFragment(Date date) {
-            this.date = date;
+        public DateFragment(Instant instant) {
+            this.instant = instant;
         }
 
         @Override
         public int bind(PreparedStatement statement, int position) throws SQLException {
-            java.sql.Date sqlDate;
-            if (date instanceof java.sql.Date) {
-                sqlDate = (java.sql.Date) date;
-            } else {
-                sqlDate = new java.sql.Date(date.getTime());
-            }
+            Date sqlDate = instant == null ? null : new Date(instant.toEpochMilli());
             statement.setDate(position, sqlDate);
             return position + 1;
         }

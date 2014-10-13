@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.cron;
 
-import java.util.Date;
+import java.time.Instant;
+
 
 /**
  * Interface for classes that model a Cron expression.
@@ -12,12 +13,12 @@ public interface CronExpression {
      * @param date
      * @return the next such Date, or null if there is no such Date.
      */
-    Date nextAfter(Date date);
+    Instant nextAfter(Instant date);
 
     /**
      * Verifies whether the given Date matches this CronExpression
      * @param date
      * @return true if the Date matches, false otherwise.
      */
-    boolean matches(Date date);
+    boolean matches(Instant date);
 }

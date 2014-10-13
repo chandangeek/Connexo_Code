@@ -2,7 +2,7 @@ package com.elster.jupiter.util.cron.impl;
 
 import com.elster.jupiter.util.cron.CronExpression;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.regex.Pattern;
 
 /**
@@ -23,13 +23,13 @@ class QuartzCronExpressionAdapter implements CronExpression {
     }
 
     @Override
-    public Date nextAfter(Date date) {
-        return quartzCronExpression.getNextValidTimeAfter(date);
+    public Instant nextAfter(Instant instant) {
+        return quartzCronExpression.getNextValidTimeAfter(instant);
     }
 
     @Override
-    public boolean matches(Date date) {
-        return quartzCronExpression.isSatisfiedBy(date);
+    public boolean matches(Instant instant) {
+        return quartzCronExpression.isSatisfiedBy(instant);
     }
 
     @Override

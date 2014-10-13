@@ -1,8 +1,8 @@
 package com.elster.jupiter.util;
 
-import org.junit.Test;
+import java.time.Instant;
 
-import java.util.Date;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,22 +10,22 @@ public class ChecksTest {
 
     @Test
     public void testNullEqualsNull() {
-        assertThat(Checks.is((Date) null).equalTo(null)).isTrue();
+        assertThat(Checks.is((Instant) null).equalTo(null)).isTrue();
     }
 
     @Test
     public void testNullDoesntEqualActualObject() {
-        assertThat(Checks.is((Date) null).equalTo(new Date(0L))).isFalse();
+        assertThat(Checks.is((Instant) null).equalTo(Instant.EPOCH)).isFalse();
     }
 
     @Test
     public void testNormalEqualityIsMaintained() {
-        assertThat(Checks.is(new Date(0L)).equalTo(new Date(0L))).isTrue();
+        assertThat(Checks.is(Instant.EPOCH).equalTo(Instant.ofEpochMilli(0))).isTrue();
     }
 
     @Test
     public void testNormalInequalityIsMaintained() {
-        assertThat(Checks.is(new Date(0L)).equalTo(new Date(1L))).isFalse();
+        assertThat(Checks.is(Instant.EPOCH).equalTo(Instant.ofEpochMilli(1))).isFalse();
     }
 
     @Test

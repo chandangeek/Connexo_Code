@@ -3,11 +3,11 @@ package com.elster.jupiter.util.time;
 
 import com.google.common.collect.Ordering;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
 
 /**
  * {@link IntermittentInterval} represents a list of consecutive {@link Interval}s that do not overlap nor abut. It is probably best
- * understood as a set of {@link java.util.Date}s that are represented by the simplest sorted set of {@link Interval}s.<br>
+ * understood as a set of {@link java.time.Instant}s that are represented by the simplest sorted set of {@link Interval}s.<br>
  * It is an immutable value type. As such the operation that modify a {@link IntermittentInterval} simply return another instance.
  * {@link IntermittentInterval} will merge all {@link Interval}s that are added when possible. <br> {@link IntermittentInterval} is useful for
  * detecting what points in time a collection of business objects that each have a {@link Interval} cover, and whether there are
@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
  */
 public final class IntermittentInterval implements Iterable<Interval> {
 
-    public static final IntermittentInterval ALWAYS = new IntermittentInterval(new Interval(null, null));
+    public static final IntermittentInterval ALWAYS = new IntermittentInterval(Interval.of(null, null));
     public static final IntermittentInterval NEVER = new IntermittentInterval();
 
     public enum IntervalComparators implements Comparator<Interval> {
@@ -192,7 +192,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
      * Creates a {@link IntermittentInterval} that is the result of adding the {@link Interval} to the list, and resolving overlaps.
      *
      * @param period the {@link Interval} to add
-     * @return the {@link IntermittentInterval} that contains all {@link java.util.Date}s this one does and all {@link java.util.Date}s that the given
+     * @return the {@link IntermittentInterval} that contains all {@link java.time.Instant}s this one does and all {@link java.time.Instant}s that the given
      *         {@link Interval} contains, never null
      */
     public final IntermittentInterval addInterval(Interval period) {
@@ -207,14 +207,14 @@ public final class IntermittentInterval implements Iterable<Interval> {
     }
 
     /**
-     * Tests whether the given {@link java.util.Date} is contained in any of its {@link Interval}s.
+     * Tests whether the given {@link java.time.Instant} is contained in any of its {@link Interval}s.
      *
-     * @param date the {@link java.util.Date} to test
-     * @return true if the given {@link java.util.Date} is contained in any of its {@link Interval}s, false otherwise.
+     * @param date the {@link java.time.Instant} to test
+     * @return true if the given {@link java.time.Instant} is contained in any of its {@link Interval}s, false otherwise.
      */
-    public final boolean contains(Date date) {
+    public final boolean contains(Instant date) {
         for (Interval period : intervals) {
-            if (period.contains(date,Interval.EndpointBehavior.CLOSED_OPEN)) {
+            if (period.toClosedOpenRange().contains(date)) {
                 return true;
             }
         }
@@ -222,7 +222,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
     }
 
     /**
-     * Creates a {@link IntermittentInterval} that contains all {@link java.util.Date}s that are contained in this instance, but not contained in
+     * Creates a {@link IntermittentInterval} that contains all {@link java.time.Instant}s that are contained in this instance, but not contained in
      * the given {@link IntermittentInterval}.
      *
      * @param other {@link IntermittentInterval} to exclude
@@ -268,7 +268,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
     }
 
     /**
-     * Creates a {@link IntermittentInterval} that contains all {@link java.util.Date}s that are contained in this instance and in the given other
+     * Creates a {@link IntermittentInterval} that contains all {@link java.time.Instant}s that are contained in this instance and in the given other
      * instance.
      *
      * @param other the instance to intersect with
@@ -295,12 +295,12 @@ public final class IntermittentInterval implements Iterable<Interval> {
     }
 
     /**
-     * Creates a {@link IntermittentInterval} that contains all {@link java.util.Date}s that are not contained in this instance.
+     * Creates a {@link IntermittentInterval} that contains all {@link java.time.Instant}s that are not contained in this instance.
      *
      * @return a {@link IntermittentInterval} that is the negative of this one.
      */
     public final IntermittentInterval negative() {
-        IntermittentInterval negative = new IntermittentInterval(new Interval(null, null));
+        IntermittentInterval negative = new IntermittentInterval(Interval.of(null, null));
         for (Interval Interval : intervals) {
             negative.doRemove(Interval);
         }
@@ -308,10 +308,10 @@ public final class IntermittentInterval implements Iterable<Interval> {
     }
 
     /**
-     * Tests whether the given {@link IntermittentInterval} contains a {@link java.util.Date} that is also contained in this one.
+     * Tests whether the given {@link IntermittentInterval} contains a {@link java.time.Instant} that is also contained in this one.
      *
      * @param other the {@link IntermittentInterval} to check against
-     * @return true if at at least one {@link java.util.Date} exists for which contains() would return true for both this as the given
+     * @return true if at at least one {@link java.time.Instant} exists for which contains() would return true for both this as the given
      *         {@link IntermittentInterval}, false otherwise.
      */
     public final boolean overlaps(IntermittentInterval other) {
@@ -322,11 +322,11 @@ public final class IntermittentInterval implements Iterable<Interval> {
     }
 
     /**
-     * Creates a {@link IntermittentInterval} that contains all {@link java.util.Date}s that this one does, but are not contained in the given
+     * Creates a {@link IntermittentInterval} that contains all {@link java.time.Instant}s that this one does, but are not contained in the given
      * {@link Interval}.
      *
      * @param Interval the {@link Interval} to remove
-     * @return a {@link IntermittentInterval} that contains all {@link java.util.Date}s that this one does, but are not contained in the given
+     * @return a {@link IntermittentInterval} that contains all {@link java.time.Instant}s that this one does, but are not contained in the given
      *         {@link Interval}, never null.
      */
     public final IntermittentInterval remove(Interval Interval) {
@@ -334,7 +334,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
     }
 
     /**
-     * Creates a {@link Interval} that contains at least all {@link java.util.Date}s this {@link IntermittentInterval} contains.
+     * Creates a {@link Interval} that contains at least all {@link java.time.Instant}s this {@link IntermittentInterval} contains.
      *
      * @return a {@link Interval} spanning from the earliest from to the latest to in this instance, or null if this is an empty
      *         {@link IntermittentInterval}.
@@ -352,7 +352,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
     }
 
     /**
-     * Creates a {@link IntermittentInterval} that contains all {@link java.util.Date}s that are contained in this instance, or the given instance.
+     * Creates a {@link IntermittentInterval} that contains all {@link java.time.Instant}s that are contained in this instance, or the given instance.
      *
      * @param other the {@link Interval} to unite with
      * @return a {@link IntermittentInterval} that is the union of this and the given instance, never null.
@@ -365,7 +365,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
         return copy;
     }
 
-    public final Interval intervalAt(Date date) {
+    public final Interval intervalAt(Instant date) {
         int i = Collections.binarySearch(intervals, Interval.startAt(date), IntervalComparators.FROM_COMPARATOR);
         if (i >=0) {
             return intervals.get(i);
@@ -375,7 +375,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
             return null;
         }
         Interval candidate = intervals.get(i);
-        return candidate.contains(date,Interval.EndpointBehavior.CLOSED_OPEN) ? candidate : null;
+        return candidate.toClosedOpenRange().contains(date) ? candidate : null;
     }
 
     private int calculateHash() {
@@ -438,7 +438,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
 
     private Interval getSpanningPeriod() {
         if (spanningPeriod == null) {
-            spanningPeriod = new Interval(intervals.get(0).getStart(), intervals.get(intervals.size() - 1).getEnd());
+            spanningPeriod = Interval.of(intervals.get(0).getStart(), intervals.get(intervals.size() - 1).getEnd());
         }
         return spanningPeriod;
     }
@@ -452,8 +452,8 @@ public final class IntermittentInterval implements Iterable<Interval> {
         if (this.isEmpty() || other.isEmpty()) {
             return false;
         }
-        Date lastTime = intervals.get(intervals.size() - 1).getEnd();
-        Date firstTime = other.intervals.get(0).getStart();
+        Instant lastTime = intervals.get(intervals.size() - 1).getEnd();
+        Instant firstTime = other.intervals.get(0).getStart();
         return lastTime != null && firstTime != null && lastTime.compareTo(firstTime) <= 0;
     }
 
@@ -473,16 +473,16 @@ public final class IntermittentInterval implements Iterable<Interval> {
         if (!canBeMerged(first, second)) {
             throw new IllegalArgumentException();
         }
-        return new Interval(earliestTime(first.getStart(), second.getStart()), latestTime(first.getEnd(), second.getEnd()));
+        return Interval.of(earliestTime(first.getStart(), second.getStart()), latestTime(first.getEnd(), second.getEnd()));
     }
 
 
 
-    private Date earliestTime(Date first, Date second) {
+    private Instant earliestTime(Instant first, Instant second) {
         return first == null || second == null ? null : Ordering.natural().min(first, second);
     }
 
-    private Date latestTime(Date first, Date second) {
+    private Instant latestTime(Instant first, Instant second) {
         return first == null || second == null ? null : Ordering.natural().max(first, second);
     }
 
@@ -496,16 +496,16 @@ public final class IntermittentInterval implements Iterable<Interval> {
 
     private void removePartialAtIndexIfNeeded(Interval interval, int insertionIndex) {
         if (insertionIndex < intervals.size() && interval.overlaps(intervals.get(insertionIndex))) {
-            intervals.set(insertionIndex, new Interval(interval.getEnd(), intervals.get(insertionIndex).getEnd()));
+            intervals.set(insertionIndex, Interval.of(interval.getEnd(), intervals.get(insertionIndex).getEnd()));
         }
     }
 
     private void removePartialAtPreviousIndexIfNeeded(Interval interval, int insertionIndex) {
         if (insertionIndex > 0 && insertionIndex <= intervals.size() && interval.overlaps(intervals.get(insertionIndex - 1))) {
             Interval predecessor = intervals.get(insertionIndex - 1);
-            intervals.set(insertionIndex - 1, new Interval(predecessor.getStart(), interval.getStart()));
+            intervals.set(insertionIndex - 1, Interval.of(predecessor.getStart(), interval.getStart()));
             if (predecessor.envelops(interval)) {
-                intervals.add(insertionIndex, new Interval(interval.getEnd(), predecessor.getEnd()));
+                intervals.add(insertionIndex, Interval.of(interval.getEnd(), predecessor.getEnd()));
             }
         }
     }

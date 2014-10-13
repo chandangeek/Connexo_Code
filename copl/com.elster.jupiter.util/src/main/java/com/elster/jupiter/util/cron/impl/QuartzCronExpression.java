@@ -1,8 +1,8 @@
 package com.elster.jupiter.util.cron.impl;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.SortedSet;
@@ -239,15 +239,15 @@ class QuartzCronExpression implements Serializable {
      * @return a boolean indicating whether the given date satisfies the cron
      *         expression
      */
-    public boolean isSatisfiedBy(Date date) {
+    public boolean isSatisfiedBy(Instant date) {
         Calendar testDateCal = Calendar.getInstance(getTimeZone());
-        testDateCal.setTime(date);
+        testDateCal.setTimeInMillis(date.toEpochMilli());
         testDateCal.set(Calendar.MILLISECOND, 0);
-        Date originalDate = testDateCal.getTime();
+        Instant originalDate = testDateCal.getTime().toInstant();
 
         testDateCal.add(Calendar.SECOND, -1);
 
-        Date timeAfter = getTimeAfter(testDateCal.getTime());
+        Instant timeAfter = getTimeAfter(testDateCal.getTime().toInstant());
 
         return ((timeAfter != null) && (timeAfter.equals(originalDate)));
     }
@@ -260,8 +260,8 @@ class QuartzCronExpression implements Serializable {
      *             date/time
      * @return the next valid date/time
      */
-    public Date getNextValidTimeAfter(Date date) {
-        return getTimeAfter(date);
+    public Instant getNextValidTimeAfter(Instant instant) {
+        return getTimeAfter(instant);
     }
 
     /**
@@ -272,16 +272,16 @@ class QuartzCronExpression implements Serializable {
      *             invalid date/time
      * @return the next valid date/time
      */
-    public Date getNextInvalidTimeAfter(Date date) {
+    public Instant getNextInvalidTimeAfter(Instant instant) {
         long difference = MILLIS_PER_SECOND;
 
         //move back to the nearest second so differences will be accurate
         Calendar adjustCal = Calendar.getInstance(getTimeZone());
-        adjustCal.setTime(date);
+        adjustCal.setTimeInMillis(instant.toEpochMilli());
         adjustCal.set(Calendar.MILLISECOND, 0);
-        Date lastDate = adjustCal.getTime();
+        Instant lastDate = adjustCal.getTime().toInstant();
 
-        Date newDate;
+        Instant newDate;
 
         //TODO: (QUARTZ-481) IMPROVE THIS! The following is a BAD solution to this problem. Performance will be very bad here, depending on the cron expression. It is, however A solution.
 
@@ -291,14 +291,13 @@ class QuartzCronExpression implements Serializable {
         while (difference == MILLIS_PER_SECOND) {
             newDate = getTimeAfter(lastDate);
 
-            difference = newDate.getTime() - lastDate.getTime();
+            difference = newDate.toEpochMilli() - lastDate.toEpochMilli();
 
             if (difference == MILLIS_PER_SECOND) {
                 lastDate = newDate;
             }
         }
-
-        return new Date(lastDate.getTime() + MILLIS_PER_SECOND);
+        return lastDate.plusSeconds(1);       
     }
 
     /**
@@ -1034,16 +1033,16 @@ class QuartzCronExpression implements Serializable {
     //
     ////////////////////////////////////////////////////////////////////////////
 
-    private Date getTimeAfter(Date afterTime) {
+    private Instant getTimeAfter(Instant afterTime) {
 
         // Computation is based on Gregorian year only.
         Calendar cl = new java.util.GregorianCalendar(getTimeZone());
 
         // move ahead one second, since we're computing the time *after* the
         // given time
-        afterTime = new Date(afterTime.getTime() + 1000);
+        afterTime = afterTime.plusSeconds(1);
         // CronTrigger does not deal with milliseconds
-        cl.setTime(afterTime);
+        cl.setTimeInMillis(afterTime.toEpochMilli());
         cl.set(Calendar.MILLISECOND, 0);
 
         boolean gotOne = false;
@@ -1158,8 +1157,8 @@ class QuartzCronExpression implements Serializable {
                         tcal.set(Calendar.HOUR_OF_DAY, hr);
                         tcal.set(Calendar.DAY_OF_MONTH, day);
                         tcal.set(Calendar.MONTH, mon - 1);
-                        Date nTime = tcal.getTime();
-                        if (nTime.before(afterTime)) {
+                        Instant nTime = Instant.ofEpochMilli(tcal.getTimeInMillis());
+                        if (nTime.isBefore(afterTime)) {
                             day = 1;
                             mon++;
                         }
@@ -1195,8 +1194,8 @@ class QuartzCronExpression implements Serializable {
                     tcal.set(Calendar.HOUR_OF_DAY, hr);
                     tcal.set(Calendar.DAY_OF_MONTH, day);
                     tcal.set(Calendar.MONTH, mon - 1);
-                    Date nTime = tcal.getTime();
-                    if (nTime.before(afterTime)) {
+                    Instant nTime = Instant.ofEpochMilli(tcal.getTimeInMillis());
+                    if (nTime.isBefore(afterTime)) {
                         day = daysOfMonth.first();
                         mon++;
                     }
@@ -1421,7 +1420,7 @@ class QuartzCronExpression implements Serializable {
             gotOne = true;
         } // while( !done )
 
-        return cl.getTime();
+        return Instant.ofEpochMilli(cl.getTimeInMillis());
     }
 
     /**

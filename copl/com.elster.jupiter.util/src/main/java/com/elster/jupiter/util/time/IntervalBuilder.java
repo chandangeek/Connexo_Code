@@ -1,28 +1,23 @@
 package com.elster.jupiter.util.time;
 
 import java.time.Instant;
-import java.util.Date;
 
 public final class IntervalBuilder {
-	private Date earliest;
-	private Date latest;
+	private Instant earliest;
+	private Instant latest;
 	
-	public void add(Date when) {
-		if (earliest == null || when.before(earliest)) {
+	public void add(Instant when) {
+		if (earliest == null || when.isBefore(earliest)) {
 			earliest = when;
 		}
-		if (latest == null || when.after(latest)) {
+		if (latest == null || when.isAfter(latest)) {
 			latest = when;
 		}
 	}
 	
-	public void add(Instant instant) {
-		add(Date.from(instant));
-	}
-	
-	public void add(Date when, long length) {
+	public void add(Instant when, long length) {
 		add(when);
-		add(new Date(when.getTime() + length));
+		add(when.plusMillis(length));
 	}
 	
 	public boolean hasInterval() {
@@ -32,7 +27,7 @@ public final class IntervalBuilder {
 	public Interval getInterval() {
 		if (earliest == null || latest == null) 
 			throw new IllegalStateException();
-		return new Interval(earliest,latest);
+		return Interval.of(earliest,latest);
 	}
 	
 }

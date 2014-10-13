@@ -1,6 +1,6 @@
 package com.elster.jupiter.util.conditions;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.junit.*;
 
@@ -13,7 +13,7 @@ public class WhereTest {
 
 	@Test
 	public void testInfiniteIn() {
-		Interval interval = new Interval(null,null);
+		Interval interval = Interval.of(null,null);
 		assertThat(where("test").inOpen(interval)).isEqualTo(Condition.TRUE);
 		assertThat(where("test").inClosed(interval)).isEqualTo(Condition.TRUE);
 		assertThat(where("test").inOpenClosed(interval)).isEqualTo(Condition.TRUE);
@@ -22,7 +22,7 @@ public class WhereTest {
 	
 	@Test
 	public void testFiniteIn() {
-		Interval interval = new Interval(new Date(0),new Date());
+		Interval interval = Interval.of(Instant.EPOCH, Instant.now());
 		assertThat(where("test").inOpen(interval).toString()).matches(".*test.*>[ ?].*AND.*test.*<[ ?].*");
 		assertThat(where("test").inOpenClosed(interval).toString()).matches(".*test.*>[ ?].*AND.*test.*<=[ ?].*");
 		assertThat(where("test").inClosedOpen(interval).toString()).matches(".*test.*>=[ ?].*AND.*test.*<[ ?].*");
@@ -31,7 +31,7 @@ public class WhereTest {
 	
 	@Test
 	public void testCurrentAt() {
-		Date date = new Date();
+		Instant date = Instant.now();
 		assertThat(where("test").isEffective(date).toString()).matches(".*test\\.start\\s*<=[ ?].*AND.*test\\.end.\\s*>[ ?].*");
 	}
 	

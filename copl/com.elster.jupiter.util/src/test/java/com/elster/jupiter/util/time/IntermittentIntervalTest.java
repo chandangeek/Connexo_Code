@@ -4,50 +4,50 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 
 import static org.junit.Assert.*;
 
 public class IntermittentIntervalTest {
-	private static final Date ONE = new DateMidnight(2010, 1, 1).toDate();
-	private static final Date TWO = new DateMidnight(2010, 1, 2).toDate();
-	private static final Date THREE = new DateMidnight(2010, 1, 3).toDate();
-	private static final Date FOUR = new DateMidnight(2010, 1, 4).toDate();
-	private static final Date FIVE = new DateMidnight(2010, 1, 5).toDate();
-	private static final Date SIX = new DateMidnight(2010, 1, 6).toDate();
-	private static final Date SEVEN = new DateMidnight(2010, 1, 7).toDate();
-	private static final Date EIGHT = new DateMidnight(2010, 1, 8).toDate();
-	private static final Date NINE = new DateMidnight(2010, 1, 9).toDate();
-	private static final Date BETWEEN_ONE_AND_TWO = new DateTime(ONE).plusHours(12).toDate();
-	private static final Date BETWEEN_TWO_AND_THREE = new DateTime(TWO).plusHours(12).toDate();
-	private static final Date BETWEEN_THREE_AND_FOUR = new DateTime(THREE).plusHours(12).toDate();
-	private static final Interval NINE_TO_INFINITY = new Interval(NINE, null);
-	private static final Interval SEVEN_TO_INFINITY = new Interval(SEVEN, null);
-	private static final Interval SEVEN_TO_EIGHT = new Interval(SEVEN, EIGHT);
-	private static final Interval ALWAYS = new Interval(null, null);
-	private static final Interval THREE_TO_EIGHT = new Interval(THREE, EIGHT);
-	private static final Interval FIVE_TO_INFINITY = new Interval(FIVE, null);
-	private static final Interval FIVE_TO_SIX = new Interval(FIVE, SIX);
-	private static final Interval FIVE_TO_SEVEN = new Interval(FIVE, SEVEN);
-	private static final Interval THREE_TO_FIVE = new Interval(THREE, FIVE);
-	private static final Interval THREE_TO_FOUR = new Interval(THREE, FOUR);
-	private static final Interval FOUR_TO_FIVE = new Interval(FOUR, FIVE);
-	private static final Interval BIGBANG_TO_TWO = new Interval(null, TWO);
-	private static final Interval ONE_TO_THREE = new Interval(ONE, THREE);
-	private static final Interval ONE_TO_FIVE = new Interval(ONE, FIVE);
-	private static final Interval ONE_TO_FOUR = new Interval(ONE, FOUR);
-	private static final Interval ONE_TO_TWO = new Interval(ONE, TWO);
-	private static final Interval ONE_TO_INFINITY = new Interval(ONE, null);
-	private static final Interval ONE_TO_EIGHT = new Interval(ONE, EIGHT);
-	private static final Interval BIGBANG_TO_ONE = new Interval(null, ONE);
-	private static final Interval EIGHT_TO_NINE = new Interval(EIGHT, NINE);
-	private static final Interval TWO_TO_THREE = new Interval(TWO, THREE);
-	private static final Interval SIX_TO_SEVEN = new Interval(SIX, SEVEN);
-	private static final Interval FIVE_TO_EIGHT = new Interval(FIVE, EIGHT);
-	private static final Interval ONE_TO_SEVEN = new Interval(ONE, SEVEN);
-	private static final Interval EIGHT_TO_INFINITY = new Interval(EIGHT, null);
+	private static final Instant ONE = new DateMidnight(2010, 1, 1).toDate().toInstant();
+	private static final Instant TWO = new DateMidnight(2010, 1, 2).toDate().toInstant();
+	private static final Instant THREE = new DateMidnight(2010, 1, 3).toDate().toInstant();
+	private static final Instant FOUR = new DateMidnight(2010, 1, 4).toDate().toInstant();
+	private static final Instant FIVE = new DateMidnight(2010, 1, 5).toDate().toInstant();
+	private static final Instant SIX = new DateMidnight(2010, 1, 6).toDate().toInstant();
+	private static final Instant SEVEN = new DateMidnight(2010, 1, 7).toDate().toInstant();
+	private static final Instant EIGHT = new DateMidnight(2010, 1, 8).toDate().toInstant();
+	private static final Instant NINE = new DateMidnight(2010, 1, 9).toDate().toInstant();
+	private static final Instant BETWEEN_ONE_AND_TWO = new DateTime(ONE.toEpochMilli()).plusHours(12).toDate().toInstant();
+	private static final Instant BETWEEN_TWO_AND_THREE = new DateTime(TWO.toEpochMilli()).plusHours(12).toDate().toInstant();
+	private static final Instant BETWEEN_THREE_AND_FOUR = new DateTime(THREE.toEpochMilli()).plusHours(12).toDate().toInstant();
+	private static final Interval NINE_TO_INFINITY = Interval.of(NINE, null);
+	private static final Interval SEVEN_TO_INFINITY = Interval.of(SEVEN, null);
+	private static final Interval SEVEN_TO_EIGHT = Interval.of(SEVEN, EIGHT);
+	private static final Interval ALWAYS = Interval.of(null, null);
+	private static final Interval THREE_TO_EIGHT = Interval.of(THREE, EIGHT);
+	private static final Interval FIVE_TO_INFINITY = Interval.of(FIVE, null);
+	private static final Interval FIVE_TO_SIX = Interval.of(FIVE, SIX);
+	private static final Interval FIVE_TO_SEVEN = Interval.of(FIVE, SEVEN);
+	private static final Interval THREE_TO_FIVE = Interval.of(THREE, FIVE);
+	private static final Interval THREE_TO_FOUR = Interval.of(THREE, FOUR);
+	private static final Interval FOUR_TO_FIVE = Interval.of(FOUR, FIVE);
+	private static final Interval BIGBANG_TO_TWO = Interval.of(null, TWO);
+	private static final Interval ONE_TO_THREE = Interval.of(ONE, THREE);
+	private static final Interval ONE_TO_FIVE = Interval.of(ONE, FIVE);
+	private static final Interval ONE_TO_FOUR = Interval.of(ONE, FOUR);
+	private static final Interval ONE_TO_TWO = Interval.of(ONE, TWO);
+	private static final Interval ONE_TO_INFINITY = Interval.of(ONE, null);
+	private static final Interval ONE_TO_EIGHT = Interval.of(ONE, EIGHT);
+	private static final Interval BIGBANG_TO_ONE = Interval.of(null, ONE);
+	private static final Interval EIGHT_TO_NINE = Interval.of(EIGHT, NINE);
+	private static final Interval TWO_TO_THREE = Interval.of(TWO, THREE);
+	private static final Interval SIX_TO_SEVEN = Interval.of(SIX, SEVEN);
+	private static final Interval FIVE_TO_EIGHT = Interval.of(FIVE, EIGHT);
+	private static final Interval ONE_TO_SEVEN = Interval.of(ONE, SEVEN);
+	private static final Interval EIGHT_TO_INFINITY = Interval.of(EIGHT, null);
 
 	@Test
 	public void testIntersectionAll() {
@@ -272,35 +272,35 @@ public class IntermittentIntervalTest {
 	@Test
 	public void testRemoveCompleteOverlap() {
 		IntermittentInterval union = new IntermittentInterval(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX);
-		union = union.remove(new Interval(BETWEEN_TWO_AND_THREE, FOUR));
+		union = union.remove(Interval.of(BETWEEN_TWO_AND_THREE, FOUR));
 		assertEquals(new IntermittentInterval(ONE_TO_TWO, FIVE_TO_SIX), union);
 	}
 
 	@Test
 	public void testRemoveMultipleCompleteOverlap() {
 		IntermittentInterval union = new IntermittentInterval(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX);
-		union = union.remove(new Interval(BETWEEN_TWO_AND_THREE, EIGHT));
+		union = union.remove(Interval.of(BETWEEN_TWO_AND_THREE, EIGHT));
 		assertEquals(new IntermittentInterval(ONE_TO_TWO), union);
 	}
 
 	@Test
 	public void testRemovePartialOverlap() {
 		IntermittentInterval union = new IntermittentInterval(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX);
-		union = union.remove(new Interval(BETWEEN_TWO_AND_THREE, BETWEEN_THREE_AND_FOUR));
-		assertEquals(new IntermittentInterval(ONE_TO_TWO, new Interval(BETWEEN_THREE_AND_FOUR, FOUR), FIVE_TO_SIX), union);
+		union = union.remove(Interval.of(BETWEEN_TWO_AND_THREE, BETWEEN_THREE_AND_FOUR));
+		assertEquals(new IntermittentInterval(ONE_TO_TWO, Interval.of(BETWEEN_THREE_AND_FOUR, FOUR), FIVE_TO_SIX), union);
 	}
 
 	@Test
 	public void testRemoveDoublePartialOverlap() {
 		IntermittentInterval union = new IntermittentInterval(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX);
-		union = union.remove(new Interval(BETWEEN_ONE_AND_TWO, BETWEEN_THREE_AND_FOUR));
-		assertEquals(new IntermittentInterval(new Interval(ONE, BETWEEN_ONE_AND_TWO), new Interval(BETWEEN_THREE_AND_FOUR, FOUR), FIVE_TO_SIX), union);
+		union = union.remove(Interval.of(BETWEEN_ONE_AND_TWO, BETWEEN_THREE_AND_FOUR));
+		assertEquals(new IntermittentInterval(Interval.of(ONE, BETWEEN_ONE_AND_TWO), Interval.of(BETWEEN_THREE_AND_FOUR, FOUR), FIVE_TO_SIX), union);
 	}
 
 	@Test
 	public void testRemoveInternalOverlap() {
 		IntermittentInterval union = new IntermittentInterval(ONE_TO_FOUR, FIVE_TO_SIX, SEVEN_TO_EIGHT);
-		union = union.remove(new Interval(TWO, THREE));
+		union = union.remove(Interval.of(TWO, THREE));
 		assertEquals(new IntermittentInterval(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX, SEVEN_TO_EIGHT), union);
 	}
 
@@ -321,8 +321,8 @@ public class IntermittentIntervalTest {
 	@Test
 	public void testToSpanningPeriod() {
 		IntermittentInterval union = new IntermittentInterval(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX);
-		assertEquals(new Interval(ONE, SIX), union.toSpanningInterval());
-		assertEquals(new Interval(ONE, SIX), union.toSpanningInterval());
+		assertEquals(Interval.of(ONE, SIX), union.toSpanningInterval());
+		assertEquals(Interval.of(ONE, SIX), union.toSpanningInterval());
 	}
 
 	@Test
@@ -360,7 +360,7 @@ public class IntermittentIntervalTest {
 	@Test
 	public void testContainsTrivialFalse() {
 		IntermittentInterval union = new IntermittentInterval(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX);
-		assertFalse(union.contains(new Date(45000L)));
+		assertFalse(union.contains(Instant.ofEpochMilli(45000L)));
 	}
 
 	@Test
@@ -484,14 +484,14 @@ public class IntermittentIntervalTest {
 
     @Test
     public void testIgnoreEmptyIntervalsInConstructor() {
-        assertTrue(new IntermittentInterval(new Interval(ONE, ONE)).isEmpty());
-        assertTrue(new IntermittentInterval(THREE_TO_EIGHT, new Interval(ONE, ONE)).equals(new IntermittentInterval(THREE_TO_EIGHT)));
+        assertTrue(new IntermittentInterval(Interval.of(ONE, ONE)).isEmpty());
+        assertTrue(new IntermittentInterval(THREE_TO_EIGHT, Interval.of(ONE, ONE)).equals(new IntermittentInterval(THREE_TO_EIGHT)));
     }
 
     @Test
     public void testIgnoreEmptyIntervalsForAdding() {
-        assertTrue(new IntermittentInterval().addInterval(new Interval(ONE, ONE)).isEmpty());
-        assertTrue(new IntermittentInterval(THREE_TO_EIGHT).addInterval(new Interval(ONE, ONE)).equals(new IntermittentInterval(THREE_TO_EIGHT)));
+        assertTrue(new IntermittentInterval().addInterval(Interval.of(ONE, ONE)).isEmpty());
+        assertTrue(new IntermittentInterval(THREE_TO_EIGHT).addInterval(Interval.of(ONE, ONE)).equals(new IntermittentInterval(THREE_TO_EIGHT)));
     }
 
 }

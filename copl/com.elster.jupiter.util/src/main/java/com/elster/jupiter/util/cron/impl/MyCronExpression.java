@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.cron.impl;
 
 import com.elster.jupiter.util.cron.CronExpression;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeFieldType;
@@ -13,10 +14,10 @@ import org.joda.time.ReadableDateTime;
 import org.joda.time.ReadableInstant;
 import org.joda.time.ReadablePartial;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
@@ -357,24 +358,24 @@ class MyCronExpression implements CronExpression {
         return subset;
     }
 
-    public Date nextAfter(Date date) {
-        boolean inEarlierDSTOverlap = isInEarlierDSTOverlap(date);
-        Date normalNextAfter = doNextAfter(date);
+    public Instant nextAfter(Instant instant) {
+        boolean inEarlierDSTOverlap = isInEarlierDSTOverlap(instant);
+        Instant normalNextAfter = doNextAfter(instant);
         if (!inEarlierDSTOverlap) {
             return normalNextAfter;
         }
-        return isInEarlierDSTOverlap(normalNextAfter) ? normalNextAfter : doNextAfterInclusive(new Date(DateTimeZone.getDefault().nextTransition(date.getTime())));
+        return isInEarlierDSTOverlap(normalNextAfter) ? normalNextAfter : doNextAfterInclusive(Instant.ofEpochMilli(DateTimeZone.getDefault().nextTransition(instant.toEpochMilli())));
     }
 
-    private Date doNextAfterInclusive(Date date) {
+    private Instant doNextAfterInclusive(Instant date) {
         if (matches(date)) {
             return date;
         }
         return doNextAfter(date);
     }
 
-    private Date doNextAfter(Date date) {
-        DateTime dateTime = new DateTime(date);
+    private Instant doNextAfter(Instant date) {
+        DateTime dateTime = new DateTime(date.toEpochMilli());
         if (isOnMatchingDay(dateTime)) {
             LocalTime localTime = nextTimeWithinDay(new LocalTime(dateTime));
             if (localTime != null) {
@@ -382,9 +383,9 @@ class MyCronExpression implements CronExpression {
                 LocalDateTime localDateTime = localDate.toLocalDateTime(localTime);
                 if (DateTimeZone.getDefault().isLocalDateTimeGap(localDateTime)) {
                     long transition = DateTimeZone.getDefault().nextTransition(localDate.toDateMidnight().getMillis());
-                    return nextAfter(new DateTime(transition).toDate());
+                    return nextAfter(new DateTime(transition).toDate().toInstant());
                 }
-                return localTime.toDateTime(dateTime).toDate();
+                return localTime.toDateTime(dateTime).toDate().toInstant();
             }
         }
         LocalDate localDate = nextValidDay(new LocalDate(dateTime));
@@ -398,20 +399,20 @@ class MyCronExpression implements CronExpression {
         LocalDateTime localDateTime = localDate.toLocalDateTime(localTime);
         if (DateTimeZone.getDefault().isLocalDateTimeGap(localDateTime)) {
             long transition = DateTimeZone.getDefault().nextTransition(localDate.toDateMidnight().getMillis());
-            return nextAfter(new DateTime(transition).toDate());
+            return nextAfter(new DateTime(transition).toDate().toInstant());
         }
-        return localDateTime.toDateTime().toDate();
+        return localDateTime.toDateTime().toDate().toInstant();
     }
 
-    private boolean isInEarlierDSTOverlap(Date date) {
-        long earlier = date.getTime();
+    private boolean isInEarlierDSTOverlap(Instant date) {
+        long earlier = date.toEpochMilli();
         long later = DateTimeZone.getDefault().adjustOffset(earlier, true);
         return later != earlier;
     }
 
     @Override
-    public boolean matches(Date date) {
-        LocalDate localDate = new LocalDate(date);
+    public boolean matches(Instant date) {
+        LocalDate localDate = new LocalDate(date.toEpochMilli());
         return matches(localDate) && matches(new LocalTime(date));
     }
 

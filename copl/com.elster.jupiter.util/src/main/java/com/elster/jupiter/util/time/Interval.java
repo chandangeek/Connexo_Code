@@ -3,8 +3,8 @@ package com.elster.jupiter.util.time;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
+import java.time.Clock;
 import java.time.Instant;
-import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -24,7 +24,7 @@ public final class Interval {
      * @param start Date instance marking the start of the interval, or null to signify the interval is infinite at the start
      * @param end Date instance marking the end of the interval, or null to signify the interval is infinite at the end
      */
-	public Interval(Date start, Date end) {
+	private Interval(Instant start, Instant end) {
 		this.start = getStartValue(start);
 		this.end = getEndValue(end);
         if (this.start > this.end) {
@@ -41,7 +41,7 @@ public final class Interval {
     }
 
     public static Interval of(Instant start, Instant end) {
-    	return new Interval(start == null ? null : Date.from(start), end == null ? null : Date.from(end));
+    	return new Interval(start,end);
     }
     
     public static Interval of(Range<Instant> range) {
@@ -55,20 +55,16 @@ public final class Interval {
      * @param start
      * @return
      */
-    public static Interval startAt(Date start) {
+    public static Interval startAt(Instant start) {
         return new Interval(start, null);
     }
     
-    public static Interval startAt(Instant start) {
-    	return new Interval(start.toEpochMilli(),ETERNITY);
-    }
-
     /**
      * Static factory method to create an infinite Interval that ends at the given Date.
      * @param end
      * @return
      */
-    public static Interval endAt(Date end) {
+    public static Interval endAt(Instant end) {
         return new Interval(null, end);
     }
 
@@ -76,12 +72,12 @@ public final class Interval {
     	return SINCE_EPOCH;
     }
     
-	public Date getEnd() {
-		return end == ETERNITY ? null : new Date(end);
+	public Instant getEnd() {
+		return end == ETERNITY ? null : Instant.ofEpochMilli(end);
 	}
 
-	public Date getStart() {
-		return start == -ETERNITY ? null : new Date(start);
+	public Instant getStart() {
+		return start == -ETERNITY ? null : Instant.ofEpochMilli(start);
 	}
 
     /** 
@@ -92,14 +88,6 @@ public final class Interval {
 	public boolean isCurrent(Clock clock) {
 		long now = clock.instant().toEpochMilli();
 		return contains(now,EndpointBehavior.CLOSED_OPEN);
-	}
-	
-	public boolean isEffective(Date when) {
-		return contains(when,EndpointBehavior.CLOSED_OPEN);
-	}
-	
-	public boolean isEffective(Instant when) {
-		return contains(Date.from(when), EndpointBehavior.CLOSED_OPEN);
 	}
 	
 	public boolean isEffective(Interval interval) {
@@ -156,18 +144,6 @@ public final class Interval {
 		end = 0;
 	}
 	
-	private long getEndValue(Date endDate) {
-		if (endDate == null) {
-			return ETERNITY;
-		} else {
-			if (endDate.getTime() >= ETERNITY) {
-				throw new IllegalArgumentException("End date too late");
-			} else {
-				return endDate.getTime();
-			}
-		}
-	}
-	
 	private long getEndValue(Instant endInstant) {
 		if (endInstant == null) {
 			return ETERNITY;
@@ -179,15 +155,15 @@ public final class Interval {
 			}
 		}
 	}
-
-	private long getStartValue(Date startDate) {
-		if (startDate == null) {
+	
+	private long getStartValue(Instant startInstant) {
+		if (startInstant == null) {
 			return -ETERNITY;
 		} else {
-			if (startDate.getTime() <= -ETERNITY) {
-				throw new IllegalArgumentException("Start date too early");
+			if (startInstant.toEpochMilli() <= -ETERNITY) {
+				throw new IllegalArgumentException("Start instant too early");
 			} else {
-				return startDate.getTime();
+				return startInstant.toEpochMilli();
 			}
 		}
 	}
@@ -204,29 +180,16 @@ public final class Interval {
      * @param date
      * @return true if the given instance is contained within this Date range.
      */
-    public boolean contains(Date date , EndpointBehavior behavior) {
-        return contains(Objects.requireNonNull(date).getTime() , behavior);
-    }
-
-    /**
-     * @param date
-     * @return a new Interval with the same start specification as this one, yet with the given end Date.
-     */
-    public Interval withEnd(Date date) {
-        return new Interval(start, getEndValue(date));
+    public boolean contains(Instant date , EndpointBehavior behavior) {
+        return contains(Objects.requireNonNull(date).toEpochMilli() , behavior);
     }
     
     public Interval withEnd(Instant instant) {
     	return new Interval(start, getEndValue(instant));
     }
-
-    /**
-     * @param date
-     * @return a new Interval with the same end specification as this one, yet with the given start Date.
-     * @throws IllegalArgumentException if the intersection is empty.
-     */
-    public Interval withStart(Date date) {
-        return new Interval(getStartValue(date), end);
+    
+    public Interval withStart(Instant instant) {
+    	return new Interval(getStartValue(instant), end);
     }
 
     public Interval intersection(Interval interval) {
@@ -240,32 +203,32 @@ public final class Interval {
         return !(startsAfter(other.getStart()) || endsBefore(other.getEnd()));
     }
 
-    public boolean startsAfter(Date testDate) {
+    public boolean startsAfter(Instant testDate) {
         if (getStart() == null) {
             return false;
         }
-        return testDate == null || getStart().after(testDate);
+        return testDate == null || getStart().isAfter(testDate);
     }
 
-    public boolean endsBefore(Date testDate) {
+    public boolean endsBefore(Instant testDate) {
         if (getEnd() == null) {
             return false;
         }
-        return testDate == null || getEnd().before(testDate);
+        return testDate == null || getEnd().isBefore(testDate);
     }
 
-    public boolean startsBefore(Date testDate) {
+    public boolean startsBefore(Instant testDate) {
         if (getStart() == null) {
             return  testDate != null;
         }
-        return testDate != null && getStart().before(testDate);
+        return testDate != null && getStart().isBefore(testDate);
     }
 
-    public boolean endsAfter(Date testDate) {
+    public boolean endsAfter(Instant testDate) {
         if (getEnd() == null) {
             return testDate != null;
         }
-        return testDate != null && getEnd().after(testDate);
+        return testDate != null && getEnd().isAfter(testDate);
     }
 
 
@@ -367,11 +330,11 @@ public final class Interval {
         return new Interval(Ordering.natural().min(start, other.start), Ordering.natural().max(end, other.end));
     }
 
-    public Interval spanToInclude(Date date) {
+    public Interval spanToInclude(Instant date) {
         if (this.contains(date, EndpointBehavior.CLOSED_CLOSED)) {
             return this;
         }
-        return new Interval(Ordering.natural().min(start, date.getTime()), Ordering.natural().max(end, date.getTime()));
+        return new Interval(Ordering.natural().min(start, date.toEpochMilli()), Ordering.natural().max(end, date.toEpochMilli()));
     }
     
     public long dbStart() {

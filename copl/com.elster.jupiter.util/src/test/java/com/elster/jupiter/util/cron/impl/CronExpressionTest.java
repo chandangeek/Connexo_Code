@@ -23,8 +23,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import static org.junit.Assert.*;
@@ -77,18 +77,18 @@ public class CronExpressionTest {
         Calendar cal = Calendar.getInstance();
 
         cal.set(2005, Calendar.JUNE, 1, 10, 15, 0);
-        assertTrue(cronExpression.isSatisfiedBy(cal.getTime()));
+        assertTrue(cronExpression.isSatisfiedBy(Instant.ofEpochMilli(cal.getTimeInMillis())));
 
         cal.set(Calendar.YEAR, 2006);
-        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+        assertFalse(cronExpression.isSatisfiedBy(Instant.ofEpochMilli(cal.getTimeInMillis())));
 
         cal = Calendar.getInstance();
         cal.set(2005, Calendar.JUNE, 1, 10, 16, 0);
-        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+        assertFalse(cronExpression.isSatisfiedBy(Instant.ofEpochMilli(cal.getTimeInMillis())));
 
         cal = Calendar.getInstance();
         cal.set(2005, Calendar.JUNE, 1, 10, 14, 0);
-        assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
+        assertFalse(cronExpression.isSatisfiedBy(Instant.ofEpochMilli(cal.getTimeInMillis())));
     }
 
     /*
@@ -108,7 +108,7 @@ public class CronExpressionTest {
         assertEquals(newExpression.getCronExpression(), cronExpression.getCronExpression());
 
         // if broken, this will throw an exception
-        newExpression.getNextValidTimeAfter(new Date());
+        newExpression.getNextValidTimeAfter(Instant.now());
     }
 
     /*
