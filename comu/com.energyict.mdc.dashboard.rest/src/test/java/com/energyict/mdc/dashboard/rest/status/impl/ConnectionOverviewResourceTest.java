@@ -144,6 +144,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.kpi.get(3).name).isEqualTo("Target");
         assertThat(connectionOverviewInfo.deviceGroup.id).isEqualTo(123);
         assertThat(connectionOverviewInfo.deviceGroup.name).isEqualTo("South region");
+        assertThat(connectionOverviewInfo.deviceGroup.alias).isEqualTo("deviceGroups");
     }
 
     private DataCollectionKpi mockDataCollectionKpi() {
