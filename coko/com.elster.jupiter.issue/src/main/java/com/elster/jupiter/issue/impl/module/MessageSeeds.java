@@ -11,14 +11,14 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
 // 0001 - 1000 General validation messages
-    FIELD_CAN_NOT_BE_EMPTY (0001, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
+    FIELD_CAN_NOT_BE_EMPTY (1, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
 
-    FIELD_SIZE_BETWEEN_1_AND_80(0002, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_128(0003, Keys.FIELD_SIZE_BETWEEN_1_AND_128, "Field's text length should be between 1 and 128 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_200(0004, Keys.FIELD_SIZE_BETWEEN_1_AND_200, "Field's text length should be between 1 and 200 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_256(0005, Keys.FIELD_SIZE_BETWEEN_1_AND_256, "Field's text length should be between 1 and 256 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_400(0006, Keys.FIELD_SIZE_BETWEEN_1_AND_400, "Field's text length should be between 1 and 400 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_1024(0007, Keys.FIELD_SIZE_BETWEEN_1_AND_1024, "Field's text length should be between 1 and 1024 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_80(2, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_128(3, Keys.FIELD_SIZE_BETWEEN_1_AND_128, "Field's text length should be between 1 and 128 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_200(4, Keys.FIELD_SIZE_BETWEEN_1_AND_200, "Field's text length should be between 1 and 200 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_256(5, Keys.FIELD_SIZE_BETWEEN_1_AND_256, "Field's text length should be between 1 and 256 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_400(6, Keys.FIELD_SIZE_BETWEEN_1_AND_400, "Field's text length should be between 1 and 400 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_1024(7, Keys.FIELD_SIZE_BETWEEN_1_AND_1024, "Field's text length should be between 1 and 1024 symbols", Level.SEVERE),
 
 // Domain record specific
     ISSUE_COMMENT_COMMENT_SIZE(1001, Keys.ISSUE_COMMENT_COMMENT_SIZE, "Comment length should be more than 1 symbol", Level.SEVERE),
@@ -28,6 +28,7 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_STATUS_OPEN(2001, "issue.status.open", "Open", Level.INFO),
     ISSUE_STATUS_RESOLVED(2002, "issue.status.resolved", "Resolved", Level.INFO),
     ISSUE_STATUS_WONT_FIX(2003, "issue.status.wont.fix", "Won't fix", Level.INFO),
+    ISSUE_STATUS_IN_PROGRESS(2004, "issue.status.in.progress", "In progress", Level.INFO),
 
 // 4001 - 4999 Issue actions
     ACTION_CLOSE_ISSUE(4001, "issue.action.closeIssue", "Close issue", Level.INFO),

@@ -40,6 +40,7 @@ public class Installer {
         issueService.createStatus(IssueStatus.OPEN, false, MessageSeeds.ISSUE_STATUS_OPEN);
         issueService.createStatus(IssueStatus.RESOLVED, true, MessageSeeds.ISSUE_STATUS_RESOLVED);
         issueService.createStatus(IssueStatus.WONT_FIX, true, MessageSeeds.ISSUE_STATUS_WONT_FIX);
+        issueService.createStatus(IssueStatus.IN_PROGRESS, true, MessageSeeds.ISSUE_STATUS_IN_PROGRESS);
     }
 
     private void setTranslations(){
