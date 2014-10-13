@@ -4,6 +4,7 @@ import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.module.Installer;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -11,9 +12,7 @@ import com.elster.jupiter.issue.share.service.*;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -30,8 +29,8 @@ import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.issue.install", service = InstallService.class, property = "name=" + IssueService.COMPONENT_NAME, immediate = true)
-public class InstallServiceImpl implements InstallService {
+@Component(name = "com.elster.jupiter.issue.install", service = {InstallService.class, TranslationKeyProvider.class}, property = "name=" + IssueService.COMPONENT_NAME, immediate = true)
+public class InstallServiceImpl implements InstallService, TranslationKeyProvider {
     private static final String ISSUE_OVERDUE_TASK_NAME = "IssueOverdueTask";
     private static final String ISSUE_OVERDUE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
     private static final int ISSUE_OVERDUE_TASK_RETRY_DELAY = 60;
@@ -204,5 +203,20 @@ public class InstallServiceImpl implements InstallService {
     @Reference
     public final void setIssueActionService(IssueActionService issueActionService) {
         this.issueActionService = issueActionService;
+    }
+
+    @Override
+    public String getComponentName() {
+        return IssueService.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }

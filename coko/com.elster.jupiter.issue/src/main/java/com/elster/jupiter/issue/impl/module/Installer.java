@@ -25,7 +25,6 @@ public class Installer {
     }
 
     public void install(boolean executeDDL) {
-        run(this::setTranslations, "translations");
         run(() -> dataModel.install(executeDDL, false),
                 "database schema. Execute command 'ddl " + IssueService.COMPONENT_NAME + "' and apply the sql script manually");
         run(this::createViews, "view for all issues");
@@ -41,15 +40,6 @@ public class Installer {
         issueService.createStatus(IssueStatus.RESOLVED, true, MessageSeeds.ISSUE_STATUS_RESOLVED);
         issueService.createStatus(IssueStatus.WONT_FIX, true, MessageSeeds.ISSUE_STATUS_WONT_FIX);
         issueService.createStatus(IssueStatus.IN_PROGRESS, true, MessageSeeds.ISSUE_STATUS_IN_PROGRESS);
-    }
-
-    private void setTranslations(){
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(IssueService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
-        thesaurus.addTranslations(translations);
     }
 
     public static void run(Runnable runnable, String explanation){
