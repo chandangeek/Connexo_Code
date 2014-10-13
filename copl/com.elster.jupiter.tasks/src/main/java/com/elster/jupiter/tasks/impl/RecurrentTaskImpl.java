@@ -45,7 +45,7 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.destinationSpec = destinationSpec;
         this.destination = destinationSpec.getName();
         this.payload = payload;
-        this.cronString = scheduleExpression.toString();
+        this.cronString = scheduleExpression.encoded();
         this.name = name;
         this.scheduleExpression = scheduleExpression;
         return this;

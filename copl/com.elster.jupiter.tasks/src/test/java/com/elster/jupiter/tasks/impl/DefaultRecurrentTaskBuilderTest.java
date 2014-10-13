@@ -71,7 +71,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testCronStringAndScheduleImmediately() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();
@@ -83,7 +83,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testCronString() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();
@@ -96,7 +96,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testName() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();
@@ -108,7 +108,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testPayload() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();
@@ -120,7 +120,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testDestination() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();

@@ -15,6 +15,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     private final ScheduleExpressionParser scheduleExpressionParser;
 
     private String cronString;
+    private ScheduleExpression scheduleExpression;
     private String name;
     private String payload;
     private DestinationSpec destination;
@@ -27,8 +28,16 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     }
 
     @Override
-    public RecurrentTaskBuilder setCronExpression(String expression) {
+    public RecurrentTaskBuilder setScheduleExpressionString(String expression) {
         cronString = expression;
+        scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
+        return this;
+    }
+
+    @Override
+    public RecurrentTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression) {
+        cronString = scheduleExpression.encoded();
+        this.scheduleExpression = scheduleExpression;
         return this;
     }
 
@@ -58,7 +67,6 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
 
     @Override
     public RecurrentTask build() {
-        ScheduleExpression scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
         RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, scheduleExpression, destination, payload);
         if (scheduleImmediately) {
             recurrentTask.updateNextExecution();
