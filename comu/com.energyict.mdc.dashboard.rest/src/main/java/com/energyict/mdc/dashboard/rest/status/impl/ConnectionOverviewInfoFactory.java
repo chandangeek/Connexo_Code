@@ -59,7 +59,7 @@ public class ConnectionOverviewInfoFactory {
 
     public ConnectionOverviewInfo asInfo(QueryEndDeviceGroup endDeviceGroup) {
         TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview(endDeviceGroup);
-        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup);
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown(endDeviceGroup);
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown(endDeviceGroup);
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup);

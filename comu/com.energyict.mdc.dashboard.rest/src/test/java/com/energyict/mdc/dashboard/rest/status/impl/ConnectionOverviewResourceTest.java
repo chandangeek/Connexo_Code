@@ -112,7 +112,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
         when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
-        when(dashboardService.getComSessionSuccessIndicatorOverview()).thenReturn(comSessionSuccessIndicatorOverview);
+        when(dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup)).thenReturn(comSessionSuccessIndicatorOverview);
         ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
         when(dashboardService.getComPortPoolBreakdown(endDeviceGroup)).thenReturn(comPortPoolBreakdown);
         ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
