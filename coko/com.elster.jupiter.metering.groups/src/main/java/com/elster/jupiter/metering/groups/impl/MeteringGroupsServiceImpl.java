@@ -37,7 +37,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     private volatile MeteringService meteringService;
     private volatile QueryService queryService;
 
-    private volatile List<EndDeviceQueryProvider> endDeviceQueryProviders = new ArrayList<EndDeviceQueryProvider>();
+    private volatile List<EndDeviceQueryProvider> endDeviceQueryProviders = new ArrayList<>();
 
     public MeteringGroupsServiceImpl() {
     }
@@ -152,7 +152,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     @Override
     public Query<EndDeviceGroup> getQueryEndDeviceGroupQuery() {
         Query<EndDeviceGroup> endDeviceGroupQuery = queryService.wrap(dataModel.query(EndDeviceGroup.class));
-        endDeviceGroupQuery.setRestriction(Where.where("discriminator").isEqualTo(QueryEndDeviceGroup.TYPE_IDENTIFIER));
+        endDeviceGroupQuery.setRestriction(Where.where("class").isEqualTo(QueryEndDeviceGroup.TYPE_IDENTIFIER));
         return endDeviceGroupQuery;
     }
 
