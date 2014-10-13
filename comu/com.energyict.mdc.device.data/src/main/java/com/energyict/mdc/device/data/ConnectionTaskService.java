@@ -303,6 +303,16 @@ public interface ConnectionTaskService {
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount();
 
     /**
+     * Counts the last {@link ComSession} of all {@link ConnectionTask}s
+     * that relate to device of the specified {@link QueryEndDeviceGroup},
+     * grouping them by their respective {@link ConnectionTask.SuccessIndicator}.
+     *
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The numbers, broken down by SuccessIndicator
+     */
+    public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount(QueryEndDeviceGroup deviceGroup);
+
+    /**
      * Counts all {@link ConnectionTask}s grouping them by their
      * respective {@link ConnectionTypePluggableClass} and the {@link ComSession.SuccessIndicator}
      * of the last {@link ComSession}.
@@ -317,6 +327,24 @@ public interface ConnectionTaskService {
      * @return The counters
      */
     public Map<ConnectionTypePluggableClass, List<Long>> getConnectionTypeHeatMap();
+
+    /**
+     * Counts all {@link ConnectionTask}s that relate to {@link Device}s
+     * in the specified {@link QueryEndDeviceGroup}, grouping them by their
+     * respective {@link ConnectionTypePluggableClass} and the {@link ComSession.SuccessIndicator}
+     * of the last {@link ComSession}.
+     * The counters are returned in the following order:
+     * <ol>
+     * <li>Success but with at least one failing task</li>
+     * <li>Success</li>
+     * <li>SetupError</li>
+     * <li>Broken</li>
+     * </ol>
+     *
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The counters
+     */
+    public Map<ConnectionTypePluggableClass, List<Long>> getConnectionTypeHeatMap(QueryEndDeviceGroup deviceGroup);
 
     /**
      * Counts all {@link ConnectionTask}s grouping them by their
@@ -335,6 +363,24 @@ public interface ConnectionTaskService {
     public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap();
 
     /**
+     * Counts all {@link ConnectionTask}s that relate to {@link Device}s
+     * in the specified {@link QueryEndDeviceGroup}, grouping them by their
+     * respective {@link DeviceType} and the {@link ComSession.SuccessIndicator}
+     * of the last {@link ComSession}.
+     * The counters are returned in the following order:
+     * <ol>
+     * <li>Success but with at least one failing task</li>
+     * <li>Success</li>
+     * <li>SetupError</li>
+     * <li>Broken</li>
+     * </ol>
+     *
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The counters
+     */
+    public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup);
+
+    /**
      * Counts all {@link ConnectionTask}s grouping them by their
      * respective {@link ComPortPool} and the {@link ComSession.SuccessIndicator}
      * of the last {@link ComSession}.
@@ -349,5 +395,23 @@ public interface ConnectionTaskService {
      * @return The counters
      */
     public Map<ComPortPool, List<Long>> getConnectionsComPortPoolHeatMap();
+
+    /**
+     * Counts all {@link ConnectionTask}s that relate to the {@link Device}s
+     * in the specified {@link QueryEndDeviceGroup}, grouping them by their
+     * respective {@link ComPortPool} and the {@link ComSession.SuccessIndicator}
+     * of the last {@link ComSession}.
+     * The counters are returned in the following order:
+     * <ol>
+     * <li>Success but with at least one failing task</li>
+     * <li>Success</li>
+     * <li>SetupError</li>
+     * <li>Broken</li>
+     * </ol>
+     *
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The counters
+     */
+    public Map<ComPortPool, List<Long>> getConnectionsComPortPoolHeatMap(QueryEndDeviceGroup deviceGroup);
 
 }

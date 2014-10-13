@@ -11,7 +11,10 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,17 +29,17 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     private final Set<ConnectionTypePluggableClass> connectionTypes;
     private final Set<ComPortPool> comPortPools;
     private final Set<DeviceType> deviceTypes;
-    private final QueryEndDeviceGroup deviceGroup;
+    private final List<QueryEndDeviceGroup> deviceGroups;
     private final QueryExecutor<Device> queryExecutor;
     private boolean appendLastComSessionJoinClause;
 
-    public AbstractConnectionTaskFilterSqlBuilder(Clock clock, QueryEndDeviceGroup deviceGroup, QueryExecutor<Device> queryExecutor) {
+    public AbstractConnectionTaskFilterSqlBuilder(Clock clock, List<QueryEndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor) {
         super(clock);
         this.connectionTypes = new HashSet<>();
         this.comPortPools = new HashSet<>();
         this.deviceTypes = new HashSet<>();
         this.appendLastComSessionJoinClause = false;
-        this.deviceGroup = deviceGroup;
+        this.deviceGroups = new ArrayList<>(deviceGroups);
         this.queryExecutor = queryExecutor;
     }
 
@@ -46,7 +49,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);
         this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
         this.appendLastComSessionJoinClause = filterSpecification.useLastComSession;
-        this.deviceGroup = filterSpecification.deviceGroup;
+        this.deviceGroups = new ArrayList<>(filterSpecification.deviceGroups);
         this.queryExecutor = deviceQueryExecutor;
     }
 
@@ -87,11 +90,20 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
         this.appendDeviceTypeSql(this.connectionTaskAliasName(), this.deviceTypes);
     }
 
-    protected void appendDeviceSql() {
-        if (this.deviceGroup != null) {
+    protected void appendDeviceInGroupSql() {
+        if (!this.deviceGroups.isEmpty()) {
             this.appendWhereOrAnd();
-            this.append("ct.device in (");
-            this.append(this.queryExecutor.asFragment(this.deviceGroup.getCondition(), "id"));
+            this.append("(");
+            Iterator<QueryEndDeviceGroup> iterator = this.deviceGroups.iterator();
+            while (iterator.hasNext()) {
+                QueryEndDeviceGroup deviceGroup = iterator.next();
+                this.append("ct.device in (");
+                this.append(this.queryExecutor.asFragment(deviceGroup.getCondition(), "id"));
+                this.append(")");
+                if (iterator.hasNext()) {
+                    this.append(" or ");
+                }
+            }
             this.append(")");
         }
     }
