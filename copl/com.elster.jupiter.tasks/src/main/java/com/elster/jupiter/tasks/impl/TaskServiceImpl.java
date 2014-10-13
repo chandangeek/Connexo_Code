@@ -25,6 +25,9 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
+import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component(name = "com.elster.jupiter.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENTNAME, immediate = true)
@@ -41,6 +44,27 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     private Thread schedulerThread;
     private volatile DataModel dataModel;
+
+    // For OSGi framework
+    public TaskServiceImpl() {
+        super();
+    }
+
+    // For unit test purposes only
+    @Inject
+    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, LogService logService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService) {
+        this();
+        this.setOrmService(ormService);
+        this.setClock(clock);
+        this.setMessageService(messageService);
+        this.setLogService(logService);
+        this.setQueryService(queryService);
+        this.setTransactionService(transactionService);
+        this.setCronExpressionParser(cronExpressionParser);
+        this.setJsonService(jsonService);
+        this.activate();
+        this.install();
+    }
 
     @Activate
     public void activate() {
@@ -67,13 +91,13 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Deactivate
     public void deactivate() {
-    	if (schedulerThread != null) {
-    		schedulerThread.interrupt();
-    		try {
-    			schedulerThread.join();
-    		} catch (InterruptedException e) {
-    			Thread.currentThread().interrupt();
-    		}
+        if (schedulerThread != null) {
+            schedulerThread.interrupt();
+            try {
+                schedulerThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -85,6 +109,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
     @Override
     public void install() {
         new InstallerImpl(dataModel).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM");
     }
 
     @Override
