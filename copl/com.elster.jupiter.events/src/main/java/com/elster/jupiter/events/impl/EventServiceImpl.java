@@ -17,7 +17,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
