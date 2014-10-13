@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import java.util.List;
 
 /**
@@ -13,6 +14,8 @@ public class ConnectionOverviewInfo {
 
     public List<TaskSummaryInfo> overviews;
     public List<BreakdownSummaryInfo> breakdowns;
+    public List<KpiScoreInfo> kpi;
+    public IdWithNameInfo deviceGroup;
 
     public ConnectionOverviewInfo() {
     }
