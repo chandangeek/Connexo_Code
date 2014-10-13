@@ -13,12 +13,14 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.collect.ImmutableList;
 
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTimeZone;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +33,6 @@ import org.mockito.stubbing.Answer;
 import java.math.BigDecimal;
 import java.time.Period;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -54,9 +55,9 @@ public class ChannelImplTest extends EqualsContractTest {
     private static final long METER_ACTIVATION_ID = 164;
     private static final long ID = 15L;
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Calcutta");
-    private static final Date TO = new DateMidnight(2013, 9, 20, DateTimeZone.forTimeZone(TIME_ZONE)).toDate();
-    private static final Date FROM = new DateMidnight(2013, 9, 19, DateTimeZone.forTimeZone(TIME_ZONE)).toDate();
-    private static final Interval INTERVAL = new Interval(FROM, TO);
+    private static final Instant TO = LocalDate.of(2013, 9, 20).atStartOfDay(TIME_ZONE.toZoneId()).toInstant();
+    private static final Instant FROM = LocalDate.of(2013, 9, 19).atStartOfDay(TIME_ZONE.toZoneId()).toInstant();
+    private static final Range<Instant> INTERVAL = Range.closed(FROM, TO);
     private static final long TIMESERIES_ID = 21316L;
     private static final BigDecimal VALUE = BigDecimal.valueOf(3156516, 2);
 
@@ -96,7 +97,7 @@ public class ChannelImplTest extends EqualsContractTest {
             }
         });
         when(meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);
-        when(clock.getTimeZone()).thenReturn(TIME_ZONE);
+        when(clock.getZone()).thenReturn(TIME_ZONE.toZoneId());
         when(idsService.getVault(MeteringService.COMPONENTNAME, 1)).thenReturn(Optional.of(vault));
         when(idsService.getVault(MeteringService.COMPONENTNAME, 2)).thenReturn(Optional.of(vault));
         when(idsService.getVault(MeteringService.COMPONENTNAME, 3)).thenReturn(Optional.of(vault));

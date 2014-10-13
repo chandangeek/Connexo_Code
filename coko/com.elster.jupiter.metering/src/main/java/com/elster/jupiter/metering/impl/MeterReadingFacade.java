@@ -31,7 +31,7 @@ public class MeterReadingFacade {
 		for (IntervalBlock block : meterReading.getIntervalBlocks()) {
 			long length = -millisToSubtract(block.getReadingTypeCode());
 			for (IntervalReading reading : block.getIntervals()) {			
-				builder.add(reading.getTimeStamp(),length);
+				builder.add(reading.getTimeStamp(), length);
 			}
 		}
 		for (EndDeviceEvent event : meterReading.getEvents()) {

@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.Instant;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -120,9 +123,9 @@ public class ReadingTypeCacheIssueTest {
     			.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
     	String readingTypeCode = builder.code();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
+        	Instant instant = LocalDate.of(2014,1,1).atStartOfDay(ZoneId.systemDefault()).toInstant();
         	MeterReadingImpl meterReading = new MeterReadingImpl();
-        	Reading reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1000), dateTime.toDate());
+        	Reading reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1000), instant);
         	meterReading.addReading(reading);
         	meter.store(meterReading);
         	//rollback
@@ -130,9 +133,9 @@ public class ReadingTypeCacheIssueTest {
         assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isFalse();
         meter = meteringService.findMeter(meter.getId()).get(); // get fresh copy from DB
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
+        	Instant instant = ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant();
         	MeterReadingImpl meterReading = new MeterReadingImpl();
-        	Reading reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1000), dateTime.toDate());
+        	Reading reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1000), instant);
         	meterReading.addReading(reading);
         	meter.store(meterReading);
         	ctx.commit();

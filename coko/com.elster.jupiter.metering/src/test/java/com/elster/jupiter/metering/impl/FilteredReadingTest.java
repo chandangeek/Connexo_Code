@@ -4,9 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.elster.jupiter.metering.ProcessStatus;
+
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
@@ -102,18 +103,18 @@ public class FilteredReadingTest {
 
     @Test
     public void testGetReportedDateTime() {
-        Date date = new Date(5416541641L);
-        when(source.getReportedDateTime()).thenReturn(date);
+        Instant instant = Instant.ofEpochMilli(5416541641L);
+        when(source.getReportedDateTime()).thenReturn(instant);
 
-        assertThat(filteredReading.getReportedDateTime()).isEqualTo(date);
+        assertThat(filteredReading.getReportedDateTime()).isEqualTo(instant);
     }
 
     @Test
     public void testGetTimeStamp() {
-        Date date = new Date(5416541641L);
-        when(source.getTimeStamp()).thenReturn(date);
-
-        assertThat(filteredReading.getTimeStamp()).isEqualTo(date);
+        Instant instant = Instant.ofEpochMilli(5416541641L);
+        when(source.getTimeStamp()).thenReturn(instant);
+        
+        assertThat(filteredReading.getTimeStamp()).isEqualTo(instant);
     }
 
     @Test

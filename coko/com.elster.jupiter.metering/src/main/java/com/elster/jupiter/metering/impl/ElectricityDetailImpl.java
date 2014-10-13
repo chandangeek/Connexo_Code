@@ -4,7 +4,7 @@ import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import javax.inject.Inject;

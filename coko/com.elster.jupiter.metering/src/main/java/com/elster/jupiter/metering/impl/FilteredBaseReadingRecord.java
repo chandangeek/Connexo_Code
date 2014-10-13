@@ -5,12 +5,13 @@ import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.util.collections.KPermutation;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Decorates an IntervalReading by selecting only certain values in a possibly different order.
@@ -51,12 +52,12 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
     }
 
     @Override
-    public Date getReportedDateTime() {
+    public Instant getReportedDateTime() {
         return filtered.getReportedDateTime();
     }
 
     @Override
-    public Date getTimeStamp() {
+    public Instant getTimeStamp() {
         return filtered.getTimeStamp();
     }
 
@@ -91,8 +92,8 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
     }
 
     @Override
-    public Interval getTimePeriod() {
-        return null;
+    public Optional<Range<Instant>> getTimePeriod() {
+        return Optional.empty();
     }
 
     @Override

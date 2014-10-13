@@ -34,7 +34,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 import java.time.Instant;
 import java.util.Optional;

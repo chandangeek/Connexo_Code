@@ -2,14 +2,14 @@ package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.util.time.Interval;
-import java.util.Optional;
+import com.google.common.collect.Range;
 
+import java.util.Optional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -19,13 +19,13 @@ import java.util.List;
 public abstract class BaseReadingImpl implements BaseReading {
 
     private final BigDecimal value;
-    private final Date timeStamp;
-    private Optional<Interval> timePeriod = Optional.empty();
+    private final Instant timeStamp;
+    private Optional<Range<Instant>> timePeriod = Optional.empty();
     private String source;
     private BigDecimal sensorAccuracy;
     private final List<ReadingQualityImpl> readingQualities = new ArrayList<>();
 
-    BaseReadingImpl(Date timeStamp, BigDecimal value) {
+    BaseReadingImpl(Instant timeStamp, BigDecimal value) {
         this.timeStamp = timeStamp;
         this.value = value;
     }
@@ -41,13 +41,13 @@ public abstract class BaseReadingImpl implements BaseReading {
     }
 
     @Override
-    public Date getTimeStamp() {
+    public Instant getTimeStamp() {
         return this.timeStamp;
     }
 
     @Override
-    public Date getReportedDateTime() {
-        return new Date();
+    public Instant getReportedDateTime() {
+        return Instant.now();
     }
 
     @Override
@@ -56,16 +56,16 @@ public abstract class BaseReadingImpl implements BaseReading {
     }
 
     @Override
-    public Interval getTimePeriod() {
-        return timePeriod.orElse(null);
+    public Optional<Range<Instant>> getTimePeriod() {
+        return timePeriod;
     }
 
-    public void setTimePeriod(Date start, Date end) {
-        timePeriod = Optional.of(new Interval(start, end));
+    public void setTimePeriod(Instant start, Instant end) {
+        timePeriod = Optional.of(Range.openClosed(start, end));
     }
 
-    public void setTimePeriod(Interval interval) {
-        this.timePeriod = Optional.ofNullable(interval);
+    public void setTimePeriod(Range<Instant> range) {
+        this.timePeriod = Optional.ofNullable(range);
     }
 
     public void setSource(String source) {

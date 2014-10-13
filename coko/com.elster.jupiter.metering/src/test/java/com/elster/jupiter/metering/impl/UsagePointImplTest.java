@@ -38,7 +38,7 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 
 @RunWith(MockitoJUnitRunner.class)

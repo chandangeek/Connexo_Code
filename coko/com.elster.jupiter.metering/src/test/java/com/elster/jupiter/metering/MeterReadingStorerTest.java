@@ -33,13 +33,18 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateTime;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,28 +135,28 @@ public class MeterReadingStorerTest {
             MeterReadingImpl meterReading = new MeterReadingImpl();
             IntervalBlockImpl block = new IntervalBlockImpl(intervalReadingTypeCode);
             meterReading.addIntervalBlock(block);
-            DateTime dateTime = new DateTime(2014, 1, 1, 0, 0, 0);
-            block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
-            block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15 * 60 * 1000L).toDate(), BigDecimal.valueOf(1100)));
+            Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+            block.addIntervalReading(new IntervalReadingImpl(instant, BigDecimal.valueOf(1000)));
+            block.addIntervalReading(new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
             String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
-            ReadingImpl reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
+            ReadingImpl reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), instant);
             reading.addQuality("1.1.1", "Whatever");
             meterReading.addReading(reading);
             meter.store(meterReading);
 
             List<? extends BaseReadingRecord> readings = meter.getMeterActivations().get(0).getReadings(
-                    new Interval(dateTime.minus(15 * 60 * 1000L).toDate(), dateTime.plus(15 * 60 * 1000L).toDate()),
+                    Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                     meteringService.getReadingType(builder.period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code()).get());
             assertThat(readings).hasSize(2);
             assertThat(readings.get(0).getQuantity(0)).isNull();
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
             readings = meter.getMeterActivations().get(0).getReadings(
-                    new Interval(dateTime.minus(15 * 60 * 1000L).toDate(), dateTime.plus(15 * 60 * 1000L).toDate()),
+                    Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                     meteringService.getReadingType(registerReadingTypeCode).get());
             assertThat(readings).hasSize(1);
             assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1200));
-            assertThat(meter.getReadingsBefore(dateTime.toDate(), meteringService.getReadingType(intervalReadingTypeCode).get(), 10)).isEmpty();
-            assertThat(meter.getReadingsOnOrBefore(dateTime.toDate(), meteringService.getReadingType(intervalReadingTypeCode).get(), 10)).hasSize(1);
+            assertThat(meter.getReadingsBefore(instant, meteringService.getReadingType(intervalReadingTypeCode).get(), 10)).isEmpty();
+            assertThat(meter.getReadingsOnOrBefore(instant, meteringService.getReadingType(intervalReadingTypeCode).get(), 10)).hasSize(1);
             List<Channel> channels = meter.getMeterActivations().get(0).getChannels();
             Optional<Channel> channel = Optional.empty();
             for (Channel candidate : channels) {
@@ -194,27 +199,27 @@ public class MeterReadingStorerTest {
             MeterReadingImpl meterReading = new MeterReadingImpl();
             IntervalBlockImpl block = new IntervalBlockImpl(readingTypeCode);
             meterReading.addIntervalBlock(block);
-            final DateTime dateTime = new DateTime(2014, 1, 1, 0, 0, 0);
-            block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
+            final Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+            block.addIntervalReading(new IntervalReadingImpl(instant, BigDecimal.valueOf(1000)));
             ProfileStatus status = ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW);
-            IntervalReadingImpl reading = new IntervalReadingImpl(dateTime.plus(15 * 60 * 1000L).toDate(), BigDecimal.valueOf(1100), status);
+            IntervalReadingImpl reading = new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100), status);
             reading.addQuality("3.6.1");
             block.addIntervalReading(reading);
-            reading = new IntervalReadingImpl(dateTime.plus(30 * 60 * 1000L).toDate(), BigDecimal.valueOf(1200), status);
+            reading = new IntervalReadingImpl(instant.plusSeconds(30 * 60L), BigDecimal.valueOf(1200), status);
             reading.addQuality("3.6.2");
             block.addIntervalReading(reading);
             meter.store(meterReading);
             Channel channel = meter.getMeterActivations().stream().flatMap(ma -> ma.getChannels().stream()).findFirst().get();
-            List<BaseReadingRecord> readings = channel.getReadings(new Interval(dateTime.minus(15 * 60 * 1000L).toDate(), dateTime.plus(15 * 60 * 1000L).toDate()));
+            List<BaseReadingRecord> readings = channel.getReadings(Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)));
             assertThat(readings).hasSize(2);
             assertThat(readings.get(0).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1000));
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1100));
             assertThat(((IntervalReadingRecord) readings.get(1)).getProfileStatus()).isEqualTo(status);
-            Interval interval = new Interval(dateTime.minus(15 * 60 * 1000L).toDate(), dateTime.plus(30 * 60 * 1000L).toDate());
-            assertThat(channel.findReadingQuality(interval));
+            Range<Instant> range = Range.closed(instant.minusSeconds(15 * 60L), instant.plusSeconds(30 * 60L));
+            assertThat(channel.findReadingQuality(range));
             channel.removeReadings(readings);
-            assertThat(channel.getReadings(interval)).hasSize(1);
-            assertThat(channel.findReadingQuality(interval)).hasSize(1);
+            assertThat(channel.getReadings(range)).hasSize(1);
+            assertThat(channel.findReadingQuality(range)).hasSize(1);
             ctx.commit();
         }
     }
@@ -236,14 +241,14 @@ public class MeterReadingStorerTest {
             MeterReadingImpl meterReading = new MeterReadingImpl();
             IntervalBlockImpl block = new IntervalBlockImpl(intervalReadingTypeCode);
             meterReading.addIntervalBlock(block);
-            DateTime dateTime = new DateTime(2014, 1, 1, 0, 0, 0);
-            block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
-            block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15 * 60 * 1000L).toDate(), BigDecimal.valueOf(1100)));
+            Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+            block.addIntervalReading(new IntervalReadingImpl(instant, BigDecimal.valueOf(1000)));
+            block.addIntervalReading(new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
             String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
-            Reading reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
+            Reading reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), instant);
             meterReading.addReading(reading);
 
-            EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(EVENTTYPECODE, dateTime.toDate().toInstant());
+            EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(EVENTTYPECODE, instant);
             HashMap<String, String> eventData = new HashMap<>();
             eventData.put("A", "B");
             endDeviceEvent.setEventData(eventData);
@@ -253,13 +258,13 @@ public class MeterReadingStorerTest {
             meter.store(meterReading);
 
             List<? extends BaseReadingRecord> readings = meter.getMeterActivations().get(0).getReadings(
-                    new Interval(dateTime.minus(15 * 60 * 1000L).toDate(), dateTime.plus(15 * 60 * 1000L).toDate()),
+                    Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                     meteringService.getReadingType(builder.period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code()).get());
             assertThat(readings).hasSize(2);
             assertThat(readings.get(0).getQuantity(0)).isNull();
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
             readings = meter.getMeterActivations().get(0).getReadings(
-                    new Interval(dateTime.minus(15 * 60 * 1000L).toDate(), dateTime.plus(15 * 60 * 1000L).toDate()),
+                    Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                     meteringService.getReadingType(registerReadingTypeCode).get());
             assertThat(readings).hasSize(1);
             assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1200));
@@ -278,17 +283,17 @@ public class MeterReadingStorerTest {
             meter.save();
             String intervalReadingTypeCode = "32.12.2.4.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
             MeterReadingImpl meterReading = new MeterReadingImpl();
-            DateTime dateTime = new DateTime(2014, 1, 1, 0, 0, 0);
-            Reading reading = new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
+            Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+            Reading reading = new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1200), instant);
             meterReading.addReading(reading);
             meter.store(meterReading);
-            List<? extends BaseReadingRecord> readings = meter.getReadings(Interval.sinceEpoch(), meteringService.getReadingType(intervalReadingTypeCode).get());
+            List<? extends BaseReadingRecord> readings = meter.getReadings(Range.all(), meteringService.getReadingType(intervalReadingTypeCode).get());
             assertThat(readings).isNotEmpty();
             Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
             List<Reading> changes = new ArrayList<>();
-            changes.add(new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1300), dateTime.toDate()));
+            changes.add(new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1300), instant));
             channel.editReadings(changes);
-            readings = meter.getReadings(Interval.sinceEpoch(), meteringService.getReadingType(intervalReadingTypeCode).get());
+            readings = meter.getReadings(Range.atLeast(Instant.EPOCH), meteringService.getReadingType(intervalReadingTypeCode).get());
             assertThat(readings).isNotEmpty();
             assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1300));
             assertThat(readings.get(0).getProcesStatus().get(ProcessStatus.Flag.EDITED)).isTrue();
@@ -305,12 +310,12 @@ public class MeterReadingStorerTest {
             meter.save();
             String readingTypeCode = "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
             MeterReadingImpl meterReading = new MeterReadingImpl();
-            DateTime dateTime = new DateTime(2014, 1, 1, 0, 0, 0);
-            Reading reading = new ReadingImpl(readingTypeCode, "Sample text", dateTime.toDate());
+            Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+            Reading reading = new ReadingImpl(readingTypeCode, "Sample text", instant);
             meterReading.addReading(reading);
             meter.store(meterReading);
             List<? extends BaseReadingRecord> readings = meter.getMeterActivations().get(0).getReadings(
-                    new Interval(dateTime.minus(15 * 60 * 1000L).toDate(), dateTime.plus(15 * 60 * 1000L).toDate()),
+                    Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                     meteringService.getReadingType(readingTypeCode).get());
             assertThat(((ReadingRecord) readings.get(0)).getText()).isEqualTo("Sample text");
             assertThat(readings.get(0).getValue()).isNull();
@@ -335,16 +340,16 @@ public class MeterReadingStorerTest {
             MeterReadingImpl meterReading = new MeterReadingImpl();
             IntervalBlockImpl block = new IntervalBlockImpl(intervalReadingTypeCode);
             meterReading.addIntervalBlock(block);
-            DateTime dateTime = new DateTime(2014, 1, 1, 0, 0, 0);
-            block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
-            block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15 * 60 * 1000L).toDate(), BigDecimal.valueOf(1100)));
+            Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+            block.addIntervalReading(new IntervalReadingImpl(instant, BigDecimal.valueOf(1000)));
+            block.addIntervalReading(new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
             String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
             meter.store(meterReading);
             Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
-            IntervalReading reading = new IntervalReadingImpl(dateTime.plus(15 * 60 * 1000L).toDate(), BigDecimal.valueOf(50));
+            IntervalReading reading = new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(50));
             channel.editReadings(ImmutableList.of(reading));
             List<? extends BaseReadingRecord> readings = channel.getReadings(
-                    new Interval(dateTime.minus(15 * 60 * 1000L).toDate(), dateTime.plus(15 * 60 * 1000L).toDate()));
+                    Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)));
             assertThat(readings).hasSize(2);
             assertThat(readings.get(0).getQuantity(0)).isNull();
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(50));

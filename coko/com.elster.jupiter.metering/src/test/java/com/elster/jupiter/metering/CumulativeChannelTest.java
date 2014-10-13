@@ -26,12 +26,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +42,7 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -125,11 +125,11 @@ public class CumulativeChannelTest {
             Channel channel = activation.createChannel(readingType);
             assertThat(channel.getBulkQuantityReadingType().isPresent()).isTrue();
             ReadingStorer storer = meteringService.createOverrulingStorer();
-            DateTime dateTime = new DateTime(2014,1,1,0,0,0);
-            storer.addReading(channel, new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
-            storer.addReading(channel, new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100)));
+            Instant instant = ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant();           
+            storer.addReading(channel, new IntervalReadingImpl(instant, BigDecimal.valueOf(1000)));
+            storer.addReading(channel, new IntervalReadingImpl(instant.plusSeconds(15*60L), BigDecimal.valueOf(1100)));
             storer.execute();
-            List<BaseReadingRecord> readings = channel.getReadings(new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()));
+            List<BaseReadingRecord> readings = channel.getReadings(Range.openClosed(instant.minusSeconds(15*60L), instant.plusSeconds(15*60L)));
             assertThat(readings).hasSize(2);
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
             assertThat(readings.get(1).getQuantity(1).getValue()).isEqualTo(BigDecimal.valueOf(1100));

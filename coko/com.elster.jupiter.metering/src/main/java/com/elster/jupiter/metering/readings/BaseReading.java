@@ -1,17 +1,18 @@
 package com.elster.jupiter.metering.readings;
 
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface BaseReading {
 	BigDecimal getSensorAccuracy();
-	Date getTimeStamp();
-	Date getReportedDateTime();
+	Instant getTimeStamp();
+	Instant getReportedDateTime();
 	BigDecimal getValue();
 	String getSource();
-	Interval getTimePeriod();
+	Optional<Range<Instant>> getTimePeriod();
 	List<? extends ReadingQuality> getReadingQualities();
 }

@@ -20,7 +20,6 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.Interval;
 import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -365,13 +364,13 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-	public List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType) {
-		return MeterActivationsImpl.from(meterActivations, interval).getReadings(interval, readingType);
+	public List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType) {
+		return MeterActivationsImpl.from(meterActivations, range).getReadings(range, readingType);
 	}
 
 	@Override
-	public Set<ReadingType> getReadingTypes(Interval interval) {
-		return MeterActivationsImpl.from(meterActivations, interval).getReadingTypes(interval);
+	public Set<ReadingType> getReadingTypes(Range<Instant> range) {
+		return MeterActivationsImpl.from(meterActivations, range).getReadingTypes(range);
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;

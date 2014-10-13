@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,16 +21,16 @@ public class MeterActivationsImpl implements ReadingContainer {
 	}
 
 	@Override
-	public List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType) {
+	public List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType) {
 		List<BaseReadingRecord> result = new ArrayList<>();
 		for (MeterActivationImpl meterActivation : meterActivations)  {
-			result.addAll(meterActivation.getReadings(interval,readingType));
+			result.addAll(meterActivation.getReadings(range, readingType));
 		}
 		return result;
 	}
 
 	@Override
-	public Set<ReadingType> getReadingTypes(Interval interval) {
+	public Set<ReadingType> getReadingTypes(Range<Instant> range) {
 		Set<ReadingType> result = new HashSet<>();
 		for (MeterActivationImpl meterActivation : meterActivations)  {
 			result.addAll(meterActivation.getReadingTypes());
@@ -73,10 +73,10 @@ public class MeterActivationsImpl implements ReadingContainer {
 		return meterActivations.get(meterActivations.size() - 1);
 	}
 	
-	public static MeterActivationsImpl from(List<MeterActivationImpl> candidates , Interval interval) {
+	public static MeterActivationsImpl from(List<MeterActivationImpl> candidates , Range<Instant> range) {
 		MeterActivationsImpl meterActivations = new MeterActivationsImpl();
 		for (MeterActivationImpl meterActivation : candidates) {
-			if (meterActivation.overlaps(interval)) {
+			if (meterActivation.overlaps(range)) {
 				meterActivations.add(meterActivation);
 			}
 		}

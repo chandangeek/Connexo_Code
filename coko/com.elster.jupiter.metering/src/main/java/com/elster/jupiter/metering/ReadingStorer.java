@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Map;
@@ -22,7 +22,7 @@ public interface ReadingStorer {
 
     void addReading(Channel channel, BaseReading reading, ProcessStatus status);
 
-    Map<Channel, Interval> getScope();
+    Map<Channel, Range<Instant>> getScope();
     
     /*
      * 

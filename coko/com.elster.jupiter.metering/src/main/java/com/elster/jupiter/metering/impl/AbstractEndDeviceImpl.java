@@ -13,8 +13,8 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 
 import javax.inject.Provider;
 
@@ -155,13 +155,13 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     }
 
     @Override
-    public List<EndDeviceEventRecord> getDeviceEvents(Interval interval) {
-        return dataModel.query(EndDeviceEventRecord.class).select(inInterval(interval),Order.ascending("createdDateTime"));
+    public List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range) {
+        return dataModel.query(EndDeviceEventRecord.class).select(inRange(range),Order.ascending("createdDateTime"));
     }
 
     @Override
-    public List<EndDeviceEventRecord> getDeviceEvents(Interval interval, List<EndDeviceEventType> eventTypes) {
-    	Condition condition = inInterval(interval).and(where("eventType").in(eventTypes));
+    public List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes) {
+    	Condition condition = inRange(range).and(where("eventType").in(eventTypes));
         return dataModel.query(EndDeviceEventRecord.class).select(condition,Order.ascending("createdDateTime"));
     }
     
@@ -174,15 +174,12 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         regExp.append(filter.subDomain != null ? filter.subDomain.getValue() : anyNumberPattern).append("\\.");
         regExp.append(filter.eventOrAction != null ? filter.eventOrAction.getValue() : anyNumberPattern).append("$");
 
-        Condition condition = inInterval(filter.interval).and(where("logBookId").isEqualTo(filter.logBookId)).and(where("eventType.mRID").matches(regExp.toString(), "i"));
+        Condition condition = inRange(filter.range).and(where("logBookId").isEqualTo(filter.logBookId)).and(where("eventType.mRID").matches(regExp.toString(), "i"));
         return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(condition, Order.descending("createdDateTime"));
     }
     
-    private Condition inInterval(Interval interval) {
-    	Condition thisEndDevice = where("endDevice").isEqualTo(this);
-        Condition notBeforeStart = where("createdDateTime").isGreaterThanOrEqual(interval.dbStart());
-        Condition notAfterEnd = where("createdDateTime").isLessThanOrEqual(interval.dbEnd());
-        return thisEndDevice.and(notBeforeStart).and(notAfterEnd);
+    private Condition inRange(Range<Instant> range) {    
+        return where("endDevice").isEqualTo(this).and(where("createdDateTime").in(range));
     }
 
     DataModel getDataModel() {

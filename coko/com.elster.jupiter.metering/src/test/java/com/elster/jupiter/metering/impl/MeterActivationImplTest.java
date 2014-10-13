@@ -12,7 +12,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 import org.junit.After;
 import org.junit.Before;
@@ -102,7 +102,7 @@ public class MeterActivationImplTest {
         when(meter.getId()).thenReturn(METER_ID);
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
-        when(clock.getTimeZone()).thenReturn(timeZone);
+        when(clock.getZone()).thenReturn(timeZone.toZoneId());
 
         meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder).init(meter, usagePoint, ACTIVATION_TIME);
     }

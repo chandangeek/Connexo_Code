@@ -4,17 +4,18 @@ import com.elster.jupiter.metering.ProcessStatus;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
+import com.google.common.collect.Range;
 
 
 public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
@@ -35,13 +36,13 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     }
 
     @Override
-    public Date getTimeStamp() {
-        return Date.from(entry.getTimeStamp());
+    public Instant getTimeStamp() {
+        return entry.getTimeStamp();
     }
 
     @Override
-    public Date getReportedDateTime() {
-        return Date.from(entry.getRecordDateTime());
+    public Instant getReportedDateTime() {
+        return entry.getRecordDateTime();
     }
 
     abstract int getReadingTypeOffset();
@@ -126,12 +127,12 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     }
 
     @Override
-    public Interval getTimePeriod() {
-        return null;
+    public Optional<Range<Instant>> getTimePeriod() {
+        return Optional.empty();
     }
     
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-    	return getChannel().findReadingQuality(getTimeStamp().toInstant());
+    	return getChannel().findReadingQuality(getTimeStamp());
     }
 
 }

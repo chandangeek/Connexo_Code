@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.readings.beans;
 import com.elster.jupiter.metering.readings.Reading;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Our default implementation of a {@link Reading}.
@@ -19,15 +19,15 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
     private String reason;
     private String text;
 
-    public ReadingImpl(String mrid, BigDecimal value, Date timeStamp) {
+    public ReadingImpl(String mrid, BigDecimal value, Instant timeStamp) {
         this(mrid,value,null,timeStamp);
     }
 
-    public ReadingImpl(String mrid, String text, Date timeStamp) {
+    public ReadingImpl(String mrid, String text, Instant timeStamp) {
     	this(mrid,null,text,timeStamp);
     }
     
-    private ReadingImpl(String mrid, BigDecimal value, String text, Date timeStamp) {
+    private ReadingImpl(String mrid, BigDecimal value, String text, Instant timeStamp) {
     	super(timeStamp,value);
     	this.mrid = mrid;
     	this.text = text;

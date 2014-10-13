@@ -5,7 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 
 import org.junit.After;

@@ -4,9 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.security.Principal;
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
-import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,7 +108,7 @@ public class UsagePointCrudTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                Date date = new DateMidnight(2001, 1, 1).toDate();
+                Instant date = LocalDate.of(2001, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
                 doTest(getMeteringService(), date);
             }
         });
@@ -121,7 +122,7 @@ public class UsagePointCrudTest {
         return injector.getInstance(TransactionService.class);
     }
 
-    private void doTest(MeteringService meteringService, Date date) {
+    private void doTest(MeteringService meteringService, Instant date) {
         DataModel dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");

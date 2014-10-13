@@ -7,11 +7,10 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public class ReadingStorerImpl implements ReadingStorer {
     private static final ProcessStatus DEFAULTPROCESSSTATUS = ProcessStatus.of();
     private final TimeSeriesDataStorer storer;
 
-    private final Map<Channel, Interval> scope = new HashMap<>();
+    private final Map<Channel, Range<Instant>> scope = new HashMap<>();
     private final EventService eventService;
 
     public ReadingStorerImpl(IdsService idsService, EventService eventService, boolean overrules) {
@@ -35,7 +34,7 @@ public class ReadingStorerImpl implements ReadingStorer {
     @Override
     public void addReading(Channel channel, BaseReading reading, ProcessStatus status) {
         Object[] values = ((ChannelContract) channel).toArray(reading, status);
-        this.storer.add(((ChannelContract) channel).getTimeSeries(), reading.getTimeStamp().toInstant(), values);
+        this.storer.add(((ChannelContract) channel).getTimeSeries(), reading.getTimeStamp(), values);
         addScope(channel, reading.getTimeStamp());
     }
 
@@ -51,12 +50,12 @@ public class ReadingStorerImpl implements ReadingStorer {
     }
 
     @Override
-    public Map<Channel, Interval> getScope() {
+    public Map<Channel, Range<Instant>> getScope() {
         return Collections.unmodifiableMap(scope);
     }
 
-    private void addScope(Channel channel, Date timestamp) {
-        scope.merge(channel, new Interval(timestamp, timestamp), Interval::spanToInclude);
+    private void addScope(Channel channel, Instant timestamp) {
+        scope.merge(channel, Range.singleton(timestamp), Range::span);
     }
 
     @Override

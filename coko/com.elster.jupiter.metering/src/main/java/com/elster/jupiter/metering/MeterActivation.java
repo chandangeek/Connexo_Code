@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.orm.associations.Effectivity;
-import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -17,5 +16,4 @@ public interface MeterActivation extends Effectivity , ReadingContainer {
 	boolean isCurrent();
     void endAt(Instant end);
     long getVersion();
-    boolean overlaps(Interval interval);
 }

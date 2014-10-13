@@ -44,9 +44,9 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -110,8 +110,8 @@ public class ReadingEditTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         Meter meter;
         String readingTypeCode;
-        Date existDate = Date.from(ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant());
-        Date newDate = Date.from(ZonedDateTime.of(2014, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant());
+        Instant existDate = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant newDate = ZonedDateTime.of(2014, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
             meter = amrSystem.newMeter("myMeter");
@@ -134,26 +134,26 @@ public class ReadingEditTest {
             ctx.commit();
         }
         Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate.toInstant()).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate.toInstant()).get().isActual()).isTrue();
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isTrue();
+        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
         // added a value adds an added rq
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	ReadingImpl reading1 = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(2), existDate);
         	ReadingImpl reading2 = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(2), newDate);
             channel.editReadings(ImmutableList.of(reading1,reading2));
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),existDate.toInstant()).isPresent()).isTrue();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate.toInstant()).isPresent()).isFalse();
-            assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate.toInstant()).get().isActual()).isFalse();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate.toInstant()).isPresent()).isTrue();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),existDate).isPresent()).isTrue();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isFalse();
+            assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isFalse();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
             ctx.commit();
         }
         // make sure if you edit an added reading the reading quality remains added
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	ReadingImpl reading2 = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(3), newDate);
             channel.editReadings(ImmutableList.of(reading2));
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),newDate.toInstant()).isPresent()).isFalse();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate.toInstant()).isPresent()).isTrue();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),newDate).isPresent()).isFalse();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
             ctx.commit();
         }
     }

@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;

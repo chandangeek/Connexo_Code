@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Our default implementation of an {@link IntervalReading}.
@@ -18,11 +18,11 @@ public class IntervalReadingImpl extends BaseReadingImpl implements IntervalRead
 
     private ProfileStatus profileStatus;
 
-    public IntervalReadingImpl(Date timeStamp, BigDecimal value) {
+    public IntervalReadingImpl(Instant timeStamp, BigDecimal value) {
         super(timeStamp, value);
     }
 
-    public IntervalReadingImpl(Date timeStamp, BigDecimal value, ProfileStatus profileStatus) {
+    public IntervalReadingImpl(Instant timeStamp, BigDecimal value, ProfileStatus profileStatus) {
         super(timeStamp, value);
         this.profileStatus = profileStatus;
     }

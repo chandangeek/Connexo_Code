@@ -1,15 +1,17 @@
 package com.elster.jupiter.metering;
 
+import java.time.Instant;
+
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 public class EndDeviceEventRecordFilterSpecification {
     
     public long logBookId = -1L;
     
-    public Interval interval = Interval.sinceEpoch();
+    public Range<Instant> range = Range.all();
     
     public EndDeviceDomain domain = null;
     

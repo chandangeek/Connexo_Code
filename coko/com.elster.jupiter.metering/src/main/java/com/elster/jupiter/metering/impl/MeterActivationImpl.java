@@ -10,13 +10,16 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
+
+import java.time.Clock;
+
 import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -120,11 +123,11 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
-	public List<BaseReadingRecord> getReadings(Interval requested, ReadingType readingType) {
-        if (!requested.overlaps(interval)) {
+	public List<BaseReadingRecord> getReadings(Range<Instant> requested, ReadingType readingType) {
+        if (!requested.isConnected(getRange())) {
             return Collections.emptyList();
         }
-        Interval active = requested.intersection(interval);
+        Range<Instant> active = requested.intersection(getRange());
         Channel channel = getChannel(readingType);
         if (channel == null) {
         	return Collections.emptyList();
@@ -154,8 +157,8 @@ public class MeterActivationImpl implements MeterActivation {
     }
 	
 	@Override
-	public Set<ReadingType> getReadingTypes(Interval requested) {
-		if (requested.overlaps(interval)) {
+	public Set<ReadingType> getReadingTypes(Range<Instant> requested) {
+		if (overlaps(requested)) {
 			return new HashSet<>(getReadingTypes());
 		} else {
 			return Collections.emptySet();
@@ -190,11 +193,6 @@ public class MeterActivationImpl implements MeterActivation {
             dataModel.mapper(MeterActivation.class).update(this);
         }
     }
-
-	@Override
-	public boolean overlaps(Interval interval) {
-		return this.getInterval().overlaps(interval);
-	}
 	
 	private Channel getChannel(ReadingType readingType) {
 		for (Channel channel : getChannels()) {

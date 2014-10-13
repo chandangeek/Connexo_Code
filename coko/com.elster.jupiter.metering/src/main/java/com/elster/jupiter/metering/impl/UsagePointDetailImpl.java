@@ -15,7 +15,7 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 
@@ -150,7 +150,7 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     }
 
     void terminate(Instant date) {
-        if (!interval.isEffective(date)) {
+        if (!interval.toClosedOpenRange().contains(date)) {
             throw new IllegalArgumentException();
         }
         interval = interval.withEnd(date);

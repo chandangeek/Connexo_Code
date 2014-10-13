@@ -53,7 +53,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         if (baseReading instanceof BaseReadingRecord) {
         	this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
         }
-        readingTimestamp = baseReading.getTimeStamp().toInstant();
+        readingTimestamp = baseReading.getTimeStamp();
         this.type = type;
         this.typeCode = type.getCode();
         return this;

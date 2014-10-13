@@ -4,7 +4,7 @@ import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,7 +25,7 @@ public interface EndDevice extends IdentifiedObject {
 
     EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Instant instant);
 
-    List<EndDeviceEventRecord> getDeviceEvents(Interval interval);
-    List<EndDeviceEventRecord> getDeviceEvents(Interval interval, List<EndDeviceEventType> eventTypes);
+    List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range);
+    List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes);
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 }

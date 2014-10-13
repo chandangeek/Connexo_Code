@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

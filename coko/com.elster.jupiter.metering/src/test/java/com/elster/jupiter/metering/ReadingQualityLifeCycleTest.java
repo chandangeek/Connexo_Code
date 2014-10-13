@@ -27,7 +27,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -47,7 +46,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,7 +126,7 @@ public class ReadingQualityLifeCycleTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeterReadingImpl meterReading = new MeterReadingImpl();
             for (Cases testCase : Cases.values()) {
-                Date date = Date.from(dateTime.plusMinutes(testCase.ordinal()).toInstant());
+                Instant date = dateTime.plusMinutes(testCase.ordinal()).toInstant();
                 ReadingImpl reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1), date);
                 reading.addQuality("1.1.1", "Same");
                 meterReading.addReading(reading);
@@ -140,7 +138,7 @@ public class ReadingQualityLifeCycleTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeterReadingImpl meterReading = new MeterReadingImpl();
             for (Cases testCase : Cases.values()) {
-                Date date = Date.from(dateTime.plusMinutes(testCase.ordinal()).toInstant());
+                Instant date = dateTime.plusMinutes(testCase.ordinal()).toInstant();
                 ReadingImpl reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(testCase.sameReading ? 1 : 2), date);
                 switch (testCase.readingQualityBehavior) {
                     case SAME:
@@ -156,7 +154,7 @@ public class ReadingQualityLifeCycleTest {
             }
             meter.store(meterReading);
             List<? extends BaseReading> readings = meter.getReadings(
-                    Interval.sinceEpoch(),
+                    Range.atLeast(Instant.EPOCH),
                     meteringService.getReadingType(readingTypeCode).get());
             assertThat(readings).hasSize(Cases.values().length);
             for (int i = 0; i < Cases.values().length; i++) {

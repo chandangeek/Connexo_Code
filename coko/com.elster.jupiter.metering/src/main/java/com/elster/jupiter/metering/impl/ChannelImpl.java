@@ -25,8 +25,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
+import java.time.Clock;
 import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -132,9 +131,9 @@ public final class ChannelImpl implements ChannelContract {
     private TimeSeries createTimeSeries() {
         Vault vault = getVault();
         RecordSpec recordSpec = getRecordSpec();
-        TimeZone timeZone = clock.getTimeZone();
+        TimeZone timeZone = TimeZone.getTimeZone(clock.getZone());
         return isRegular() ?
-                vault.createRegularTimeSeries(recordSpec, clock.getTimeZone(), getIntervalLength().get(), 0) :
+                vault.createRegularTimeSeries(recordSpec, timeZone, getIntervalLength().get(), 0) :
                 vault.createIrregularTimeSeries(recordSpec, timeZone);
     }
 
@@ -178,7 +177,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<IntervalReadingRecord> getIntervalReadings(Interval interval) {
+    public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
         if (!isRegular()) {
             return Collections.emptyList();
         }
@@ -195,7 +194,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<BaseReadingRecord> getReadings(Interval interval) {
+    public List<BaseReadingRecord> getReadings(Range<Instant> interval) {
         boolean regular = isRegular();
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
         ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
@@ -216,7 +215,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Interval interval) {
+    public List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Range<Instant> interval) {
         if (!isRegular()) {
             return Collections.emptyList();
         }
@@ -230,7 +229,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<ReadingRecord> getRegisterReadings(ReadingType readingType, Interval interval) {
+    public List<ReadingRecord> getRegisterReadings(ReadingType readingType, Range<Instant> interval) {
         if (isRegular()) {
             return Collections.emptyList();
         }
@@ -244,7 +243,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<BaseReadingRecord> getReadings(ReadingType readingType, Interval interval) {
+    public List<BaseReadingRecord> getReadings(ReadingType readingType, Range<Instant> interval) {
         boolean isRegular = isRegular();
         int index = getReadingTypes().indexOf(readingType);
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
@@ -259,7 +258,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<ReadingRecord> getRegisterReadings(Interval interval) {
+    public List<ReadingRecord> getRegisterReadings(Range<Instant> interval) {
         if (isRegular()) {
             return Collections.emptyList();
         }
@@ -296,28 +295,20 @@ public final class ChannelImpl implements ChannelContract {
         return version;
     }
 
-    private List<ReadingQualityRecord> findReadingQuality(Range<Instant> range) {
+    @Override
+    public List<ReadingQualityRecord> findReadingQuality(Range<Instant> range) {
         Condition condition = inRange(range).and(ofThisChannel());
         return dataModel.mapper(ReadingQualityRecord.class).select(condition);
     }
 
-    private List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> range) {
+    @Override
+    public List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> range) {
         Condition condition = inRange(range).and(ofThisChannel()).and(isActual());
         return dataModel.mapper(ReadingQualityRecord.class).select(condition);
     }
 
     private Condition isActual() {
         return where("actual").isEqualTo(true);
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findReadingQuality(Interval interval) {
-        return findReadingQuality(interval.toClosedRange());
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findActualReadingQuality(Interval interval) {
-        return findActualReadingQuality(interval.toClosedRange());
     }
 
     private Condition inRange(Range<Instant> range) {
@@ -343,8 +334,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Interval interval) {
-        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(interval.toClosedRange())).and(ofType(type));
+    public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> range) {
+        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(range)).and(ofType(type));
         return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, Order.ascending("readingTimestamp"));
     }
 
@@ -412,13 +403,13 @@ public final class ChannelImpl implements ChannelContract {
             return;
         }
     	ReadingStorer storer = meteringService.createOverrulingStorer();
-        Range<Instant> range = readings.stream().map(reading -> reading.getTimeStamp().toInstant()).map(Range::singleton).reduce(Range::span).get();
+        Range<Instant> range = readings.stream().map(reading -> reading.getTimeStamp()).map(Range::singleton).reduce(Range::span).get();
         List<ReadingQualityRecord> allQualityRecords = findReadingQuality(range);
         ReadingQualityType editQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC);
         ReadingQualityType addQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED);
         for (BaseReading reading : readings) {
         	List<ReadingQualityRecordImpl> currentQualityRecords = allQualityRecords.stream()
-        		.filter(qualityRecord -> qualityRecord.getReadingTimestamp().equals(reading.getTimeStamp().toInstant()))
+        		.filter(qualityRecord -> qualityRecord.getReadingTimestamp().equals(reading.getTimeStamp()))
         		.map(ReadingQualityRecordImpl.class::cast)
         		.collect(Collectors.toList());
         	ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.EDITED);
@@ -448,7 +439,7 @@ public final class ChannelImpl implements ChannelContract {
         if (readings.isEmpty()) {
             return;
         }
-        Set<Instant> readingTimes = readings.stream().map(reading -> reading.getTimeStamp().toInstant()).collect(Collectors.toSet());
+        Set<Instant> readingTimes = readings.stream().map(reading -> reading.getTimeStamp()).collect(Collectors.toSet());
         List<ReadingQualityRecord> qualityRecords = findReadingQuality(Range.encloseAll(readingTimes));
         readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
         qualityRecords.stream()

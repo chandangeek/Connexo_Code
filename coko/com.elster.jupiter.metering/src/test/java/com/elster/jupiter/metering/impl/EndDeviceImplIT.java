@@ -20,7 +20,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -116,13 +116,13 @@ public class EndDeviceImplIT {
             eventRecord.save();
             context.commit();
         }
-        List<EndDeviceEventRecord> deviceEvents = endDevice.getDeviceEvents(Interval.startAt(date));
+        List<EndDeviceEventRecord> deviceEvents = endDevice.getDeviceEvents(Range.atLeast(date));
         assertThat(deviceEvents).contains(eventRecord);
         List<EndDeviceEventType> endDeviceEventTypes = new ArrayList<>(meteringService.getAvailableEndDeviceEventTypes());
-        deviceEvents = endDevice.getDeviceEvents(Interval.startAt(date), endDeviceEventTypes);
+        deviceEvents = endDevice.getDeviceEvents(Range.atLeast(date), endDeviceEventTypes);
         assertThat(deviceEvents).contains(eventRecord);
         endDeviceEventTypes.remove(0);
-        deviceEvents = endDevice.getDeviceEvents(Interval.startAt(date), endDeviceEventTypes);
+        deviceEvents = endDevice.getDeviceEvents(Range.atLeast(date), endDeviceEventTypes);
         assertThat(deviceEvents).isEmpty();
     }
 

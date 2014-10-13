@@ -9,11 +9,11 @@ import com.elster.jupiter.metering.ProcessStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Optional;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,15 +37,16 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
+
+import java.time.Clock;
 
 import javax.inject.Provider;
 
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractBaseReadingImplTest {
 
-    private static final Date DATE = new DateTime(2013, 9, 20, 10, 11, 14).toDate();
-    private static final Date RECORD_DATE = new DateTime(2013, 9, 19, 10, 11, 14).toDate();
+    private static final Instant DATE = ZonedDateTime.of(2013, 9, 20, 10, 11, 14, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant RECORD_DATE = ZonedDateTime.of(2013, 9, 19, 10, 11, 14, 0, ZoneId.systemDefault()).toInstant();
     private static final BigDecimal VALUE = new BigDecimal("14.15");
     private BaseReadingRecordImpl baseReading;
 
@@ -56,8 +57,7 @@ public abstract class AbstractBaseReadingImplTest {
     private MeterActivationImpl meterActivation;
     private ChannelImpl channel;
     private ReadingTypeImpl readingType, readingType1, readingType2, unknownReadingType;
-    @Mock
-    private Clock clock;
+    private Clock clock = Clock.systemDefaultZone();
     @Mock
     private DataModel dataModel;
     @Mock
@@ -77,8 +77,8 @@ public abstract class AbstractBaseReadingImplTest {
     public void setUp() {
     	when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
     	when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec)); 
-        when(entry.getTimeStamp()).thenReturn(DATE.toInstant());
-        when(entry.getRecordDateTime()).thenReturn(RECORD_DATE.toInstant());
+        when(entry.getTimeStamp()).thenReturn(DATE);
+        when(entry.getRecordDateTime()).thenReturn(RECORD_DATE);
         when(entry.getBigDecimal(anyInt())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
