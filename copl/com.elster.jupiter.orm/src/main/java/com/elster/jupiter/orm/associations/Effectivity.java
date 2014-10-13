@@ -25,6 +25,11 @@ public interface Effectivity {
 	default boolean isEffectiveAt(Instant instant) {
 		return getRange().contains(instant);
 	}
+	
+	default boolean overlaps(Range<Instant> otherRange) {
+		Range<Instant> thisRange = getRange();
+		return thisRange.isConnected(otherRange) && !thisRange.intersection(otherRange).isEmpty();
+	}
 	/*
 	 * Helper method for validating range
 	 */
