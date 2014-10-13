@@ -16,7 +16,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.google.common.collect.Range;
 import com.google.inject.util.Providers;
 

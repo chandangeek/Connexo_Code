@@ -237,7 +237,7 @@ abstract class PartyImpl implements Party {
         if (partyInRole.getParty() == this) {
         	toUpdate = (PartyInRoleImpl) partyInRole;
         }
-        if (toUpdate == null || !partyInRole.getInterval().isEffective(date)) {
+        if (toUpdate == null || !partyInRole.isEffectiveAt(date)) {
             throw new IllegalArgumentException();
         }
         toUpdate.terminate(date);

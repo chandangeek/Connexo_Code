@@ -12,7 +12,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 
 public class PartyInRoleImpl implements PartyInRole {
@@ -73,7 +73,7 @@ public class PartyInRoleImpl implements PartyInRole {
     }
 
     void terminate(Instant date) {
-        if (!interval.isEffective(date)) {
+        if (!isEffectiveAt(date)) {
             throw new IllegalArgumentException();
         }
         interval = interval.withEnd(date);

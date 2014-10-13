@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 

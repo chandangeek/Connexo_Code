@@ -12,7 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 
 @RunWith(MockitoJUnitRunner.class)
