@@ -54,7 +54,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
         var router = this.router;
         this.buttons = [
             {
-                text: Uni.I18n.translate('overview.widget.communicationServers.viewAll', 'DSH', 'View all communication servers'),
+                text: Uni.I18n.translate('overview.widget.communicationServers.viewAll', 'DSH', 'View all'),
                 ui: 'link',
                 href: router.getRoute('administration/comservers').buildUrl()
             }
