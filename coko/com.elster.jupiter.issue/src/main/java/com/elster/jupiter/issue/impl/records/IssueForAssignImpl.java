@@ -4,9 +4,9 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.parties.Party;
-import com.google.common.base.Optional;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.Optional;
 
 public class IssueForAssignImpl implements IssueForAssign{
     private long id;
@@ -32,7 +32,7 @@ public class IssueForAssignImpl implements IssueForAssign{
         if (usagePointRef.isPresent()){
             UsagePoint usagePoint = usagePointRef.get();
             setOutageRegion(usagePoint.getOutageRegion());
-            Optional<Party> customerRef = usagePoint.getCustomer(new Date());
+            Optional<Party> customerRef = usagePoint.getCustomer(Instant.now());
             if (customerRef.isPresent()){
                 setCustomer(customerRef.get().getName());
             }

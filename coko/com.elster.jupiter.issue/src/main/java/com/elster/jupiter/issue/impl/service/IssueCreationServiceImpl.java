@@ -20,8 +20,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import org.drools.compiler.compiler.RuleBaseLoader;
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -41,6 +41,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -154,7 +156,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
     public Optional<CreationRuleTemplate> findCreationRuleTemplate(String uuid) {
         CreationRuleTemplate template = registeredTemplates.get(uuid);
         if (template == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
         return Optional.of(template);
     }
@@ -188,12 +190,12 @@ public class IssueCreationServiceImpl implements IssueCreationService{
 
     @Override
     public void processIssueEvent(long ruleId, IssueEvent event) {
-        CreationRule firedRule = findCreationRule(ruleId).orNull();
+        CreationRule firedRule = findCreationRule(ruleId).orElse(null);
         CreationRuleTemplate template = firedRule.getTemplate();
         Issue baseIssue = dataModel.getInstance(OpenIssueImpl.class);
         baseIssue.setReason(firedRule.getReason());
         baseIssue.setStatus(event.getStatus());
-        baseIssue.setDueDate(new UtcInstant(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
+        baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
         baseIssue.setDevice(event.getKoreDevice());
@@ -206,7 +208,7 @@ public class IssueCreationServiceImpl implements IssueCreationService{
 
     @Override
     public void processIssueResolveEvent(long ruleId, IssueEvent event) {
-        CreationRule firedRule = findCreationRule(ruleId).orNull();
+        CreationRule firedRule = findCreationRule(ruleId).orElse(null);
         CreationRuleTemplate template = firedRule.getTemplate();
         template.resolveIssue(firedRule, event);
     }

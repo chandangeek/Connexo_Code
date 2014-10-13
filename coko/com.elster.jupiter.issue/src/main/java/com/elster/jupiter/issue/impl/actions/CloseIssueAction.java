@@ -59,7 +59,7 @@ public class CloseIssueAction extends AbstractIssueAction {
 
     private IssueStatus getStatusFromParameters(Map<String, String> actionParameters){
         String statusKey = actionParameters.get(Parameter.CLOSE_STATUS.getKey());
-        return issueService.findStatus(statusKey).orNull();
+        return issueService.findStatus(statusKey).orElse(null);
     }
 
     @Override

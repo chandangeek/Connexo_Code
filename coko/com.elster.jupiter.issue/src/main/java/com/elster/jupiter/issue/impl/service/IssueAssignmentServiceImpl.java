@@ -17,7 +17,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.event.rule.DebugAgendaEventListener;
