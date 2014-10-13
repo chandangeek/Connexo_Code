@@ -5,7 +5,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -95,7 +95,7 @@ public class HttpContextImpl implements HttpContext {
             return true;
         }
 
-        Optional<User> user = Optional.absent();
+        Optional<User> user = Optional.empty();
         try (TransactionContext context = transactionService.getContext()) {
             user = userService.authenticateBase64(authentication.split(" ")[1]);
             context.commit();
