@@ -52,6 +52,16 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.scheduling.rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>comserver-core-rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -143,13 +153,6 @@
             <version>0.9.1</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.scheduling.rest</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
 
 </project>

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -9,6 +10,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.rest.impl.comserver.LogLevelAdapter;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -17,6 +22,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import static java.util.stream.Collectors.toList;
@@ -30,14 +36,16 @@ public class ComSessionResource {
     private final ComSessionInfoFactory comSessionInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
+    private final JournalEntryInfoFactory journalEntryInfoFactory;
 
     @Inject
-    public ComSessionResource(ResourceHelper resourceHelper, ConnectionTaskService connectionTaskService, ComSessionInfoFactory comSessionInfoFactory, ExceptionFactory exceptionFactory, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory) {
+    public ComSessionResource(ResourceHelper resourceHelper, ConnectionTaskService connectionTaskService, ComSessionInfoFactory comSessionInfoFactory, ExceptionFactory exceptionFactory, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.connectionTaskService = connectionTaskService;
         this.comSessionInfoFactory = comSessionInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.comTaskExecutionSessionInfoFactory = comTaskExecutionSessionInfoFactory;
+        this.journalEntryInfoFactory = journalEntryInfoFactory;
     }
 
     @GET
@@ -87,6 +95,38 @@ public class ComSessionResource {
         info.total=pagedInfoList.getTotal();
         info.comTaskExecutionSessions= pagedInfoList.getInfos();
         return info;
+    }
+
+    @GET
+    @Path("{comSessionId}/journals")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PagedInfoList getHybridJournalEntries(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId, @QueryParam("filter") JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
+        ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
+
+        EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
+        if (jsonQueryFilter.getProperty("logLevels")!=null) {
+            jsonQueryFilter.getPropertyList("logLevels", new LogLevelAdapter()).stream().forEach(logLevels::add);
+        }
+        List<JournalEntryInfo> infos = new ArrayList<>();
+        if (jsonQueryFilter.getProperty("logType")!=null) {
+            List<String> logTypes = jsonQueryFilter.getPropertyList("logType");
+            if (logTypes.contains("connections")) {
+                if (logTypes.contains("communications")) {
+                    comSession.getAllLogs(logLevels, queryParameters.getStart()+1, queryParameters.getLimit()).stream().forEach(e->infos.add(journalEntryInfoFactory.asInfo(e)));
+                } else {
+                    comSession.getJournalEntries(logLevels).from(queryParameters).sorted("timestamp", false).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
+                }
+            } else {
+                if (logTypes.contains("communications")) {
+                    comSession.getCommunicationTaskJournalEntries(logLevels).from(queryParameters).sorted("timestamp", false).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
+                } else {
+                    // User didn't select anything and is getting just that...
+                }
+            }
+        }
+        return PagedInfoList.asJson("logs", infos, queryParameters);
     }
 
     private ComSession getComSessionOrThrowException(long comSessionId, ConnectionTask<?, ?> connectionTask) {
