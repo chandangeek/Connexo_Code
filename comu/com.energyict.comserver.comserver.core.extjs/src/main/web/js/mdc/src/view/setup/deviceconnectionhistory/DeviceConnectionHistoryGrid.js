@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 text: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                 dataIndex: 'startedOn',
                 flex: 1,
-                renderer: function (value,metadata) {
+                renderer: function (value, metadata) {
                     if (value !== null) {
                         return new Date(value).toLocaleString();
                     }
@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 text: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
                 dataIndex: 'durationInSeconds',
                 flex: 1,
-                renderer: function (value,metadata) {
+                renderer: function (value, metadata) {
                     if (value !== null) {
                         return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
                     }
@@ -46,8 +46,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 text: Uni.I18n.translate('deviceconnectionhistory.result', 'MDC', 'Result'),
                 dataIndex: 'result',
                 flex: 1,
-                renderer: function(value){
-                    if(value){
+                renderer: function (value) {
+                    if (value) {
                         return value.displayValue;
                     }
                 }
@@ -71,8 +71,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
             }
         ]
     },
-    initComponent: function(){
-        var me=this;
+    initComponent: function () {
+        var me = this;
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -82,15 +82,15 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 displayMoreMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} connections'),
                 emptyMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.emptyMsg', 'MDC', 'There are no connections to display')
             },
-        {
-            xtype: 'pagingtoolbarbottom',
-            store: me.store,
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: me.store,
 //            params: [
 //                {mrid: me.mrid}
 //            ],
-            itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connections per page'),
-            dock: 'bottom'
-        }
+                itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connections per page'),
+                dock: 'bottom'
+            }
         ];
         me.callParent();
     }

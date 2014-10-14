@@ -86,6 +86,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
 //            params: [
 //                {mrid: me.mrid}
 //            ],
+                deferLoading: true,
                 itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communications per page'),
                 dock: 'bottom'
             }
