@@ -52,9 +52,16 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                                 break;
                         }
                     }
-                    return !Ext.isEmpty(data[channel.id])
+                    if (Ext.isEmpty(data[channel.id]) && record.data.channelValidationData && record.data.channelValidationData[channel.id] && (record.data.channelValidationData[channel.id].validationResult === 'validationStatus.suspect')) {
+                        return validationFlag;
+                    } else if (!Ext.isEmpty(data[channel.id])) {
+                        return '<span class="validation-column-align">' + data[channel.id] + ' ' + channel.unitOfMeasure.unit + ' ' + validationFlag + '</span>';
+                    } else {
+                        return '<span class="icon-validation icon-validation-black"></span>';
+                    }
+                  /*  return !Ext.isEmpty(data[channel.id])
                         ? '<span class="validation-column-align">' + data[channel.id] + ' ' + channel.unitOfMeasure.unit + ' ' + validationFlag + '</span>'
-                        : '<span class="icon-validation icon-validation-black"></span>';
+                        : '<span class="icon-validation icon-validation-black"></span>';*/
                 }
             });
         });
