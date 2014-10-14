@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.Register;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class FlagsReadingInfo extends ReadingInfo {
     @JsonProperty("value")

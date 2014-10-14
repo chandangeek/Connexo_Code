@@ -16,6 +16,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Set;
 
 public class NumericalReadingInfo extends ReadingInfo {

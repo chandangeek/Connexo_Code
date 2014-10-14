@@ -7,6 +7,8 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.Date;
+
 public class TextReadingInfo extends ReadingInfo {
     @JsonProperty("value")
     public String value;

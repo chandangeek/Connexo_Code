@@ -97,10 +97,11 @@ public class RegisterDataResource {
     }
 
     @PUT
+    @Path("/{timeStamp}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
-    public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters, ReadingInfo readingInfo) {
+    public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Meter meter = resourceHelper.getMeterFor(device);
@@ -120,8 +121,8 @@ public class RegisterDataResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
-    public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters, ReadingInfo readingInfo) {
-        return editRegisterData(mRID, registerId, queryParameters, readingInfo);
+    public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
+        return editRegisterData(mRID, registerId, readingInfo);
     }
 
     @DELETE

@@ -122,7 +122,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         numericalReadingInfo.value = BigDecimal.TEN;
         numericalReadingInfo.timeStamp = READING_TIMESTAMP;
 
-        Response response = target("devices/1/registers/1/data").request().put(Entity.json(numericalReadingInfo));
+        Response response = target("devices/1/registers/1/data/1").request().put(Entity.json(numericalReadingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 }
