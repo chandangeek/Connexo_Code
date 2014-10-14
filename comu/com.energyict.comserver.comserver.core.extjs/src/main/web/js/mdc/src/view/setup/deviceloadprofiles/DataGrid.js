@@ -59,9 +59,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                     } else {
                         return '<span class="icon-validation icon-validation-black"></span>';
                     }
-                  /*  return !Ext.isEmpty(data[channel.id])
-                        ? '<span class="validation-column-align">' + data[channel.id] + ' ' + channel.unitOfMeasure.unit + ' ' + validationFlag + '</span>'
-                        : '<span class="icon-validation icon-validation-black"></span>';*/
                 }
             });
         });
