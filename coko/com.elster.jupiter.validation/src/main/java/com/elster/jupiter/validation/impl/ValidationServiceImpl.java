@@ -35,9 +35,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -68,7 +66,6 @@ import static java.util.Comparator.nullsFirst;
 public final class ValidationServiceImpl implements ValidationService, InstallService {
 
     private static final Upcast<IValidationRuleSet, ValidationRuleSet> UPCAST = new Upcast<>();
-    private static final Function<IMeterActivationValidation, Date> METER_ACTIVATION_MIN_LAST_CHECKED = input -> input == null ? null : input.getMinLastChecked();
 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
@@ -262,19 +259,23 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
             throw new IllegalArgumentException("Channel is absent");
         }
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(channel.getMeterActivation());
-        List<ChannelValidation> channelValidations = validations.stream()
+        return validations.stream()
                 .map(m -> m.getChannelValidation(channel))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .filter(ChannelValidation::hasActiveRules)
-                .collect(Collectors.toList());
-        return channelValidations.isEmpty() ? false : true;
+                .anyMatch(ChannelValidation::hasActiveRules);
     }
 
     @Override
     public Optional<Date> getLastChecked(MeterActivation meterActivation) {
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(meterActivation);
-        return Optional.fromNullable(getMinLastChecked(FluentIterable.from(validations).transform(METER_ACTIVATION_MIN_LAST_CHECKED)));
+
+        List<Date> dates = validations.stream()
+                .filter(m -> m.getChannelValidations().stream().anyMatch(ChannelValidation::hasActiveRules))
+                .map(IMeterActivationValidation::getMinLastChecked)
+                .collect(Collectors.toList());
+        Comparator<Date> comparator = nullsFirst(naturalOrder());
+        return Optional.fromNullable(dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null);
     }
 
     @Override
@@ -488,11 +489,6 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     List<ChannelValidation> getChannelValidations(Channel channel) {
         return dataModel.mapper(ChannelValidation.class).find("channel", channel);
-    }
-
-    private Date getMinLastChecked(Iterable<Date> dates) {
-        Comparator<Date> comparator = nullsFirst(naturalOrder());
-        return dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null;
     }
 
     @Override
