@@ -2,7 +2,6 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
@@ -11,19 +10,9 @@ import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import javax.inject.Inject;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -44,9 +33,10 @@ public class ConnectionOverviewInfoFactory {
     private final DashboardService dashboardService;
     private final ExceptionFactory exceptionFactory;
     private final DataCollectionKpiService dataCollectionKpiService;
+    private final KpiScoreFactory kpiScoreFactory;
 
     @Inject
-    public ConnectionOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, ExceptionFactory exceptionFactory, DataCollectionKpiService dataCollectionKpiService) {
+    public ConnectionOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, ExceptionFactory exceptionFactory, DataCollectionKpiService dataCollectionKpiService, KpiScoreFactory kpiScoreFactory) {
         this.breakdownFactory = breakdownFactory;
         this.overviewFactory = overviewFactory;
         this.summaryInfoFactory = summaryInfoFactory;
@@ -54,6 +44,7 @@ public class ConnectionOverviewInfoFactory {
         this.dashboardService = dashboardService;
         this.exceptionFactory = exceptionFactory;
         this.dataCollectionKpiService = dataCollectionKpiService;
+        this.kpiScoreFactory = kpiScoreFactory;
     }
 
     public ConnectionOverviewInfo asInfo(QueryEndDeviceGroup endDeviceGroup) {
@@ -64,7 +55,10 @@ public class ConnectionOverviewInfoFactory {
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup);
         SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(0).get();
-        return getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData, dataCollectionKpi, endDeviceGroup);
+        ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview,comSessionSuccessIndicatorOverview,comPortPoolBreakdown,connectionTypeBreakdown,deviceTypeBreakdown,summaryData);
+        info.kpi = kpiScoreFactory.getKpiAsInfo(dataCollectionKpi);
+        info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
+        return info;
     }
 
     public ConnectionOverviewInfo asInfo() {
@@ -95,57 +89,6 @@ public class ConnectionOverviewInfoFactory {
         breakdownFactory.sortAllBreakdowns(info.breakdowns);
 
         return info;
-    }
-
-    private ConnectionOverviewInfo getConnectionOverviewInfo(TaskStatusOverview taskStatusOverview, ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, ComPortPoolBreakdown comPortPoolBreakdown, ConnectionTypeBreakdown connectionTypeBreakdown, DeviceTypeBreakdown deviceTypeBreakdown, SummaryData summaryData, DataCollectionKpi dataCollectionKpi, QueryEndDeviceGroup endDeviceGroup) {
-        ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview,comSessionSuccessIndicatorOverview,comPortPoolBreakdown,connectionTypeBreakdown,deviceTypeBreakdown,summaryData);
-        info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
-        if (dataCollectionKpi.calculatesConnectionSetupKpi()) {
-            info.kpi = new ArrayList<>();
-            KpiScoreInfo success = new KpiScoreInfo(MessageSeeds.SUCCESS.getKey());
-            KpiScoreInfo ongoing = new KpiScoreInfo(MessageSeeds.ONGOING.getKey());
-            KpiScoreInfo failed = new KpiScoreInfo(MessageSeeds.FAILED.getKey());
-            KpiScoreInfo target = new KpiScoreInfo(MessageSeeds.TARGET.getKey());
-            info.kpi.add(success);
-            info.kpi.add(ongoing);
-            info.kpi.add(failed);
-            info.kpi.add(target);
-
-            List<DataCollectionKpiScore> kpiScores = dataCollectionKpi.getConnectionSetupKpiScores(getIntervalByPeriod(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength().get()));
-            for (DataCollectionKpiScore kpiScore : kpiScores) {
-                success.addKpi(kpiScore.getTimestamp(), kpiScore.getSuccess());
-                ongoing.addKpi(kpiScore.getTimestamp(), kpiScore.getOngoing());
-                failed.addKpi(kpiScore.getTimestamp(), kpiScore.getFailed());
-                target.addKpi(kpiScore.getTimestamp(), kpiScore.getTarget());
-            }
-        }
-        return info;
-    }
-
-    private Interval getIntervalByPeriod(TemporalAmount temporalAmount) {
-        LocalDate startDay=null;
-        if (temporalAmount.getUnits().contains(ChronoUnit.SECONDS)) {
-            if (temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofMinutes(5).getSeconds()
-                    || temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofMinutes(15).getSeconds()
-                    || temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofMinutes(30).getSeconds()) {
-                startDay = LocalDate.now();
-            } else if (temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofHours(1).getSeconds()) {
-                startDay = LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-            } else if (temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofDays(1).getSeconds()) {
-                startDay = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
-            }
-        } else {
-            if (temporalAmount.get(ChronoUnit.DAYS) == 1) {
-                startDay = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
-            } else if (temporalAmount.get(ChronoUnit.MONTHS) == 1) {
-                startDay = LocalDate.now().with(TemporalAdjusters.firstDayOfYear());
-            }
-        }
-        if (startDay==null) {
-                throw exceptionFactory.newException(MessageSeeds.UNSUPPORTED_KPI_PERIOD);
-            }
-
-        return Interval.startAt(Date.from(startDay.atStartOfDay().toInstant(ZoneOffset.UTC)));
     }
 
     private void addAtLeastOntTaskFailedCounter(ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, TaskSummaryInfo perLatestResultOverview) {
