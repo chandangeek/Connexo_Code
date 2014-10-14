@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
@@ -92,6 +93,22 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().latestResults).contains(CompletionCode.TimeError).contains(CompletionCode.ProtocolError).hasSize(2);
     }
+
+    @Test
+    public void testDeviceGroupsAddedToFilter() throws Exception {
+        QueryEndDeviceGroup queryEndDeviceGroup1 = mock(QueryEndDeviceGroup.class);
+        when(meteringGroupsService.findQueryEndDeviceGroup(111)).thenReturn(Optional.of(queryEndDeviceGroup1));
+        QueryEndDeviceGroup queryEndDeviceGroup2 = mock(QueryEndDeviceGroup.class);
+        when(meteringGroupsService.findQueryEndDeviceGroup(112)).thenReturn(Optional.of(queryEndDeviceGroup2));
+
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("deviceGroups", Arrays.asList(111L, 112L))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().deviceGroups).contains(queryEndDeviceGroup1).contains(queryEndDeviceGroup2).hasSize(2);
+
+    }
+
 
     @Test
     public void testComSchedulesAddedToFilter() throws Exception {
