@@ -82,7 +82,11 @@ public class RegisterReadings {
             Optional<Register<Reading>> register = this.findRegister(device, readingTypeMRID);
             if (register.isPresent()) {
                 List<Date> readingTimestamps = this.toTimestamps(formattedDates);
-                this.addReadings(device, readingTypeMRID, readingTimestamps);
+                try {
+                    this.addReadings(device, readingTypeMRID, readingTimestamps);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             } else {
                 System.out.println("No register found with mRID " + readingTypeMRID + " on device with mRID " + deviceMRID);
             }
