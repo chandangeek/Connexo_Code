@@ -65,7 +65,7 @@ public class NumericalReadingInfo extends ReadingInfo {
 
     @Override
     protected BaseReading createNew(Register register) {
-        BaseReading reading = new ReadingImpl(register.getReadingType().getMRID(), this.value, this.id == null ? this.timeStamp : new Date(this.id));
+        BaseReading reading = new ReadingImpl(register.getReadingType().getMRID(), this.value, this.timeStamp);
         return reading;
     }
 }
