@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Mdc.store.TimeUnits'
+    ],
+
     models: [
         'Mdc.model.ComServer',
         'Mdc.model.ComPort',
@@ -27,7 +31,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         'Mdc.store.NrOfStopBits',
         'Mdc.store.Parities',
         'Mdc.store.FlowControls',
-        'Mdc.store.TimeUnits',
+        'TimeUnits',
         'Mdc.store.AddComPortPools',
         'Mdc.store.OutboundComPortPools',
         'Mdc.store.InboundComPortPools',

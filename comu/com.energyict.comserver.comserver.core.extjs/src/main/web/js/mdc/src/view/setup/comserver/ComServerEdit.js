@@ -1,7 +1,8 @@
 Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Mdc.view.setup.comserver.FieldContainerHelpMessage'
+        'Mdc.view.setup.comserver.FieldContainerHelpMessage',
+        'Mdc.store.TimeUnitsWithoutMilliseconds'
     ],
     alias: 'widget.comServerEdit',
     itemId: 'comServerEdit',
@@ -103,8 +104,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                 {
                                     xtype: 'combobox',
                                     name: 'changesInterPollDelay[timeUnit]',
-                                    store: 'Mdc.store.TimeUnitsWithoutMilliseconds',
-                                    queryMode: 'local',
+                                    store: 'TimeUnitsWithoutMilliseconds',
+                               //     queryMode: 'local',
                                     editable: false,
                                     displayField: 'timeUnit',
                                     valueField: 'timeUnit',
@@ -144,8 +145,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                 {
                                     xtype: 'combobox',
                                     name: 'schedulingInterPollDelay[timeUnit]',
-                                    store: 'Mdc.store.TimeUnitsWithoutMilliseconds',
-                                    queryMode: 'local',
+                                    store: 'TimeUnitsWithoutMilliseconds',
+                           //         queryMode: 'local',
                                     editable: false,
                                     displayField: 'timeUnit',
                                     valueField: 'timeUnit',

@@ -57,6 +57,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 itemId: 'dataValidationLink',
                 href: '#/devices/' + this.mRID + '/datavalidation',
                 hrefTarget: '_self'
+            },
+            {
+                text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
+                itemId: 'securitySettingLink',
+                href: '#/devices/' + this.mRID + '/securitysettings',
+                hrefTarget: '_self'
             }
         );
         this.toggleMenuItem(this.toggle);

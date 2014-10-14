@@ -5,6 +5,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         'Mdc.view.setup.deviceloadprofiles.Setup'
     ],
 
+    requires: [
+        'Mdc.store.TimeUnits'
+    ],
+
     models: [
         'Mdc.model.Device',
         'Mdc.model.LoadProfileOfDevice'
@@ -12,7 +16,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
 
     stores: [
         'Mdc.store.LoadProfilesOfDevice',
-        'Mdc.store.TimeUnits'
+        'TimeUnits'
     ],
 
     refs: [
@@ -43,8 +47,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     showView: function (mRID) {
         var me = this,
             model = me.getModel('Mdc.model.Device'),
-            timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
-            widget,
+            timeUnitsStore = me.getStore('TimeUnits'),
+            widget;
             showPage = function () {
                 me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().setUrl(mRID);
                 widget = Ext.widget('deviceLoadProfilesSetup', {
@@ -62,7 +66,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 });
             };
         me.mRID = mRID;
-        timeUnitsStore.getCount() ? showPage() : timeUnitsStore.on('load', showPage, me, {single: true});
+        timeUnitsStore.load({
+            callback: function () {
+                showPage();
+            }
+        });
     },
 
     showPreview: function (selectionModel, record) {

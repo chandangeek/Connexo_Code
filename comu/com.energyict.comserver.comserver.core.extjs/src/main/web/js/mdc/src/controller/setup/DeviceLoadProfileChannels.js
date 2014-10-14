@@ -1,5 +1,8 @@
 Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
     extend: 'Ext.app.Controller',
+    requires: [
+        'Mdc.store.TimeUnits'
+    ],
 
     views: [
         'Mdc.view.setup.deviceloadprofilechannels.Setup'
@@ -13,7 +16,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
 
     stores: [
         'Mdc.store.ChannelsOfLoadProfilesOfDevice',
-        'Mdc.store.TimeUnits'
+        'TimeUnits'
     ],
 
     refs: [
@@ -46,7 +49,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
             deviceModel = me.getModel('Mdc.model.Device'),
             loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             channelsOfLoadProfilesOfDeviceStore = me.getStore('Mdc.store.ChannelsOfLoadProfilesOfDevice'),
-            timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
+            timeUnitsStore = me.getStore('TimeUnits'),
             widget,
             showPage = function () {
                 channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl({

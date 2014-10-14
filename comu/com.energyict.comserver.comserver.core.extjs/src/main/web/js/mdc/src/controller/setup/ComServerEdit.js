@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.ComServerEdit', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Mdc.store.TimeUnitsWithoutMilliseconds'
+    ],
+
     models: [
         'Mdc.model.ComServer',
         'Mdc.model.OutboundComPort',
@@ -15,7 +19,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
     stores: [
         'ComServers',
         'Mdc.store.LogLevels',
-        'Mdc.store.TimeUnitsWithoutMilliseconds'
+        'TimeUnitsWithoutMilliseconds'
     ],
 
     refs: [

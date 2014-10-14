@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Ext.ux.window.Notification'
+        'Ext.ux.window.Notification',
+        'Mdc.store.DeviceCommunicationProtocolsPaged'
     ],
 
     views: [

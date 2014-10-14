@@ -39,7 +39,7 @@ Ext.define('Mdc.widget.TimeInfoField', {
 
     //@private
     buildField: function () {
-        var timeUnits = Ext.create('Mdc.store.TimeUnits');
+        var timeUnits = Ext.getStore('TimeUnits');
         var me = this;
         me.items = [
             Ext.apply({
@@ -54,8 +54,8 @@ Ext.define('Mdc.widget.TimeInfoField', {
                 xtype: 'combobox',
                 itemId : 'unitField',
                 store: timeUnits,
-                queryMode: 'local',
-                displayField: 'timeUnit',
+              //  queryMode: 'local',
+                displayField: 'localizedValue',
                 valueField: 'timeUnit',
                 submitValue: false,
                 forceSelection: true,
@@ -107,5 +107,10 @@ Ext.define('Mdc.widget.TimeInfoField', {
         if(this.items && this.items.each){
             this.items.each(fn, scope || this);
         }
+    },
+
+    getUnitStore: function() {
+        var me = this;
+        return me.unitField.store;
     }
 });

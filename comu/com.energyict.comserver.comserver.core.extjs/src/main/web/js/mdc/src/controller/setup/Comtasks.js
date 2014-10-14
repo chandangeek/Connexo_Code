@@ -1,10 +1,13 @@
 Ext.define('Mdc.controller.setup.Comtasks', {
     extend: 'Ext.app.Controller',
+    requires: [
+      'Mdc.store.TimeUnits'
+    ],
     stores: [
         'Mdc.store.CommunicationTasks',
         'Mdc.store.CommunicationTasksCategories',
         'Mdc.store.CommunicationTasksActions',
-        'Mdc.store.TimeUnits',
+        'TimeUnits',
         'Mdc.store.LogbookTypes',
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.RegisterGroups',
