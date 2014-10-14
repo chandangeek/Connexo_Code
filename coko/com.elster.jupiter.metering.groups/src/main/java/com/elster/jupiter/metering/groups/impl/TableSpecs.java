@@ -83,6 +83,7 @@ public enum TableSpecs {
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
             table.column("QUERYPROVIDERNAME").varChar(NAME_LENGTH).map("queryProviderName").add();
+            table.column("LABEL").varChar(NAME_LENGTH).map("label").add();
             table.addAuditColumns();
             table.primaryKey("MTG_PK_ENUM_ED_GROUP").on(idColumn).add();
             table.unique("MTG_U_ENUM_ED_GROUP").on(mRIDColumn).add();

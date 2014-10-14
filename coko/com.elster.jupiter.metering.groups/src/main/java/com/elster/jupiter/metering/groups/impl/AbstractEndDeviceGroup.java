@@ -14,6 +14,7 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private String queryProviderName;
+    private String label;
 
     public String getQueryProviderName() {
         return queryProviderName;
@@ -25,6 +26,14 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
 
     public void setQueryProviderName(String queryProviderName) {
         this.queryProviderName = queryProviderName;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     // ORM inheritance map

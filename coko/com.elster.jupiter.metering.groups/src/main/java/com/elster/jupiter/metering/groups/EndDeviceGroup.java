@@ -26,6 +26,10 @@ public interface EndDeviceGroup {
 
     void setMRID(String mrid);
 
+    String getLabel();
+
+    void setLabel(String label);
+
     void setDescription(String description);
 
     void setAliasName(String aliasName);
