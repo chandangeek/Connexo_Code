@@ -1,14 +1,16 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
-import com.energyict.mdc.dashboard.ComScheduleBreakdown;
-import com.energyict.mdc.dashboard.ComTaskBreakdown;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
+import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.dashboard.DashboardService;
-import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
-import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.engine.model.security.Privileges;
+import com.google.common.base.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,26 +25,31 @@ public class CommunicationOverviewResource {
 
     private final DashboardService dashboardService;
     private final CommunicationOverviewInfoFactory communicationOverviewInfoFactory;
+    private final MeteringGroupsService meteringGroupService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public CommunicationOverviewResource(DashboardService dashboardService, CommunicationOverviewInfoFactory communicationOverviewInfoFactory) {
+    public CommunicationOverviewResource(DashboardService dashboardService, CommunicationOverviewInfoFactory communicationOverviewInfoFactory, MeteringGroupsService meteringGroupService, ExceptionFactory exceptionFactory) {
         this.dashboardService = dashboardService;
         this.communicationOverviewInfoFactory = communicationOverviewInfoFactory;
+        this.meteringGroupService = meteringGroupService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
-    public CommunicationOverviewInfo getCommunicationOverview() throws Exception {
-        TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
-        SummaryData summaryData = new SummaryData(taskStatusOverview);
-        ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview();
-        ComScheduleBreakdown comScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown();
-        ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown();
-        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown();
-
-        return communicationOverviewInfoFactory.from(summaryData, taskStatusOverview, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown);
+    public CommunicationOverviewInfo getCommunicationOverview(@BeanParam JsonQueryFilter filter) throws Exception {
+        if (filter.getProperty("deviceGroup")!=null) {
+            Optional<QueryEndDeviceGroup> optional = meteringGroupService.findQueryEndDeviceGroup(filter.getProperty("deviceGroup", new LongAdapter()));
+            if (!optional.isPresent()) {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
+            }
+            return communicationOverviewInfoFactory.asInfo(optional.get());
+        } else {
+            return communicationOverviewInfoFactory.asInfo();
+        }
     }
 
 }
