@@ -21,6 +21,8 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -115,6 +117,7 @@ public abstract class BaseTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new MeteringGroupsModule(),
                 new MeteringModule(),
                 new PartyModule(),
                 new EventsModule(),
@@ -153,6 +156,7 @@ public abstract class BaseTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             // initialize Issue tables
             injector.getInstance(com.elster.jupiter.issue.impl.service.InstallServiceImpl.class);
+            injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(IssueDataCollectionService.class);
             ctx.commit();
         }
