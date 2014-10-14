@@ -1,35 +1,5 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
-import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -74,7 +44,6 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
-import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
@@ -187,6 +156,7 @@ public class DataCollectionKpiImplTest {
     public static void setUp() {
         cronExpressionParser = mock(CronExpressionParser.class, RETURNS_DEEP_STUBS);
         cronExpression = mock(CronExpression.class);
+        when(cronExpression.encoded()).thenReturn("0 0 0/1 * * ? *");
         when(cronExpressionParser.parse(anyString())).thenReturn(Optional.of(cronExpression));
         when(cronExpression.nextOccurrence(any())).thenReturn(ZonedDateTime.now());
         taskService = mock(TaskService.class);
