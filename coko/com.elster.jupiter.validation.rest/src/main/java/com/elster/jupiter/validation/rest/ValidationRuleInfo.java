@@ -46,23 +46,15 @@ public class ValidationRuleInfo {
     public static Set<ValidationRuleInfo> from(DataValidationStatus dataValidationStatus) {
         Set<ValidationRuleInfo> validationRuleInfos = new LinkedHashSet<>();
         for (ValidationRule validationRule : dataValidationStatus.getOffendedRules()) {
-            if(validationRule.isObsolete()) {
-                validationRuleInfos.add(getObsoleteRuleInfo());
-            } else {
-                validationRuleInfos.add(new ValidationRuleInfo(validationRule));
-            }
+            validationRuleInfos.add(new ValidationRuleInfo(validationRule));
         }
         return validationRuleInfos;
     }
 
     public static Map<ValidationRuleInfo, Long> from(Map<ValidationRule, Long> suspectReasonMap) {
         Map<ValidationRuleInfo, Long> suspectReasonInfoMap = new HashMap<>();
-        for(Map.Entry<ValidationRule, Long> entry : suspectReasonMap.entrySet()) {
-            if(entry.getKey().isObsolete()) {
-                putObsoleteRuleInfo(suspectReasonInfoMap, entry);
-            } else {
-                suspectReasonInfoMap.put(new ValidationRuleInfo(entry.getKey()), entry.getValue());
-            }
+        for (Map.Entry<ValidationRule, Long> entry : suspectReasonMap.entrySet()) {
+            suspectReasonInfoMap.put(new ValidationRuleInfo(entry.getKey()), entry.getValue());
         }
         return suspectReasonInfoMap;
     }
@@ -86,20 +78,4 @@ public class ValidationRuleInfo {
         return Objects.hash(id);
     }
 
-    private static void putObsoleteRuleInfo(Map<ValidationRuleInfo, Long> suspectReasonInfoMap, Map.Entry<ValidationRule, Long> entry) {
-        ValidationRuleInfo validationRuleInfo = getObsoleteRuleInfo();
-        if(suspectReasonInfoMap.containsKey(validationRuleInfo)) {
-            Long number = suspectReasonInfoMap.get(validationRuleInfo);
-            suspectReasonInfoMap.put(validationRuleInfo, ++number);
-        } else {
-            suspectReasonInfoMap.put(validationRuleInfo, 1L);
-        }
-    }
-
-    private static ValidationRuleInfo getObsoleteRuleInfo() {
-        ValidationRuleInfo validationRuleInfo = new ValidationRuleInfo();
-        validationRuleInfo.id = 0;
-        validationRuleInfo.name = "removed rule";
-        return validationRuleInfo;
-    }
 }
