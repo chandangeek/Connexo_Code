@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
@@ -69,11 +70,38 @@ public class RegisterDataResource {
         return PagedInfoList.asJson("data", paginatedReadingInfo, queryParameters);
     }
 
+
+    @GET
+    @Path("/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
+    public ReadingInfo getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        Meter meter = resourceHelper.getMeterFor(device);
+        Optional<? extends Reading> reading = register.getReading(new Date(timeStamp));
+        if(!reading.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp);
+        }
+        ReadingRecord readingRecord = reading.get().getActualReading();
+        List<ReadingRecord> readingRecords = new ArrayList<>(Arrays.asList(reading.get().getActualReading()));
+        Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
+        List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
+        Boolean validationStatusForRegister = false;
+        if(channelRef.isPresent()) {
+            validationStatusForRegister = device.forValidation().isValidationActive(register, clock.now());
+            dataValidationStatuses = device.forValidation().getValidationStatus(register, readingRecords, new Interval(new Date(timeStamp), new Date(timeStamp)));
+        }
+
+        return ReadingInfoFactory.asInfo(reading.get(), register.getRegisterSpec(), validationStatusForRegister, dataValidationStatuses.size() > 0 ? dataValidationStatuses.get(0) : null);
+    }
+
     @PUT
+    @Path("/{timeStamp}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
-    public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters, ReadingInfo readingInfo) {
+    public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Meter meter = resourceHelper.getMeterFor(device);
@@ -93,8 +121,8 @@ public class RegisterDataResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
-    public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters, ReadingInfo readingInfo) {
-        return editRegisterData(mRID, registerId, queryParameters, readingInfo);
+    public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
+        return editRegisterData(mRID, registerId, readingInfo);
     }
 
     @DELETE

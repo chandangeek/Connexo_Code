@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.Register;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class FlagsReadingInfo extends ReadingInfo {
     @JsonProperty("value")
@@ -22,7 +23,7 @@ public class FlagsReadingInfo extends ReadingInfo {
 
     @Override
     protected BaseReading createNew(Register register) {
-        BaseReading reading = new ReadingImpl(register.getReadingType().getMRID(), BigDecimal.valueOf(this.value), this.timeStamp);
+        BaseReading reading = new ReadingImpl(register.getReadingType().getMRID(), BigDecimal.valueOf(this.value), this.id == null ? this.timeStamp : new Date(this.id));
         return reading;
     }
 }

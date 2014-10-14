@@ -58,7 +58,7 @@ public class BillingReadingInfo extends ReadingInfo {
 
     @Override
     protected BaseReading createNew(Register register) {
-        ReadingImpl reading = new ReadingImpl(register.getReadingType().getMRID(), this.value, this.timeStamp);
+        ReadingImpl reading = new ReadingImpl(register.getReadingType().getMRID(), this.value, this.id == null ? this.timeStamp : new Date(this.id));
         if(this.interval != null) {
             reading.setTimePeriod(new Date(this.interval.start), new Date(this.interval.end));
         }
