@@ -28,11 +28,7 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         {
             ref: 'mdcSearchItems',
             selector: 'mdc-search-items'
-        }/*,
-        {
-            ref: 'sortToolbar',
-            selector: 'mdc-search-items #sortButtonsContainer'
-        }*/
+        }
 
 
     ],
@@ -47,21 +43,19 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
         store.load();
     },
 
+    initFilter: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        this.getSideFilterForm().loadRecord(router.filter);
+        this.setFilterView();
+    },
+
     getCriteriaPanel: function() {
         return this.getDevicesSearchFilterPanel();
     },
 
     getSideFilterForm: function() {
         return this.getDevicesSearchSideFilterForm();
-    }//,
-
-    /*getSearchItems: function() {
-        return this.getMdcSearchItems();
-    },
-
-    getSortingToolbar: function() {
-        return this.getSortToolbar();
-    }*/
+    }
 
 
 });

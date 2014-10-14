@@ -4,9 +4,14 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
     name: 'deviceGroupWizardStep2',
     ui: 'large',
 
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
+
     requires: [
         'Uni.util.FormErrorMessage',
-        'Mdc.view.setup.searchitems.SearchItems'
+        'Mdc.view.setup.devicesearch.SearchItems'
 
     ],
 
@@ -14,9 +19,17 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
     title: Uni.I18n.translate('devicegroup.wizard.step2title', 'MDC', 'Add a device group - Step 2 of 2: Device group'),
 
     items: [
-        /*{
-            xtype: 'searchItems'
-        }*/
+        {
+            xtype: 'panel',
+            ui: 'large',
+            title: Uni.I18n.translate('setup.devicesearch.searchResults.title', 'MDC', 'Search')
+        },
+        {
+            xtype: 'filter-top-panel'
+        },
+        {
+            xtype: 'mdc-search-results'
+        }
     ]
 
 

@@ -776,7 +776,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Add device group',
                             route: 'add',
                             controller: 'Mdc.controller.setup.AddDeviceGroupAction',
-                            action: 'showAddDeviceGroupAction'
+                            action: 'showAddDeviceGroupAction',
+                            filter: 'Mdc.model.DeviceFilter'
                         }
                     }
                 },

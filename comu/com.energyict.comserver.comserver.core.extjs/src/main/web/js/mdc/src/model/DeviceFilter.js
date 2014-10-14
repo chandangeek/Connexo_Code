@@ -2,7 +2,9 @@ Ext.define('Mdc.model.DeviceFilter', {
     extend: 'Ext.data.Model',
 
     requires: [
-        'Uni.data.proxy.QueryStringProxy'
+        'Uni.data.proxy.QueryStringProxy',
+        'Ext.data.proxy.Memory'
+
     ],
 
     proxy: {

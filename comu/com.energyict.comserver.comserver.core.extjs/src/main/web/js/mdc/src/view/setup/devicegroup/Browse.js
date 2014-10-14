@@ -1,11 +1,13 @@
 Ext.define('Mdc.view.setup.devicegroup.Browse', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.add-devicegroup-browse',
+    xtype: 'add-devicegroup-browse',
     itemId: 'add-devicegroup-browse',
     requires: [
         'Mdc.view.setup.devicegroup.Navigation',
-        'Mdc.view.setup.devicegroup.Wizard'
+        'Mdc.view.setup.devicegroup.Wizard',
+        'Mdc.view.setup.devicesearch.DevicesSideFilter'
     ],
+
     side: {
         itemId: 'devicegroupaddpanel',
         xtype: 'panel',
@@ -18,6 +20,10 @@ Ext.define('Mdc.view.setup.devicegroup.Browse', {
             {
                 itemId: 'devicegroupaddnavigation',
                 xtype: 'devicegroup-add-navigation'
+            },
+            {
+                xtype: 'mdc-search-results-side-filter',
+                itemId: 'addDeviceGroupSideFilter'
             }
         ]
     },

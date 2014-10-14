@@ -8,7 +8,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         'Mdc.view.setup.devicegroup.Wizard'
     ],
     requires: [
-        'Uni.view.window.Wizard'
+        'Uni.view.window.Wizard',
+        'Mdc.view.setup.devicesearch.DevicesSideFilter'
     ],
 
     refs: [
@@ -39,8 +40,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         {
             ref: 'addDeviceGroupWizard',
             selector: '#adddevicegroupwizard'
+        },
+        {
+            ref: 'addDeviceGroupSideFilter',
+            selector: 'add-devicegroup-browse #addDeviceGroupSideFilter'
         }
     ],
+
+    addDeviceGroupWidget: null,
 
     init: function () {
         this.control({
@@ -90,9 +97,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     showAddDeviceGroupAction: function () {
-        widget = Ext.widget('add-devicegroup-browse');
-        this.getApplication().fireEvent('changecontentevent', widget);
+        if (this.addDeviceGroupWidget == null) {
+            this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
+            this.getAddDeviceGroupSideFilter().setVisible(false);
+            this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
+        }
     },
+
 
     changeContent: function (nextCmp, currentCmp) {
         var layout = this.getAddDeviceGroupWizard().getLayout();
@@ -115,6 +126,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 backBtn.setDisabled(true);
                 finishBtn.hide();
                 cancelBtn.show();
+                this.getAddDeviceGroupSideFilter().setVisible(false);
                 break;
             case 'deviceGroupWizardStep2' :
                 backBtn.show();
@@ -123,6 +135,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 backBtn.setDisabled(false);
                 finishBtn.show();
                 cancelBtn.show();
+                this.getAddDeviceGroupSideFilter().setVisible(true);
                 break;
         }
     }
