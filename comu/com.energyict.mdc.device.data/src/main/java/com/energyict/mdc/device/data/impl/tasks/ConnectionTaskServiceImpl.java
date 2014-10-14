@@ -40,6 +40,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
+import java.util.Collections;
 import org.joda.time.DateTimeConstants;
 
 import java.sql.PreparedStatement;
@@ -243,7 +244,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 new ConnectionTaskCurrentStateCounterSqlBuilder(
                         taskStatus,
                         this.deviceDataModelService.clock(),
-                        Arrays.asList(deviceGroup),
+                        deviceGroup==null? Collections.emptyList(): Arrays.asList(deviceGroup),
                         this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
     }
@@ -285,7 +286,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 new ConnectionTaskComPortPoolStatusCountSqlBuilder(
                         taskStatus,
                         this.deviceDataModelService.clock(),
-                        Arrays.asList(deviceGroup),
+                        deviceGroup==null?Collections.emptyList():Arrays.asList(deviceGroup),
                         this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
     }
@@ -322,7 +323,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 new ConnectionTaskDeviceTypeStatusCountSqlBuilder(
                         taskStatus,
                         this.deviceDataModelService.clock(),
-                        Arrays.asList(deviceGroup),
+                        deviceGroup==null?Collections.emptyList():Arrays.asList(deviceGroup),
                         this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
     }
@@ -359,7 +360,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 new ConnectionTaskConnectionTypeStatusCountSqlBuilder(
                         taskStatus,
                         this.deviceDataModelService.clock(),
-                        Arrays.asList(deviceGroup),
+                        deviceGroup==null?Collections.emptyList():Arrays.asList(deviceGroup),
                         this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
     }
