@@ -11,6 +11,8 @@ public class CommunicationOverviewInfo {
     public SummaryInfo communicationSummary;
     public List<TaskSummaryInfo> overviews;
     public List<BreakdownSummaryInfo> breakdowns;
+    public DeviceGroupFilterInfo deviceGroup;
+    public List<KpiScoreInfo> kpi;
 
     public CommunicationOverviewInfo() {
     }

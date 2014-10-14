@@ -1,6 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
@@ -22,30 +24,26 @@ import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/connections")
 public class ConnectionResource {
-
-    private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new ComTaskExecutionComparator();
 
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
     private static final ComSessionSuccessIndicatorAdapter COM_SESSION_SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
@@ -58,9 +56,12 @@ public class ConnectionResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
+    private final ExceptionFactory exceptionFactory;
+    private final ComTaskExecutionInfoFactory comTaskExecutionInfoFactory;
+    private final MeteringGroupsService meteringGroupsService;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService) {
         super();
         this.connectionTaskService = connectionTaskService;
         this.communicationTaskService = communicationTaskService;
@@ -68,6 +69,9 @@ public class ConnectionResource {
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.connectionTaskInfoFactory = connectionTaskInfoFactory;
+        this.exceptionFactory = exceptionFactory;
+        this.comTaskExecutionInfoFactory = comTaskExecutionInfoFactory;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @GET
@@ -86,6 +90,7 @@ public class ConnectionResource {
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
@@ -96,9 +101,7 @@ public class ConnectionResource {
         List<ConnectionTaskInfo> connectionTaskInfos = new ArrayList<>(connectionTasksByFilter.size());
         for (ConnectionTask<?, ?> connectionTask : connectionTasksByFilter) {
             Optional<ComSession> lastComSession = connectionTask.getLastComSession();
-            List<ComTaskExecution> comTaskExecutions = communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask);
-            Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
-            connectionTaskInfos.add(connectionTaskInfoFactory.from(connectionTask, lastComSession, comTaskExecutions));
+            connectionTaskInfos.add(connectionTaskInfoFactory.from(connectionTask, lastComSession));
         }
         return Response.ok(PagedInfoList.asJson("connectionTasks", connectionTaskInfos, queryParameters)).build();
     }
@@ -165,6 +168,11 @@ public class ConnectionResource {
             filter.lastSessionStart = new Interval(start, end);
         }
 
+        if (filterProperties.containsKey(FilterOption.deviceGroups.name())) {
+            filter.deviceGroups = new HashSet<>();
+            jsonQueryFilter.getPropertyList(FilterOption.deviceGroups.name(), new LongAdapter()).stream().forEach(id->filter.deviceGroups.add(meteringGroupsService.findQueryEndDeviceGroup(id).get()));
+        }
+
         if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name()) || filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
             Date start = null;
             Date end = null;
@@ -178,6 +186,19 @@ public class ConnectionResource {
         }
 
         return filter;
+    }
+
+    @GET
+    @Path("/{connectionId}/communications")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    public PagedInfoList getCommunications(@PathParam("connectionId") long connectionId, @BeanParam QueryParameters queryParameters) {
+        Optional<ConnectionTask> connectionTaskOptional = connectionTaskService.findConnectionTask(connectionId);
+        if (!connectionTaskOptional.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_TASK, connectionId);
+        }
+        List<ComTaskExecution> comTaskExecutions = communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTaskOptional.get()).from(queryParameters).find();
+        return PagedInfoList.asJson("communications",comTaskExecutionInfoFactory.from(comTaskExecutions),queryParameters);
     }
 
 }

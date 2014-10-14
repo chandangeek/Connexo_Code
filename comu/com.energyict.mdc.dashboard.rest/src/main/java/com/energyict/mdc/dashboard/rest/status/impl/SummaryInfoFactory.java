@@ -60,7 +60,7 @@ public class SummaryInfoFactory {
         pendingConnections=new TaskSummaryCounterInfo();
         pendingConnections.count= summaryData.getPending();
         pendingConnections.id= asJsonStringList(EnumSet.of(TaskStatus.Pending, TaskStatus.Busy, TaskStatus.Retrying));
-        pendingConnections.displayName=thesaurus.getString(MessageSeeds.PENDING.getKey(), "Pending");
+        pendingConnections.displayName=thesaurus.getString(MessageSeeds.ONGOING.getKey(), "Ongoing");
         info.counters.add(pendingConnections);
 
         failedConnections=new TaskSummaryCounterInfo();

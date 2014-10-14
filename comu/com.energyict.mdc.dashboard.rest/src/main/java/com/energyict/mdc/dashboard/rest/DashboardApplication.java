@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,6 +11,7 @@ import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -29,6 +31,7 @@ import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
+import com.energyict.mdc.dashboard.rest.status.impl.KpiScoreFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
@@ -36,22 +39,22 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Insert your comments here.
@@ -77,6 +80,8 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile SchedulingService schedulingService;
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
+    private volatile DataCollectionKpiService dataCollectionKpiService;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     @Reference
     public void setStatusService(StatusService statusService) {
@@ -139,6 +144,16 @@ public class DashboardApplication extends Application implements InstallService 
         this.taskService = taskService;
     }
 
+    @Reference
+    public void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
+        this.dataCollectionKpiService = dataCollectionKpiService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -196,6 +211,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(transactionService).to(TransactionService.class);
             bind(schedulingService).to(SchedulingService.class);
+            bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(taskService).to(TaskService.class);
             bind(BreakdownFactory.class).to(BreakdownFactory.class);
             bind(OverviewFactory.class).to(OverviewFactory.class);
@@ -205,6 +221,9 @@ public class DashboardApplication extends Application implements InstallService 
             bind(ConnectionOverviewInfoFactory.class).to(ConnectionOverviewInfoFactory.class);
             bind(CommunicationOverviewInfoFactory.class).to(CommunicationOverviewInfoFactory.class);
             bind(ComServerStatusInfoFactory.class).to(ComServerStatusInfoFactory.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(KpiScoreFactory.class).to(KpiScoreFactory.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
         }
     }
 

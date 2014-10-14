@@ -1,15 +1,19 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
+import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import javax.inject.Inject;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -17,48 +21,58 @@ import org.codehaus.jackson.annotate.JsonIgnore;
  * Created by bvn on 9/18/14.
  */
 public class ConnectionOverviewInfoFactory {
-    public static final Comparator<TaskCounterInfo> TASK_COUNTER_INFO_COMPARATOR = new Comparator<TaskCounterInfo>() {
-        @Override
-        public int compare(TaskCounterInfo o1, TaskCounterInfo o2) {
-            return -Long.valueOf(o1.count).compareTo(o2.count);
-        }
-    };
-
-    public static final Comparator<TaskBreakdownInfo> TASK_BREAKDOWN_INFO_COMPARATOR = new Comparator<TaskBreakdownInfo>() {
-        @Override
-        public int compare(TaskBreakdownInfo o1, TaskBreakdownInfo o2) {
-            return -Long.valueOf(o1.failedCount).compareTo(o2.failedCount);
-        }
-    };
-
     @JsonIgnore
     private static final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
     @JsonIgnore
     private static final ComSessionSuccessIndicatorAdapter COM_SESSION_SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
 
 
-
     private final BreakdownFactory breakdownFactory;
     private final OverviewFactory overviewFactory;
     private final SummaryInfoFactory summaryInfoFactory;
     private final Thesaurus thesaurus;
+    private final DashboardService dashboardService;
+    private final ExceptionFactory exceptionFactory;
+    private final DataCollectionKpiService dataCollectionKpiService;
+    private final KpiScoreFactory kpiScoreFactory;
 
     @Inject
-    public ConnectionOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus) {
+    public ConnectionOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, ExceptionFactory exceptionFactory, DataCollectionKpiService dataCollectionKpiService, KpiScoreFactory kpiScoreFactory) {
         this.breakdownFactory = breakdownFactory;
         this.overviewFactory = overviewFactory;
         this.summaryInfoFactory = summaryInfoFactory;
         this.thesaurus = thesaurus;
+        this.dashboardService = dashboardService;
+        this.exceptionFactory = exceptionFactory;
+        this.dataCollectionKpiService = dataCollectionKpiService;
+        this.kpiScoreFactory = kpiScoreFactory;
     }
 
-    public ConnectionOverviewInfo from(
-            SummaryData summaryData,
-            TaskStatusOverview taskStatusOverview,
-            ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview,
-            ComPortPoolBreakdown comPortPoolBreakdown,
-            ConnectionTypeBreakdown connectionTypeBreakdown,
-            DeviceTypeBreakdown deviceTypeBreakdown) {
+    public ConnectionOverviewInfo asInfo(QueryEndDeviceGroup endDeviceGroup) {
+        TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview(endDeviceGroup);
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup);
+        ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown(endDeviceGroup);
+        ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown(endDeviceGroup);
+        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup);
+        SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
+        DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(0).get();
+        ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview,comSessionSuccessIndicatorOverview,comPortPoolBreakdown,connectionTypeBreakdown,deviceTypeBreakdown,summaryData);
+        info.kpi = kpiScoreFactory.getKpiAsInfo(dataCollectionKpi);
+        info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
+        return info;
+    }
 
+    public ConnectionOverviewInfo asInfo() {
+        TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
+        ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
+        ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
+        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
+        SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
+        return getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData);
+    }
+
+    private ConnectionOverviewInfo getConnectionOverviewInfo(TaskStatusOverview taskStatusOverview, ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, ComPortPoolBreakdown comPortPoolBreakdown, ConnectionTypeBreakdown connectionTypeBreakdown, DeviceTypeBreakdown deviceTypeBreakdown, SummaryData summaryData) {
         ConnectionOverviewInfo info = new ConnectionOverviewInfo();
         info.connectionSummary = summaryInfoFactory.from(summaryData);
 
@@ -88,3 +102,5 @@ public class ConnectionOverviewInfoFactory {
     }
 
 }
+
+

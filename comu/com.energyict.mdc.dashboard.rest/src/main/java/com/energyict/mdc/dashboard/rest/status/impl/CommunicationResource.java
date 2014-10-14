@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.DateAdapter;
@@ -48,14 +49,16 @@ public class CommunicationResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
     private final ComTaskExecutionInfoFactory comTaskExecutionInfoFactory;
+    private final MeteringGroupsService meteringGroupsService;
 
     @Inject
-    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory) {
+    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService) {
         this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
         this.comTaskExecutionInfoFactory = comTaskExecutionInfoFactory;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @GET
@@ -112,6 +115,11 @@ public class CommunicationResource {
         if (filterProperties.containsKey(HeatMapBreakdownOption.deviceTypes.name())) {
             List<Long> deviceTypeIds = jsonQueryFilter.getPropertyList(HeatMapBreakdownOption.deviceTypes.name(), LONG_ADAPTER);
             filter.deviceTypes.addAll(getObjectsByIdFromList(deviceTypeIds, deviceConfigurationService.findAllDeviceTypes().find()));
+        }
+
+        if (filterProperties.containsKey(FilterOption.deviceGroups.name())) {
+            filter.deviceGroups = new HashSet<>();
+            jsonQueryFilter.getPropertyList(FilterOption.deviceGroups.name(), new LongAdapter()).stream().forEach(id->filter.deviceGroups.add(meteringGroupsService.findQueryEndDeviceGroup(id).get()));
         }
 
 
