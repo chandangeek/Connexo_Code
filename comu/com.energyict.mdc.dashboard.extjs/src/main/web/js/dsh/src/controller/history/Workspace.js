@@ -15,12 +15,14 @@ Ext.define('Dsh.controller.history.Workspace', {
                     title: Uni.I18n.translate('title.connections.overview', 'DSH', 'Connections overview'),
                     route: 'connections',
                     controller: 'Dsh.controller.ConnectionOverview',
+                    privileges: ['privilege.view.communicationInfrastructure'],
                     action: 'showOverview',
                     items: {
                         details: {
                             title: Uni.I18n.translate('title.connections', 'DSH', 'Connections'),
                             route: 'details',
                             controller: 'Dsh.controller.Connections',
+                            privileges: ['privilege.view.communicationInfrastructure'],
                             action: 'showOverview',
                             filter: 'Dsh.model.Filter'
                         }
@@ -30,12 +32,14 @@ Ext.define('Dsh.controller.history.Workspace', {
                     title: Uni.I18n.translate('title.communications.overview', 'DSH', 'Communications overview'),
                     route: 'communications',
                     controller: 'Dsh.controller.CommunicationOverview',
+                    privileges: ['privilege.view.communicationInfrastructure'],
                     action: 'showOverview',
                     items: {
                         details: {
                             title: Uni.I18n.translate('title.communications', 'DSH', 'Communications'),
                             route: 'details',
                             controller: 'Dsh.controller.Communications',
+                            privileges: ['privilege.view.communicationInfrastructure'],
                             action: 'showOverview',
                             filter: 'Dsh.model.Filter'
                         }
