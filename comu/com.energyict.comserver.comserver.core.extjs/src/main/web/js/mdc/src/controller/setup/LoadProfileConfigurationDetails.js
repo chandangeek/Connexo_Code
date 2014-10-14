@@ -5,7 +5,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         'Cfg.view.validation.RulePreview',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.validation.RuleActionMenu'
+        'Mdc.view.setup.validation.RuleActionMenu',
+        'Mdc.store.Intervals'
     ],
     views: [
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailSetup',
@@ -19,7 +20,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     ],
 
     stores: [
-        'Mdc.store.Intervals',
+        'Intervals',
         'Mdc.store.Phenomenas',
         'Mdc.store.LoadProfileConfigurationDetailChannels',
         'Mdc.store.MeasurementTypesOnLoadProfileConfiguration',
@@ -85,7 +86,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             }
         });
 
-        this.intervalStore = this.getStore('Intervals');
+        this.intervalStore = this.getStore('Intervals').load();
         this.store = this.getStore('LoadProfileConfigurationDetailChannels');
         this.phenomenasStore = this.getStore('Phenomenas');
         this.availableMeasurementTypesStore = this.getStore('MeasurementTypesOnLoadProfileConfiguration');

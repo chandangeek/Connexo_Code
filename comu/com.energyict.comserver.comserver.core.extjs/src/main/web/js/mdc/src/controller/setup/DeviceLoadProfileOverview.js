@@ -5,20 +5,24 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
         'Mdc.view.setup.deviceloadprofiles.Overview'
     ],
 
+    requires: [
+        'Mdc.store.TimeUnits'
+    ],
+
     models: [
         'Mdc.model.Device',
         'Mdc.model.LoadProfileOfDevice'
     ],
 
     stores: [
-        'Mdc.store.TimeUnits'
+        'TimeUnits'
     ],
 
     showOverview: function (mRID, loadProfileId) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
-            timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
+            timeUnitsStore = me.getStore('TimeUnits'),
             widget,
             showPage = function () {
                 loadProfileOfDeviceModel.getProxy().setUrl(mRID);

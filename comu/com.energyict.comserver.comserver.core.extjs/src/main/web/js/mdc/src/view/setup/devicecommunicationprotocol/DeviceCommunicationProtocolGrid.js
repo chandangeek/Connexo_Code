@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
         'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolActionMenu'
     ],
 
-    store: 'DeviceCommunicationProtocolsPaged',
+    store: 'Mdc.store.DeviceCommunicationProtocolsPaged',
     listeners: {
         'render': function (component) {
             // Get sure that the store is not loading and that it
@@ -38,6 +38,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
     initComponent: function () {
         var me = this;
+        me.store = Ext.getStore(me.store) || Ext.create(me.store);
         this.columns = [
             {
                 header: Uni.I18n.translate('deviceCommunicationProtocols.name', 'MDC', 'Name'),

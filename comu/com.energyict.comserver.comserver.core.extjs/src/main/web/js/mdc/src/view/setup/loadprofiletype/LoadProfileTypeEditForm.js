@@ -1,7 +1,8 @@
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
     extend: 'Ext.form.Panel',
     requires: [
-        'Uni.form.field.Obis'
+        'Uni.form.field.Obis',
+        'Mdc.store.Intervals'
     ],
     alias: 'widget.load-profile-type-edit-form',
     ui: 'large',
@@ -33,7 +34,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         {
             xtype: 'combobox',
             allowBlank: false,
-            store: 'Mdc.store.Intervals',
+            store: 'Intervals',
             fieldLabel: 'Interval',
             emptyText: '0 minutes',
             name: 'timeDuration',

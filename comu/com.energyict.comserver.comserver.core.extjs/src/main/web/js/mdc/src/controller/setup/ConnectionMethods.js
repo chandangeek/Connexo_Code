@@ -3,7 +3,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     deviceTypeId: null,
     deviceConfigurationId: null,
     requires: [
-        'Mdc.store.ConnectionMethodsOfDeviceConfiguration'
+        'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
+        'Mdc.store.TimeUnits'
     ],
 
     views: [
@@ -215,7 +216,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     }
                 });
 
-                timeUnitsStore.load({
+                me.getRescheduleRetryDelayField().getUnitStore().load({
                     callback: function () {
                         var rescheduleRetryDelayField = me.getRescheduleRetryDelayField();
                         rescheduleRetryDelayField.setValue({
@@ -223,7 +224,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                             timeUnit: 'minutes'
                         })
                     }
-                })
+                });
 
             }
         });
@@ -440,6 +441,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         }
                                                         var form = widget.down('property-form');
                                                         form.loadRecordAsNotRequired(connectionMethod);
+                                                        me.getRescheduleRetryDelayField().getUnitStore().load({
+                                                            callback: function () {
+                                                                var rescheduleRetryDelayField = me.getRescheduleRetryDelayField();
+                                                                rescheduleRetryDelayField.setValue(connectionMethod.get('rescheduleRetryDelay'));
+                                                            }
+                                                        });
                                                         form.show();
                                                         widget.setLoading(false);
                                                     }

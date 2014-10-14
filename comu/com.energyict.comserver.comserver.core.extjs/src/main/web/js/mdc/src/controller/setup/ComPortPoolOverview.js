@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
     extend: 'Mdc.controller.setup.ComPortPools',
 
+    requires: [
+        'Mdc.store.DeviceDiscoveryProtocols'
+    ],
+
     models: [
         'Mdc.model.ComPortPool'
     ],

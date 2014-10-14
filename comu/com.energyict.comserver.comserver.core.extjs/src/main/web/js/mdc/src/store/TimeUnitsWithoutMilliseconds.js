@@ -1,5 +1,6 @@
 Ext.define('Mdc.store.TimeUnitsWithoutMilliseconds', {
     extend: 'Mdc.store.TimeUnits',
+    storeId: 'TimeUnitsWithoutMilliseconds',
     listeners: {
         load: function () {
             var index = this.find('timeUnit', 'milliseconds');

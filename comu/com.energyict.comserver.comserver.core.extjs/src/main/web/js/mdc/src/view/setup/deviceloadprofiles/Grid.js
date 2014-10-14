@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
         'Uni.grid.column.Obis',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.deviceloadprofiles.ActionMenu'
+        'Mdc.view.setup.deviceloadprofiles.ActionMenu',
+        'Mdc.store.TimeUnits'
     ],
     initComponent: function () {
         var me = this;

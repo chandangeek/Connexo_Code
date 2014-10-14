@@ -17,6 +17,10 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         'Mdc.store.ComPortPoolComports'
     ],
 
+    required: [
+        'Uni.util.common'
+    ],
+
     refs: [
         {
             ref: 'comPortPoolsComPortsView',
@@ -95,7 +99,8 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
-        me.checkLoadingOfNecessaryStores(function () {
+
+        Uni.util.Common.loadNecessaryStores(storesArr, function () {
             widget = Ext.widget('comPortPoolsComPortsView');
             me.getApplication().fireEvent('changecontentevent', widget);
             comPortPoolModel.load(id, {
@@ -104,7 +109,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                     me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
                 }
             });
-        }, storesArr);
+        });
     },
 
     addComPort: function () {

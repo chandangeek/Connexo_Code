@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     extend: 'Ext.app.Controller',
 
+    required: [
+      'Mdc.store.Intervals'
+    ],
+
     views: [
         'setup.loadprofiletype.LoadProfileTypeOnDeviceTypeSetup',
         'setup.loadprofiletype.LoadProfileTypeSideFilter',
@@ -30,7 +34,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     stores: [
         'Mdc.store.LoadProfileTypesOnDeviceType',
         'LoadProfileTypesOnDeviceTypeAvailable',
-        'Mdc.store.Intervals',
+        'Intervals',
         'Mdc.store.LoadProfileTypes'
     ],
 
@@ -54,7 +58,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             }
         });
 
-        this.intervalStore = this.getStore('Intervals');
+        this.intervalStore = this.getStore('Intervals').load();
         this.store = this.getStore('LoadProfileTypesOnDeviceType');
     },
 

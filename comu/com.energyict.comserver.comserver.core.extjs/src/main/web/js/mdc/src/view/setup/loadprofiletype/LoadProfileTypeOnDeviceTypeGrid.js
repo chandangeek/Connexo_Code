@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeGrid', {
         'Uni.grid.column.Obis',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.LoadProfileTypesOnDeviceType'
+        'Mdc.store.LoadProfileTypesOnDeviceType',
+        'Mdc.store.Intervals'
     ],
 
     store: 'LoadProfileTypesOnDeviceType',
@@ -29,7 +30,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeGrid', {
                 header: 'Interval',
                 dataIndex: 'timeDuration',
                 renderer: function (value) {
-                    var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
+                    var intervalRecord = Ext.getStore('Intervals').getById(value.id);
                     return intervalRecord.get('name');
                 },
                 flex: 1

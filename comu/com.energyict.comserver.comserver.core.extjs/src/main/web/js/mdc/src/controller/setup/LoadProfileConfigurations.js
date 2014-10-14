@@ -13,12 +13,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
 
     requires: [
         'Mdc.store.AvailableRegisterTypesForDeviceConfiguration',
-        'Mdc.store.RegisterTypesOfDevicetype'
+        'Mdc.store.RegisterTypesOfDevicetype',
+        'Mdc.store.Intervals'
     ],
 
 
     stores: [
-        'Mdc.store.Intervals',
+        'Intervals',
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable'
@@ -66,7 +67,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             }
         });
 
-        this.intervalStore = this.getStore('Intervals');
+        this.intervalStore = this.getStore('Intervals').load();
         this.store = this.getStore('LoadProfileConfigurationsOnDeviceConfiguration');
         this.availableLoadProfileTypesStore = this.getStore('LoadProfileConfigurationsOnDeviceConfigurationAvailable');
     },
