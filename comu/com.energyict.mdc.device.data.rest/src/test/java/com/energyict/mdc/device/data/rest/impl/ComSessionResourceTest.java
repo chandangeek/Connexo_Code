@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.google.common.base.Optional;
 import com.jayway.jsonpath.JsonModel;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -68,6 +69,49 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfIncompleteTasks")).isEqualTo(1003);
         assertThat(jsonModel.<Boolean>get("$.comSessions[0].isDefault")).isEqualTo(true);
         assertThat(jsonModel.<Integer>get("$.comSessions[0].id")).isEqualTo(61);
+
+    }
+
+    @Test
+    public void testGetComSessionById() throws Exception {
+        Device device = mock(Device.class);
+        ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(deviceService.findByUniqueMrid("XAW1")).thenReturn(device);
+        when(connectionTask.getId()).thenReturn(3L);
+        when(connectionTask.isDefault()).thenReturn(true);
+        when(connectionTask.getName()).thenReturn("GPRS");
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
+        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
+        ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
+        when(pluggeableClass.getName()).thenReturn("IPDIALER");
+        when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        ComSession comSession1 = mockComSession(connectionTask, 61L, 0);
+        when(connectionTaskService.findComSession(777L)).thenReturn(Optional.of(comSession1));
+        String response = target("/devices/XAW1/connectionmethods/3/comsessions/777").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<String>get("$.connectionMethod")).isEqualTo("GPRS");
+        assertThat(jsonModel.<String>get("$.connectionMethod")).isEqualTo("GPRS");
+        assertThat(jsonModel.<Long>get("$.startedOn")).isEqualTo(start.getMillis());
+        assertThat(jsonModel.<Long>get("$.finishedOn")).isEqualTo(end.getMillis());
+        assertThat(jsonModel.<Integer>get("$.durationInSeconds")).isEqualTo(10);
+        assertThat(jsonModel.<String>get("$.direction")).isEqualTo("Inbound");
+        assertThat(jsonModel.<String>get("$.connectionType")).isEqualTo("IPDIALER");
+        assertThat(jsonModel.<Integer>get("$.comServer.id")).isEqualTo(1234654);
+        assertThat(jsonModel.<String>get("$.comServer.name")).isEqualTo("communication server alfa");
+        assertThat(jsonModel.<String>get("$.comPort")).isEqualTo("comPort 199812981212");
+        assertThat(jsonModel.<String>get("$.result.id")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.result.displayValue")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.status")).isEqualTo("Success");
+        assertThat(jsonModel.<Integer>get("$.comTaskCount.numberOfSuccessfulTasks")).isEqualTo(1001);
+        assertThat(jsonModel.<Integer>get("$.comTaskCount.numberOfFailedTasks")).isEqualTo(1002);
+        assertThat(jsonModel.<Integer>get("$.comTaskCount.numberOfIncompleteTasks")).isEqualTo(1003);
+        assertThat(jsonModel.<Boolean>get("$.isDefault")).isEqualTo(true);
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(61);
 
     }
 

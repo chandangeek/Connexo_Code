@@ -58,6 +58,21 @@ public class ComSessionResource {
     }
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{comSessionId}")
+    public ComSessionInfo getComSession(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
+        com.google.common.base.Optional<ComSession> comSessionOptional = connectionTaskService.findComSession(comSessionId);
+        if (!comSessionOptional.isPresent() || comSessionOptional.get().getConnectionTask().getId()!=connectionTask.getId()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD);
+        }
+        ComSessionInfo info = comSessionInfoFactory.from(comSessionOptional.get());
+        info.connectionMethod = connectionTask.getName();
+        return info;
+    }
+
+    @GET
     @Path("{comSessionId}/comtaskexecutionsessions")
     @Produces(MediaType.APPLICATION_JSON)
     public ComTaskExecutionSessionsInfo getComTaskExecutionSessions(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId, @BeanParam QueryParameters queryParameters) {
