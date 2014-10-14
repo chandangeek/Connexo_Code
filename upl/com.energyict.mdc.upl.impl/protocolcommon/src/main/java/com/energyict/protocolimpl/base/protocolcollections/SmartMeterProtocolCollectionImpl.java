@@ -34,8 +34,8 @@ public class SmartMeterProtocolCollectionImpl implements ProtocolCollection {
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.elster.apollo.AS300");  this.protocolNames.add("Elster AS300-P DLMS (SSWG IC)");
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas");  this.protocolNames.add("Elster BK-G4E DLMS (SSWG IC) Zigbee Slave");
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice");  this.protocolNames.add("Elster BK-Gx DLMS (NTA DSMR4.0) Mbus Slave");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3)");
-        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3) Mbus Slave");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP");  this.protocolNames.add("EnergyICT WebRTU KP DLMS V1 (NTA DSMR2.3)");
+        this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice");  this.protocolNames.add("EnergyICT WebRTU KP DLMS V1 (NTA DSMR2.3) Mbus Slave");
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS");
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.EMeter");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS EMeter Slave");
         this.protocolClasses.add("com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS Mbus Slave");
