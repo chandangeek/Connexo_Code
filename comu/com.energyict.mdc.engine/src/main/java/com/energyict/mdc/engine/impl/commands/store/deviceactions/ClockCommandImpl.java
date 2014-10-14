@@ -19,6 +19,7 @@ import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.energyict.mdc.tasks.ClockTaskType.*;
 
@@ -83,7 +84,7 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
                 builder.addProperty("maximumClockShift").append(this.getClockTask().getMaximumClockShift());
             }
             if (this.getTimeDifferenceCommand() != null) {
-                builder.addProperty("getTimeDifference").append(this.getTimeDifferenceCommand().getTimeDifference());
+                builder.addProperty("getTimeDifference").append(this.getTimeDifferenceCommand().getTimeDifference().map(TimeDuration::toString).orElse(""));
             }
         }
     }
@@ -157,9 +158,9 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
     }
 
     @Override
-    public TimeDuration getTimeDifference() {
+    public Optional<TimeDuration> getTimeDifference() {
         if (getTimeDifferenceCommand() == null) {
-            return TimeDifferenceCommand.DID_NOT_READ_TIME_DIFFERENCE;
+            return Optional.empty();
         }
         return this.timeDifferenceCommand.getTimeDifference();
     }

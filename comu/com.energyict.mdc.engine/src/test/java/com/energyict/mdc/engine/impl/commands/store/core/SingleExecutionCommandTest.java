@@ -69,7 +69,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
 
         assertTrue(timeDifferenceCommand.hasExecuted());
         assertEquals(SimpleComCommand.ExecutionState.SUCCESSFULLY_EXECUTED, timeDifferenceCommand.getExecutionState());
-        assertEquals(timeDifferenceInMillis, timeDifferenceCommand.getTimeDifference().getMilliSeconds());
+        assertEquals(timeDifferenceInMillis, timeDifferenceCommand.getTimeDifference().get().getMilliSeconds());
     }
 
     @Test
@@ -106,7 +106,7 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
 
         // verify that the getTime is only called once
         verify(deviceProtocol).getTime();
-        assertEquals(timeDifferenceInMillis, timeDifferenceCommand.getTimeDifference().getMilliSeconds());
+        assertEquals(timeDifferenceInMillis, timeDifferenceCommand.getTimeDifference().get().getMilliSeconds());
     }
 
 }

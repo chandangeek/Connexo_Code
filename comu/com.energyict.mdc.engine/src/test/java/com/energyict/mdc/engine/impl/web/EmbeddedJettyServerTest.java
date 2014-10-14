@@ -8,16 +8,16 @@ import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-
 import org.eclipse.jetty.server.Server;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
@@ -172,7 +172,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsStart () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8081/remote/events"), this.serviceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:46000/remote/events"), this.serviceProvider);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -227,7 +227,7 @@ public class EmbeddedJettyServerTest {
     @Test
     public void testQueriesStart () throws URISyntaxException {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        String queryPostURI = "http://localhost:8081/remote/queries";
+        String queryPostURI = "http://localhost:46000/remote/queries";
         when(comServer.getQueryApiPostUri()).thenReturn(queryPostURI);
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);

@@ -3,6 +3,8 @@ package com.energyict.mdc.engine.impl.commands.collect;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.tasks.ClockTask;
 
+import java.util.Optional;
+
 /**
  * The {@link ComCommand} which can perform the actions necessary for a {@link com.energyict.mdc.tasks.ClockTask}
  *
@@ -30,10 +32,10 @@ public interface ClockCommand extends CompositeComCommand {
 
     /**
      * Get the TimeDifference of the ClockCommand. If the timeDifference is not read,
-     * then {@link TimeDifferenceCommand#DID_NOT_READ_TIME_DIFFERENCE} will be returned.
+     * then empty will be returned.
      *
      * @return the timeDifference
      */
-    public TimeDuration getTimeDifference();
+    public Optional<TimeDuration> getTimeDifference();
 
 }

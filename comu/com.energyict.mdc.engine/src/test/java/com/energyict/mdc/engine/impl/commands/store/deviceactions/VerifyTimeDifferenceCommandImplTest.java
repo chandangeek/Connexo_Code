@@ -13,6 +13,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.Optional;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -46,7 +47,7 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
         when(deviceProtocol.getTime()).thenReturn(meterTime);
         BasicCheckCommand basicCheckCommand = mock(BasicCheckCommand.class);
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
-        when(basicCheckCommand.getTimeDifference()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.HOURS));
+        when(basicCheckCommand.getTimeDifference()).thenReturn(Optional.of(new TimeDuration(1, TimeDuration.TimeUnit.HOURS)));
         when(basicCheckCommand.getBasicCheckTask()).thenReturn(basicCheckTask);        when(basicCheckTask.getMaximumClockDifference()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
         VerifyTimeDifferenceCommandImpl verifyTimeDifferenceCommand = new VerifyTimeDifferenceCommandImpl(basicCheckCommand, createCommandRoot());
         verifyTimeDifferenceCommand.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());

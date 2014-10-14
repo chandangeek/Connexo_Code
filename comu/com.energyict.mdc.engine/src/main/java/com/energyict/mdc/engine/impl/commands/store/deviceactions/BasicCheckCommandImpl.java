@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -13,6 +13,8 @@ import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceComman
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.tasks.BasicCheckTask;
+
+import java.util.Optional;
 
 /**
  * Provides a proper implementation for the {@link BasicCheckCommand}
@@ -79,10 +81,8 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
         if (this.basicCheckTask.verifySerialNumber()) {
             builder.addLabel("check serial number");
         }
-        if (   this.verifyTimeDifferenceCommand!= null
-            && this.verifyTimeDifferenceCommand.getTimeDifference() != null
-            && !this.verifyTimeDifferenceCommand.getTimeDifference().isEmpty()) {
-            builder.addProperty("getTimeDifference").append(this.verifyTimeDifferenceCommand.getTimeDifference());
+        if (   this.verifyTimeDifferenceCommand!= null) {
+            builder.addProperty("getTimeDifference").append(this.verifyTimeDifferenceCommand.getTimeDifference().map(TimeDuration::toString).orElse(""));
         }
     }
 
@@ -113,7 +113,7 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
      * @return the timeDifference
      */
     @Override
-    public TimeDuration getTimeDifference() {
+    public Optional<TimeDuration> getTimeDifference() {
         return getTimeDifferenceCommand().getTimeDifference();
     }
 

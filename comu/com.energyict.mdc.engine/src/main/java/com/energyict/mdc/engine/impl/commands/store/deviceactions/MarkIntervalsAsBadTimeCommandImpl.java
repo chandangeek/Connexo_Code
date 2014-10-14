@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.common.interval.IntervalStateBits;
@@ -52,7 +53,7 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
             for (DeviceLoadProfile deviceLoadProfile : badTimeLoadProfiles) {
                 builder = builder.append(deviceLoadProfile.getLoadProfileIdentifier()).next();
             }
-            descriptionBuilder.addProperty("actualTimeDifference").append(this.loadProfileCommand.getTimeDifferenceCommand().getTimeDifference());
+            descriptionBuilder.addProperty("actualTimeDifference").append(this.loadProfileCommand.getTimeDifferenceCommand().getTimeDifference().map(TimeDuration::toString).orElse(""));
         }
     }
 
@@ -73,7 +74,7 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
 
     private boolean hasLargerOrEqualDuration() {
         return TimeDurations.hasLargerOrEqualDurationThen(
-                loadProfileCommand.getTimeDifferenceCommand().getTimeDifference().abs(),
+                loadProfileCommand.getTimeDifferenceCommand().getTimeDifference().orElse(new TimeDuration(0, TimeDuration.TimeUnit.SECONDS)).abs(),
                 loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime(), true);
     }
 

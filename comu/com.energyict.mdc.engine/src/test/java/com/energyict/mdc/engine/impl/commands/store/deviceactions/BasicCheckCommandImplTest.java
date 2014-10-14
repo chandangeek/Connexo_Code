@@ -98,7 +98,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         assertNotNull(basicCheckCommand.getBasicCheckTask());
         // verify that getTime is called only once
         verify(deviceProtocol).getTime();
-        assertEquals(timeDifferenceInMillis, basicCheckCommand.getTimeDifference().getMilliSeconds());
+        assertEquals(timeDifferenceInMillis, basicCheckCommand.getTimeDifference().get().getMilliSeconds());
         assertEquals(CompletionCode.Ok, basicCheckCommand.getCompletionCode());
         assertEquals(SimpleComCommand.ExecutionState.SUCCESSFULLY_EXECUTED, basicCheckCommand.getExecutionState());
         assertTrue(basicCheckCommand.getVerifyTimeDifferenceCommand().getIssues().isEmpty());

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
@@ -54,7 +55,7 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
      * Perform the actions which are owned by this ComCommand
      */
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        long timeDifference = clockCommand.getTimeDifference().getMilliSeconds();
+        long timeDifference = clockCommand.getTimeDifference().orElse(TimeDuration.TimeUnit.MILLISECONDS.during(0)).getMilliSeconds();
         if (Math.abs(timeDifference) <= clockCommand.getClockTask().getMaximumClockDifference().getMilliSeconds()){
             long timeShift = getTimeShift(timeDifference);
             if (timeShift != 0) {

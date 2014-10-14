@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Date;
+import java.util.Optional;
 
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -68,7 +69,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         ClockTask clockTask = mock(ClockTask.class);
         when(clockTask.getMaximumClockDifference()).thenReturn(maxClockDifference);
         when(clockCommand.getClockTask()).thenReturn(clockTask);
-        when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
+        when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
         when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
@@ -102,7 +103,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
-        when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
+        when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
         when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
@@ -136,7 +137,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
-        when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
+        when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
         when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
@@ -170,7 +171,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
-        when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
+        when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
         when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
@@ -204,7 +205,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
-        when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
+        when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
         when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());
@@ -237,7 +238,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
-        when(clockCommand.getTimeDifference()).thenReturn(clockDiff);
+        when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
         when(commandRootServiceProvider.issueService()).thenReturn(serviceProvider.issueService());

@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * Command which performs the action to collect and hold the TimeDifference of the device.
@@ -47,11 +48,8 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
     /**
      * @return the {@link #timeDifference}
      */
-    public TimeDuration getTimeDifference() {
-        if (this.timeDifference == null) {
-            return TimeDifferenceCommand.DID_NOT_READ_TIME_DIFFERENCE;
-        }
-        return timeDifference;
+    public Optional<TimeDuration> getTimeDifference() {
+        return Optional.ofNullable(timeDifference);
     }
 
     @Override

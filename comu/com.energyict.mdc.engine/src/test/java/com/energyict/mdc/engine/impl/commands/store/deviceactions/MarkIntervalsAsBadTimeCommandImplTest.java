@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -62,7 +63,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         CommandRoot commandRoot = createCommandRoot();
         LoadProfileCommand loadProfileCommand = spy(commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution));
         TimeDifferenceCommand timeDifferenceCommand = mock(TimeDifferenceCommand.class);
-        when(timeDifferenceCommand.getTimeDifference()).thenReturn(timeDifference);
+        when(timeDifferenceCommand.getTimeDifference()).thenReturn(Optional.of(timeDifference));
         when(loadProfileCommand.getTimeDifferenceCommand()).thenReturn(timeDifferenceCommand);
 
         MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
@@ -94,7 +95,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         CommandRoot commandRoot = createCommandRoot();
         LoadProfileCommand loadProfileCommand = spy(commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution));
         TimeDifferenceCommand timeDifferenceCommand = mock(TimeDifferenceCommand.class);
-        when(timeDifferenceCommand.getTimeDifference()).thenReturn(timeDifference);
+        when(timeDifferenceCommand.getTimeDifference()).thenReturn(Optional.of(timeDifference));
         when(loadProfileCommand.getTimeDifferenceCommand()).thenReturn(timeDifferenceCommand);
 
         MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
