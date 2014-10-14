@@ -11,8 +11,8 @@ import com.energyict.mdc.common.NotFoundException;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
@@ -599,7 +599,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (first == null) {
             return null;
         } else {
-            for (ComTaskEnablement comTaskEnablement : enabledComTasks((ServerDeviceCommunicationConfiguration) device.getDeviceConfiguration().getCommunicationConfiguration())) {
+            for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration().getCommunicationConfiguration())) {
                 if (comTaskEnablement.getComTask().equals(first.getComTasks().get(0))) {
                     securityPropertySet = comTaskEnablement.getSecurityPropertySet();
                 }
@@ -608,7 +608,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private List<ComTaskEnablement> enabledComTasks(ServerDeviceCommunicationConfiguration communicationConfiguration) {
+    private List<ComTaskEnablement> enabledComTasks(DeviceCommunicationConfiguration communicationConfiguration) {
         return communicationConfiguration.getComTaskEnablements();
     }
 

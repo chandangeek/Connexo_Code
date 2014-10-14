@@ -29,6 +29,8 @@ import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -119,6 +121,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new NlsModule(),
                 new UserModule(),
                 new MeteringModule(),
+                new MeteringGroupsModule(),
                 new OrmModule(),
                 new MdcCommonModule(),
                 new BasicPropertiesModule(),
@@ -152,6 +155,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
             @Override
             protected void doPerform() {
                 injector.getInstance(MeteringService.class);
+                injector.getInstance(MeteringGroupsService.class);
                 injector.getInstance(EngineService.class);
                 EventService eventService = injector.getInstance(EventService.class);
                 makeSureJupiterEventsAreInstalled(eventService);
