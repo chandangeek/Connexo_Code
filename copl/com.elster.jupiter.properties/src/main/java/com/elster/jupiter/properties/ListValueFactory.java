@@ -3,7 +3,7 @@ package com.elster.jupiter.properties;
 import java.sql.SQLException;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class ListValueFactory<T extends ListValueEntry> extends AbstractValueFactory<ListValue<T>> {
 

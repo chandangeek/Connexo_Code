@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ListValueTest {
@@ -158,7 +158,7 @@ public class ListValueTest {
             default:
                 break;
             }
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

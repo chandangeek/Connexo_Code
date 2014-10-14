@@ -1,6 +1,6 @@
 package com.elster.jupiter.properties;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public interface FindById<T extends ListValueEntry> {
 

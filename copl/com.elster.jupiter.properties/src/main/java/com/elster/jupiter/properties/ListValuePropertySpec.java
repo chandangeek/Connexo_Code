@@ -3,7 +3,7 @@ package com.elster.jupiter.properties;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -24,13 +24,9 @@ public class ListValuePropertySpec<T extends ListValueEntry> extends BasicProper
     protected boolean isValuePossible(ListValue<T> value) {
         List<ListValue<T>> possibleListValues = (List<ListValue<T>>) possibleValues.getAllValues();
         for (final T v : value.getValues()) {
-            Optional<ListValue<T>> found = Iterables.<ListValue<T>>tryFind(possibleListValues, new Predicate<ListValue<T>>() {
-
-                @Override
-                public boolean apply(ListValue<T> input) {
-                    return v.getId().equals(input.getValue().getId());
-                }
-            });
+            Optional<ListValue<T>> found = possibleListValues.stream()
+            		.filter(input -> v.getId().equals(input.getValue().getId()))
+            		.findFirst();
             if (!found.isPresent()) {
                 return false;
             }
