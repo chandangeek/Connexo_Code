@@ -13,6 +13,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DataCollectionKpiService} interface.
@@ -122,7 +123,7 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
             this.kpiBuilder = kpiBuilder;
             this.kpiBuilder.interval(intervalLength);
             this.memberBuilders =
-                    MONITORED_STATUSSES.stream().
+                    Stream.of(MonitoredTaskStatus.values()).
                             map(s -> kpiBuilder.member().named(s.name())).
                             map(s -> {
                                 s.add();

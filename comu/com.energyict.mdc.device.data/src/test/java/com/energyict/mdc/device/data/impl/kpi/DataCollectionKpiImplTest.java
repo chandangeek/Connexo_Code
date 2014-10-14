@@ -420,7 +420,7 @@ public class DataCollectionKpiImplTest {
         // Asserts
         Kpi connectionKpi = kpi.connectionKpi().get();
         assertThat(connectionKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
-        assertThat(connectionKpi.getMembers()).hasSize(DataCollectionKpiService.MONITORED_STATUSSES.size());
+        assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
     }
 
     @Test
@@ -436,7 +436,7 @@ public class DataCollectionKpiImplTest {
         // Asserts
         Kpi communicationKpi = kpi.communicationKpi().get();
         assertThat(communicationKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
-        assertThat(communicationKpi.getMembers()).hasSize(DataCollectionKpiService.MONITORED_STATUSSES.size());
+        assertThat(communicationKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
     }
 
     @Test

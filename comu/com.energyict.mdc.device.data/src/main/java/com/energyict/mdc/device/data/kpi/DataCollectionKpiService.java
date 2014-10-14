@@ -25,11 +25,6 @@ import java.util.Set;
  */
 public interface DataCollectionKpiService {
 
-    /**
-     * The Set of {@link TaskStatus} that are being monitored as part of a {@link DataCollectionKpi}.
-     */
-    public Set<TaskStatus> MONITORED_STATUSSES = EnumSet.of(TaskStatus.Waiting, TaskStatus.Pending, TaskStatus.Failed);
-
     public DataCollectionKpiBuilder newDataCollectionKpi(QueryEndDeviceGroup group);
 
     /**
