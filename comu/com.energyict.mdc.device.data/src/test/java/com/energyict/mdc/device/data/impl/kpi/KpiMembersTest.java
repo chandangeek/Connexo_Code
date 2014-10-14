@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
@@ -37,13 +36,15 @@ public class KpiMembersTest {
     private static final int INTERVAL_END_MILLIS = INTERVAL_START_MILLIS + DateTimeConstants.MILLIS_PER_DAY;
     private static final int KPI_INTERVAL_MINUTES = 15;
     private static final BigDecimal TARGET = BigDecimal.TEN;
+    private static final BigDecimal HUNDRED = new BigDecimal("100");
 
     @Test
     public void getScoresForMonitoredStatusses () {
-        KpiMember waiting = mockedKpiMember(TaskStatus.Waiting, new BigDecimal("97"), new BigDecimal("83"), new BigDecimal("67"));
-        KpiMember pending = mockedKpiMember(TaskStatus.Pending, new BigDecimal("3"), new BigDecimal("13"), new BigDecimal("23"));
-        KpiMember failed = mockedKpiMember(TaskStatus.Failed, new BigDecimal("0"), new BigDecimal("4"), new BigDecimal("10"));
-        KpiMembers kpiMembers = new KpiMembers(Arrays.asList(waiting, pending, failed));
+        KpiMember total = mockedKpiMember(MonitoredTaskStatus.Total, HUNDRED, HUNDRED, HUNDRED);
+        KpiMember success = mockedKpiMember(MonitoredTaskStatus.Success, new BigDecimal("97"), new BigDecimal("83"), new BigDecimal("67"));
+        KpiMember ongoing = mockedKpiMember(MonitoredTaskStatus.Ongoing, new BigDecimal("3"),  new BigDecimal("13"), new BigDecimal("23"));
+        KpiMember failed = mockedKpiMember(MonitoredTaskStatus.Failed,   new BigDecimal("0"),  new BigDecimal("4"),  new BigDecimal("10"));
+        KpiMembers kpiMembers = new KpiMembers(Arrays.asList(total, success, ongoing, failed));
 
         // Business method
         List<DataCollectionKpiScore> scores = kpiMembers.getScores(this.testInterval());
@@ -52,25 +53,26 @@ public class KpiMembersTest {
         assertThat(scores).hasSize(3);
         DataCollectionKpiScore first = scores.get(0);
         assertThat(first.getTarget()).isEqualTo(BigDecimal.TEN);
-        assertThat(first.getValue(TaskStatus.Waiting)).isEqualTo(new BigDecimal("97"));
-        assertThat(first.getValue(TaskStatus.Pending)).isEqualTo(new BigDecimal("3"));
-        assertThat(first.getValue(TaskStatus.Failed)).isEqualTo(BigDecimal.ZERO);
+        assertThat(first.getSuccess()).isEqualTo(new BigDecimal("97"));
+        assertThat(first.getOngoing()).isEqualTo(new BigDecimal("3"));
+        assertThat(first.getFailed()).isEqualTo(BigDecimal.ZERO);
         DataCollectionKpiScore second = scores.get(1);
-        assertThat(second.getValue(TaskStatus.Waiting)).isEqualTo(new BigDecimal("83"));
-        assertThat(second.getValue(TaskStatus.Pending)).isEqualTo(new BigDecimal("13"));
-        assertThat(second.getValue(TaskStatus.Failed)).isEqualTo(new BigDecimal("4"));
+        assertThat(second.getSuccess()).isEqualTo(new BigDecimal("83"));
+        assertThat(second.getOngoing()).isEqualTo(new BigDecimal("13"));
+        assertThat(second.getFailed()).isEqualTo(new BigDecimal("4"));
         DataCollectionKpiScore third = scores.get(2);
-        assertThat(third.getValue(TaskStatus.Waiting)).isEqualTo(new BigDecimal("67"));
-        assertThat(third.getValue(TaskStatus.Pending)).isEqualTo(new BigDecimal("23"));
-        assertThat(third.getValue(TaskStatus.Failed)).isEqualTo(BigDecimal.TEN);
+        assertThat(third.getSuccess()).isEqualTo(new BigDecimal("67"));
+        assertThat(third.getOngoing()).isEqualTo(new BigDecimal("23"));
+        assertThat(third.getFailed()).isEqualTo(BigDecimal.TEN);
     }
 
     @Test
     public void getScoresForUnorderedMonitoredStatusses () {
-        KpiMember waiting = mockedKpiMember(TaskStatus.Waiting, new BigDecimal("97"), new BigDecimal("83"), new BigDecimal("67"));
-        KpiMember pending = mockedKpiMember(TaskStatus.Pending, new BigDecimal("3"), new BigDecimal("13"), new BigDecimal("23"));
-        KpiMember failed = mockedKpiMember(TaskStatus.Failed, new BigDecimal("0"), new BigDecimal("4"), new BigDecimal("10"));
-        KpiMembers kpiMembers = new KpiMembers(Arrays.asList(failed, pending, waiting));
+        KpiMember total = mockedKpiMember(MonitoredTaskStatus.Total, HUNDRED, HUNDRED, HUNDRED);
+        KpiMember success = mockedKpiMember(MonitoredTaskStatus.Success, new BigDecimal("97"), new BigDecimal("83"), new BigDecimal("67"));
+        KpiMember ongoing = mockedKpiMember(MonitoredTaskStatus.Ongoing, new BigDecimal("3"),  new BigDecimal("13"), new BigDecimal("23"));
+        KpiMember failed = mockedKpiMember(MonitoredTaskStatus.Failed,   new BigDecimal("0"),  new BigDecimal("4"),  new BigDecimal("10"));
+        KpiMembers kpiMembers = new KpiMembers(Arrays.asList(total, success, ongoing, failed));
 
         // Business method
         List<DataCollectionKpiScore> scores = kpiMembers.getScores(this.testInterval());
@@ -79,24 +81,24 @@ public class KpiMembersTest {
         assertThat(scores).hasSize(3);
         DataCollectionKpiScore first = scores.get(0);
         assertThat(first.getTarget()).isEqualTo(BigDecimal.TEN);
-        assertThat(first.getValue(TaskStatus.Waiting)).isEqualTo(new BigDecimal("97"));
-        assertThat(first.getValue(TaskStatus.Pending)).isEqualTo(new BigDecimal("3"));
-        assertThat(first.getValue(TaskStatus.Failed)).isEqualTo(BigDecimal.ZERO);
+        assertThat(first.getSuccess()).isEqualTo(new BigDecimal("97"));
+        assertThat(first.getOngoing()).isEqualTo(new BigDecimal("3"));
+        assertThat(first.getFailed()).isEqualTo(BigDecimal.ZERO);
         DataCollectionKpiScore second = scores.get(1);
-        assertThat(second.getValue(TaskStatus.Waiting)).isEqualTo(new BigDecimal("83"));
-        assertThat(second.getValue(TaskStatus.Pending)).isEqualTo(new BigDecimal("13"));
-        assertThat(second.getValue(TaskStatus.Failed)).isEqualTo(new BigDecimal("4"));
+        assertThat(second.getSuccess()).isEqualTo(new BigDecimal("83"));
+        assertThat(second.getOngoing()).isEqualTo(new BigDecimal("13"));
+        assertThat(second.getFailed()).isEqualTo(new BigDecimal("4"));
         DataCollectionKpiScore third = scores.get(2);
-        assertThat(third.getValue(TaskStatus.Waiting)).isEqualTo(new BigDecimal("67"));
-        assertThat(third.getValue(TaskStatus.Pending)).isEqualTo(new BigDecimal("23"));
-        assertThat(third.getValue(TaskStatus.Failed)).isEqualTo(BigDecimal.TEN);
+        assertThat(third.getSuccess()).isEqualTo(new BigDecimal("67"));
+        assertThat(third.getOngoing()).isEqualTo(new BigDecimal("23"));
+        assertThat(third.getFailed()).isEqualTo(BigDecimal.TEN);
     }
 
     private Interval testInterval() {
         return Interval.of(Instant.ofEpochMilli(INTERVAL_START_MILLIS), Instant.ofEpochMilli(INTERVAL_END_MILLIS));
     }
 
-    private KpiMember mockedKpiMember(TaskStatus taskStatus, BigDecimal... scores) {
+    private KpiMember mockedKpiMember(MonitoredTaskStatus taskStatus, BigDecimal... scores) {
         DateTime timestamp = new DateTime(INTERVAL_START_MILLIS).plusMinutes(KPI_INTERVAL_MINUTES);
         KpiMember kpiMember = mock(KpiMember.class);
         when(kpiMember.getName()).thenReturn(taskStatus.name());

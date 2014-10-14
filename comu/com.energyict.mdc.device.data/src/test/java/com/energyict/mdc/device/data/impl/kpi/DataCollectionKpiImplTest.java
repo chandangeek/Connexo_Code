@@ -1,5 +1,35 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
+import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -15,8 +45,8 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -119,9 +149,12 @@ public class DataCollectionKpiImplTest {
     private static TaskService taskService;
     private static KpiService kpiService;
     private static DeviceDataModelServiceImpl deviceDataModelService;
-    private static EndDeviceGroup endDeviceGroup;
+    private static QueryEndDeviceGroup endDeviceGroup;
     private static CronExpressionParser cronExpressionParser;
     private static CronExpression cronExpression;
+    private static MeteringGroupsService meteringGroupsService;
+    private static MeteringService meteringService;
+    private static DeviceService deviceService;
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -191,6 +224,7 @@ public class DataCollectionKpiImplTest {
                 new TaskModule(),
                 new TasksModule(),
                 new KpiModule(),
+                new MeteringGroupsModule(),
                 new DeviceDataModule(),
                 new MockModule(),
                 new MeteringGroupsModule()
@@ -200,11 +234,10 @@ public class DataCollectionKpiImplTest {
             messageService = injector.getInstance(MessageService.class);
             taskService = injector.getInstance(TaskService.class);
             kpiService = injector.getInstance(KpiService.class);
+            meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            meteringService = injector.getInstance(MeteringService.class);
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
-            injector.getInstance(MeteringGroupsService.class);
-            MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DeviceService deviceService = injector.getInstance(DeviceServiceImpl.class);
+            deviceService = deviceDataModelService.deviceService();
 
             DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
             endDeviceQueryProvider.setMeteringService(meteringService);
@@ -212,7 +245,9 @@ public class DataCollectionKpiImplTest {
             meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
 
             Condition conditionDevice = where("deviceConfiguration.deviceType.name").isEqualTo(DEVICE_TYPE_NAME);
-            return meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
+            QueryEndDeviceGroup temp = meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
+            temp.save();
+            return temp;
         });
 
     }
@@ -246,6 +281,52 @@ public class DataCollectionKpiImplTest {
 
         // Asserts
         assertThat(found.isPresent()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testNonExistingKpiIsNotReturnedByFindById() {
+        // Business method
+        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(0);
+
+        // Asserts
+        assertThat(found.isPresent()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testCreatedKpiIsReturnedByFindByGroup() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.save();
+
+        // Business method
+        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(endDeviceGroup);
+
+        // Asserts
+        assertThat(found.isPresent()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testFindByGroupForDifferentGroup() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.save();
+
+        DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
+        endDeviceQueryProvider.setMeteringService(meteringService);
+        endDeviceQueryProvider.setDeviceService(deviceService);
+        meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
+
+        Condition conditionDevice = where("deviceConfiguration.deviceType.id").isEqualTo(97L);
+        QueryEndDeviceGroup otherEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
+
+        // Business method
+        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(otherEndDeviceGroup);
+
+        // Asserts
+        assertThat(found.isPresent()).isFalse();
     }
 
     @Test
@@ -376,7 +457,7 @@ public class DataCollectionKpiImplTest {
         // Asserts
         Kpi connectionKpi = kpi.connectionKpi().get();
         assertThat(connectionKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
-        assertThat(connectionKpi.getMembers()).hasSize(DataCollectionKpiService.MONITORED_STATUSSES.size());
+        assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
     }
 
     @Test
@@ -392,7 +473,7 @@ public class DataCollectionKpiImplTest {
         // Asserts
         Kpi communicationKpi = kpi.communicationKpi().get();
         assertThat(communicationKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
-        assertThat(communicationKpi.getMembers()).hasSize(DataCollectionKpiService.MONITORED_STATUSSES.size());
+        assertThat(communicationKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
     }
 
     @Test

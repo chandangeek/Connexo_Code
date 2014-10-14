@@ -10,6 +10,8 @@ import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
+import java.util.List;
+
 /**
  * Builds the SQL query thats counts {@link ConnectionTask}s
  * for a single {@link TaskStatus}.
@@ -21,8 +23,8 @@ public class ConnectionTaskCurrentStateCounterSqlBuilder extends AbstractConnect
 
     private ServerConnectionTaskStatus taskStatus;
 
-    public ConnectionTaskCurrentStateCounterSqlBuilder(ServerConnectionTaskStatus taskStatus, Clock clock, QueryEndDeviceGroup deviceGroup, QueryExecutor<Device> deviceQueryExecutor) {
-        super(clock, deviceGroup, deviceQueryExecutor);
+    public ConnectionTaskCurrentStateCounterSqlBuilder(ServerConnectionTaskStatus taskStatus, Clock clock, List<QueryEndDeviceGroup> deviceGroups, QueryExecutor<Device> deviceQueryExecutor) {
+        super(clock, deviceGroups, deviceQueryExecutor);
         this.taskStatus = taskStatus;
     }
 
@@ -48,7 +50,7 @@ public class ConnectionTaskCurrentStateCounterSqlBuilder extends AbstractConnect
 
     private void appendWhereClause() {
         this.appendWhereClause(this.taskStatus);
-        this.appendDeviceSql();
+        this.appendDeviceInGroupSql();
     }
 
 }

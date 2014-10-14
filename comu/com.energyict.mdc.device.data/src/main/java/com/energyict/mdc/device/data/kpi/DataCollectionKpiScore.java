@@ -7,9 +7,12 @@ import java.util.Date;
 
 /**
  * Models scoring of the Kpi at a certain point in time.
- * Will contain scored values for all the monitored {@link TaskStatus}ses.
- * The complete list of monitored TaskStatusses is documented
- * {@link DataCollectionKpiService#MONITORED_STATUSSES here}.
+ * Will contain scored values for:
+ * <ul>
+ * <li>Success: {@link TaskStatus#Waiting}</li>
+ * <li>Ongoing: {@link TaskStatus#Pending} or {@link TaskStatus#Busy} or {@link TaskStatus#Retrying}</li>
+ * <li>Failed: {@link TaskStatus#Failed} or {@link TaskStatus#NeverCompleted}</li>
+ * </ul>
  * The natural sort order is determined by the timestamp.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -37,14 +40,6 @@ public interface DataCollectionKpiScore extends Comparable<DataCollectionKpiScor
      * @return A flag that indicates if this score meets the target
      */
     public boolean meetsTarget();
-
-    /**
-     * Gets the scored value for the specified {@link TaskStatus}.
-     *
-     * @param status The TaskStatus
-     * @return The scored value
-     */
-    public BigDecimal getValue(TaskStatus status);
 
     public BigDecimal getSuccess();
 

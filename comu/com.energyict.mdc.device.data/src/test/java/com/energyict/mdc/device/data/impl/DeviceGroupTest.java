@@ -204,9 +204,9 @@ public class DeviceGroupTest {
                 new KpiModule(),
                 new TaskModule(),
                 new TasksModule(),
+                new MeteringGroupsModule(),
                 new DeviceDataModule(),
-                new MockModule(),
-                new MeteringGroupsModule()
+                new MockModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(MeteringGroupsService.class);

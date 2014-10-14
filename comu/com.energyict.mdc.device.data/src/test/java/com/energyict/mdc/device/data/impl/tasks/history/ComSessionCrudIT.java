@@ -8,6 +8,8 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
@@ -212,6 +214,7 @@ public class ComSessionCrudIT {
                 new UserModule(),
                 new IdsModule(),
                 new MeteringModule(),
+                new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
@@ -235,13 +238,7 @@ public class ComSessionCrudIT {
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             ormService = injector.getInstance(OrmService.class);
-//            eventService = injector.getInstance(EventService.class);
-//            nlsService = injector.getInstance(NlsService.class);
-//            meteringService = injector.getInstance(MeteringService.class);
-//            readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
-//            engineModelService = injector.getInstance(EngineModelService.class);
-//            protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-//            inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
+            injector.getInstance(MeteringGroupsService.class);
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);

@@ -9,7 +9,7 @@ import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -67,7 +67,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private Reference<Kpi> communicationKpi = ValueReference.absent();
     private CompositeKpiSaveStrategy kpiSaveStrategy = new KpiSaveStrategyAtCreationTime();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_GROUP_IS_REQUIRED + "}")
-    private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
+    private Reference<QueryEndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<RecurrentTask> connectionKpiTask = ValueReference.absent();
     private Reference<RecurrentTask> communicationKpiTask = ValueReference.absent();
     private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateAllSchedules();
@@ -80,7 +80,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         this.messageService = messageService;
     }
 
-    DataCollectionKpiImpl initialize(EndDeviceGroup group) {
+    DataCollectionKpiImpl initialize(QueryEndDeviceGroup group) {
         this.endDeviceGroup.set(group);
         return this;
     }
@@ -113,7 +113,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     @Override
-    public EndDeviceGroup getDeviceGroup() {
+    public QueryEndDeviceGroup getDeviceGroup() {
         return this.endDeviceGroup.get();
     }
 

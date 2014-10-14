@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.kpi;
 import com.energyict.mdc.common.HasId;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 
 import java.time.temporal.TemporalAmount;
@@ -76,7 +77,7 @@ public interface DataCollectionKpi extends HasId {
      *
      * @return The EndDeviceGroup
      */
-    public EndDeviceGroup getDeviceGroup();
+    public QueryEndDeviceGroup getDeviceGroup();
 
     public void delete();
 

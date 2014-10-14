@@ -43,16 +43,17 @@ public class MdcDeviceGroups {
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile DeviceService deviceService;
 
-    public void create(String mRID, String... fieldsAndValues) {
-        this.transactionService.execute(() -> this.doCreate(mRID, fieldsAndValues));
+    public void create(String name, String mRID, String... fieldsAndValues) {
+        this.transactionService.execute(() -> this.doCreate(name, mRID, fieldsAndValues));
     }
 
-    private EndDeviceGroup doCreate(String mRID, String... fieldsAndValues) {
+    private EndDeviceGroup doCreate(String name, String mRID, String... fieldsAndValues) {
         if (this.numberOfFieldsAndValuesMatch(fieldsAndValues)) {
             this.setPrincipal();
             Condition condition = this.conditionFromFieldsAndValues(fieldsAndValues);
             QueryEndDeviceGroup queryEndDeviceGroup = this.meteringGroupsService.createQueryEndDeviceGroup(condition);
             queryEndDeviceGroup.setMRID(mRID);
+            queryEndDeviceGroup.setName(name);
             queryEndDeviceGroup.setQueryProviderName(DEVICE_ENDDEVICE_QUERYPROVIDER);
             queryEndDeviceGroup.save();
             System.out.println("Create group with id: " + queryEndDeviceGroup.getId());
@@ -60,6 +61,7 @@ public class MdcDeviceGroups {
         }
         else {
             System.out.println("The number of fields and values must match, i.e. every field must have a value");
+            System.out.println("Usage:\n\t mdcgroups::create <name> <mRID> <fieldsAndValues>");
             return null;
         }
     }
