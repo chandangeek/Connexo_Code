@@ -1,5 +1,5 @@
 /**
- * @cls Uni.view.window.Acknowledgement
+ * @class Uni.view.window.Acknowledgement
  */
 Ext.define('Uni.view.window.Acknowledgement', {
     extend: 'Ext.window.Window',

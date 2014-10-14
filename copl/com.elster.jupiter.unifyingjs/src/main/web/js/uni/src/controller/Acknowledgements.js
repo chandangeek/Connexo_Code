@@ -1,5 +1,5 @@
 /**
- * @cls Uni.controller.Acknowledgements
+ * @class Uni.controller.Acknowledgements
  *
  * Acknowledgements controller that is responsible for displaying acknowledgements
  * and removing them from the screen when required.
