@@ -62,11 +62,6 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.common</artifactId>
-            <version>${comserver.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling</artifactId>
             <version>${comserver.version}</version>
         </dependency>
