@@ -273,6 +273,7 @@ public class DeviceGroupTest {
             QueryEndDeviceGroup queryEndDeviceGroup =
                     meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
             queryEndDeviceGroup.setMRID("dynamic");
+            queryEndDeviceGroup.setLabel("MDC");
             queryEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPRVIDER);
             queryEndDeviceGroup.save();
             ctx.commit();
@@ -285,6 +286,7 @@ public class DeviceGroupTest {
         List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
+        Assertions.assertThat(group.getLabel().equals("MDC"));
     }
 
     @Test
