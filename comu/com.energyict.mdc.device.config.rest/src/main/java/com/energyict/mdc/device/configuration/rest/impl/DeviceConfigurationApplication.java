@@ -27,14 +27,17 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,6 +64,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
     private volatile Thesaurus thesaurus;
     private volatile ValidationService validationService;
     private volatile DeviceService deviceService;
+    private volatile DeviceMessageService deviceMessageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -87,7 +91,9 @@ public class DeviceConfigurationApplication extends Application implements Insta
                 ExecutionLevelResource.class,
                 LoadProfileConfigurationResource.class,
                 DeviceConfigsValidationRuleSetResource.class,
-                ValidationRuleSetResource.class
+                ValidationRuleSetResource.class,
+                DeviceMessagesResource.class,
+                DeviceMessagePrivilegesResource.class
         );
     }
 
@@ -164,6 +170,11 @@ public class DeviceConfigurationApplication extends Application implements Insta
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+    
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
+    }
 
     @Override
     public void install() {
@@ -239,6 +250,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(userService).to(UserService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(deviceMessageService).to(DeviceMessageService.class);
         }
     }
 
