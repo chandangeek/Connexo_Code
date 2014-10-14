@@ -38,7 +38,7 @@ public class DeviceMessagePrivilegesResourceTest extends DeviceConfigurationAppl
 
         assertThat(jsonModel.<String> get("$.privileges[1].privilege")).isEqualTo(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2.getPrivilege());
         assertThat(jsonModel.<String> get("$.privileges[1].name")).isEqualTo("Level 2");
-        assertThat(jsonModel.<List<String>> get("$.privileges[1].roles")).containsExactly();
+        assertThat(jsonModel.<List<String>> get("$.privileges[1].roles")).isEmpty();
 
         assertThat(jsonModel.<String> get("$.privileges[2].privilege")).isEqualTo(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3.getPrivilege());
         assertThat(jsonModel.<String> get("$.privileges[2].name")).isEqualTo("Level 3");
@@ -46,6 +46,6 @@ public class DeviceMessagePrivilegesResourceTest extends DeviceConfigurationAppl
 
         assertThat(jsonModel.<String> get("$.privileges[3].privilege")).isEqualTo(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE4.getPrivilege());
         assertThat(jsonModel.<String> get("$.privileges[3].name")).isEqualTo("Level 4");
-        assertThat(jsonModel.<List<String>> get("$.privileges[3].roles")).containsExactly();
+        assertThat(jsonModel.<List<String>> get("$.privileges[3].roles")).isEmpty();
     }
 }
