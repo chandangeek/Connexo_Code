@@ -14,21 +14,6 @@ public final class ValueReference<T> implements Reference<T> {
 	public static <T> Reference<T> absent() {
 		return new ValueReference<>();
 	}
-	
-	@Override
-	public T get() {
-		return Objects.requireNonNull(value);
-	}
-	
-	@Override
-	public T orNull() {
-		return value;
-	}
-	
-	@Override
-	public T or(T defaultValue) {
-		return value == null ? defaultValue : value;
-	}
  
 	@Override
 	public void set(T value) {
@@ -40,11 +25,6 @@ public final class ValueReference<T> implements Reference<T> {
 		return Optional.ofNullable(value);
 	}
 
-	@Override
-	public boolean isPresent() {
-		return value != null;
-	}
-	
 	@Override
 	public boolean equals(Object o) {
 		if (o == this) {
@@ -65,7 +45,5 @@ public final class ValueReference<T> implements Reference<T> {
 	@Override
 	public void setNull() {
 		value = null;
-	}
-	
-	
+	}	
 }

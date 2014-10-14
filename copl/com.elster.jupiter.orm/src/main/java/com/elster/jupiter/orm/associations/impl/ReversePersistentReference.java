@@ -36,28 +36,8 @@ public class ReversePersistentReference<T> implements Reference<T> {
 	}
 
 	@Override
-	public T get() {
-		return getTarget().get();
-	}
-
-	@Override
-	public T orNull() {
-		return getTarget().orElse(null);
-	}
-
-	@Override
-	public T or(T defaultValue) {
-		return getTarget().orElse(defaultValue);
-	}
-
-	@Override
 	public Optional<T> getOptional() {
 		return getTarget();
-	}
-
-	@Override
-	public boolean isPresent() {
-		return getTarget().isPresent();
 	}
 
 	@Override
@@ -82,7 +62,4 @@ public class ReversePersistentReference<T> implements Reference<T> {
 		}
 		target = Optional.empty();
 	}
-	
-	
-		
 }

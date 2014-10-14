@@ -18,21 +18,6 @@ public class PersistentReference<T> implements Reference<T> {
 		this.primaryKey = primaryKey;
 		this.dataMapper = dataMapper;
 	}
-
-	@Override
-	public T get() {
-		return getOptional().get();
-	}
-	
-	@Override
-	public T orNull() {
-		return getOptional().orElse(null);
-	}
-
-	@Override
-	public T or(T defaultValue) {
-		return getOptional().orElse(defaultValue);
-	}
 	
 	@Override
 	public void set(T value) {
@@ -97,7 +82,4 @@ public class PersistentReference<T> implements Reference<T> {
 	public void setNull() {
 		set(null);
 	}
-	
-	
- 
 }
