@@ -546,7 +546,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private void validateUniqueChannelSpecPerLoadProfileSpec(ChannelSpec channelSpec) {
         for (ChannelSpec spec : channelSpecs) {
-            if(!isSameIdObject(spec, channelSpec)){
+            if (!isSameIdObject(spec, channelSpec)) {
                 if (channelSpec.getLoadProfileSpec() == null) {
                     if (spec.getLoadProfileSpec() == null && channelSpec.getDeviceObisCode().equals(spec.getDeviceObisCode())) {
                         throw DuplicateObisCodeException.forChannelSpecConfigWithoutLoadProfileSpec(thesaurus, this, channelSpec.getDeviceObisCode(), channelSpec);
@@ -739,7 +739,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void save() {
         this.modificationDate = this.clock.now();
         super.save();
-        if(this.communicationConfiguration != null){
+        if (this.communicationConfiguration != null) {
             getCommunicationConfiguration().save();
         }
     }

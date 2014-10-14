@@ -388,10 +388,12 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public void save() {
-        boolean created = getId() == 0;
+        boolean creating = getId() == 0;
         super.save();
-        for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
-            eventService.postEvent(((PersistentIdObject) partialConnectionTask).createEventType().topic(), partialConnectionTask);
+        if (creating) {
+            for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
+                eventService.postEvent(((PersistentIdObject) partialConnectionTask).createEventType().topic(), partialConnectionTask);
+            }
         }
     }
 
