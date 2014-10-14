@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
@@ -101,6 +102,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.kpi).isNull();
+        assertThat(connectionOverviewInfo.deviceGroup).isNull();
     }
 
     @Test
@@ -111,7 +113,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
         when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
-        when(dashboardService.getComSessionSuccessIndicatorOverview()).thenReturn(comSessionSuccessIndicatorOverview);
+        when(dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup)).thenReturn(comSessionSuccessIndicatorOverview);
         ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
         when(dashboardService.getComPortPoolBreakdown(endDeviceGroup)).thenReturn(comPortPoolBreakdown);
         ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
@@ -121,8 +123,10 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
         when(dataCollectionKpiService.findDataCollectionKpi(anyInt())).thenReturn(Optional.of(dataCollectionKpi));
         when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
+        when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
+        when(endDeviceGroup.getName()).thenReturn("South region");
 
-        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("deviceGroupId", deviceGroupId).request().get(ConnectionOverviewInfo.class);
+        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(ConnectionOverviewInfo.class);
 
         Comparator<TaskCounterInfo> counterInfoComparator = (o1, o2) -> Long.valueOf(o2.count).compareTo(o1.count);
         assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(3);
@@ -138,6 +142,9 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.kpi.get(1).name).isEqualTo("Ongoing");
         assertThat(connectionOverviewInfo.kpi.get(2).name).isEqualTo("Failed");
         assertThat(connectionOverviewInfo.kpi.get(3).name).isEqualTo("Target");
+        assertThat(connectionOverviewInfo.deviceGroup.id).isEqualTo(123);
+        assertThat(connectionOverviewInfo.deviceGroup.name).isEqualTo("South region");
+        assertThat(connectionOverviewInfo.deviceGroup.alias).isEqualTo("deviceGroups");
     }
 
     private DataCollectionKpi mockDataCollectionKpi() {

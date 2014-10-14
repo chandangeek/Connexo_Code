@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
@@ -91,7 +92,6 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().taskStatuses).contains(TaskStatus.Busy).contains(TaskStatus.OnHold).hasSize(2);
-
     }
 
     @Test
@@ -107,6 +107,21 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().comPortPools).contains(comPortPool1).contains(comPortPool2).hasSize(2);
+
+    }
+
+    @Test
+    public void testDeviceGroupsAddedToFilter() throws Exception {
+        QueryEndDeviceGroup queryEndDeviceGroup1 = mock(QueryEndDeviceGroup.class);
+        when(meteringGroupsService.findQueryEndDeviceGroup(11)).thenReturn(Optional.of(queryEndDeviceGroup1));
+        QueryEndDeviceGroup queryEndDeviceGroup2 = mock(QueryEndDeviceGroup.class);
+        when(meteringGroupsService.findQueryEndDeviceGroup(12)).thenReturn(Optional.of(queryEndDeviceGroup2));
+
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("deviceGroups", Arrays.asList(11L, 12L))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().deviceGroups).contains(queryEndDeviceGroup1).contains(queryEndDeviceGroup2).hasSize(2);
 
     }
 
