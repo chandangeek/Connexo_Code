@@ -31,6 +31,7 @@ import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
+import com.energyict.mdc.dashboard.rest.status.impl.KpiScoreFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
@@ -221,6 +222,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(CommunicationOverviewInfoFactory.class).to(CommunicationOverviewInfoFactory.class);
             bind(ComServerStatusInfoFactory.class).to(ComServerStatusInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(KpiScoreFactory.class).to(KpiScoreFactory.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
         }
     }

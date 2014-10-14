@@ -8,8 +8,8 @@ import com.energyict.mdc.dashboard.ComTaskBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
-import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import java.util.ArrayList;
 import javax.inject.Inject;
@@ -28,11 +28,11 @@ public class CommunicationOverviewInfoFactory {
     private final SummaryInfoFactory summaryInfoFactory;
     private final Thesaurus thesaurus;
     private final DashboardService dashboardService;
-    private final DataCollectionKpiServiceImpl dataCollectionKpiService;
+    private final DataCollectionKpiService dataCollectionKpiService;
     private final KpiScoreFactory kpiScoreFactory;
 
     @Inject
-    public CommunicationOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, DataCollectionKpiServiceImpl dataCollectionKpiService, KpiScoreFactory kpiScoreFactory) {
+    public CommunicationOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, DataCollectionKpiService dataCollectionKpiService, KpiScoreFactory kpiScoreFactory) {
         this.breakdownFactory = breakdownFactory;
         this.overviewFactory = overviewFactory;
         this.summaryInfoFactory = summaryInfoFactory;
