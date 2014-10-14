@@ -1,6 +1,10 @@
 Ext.define('Cfg.controller.EventType', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Cfg.view.eventtype.Browse'
+    ],
+
     stores: [
         'EventTypes'
     ],
@@ -8,7 +12,6 @@ Ext.define('Cfg.controller.EventType', {
     views: [
         'eventtype.Browse'
     ],
-
 
     init: function () {
         this.initMenu();
@@ -26,9 +29,11 @@ Ext.define('Cfg.controller.EventType', {
             failure: this.saveFailed
         });
     },
+
     saveSuccess: function () {
         alert('Saved');
     },
+
     saveFailed: function () {
         alert('Failed');
     },
@@ -45,6 +50,8 @@ Ext.define('Cfg.controller.EventType', {
     },
 
     showOverview: function () {
+        this.getEventTypesStore().load();
+
         var widget = Ext.widget('eventtypeBrowse');
         this.getApplication().getController('Cfg.controller.Main').showContent(widget);
     }
