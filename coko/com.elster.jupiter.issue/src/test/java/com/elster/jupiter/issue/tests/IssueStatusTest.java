@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueStatusTest extends BaseTest{
-    private static final int DEFAULT_STATUS_COUNT = 3;
+    private static final int DEFAULT_STATUS_COUNT = 4;
 
     @Test
     public void checkDefaultStatuses(){
