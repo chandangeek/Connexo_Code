@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
@@ -109,9 +117,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool) comPortPool).getTaskExecutionTimeout().getSeconds());
         }
         if (waitTime <= 0) {
-            return new TimeDuration(1, TimeDuration.DAYS);
+            return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
         } else {
-            return new TimeDuration(waitTime, TimeDuration.SECONDS);
+            return new TimeDuration(waitTime, TimeDuration.TimeUnit.SECONDS);
         }
     }
 
