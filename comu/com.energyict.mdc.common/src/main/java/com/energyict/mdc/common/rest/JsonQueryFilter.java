@@ -72,16 +72,29 @@ public class JsonQueryFilter {
     }
 
     public <T> List<T> getPropertyList(String name, XmlAdapter<String, T> adapter) {
-            try {
-                JSONArray jsonArray = (JSONArray) getFilterProperties().get(name);
-                List<T> values = new ArrayList<>(jsonArray.length());
-                for (int i=0; i<jsonArray.length(); i++) {
-                    values.add(adapter.unmarshal(jsonArray.getString(i)));
-                }
-                return values;
-            } catch (Exception e) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, name);
+        try {
+            JSONArray jsonArray = (JSONArray) getFilterProperties().get(name);
+            List<T> values = new ArrayList<>(jsonArray.length());
+            for (int i=0; i<jsonArray.length(); i++) {
+                values.add(adapter.unmarshal(jsonArray.getString(i)));
             }
+            return values;
+        } catch (Exception e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, name);
+        }
+    }
+
+    public List<String> getPropertyList(String name) {
+        try {
+            JSONArray jsonArray = (JSONArray) getFilterProperties().get(name);
+            List<String> values = new ArrayList<>(jsonArray.length());
+            for (int i=0; i<jsonArray.length(); i++) {
+                values.add(jsonArray.getString(i));
+            }
+            return values;
+        } catch (Exception e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, name);
+        }
     }
 
 }
