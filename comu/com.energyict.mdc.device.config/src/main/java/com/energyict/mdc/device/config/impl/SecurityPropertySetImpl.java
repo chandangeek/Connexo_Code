@@ -52,7 +52,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 
 /**
- * Provides an implemention for the {@link SecurityPropertySet} interface.
+ * Provides an implementation for the {@link SecurityPropertySet} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-14 (11:09)
@@ -367,7 +367,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private boolean isAuthorized(DeviceSecurityUserAction action, User user) {
-        Optional<Privilege> privilege = ((DeviceConfigurationServiceImpl) deviceConfigurationService).findPrivilege(action);
+        Optional<Privilege> privilege = ((DeviceConfigurationServiceImpl) deviceConfigurationService).findPrivilege(action.getPrivilege());
         return privilege.isPresent() && user.hasPrivilege(privilege.get());
     }
 

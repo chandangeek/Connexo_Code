@@ -1,32 +1,52 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.Set;
 
 /**
  * Enables the usage of a {@link DeviceMessage}
- * or an entire {@link com.energyict.mdc.messages.DeviceMessageCategory}
- * on a {@link com.energyict.mdc.device.config.DeviceCommunicationConfiguration}.
- * Subclasses will focus on enable single messages or complete message categories.
- * @see DeviceMessageCategoryEnablement
- * @see DeviceMessageSpecEnablement
+ * or an entire DeviceMessageCategory
+ * on a DeviceConfiguration.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-03-04 (09:57)
  */
-public interface DeviceMessageEnablement {
+public interface DeviceMessageEnablement extends HasId {
 
     /**
-     * Gets the Set of {@link com.energyict.mdc.messages.DeviceMessageUserActionImpl}
+     * Gets the Set of DeviceMessageUserActions
      * that a user of the system MUST have
      * to be able to create a {@link DeviceMessage}
      * that is enabled here.
      *
      * @return The Set of DeviceMessageUserAction
      */
-    public Set<DeviceMessageUserAction> getUserActions ();
+    public Set<DeviceMessageUserAction> getUserActions();
 
+    /**
+     * @return the id of the DeviceMessage
+     */
+    public DeviceMessageId getDeviceMessageId();
+
+
+    void addDeviceMessageCategory(DeviceMessageCategory deviceMessageCategory);
+
+    /**
+     * Add the given DeviceMessageUserAction to the enablement
+     *
+     * @param deviceMessageUserAction the userAction to add
+     */
+    boolean addDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction);
+
+    /**
+     * Remove the given DeviceMessageUserAction from this enablement
+     *
+     * @param deviceMessageUserAction the userAction to delete
+     */
+    boolean removeDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction);
 
 }

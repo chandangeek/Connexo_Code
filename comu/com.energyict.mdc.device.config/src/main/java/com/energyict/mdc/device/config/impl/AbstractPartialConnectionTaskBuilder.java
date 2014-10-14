@@ -66,14 +66,11 @@ public abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortP
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             instance.setProperty(entry.getKey(), entry.getValue());
         }
-
         populate(instance);
-
         configuration.addPartialConnectionTask(instance);
         if (configuration.getId() > 0) {
             eventService.postEvent(((PersistentIdObject) instance).createEventType().topic(), instance);
         }
-
         return instance;
     }
 
