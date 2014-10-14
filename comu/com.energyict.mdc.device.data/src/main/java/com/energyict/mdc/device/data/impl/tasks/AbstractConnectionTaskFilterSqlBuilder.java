@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.TableSpecs;
@@ -11,9 +8,12 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.time.Clock;
+
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -91,21 +91,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     }
 
     protected void appendDeviceInGroupSql() {
-        if (!this.deviceGroups.isEmpty()) {
-            this.appendWhereOrAnd();
-            this.append("(");
-            Iterator<QueryEndDeviceGroup> iterator = this.deviceGroups.iterator();
-            while (iterator.hasNext()) {
-                QueryEndDeviceGroup deviceGroup = iterator.next();
-                this.append("ct.device in (");
-                this.append(this.queryExecutor.asFragment(deviceGroup.getCondition(), "id"));
-                this.append(")");
-                if (iterator.hasNext()) {
-                    this.append(" or ");
-                }
-            }
-            this.append(")");
-        }
+        this.appendDeviceInGroupSql(this.deviceGroups, this.queryExecutor, "ct");
     }
 
     private boolean requiresLastComSessionClause() {

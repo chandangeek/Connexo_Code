@@ -1,8 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.time.Clock;
+
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 /**
@@ -16,8 +20,8 @@ public class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTask
 
     private ServerComTaskStatus taskStatus;
 
-    public ComTaskExecutionDeviceTypeCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock) {
-        super(clock);
+    public ComTaskExecutionDeviceTypeCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock, ComTaskExecutionFilterSpecification filterSpecification, QueryExecutor<Device> queryExecutor) {
+        super(clock, filterSpecification, queryExecutor);
         this.taskStatus = taskStatus;
     }
 
@@ -47,6 +51,7 @@ public class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTask
 
     private void appendWhereClause() {
         this.appendWhereClause(this.taskStatus);
+        this.appendDeviceInGroupSql();
     }
 
     private void appendGroupByClause() {

@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
@@ -45,6 +37,17 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
@@ -141,7 +144,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public List<ComTaskExecution> findComTaskExecutionsByFilter(ComTaskExecutionFilterSpecification filter, int pageStart, int pageSize) {
-        ComTaskExecutionFilterSqlBuilder sqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, this.deviceDataModelService.clock());
+        ComTaskExecutionFilterSqlBuilder sqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, this.deviceDataModelService.clock(), this.deviceFromDeviceGroupQueryExecutor());
         DataMapper<ComTaskExecution> dataMapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
         return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
     }
@@ -161,7 +164,20 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public Map<TaskStatus, Long> getComTaskExecutionStatusCount() {
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
         filter.taskStatuses = EnumSet.allOf(TaskStatus.class);
+        filter.deviceGroups = new HashSet<>();
         return this.getComTaskExecutionStatusCount(filter);
+    }
+
+    @Override
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount(QueryEndDeviceGroup deviceGroup) {
+        ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
+        filter.taskStatuses = EnumSet.allOf(TaskStatus.class);
+        filter.deviceGroups = this.asSet(deviceGroup);
+        return this.getComTaskExecutionStatusCount(filter);
+    }
+
+    private Set<QueryEndDeviceGroup> asSet(QueryEndDeviceGroup deviceGroup) {
+        return Stream.of(deviceGroup).collect(Collectors.toSet());
     }
 
     @Override
@@ -193,7 +209,12 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ComTaskExecutionFilterSpecification filter, ServerComTaskStatus taskStatus) {
-        ComTaskExecutionFilterMatchCounterSqlBuilder countingFilter = new ComTaskExecutionFilterMatchCounterSqlBuilder(taskStatus, filter, this.deviceDataModelService.clock());
+        ComTaskExecutionFilterMatchCounterSqlBuilder countingFilter =
+                new ComTaskExecutionFilterMatchCounterSqlBuilder(
+                        taskStatus,
+                        filter,
+                        this.deviceDataModelService.clock(),
+                        this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
     }
 
@@ -207,22 +228,39 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses) {
+        return this.getCommunicationTasksComScheduleBreakdown(taskStatuses, Collections.emptySet());
+    }
+
+    @Override
+    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup) {
+        return this.getCommunicationTasksComScheduleBreakdown(taskStatuses, this.asSet(deviceGroup));
+    }
+
+    private Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, Set<QueryEndDeviceGroup> deviceGroups) {
         ClauseAwareSqlBuilder sqlBuilder = null;
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
-                this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
-            } else {
+                this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
+            }
+            else {
                 sqlBuilder.unionAll();
-                this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
         }
         return this.injectComSchedulesAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
     }
 
-    private void countByComScheduleAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerComTaskStatus taskStatus) {
-        ComTaskExecutionComScheduleCounterSqlBuilder countingFilter = new ComTaskExecutionComScheduleCounterSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+    private void countByComScheduleAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerComTaskStatus taskStatus, Set<QueryEndDeviceGroup> deviceGroups) {
+        ComTaskExecutionFilterSpecification filterSpecification = new ComTaskExecutionFilterSpecification();
+        filterSpecification.deviceGroups = deviceGroups;
+        ComTaskExecutionComScheduleCounterSqlBuilder countingFilter =
+                new ComTaskExecutionComScheduleCounterSqlBuilder(
+                        taskStatus,
+                        this.deviceDataModelService.clock(),
+                        filterSpecification,
+                        this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
     }
 
@@ -235,23 +273,50 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses) {
+        return this.getCommunicationTasksDeviceTypeBreakdown(taskStatuses, Collections.emptySet());
+    }
+
+    @Override
+    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup) {
+        return this.getCommunicationTasksDeviceTypeBreakdown(taskStatuses, this.asSet(deviceGroup));
+    }
+
+    private Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, Set<QueryEndDeviceGroup> deviceGroups) {
+        ComTaskExecutionFilterSpecification filterSpecification = new ComTaskExecutionFilterSpecification();
+        filterSpecification.deviceGroups = deviceGroups;
         ClauseAwareSqlBuilder sqlBuilder = null;
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
                 sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
-                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
-            } else {
+                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
+            }
+            else {
                 sqlBuilder.unionAll();
-                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, taskStatus);
+                this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
             }
         }
         return this.injectDeviceTypesAndAddMissing(this.deviceDataModelService.fetchTaskStatusBreakdown(sqlBuilder));
     }
 
-    private void countByDeviceTypeAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerComTaskStatus taskStatus) {
-        ComTaskExecutionDeviceTypeCounterSqlBuilder countingFilter = new ComTaskExecutionDeviceTypeCounterSqlBuilder(taskStatus, this.deviceDataModelService.clock());
+    private void countByDeviceTypeAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ComTaskExecutionFilterSpecification filterSpecification, ServerComTaskStatus taskStatus) {
+        ComTaskExecutionDeviceTypeCounterSqlBuilder countingFilter =
+                new ComTaskExecutionDeviceTypeCounterSqlBuilder(
+                        taskStatus,
+                        this.deviceDataModelService.clock(),
+                        filterSpecification,
+                        this.deviceFromDeviceGroupQueryExecutor());
         countingFilter.appendTo(sqlBuilder);
+    }
+
+    /**
+     * Returns a QueryExecutor that supports building a subquery to match
+     * that the ConnectionTask's device is in a QueryEndDeviceGroup.
+     *
+     * @return The QueryExecutor
+     */
+    private QueryExecutor<Device> deviceFromDeviceGroupQueryExecutor() {
+        return this.deviceDataModelService.dataModel().query(Device.class, DeviceType.class, DeviceConfiguration.class);
     }
 
     private Map<DeviceType, Map<TaskStatus, Long>> injectDeviceTypesAndAddMissing(Map<Long, Map<TaskStatus, Long>> breakdown) {
@@ -787,20 +852,27 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap() {
-        /* For clarity's sake, here is the formatted SQL/
+        /* For clarity's sake, here is the formatted SQL
            select dev.DEVICETYPE, ctes.highestPrioCompletionCode, count(*)
             from DDC_COMTASKEXEC cte
             join DDC_COMTASKEXECSESSION ctes on cte.lastsession = ctes.id
             join DDC_DEVICE dev on cte.device = dev.id
            group by dev.DEVICETYPE, ctes.highestPrioCompletionCode
          */
+        return this.getComTasksDeviceTypeHeatMap(null);
+    }
+
+    @Override
+    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, ctes.highestPrioCompletionCode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte join ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
         sqlBuilder.append(" ctes on cte.lastsession = ctes.id join ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" dev on cte.device = dev.id group by dev.devicetype, ctes.highestPrioCompletionCode");
+        sqlBuilder.append(" dev on cte.device = dev.id ");
+        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        sqlBuilder.append(" group by dev.devicetype, ctes.highestPrioCompletionCode");
         Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
         return this.buildDeviceTypeHeatMap(partialCounters);
     }
@@ -875,6 +947,27 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
         sqlBuilder.append(" ctes on cte.lastsession = ctes.id where obsolete_date is null group by ctes.highestPrioCompletionCode");
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
+    }
+
+    @Override
+    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(QueryEndDeviceGroup deviceGroup) {
+        SqlBuilder sqlBuilder = new SqlBuilder("select ctes.highestPrioCompletionCode, count(*) from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
+        sqlBuilder.append(" cte join ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        sqlBuilder.append(" ctes on cte.lastsession = ctes.id where obsolete_date is null ");
+        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        sqlBuilder.append(" group by ctes.highestPrioCompletionCode");
+        return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
+    }
+
+    private void appendDeviceGroupConditions(QueryEndDeviceGroup deviceGroup, SqlBuilder sqlBuilder) {
+        if (deviceGroup != null) {
+            sqlBuilder.append(" and cte.device in (");
+            QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
+            sqlBuilder.add(queryExecutor.asFragment(deviceGroup.getCondition(), "id"));
+            sqlBuilder.append(")");
+        }
     }
 
     private Map<CompletionCode, Long> fetchCompletionCodeCounters(SqlBuilder builder) {
