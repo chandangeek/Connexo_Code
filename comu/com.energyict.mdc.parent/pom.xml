@@ -647,13 +647,6 @@
 
   <pluginRepositories>
     <pluginRepository>
-      <id>plugins</id>
-      <url>http://source.eict.vpdc/nexus/content/repositories/plugins</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
       <id>maven2-repository.dev.java.net</id>
       <name>Java.net Repository for Maven 2</name>
       <url>http://download.java.net/maven/2/</url>
