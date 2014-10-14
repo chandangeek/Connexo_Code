@@ -5,6 +5,10 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         'Mdc.model.ComPortPool'
     ],
 
+    requires: [
+       'Mdc.store.DeviceDiscoveryProtocols'
+    ],
+
     views: [
         'Mdc.view.setup.comportpool.ComPortPoolEdit'
     ],

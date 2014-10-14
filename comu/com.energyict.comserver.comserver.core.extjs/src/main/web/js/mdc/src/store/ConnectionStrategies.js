@@ -5,7 +5,7 @@ Ext.define('Mdc.store.ConnectionStrategies', {
     ],
     model: 'Mdc.model.field.ConnectionStrategy',
     storeId: 'ConnectionStrategies',
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '../../api/dtc/field/connectionStrategy',

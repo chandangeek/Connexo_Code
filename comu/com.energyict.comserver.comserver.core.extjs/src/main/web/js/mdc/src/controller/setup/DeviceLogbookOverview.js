@@ -1,6 +1,14 @@
 Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Mdc.store.TimeUnits'
+    ],
+
+    stores: [
+      'TimeUnits'
+    ],
+
     views: [
         'Mdc.view.setup.devicelogbooks.Overview'
     ],

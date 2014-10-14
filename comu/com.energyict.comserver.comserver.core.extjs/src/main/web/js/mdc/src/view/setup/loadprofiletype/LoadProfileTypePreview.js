@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
     itemId: 'loadProfileTypePreview',
     requires: [
         'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Mdc.store.Intervals'
     ],
     title: '',
     frame: true,
@@ -44,7 +45,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                         fieldLabel: 'Interval',
                         name: 'timeDuration',
                         renderer: function (value) {
-                            var intervalRecord = value ? Ext.getStore('Mdc.store.Intervals').getById(value.id) : null;
+                            var intervalRecord = value ? Ext.getStore('Intervals').getById(value.id) : null;
 
                             return intervalRecord ? intervalRecord.get('name') : '';
                         }

@@ -10,7 +10,7 @@ Ext.define('Mdc.store.ComPortPools',{
         direction: 'ASC'
     }],
     sortOnLoad: true,
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '../../api/mdc/comportpools',

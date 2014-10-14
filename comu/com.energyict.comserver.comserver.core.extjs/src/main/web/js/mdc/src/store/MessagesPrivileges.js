@@ -1,7 +1,7 @@
 Ext.define('Mdc.store.MessagesPrivileges', {
     extend: 'Ext.data.Store',
     storeId: 'MessagesPrivileges',
-    autoLoad: true,
+    autoLoad: false,
     fields: [
         { name: 'name', type: 'string' },
         { name: 'roles', type: 'auto' }
