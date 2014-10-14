@@ -61,9 +61,13 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                                 validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
                                 break;
                         }
-                        return !Ext.isEmpty(data)
-                            ? '<span class="validation-column-align">' + data + ' ' + measurementType + ' ' + validationFlag + '</span>'
-                            : '<span class="icon-validation icon-validation-black"></span>';
+                        if (Ext.isEmpty(data) && (record.get('validationResult') === 'validationStatus.suspect')) {
+                            return validationFlag;
+                        } else if (!Ext.isEmpty(data)) {
+                            return '<span class="validation-column-align">' + data + ' ' + measurementType + ' ' + validationFlag + '</span>';
+                        } else {
+                            return '<span class="icon-validation icon-validation-black"></span>';
+                        }
                     }
                 },
                 {
@@ -110,9 +114,13 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                                 validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
                                 break;
                         }
-                        return !Ext.isEmpty(data)
-                            ? '<span class="validation-column-align">' + data + ' ' + measurementType + ' ' + validationFlag + '</span>'
-                            : '<span class="icon-validation icon-validation-black"></span>';
+                        if (Ext.isEmpty(data) && (record.get('validationResult') === 'validationStatus.suspect')) {
+                            return validationFlag;
+                        } else if (!Ext.isEmpty(data)) {
+                            return '<span class="validation-column-align">' + data + ' ' + measurementType + ' ' + validationFlag + '</span>';
+                        } else {
+                            return '<span class="icon-validation icon-validation-black"></span>';
+                        }
                     }
                 },
                 {
