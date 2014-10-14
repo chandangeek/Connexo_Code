@@ -44,20 +44,26 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             routeParams = router.arguments,
-            route;
+            route,
+            filterParams = {};
         routeParams.registerId = menu.record.getId();
 
         switch (item.action) {
             case 'viewdata':
+                filterParams.onlySuspect = false;
                 route = 'devices/device/registers/register/data';
                 break;
             case 'validate':
                 me.showValidateNowMessage(menu.record);
                 break;
+            case 'viewSuspects':
+                filterParams.onlySuspect = true;
+                route = 'devices/device/registers/register/data';
+                break;
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward(routeParams);
+        route && route.forward(routeParams, filterParams);
     },
 
     showDeviceRegisterConfigurationsView: function (mRID) {
@@ -92,8 +98,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         previewContainer.removeAll();
         previewContainer.add(widget);
         if (!record.data.detailedValidationInfo.validationActive) {
-            Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].hide();
             widget.down('#validateNowRegister').hide();
+            Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].hide();
+        } else {
+            widget.down('#validateNowRegister').show();
+            Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].show();
         }
         widget.down('#deviceRegisterConfigurationActionMenu').record = record;
     },
