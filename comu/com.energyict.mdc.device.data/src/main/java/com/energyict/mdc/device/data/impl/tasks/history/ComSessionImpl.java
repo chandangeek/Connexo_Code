@@ -155,7 +155,7 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
-    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries(Set<ComServer.LogLevel> levels, int start, int pageSize) {
+    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries(Set<ComServer.LogLevel> levels) {
         // Todo: Ask Karel how to specify a condition to match a subclass
         /* select * from DDC_COMTASKEXECJOURNALENTRY cteje
              join DDC_COMTASKEXECSESSION ctes on cteje.COMTASKEXECSESSION = ctes.id
@@ -194,7 +194,7 @@ public class ComSessionImpl implements ComSession {
                     sqlBuilder.addInt(l.ordinal());
                     sqlBuilder.append(",");
                 });
-        sqlBuilder.append(")");
+        sqlBuilder.append(") sorted by timestamp DESC");
         sqlBuilder.asPageBuilder(start, start + pageSize - 1);
         List<CombinedLogEntry> logEntries = new ArrayList<>();
         try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
