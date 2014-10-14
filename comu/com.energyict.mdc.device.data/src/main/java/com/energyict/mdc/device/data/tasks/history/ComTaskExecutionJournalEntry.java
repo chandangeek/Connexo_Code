@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.common.HasId;
 
+import com.energyict.mdc.engine.model.ComServer;
 import java.util.Date;
 
 /**
@@ -23,5 +24,13 @@ public interface ComTaskExecutionJournalEntry extends HasId {
     public String getErrorDescription ();
 
     public void accept(JournalEntryVisitor visitor);
+
+    /**
+     * Gets the level at which this message journal entry was logged.
+     *
+     * @return The LogLevel
+     */
+    public ComServer.LogLevel getLogLevel();
+
 
 }
