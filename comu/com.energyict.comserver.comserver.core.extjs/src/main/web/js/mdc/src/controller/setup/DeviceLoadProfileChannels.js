@@ -81,7 +81,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
             };
         me.mRID = mRID;
         me.loadProfileId = loadProfileId;
-        timeUnitsStore.getCount() ? showPage() : timeUnitsStore.on('load', showPage, me, {single: true});
+        timeUnitsStore.load({
+            callback: function () {
+                showPage();
+            }
+        });
     },
 
     showPreview: function (selectionModel, record) {
