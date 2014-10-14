@@ -73,8 +73,17 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         });
     },
 
-    showOverview: function (mRID, loadProfileId) {
+    showTableOverview: function (mRID, loadProfileId) {
+        this.showOverview(mRID, loadProfileId, true);
+    },
+
+    showGraphOverview: function (mRID, loadProfileId) {
+        this.showOverview(mRID, loadProfileId, false);
+    },
+
+    showOverview: function (mRID, loadProfileId, isTable) {
         var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
@@ -84,6 +93,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             loadProfileId: loadProfileId
         });
 
+        viewport.setLoading();
         me.getModel('Mdc.model.Device').load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
@@ -104,11 +114,19 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
+                viewport.setLoading(false);
                 widget.setLoading();
+                widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
+                widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);
+
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
                         me.showReadingsCount(dataStore);
-                        me.showGraphView(record);
+                        if (!isTable) {
+                            me.showGraphView(record);
+                        }
+                        widget.down('#deviceLoadProfilesTableView').setVisible(isTable);
+                        widget.down('#deviceLoadProfilesGraphView').setVisible(!isTable);
                         widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
                         widget.setLoading(false);
                     }
@@ -124,6 +142,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 dataStore.load();
             }
         });
+
+
     },
 
     showGraphView: function (loadProfileRecord) {
@@ -236,15 +256,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     },
 
     toggleView: function (button) {
-        var page = this.getPage(),
+        var router = this.getController('Uni.controller.history.Router'),
             showTable = button.action === 'showTableView';
 
-        page.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!showTable);
-        page.down('#deviceLoadProfilesGraphView').setVisible(!showTable);
-        page.down('#deviceLoadProfilesTableViewBtn').setDisabled(showTable);
-        page.down('#deviceLoadProfilesTableView').setVisible(showTable);
-        page.down('#readingsCount').setVisible(showTable && this.getStore('Mdc.store.LoadProfilesOfDeviceData').count());
-        showTable && page.down('#deviceLoadProfilesTableView').down('#deviceLoadProfilesDataGrid').getView().refresh();
+        if (showTable) {
+           router.getRoute('devices/device/loadprofiles/loadprofile/tableData').forward();
+        } else {
+            router.getRoute('devices/device/loadprofiles/loadprofile/data').forward();
+        }
     },
 
     showPreview: function (selectionModel, record) {

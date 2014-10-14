@@ -956,9 +956,16 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     items: {
                                                         data: {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                                            route: 'data',
+                                                            route: 'graphView',
                                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
-                                                            action: 'showOverview',
+                                                            action: 'showGraphOverview',
+                                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
+                                                        },
+                                                        tableData: {
+                                                            title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
+                                                            route: 'tableView',
+                                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
+                                                            action: 'showTableOverview',
                                                             filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                                         },
                                                         validation: {
@@ -972,9 +979,16 @@ Ext.define('Mdc.controller.history.Setup', {
                                         },
                                         data: {
                                             title: 'Load profile data',
-                                            route: 'data',
+                                            route: 'graphView',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileData',
-                                            action: 'showOverview',
+                                            action: 'showGraphOverview',
+                                            filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
+                                        },
+                                        tableData: {
+                                            title: 'Load profile data',
+                                            route: 'tableView',
+                                            controller: 'Mdc.controller.setup.DeviceLoadProfileData',
+                                            action: 'showTableOverview',
                                             filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
                                         },
                                         validation: {
