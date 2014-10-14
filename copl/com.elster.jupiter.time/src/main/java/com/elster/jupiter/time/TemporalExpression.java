@@ -24,8 +24,8 @@ public final class TemporalExpression implements ScheduleExpression {
     private static final int MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS = 28;
     private static final int NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS = DateTimeConstants.SECONDS_PER_DAY * MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS;
 
-    private TimeDuration offset = new TimeDuration(0, TimeDuration.TimeUnit.SECONDS);
-    private TimeDuration every = new TimeDuration(0, TimeDuration.TimeUnit.SECONDS);
+    private TimeDuration offset;
+    private TimeDuration every;
 
     /**
      * Creates a new instance of TemporalExpression.
