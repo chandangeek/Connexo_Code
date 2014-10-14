@@ -1,3 +1,6 @@
+/**
+ * @class Uni.grid.column.IntervalFlags
+ */
 Ext.define('Uni.grid.column.IntervalFlags', {
     extend: 'Ext.grid.column.Column',
     xtype: 'interval-flags-column',
