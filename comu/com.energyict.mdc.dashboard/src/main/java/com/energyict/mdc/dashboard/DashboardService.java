@@ -47,14 +47,26 @@ public interface DashboardService {
 
     public TaskStatusOverview getCommunicationTaskStatusOverview();
 
+    public TaskStatusOverview getCommunicationTaskStatusOverview(QueryEndDeviceGroup deviceGroup);
+
     public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown();
+
+    public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown(QueryEndDeviceGroup deviceGroup);
 
     public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown();
 
+    public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown(QueryEndDeviceGroup deviceGroup);
+
     public ComTaskBreakdown getCommunicationTasksBreakdown();
+
+    public ComTaskBreakdown getCommunicationTasksBreakdown(QueryEndDeviceGroup deviceGroup);
 
     public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview();
 
+    public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview(QueryEndDeviceGroup deviceGroup);
+
     public CommunicationTaskHeatMap getCommunicationTasksHeatMap();
+
+    public CommunicationTaskHeatMap getCommunicationTasksHeatMap(QueryEndDeviceGroup deviceGroup);
 
 }

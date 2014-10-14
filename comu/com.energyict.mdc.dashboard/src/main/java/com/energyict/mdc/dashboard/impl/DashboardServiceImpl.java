@@ -33,11 +33,14 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DashboardService} interface.
@@ -260,8 +263,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public TaskStatusOverview getCommunicationTaskStatusOverview() {
+        return this.getCommunicationTaskStatusOverview(this.communicationTaskService::getComTaskExecutionStatusCount);
+    }
+
+    @Override
+    public TaskStatusOverview getCommunicationTaskStatusOverview(QueryEndDeviceGroup deviceGroup) {
+        return this.getCommunicationTaskStatusOverview(() -> this.communicationTaskService.getComTaskExecutionStatusCount(deviceGroup));
+    }
+
+    private TaskStatusOverview getCommunicationTaskStatusOverview(Supplier<Map<TaskStatus, Long>> statusCountersSupplier) {
         TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
-        Map<TaskStatus, Long> statusCounters = this.communicationTaskService.getComTaskExecutionStatusCount();
+        Map<TaskStatus, Long> statusCounters = statusCountersSupplier.get();
         for (TaskStatus taskStatus : TaskStatus.values()) {
             overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
         }
@@ -270,8 +282,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown() {
+        return this.getCommunicationTasksDeviceTypeBreakdown(() -> this.communicationTaskService.getCommunicationTasksDeviceTypeBreakdown(this.breakdownStatusses()));
+    }
+
+    @Override
+    public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown(QueryEndDeviceGroup deviceGroup) {
+        return this.getCommunicationTasksDeviceTypeBreakdown(() -> this.communicationTaskService.getCommunicationTasksDeviceTypeBreakdown(this.breakdownStatusses(), deviceGroup));
+    }
+
+    private DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown(Supplier<Map<DeviceType, Map<TaskStatus, Long>>> breakDownSupplier) {
         DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
-        Map<DeviceType, Map<TaskStatus, Long>> deviceTypeBreakdown = this.communicationTaskService.getCommunicationTasksDeviceTypeBreakdown(this.breakdownStatusses());
+        Map<DeviceType, Map<TaskStatus, Long>> deviceTypeBreakdown = breakDownSupplier.get();
         for (DeviceType deviceType : deviceTypeBreakdown.keySet()) {
             Map<TaskStatus, Long> statusCount = deviceTypeBreakdown.get(deviceType);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
@@ -281,8 +302,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown() {
+        return this.getCommunicationTasksComScheduleBreakdown(() -> this.communicationTaskService.getCommunicationTasksComScheduleBreakdown(this.breakdownStatusses()));
+    }
+
+    @Override
+    public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown(QueryEndDeviceGroup deviceGroup) {
+        return this.getCommunicationTasksComScheduleBreakdown(() -> this.communicationTaskService.getCommunicationTasksComScheduleBreakdown(this.breakdownStatusses(), deviceGroup));
+    }
+
+    private ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown(Supplier<Map<ComSchedule, Map<TaskStatus, Long>>> breakDownSupplier) {
         ComScheduleBreakdownImpl breakdown = new ComScheduleBreakdownImpl();
-        Map<ComSchedule, Map<TaskStatus, Long>> comScheduleBreakdown = this.communicationTaskService.getCommunicationTasksComScheduleBreakdown(this.breakdownStatusses());
+        Map<ComSchedule, Map<TaskStatus, Long>> comScheduleBreakdown = breakDownSupplier.get();
         for (ComSchedule comSchedule : comScheduleBreakdown.keySet()) {
             Map<TaskStatus, Long> statusCount = comScheduleBreakdown.get(comSchedule);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(comSchedule, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
@@ -292,11 +322,25 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComTaskBreakdown getCommunicationTasksBreakdown() {
+        return this.getCommunicationTasksBreakdown(HashSet::new);
+    }
+
+    @Override
+    public ComTaskBreakdown getCommunicationTasksBreakdown(QueryEndDeviceGroup deviceGroup) {
+        return this.getCommunicationTasksBreakdown(() -> this.asSet(deviceGroup));
+    }
+
+    private Set<QueryEndDeviceGroup> asSet(QueryEndDeviceGroup deviceGroup) {
+        return Stream.of(deviceGroup).collect(Collectors.toSet());
+    }
+
+    private ComTaskBreakdown getCommunicationTasksBreakdown(Supplier<Set<QueryEndDeviceGroup>> deviceGroupsSupplier) {
         ComTaskBreakdownImpl breakdown = new ComTaskBreakdownImpl();
         for (ComTask comTask : this.availableComTasks()) {
             ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
             filter.taskStatuses = this.breakdownStatusses();
             filter.comTasks.add(comTask);
+            filter.deviceGroups = deviceGroupsSupplier.get();
             Map<TaskStatus, Long> statusCount = this.communicationTaskService.getComTaskExecutionStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(comTask, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
@@ -305,8 +349,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview() {
+        return this.getCommunicationTaskCompletionResultOverview(this.communicationTaskService::getComTaskLastComSessionHighestPriorityCompletionCodeCount);
+    }
+
+    @Override
+    public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview(QueryEndDeviceGroup deviceGroup) {
+        return this.getCommunicationTaskCompletionResultOverview(() -> this.communicationTaskService.getComTaskLastComSessionHighestPriorityCompletionCodeCount(deviceGroup));
+    }
+
+    private ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview(Supplier<Map<CompletionCode, Long>> completionCodeCountSupplier) {
         ComCommandCompletionCodeOverviewImpl overview = new ComCommandCompletionCodeOverviewImpl();
-        Map<CompletionCode, Long> completionCodeCount = this.communicationTaskService.getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+        Map<CompletionCode, Long> completionCodeCount = completionCodeCountSupplier.get();
         for (CompletionCode completionCode : CompletionCode.values()) {
             overview.add(new CounterImpl<>(completionCode, completionCodeCount.get(completionCode)));
         }
@@ -315,8 +368,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public CommunicationTaskHeatMap getCommunicationTasksHeatMap() {
+        return this.getCommunicationTasksHeatMap(this.communicationTaskService::getComTasksDeviceTypeHeatMap);
+    }
+
+    @Override
+    public CommunicationTaskHeatMap getCommunicationTasksHeatMap(QueryEndDeviceGroup deviceGroup) {
+        return this.getCommunicationTasksHeatMap(() -> this.communicationTaskService.getComTasksDeviceTypeHeatMap(deviceGroup));
+    }
+
+    private CommunicationTaskHeatMap getCommunicationTasksHeatMap(Supplier<Map<DeviceType, List<Long>>> rawDataSupplier) {
         CommunicationTaskHeatMapImpl heatMap = new CommunicationTaskHeatMapImpl();
-        Map<DeviceType, List<Long>> rawData = this.communicationTaskService.getComTasksDeviceTypeHeatMap();
+        Map<DeviceType, List<Long>> rawData = rawDataSupplier.get();
         for (DeviceType deviceType : rawData.keySet()) {
             List<Long> counters = rawData.get(deviceType);
             CommunicationTaskHeatMapRowImpl heatMapRow = new CommunicationTaskHeatMapRowImpl(deviceType);
