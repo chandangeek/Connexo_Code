@@ -560,6 +560,7 @@
                 <module>../com.elster.jupiter.systemadmin.rest</module>
                 <module>../com.elster.jupiter.tasks</module>
                 <module>../com.elster.jupiter.theme.skyline</module>
+                <module>../com.elster.jupiter.time</module>
                 <module>../com.elster.jupiter.transaction</module>
                 <module>../com.elster.jupiter.unifyingjs</module>
                 <module>../com.elster.jupiter.users</module>
