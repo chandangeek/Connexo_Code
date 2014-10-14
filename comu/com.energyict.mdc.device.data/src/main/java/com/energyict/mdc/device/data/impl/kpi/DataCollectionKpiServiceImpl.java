@@ -1,10 +1,11 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.elster.jupiter.kpi.KpiBuilder;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+
+import com.elster.jupiter.kpi.KpiBuilder;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.google.inject.Inject;
 
 import java.math.BigDecimal;
@@ -39,13 +40,26 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         com.google.common.base.Optional<DataCollectionKpi> dataCollectionDeviceGroup = this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getOptional(id);
         if (dataCollectionDeviceGroup.isPresent()) {
             return Optional.of(dataCollectionDeviceGroup.get());
-        } else {
+        }
+        else {
             return Optional.empty();
         }
     }
 
     @Override
-    public DataCollectionKpiBuilder newDataCollectionKpi(EndDeviceGroup group) {
+    public Optional<DataCollectionKpi> findDataCollectionKpi(QueryEndDeviceGroup group) {
+        com.google.common.base.Optional<DataCollectionKpi> dataCollectionDeviceGroup = this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getUnique(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP
+                .fieldName(), group);
+        if (dataCollectionDeviceGroup.isPresent()) {
+            return Optional.of(dataCollectionDeviceGroup.get());
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public DataCollectionKpiBuilder newDataCollectionKpi(QueryEndDeviceGroup group) {
         return new DataCollectionKpiBuilderImpl(group);
     }
 
@@ -76,7 +90,7 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         private KpiBuilder communicationKpiBuilder;
         private DataCollectionKpiBuilderState state = DataCollectionKpiBuilderState.INCOMPLETE;
 
-        private DataCollectionKpiBuilderImpl(EndDeviceGroup group) {
+        private DataCollectionKpiBuilderImpl(QueryEndDeviceGroup group) {
             this.underConstruction = deviceDataModelService.dataModel().getInstance(DataCollectionKpiImpl.class).initialize(group);
         }
 

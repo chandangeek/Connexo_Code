@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -515,11 +516,17 @@ public enum TableSpecs {
             Table<DataCollectionKpi> table = dataModel.addTable(name(), DataCollectionKpi.class);
             table.map(DataCollectionKpiImpl.class);
             Column id = table.addAutoIdColumn();
+            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
             Column connectionKpi = table.column("CONNECTIONKPI").number().add();
             Column comTaskExecKpi = table.column("COMMUNICATIONKPI").number().add();
             Column connectionKpiTask = table.column("CONNECTIONKPI_TASK").number().add();
             Column communicationKpiTask = table.column("COMMUNICATIONKPI_TASK").number().add();
             table.primaryKey("PK_DDC_DATA_COLLECTION_KPI").on(id).add();
+            table.foreignKey("FK_DDC_ENDDEVICEGROUP").
+                    on(endDeviceGroup).
+                    references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP").
+                    map(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP.fieldName()).
+                    add();
             table.foreignKey("FK_DDC_CONNECTIONKPI").
                     on(connectionKpi).
                     references(KpiService.COMPONENT_NAME, "KPI_KPI").
