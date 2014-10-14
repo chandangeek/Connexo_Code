@@ -1,15 +1,16 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.energyict.mdc.device.data.Reading;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.energyict.mdc.device.data.Register;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
 
 @XmlRootElement
-@JsonIgnoreProperties({"reading"})
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = BillingReadingInfo.class, name = "billing"),
@@ -19,19 +20,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 })
 public abstract class ReadingInfo {
     @JsonProperty("timeStamp")
-    public Long timeStamp;
+    public Date timeStamp;
     @JsonProperty("reportedDateTime")
-    public Long reportedDateTime;
-    @JsonProperty("reading")
-    public Reading reading;
+    public Date reportedDateTime;
+    @JsonProperty("editedDateTime")
+    public Date editedDateTime;
 
     public ReadingInfo() {
     }
 
     public ReadingInfo(Reading reading) {
-        this.timeStamp = reading.getTimeStamp().getTime();
-        this.reportedDateTime = reading.getReportedDateTime().getTime();
-        this.reading = reading;
+        this.timeStamp = reading.getTimeStamp();
+        this.reportedDateTime = reading.getReportedDateTime();
+        this.editedDateTime = reading.getActualReading().edited() ? this.reportedDateTime : null;
     }
 
+    protected abstract BaseReading createNew(Register register);
 }

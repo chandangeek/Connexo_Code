@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
@@ -56,6 +57,8 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
     @Mock
     private Channel channel1, channel2;
     @Mock
+    private IntervalReadingRecord readingRecord1, readingRecord2;
+    @Mock
     private DeviceValidation deviceValidation;
     @Mock
     private IValidationRule rule1;
@@ -79,8 +82,10 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
         when(loadProfileReading.getInterval()).thenReturn(interval);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
         when(thesaurus.getString(BATTERY_LOW, BATTERY_LOW)).thenReturn(BATTERY_LOW);
-        when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, BigDecimal.valueOf(200, 0), channel2, BigDecimal.valueOf(250, 0)));
+        when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, readingRecord1, channel2, readingRecord2));
         when(clock.now()).thenReturn(NOW);
+        when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
+        when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(250, 0));
         when(channel1.getDevice()).thenReturn(device);
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
         when(channel1.getChannelSpec()).thenReturn(channelSpec);

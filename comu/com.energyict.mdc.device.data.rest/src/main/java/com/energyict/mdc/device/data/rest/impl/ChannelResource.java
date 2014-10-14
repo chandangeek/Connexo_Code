@@ -1,30 +1,24 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -33,12 +27,9 @@ import javax.ws.rs.core.UriInfo;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -50,12 +41,14 @@ public class ChannelResource {
     private static final Comparator<Channel> CHANNEL_COMPARATOR_BY_NAME = new ChannelComparator();
 
     private final ResourceHelper resourceHelper;
+    private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
     private final Clock clock;
 
     @Inject
-    public ChannelResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock) {
+    public ChannelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus, Clock clock) {
         this.resourceHelper = resourceHelper;
+        this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
         this.clock = clock;
     }
@@ -129,6 +122,35 @@ public class ChannelResource {
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    @PUT
+    @Path("/{channelid}/data")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    public Response editChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @BeanParam QueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Meter meter = resourceHelper.getMeterFor(device);
+        Channel channel = doGetChannel(mrid, loadProfileId, channelId);
+        Optional<com.elster.jupiter.metering.Channel> koreChannel = resourceHelper.getLoadProfileChannel(channel, meter);
+        if(!koreChannel.isPresent()) {
+            exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfileId, channelId);
+        }
+        List<BaseReading> editedReadings = new LinkedList<>();
+        List<BaseReadingRecord> removedReadings = new LinkedList<>();
+        channelDataInfos.forEach((channelDataInfo) -> {
+            if(channelDataInfo.value == null) {
+                List<BaseReadingRecord> readings = koreChannel.get().getReadings(new Interval(new Date(channelDataInfo.interval.start), new Date(channelDataInfo.interval.end)));
+                removedReadings.addAll(readings);
+            } else {
+                editedReadings.add(channelDataInfo.createNew());
+            }
+        });
+        koreChannel.get().editReadings(editedReadings);
+        koreChannel.get().removeReadings(removedReadings);
+
+        return Response.status(Response.Status.OK).build();
     }
 
     private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, MultivaluedMap<String, String> queryParameters) {
