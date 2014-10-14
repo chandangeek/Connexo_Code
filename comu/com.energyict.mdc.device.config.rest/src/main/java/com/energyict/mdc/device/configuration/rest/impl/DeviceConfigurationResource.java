@@ -53,6 +53,7 @@ public class DeviceConfigurationResource {
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider;
     private final Provider<ValidationRuleSetResource> validationRuleSetResourceProvider;
+    private final Provider<DeviceMessagesResource> deviceMessagesResourceProvider;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -65,7 +66,8 @@ public class DeviceConfigurationResource {
                                        Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider,
                                        Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
                                        Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider,
-                                       Provider<ValidationRuleSetResource> validationRuleSetResourceProvider, Thesaurus thesaurus) {
+                                       Provider<ValidationRuleSetResource> validationRuleSetResourceProvider,
+                                       Provider<DeviceMessagesResource> deviceMessagesResourceProvider, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.validationService = validationService;
@@ -76,6 +78,7 @@ public class DeviceConfigurationResource {
         this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
         this.comTaskEnablementResourceProvider = comTaskEnablementResourceProvider;
         this.validationRuleSetResourceProvider = validationRuleSetResourceProvider;
+        this.deviceMessagesResourceProvider = deviceMessagesResourceProvider;
         this.thesaurus = thesaurus;
     }
 
@@ -366,6 +369,11 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/validationrulesets")
     public ValidationRuleSetResource getValidationsRuleSetResource() {
         return validationRuleSetResourceProvider.get();
+    }
+    
+    @Path("/{deviceConfigurationId}/devicemessageenablements")
+    public DeviceMessagesResource getDeviceMessagesResource() {
+        return deviceMessagesResourceProvider.get();
     }
 
     @GET
