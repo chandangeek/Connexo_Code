@@ -199,6 +199,10 @@ Ext.define('Uni.form.field.DateTime', {
             }
         }
 
+        if(me.getRawValue) {
+            return date;
+        }
+
         date = new Date(date);
 
         return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
