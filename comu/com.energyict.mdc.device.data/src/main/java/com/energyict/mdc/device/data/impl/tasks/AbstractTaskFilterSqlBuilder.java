@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
@@ -46,6 +47,10 @@ public abstract class AbstractTaskFilterSqlBuilder {
 
     protected void unionAll() {
         this.actualBuilder.unionAll();
+    }
+
+    protected void append(SqlFragment sqlFragment) {
+        this.actualBuilder.append(sqlFragment);
     }
 
     protected void append(String sql) {

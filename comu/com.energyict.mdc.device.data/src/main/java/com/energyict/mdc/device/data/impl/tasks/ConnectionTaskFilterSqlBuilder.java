@@ -1,17 +1,20 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.util.Holder;
-import com.elster.jupiter.util.HolderBuilder;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -32,8 +35,8 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
 
-    public ConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock) {
-        super(filterSpecification, clock);
+    public ConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
+        super(filterSpecification, clock, deviceQueryExecutor);
         this.validate(filterSpecification);
         this.copyTaskStatuses(filterSpecification);
         this.lastSessionStart = filterSpecification.lastSessionStart;
@@ -114,6 +117,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
         }
         this.appendLastSessionStartWhereClause();
         this.appendNonStatusWhereClauses();
+        this.appendDeviceInGroupSql();
         this.append(" order by lastcommunicationstart desc");
         return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize);
     }

@@ -145,7 +145,7 @@ public interface CommunicationTaskService {
      * @param connectionTask the given ConnectionTask
      * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
      */
-    public List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask);
+    public com.energyict.mdc.common.services.Finder<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask);
 
     /**
      * Finds all the ComTaskExecutions which are linked to the given ComSchedule (MasterSchedule)

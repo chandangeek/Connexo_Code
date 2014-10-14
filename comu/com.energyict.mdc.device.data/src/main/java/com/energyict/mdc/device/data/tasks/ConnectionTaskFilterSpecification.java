@@ -5,6 +5,8 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 
 import java.util.EnumSet;
@@ -75,5 +77,12 @@ public class ConnectionTaskFilterSpecification {
      * last communication session should be used.
      */
     public boolean useLastComSession = false;
+
+    /**
+     * The {@link EndDeviceGroup}s that contains the {@link com.energyict.mdc.device.data.Device}s
+     * to which the matching {@link ConnectionTask} should be linked
+     * or <code>null</code> if the filter should not take this into account.
+     */
+    public Set<QueryEndDeviceGroup> deviceGroups = new HashSet<>();
 
 }

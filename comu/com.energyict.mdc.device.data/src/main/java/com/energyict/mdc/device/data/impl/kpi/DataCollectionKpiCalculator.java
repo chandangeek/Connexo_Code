@@ -51,8 +51,8 @@ public class DataCollectionKpiCalculator {
 
     private void calculateAndStore(Kpi koreKpi, Map<TaskStatus, Long> statusCounters) {
         for (KpiMember kpiMember : koreKpi.getMembers()) {
-            TaskStatus taskStatus = TaskStatus.valueOf(kpiMember.getName());
-            Long counter = statusCounters.get(taskStatus);
+            MonitoredTaskStatus taskStatus = MonitoredTaskStatus.valueOf(kpiMember.getName());
+            long counter = taskStatus.calculateFrom(statusCounters);
             kpiMember.score(this.timestamp, new BigDecimal(counter));
         }
     }

@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.util.time.Clock;
+import org.joda.time.DateTimeConstants;
+
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
@@ -59,7 +61,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.append("and ((comport is not null) or ((exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(" ct where ct.comserver is not null and ct.id = cte.connectiontask)) and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <=");
-            sqlBuilder.addUtcInstant(now);
+            sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("))");
         }
     },
@@ -87,7 +89,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.append("and comport is null and not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(" ct where ct.comserver is not null and ct.id = cte.connectiontask) and cte.nextexecutiontimestamp <=");
-            sqlBuilder.addUtcInstant(now);
+            sqlBuilder.addLong(this.asSeconds(now));
         }
     },
 
@@ -118,7 +120,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.append("and currentretrycount = 0 ");
             sqlBuilder.append("and nextExecutionTimestamp is not null ");
             sqlBuilder.append("and nextExecutionTimestamp > ");
-            sqlBuilder.addUtcInstant(now);
+            sqlBuilder.addLong(this.asSeconds(now));
         }
     },
 
@@ -143,7 +145,7 @@ public enum ServerComTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and nextexecutiontimestamp > ");
-            sqlBuilder.addUtcInstant(now);
+            sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("and comport is null ");
             sqlBuilder.append("and currentretrycount > 0");  // currentRetryCount is only incremented when task fails. It is reset to 0 when the maxTries is reached
         }
@@ -174,7 +176,7 @@ public enum ServerComTaskStatus {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and nextExecutionTimestamp is not null ");
             sqlBuilder.append("and nextExecutionTimestamp >");
-            sqlBuilder.addUtcInstant(now);
+            sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("and lastSuccessfulCompletion is not null ");
             sqlBuilder.append("and lastExecutionFailed = 1 ");
             sqlBuilder.append("and currentretrycount = 0");
@@ -206,10 +208,19 @@ public enum ServerComTaskStatus {
             sqlBuilder.append("and comport is null ");
             sqlBuilder.append("and lastSuccessfulCompletion is not null ");
             sqlBuilder.append("and nextexecutiontimestamp >");
-            sqlBuilder.addUtcInstant(now);
+            sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("and lastExecutionFailed = 0");
         }
     };
+
+    protected long asSeconds(Date date) {
+        if (date == null) {
+            return 0;
+        }
+        else {
+            return date.getTime() / DateTimeConstants.MILLIS_PER_SECOND;
+        }
+    }
 
     /**
      * Returns the public counterpart of this ServerTaskStatus.

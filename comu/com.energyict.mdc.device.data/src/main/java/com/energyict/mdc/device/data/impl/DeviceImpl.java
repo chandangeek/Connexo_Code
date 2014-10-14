@@ -1124,8 +1124,9 @@ public class DeviceImpl implements Device, CanLock {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval, meter.get());
+                Interval capped = interval.withEnd(lastReadingCapped(loadProfile, interval).toDate());
                 for (Channel channel : loadProfile.getChannels()) {
-                    meterHasData |= this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
+                    meterHasData |= this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
                 }
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
@@ -1144,7 +1145,8 @@ public class DeviceImpl implements Device, CanLock {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval, meter.get());
-                meterHasData = this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
+                Interval capped = interval.withEnd(lastReadingCapped(channel.getLoadProfile(), interval).toDate());
+                meterHasData = this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
                 }
@@ -1191,12 +1193,14 @@ public class DeviceImpl implements Device, CanLock {
                         .filter(s -> s.getReadingTimestamp().after(meterActivationInterval.getStart()))
                         .forEach(s -> {
                             LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(s.getReadingTimestamp());
-                            loadProfileReading.setDataValidationStatus(mdcChannel, s);
+                            if (loadProfileReading != null) {
+                                loadProfileReading.setDataValidationStatus(mdcChannel, s);
+                            }
                         });
             }
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                loadProfileReading.setChannelData(mdcChannel, meterReading.getValue());
+                loadProfileReading.setChannelData(mdcChannel, meterReading);
                 loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
@@ -1229,12 +1233,7 @@ public class DeviceImpl implements Device, CanLock {
         Map<Date, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         Period period = Period.seconds(loadProfile.getInterval().getSeconds());
         DateTime timeIndex = new DateTime(requestInterval.getStart().getTime() - (requestInterval.getStart().getTime() % period.toStandardDuration().getMillis())); // round start time to interval boundary
-        DateTime endTime;
-        if (loadProfile.getLastReading() != null && requestInterval.getEnd().after(loadProfile.getLastReading())) {
-            endTime = new DateTime(loadProfile.getLastReading().getTime());
-        } else {
-            endTime = new DateTime(requestInterval.getEnd().getTime());
-        }
+        DateTime endTime = lastReadingCapped(loadProfile, requestInterval);
         while (timeIndex.compareTo(endTime) < 0) {
             DateTime intervalEnd = timeIndex.plus(period);
             if (meterActivationIntervals.contains(timeIndex.toDate())) {
@@ -1245,6 +1244,16 @@ public class DeviceImpl implements Device, CanLock {
             timeIndex = intervalEnd;
         }
         return loadProfileReadingMap;
+    }
+
+    private DateTime lastReadingCapped(LoadProfile loadProfile, Interval requestInterval) {
+        DateTime endTime;
+        if (loadProfile.getLastReading() != null && requestInterval.getEnd().after(loadProfile.getLastReading())) {
+            endTime = new DateTime(loadProfile.getLastReading().getTime());
+        } else {
+            endTime = new DateTime(requestInterval.getEnd().getTime());
+        }
+        return endTime;
     }
 
     Optional<ReadingRecord> getLastReadingFor(Register<?> register) {

@@ -676,8 +676,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public List<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).find(ComTaskExecutionFields.CONNECTIONTASK.fieldName(), connectionTask);
+    public Finder<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask) {
+        return DefaultFinder.of(ComTaskExecution.class, where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(connectionTask), this.deviceDataModelService.dataModel()).sorted("executionStart", false);
     }
 
     @Override
@@ -790,9 +790,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         /* For clarity's sake, here is the formatted SQL/
            select dev.DEVICETYPE, ctes.highestPrioCompletionCode, count(*)
             from DDC_COMTASKEXEC cte
-            join DDC_COMTASKECEXSESSION ctes on cte.lastsession = ctes.id
+            join DDC_COMTASKEXECSESSION ctes on cte.lastsession = ctes.id
             join DDC_DEVICE dev on cte.device = dev.id
-           group by dev.DEVICETYPE, lctes.highestPrioCompletionCode
+           group by dev.DEVICETYPE, ctes.highestPrioCompletionCode
          */
         SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, ctes.highestPrioCompletionCode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
@@ -873,7 +873,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte join ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes on cte.lastsession = ctes.id group by ctes.highestPrioCompletionCode");
+        sqlBuilder.append(" ctes on cte.lastsession = ctes.id where obsolete_date is null group by ctes.highestPrioCompletionCode");
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
     }
 

@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -20,12 +19,12 @@ import java.util.stream.IntStream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-07 (12:04)
  */
-public class DataCollectionKpiScoreImpl implements DataCollectionKpiScore {
+public final class DataCollectionKpiScoreImpl implements DataCollectionKpiScore {
     private final Date timestamp;
     private final KpiMember targetMember;
-    private final Map<TaskStatus, KpiEntry> entries = new EnumMap<>(TaskStatus.class);
+    private final Map<MonitoredTaskStatus, KpiEntry> entries = new EnumMap<>(MonitoredTaskStatus.class);
 
-    public DataCollectionKpiScoreImpl(Date timestamp, KpiMember targetMember, List<TaskStatus> statuses, List<KpiEntry> entries) {
+    public DataCollectionKpiScoreImpl(Date timestamp, KpiMember targetMember, List<MonitoredTaskStatus> statuses, List<KpiEntry> entries) {
         this.timestamp = timestamp;
         this.targetMember = targetMember;
         IntStream.
@@ -56,11 +55,10 @@ public class DataCollectionKpiScoreImpl implements DataCollectionKpiScore {
     }
 
     private BigDecimal getTotal () {
-        return this.getValue(TaskStatus.Waiting).add(this.getValue(TaskStatus.Pending)).add(this.getValue(TaskStatus.Failed));
+        return this.getOngoing().add(this.getSuccess()).add(this.getFailed());
     }
 
-    @Override
-    public BigDecimal getValue(TaskStatus status) {
+    private BigDecimal getValue(MonitoredTaskStatus status) {
         KpiEntry kpiEntry = this.entries.get(status);
         if (kpiEntry != null) {
             return kpiEntry.getScore();
@@ -68,6 +66,21 @@ public class DataCollectionKpiScoreImpl implements DataCollectionKpiScore {
         else {
             return BigDecimal.ZERO;
         }
+    }
+
+    @Override
+    public BigDecimal getSuccess() {
+        return this.getValue(MonitoredTaskStatus.Success);
+    }
+
+    @Override
+    public BigDecimal getOngoing() {
+        return this.getValue(MonitoredTaskStatus.Ongoing);
+    }
+
+    @Override
+    public BigDecimal getFailed() {
+        return this.getValue(MonitoredTaskStatus.Failed);
     }
 
     @Override
