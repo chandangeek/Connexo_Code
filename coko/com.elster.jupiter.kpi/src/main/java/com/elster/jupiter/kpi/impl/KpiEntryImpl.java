@@ -5,7 +5,7 @@ import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
 public class KpiEntryImpl implements KpiEntry {
 
@@ -18,8 +18,8 @@ public class KpiEntryImpl implements KpiEntry {
     }
 
     @Override
-    public Date getTimestamp() {
-        return Date.from(timeSeriesEntry.getTimeStamp());
+    public Instant getTimestamp() {
+        return timeSeriesEntry.getTimeStamp();
     }
 
     @Override

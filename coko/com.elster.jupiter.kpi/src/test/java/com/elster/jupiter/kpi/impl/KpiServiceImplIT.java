@@ -27,16 +27,13 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import java.util.Optional;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import org.assertj.core.api.Assertions;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,13 +48,16 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Period;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Dictionary;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,7 +66,7 @@ public class KpiServiceImplIT {
     public static final String KPI_NAME = "kpiName";
     public static final String READ_METERS = "readMeters";
     public static final String NON_COMMUNICATING_METERS = "nonCommunicatingMeters";
-    Date date = new DateTime(2000, 2, 11, 20, 0, 0, 0, DateTimeZone.forID("Europe/Brussels")).toDate();
+    Instant date = ZonedDateTime.of(2000, 2, 11, 20, 0, 0, 0, ZoneId.of("Europe/Brussels")).toInstant();
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
@@ -145,7 +145,7 @@ public class KpiServiceImplIT {
         }
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         Kpi kpi = found.get();
 
@@ -176,7 +176,7 @@ public class KpiServiceImplIT {
                     .build();
             kpi.save();
 
-            Date date = new DateMidnight(2013, 7, 31, DateTimeZone.UTC).toDate();
+            Instant date = LocalDate.of(2013, 7, 31).atStartOfDay().toInstant(ZoneOffset.UTC);
 
             kpi.getMembers().get(0).score(date, BigDecimal.valueOf(8, 0));
             kpi.getMembers().get(1).score(date, BigDecimal.valueOf(2, 2));
@@ -187,19 +187,19 @@ public class KpiServiceImplIT {
 
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         Kpi kpi = found.get();
 
         {
-            List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Interval.startAt(date));
+            List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Range.atLeast(date));
             assertThat(entries).hasSize(1);
             assertThat(entries.get(0).getScore()).isEqualTo(BigDecimal.valueOf(8, 0));
             assertThat(entries.get(0).meetsTarget()).isTrue();
         }
 
         {
-            List<? extends KpiEntry> entries =  kpi.getMembers().get(1).getScores(Interval.startAt(date));
+            List<? extends KpiEntry> entries =  kpi.getMembers().get(1).getScores(Range.atLeast(date));
             assertThat(entries).hasSize(1);
             KpiEntry entry = entries.get(0);
             assertThat(entry.getScore()).isEqualTo(BigDecimal.valueOf(2, 2));
@@ -212,7 +212,7 @@ public class KpiServiceImplIT {
 
     @Test
     public void testStoreDynamicTargets() {
-        Date date = new DateMidnight(2013, 7, 31, DateTimeZone.UTC).toDate();
+        Instant date = LocalDate.of(2013, 7, 31).atStartOfDay().toInstant(ZoneOffset.UTC);
 
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
@@ -230,7 +230,7 @@ public class KpiServiceImplIT {
 
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         Kpi kpi = found.get();
 
@@ -239,7 +239,7 @@ public class KpiServiceImplIT {
 
     @Test
     public void testScoreOverDynamicTargets() {
-        Date date = new DateMidnight(2013, 7, 31, DateTimeZone.UTC).toDate();
+        Instant date = LocalDate.of(2013, 7, 31).atStartOfDay().toInstant(ZoneOffset.UTC);
 
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
@@ -258,11 +258,11 @@ public class KpiServiceImplIT {
 
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         Kpi kpi = found.get();
 
-        List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Interval.startAt(new Date(0)));
+        List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Range.atLeast(Instant.EPOCH));
         assertThat(entries).hasSize(1);
         KpiEntry entry = entries.get(0);
         assertThat(entry.getScore()).isEqualTo(BigDecimal.valueOf(87, 0));
@@ -285,7 +285,7 @@ public class KpiServiceImplIT {
         }
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         Kpi kpi = found.get();
 
@@ -312,7 +312,7 @@ public class KpiServiceImplIT {
         }
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         Kpi kpi = found.get();
 
@@ -322,10 +322,10 @@ public class KpiServiceImplIT {
         }
 
         found = kpiService.getKpi(id);
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         kpi = found.get();
-        assertThat(kpi.getMembers().get(1).getTarget(new Date(0))).isEqualTo(BigDecimal.valueOf(7, 5));
+        assertThat(kpi.getMembers().get(1).getTarget(Instant.EPOCH)).isEqualTo(BigDecimal.valueOf(7, 5));
     }
 
     @Test
@@ -336,7 +336,6 @@ public class KpiServiceImplIT {
 
         eventService.addTopicHandler(topicHandler);
 
-        long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
@@ -344,12 +343,12 @@ public class KpiServiceImplIT {
                     .build();
             kpi.save();
 
-            Date date = new DateMidnight(2013, 7, 31, DateTimeZone.UTC).toDate();
+            Instant date = LocalDate.of(2013, 7, 31).atStartOfDay().toInstant(ZoneOffset.UTC);
 
             kpi.getMembers().get(0).score(date, BigDecimal.valueOf(8, 0));
             kpi.getMembers().get(1).score(date, BigDecimal.valueOf(2, 2));
 
-            id = kpi.getId();
+            kpi.getId();
             context.commit();
         }
 

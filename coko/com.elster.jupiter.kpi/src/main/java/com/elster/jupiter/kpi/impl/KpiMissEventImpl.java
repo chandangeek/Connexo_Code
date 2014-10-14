@@ -27,7 +27,7 @@ public class KpiMissEventImpl implements KpiMissEvent {
         this.entry = entry;
         this.id = member.getKpi().getId();
         this.position = member.getPosition();
-        this.timestamp = entry.getTimestamp().getTime();
+        this.timestamp = entry.getTimestamp().toEpochMilli();
     }
 
     public long getId() {

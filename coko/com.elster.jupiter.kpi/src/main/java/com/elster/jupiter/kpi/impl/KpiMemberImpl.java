@@ -11,13 +11,16 @@ import com.elster.jupiter.kpi.TargetStorer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 class KpiMemberImpl implements IKpiMember {
@@ -62,7 +65,7 @@ class KpiMemberImpl implements IKpiMember {
     }
 
     @Override
-    public BigDecimal getTarget(Date date) {
+    public BigDecimal getTarget(Instant date) {
         return getTarget().get(date);
     }
 
@@ -91,9 +94,9 @@ class KpiMemberImpl implements IKpiMember {
     }
 
     @Override
-    public void score(Date date, BigDecimal bigDecimal) {
+    public void score(Instant date, BigDecimal bigDecimal) {
         TimeSeriesDataStorer storer = idsService.createStorer(true);
-        storer.add(getTimeSeries(), date.toInstant(), bigDecimal, getTarget(date));
+        storer.add(getTimeSeries(), date, bigDecimal, getTarget(date));
         storer.execute();
         KpiEntry kpiEntry = getScore(date).get();
         if (!kpiEntry.meetsTarget()) {
@@ -102,18 +105,18 @@ class KpiMemberImpl implements IKpiMember {
     }
 
     @Override
-    public Optional<KpiEntry> getScore(Date date) {
-        java.util.Optional<TimeSeriesEntry> entry = getTimeSeries().getEntry(date.toInstant());
+    public Optional<KpiEntry> getScore(Instant date) {
+        java.util.Optional<TimeSeriesEntry> entry = getTimeSeries().getEntry(date);
         if (entry.isPresent()) {
-            return Optional.<KpiEntry>of(new KpiEntryImpl(this, entry.get()));
+            return Optional.of(new KpiEntryImpl(this, entry.get()));
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
-    public List<? extends KpiEntry> getScores(Interval interval) {
+    public List<? extends KpiEntry> getScores(Range<Instant> range) {
         ImmutableList.Builder<KpiEntry> result = ImmutableList.builder();
-        for (TimeSeriesEntry entry : getTimeSeries().getEntries(interval)) {
+        for (TimeSeriesEntry entry : getTimeSeries().getEntries(range)) {
             result.add(new KpiEntryImpl(this, entry));
         }
         return result.build();
@@ -144,8 +147,8 @@ class KpiMemberImpl implements IKpiMember {
             private final TimeSeriesDataStorer storer = idsService.createStorer(true);
 
             @Override
-            public TargetStorer add(Date timestamp, BigDecimal target) {
-                storer.add(getTimeSeries(), timestamp.toInstant(), null, target);
+            public TargetStorer add(Instant timestamp, BigDecimal target) {
+                storer.add(getTimeSeries(), timestamp, null, target);
                 return this;
             }
 
@@ -178,8 +181,8 @@ class KpiMemberImpl implements IKpiMember {
         }
 
         @Override
-        public BigDecimal get(Date date) {
-            java.util.Optional<TimeSeriesEntry> entry = timeSeries.getEntry(date.toInstant());
+        public BigDecimal get(Instant date) {
+            java.util.Optional<TimeSeriesEntry> entry = timeSeries.getEntry(date);
             if (entry.isPresent()) {
                 return entry.get().getBigDecimal(1);
             }
@@ -196,7 +199,7 @@ class KpiMemberImpl implements IKpiMember {
         }
 
         @Override
-        public BigDecimal get(Date date) {
+        public BigDecimal get(Instant date) {
             return targetValue;
         }
     }

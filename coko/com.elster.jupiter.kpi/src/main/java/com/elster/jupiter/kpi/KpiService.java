@@ -1,6 +1,6 @@
 package com.elster.jupiter.kpi;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Central Kpi Service. Allows for creating and getting Kpi instances.

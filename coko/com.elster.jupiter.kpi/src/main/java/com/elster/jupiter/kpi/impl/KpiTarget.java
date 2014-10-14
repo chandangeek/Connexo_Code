@@ -1,9 +1,9 @@
 package com.elster.jupiter.kpi.impl;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
 interface KpiTarget {
 
-    BigDecimal get(Date date);
+    BigDecimal get(Instant date);
 }

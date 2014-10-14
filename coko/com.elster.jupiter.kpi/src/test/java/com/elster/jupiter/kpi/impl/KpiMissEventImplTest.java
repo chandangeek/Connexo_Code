@@ -3,6 +3,7 @@ package com.elster.jupiter.kpi.impl;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -42,7 +43,7 @@ public class KpiMissEventImplTest {
 
         when(entry.getScore()).thenReturn(SCORE);
         when(entry.getTarget()).thenReturn(TARGET);
-        when(entry.getTimestamp()).thenReturn(new Date());
+        when(entry.getTimestamp()).thenReturn(Instant.now());
     }
 
     @Test
@@ -79,7 +80,7 @@ public class KpiMissEventImplTest {
     public void testTimestamp() {
         KpiMissEventImpl event = new KpiMissEventImpl(member, entry);
 
-        long now = new Date().getTime();
+        long now = Instant.now().toEpochMilli();
         event.setTimestamp(now);
         assertThat(event.getTimestamp()).isEqualTo(now);
     }

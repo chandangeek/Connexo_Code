@@ -11,7 +11,7 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import org.joda.time.MutableDateTime;
 import org.osgi.service.component.annotations.Activate;

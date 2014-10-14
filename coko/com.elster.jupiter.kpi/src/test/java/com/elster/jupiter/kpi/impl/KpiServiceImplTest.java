@@ -8,10 +8,10 @@ import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.google.common.base.Optional;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import java.util.Optional;
+
+import java.time.Instant;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +24,8 @@ import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.time.Period;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
@@ -38,7 +39,7 @@ public class KpiServiceImplTest {
     public static final String READ_METERS = "readMeters";
     public static final String NON_COMMUNICATING_METERS = "nonCommunicatingMeters";
     KpiServiceImpl kpiService = new KpiServiceImpl();
-    Date date = new DateTime(2000, 2, 11, 20, 0, 0, 0, DateTimeZone.forID("Europe/Brussels")).toDate();
+    Instant date = ZonedDateTime.of(2000, 2, 11, 20, 0, 0, 0, ZoneId.of("Europe/Brussels")).toInstant();
 
     @Mock
     private IdsService idsService;

@@ -1,7 +1,7 @@
 package com.elster.jupiter.kpi;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models a score and matching target at a certain time.
@@ -11,7 +11,7 @@ public interface KpiEntry {
     /**
      * @return Date representing the time of the score and target
      */
-    Date getTimestamp();
+    Instant getTimestamp();
 
     /**
      * @return the kpi score
