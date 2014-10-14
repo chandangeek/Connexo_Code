@@ -36,13 +36,6 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 } else {
                     var record = Ext.create('Mdc.model.DeviceValidation', res);
                     view.down('#deviceDataValidationForm').loadRecord(record);
-                    if (res.isActive) {
-                        view.down('#activate').hide();
-                        view.down('#deactivate').show();
-                    } else {
-                        view.down('#deactivate').hide();
-                        view.down('#activate').show();
-                    }
                 }
             }
         });
