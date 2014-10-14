@@ -22,34 +22,36 @@ Ext.define('Cfg.controller.Main', {
 
     init: function () {
         var me = this;
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.administration', 'CFG', 'Administration'),
-            href: me.getApplication().getController('Cfg.controller.history.Validation').tokenizeShowOverview(),
-            portal: 'administration',
-            glyph: 'settings',
-            index: 3
-        });
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'])) {
+            var menuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'CFG', 'Administration'),
+                href: me.getApplication().getController('Cfg.controller.history.Validation').tokenizeShowOverview(),
+                portal: 'administration',
+                glyph: 'settings',
+                index: 3
+            });
 
-        Uni.store.MenuItems.add(menuItem);
+            Uni.store.MenuItems.add(menuItem);
 
-        var portalItem1 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.validation', 'CFG', 'Validation'),
-            portal: 'administration',
-            items: [
-                {
-                    text: Uni.I18n.translate('general.validationRuleSets', 'CFG', 'Validation rule sets'),
-                    href: '#/administration/validation/rulesets'
-                }
-            ]
-        });
+            var portalItem1 = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.validation', 'CFG', 'Validation'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.validationRuleSets', 'CFG', 'Validation rule sets'),
+                        href: '#/administration/validation/rulesets'
+                    }
+                ]
+            });
 
-        Uni.store.PortalItems.add(
-            portalItem1
-        );
+            Uni.store.PortalItems.add(
+                portalItem1
+            );
 
-        this.getApplication().on('cfginitialized', function () {
-            this.getController('Cfg.controller.Validation').mdcIsActive = true;
-        });
+            this.getApplication().on('cfginitialized', function () {
+                this.getController('Cfg.controller.Validation').mdcIsActive = true;
+            });
+        }
     },
 
     /**

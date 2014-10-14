@@ -74,7 +74,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             msgTarget: 'under',
                             editable: 'false',
                             name: 'implementation',
-                            store: Ext.create('Cfg.store.Validators'),
+                            store: 'Validators',
                             valueField: 'implementation',
                             displayField: 'displayName',
                             queryMode: 'local',

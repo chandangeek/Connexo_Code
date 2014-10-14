@@ -1,15 +1,27 @@
 Ext.define('Cfg.controller.history.EventType', {
     extend: 'Uni.controller.history.Converter',
 
-    rootToken: 'eventtypes',
+    rootToken: 'administration',
+
+    routeConfig: {
+        administration: {
+            title: 'Administration',
+            route: 'administration',
+            disabled: true,
+            items: {
+                eventtypes: {
+                    disabled: true,
+                    title: 'Event types',
+                    route: 'validation/eventtypes',
+                    controller: 'Cfg.controller.EventType',
+                    action: 'showOverview'
+                }
+            }
+        }
+    },
 
     init: function () {
-        var me = this;
-
-        crossroads.addRoute('eventtypes/', function () {
-            me.getApplication().getEventTypeController().showOverview();
-        });
-
-        this.callParent(arguments);
+        var router = this.getController('Uni.controller.history.Router');
+        router.addConfig(this.routeConfig);
     }
 });

@@ -1,24 +1,26 @@
 Ext.define('Cfg.model.ReadingType', {
     extend: 'Ext.data.Model',
+
     fields: [
         'mRID',
-        "aliasName",
-        "name"
+        'aliasName',
+        'name'
     ],
+
     associations: [
-    {
-        type: 'belongsTo',
-        model: 'Cfg.model.ValidationRule',
-        name: 'readingTypes'
-    }
+        {
+            type: 'belongsTo',
+            model: 'Cfg.model.ValidationRule',
+            name: 'readingTypes'
+        }
     ],
-//    idProperty: 'mRID',
+
     proxy: {
-    type: 'rest',
+        type: 'rest',
         url: '/api/mtr/usagepoints/readingtypes',
         reader: {
-        type: 'json',
+            type: 'json',
             root: 'readingTypes'
+        }
     }
-}
 });

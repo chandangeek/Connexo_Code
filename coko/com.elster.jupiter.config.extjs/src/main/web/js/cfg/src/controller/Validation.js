@@ -285,6 +285,8 @@ Ext.define('Cfg.controller.Validation', {
             editRulePanel = me.getAddRule(),
             ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
 
+        me.getValidatorsStore().load();
+
         me.ruleSetId = ruleSetId;
         me.getApplication().fireEvent('changecontentevent', widget);
         editRulePanel.down('#addRuleTitle').setTitle(Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'));
@@ -485,6 +487,8 @@ Ext.define('Cfg.controller.Validation', {
             ruleSet,
             cancelLink,
             editRulePanel;
+
+        me.getValidatorsStore().load();
 
         if (me.fromRuleSet) {
             cancelLink = '#/administration/validation/rulesets';

@@ -4,17 +4,21 @@ Ext.define('Cfg.view.eventtype.List', {
     itemId: 'eventtypeList',
     title: 'All Event Types',
     store: 'EventTypes',
+
     columns: {
         defaults: {
             flex: 1
         },
         items: [
             { header: 'Topic', dataIndex: 'topic' },
-            { header: 'Component', dataIndex: 'component' } ,
+            { header: 'Component', dataIndex: 'component' },
             { header: 'Scope', dataIndex: 'scope' },
             { header: 'Category', dataIndex: 'category' },
             { header: 'Name', dataIndex: 'name' },
-            { header: 'Publish', dataIndex: 'publish', xtype: 'checkcolumn',
+            {
+                header: 'Publish',
+                dataIndex: 'publish',
+                xtype: 'checkcolumn',
                 editor: {
                     xtype: 'checkbox',
                     cls: 'x-grid-checkheader-editor'
@@ -22,6 +26,7 @@ Ext.define('Cfg.view.eventtype.List', {
             }
         ]
     },
+
     initComponent: function () {
         this.buttons = [
             {

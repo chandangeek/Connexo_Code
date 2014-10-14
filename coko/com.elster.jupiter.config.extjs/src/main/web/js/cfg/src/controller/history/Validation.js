@@ -12,11 +12,13 @@ Ext.define('Cfg.controller.history.Validation', {
                     route: 'validation/rulesets',
                     action: 'showRuleSets',
                     controller: 'Cfg.controller.Validation',
+                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
                     items: {
                         add: {
                             title: 'Add',
                             route: 'add',
                             controller: 'Cfg.controller.Validation',
+                            privileges: ['privilege.administrate.validationConfiguration'],
                             action: 'createEditRuleSet'
                         },
                         overview: {
@@ -24,6 +26,7 @@ Ext.define('Cfg.controller.history.Validation', {
                             route: '{ruleSetId}',
                             controller: 'Cfg.controller.Validation',
                             action: 'showRuleSetOverview',
+                            privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
                             callback: function (route) {
                                 this.getApplication().on('loadRuleSet', function (record) {
                                     route.setTitle(record.get('name'));
@@ -36,24 +39,28 @@ Ext.define('Cfg.controller.history.Validation', {
                                     title: 'Edit',
                                     route: 'edit',
                                     controller: 'Cfg.controller.Validation',
+                                    privileges: ['privilege.administrate.validationConfiguration'],
                                     action: 'createEditRuleSet'
                                 },
                                 rules: {
                                     title: 'Validation rules',
                                     route: 'rules',
                                     controller: 'Cfg.controller.Validation',
+                                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
                                     action: 'showRules',
                                     items: {
                                         add: {
                                             title: 'Add',
                                             route: 'add',
                                             controller: 'Cfg.controller.Validation',
+                                            privileges: ['privilege.administrate.validationConfiguration'],
                                             action: 'addRule'
                                         },
                                         overview: {
                                             title: 'Overview',
                                             route: '{ruleId}',
                                             controller: 'Cfg.controller.Validation',
+                                            privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
                                             action: 'showRuleOverview',
                                             callback: function (route) {
                                                 this.getApplication().on('loadRule', function (record) {
@@ -67,6 +74,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                                     title: 'Edit',
                                                     route: 'edit',
                                                     controller: 'Cfg.controller.Validation',
+                                                    privileges: ['privilege.administrate.validationConfiguration'],
                                                     action: 'showEditRuleOverview'
                                                 }
                                             }
@@ -77,12 +85,14 @@ Ext.define('Cfg.controller.history.Validation', {
                                     title: 'Device configurations',
                                     route: 'deviceconfigurations',
                                     controller: 'Mdc.controller.setup.RuleDeviceConfigurations',
+                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                     action: 'showDeviceConfigView',
                                     items: {
                                         add: {
                                             title: 'Add',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.RuleDeviceConfigurations',
+                                            privileges: ['privilege.administrate.deviceConfiguration'],
                                             action: 'showAddDeviceConfigView'
                                         }
                                     }
