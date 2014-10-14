@@ -22,9 +22,19 @@ public class MeterReadingImpl implements MeterReading {
     private List<Reading> readings = new ArrayList<>();
     private List<IntervalBlock> intervalBlocks = new ArrayList<>();
 
-    public MeterReadingImpl() {
+    private MeterReadingImpl() {
     }
 
+    public static MeterReadingImpl newInstance() {
+    	return new MeterReadingImpl();
+    }
+    
+    public static MeterReadingImpl of(Reading reading) {
+    	MeterReadingImpl result = newInstance();
+    	result.addReading(reading);
+    	return result;
+    }
+    
     @Override
     public List<Reading> getReadings() {
         if (this.readings != null && this.readings.size() > 0) {

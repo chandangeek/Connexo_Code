@@ -32,9 +32,13 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
     private String description;
     private String name;
 
-    public EndDeviceEventImpl(String mRID, Instant eventTime) {
+    private EndDeviceEventImpl(String mRID, Instant eventTime) {
         this.mRID = mRID;
         this.eventOccurredDate = eventTime;
+    }
+    
+    public static EndDeviceEventImpl of(String mRID, Instant eventTime) {
+    	return new EndDeviceEventImpl(mRID, eventTime);
     }
 
     @Override

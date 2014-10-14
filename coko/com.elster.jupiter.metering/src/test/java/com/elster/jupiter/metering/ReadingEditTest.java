@@ -125,12 +125,10 @@ public class ReadingEditTest {
             ctx.commit();
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            MeterReadingImpl meterReading = new MeterReadingImpl();
-            ReadingImpl reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1), existDate);
+            ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), existDate);
             reading.addQuality("3.5.258");
             reading.addQuality("3.6.1");
-            meterReading.addReading(reading);
-            meter.store(meterReading);
+            meter.store(MeterReadingImpl.of(reading));
             ctx.commit();
         }
         Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
@@ -139,8 +137,8 @@ public class ReadingEditTest {
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
         // added a value adds an added rq
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	ReadingImpl reading1 = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(2), existDate);
-        	ReadingImpl reading2 = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(2), newDate);
+        	ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
+        	ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
             channel.editReadings(ImmutableList.of(reading1,reading2));
             assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),existDate).isPresent()).isTrue();
             assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isFalse();
@@ -150,7 +148,7 @@ public class ReadingEditTest {
         }
         // make sure if you edit an added reading the reading quality remains added
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	ReadingImpl reading2 = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(3), newDate);
+        	ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(3), newDate);
             channel.editReadings(ImmutableList.of(reading2));
             assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),newDate).isPresent()).isFalse();
             assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();

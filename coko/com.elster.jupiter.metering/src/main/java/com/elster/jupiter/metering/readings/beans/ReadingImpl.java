@@ -18,14 +18,6 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
     private final String mrid;
     private String reason;
     private String text;
-
-    public ReadingImpl(String mrid, BigDecimal value, Instant timeStamp) {
-        this(mrid,value,null,timeStamp);
-    }
-
-    public ReadingImpl(String mrid, String text, Instant timeStamp) {
-    	this(mrid,null,text,timeStamp);
-    }
     
     private ReadingImpl(String mrid, BigDecimal value, String text, Instant timeStamp) {
     	super(timeStamp,value);
@@ -33,6 +25,13 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
     	this.text = text;
     }
     
+    public static ReadingImpl of(String mrid, BigDecimal value, Instant timeStamp) {
+    	return new ReadingImpl(mrid,value,null,timeStamp);
+    }
+    
+    public static ReadingImpl of(String mrid, String text, Instant timeStamp) {
+    	return new ReadingImpl(mrid,null,text,timeStamp);
+    }
     @Override
     public String getReason() {
         return reason;

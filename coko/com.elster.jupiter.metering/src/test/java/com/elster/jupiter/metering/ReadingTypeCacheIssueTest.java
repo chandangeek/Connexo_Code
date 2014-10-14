@@ -124,20 +124,16 @@ public class ReadingTypeCacheIssueTest {
     	String readingTypeCode = builder.code();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	Instant instant = LocalDate.of(2014,1,1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        	MeterReadingImpl meterReading = new MeterReadingImpl();
-        	Reading reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1000), instant);
-        	meterReading.addReading(reading);
-        	meter.store(meterReading);
+        	Reading reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1000), instant);
+        	meter.store(MeterReadingImpl.of(reading));
         	//rollback
         }	
         assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isFalse();
         meter = meteringService.findMeter(meter.getId()).get(); // get fresh copy from DB
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	Instant instant = ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant();
-        	MeterReadingImpl meterReading = new MeterReadingImpl();
-        	Reading reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1000), instant);
-        	meterReading.addReading(reading);
-        	meter.store(meterReading);
+        	Reading reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1000), instant);
+        	meter.store(MeterReadingImpl.of(reading));
         	ctx.commit();
         }
         assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isTrue();

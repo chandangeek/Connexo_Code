@@ -131,14 +131,14 @@ public class MeterReadingStorerTest {
                     .measure(MeasurementKind.ENERGY)
                     .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
             String intervalReadingTypeCode = builder.code();
-            MeterReadingImpl meterReading = new MeterReadingImpl();
-            IntervalBlockImpl block = new IntervalBlockImpl(intervalReadingTypeCode);
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl block = IntervalBlockImpl.of(intervalReadingTypeCode);
             meterReading.addIntervalBlock(block);
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-            block.addIntervalReading(new IntervalReadingImpl(instant, BigDecimal.valueOf(1000)));
-            block.addIntervalReading(new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
+            block.addIntervalReading(IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
+            block.addIntervalReading(IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
             String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
-            ReadingImpl reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), instant);
+            ReadingImpl reading = ReadingImpl.of(registerReadingTypeCode, BigDecimal.valueOf(1200), instant);
             reading.addQuality("1.1.1", "Whatever");
             meterReading.addReading(reading);
             meter.store(meterReading);
@@ -195,16 +195,16 @@ public class MeterReadingStorerTest {
                     .measure(MeasurementKind.ENERGY)
                     .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
                     .code();
-            MeterReadingImpl meterReading = new MeterReadingImpl();
-            IntervalBlockImpl block = new IntervalBlockImpl(readingTypeCode);
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl block = IntervalBlockImpl.of(readingTypeCode);
             meterReading.addIntervalBlock(block);
             final Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-            block.addIntervalReading(new IntervalReadingImpl(instant, BigDecimal.valueOf(1000)));
+            block.addIntervalReading(IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
             ProfileStatus status = ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW);
-            IntervalReadingImpl reading = new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100), status);
+            IntervalReadingImpl reading = IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100), status);
             reading.addQuality("3.6.1");
             block.addIntervalReading(reading);
-            reading = new IntervalReadingImpl(instant.plusSeconds(30 * 60L), BigDecimal.valueOf(1200), status);
+            reading = IntervalReadingImpl.of(instant.plusSeconds(30 * 60L), BigDecimal.valueOf(1200), status);
             reading.addQuality("3.6.2");
             block.addIntervalReading(reading);
             meter.store(meterReading);
@@ -237,17 +237,17 @@ public class MeterReadingStorerTest {
                     .measure(MeasurementKind.ENERGY)
                     .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
             String intervalReadingTypeCode = builder.code();
-            MeterReadingImpl meterReading = new MeterReadingImpl();
-            IntervalBlockImpl block = new IntervalBlockImpl(intervalReadingTypeCode);
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl block = IntervalBlockImpl.of(intervalReadingTypeCode);
             meterReading.addIntervalBlock(block);
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-            block.addIntervalReading(new IntervalReadingImpl(instant, BigDecimal.valueOf(1000)));
-            block.addIntervalReading(new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
+            block.addIntervalReading(IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
+            block.addIntervalReading(IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
             String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
-            Reading reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), instant);
+            Reading reading = ReadingImpl.of(registerReadingTypeCode, BigDecimal.valueOf(1200), instant);
             meterReading.addReading(reading);
 
-            EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(EVENTTYPECODE, instant);
+            EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(EVENTTYPECODE, instant);
             HashMap<String, String> eventData = new HashMap<>();
             eventData.put("A", "B");
             endDeviceEvent.setEventData(eventData);
@@ -281,16 +281,14 @@ public class MeterReadingStorerTest {
             Meter meter = amrSystem.newMeter("myMeter");
             meter.save();
             String intervalReadingTypeCode = "32.12.2.4.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
-            MeterReadingImpl meterReading = new MeterReadingImpl();
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-            Reading reading = new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1200), instant);
-            meterReading.addReading(reading);
-            meter.store(meterReading);
+            Reading reading = ReadingImpl.of(intervalReadingTypeCode, BigDecimal.valueOf(1200), instant);
+            meter.store(MeterReadingImpl.of(reading));
             List<? extends BaseReadingRecord> readings = meter.getReadings(Range.all(), meteringService.getReadingType(intervalReadingTypeCode).get());
             assertThat(readings).isNotEmpty();
             Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
             List<Reading> changes = new ArrayList<>();
-            changes.add(new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1300), instant));
+            changes.add(ReadingImpl.of(intervalReadingTypeCode, BigDecimal.valueOf(1300), instant));
             channel.editReadings(changes);
             readings = meter.getReadings(Range.atLeast(Instant.EPOCH), meteringService.getReadingType(intervalReadingTypeCode).get());
             assertThat(readings).isNotEmpty();
@@ -308,11 +306,9 @@ public class MeterReadingStorerTest {
             Meter meter = amrSystem.newMeter("myMeter");
             meter.save();
             String readingTypeCode = "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
-            MeterReadingImpl meterReading = new MeterReadingImpl();
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-            Reading reading = new ReadingImpl(readingTypeCode, "Sample text", instant);
-            meterReading.addReading(reading);
-            meter.store(meterReading);
+            Reading reading = ReadingImpl.of(readingTypeCode, "Sample text", instant);
+            meter.store(MeterReadingImpl.of(reading));
             List<? extends BaseReadingRecord> readings = meter.getMeterActivations().get(0).getReadings(
                     Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                     meteringService.getReadingType(readingTypeCode).get());
@@ -336,16 +332,16 @@ public class MeterReadingStorerTest {
                     .measure(MeasurementKind.ENERGY)
                     .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
             String intervalReadingTypeCode = builder.code();
-            MeterReadingImpl meterReading = new MeterReadingImpl();
-            IntervalBlockImpl block = new IntervalBlockImpl(intervalReadingTypeCode);
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl block = IntervalBlockImpl.of(intervalReadingTypeCode);
             meterReading.addIntervalBlock(block);
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-            block.addIntervalReading(new IntervalReadingImpl(instant, BigDecimal.valueOf(1000)));
-            block.addIntervalReading(new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
+            block.addIntervalReading(IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
+            block.addIntervalReading(IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
             String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
             meter.store(meterReading);
             Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
-            IntervalReading reading = new IntervalReadingImpl(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(50));
+            IntervalReading reading = IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(50));
             channel.editReadings(ImmutableList.of(reading));
             List<? extends BaseReadingRecord> readings = channel.getReadings(
                     Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)));

@@ -124,10 +124,10 @@ public class ReadingQualityLifeCycleTest {
             ctx.commit();
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            MeterReadingImpl meterReading = new MeterReadingImpl();
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             for (Cases testCase : Cases.values()) {
                 Instant date = dateTime.plusMinutes(testCase.ordinal()).toInstant();
-                ReadingImpl reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(1), date);
+                ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), date);
                 reading.addQuality("1.1.1", "Same");
                 meterReading.addReading(reading);
             }
@@ -136,10 +136,10 @@ public class ReadingQualityLifeCycleTest {
             ctx.commit();
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            MeterReadingImpl meterReading = new MeterReadingImpl();
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             for (Cases testCase : Cases.values()) {
                 Instant date = dateTime.plusMinutes(testCase.ordinal()).toInstant();
-                ReadingImpl reading = new ReadingImpl(readingTypeCode, BigDecimal.valueOf(testCase.sameReading ? 1 : 2), date);
+                ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(testCase.sameReading ? 1 : 2), date);
                 switch (testCase.readingQualityBehavior) {
                     case SAME:
                         reading.addQuality("1.1.1", "Same");

@@ -95,8 +95,8 @@ public class MeterReadingStorerTest {
 
     @Test
     public void testMeterReadingStorerOfNewEndDeviceEvent() {
-        MeterReadingImpl meterReading = new MeterReadingImpl();
-        EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(EVENTTYPECODE, DATE);
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(EVENTTYPECODE, DATE);
         HashMap<String, String> eventData = new HashMap<>();
         eventData.put("A", "B");
         endDeviceEvent.setEventData(eventData);

@@ -18,22 +18,22 @@ public class IntervalReadingImpl extends BaseReadingImpl implements IntervalRead
 
     private ProfileStatus profileStatus;
 
-    public IntervalReadingImpl(Instant timeStamp, BigDecimal value) {
-        super(timeStamp, value);
-    }
-
-    public IntervalReadingImpl(Instant timeStamp, BigDecimal value, ProfileStatus profileStatus) {
+    private IntervalReadingImpl(Instant timeStamp, BigDecimal value, ProfileStatus profileStatus) {
         super(timeStamp, value);
         this.profileStatus = profileStatus;
     }
 
+    public static IntervalReadingImpl of(Instant timeStamp, BigDecimal value, ProfileStatus profileStatus) {
+		return new IntervalReadingImpl(timeStamp, value, profileStatus);
+	}
+    
+    public static IntervalReadingImpl of(Instant timeStamp, BigDecimal value) {
+    	return of(timeStamp, value, ProfileStatus.of());
+    }
+    
     @Override
     public ProfileStatus getProfileStatus() {
-        if(profileStatus != null){
-            return profileStatus;
-        } else {
-            return ProfileStatus.of();
-        }
+    	return profileStatus;
     }
 
     public void setProfileStatus(ProfileStatus profileStatus) {

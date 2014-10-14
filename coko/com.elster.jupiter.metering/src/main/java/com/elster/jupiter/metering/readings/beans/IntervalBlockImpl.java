@@ -20,10 +20,13 @@ public class IntervalBlockImpl implements IntervalBlock {
     private final String readingTypeCode;
     private List<IntervalReading> intervals = new ArrayList<>();
 
-    public IntervalBlockImpl(String readingTypeCode) {
+    private IntervalBlockImpl(String readingTypeCode) {
         this.readingTypeCode = readingTypeCode;
     }
 
+    public static IntervalBlockImpl of(String readingTypeCode) {
+    	return new IntervalBlockImpl(readingTypeCode);
+    }
     @Override
     public List<IntervalReading> getIntervals() {
         if(intervals != null && intervals.size() > 0){
