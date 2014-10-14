@@ -35,6 +35,7 @@ public interface MeteringGroupsService {
     void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider);
 
     Query<EndDeviceGroup> getEndDeviceGroupQuery();
+    Query<EndDeviceGroup> getQueryEndDeviceGroupQuery();
 
     List<EndDeviceGroup> findEndDeviceGroups();
 
