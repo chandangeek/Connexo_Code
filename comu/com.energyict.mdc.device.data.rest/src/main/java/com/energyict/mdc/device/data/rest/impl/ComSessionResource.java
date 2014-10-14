@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -9,6 +10,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.rest.impl.comserver.LogLevelAdapter;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -30,14 +35,16 @@ public class ComSessionResource {
     private final ComSessionInfoFactory comSessionInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
+    private final JournalEntryInfoFactory journalEntryInfoFactory;
 
     @Inject
-    public ComSessionResource(ResourceHelper resourceHelper, ConnectionTaskService connectionTaskService, ComSessionInfoFactory comSessionInfoFactory, ExceptionFactory exceptionFactory, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory) {
+    public ComSessionResource(ResourceHelper resourceHelper, ConnectionTaskService connectionTaskService, ComSessionInfoFactory comSessionInfoFactory, ExceptionFactory exceptionFactory, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.connectionTaskService = connectionTaskService;
         this.comSessionInfoFactory = comSessionInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.comTaskExecutionSessionInfoFactory = comTaskExecutionSessionInfoFactory;
+        this.journalEntryInfoFactory = journalEntryInfoFactory;
     }
 
     @GET
@@ -63,11 +70,8 @@ public class ComSessionResource {
     public ComSessionInfo getComSession(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @PathParam("comSessionId") long comSessionId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
-        com.google.common.base.Optional<ComSession> comSessionOptional = connectionTaskService.findComSession(comSessionId);
-        if (!comSessionOptional.isPresent() || comSessionOptional.get().getConnectionTask().getId()!=connectionTask.getId()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD);
-        }
-        ComSessionInfo info = comSessionInfoFactory.from(comSessionOptional.get());
+        ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
+        ComSessionInfo info = comSessionInfoFactory.from(comSession);
         info.connectionMethod = connectionTask.getName();
         return info;
     }
@@ -87,6 +91,42 @@ public class ComSessionResource {
         info.total=pagedInfoList.getTotal();
         info.comTaskExecutionSessions= pagedInfoList.getInfos();
         return info;
+    }
+
+    @GET
+    @Path("{comSessionId}/journals")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PagedInfoList getHybridJournalEntries(@PathParam("mRID") String mrid,
+                                                 @PathParam("connectionMethodId") long connectionMethodId,
+                                                 @PathParam("comSessionId") long comSessionId,
+                                                 @BeanParam JsonQueryFilter jsonQueryFilter,
+                                                 @BeanParam QueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
+        ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
+
+        List<JournalEntryInfo> infos = new ArrayList<>();
+        EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
+        if (jsonQueryFilter.getProperty("logLevels") != null) {
+            jsonQueryFilter.getPropertyList("logLevels", new LogLevelAdapter()).stream().forEach(logLevels::add);
+        }
+        if (jsonQueryFilter.getProperty("logTypes") != null) {
+            List<String> logTypes = jsonQueryFilter.getPropertyList("logTypes");
+            if (logTypes.contains("connections")) {
+                if (logTypes.contains("communications")) {
+                    comSession.getAllLogs(logLevels, queryParameters.getStart() + 1, queryParameters.getLimit()).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
+                } else {
+                    comSession.getJournalEntries(logLevels).from(queryParameters).sorted("timestamp", false).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
+                }
+            } else {
+                if (logTypes.contains("communications")) {
+                    comSession.getCommunicationTaskJournalEntries(logLevels).from(queryParameters).sorted("timestamp", false).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
+                } else {
+                    // User didn't select anything and is getting just that...
+                }
+            }
+        }
+        return PagedInfoList.asJson("journals", infos, queryParameters);
     }
 
     private ComSession getComSessionOrThrowException(long comSessionId, ConnectionTask<?, ?> connectionTask) {
