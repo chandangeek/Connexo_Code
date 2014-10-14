@@ -39,6 +39,12 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile Thesaurus thesaurus;
 
+    // For OSGi framework only
+    public DataCollectionEventHandlerFactory() {
+        super();
+    }
+
+    // For testing purposes only
     @Inject
     public DataCollectionEventHandlerFactory(
             JsonService jsonService,
