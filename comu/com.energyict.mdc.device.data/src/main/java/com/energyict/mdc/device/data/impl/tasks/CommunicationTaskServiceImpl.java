@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -50,6 +41,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
