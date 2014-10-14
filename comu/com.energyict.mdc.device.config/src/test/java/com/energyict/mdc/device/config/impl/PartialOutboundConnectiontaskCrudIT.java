@@ -443,7 +443,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
         assertThat(partialOutboundConnectionTask.getTemporalExpression().getEvery().getCount()).isEqualTo(12);
-        assertThat(partialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnitCode()).isEqualTo(TimeDuration.TimeUnit.HOURS);
+        assertThat(partialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("Changed");
 
         verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED.topic(), task);
