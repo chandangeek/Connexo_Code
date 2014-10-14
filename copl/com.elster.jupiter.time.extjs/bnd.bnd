@@ -1,0 +1,4 @@
+-classpath: target/classes
+Bundle-Activator: com.elster.jupiter.time.extjs.Activator
+Private-Package: com.elster.jupiter.time.extjs
+-include: -../development.bnd
