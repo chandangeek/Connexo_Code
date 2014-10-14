@@ -23,6 +23,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.elster.jupiter.util.time.Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -83,6 +85,7 @@ public class RecurrentTaskIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
+            bind(CronExpressionParser.class).toInstance(new DefaultCronExpressionParser());
         }
     }
 
