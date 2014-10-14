@@ -21,6 +21,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                     {
                         xtype: 'combobox',
                         displayField: 'name',
+                        forceSelection: true,
                         valueField: 'id',
                         store: 'Dsh.store.filter.DeviceGroup',
                         router: me.router,

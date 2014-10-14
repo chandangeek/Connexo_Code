@@ -6,6 +6,7 @@ Ext.define('Dsh.model.OverviewFilter', {
         root: 'filter'
     },
     fields: [
+        { name: 'id', persist: false},
         { name: 'deviceGroup', type: 'auto' }
     ]
 });
