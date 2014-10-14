@@ -89,6 +89,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
         if (!record.data.validationInfo.validationActive) {
             preview.down('#validateNowChannel').hide();
             Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].hide();
+        } else {
+            preview.down('#validateNowChannel').show();
+            Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].show();
         }
         preview.setTitle(record.get('name'));
         preview.down('#deviceLoadProfileChannelsPreviewForm').loadRecord(record);

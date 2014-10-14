@@ -89,6 +89,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     if (!rec.data.validationInfo.validationActive) {
                         preview.down('#validateNowLoadProfile').hide();
                         Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].hide();
+                    } else {
+                        preview.down('#validateNowLoadProfile').hide();
+                        Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].hide();
                     }
                     preview.down('#deviceLoadProfilesPreviewForm').loadRecord(rec);
                     preview.setLoading(false);

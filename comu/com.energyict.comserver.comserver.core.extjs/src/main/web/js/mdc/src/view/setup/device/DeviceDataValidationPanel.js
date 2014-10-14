@@ -73,8 +73,6 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                         name: 'lastChecked',
                                         renderer: function (value, field) {
                                             if (value) {
-                                                field.up('#lastValidationCont').show();
-                                                this.nextSibling('button').setVisible(value ? true : false);
                                                 return Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(value), 'MDC', 'M d, Y H:i');
                                             } else {
                                                 return Uni.I18n.translate('general.never', 'MDC', 'Never');
