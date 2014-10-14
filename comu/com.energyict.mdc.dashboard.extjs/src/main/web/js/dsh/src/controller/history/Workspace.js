@@ -5,6 +5,11 @@ Ext.define('Dsh.controller.history.Workspace', {
     previousPath: '',
     currentPath: null,
 
+    requires: [
+        'Dsh.model.OverviewFilter',
+        'Dsh.model.Filter'
+    ],
+
     routeConfig: {
         workspace: {
             title: 'Workspace',
@@ -16,6 +21,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                     route: 'connections',
                     controller: 'Dsh.controller.ConnectionOverview',
                     action: 'showOverview',
+                    filter: 'Dsh.model.OverviewFilter',
                     items: {
                         details: {
                             title: Uni.I18n.translate('title.connections', 'DSH', 'Connections'),
@@ -31,6 +37,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                     route: 'communications',
                     controller: 'Dsh.controller.CommunicationOverview',
                     action: 'showOverview',
+                    filter: 'Dsh.model.OverviewFilter',
                     items: {
                         details: {
                             title: Uni.I18n.translate('title.communications', 'DSH', 'Communications'),
@@ -45,7 +52,3 @@ Ext.define('Dsh.controller.history.Workspace', {
         }
     }
 });
-//'workspace/datacommunication/communication' --> workspace/communications
-//'workspace/datacommunication/communications' --> workspace/communications/details
-//'workspace/datacommunication/connection' --> workspace/connections
-//'workspace/datacommunication/connections' --> workspace/connections/details
