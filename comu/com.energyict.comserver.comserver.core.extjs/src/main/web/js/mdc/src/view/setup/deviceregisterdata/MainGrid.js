@@ -26,6 +26,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
+                deferLoading: true,
                 params: [
                     {mRID: me.mRID},
                     {registerId: me.registerId}

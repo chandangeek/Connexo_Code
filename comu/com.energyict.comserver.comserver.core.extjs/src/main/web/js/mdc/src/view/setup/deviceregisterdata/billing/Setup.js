@@ -13,24 +13,33 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
                 title: Uni.I18n.translate('device.registerData.title', 'MDC', 'Register data'),
                 items: [
                     {
-                        xtype: 'preview-container',
-                        grid: {
-                            xtype: 'deviceregisterreportgrid-billing',
-                            mRID: me.mRID,
-                            registerId: me.registerId
-                        },
-                        emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('device.registerData.title', 'MDC', 'No readings found'),
-                            reasons: [
-                                Uni.I18n.translate('device.registerData.list.item1', 'MDC', 'No readings have been defined yet.'),
-                                Uni.I18n.translate('device.registerData.list.item2', 'MDC', 'No readings comply to the filter.')
-                            ],
-                            stepItems: []
-                        },
-                        previewComponent: {
-                            xtype: 'deviceregisterreportpreview-billing'
-                        }
+                        xtype: 'filter-top-panel',
+                        itemId: 'deviceregisterdatafilterpanel',
+                        emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
+                    },
+                    {
+                        items: [
+                            {
+                                xtype: 'preview-container',
+                                grid: {
+                                    xtype: 'deviceregisterreportgrid-billing',
+                                    mRID: me.mRID,
+                                    registerId: me.registerId
+                                },
+                                emptyComponent: {
+                                    xtype: 'no-items-found-panel',
+                                    title: Uni.I18n.translate('device.registerData.title', 'MDC', 'No readings found'),
+                                    reasons: [
+                                        Uni.I18n.translate('device.registerData.list.item1', 'MDC', 'No readings have been defined yet.'),
+                                        Uni.I18n.translate('device.registerData.list.item2', 'MDC', 'No readings comply to the filter.')
+                                    ],
+                                    stepItems: []
+                                },
+                                previewComponent: {
+                                    xtype: 'deviceregisterreportpreview-billing'
+                                }
+                            }
+                        ]
                     }
                 ]
             }
