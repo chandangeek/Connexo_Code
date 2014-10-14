@@ -3,6 +3,7 @@ package com.energyict.mdc.tasks;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+
 import java.util.List;
 
 /**
@@ -20,17 +21,54 @@ import java.util.List;
  */
 public interface MessagesTask extends ProtocolTask {
 
+    public enum MessageTaskType {
+        NONE,
+        ALL,
+        SELECTED
+    }
+
     /**
      * Return a list of {@link DeviceMessageCategory} which <i>can</i> be executed during this task.
      * If no types are defined, then an empty list will be returned.
      *
      * @return the list of {@link DeviceMessageCategory} which are defined for this task
      */
-    public List<DeviceMessageCategory> getDeviceMessageCategories();
-    public void setDeviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories);
+    List<DeviceMessageCategory> getDeviceMessageCategories();
+    void setDeviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories);
+
+    /**
+     * Gets the current MessageTaskType
+     *
+     * @return the MessageTaskType
+     */
+    MessageTaskType getMessageTaskType();
+    void setMessageTaskType(MessageTaskType messageTaskType);
 
     interface MessagesTaskBuilder {
+
+        /**
+         * Sets the MessageTaskType.
+         * Setting the type to {@link MessageTaskType#ALL} or {@link MessageTaskType#NONE} will clear the current categories.
+         *
+         * @param messageTaskType the current type to set
+         * @return this builder
+         */
+        public MessagesTaskBuilder setMessageTaskType(MessageTaskType messageTaskType);
+
+        /**
+         * Sets the given deviceMessageCategories.
+         * By setting deviceMessageCategories, you the MessageTaskType will automatically be set to {@link MessageTaskType#SELECTED}
+         *
+         * @param deviceMessageCategories the categories to set
+         * @return the builder
+         */
         public MessagesTaskBuilder deviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories);
+
+        /**
+         * Returns the object which was <i>constructed</i> with this builder
+         *
+         * @return the object
+         */
         public MessagesTask add();
     }
 

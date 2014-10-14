@@ -61,6 +61,8 @@ public enum TableSpecs {
             table.column("MINCLOCKDIFFBADTIMEVALUE").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".count").add();
             table.column("MINCLOCKDIFFBADTIMEUNIT").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".timeUnitCode").add();
 
+            table.column("MESSAGETASKTYPE").number().conversion(NUMBER2ENUM).map(MessagesTaskImpl.Fields.MESSAGE_TASK_TYPE.fieldName()).add();
+
             table.foreignKey("FK_CTS_PROTOCOLTASK_COMTASK").
                     on(comTask).
                     references(CTS_COMTASK.name()).

@@ -28,7 +28,8 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags(PENDING_MESSAGES_FLAG, SENT_MESSAGES_FLAG, SLAVE_DEVICES_FLAG);
 
     enum Fields {
-        DEVICE_MESSAGE_USAGES("deviceMessageUsages");
+        DEVICE_MESSAGE_USAGES("deviceMessageUsages"),
+        MESSAGE_TASK_TYPE("messageTaskType");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -41,6 +42,7 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
     }
 
     private List<MessagesTaskTypeUsage> deviceMessageUsages = new ArrayList<>();
+    private MessageTaskType messageTaskType = MessageTaskType.NONE;
 
     @Inject
     MessagesTaskImpl(DataModel dataModel) {
@@ -53,12 +55,26 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
         return this.deviceMessageUsages.stream().map(MessagesTaskTypeUsage::getDeviceMessageCategory).collect(Collectors.toList());
     }
 
-    @Override
     public void setDeviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories) {
         this.deviceMessageUsages.clear();   // Delete all
         for (DeviceMessageCategory category : deviceMessageCategories) {
             MessagesTaskTypeUsageImpl messagesTaskTypeUsage = this.getDataModel().getInstance(MessagesTaskTypeUsageImpl.class).initialize(this, category);
             this.deviceMessageUsages.add(messagesTaskTypeUsage);
+        }
+        if(deviceMessageUsages.size()> 0){
+            this.messageTaskType = MessageTaskType.SELECTED;
+        }
+    }
+
+    @Override
+    public MessageTaskType getMessageTaskType() {
+        return this.messageTaskType;
+    }
+
+    public void setMessageTaskType(MessageTaskType messageTaskType) {
+        this.messageTaskType = messageTaskType;
+        if(this.messageTaskType.equals(MessageTaskType.ALL) || this.messageTaskType.equals(MessageTaskType.NONE)){
+            this.deviceMessageUsages.clear();
         }
     }
 
@@ -71,7 +87,6 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
         for (DeviceMessageCategory deviceMessageCategory : this.getDeviceMessageCategories()) {
             messageCategoriesBuilder = messageCategoriesBuilder.append(deviceMessageCategory.getName()).next();
         }
-
     }
 
 }
