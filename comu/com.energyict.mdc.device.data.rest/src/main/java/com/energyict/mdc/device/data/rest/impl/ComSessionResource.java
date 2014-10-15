@@ -30,6 +30,12 @@ import static java.util.stream.Collectors.toList;
  * Created by bvn on 10/3/14.
  */
 public class ComSessionResource {
+
+    private static final String LOG_LEVELS_FILTER_PROPERTY = "logLevels";
+    private static final String LOG_TYPES_FILTER_PROPERTY = "logTypes";
+    private static final String CONNECTIONS_FILTER_ITEM = "connections";
+    private static final String COMMUNICATIONS_FILTER_ITEM = "communications";
+
     private final ResourceHelper resourceHelper;
     private final ConnectionTaskService connectionTaskService;
     private final ComSessionInfoFactory comSessionInfoFactory;
@@ -107,19 +113,19 @@ public class ComSessionResource {
 
         List<JournalEntryInfo> infos = new ArrayList<>();
         EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
-        if (jsonQueryFilter.getProperty("logLevels") != null) {
-            jsonQueryFilter.getPropertyList("logLevels", new LogLevelAdapter()).stream().forEach(logLevels::add);
+        if (jsonQueryFilter.getProperty(LOG_LEVELS_FILTER_PROPERTY) != null) {
+            jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter()).stream().forEach(logLevels::add);
         }
-        if (jsonQueryFilter.getProperty("logTypes") != null) {
-            List<String> logTypes = jsonQueryFilter.getPropertyList("logTypes");
-            if (logTypes.contains("connections")) {
-                if (logTypes.contains("communications")) {
+        if (jsonQueryFilter.getProperty(LOG_TYPES_FILTER_PROPERTY) != null) {
+            List<String> logTypes = jsonQueryFilter.getPropertyList(LOG_TYPES_FILTER_PROPERTY);
+            if (logTypes.contains(CONNECTIONS_FILTER_ITEM)) {
+                if (logTypes.contains(COMMUNICATIONS_FILTER_ITEM)) {
                     comSession.getAllLogs(logLevels, queryParameters.getStart() + 1, queryParameters.getLimit()).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
                 } else {
                     comSession.getJournalEntries(logLevels).from(queryParameters).sorted("timestamp", false).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
                 }
             } else {
-                if (logTypes.contains("communications")) {
+                if (logTypes.contains(COMMUNICATIONS_FILTER_ITEM)) {
                     comSession.getCommunicationTaskJournalEntries(logLevels).from(queryParameters).sorted("timestamp", false).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
                 } else {
                     // User didn't select anything and is getting just that...

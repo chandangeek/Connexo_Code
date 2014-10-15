@@ -28,7 +28,7 @@ public class JournalEntryInfoFactory {
         JournalEntryInfo info = new JournalEntryInfo();
         info.timestamp=combinedLogEntry.getTimestamp();
         info.logLevel=combinedLogEntry.getLogLevel();
-        info.details=combinedLogEntry.getDetail();
+        info.details=combinedLogEntry.getErrorDetail();
         return info;
     }
 }

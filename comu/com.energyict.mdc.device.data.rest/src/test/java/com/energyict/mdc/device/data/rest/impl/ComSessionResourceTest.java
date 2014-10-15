@@ -289,7 +289,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ComSession.CombinedLogEntry mock = mock(ComSession.CombinedLogEntry.class);
         when(mock.getTimestamp()).thenReturn(timestamp);
         when(mock.getLogLevel()).thenReturn(logLevel);
-        when(mock.getDetail()).thenReturn(message);
+        when(mock.getErrorDetail()).thenReturn(message);
         return mock;
     }
 
