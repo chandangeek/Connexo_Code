@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.api.cim;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;

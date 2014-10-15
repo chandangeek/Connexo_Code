@@ -12,7 +12,6 @@
 
   <artifactId>mdc.protocols.api</artifactId>
   <packaging>bundle</packaging>
-  <version>${comserver.version}</version>
   <name>[MDC] mdc.protocols.api [init DMC]</name>
   <description>
     Defines the behavior of device protocols as required by the data collection engine.
@@ -32,22 +31,22 @@
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.issues</artifactId>
-      <version>${comserver.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.dynamic</artifactId>
-      <version>${comserver.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.pluggable</artifactId>
-      <version>${comserver.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.common</artifactId>
-      <version>${comserver.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
