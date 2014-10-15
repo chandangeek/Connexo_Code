@@ -1,7 +1,7 @@
 package com.energyict.mdc.scheduling.rest;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 
 public class TemporalExpressionInfo {
     public TimeDurationInfo every;

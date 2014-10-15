@@ -1,35 +1,32 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
+import org.joda.time.DateTimeConstants;
+import org.junit.Test;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.joda.time.DateTimeConstants;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
 
@@ -282,7 +279,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     public void testPreviewMinutelyWithoutOffset() throws Exception {
         PreviewInfo previewInfo = new PreviewInfo();
         previewInfo.temporalExpression = new TemporalExpressionInfo();
-        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.MINUTES));
+        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
         previewInfo.startDate=new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
 
         Entity<PreviewInfo> entity = Entity.json(previewInfo);
@@ -301,8 +298,8 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     public void testPreviewMinutelyWithOffset() throws Exception {
         PreviewInfo previewInfo = new PreviewInfo();
         previewInfo.temporalExpression = new TemporalExpressionInfo();
-        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.MINUTES));
-        previewInfo.temporalExpression.offset=new TimeDurationInfo(new TimeDuration(5, TimeDuration.SECONDS));
+        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
+        previewInfo.temporalExpression.offset=new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.SECONDS));
         previewInfo.startDate=new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
 
         Entity<PreviewInfo> entity = Entity.json(previewInfo);
