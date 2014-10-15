@@ -74,7 +74,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
 
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
-        when(endDeviceGroup.getName()).thenReturn("северный область");
+        when(endDeviceGroup.getName()).thenReturn("Northern region");
         when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
 
         TaskStatusOverview statusOverview = createCommunicationStatusOverview();
@@ -108,7 +108,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         assertThat(jsonModel.<List<Integer>>get("$.breakdowns[*].counters[*].failingCount")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
         
         assertThat(jsonModel.<Integer>get("$.deviceGroup.id")).isEqualTo(321);
-        assertThat(jsonModel.<String>get("$.deviceGroup.name")).isEqualTo("северный область");
+        assertThat(jsonModel.<String>get("$.deviceGroup.name")).isEqualTo("Northern region");
         assertThat(jsonModel.<String>get("$.deviceGroup.alias")).isEqualTo("deviceGroups");
         assertThat(jsonModel.<List>get("$.kpi")).isNotNull();
         assertThat(jsonModel.<String>get("$.kpi[0].name")).isEqualTo("Success");
