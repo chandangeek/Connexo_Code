@@ -41,6 +41,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                     {
                         xtype: 'button',
                         itemId: 'refresh-btn',
+                        ui: 'action',
                         text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
                         icon: '/apps/sky/resources/images/form/restore.png'
                     }
