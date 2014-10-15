@@ -60,13 +60,7 @@ public enum DataCollectionEventDescription implements EventDescription{
             "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE",
             null,
             UnknownDeviceEvent.class,
-            MessageSeeds.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE),
-
-    METER_EVENT(
-            "com/elster/jupiter/metering/enddeviceevent/CREATED",
-            null,
-            MeterEvent.class,
-            MessageSeeds.EVENT_TITLE_DEVICE_EVENT);
+            MessageSeeds.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE);
 
     private String topic;
     private CommunicationErrorType errorType;

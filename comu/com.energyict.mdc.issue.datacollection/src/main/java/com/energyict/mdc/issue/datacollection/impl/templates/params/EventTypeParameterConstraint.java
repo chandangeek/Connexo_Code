@@ -42,8 +42,7 @@ public class EventTypeParameterConstraint implements ParameterConstraint {
             errors.add(new ParameterViolation(paramKey, MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), IssueDataCollectionService.COMPONENT_NAME));
             return errors;
         }
-        if (!validateValueInEventDescriptions(value, isAggreagtion)
-                && !validateValueInEndDeviceEventTypes(meteringService, value)) {
+        if (!validateValueInEventDescriptions(value, isAggreagtion)) {
             errors.add(new ParameterViolation(paramKey, MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_INCORRECT.getKey(), IssueDataCollectionService.COMPONENT_NAME, value));
             return errors;
         }
@@ -58,10 +57,5 @@ public class EventTypeParameterConstraint implements ParameterConstraint {
             }
         }
         return false;
-    }
-
-    private boolean validateValueInEndDeviceEventTypes(MeteringService meteringService, String value) {
-        // TODO search in DB and set return value to FALSE by default
-        return true;
     }
 }

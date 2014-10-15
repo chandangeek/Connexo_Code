@@ -32,7 +32,6 @@ public class EventTypeParameter extends TranslatedParameter {
     private void setEventTypes(String userInput) {
         eventTypes = new ArrayList<>();
         searchEventTypesInEventDescriptions(userInput);
-        searchEventTypesInEndDeviceEventTypes(userInput);
     }
 
     private void setDefaultValue(String userValue) {
@@ -50,8 +49,7 @@ public class EventTypeParameter extends TranslatedParameter {
         for (DataCollectionEventDescription eventDescription : DataCollectionEventDescription.values()) {
             // Always skip the Meter event because it will be replaced by set of end device event types
             // or skip event type which doesn't support the aggregation (of course when we request aggregation)
-            if (isAggregation && !eventDescription.canBeAggregated()
-                    || DataCollectionEventDescription.METER_EVENT.equals(eventDescription)) {
+            if (isAggregation && !eventDescription.canBeAggregated()) {
                 continue;
             }
             String title = getString(eventDescription.getTitle());
@@ -63,40 +61,6 @@ public class EventTypeParameter extends TranslatedParameter {
                 eventTypes.add(info);
             }
         }
-    }
-
-    private void searchEventTypesInEndDeviceEventTypes(String userValue) {
-        if (userValue != null) {
-            /*
-            //TODO search in DB
-            //getAvailableEndDeviceEventTypes() retruns more than 10000 records! So we need to have an ability to search
-            //EndDeviceEventTypes by name / id
-            String dbSearchString = "%" + userValue + "%";
-            for(EndDeviceEventType endDeviceEventType : meteringService.getAvailableEndDeviceEventTypes()) {
-                ComboBoxControl.Values info = new ComboBoxControl.Values();
-                info.id = endDeviceEventType.getMRID();
-                info.title = endDeviceEventType.getName();
-                eventTypes.add(info);
-            }
-            //For now we use only this two, see the
-            //http://confluence.eict.vpdc/display/JUP/Create+an+issue+for+the+event%2C+mapping+of+event+to+issue?focusedCommentId=26674337#comment-26674337
-            */
-            addDefaultEventTypes();
-        } else {
-            addDefaultEventTypes();
-        }
-    }
-
-    private void addDefaultEventTypes() {
-        ComboBoxControl.Values info = new ComboBoxControl.Values();
-        info.id = "0.36.116.85";
-        info.title = "Time sync failed";
-        eventTypes.add(info);
-
-        info = new ComboBoxControl.Values();
-        info.id = "0.26.0.85";
-        info.title = "Power Outage";
-        eventTypes.add(info);
     }
 
     @Override
