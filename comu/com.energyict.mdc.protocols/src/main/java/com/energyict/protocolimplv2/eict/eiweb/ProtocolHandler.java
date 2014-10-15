@@ -140,7 +140,7 @@ public class ProtocolHandler {
     }
 
     private void processMeterReadings(ProfileBuilder profileBuilder) {
-        Date now = Bus.getClock().now();
+        Date now = Date.from(Bus.getClock().instant());
         List<BigDecimal> meterReadings = profileBuilder.getMeterReadings();
         for (int i = 0; i < meterReadings.size(); i++) {
             BigDecimal value = meterReadings.get(i);
@@ -225,7 +225,7 @@ public class ProtocolHandler {
 
     private Date sevenDaysFromNow() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(Bus.getClock().now());
+        calendar.setTime(Date.from(Bus.getClock().instant()));
         calendar.add(Calendar.DATE, 7);
         return calendar.getTime();
     }

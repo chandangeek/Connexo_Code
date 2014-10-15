@@ -5,7 +5,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 import java.util.concurrent.atomic.AtomicReference;
 

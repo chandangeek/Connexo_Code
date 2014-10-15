@@ -151,7 +151,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public Date getTime() {
-        return Bus.getClock().now();
+        return Date.from(Bus.getClock().instant());
     }
 
     @Override
