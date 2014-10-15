@@ -17,6 +17,7 @@ Ext.define('Mdc.view.setup.property.UserFileReference', {
 
     initComponent: function () {
         var userFileReferences = Ext.create('Mdc.store.UserFileReferences');
+        userFileReferences.load();
         this.items = [
             {
                 xtype: 'grid',

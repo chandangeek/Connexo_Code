@@ -1040,14 +1040,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     items: {
                                                         data: {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                                            route: 'graphView',
+                                                            route: 'graph',
                                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
                                                             action: 'showGraphOverview',
                                                             filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                                         },
                                                         tableData: {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                                            route: 'tableView',
+                                                            route: 'table',
                                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
                                                             action: 'showTableOverview',
                                                             filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
@@ -1063,14 +1063,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                         },
                                         data: {
                                             title: 'Load profile data',
-                                            route: 'graphView',
+                                            route: 'graph',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileData',
                                             action: 'showGraphOverview',
                                             filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
                                         },
                                         tableData: {
                                             title: 'Load profile data',
-                                            route: 'tableView',
+                                            route: 'table',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileData',
                                             action: 'showTableOverview',
                                             filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'

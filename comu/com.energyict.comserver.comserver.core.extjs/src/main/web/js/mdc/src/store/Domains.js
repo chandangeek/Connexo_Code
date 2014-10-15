@@ -5,7 +5,7 @@ Ext.define('Mdc.store.Domains',{
     ],
     model: 'Mdc.model.Domain',
     storeId: 'Domains',
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '/api/ddr/field/enddevicedomains',

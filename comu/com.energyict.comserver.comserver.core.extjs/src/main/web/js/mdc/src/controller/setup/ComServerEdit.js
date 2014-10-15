@@ -40,8 +40,10 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
     showEditView: function (id) {
         var me = this,
             widget = Ext.widget('comServerEdit'),
-            model = me.getModel('Mdc.model.ComServer');
+            model = me.getModel('Mdc.model.ComServer'),
+            logLevelsStore = this.getStore('Mdc.store.LogLevels');
 
+        logLevelsStore.load();
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setEdit(true, '#/administration/comservers');
 
@@ -77,8 +79,10 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
     showOnlineAddView: function () {
         var widget = Ext.widget('comServerEdit'),
             model = Ext.create(Mdc.model.ComServer),
+            logLevelsStore = this.getStore('Mdc.store.LogLevels'),
             form;
 
+        logLevelsStore.load();
         model.set('comServerType', 'Online');
         model.set('serverLogLevel' , 'Warning');
         model.set('communicationLogLevel' , 'Warning');
