@@ -6,6 +6,7 @@ import com.energyict.mdc.common.Unit;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -34,8 +35,8 @@ public class BasicConsumption implements Serializable {
      * @param to       end of consumption period
      * @param quantity quantity consumed
      */
-    public BasicConsumption(Date from, Date to, Quantity quantity) {
-        this(new Interval(from, to), quantity);
+    public BasicConsumption(Instant from, Instant to, Quantity quantity) {
+        this(Interval.of(from, to), quantity);
     }
 
     /**
@@ -57,8 +58,8 @@ public class BasicConsumption implements Serializable {
      * @param amount amount consumed
      * @param unit   consumption unit
      */
-    public BasicConsumption(Date from, Date to, BigDecimal amount, Unit unit) {
-        this(new Interval(from, to), new Quantity(amount, unit));
+    public BasicConsumption(Instant from, Instant to, BigDecimal amount, Unit unit) {
+        this(Interval.of(from, to), new Quantity(amount, unit));
     }
 
     /**
@@ -84,7 +85,7 @@ public class BasicConsumption implements Serializable {
      *
      * @return start of consumption period
      */
-    public Date getFrom() {
+    public Instant getFrom() {
         return interval.getStart();
     }
 
@@ -93,7 +94,7 @@ public class BasicConsumption implements Serializable {
      *
      * @return end of consumption period
      */
-    public Date getTo() {
+    public Instant getTo() {
         return interval.getEnd();
     }
 

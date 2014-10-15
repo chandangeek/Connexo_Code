@@ -17,8 +17,8 @@ public class IntervalInfo {
 
     public static IntervalInfo from(Interval interval) {
         IntervalInfo info = new IntervalInfo();
-        info.start = interval.getStart().getTime();
-        info.end = interval.getEnd().getTime();
+        info.start = interval.getStart().toEpochMilli();
+        info.end = interval.getEnd().toEpochMilli();
         return info;
     }
 }
