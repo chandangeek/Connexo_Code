@@ -1,10 +1,10 @@
 package com.energyict.mdc.common.rest;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 
 public class TimeDurationInfo {
     public long count;
-    public String timeUnit = TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS);
+    public String timeUnit = TimeDuration.TimeUnit.SECONDS.getDescription();
 
     public TimeDurationInfo() {
     }
@@ -20,7 +20,7 @@ public class TimeDurationInfo {
 
     public TimeDurationInfo(long seconds) {
         this.count=seconds;
-        this.timeUnit=TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS);
+        this.timeUnit=TimeDuration.TimeUnit.SECONDS.getDescription();
     }
 
     public TimeDuration asTimeDuration() {

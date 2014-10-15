@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.multiplyExact;
+
 /**
  * This class contains a collection of static utility methods.
  */
@@ -181,16 +183,10 @@ public class MathUtils {
      * @param b an integer
      * @return the result of a * b
      * @throws ArithmeticException if an overflow occurs
+     * @deprecated use java.lang.Math#multiplyExact(int, int)
      */
     public static int safeMultiply(int a, int b) throws ArithmeticException {
-        long result = (long) a * (long) b;
-        int desiredhibits = -((int) (result >>> 31) & 1);
-        int actualhibits = (int) (result >>> 32);
-        if (desiredhibits == actualhibits) {
-            return (int) result;
-        } else {
-            throw new ArithmeticException(a + " * " + b + " = " + result);
-        }
+        return multiplyExact(a, b);
     }
 
     /**
@@ -205,14 +201,14 @@ public class MathUtils {
             return 0;
         }
         if (ints.length == 2) {
-            return safeMultiply(ints[0], ints[1]);
+            return multiplyExact(ints[0], ints[1]);
         }
 
         int arg0 = ints[0];
         int arg1 = ints[1];
-        int result = safeMultiply(arg0, arg1);
+        int result = multiplyExact(arg0, arg1);
         for (int i = 2; i < ints.length; i++) {
-            result = safeMultiply(result, ints[i]);
+            result = multiplyExact(result, ints[i]);
         }
         return result;
     }

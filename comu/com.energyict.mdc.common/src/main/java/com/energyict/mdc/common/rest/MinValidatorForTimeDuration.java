@@ -16,7 +16,7 @@
 */
 package com.energyict.mdc.common.rest;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
