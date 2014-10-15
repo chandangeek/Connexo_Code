@@ -23,7 +23,7 @@ import static com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider.DE
 /**
  * Examples of usage:
  * <ul>
- * <li>create deviceType.id 23 deviceConfiguration.id 54: creates a device group that will contain devices whose type is 23 and configuration is 54</li>
+ * <li>create Example deviceType.id 23 deviceConfiguration.id 54: creates a device group (named Example) that will contain devices whose type is 23 and configuration is 54</li>
  * </ul>.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -61,7 +61,7 @@ public class MdcDeviceGroups {
         }
         else {
             System.out.println("The number of fields and values must match, i.e. every field must have a value");
-            System.out.println("Usage:\n\t mdcgroups::create <name> <mRID> <fieldsAndValues>");
+            System.out.println("Usage:\n\t mdcgroups:create <name> <mRID> <fieldsAndValues>");
             return null;
         }
     }
