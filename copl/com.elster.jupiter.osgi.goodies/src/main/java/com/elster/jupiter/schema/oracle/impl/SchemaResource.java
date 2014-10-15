@@ -4,7 +4,7 @@ package com.elster.jupiter.schema.oracle.impl;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.schema.oracle.OracleSchemaService;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;

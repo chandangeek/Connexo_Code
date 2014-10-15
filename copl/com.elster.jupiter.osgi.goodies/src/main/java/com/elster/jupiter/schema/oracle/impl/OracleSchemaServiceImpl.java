@@ -5,7 +5,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.schema.oracle.OracleSchemaService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
