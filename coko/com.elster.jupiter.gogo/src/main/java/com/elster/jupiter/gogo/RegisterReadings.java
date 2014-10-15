@@ -1,11 +1,5 @@
 package com.elster.jupiter.gogo;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
-
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
