@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>comserver-core-rest</artifactId>
+            <artifactId>comserver.core.rest</artifactId>
             <version>${comserver.version}</version>
         </dependency>
         <dependency>
