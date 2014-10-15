@@ -45,7 +45,7 @@ public class ServletWrapper extends HttpServlet  {
     }
 
     private Locale determineLocale(RequestWrapper request) {
-        return request.getUserPrincipal().getLocale().or(request.getLocale());
+        return request.getUserPrincipal().getLocale().orElse(request.getLocale());
     }
 
     // returns the first two parts
