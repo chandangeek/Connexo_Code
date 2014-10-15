@@ -12,7 +12,6 @@
 
     <artifactId>mdc.tasks</artifactId>
     <packaging>bundle</packaging>
-    <version>${comserver.version}</version>
     <name>[MDC] mdc.tasks [init CTS]</name>
     <description>
         Bundle providing TaskService to handle all ComTask and ProtocolTask related functionality
