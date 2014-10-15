@@ -45,6 +45,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     ],
 
     loadProfileModel: null,
+    viewOnlySuspects: null,
 
     init: function () {
         this.control({
@@ -103,8 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         loadProfileModel.load(loadProfileId, {
             success: function (record) {
                 var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
-                    durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
-                    viewOnlySuspects;
+                    durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
                 durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
                 widget = Ext.widget('deviceLoadProfilesData', {
                     router: me.getController('Uni.controller.history.Router'),
@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 });
                 me.loadProfileModel = record;
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
+                widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record, isTable);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 viewport.setLoading(false);
                 widget.setLoading();
@@ -132,13 +132,17 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     }
                 }, me);
                 if (Ext.isEmpty(router.filter.data.intervalStart)) {
-                    viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
-                    me.setDefaults(dataIntervalAndZoomLevels, viewOnlySuspects);
+                    me.viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
+                    me.setDefaults(dataIntervalAndZoomLevels, me.viewOnlySuspects);
                     delete router.queryParams.onlySuspect;
                 }
                 dataStore.setFilterModel(router.filter);
+                me.viewOnlySuspects = router.filter.get('onlySuspect');
                 me.getSideFilterForm().loadRecord(router.filter);
                 me.setFilterView();
+                if (router.queryParams.onlySuspect !== undefined) {
+                    delete router.queryParams.onlySuspect;
+                }
                 dataStore.load();
             }
         });
@@ -256,13 +260,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     },
 
     toggleView: function (button) {
-        var router = this.getController('Uni.controller.history.Router'),
-            showTable = button.action === 'showTableView';
-
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            showTable = button.action === 'showTableView',
+            filterParams = {};
+        filterParams.onlySuspect = me.viewOnlySuspects;
         if (showTable) {
-           router.getRoute('devices/device/loadprofiles/loadprofile/tableData').forward();
+            router.getRoute('devices/device/loadprofiles/loadprofile/tableData').forward(router.arguments, filterParams);
         } else {
-            router.getRoute('devices/device/loadprofiles/loadprofile/data').forward();
+            router.getRoute('devices/device/loadprofiles/loadprofile/data').forward(router.arguments, filterParams);
         }
     },
 

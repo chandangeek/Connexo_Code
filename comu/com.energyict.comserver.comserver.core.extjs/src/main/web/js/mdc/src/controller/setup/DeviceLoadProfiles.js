@@ -126,7 +126,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 break;
             case 'viewSuspects':
                 filterParams.onlySuspect = true;
-                route = 'devices/device/loadprofiles/loadprofile/data';
+                route = 'devices/device/loadprofiles/loadprofile/tableData';
                 break;
         }
 
