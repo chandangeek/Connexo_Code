@@ -35,7 +35,7 @@ import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.json.JSONException;
@@ -154,7 +154,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     @Override
     public Optional<ComServer> findComServer(String name) {
         Condition condition = Where.where("name").isEqualTo(name).and(Where.where("obsoleteDate").isNull());
-        return Optional.fromNullable(unique(getComServerDataMapper().select(condition)));
+        return Optional.ofNullable(unique(getComServerDataMapper().select(condition)));
     }
 
     @Override
@@ -265,7 +265,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ComPort findComPort(long id) {
-        return getComPortDataMapper().getUnique("id", id).orNull();
+        return getComPortDataMapper().getUnique("id", id).orElse(null);
     }
 
     @Override
@@ -275,7 +275,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ComPort findComPortByNameInComServer(String name, ComServer comServer) {
-        return getComPortDataMapper().getUnique("comServer", comServer, "name", name).orNull();
+        return getComPortDataMapper().getUnique("comServer", comServer, "name", name).orElse(null);
     }
 
     @Override
@@ -309,7 +309,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ComPortPool findComPortPool(long id) {
-        return getComPortPoolDataMapper().getUnique("id", id).orNull();
+        return getComPortPoolDataMapper().getUnique("id", id).orElse(null);
     }
 
     @Override
@@ -518,7 +518,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
         @Override
         public ComServer load() {
-            return findComServer(this.comServerName).orNull();
+            return findComServer(this.comServerName).orElse(null);
         }
 
         @Override

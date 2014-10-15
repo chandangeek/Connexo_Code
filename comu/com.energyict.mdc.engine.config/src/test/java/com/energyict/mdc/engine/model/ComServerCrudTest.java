@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.model;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.ComPortType;

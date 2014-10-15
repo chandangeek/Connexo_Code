@@ -23,7 +23,7 @@ public enum TableSpecs {
             table.column("NAME").varChar().map(ComPortPoolImpl.Fields.NAME.fieldName()).add();
             table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.Fields.ACTIVE.fieldName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").varChar().map(ComPortPoolImpl.Fields.DESCRIPTION.fieldName()).add();
-            table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).conversion(ColumnConversion.DATE2DATE).add();
+            table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).conversion(ColumnConversion.DATE2INSTANT).add();
             table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.Fields.COMPORTTYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".count").add();
             table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".timeUnitCode").add();
@@ -52,8 +52,8 @@ public enum TableSpecs {
 
             table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultQueryAPIPostUri").add();
             table.column("QUERYAPIPOSTURI").type("varchar2(512)").map("queryAPIPostUri").add();
-            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
-            table.column("OBSOLETE_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("obsoleteDate").add();
+            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").insert("sysdate").update("sysdate").add();
+            table.column("OBSOLETE_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("obsoleteDate").add();
             Column onlineComServer = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
             table.column("QUEUESIZE").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskQueueSize").add();
             table.column("THREADPRIORITY").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskThreadPriority").add();
@@ -74,11 +74,11 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("NAME").varChar().map(ComPortImpl.FieldNames.NAME.getName()).add();
-            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
+            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").insert("sysdate").update("sysdate").add();
             Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
             table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").varChar().map("description").add();
-            table.column("OBSOLETE_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("obsoleteDate").add();
+            table.column("OBSOLETE_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("obsoleteDate").add();
             table.column("COMPORTTYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("type").add();
             // no mapping required for comPortPoolMembers
             // IPBasedInboundComPortImpl & OutboundComPortImpl

@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.json.JSONObject;
 
 public interface EngineModelService {

@@ -21,10 +21,13 @@ import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -33,6 +36,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -93,10 +97,10 @@ public abstract class ComServerImpl implements ComServer {
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration schedulingInterPollDelay;
-    private Date modificationDate;
+    private Instant modificationDate;
     private final List<ComPort>  comPorts = new ArrayList<>();
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
-    private Date obsoleteDate;
+    private Instant obsoleteDate;
 
     @Inject
     protected ComServerImpl(DataModel dataModel, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
@@ -117,7 +121,7 @@ public abstract class ComServerImpl implements ComServer {
     public void makeObsolete () {
         this.validateMakeObsolete();
         this.makeComPortsObsolete();
-        this.obsoleteDate = new Date();
+        this.obsoleteDate = Instant.now();
         dataModel.update(this);
     }
 
@@ -297,7 +301,7 @@ public abstract class ComServerImpl implements ComServer {
         }
     }
 
-    public Date getModificationDate() {
+    public Instant getModificationDate() {
         return modificationDate;
     }
 
@@ -414,7 +418,7 @@ public abstract class ComServerImpl implements ComServer {
     @Override
     @XmlElement
     public Date getObsoleteDate () {
-        return this.obsoleteDate;
+        return this.obsoleteDate == null ? null : Date.from(obsoleteDate);
     }
 
     public long getId() {

@@ -3,6 +3,8 @@ package com.energyict.mdc.engine.model;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.ComPortType;
+
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -41,7 +43,7 @@ public interface ComPort extends HasId, HasName  {
      *
      * @return The timestamp of the last modification
      */
-    public Date getModificationDate();
+    public Instant getModificationDate();
 
     /**
      * Gets the {@link ComServer} to which this ComPort belongs.

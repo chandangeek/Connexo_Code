@@ -5,6 +5,8 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.HasId;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -149,7 +151,7 @@ public interface ComServer extends HasId, HasName {
      *
      * @return The timestamp of the last modification
      */
-    public Date getModificationDate();
+    public Instant getModificationDate();
 
     /**
      * Returns <code>true</code> iff this ComServer is

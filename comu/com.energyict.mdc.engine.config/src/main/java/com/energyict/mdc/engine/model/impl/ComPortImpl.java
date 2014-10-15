@@ -13,10 +13,13 @@ import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
+
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -27,6 +30,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -73,13 +77,13 @@ public abstract class ComPortImpl implements ComPort {
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String name;
-    private Date modificationDate;
+    private Instant modificationDate;
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String description;
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMPORT_NO_UPDATE_ALLOWED+"}")
-    private Date obsoleteDate;
+    private Instant obsoleteDate;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private ComPortType type;
 
@@ -118,7 +122,8 @@ public abstract class ComPortImpl implements ComPort {
         return ComPort.class.getName();
     }
 
-    public Date getModificationDate() {
+    @Override
+    public Instant getModificationDate() {
         return modificationDate;
     }
 
@@ -158,7 +163,7 @@ public abstract class ComPortImpl implements ComPort {
     @Override
     @XmlElement
     public Date getObsoleteDate() {
-        return obsoleteDate;
+        return obsoleteDate == null ? null : Date.from(obsoleteDate);
     }
 
     @Override
@@ -201,7 +206,7 @@ public abstract class ComPortImpl implements ComPort {
     @Override
     public void makeObsolete(){
         this.validateMakeObsolete();
-        this.obsoleteDate = new Date();
+        this.obsoleteDate = Instant.now();
         this.removeFromComPortPools();
         dataModel.update(this);
     }

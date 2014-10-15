@@ -5,18 +5,21 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
+
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -65,7 +68,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String description;
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED+"}")
-    private Date obsoleteDate;
+    private Instant obsoleteDate;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private ComPortType comPortType;
 
@@ -122,7 +125,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
 
     @Override
     public Date getObsoleteDate () {
-        return this.obsoleteDate;
+        return this.obsoleteDate == null ? null : Date.from(obsoleteDate);
     }
 
     @Override
@@ -137,7 +140,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     public void makeObsolete() {
         this.validateMakeObsolete();
         this.makeMembersObsolete();
-        this.obsoleteDate = new Date();
+        this.obsoleteDate = Instant.now();
         dataModel.update(this);
     }
 
