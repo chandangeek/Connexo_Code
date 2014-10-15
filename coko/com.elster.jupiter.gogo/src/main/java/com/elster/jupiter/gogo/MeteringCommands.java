@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -44,6 +45,7 @@ import java.util.Set;
                 "osgi.command.function=createMeter",
                 "osgi.command.function=createActivation",
                 "osgi.command.function=listReadingTypes",
+                "osgi.command.function=storeRegisterData",
                 "osgi.command.function=storeIntervalData",
                 "osgi.command.function=listEndDeviceEventTypes",
                 "osgi.command.function=addDeviceEvent",
@@ -117,6 +119,43 @@ public class MeteringCommands {
             System.out.println("No meter found with id " + id);
         }
     }
+
+    public void storeRegisterData(long meterId, String readingType, String startDateTime, int intervalInSeconds, int numberOfInterval, double minValue, double maxValue) {
+        final Optional<Meter> endDevice = meteringService.findMeter(meterId);
+        if (endDevice.isPresent()) {
+            try {
+                Calendar startDate = Calendar.getInstance();
+                startDate.setTime(dateTimeFormat.parse(startDateTime));
+                Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
+                if (readingTypeOptional.isPresent()) {
+                    if (!readingTypeOptional.get().getMeasuringPeriod().isApplicable()) {
+                        final MeterReadingImpl meterReading = new MeterReadingImpl();
+                        for (int i = 0; i < numberOfInterval; i++) {
+                            meterReading.addReading(new ReadingImpl(readingType, BigDecimal.valueOf(randomBetween(minValue, maxValue)), startDate.getTime()));
+                            startDate.add(Calendar.SECOND, intervalInSeconds);
+                        }
+                        executeTransaction(new VoidTransaction() {
+                            @Override
+                            protected void doPerform() {
+                                endDevice.get().store(meterReading);
+                            }
+                        });
+                    } else {
+                        System.out.println("Reading type is not valid for register data");
+                    }
+
+                } else {
+                    System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No meter found with id " + meterId);
+        }
+    }
+
 
     public void storeIntervalData(long meterId, String readingType, String startDateTime, int numberOfInterval, double minValue, double maxValue) {
         final Optional<Meter> endDevice = meteringService.findMeter(meterId);
