@@ -111,10 +111,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                                 validationFlag = '<span class="icon-validation icon-validation-red"></span>';
                                 break;
                             default:
-                                validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
+                                validationFlag = '';
                                 break;
                         }
-                        if (Ext.isEmpty(data) && (record.get('validationResult') === 'validationStatus.suspect')) {
+                        if (Ext.isEmpty(data) && !Ext.isEmpty(validationFlag)) {
                             return validationFlag;
                         } else if (!Ext.isEmpty(data)) {
                             return '<span class="validation-column-align">' + data + ' ' + measurementType + ' ' + validationFlag + '</span>';
