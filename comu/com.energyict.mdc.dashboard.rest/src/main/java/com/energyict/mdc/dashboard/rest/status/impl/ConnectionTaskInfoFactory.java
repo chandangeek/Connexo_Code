@@ -10,7 +10,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.google.common.base.Optional;
 import java.sql.Date;
@@ -58,9 +57,10 @@ public class ConnectionTaskInfoFactory {
             info.startDateTime = Date.from(comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND,0));
             info.endDateTime = Date.from(comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0));
             info.duration=new TimeDurationInfo(Duration.ofMillis(info.endDateTime.getTime()-info.startDateTime.getTime()).getSeconds());   // JP-6022
+            info.comPort = new IdWithNameInfo(comSession.getComPort());
+            info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());
         }
 
-        info.comPort = connectionTask.getLastComSession().isPresent()?new IdWithNameInfo(connectionTask.getLastComSession().get().getComPort()):null;
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),connectionTask.getConnectionType().getDirection().name());
         info.connectionType = ConnectionTypeRule.getConnectionTypeName(connectionTask.getConnectionType().getClass()).orNull();
         info.connectionMethod = new IdWithNameInfo();
@@ -68,10 +68,6 @@ public class ConnectionTaskInfoFactory {
         info.connectionMethod.name = connectionTask.getPartialConnectionTask().getName();
         if (connectionTask.isDefault()) {
             info.connectionMethod.name+=" ("+thesaurus.getString(MessageSeeds.DEFAULT.getKey(), "default")+")";
-        }
-        ComServer executingComServer = connectionTask.getExecutingComServer();
-        if (executingComServer!=null) {
-            info.comServer = new IdWithNameInfo(executingComServer);
         }
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
