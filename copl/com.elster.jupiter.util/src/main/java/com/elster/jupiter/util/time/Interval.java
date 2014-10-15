@@ -104,7 +104,7 @@ public final class Interval {
 	
 	public Range<Instant> toClosedOpenRange() {
 		return (start == -ETERNITY) ?
-			(end == ETERNITY ? Range.all() : Range.atMost(Instant.ofEpochMilli(end))) :
+			(end == ETERNITY ? Range.all() : Range.lessThan(Instant.ofEpochMilli(end))) :
 			(end == ETERNITY ? 
 					Range.atLeast(Instant.ofEpochMilli(start)) :
 					Range.closedOpen(Instant.ofEpochMilli(start), Instant.ofEpochMilli(this.end)));
