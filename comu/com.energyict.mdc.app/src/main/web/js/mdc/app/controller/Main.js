@@ -6,6 +6,7 @@ Ext.define('MdcApp.controller.Main', {
 
     applicationTitle: 'Connexo MultiSense',
     defaultToken: '#/workspace',
+    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device']),
 
     controllers: [
         'Cfg.controller.Main',
