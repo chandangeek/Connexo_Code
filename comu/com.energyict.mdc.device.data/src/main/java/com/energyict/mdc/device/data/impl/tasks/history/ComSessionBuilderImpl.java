@@ -182,20 +182,8 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
-        public ComSessionBuilder successful() {
-            comSession.setSuccessful(true);
-            return parentBuilder();
-        }
-
-        @Override
         public ComSessionBuilder talkDuration(Duration duration) {
             comSession.setTalkDuration(duration);
-            return parentBuilder();
-        }
-
-        @Override
-        public ComSessionBuilder unsuccessful() {
-            comSession.setSuccessful(false);
             return parentBuilder();
         }
 
@@ -299,18 +287,8 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
-    public ComSessionBuilder successful() {
-        return state.successful();
-    }
-
-    @Override
     public ComSessionBuilder talkDuration(Duration duration) {
         return state.talkDuration(duration);
-    }
-
-    @Override
-    public ComSessionBuilder unsuccessful() {
-        return state.unsuccessful();
     }
 
     @Override
