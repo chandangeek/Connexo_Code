@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import java.util.ArrayList;
+import java.util.Optional;
 import javax.inject.Inject;
 
 /**
@@ -75,16 +76,19 @@ public class CommunicationOverviewInfoFactory {
 
 
     public CommunicationOverviewInfo asInfo(QueryEndDeviceGroup queryEndDeviceGroup) {
-        TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview(/*queryEndDeviceGroup*/);
+        TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview(queryEndDeviceGroup);
         SummaryData summaryData = new SummaryData(taskStatusOverview);
-        ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview(/*queryEndDeviceGroup*/);
-        ComScheduleBreakdown comScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown(/*queryEndDeviceGroup*/);
-        ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown(/*queryEndDeviceGroup*/);
-        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown(/*queryEndDeviceGroup*/);
-        DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(0).get();
+        ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview(queryEndDeviceGroup);
+        ComScheduleBreakdown comScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown(queryEndDeviceGroup);
+        ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown(queryEndDeviceGroup);
+        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown(queryEndDeviceGroup);
 
         CommunicationOverviewInfo info = getCommunicationOverviewInfo(taskStatusOverview, summaryData, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown);
-        info.kpi = kpiScoreFactory.getKpiAsInfo(dataCollectionKpi);
+
+        Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(queryEndDeviceGroup);
+        if (dataCollectionKpiOptional.isPresent()) {
+            info.kpi = kpiScoreFactory.getKpiAsInfo(dataCollectionKpiOptional.get());
+        }
         info.deviceGroup = new DeviceGroupFilterInfo(queryEndDeviceGroup.getId(), queryEndDeviceGroup.getName());
         return info;
     }

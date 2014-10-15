@@ -1,5 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
@@ -9,16 +11,25 @@ import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.impl.TaskStatusBreakdownCounterImpl;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.jayway.jsonpath.JsonModel;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class CommunicationOverviewResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
-    public void testGetCommunicationOverview() throws Exception {
+    public void testGetCommunicationOverviewWithoutDeviceGroup() throws Exception {
         TaskStatusOverview statusOverview = createCommunicationStatusOverview();
         when(dashboardService.getCommunicationTaskStatusOverview()).thenReturn(statusOverview);
         ComCommandCompletionCodeOverview comCommandCompletionCodeOverview = createComCommandCompletionCodeOverview();
@@ -56,6 +67,84 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         assertThat(jsonModel.<List<Integer>>get("$.overviews[*].counters[*].count")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
         assertThat(jsonModel.<List<Integer>>get("$.breakdowns[*].counters[*].failingCount")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
     }
+
+    @Test
+    public void testGetCommunicationOverviewWithDeviceGroup() throws Exception {
+        int deviceGroupId = 321;
+
+        QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
+        when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
+        when(endDeviceGroup.getName()).thenReturn("северный область");
+        when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
+
+        TaskStatusOverview statusOverview = createCommunicationStatusOverview();
+        when(dashboardService.getCommunicationTaskStatusOverview(endDeviceGroup)).thenReturn(statusOverview);
+        ComCommandCompletionCodeOverview comCommandCompletionCodeOverview = createComCommandCompletionCodeOverview();
+        when(dashboardService.getCommunicationTaskCompletionResultOverview(endDeviceGroup)).thenReturn(comCommandCompletionCodeOverview);
+        ComScheduleBreakdown comScheduleBreakdown = createComScheduleBreakdown();
+        when(dashboardService.getCommunicationTasksComScheduleBreakdown(endDeviceGroup)).thenReturn(comScheduleBreakdown);
+        ComTaskBreakdown comTaskBreakdown = createComTaskBreakdown();
+        when(dashboardService.getCommunicationTasksBreakdown(endDeviceGroup)).thenReturn(comTaskBreakdown);
+        DeviceTypeBreakdown deviceTypeBreakdown = createDeviceTypeBreakdown();
+        when(dashboardService.getCommunicationTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
+
+        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
+        when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
+
+        String response = target("/communicationoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].counters")).isEmpty();
+        assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
+        assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
+        assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
+        assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Failed')].count[0]")).isEqualTo(56);
+
+        assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].id")).containsExactly("Waiting");
+        assertThat(jsonModel.<List>get("$.communicationSummary.counters[1].id")).contains("Busy", "Retrying", "Pending").hasSize(3);
+        assertThat(jsonModel.<List>get("$.communicationSummary.counters[2].id")).contains("NeverCompleted", "Failed").hasSize(2);
+
+        assertThat(jsonModel.<List<Integer>>get("$.overviews[*].counters[*].count")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
+        assertThat(jsonModel.<List<Integer>>get("$.breakdowns[*].counters[*].failingCount")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
+        
+        assertThat(jsonModel.<Integer>get("$.deviceGroup.id")).isEqualTo(321);
+        assertThat(jsonModel.<String>get("$.deviceGroup.name")).isEqualTo("северный область");
+        assertThat(jsonModel.<String>get("$.deviceGroup.alias")).isEqualTo("deviceGroups");
+        assertThat(jsonModel.<List>get("$.kpi")).isNotNull();
+        assertThat(jsonModel.<String>get("$.kpi[0].name")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.kpi[1].name")).isEqualTo("Ongoing");
+        assertThat(jsonModel.<String>get(("$.kpi[2].name"))).isEqualTo("Failed");
+        assertThat(jsonModel.<String>get(("$.kpi[3].name"))).isEqualTo("Target");
+    }
+
+    private DataCollectionKpi mockDataCollectionKpi() {
+        DataCollectionKpi dataCollectionKpi = mock(DataCollectionKpi.class);
+        when(dataCollectionKpi.calculatesConnectionSetupKpi()).thenReturn(true);
+        when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
+        List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 0, 0).toInstant(ZoneOffset.UTC)), 10, 80, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14,15, 0).toInstant(ZoneOffset.UTC)), 20, 70, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14,30, 0).toInstant(ZoneOffset.UTC)), 30, 60, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,14,45, 0).toInstant(ZoneOffset.UTC)), 40, 50, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15, 0, 0).toInstant(ZoneOffset.UTC)), 50, 40, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15,15, 0).toInstant(ZoneOffset.UTC)), 60, 30, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15,30, 0).toInstant(ZoneOffset.UTC)), 70, 20, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014,10,1,15,45, 0).toInstant(ZoneOffset.UTC)), 80, 10, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 16, 0, 0).toInstant(ZoneOffset.UTC)), 90,  0, 10, 100));
+        when(dataCollectionKpi.getConnectionSetupKpiScores(anyObject())).thenReturn(kpiScores);
+        return dataCollectionKpi;
+    }
+
+    private DataCollectionKpiScore mockDataCollectionKpiScore(Date timeStamp, long success, long ongoing, long failed, long target) {
+        DataCollectionKpiScore mock = mock(DataCollectionKpiScore.class);
+        when(mock.getTimestamp()).thenReturn(timeStamp);
+        when(mock.getSuccess()).thenReturn(BigDecimal.valueOf(success));
+        when(mock.getOngoing()).thenReturn(BigDecimal.valueOf(ongoing));
+        when(mock.getFailed()).thenReturn(BigDecimal.valueOf(failed));
+        when(mock.getTarget()).thenReturn(BigDecimal.valueOf(target));
+        return mock;
+    }
+
 
     private DeviceTypeBreakdown createDeviceTypeBreakdown() {
         DeviceTypeBreakdown comTaskBreakdown = mock(DeviceTypeBreakdown.class);

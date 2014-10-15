@@ -21,6 +21,7 @@ import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionInfoFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionSessionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewResource;
@@ -217,6 +218,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(OverviewFactory.class).to(OverviewFactory.class);
             bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);
             bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class);
+            bind(ComTaskExecutionSessionInfoFactory.class).to(ComTaskExecutionSessionInfoFactory.class);
             bind(SummaryInfoFactory.class).to(SummaryInfoFactory.class);
             bind(ConnectionOverviewInfoFactory.class).to(ConnectionOverviewInfoFactory.class);
             bind(CommunicationOverviewInfoFactory.class).to(CommunicationOverviewInfoFactory.class);

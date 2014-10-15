@@ -2,14 +2,10 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -20,32 +16,36 @@ import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 /**
  * Created by bvn on 9/1/14.
  */
-public class ComTaskExecutionInfoFactory {
+public class ComTaskExecutionSessionInfoFactory {
 
     private final Thesaurus thesaurus;
-    private final CommunicationTaskService communicationTaskService;
-    private final Provider<ConnectionTaskInfoFactory> connectionTaskInfoFactory;
 
     @Inject
-    public ComTaskExecutionInfoFactory(Thesaurus thesaurus, CommunicationTaskService communicationTaskService, Provider<ConnectionTaskInfoFactory> connectionTaskInfoFactoryProvider) {
+    public ComTaskExecutionSessionInfoFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
-        this.communicationTaskService = communicationTaskService;
-        this.connectionTaskInfoFactory = connectionTaskInfoFactoryProvider;
     }
 
-    public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) throws Exception {
-        ComTaskExecutionInfo info = new ComTaskExecutionInfo();
+    public List<ComTaskExecutionSessionInfo> from(List<ComTaskExecutionSession> comTaskExecutionSessions) {
+        List<ComTaskExecutionSessionInfo> comTaskExecutionSessionInfos = new ArrayList<>(comTaskExecutionSessions.size());
+        for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
+            comTaskExecutionSessionInfos.add(this.from(comTaskExecutionSession/*, communicationTaskService.findLastSessionFor(comTaskExecutionSession)*/));
+        }
+        return comTaskExecutionSessionInfos;
+    }
+
+    public ComTaskExecutionSessionInfo from(ComTaskExecutionSession comTaskExecutionSession) {
+        ComTaskExecutionSessionInfo info = new ComTaskExecutionSessionInfo();
+        ComTaskExecution comTaskExecution = comTaskExecutionSession.getComTaskExecution();
         info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
         for (ComTask comTask : comTaskExecution.getComTasks()) {
             info.comTasks.add(comTask.getName());
         }
         info.name = Joiner.on(" + ").join(info.comTasks);
-        Device device = comTaskExecution.getDevice();
+        Device device = comTaskExecutionSession.getDevice();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
         info.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
@@ -56,7 +56,7 @@ public class ComTaskExecutionInfoFactory {
                 info.comScheduleFrequency = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
             }
         } else {
-            if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
+            if (comTaskExecutionSession instanceof ManuallyScheduledComTaskExecution) {
                 Optional<NextExecutionSpecs> nextExecutionSpecs = comTaskExecution.getNextExecutionSpecs();
                 info.comScheduleName = thesaurus.getString(MessageSeeds.INDIVIDUAL.getKey(), MessageSeeds.INDIVIDUAL.getKey());
                 if (nextExecutionSpecs.isPresent()) {
@@ -67,25 +67,12 @@ public class ComTaskExecutionInfoFactory {
         }
         info.urgency = comTaskExecution.getExecutionPriority();
         info.currentState = new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
-        info.latestResult = comTaskExecutionSession.isPresent() ? CompletionCodeInfo.from(comTaskExecutionSession.get().getHighestPriorityCompletionCode(), thesaurus) : null;
+        info.latestResult = CompletionCodeInfo.from(comTaskExecutionSession.getHighestPriorityCompletionCode(), thesaurus);
         info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
         info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
-        ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
-        if (connectionTask!=null) {
-            Optional<ComSession> comSessionOptional = comTaskExecutionSession.isPresent() ? Optional.of(comTaskExecutionSession.get().getComSession()) : Optional.absent();
-            info.connectionTask = connectionTaskInfoFactory.get().from(connectionTask, comSessionOptional);
-        }
         return info;
-    }
-
-    public List<ComTaskExecutionInfo> from(List<ComTaskExecution> comTaskExecutions) throws Exception {
-        List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(comTaskExecutions.size());
-        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            comTaskExecutionInfos.add(this.from(comTaskExecution, communicationTaskService.findLastSessionFor(comTaskExecution)));
-        }
-        return comTaskExecutionInfos;
     }
 
 }

@@ -230,9 +230,26 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     public void testCommunicationTaskJsonBinding() throws Exception {
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
         when(communicationTaskService.findComTaskExecutionsByFilter(Matchers.<ComTaskExecutionFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
-        ComTaskExecutionSession comSession = mock(ComTaskExecutionSession.class);
-        when(comSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.IOError);
-        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comSession));
+        ComSession comSession = mock(ComSession.class);
+        when(comSession.getNumberOfFailedTasks()).thenReturn(401);
+        when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
+        when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(3);
+        when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
+        when(comSession.getStartDate()).thenReturn(Instant.now());
+        when(comSession.getStopDate()).thenReturn(Instant.now());
+        ComPort comPort = mock(ComPort.class);
+        when(comPort.getName()).thenReturn("com port");
+        when(comPort.getId()).thenReturn(99L);
+        ComServer comServer = mock(ComServer.class);
+        (when(comServer.getId())).thenReturn(991L);
+        (when(comServer.getName())).thenReturn("rudi.local");
+        when(comPort.getComServer()).thenReturn(comServer);
+        when(comSession.getComPort()).thenReturn(comPort);
+
+        ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
+        when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.IOError);
+        when(comTaskExecutionSession.getComSession()).thenReturn(comSession);
+        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getName()).thenReturn("partial connection task name");
         Device device = mock(Device.class);
@@ -250,9 +267,9 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
         when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
-        when(comSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
-        when(comSession.getStartDate()).thenReturn(new Date());
-        when(comSession.getStopDate()).thenReturn(new Date());
+        when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
+        when(comTaskExecutionSession.getStartDate()).thenReturn(new Date());
+        when(comTaskExecutionSession.getStopDate()).thenReturn(new Date());
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("comPortPool");
         when(comPortPool.getId()).thenReturn(1111L);
@@ -305,9 +322,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     private ScheduledConnectionTask mockConnectionTask() {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
-        ComSession comSession = mock(ComSession.class);
-        Optional<ComSession> comSessionOptional = Optional.of(comSession);
-        when(connectionTask.getLastComSession()).thenReturn(comSessionOptional);
         when(connectionTask.getId()).thenReturn(1234L);
         when(connectionTask.getName()).thenReturn("fancy name");
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
@@ -335,21 +349,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.Busy);
         when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
-        when(comSession.getNumberOfFailedTasks()).thenReturn(401);
-        when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
-        when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(3);
-        when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
-        when(comSession.getStartDate()).thenReturn(Instant.now());
-        when(comSession.getStopDate()).thenReturn(Instant.now());
-        ComPort comPort = mock(ComPort.class);
-        when(comPort.getName()).thenReturn("com port");
-        when(comPort.getId()).thenReturn(99L);
-        ComServer comServer = mock(ComServer.class);
-        (when(comServer.getId())).thenReturn(991L);
-        (when(comServer.getName())).thenReturn("rudi.local");
-        when(comPort.getComServer()).thenReturn(comServer);
-        when(comSession.getComPort()).thenReturn(comPort);
-        when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         OutboundTcpIpConnectionType connectionType = mock(OutboundTcpIpConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
