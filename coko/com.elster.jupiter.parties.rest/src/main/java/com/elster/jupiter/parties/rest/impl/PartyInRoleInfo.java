@@ -1,11 +1,12 @@
 package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.PartyInRole;
-import com.elster.jupiter.rest.util.JsonDateAdapter;
+import com.elster.jupiter.rest.util.JsonInstantAdapter;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Date;
+
+import java.time.Instant;
 
 @XmlRootElement
 public class PartyInRoleInfo {
@@ -13,10 +14,10 @@ public class PartyInRoleInfo {
     public long id;
     public long partyId;
     public String roleMRID;
-    @XmlJavaTypeAdapter(JsonDateAdapter.class)
-    public Date start;
-    @XmlJavaTypeAdapter(JsonDateAdapter.class)
-    public Date end;
+    @XmlJavaTypeAdapter(JsonInstantAdapter.class)
+    public Instant start;
+    @XmlJavaTypeAdapter(JsonInstantAdapter.class)
+    public Instant end;
     public PartyRoleInfo partyRoleInfo;
     public long version;
 

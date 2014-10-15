@@ -5,15 +5,17 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,7 +51,7 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
     }
 
     private void handleRemovals(List<PartyRepresentation> preEdit) {
-        Date now = clock.now();
+        Instant now = clock.instant();
         for (PartyRepresentation partyRepresentation : preEdit) {
             PartyRepresentationInfo delegate = new PartyRepresentationInfo(partyRepresentation);
             delegate.end = now;
@@ -63,7 +65,7 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
             if (match == null) { // addition
                 new AddDelegateTransaction(id, delegate, userService, partyService).perform(); // perform directly since already within transaction context
             } else {
-                if (!Objects.equal(delegate.end, match.getInterval().getEnd())) {
+                if (!Objects.equals(delegate.end, match.getInterval().getEnd())) {
                     new UpdatePartyRepresentationTransaction(userService, partyService, delegate).perform();
                 }
             }

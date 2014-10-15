@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.cbo.TownDetail;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.PartyService;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,8 +19,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Date;
-
+import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CreateOrganizationTransactionTest {
 
-    private static final Date DATE = new Date(3516161L);
+    private static final Instant DATE = Instant.ofEpochMilli(3516161L);
     private static final TelephoneNumber PHONE1 = new TelephoneNumber("32", "9", "555 55 55 55");
     private static final TelephoneNumber PHONE2 = new TelephoneNumber("32", "9", "666 66 66 66");
     private static final String MRID = "MRID";

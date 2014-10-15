@@ -5,7 +5,7 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -33,7 +33,7 @@ public class UpdatePartyRepresentationTransaction implements Transaction<PartyRe
         if (representation == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        party.adjustRepresentation(representation, new Interval(info.start, info.end));
+        party.adjustRepresentation(representation, Range.closedOpen(info.start, info.end));
         partyService.updateRepresentation(representation);
         return representation;
     }

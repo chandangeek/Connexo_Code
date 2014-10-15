@@ -11,9 +11,12 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+
+import java.time.Clock;
+
+import com.google.common.collect.Range;
+
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -100,7 +103,7 @@ public class PartiesResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PartyInRoleInfos getRoles(@PathParam("id") long id) {
         Party party = partyWithId(id);
-        return new PartyInRoleInfos(party.getPartyInRoles(Interval.sinceEpoch()));
+        return new PartyInRoleInfos(party.getPartyInRoles(Range.all()));
     }
 
     @POST

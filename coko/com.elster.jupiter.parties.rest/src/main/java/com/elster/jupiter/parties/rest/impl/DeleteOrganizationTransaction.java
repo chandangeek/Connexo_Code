@@ -4,7 +4,7 @@ import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;

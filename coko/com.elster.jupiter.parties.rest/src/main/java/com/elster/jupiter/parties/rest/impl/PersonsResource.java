@@ -27,7 +27,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Where;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 @Path("/persons")
 public class PersonsResource {
