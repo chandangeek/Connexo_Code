@@ -1,7 +1,8 @@
 package com.elster.jupiter.metering.rest;
 
+import java.time.Instant;
+
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -12,8 +13,8 @@ public class ReadingTypeInfo {
     public String aliasName;
     public String name;
     public long version;
-    public UtcInstant createTime;
-    public UtcInstant modTime;
+    public Instant createTime;
+    public Instant modTime;
     public String userName;
 
     public ReadingTypeInfo() {

@@ -8,9 +8,9 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.units.Quantity;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -70,9 +70,9 @@ public class UsagePointInfo {
 		readRoute = usagePoint.getReadRoute();
 		servicePriority = usagePoint.getServicePriority();
 		version = usagePoint.getVersion();
-		createTime = usagePoint.getCreateDate().getTime();
-		modTime = usagePoint.getModificationDate().getTime();
-		Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.now());
+		createTime = usagePoint.getCreateDate().toEpochMilli();
+		modTime = usagePoint.getModificationDate().toEpochMilli();
+		Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
 		if (detailHolder.isPresent()) {
 			UsagePointDetail detail = detailHolder.get();
 			minimalUsageExpected = detail.isMinimalUsageExpected();

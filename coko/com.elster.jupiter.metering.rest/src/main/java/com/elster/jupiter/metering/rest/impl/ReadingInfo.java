@@ -14,8 +14,8 @@ public class ReadingInfo {
     public List<BigDecimal> values;
 
     public ReadingInfo(BaseReadingRecord reading) {
-        this.timeStamp = reading.getTimeStamp().getTime();
-        this.recordTime = reading.getReportedDateTime() == null ? null : reading.getReportedDateTime().getTime();
+        this.timeStamp = reading.getTimeStamp().toEpochMilli();
+        this.recordTime = reading.getReportedDateTime() == null ? null : reading.getReportedDateTime().toEpochMilli();
         List<Quantity> quantities = reading.getQuantities();
         values = new ArrayList<>(quantities.size());
         for (Quantity quantity : quantities) {

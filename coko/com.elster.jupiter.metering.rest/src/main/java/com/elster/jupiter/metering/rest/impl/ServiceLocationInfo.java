@@ -49,8 +49,8 @@ public class ServiceLocationInfo {
 		accessMethod = serviceLocation.getAccessMethod();
 		needsInspection = serviceLocation.isNeedsInspection();
 		siteAccessProblem = serviceLocation.getSiteAccessProblem();
-		createTime = serviceLocation.getCreateDate().getTime();
-		modTime = serviceLocation.getModificationDate().getTime();
+		createTime = serviceLocation.getCreateDate().toEpochMilli();
+		modTime = serviceLocation.getModificationDate().toEpochMilli();
 		version = serviceLocation.getVersion();
 	}
 

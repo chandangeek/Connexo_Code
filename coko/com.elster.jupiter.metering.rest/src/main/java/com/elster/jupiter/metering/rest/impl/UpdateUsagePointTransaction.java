@@ -9,8 +9,8 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
+import java.time.Clock;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -56,7 +56,7 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
                 usagePoint.setReadCycle(info.readCycle);
                 usagePoint.setReadRoute(info.readRoute);
                 usagePoint.setServicePriority(info.servicePriority);
-                UsagePointDetail detail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.now());
+                UsagePointDetail detail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant());
                 detail.setAmiBillingReady(info.amiBillingReady);
                 detail.setCheckBilling(info.checkBilling);
                 detail.setConnectionState(info.connectionState);

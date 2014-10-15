@@ -18,8 +18,8 @@ public class MeterActivationInfo {
     
     public MeterActivationInfo(MeterActivation meterActivation) {
         this.id = meterActivation.getId();
-        this.start = meterActivation.getStart() == null ? null : meterActivation.getStart().getTime();
-        this.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd().getTime();
+        this.start = meterActivation.getStart() == null ? null : meterActivation.getStart().toEpochMilli();
+        this.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd().toEpochMilli();
         this.version = meterActivation.getVersion();
         this.meter = meterActivation.getMeter().isPresent() ? new MeterInfo(meterActivation.getMeter().get()) : null;
     }

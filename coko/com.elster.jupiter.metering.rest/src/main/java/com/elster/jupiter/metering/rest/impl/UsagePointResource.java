@@ -14,11 +14,15 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+
+import java.time.Clock;
+import java.time.Instant;
+
+import java.util.Optional;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -36,8 +40,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -162,15 +166,16 @@ public class UsagePointResource {
     	if (from == 0 || to == 0) {
     		throw new WebApplicationException(Response.Status.BAD_REQUEST);
     	}
-        return doGetIntervalreadings(id, activationId, channelId, securityContext, new Interval(new Date(from), new Date(to)));
+    	Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
+        return doGetIntervalreadings(id, activationId, channelId, securityContext, range);
     }
 
-    private ReadingInfos doGetIntervalreadings(long id, long activationId, long channelId, SecurityContext securityContext, Interval interval) {
+    private ReadingInfos doGetIntervalreadings(long id, long activationId, long channelId, SecurityContext securityContext, Range<Instant> range) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
         for (Channel channel : meterActivation.getChannels()) {
             if (channel.getId() == channelId) {
-                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(interval);
+                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(range);
                 return new ReadingInfos(intervalReadings);
             }
         }
@@ -201,10 +206,11 @@ public class UsagePointResource {
         if (from == 0 || to == 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-        return doGetReadingTypeReadings(id, mRID, new Interval(new Date(from), new Date(to)), securityContext);
+        Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
+        return doGetReadingTypeReadings(id, mRID, range, securityContext);
     }
 
-    private ReadingInfos doGetReadingTypeReadings(long id, String mRID, Interval interval, SecurityContext securityContext) {
+    private ReadingInfos doGetReadingTypeReadings(long id, String mRID, Range<Instant> range, SecurityContext securityContext) {
         ReadingType readingType = null;
         List<IntervalReadingRecord> readings = new ArrayList<>();
         for (MeterActivation meterActivation : meterActivationsForReadingTypeWithMRID(id, mRID, securityContext)) {
@@ -212,7 +218,7 @@ public class UsagePointResource {
                 readingType = FluentIterable.from(meterActivation.getReadingTypes()).firstMatch(new MRIDMatcher(mRID)).get();
             }
             for (Channel channel : meterActivation.getChannels()) {
-                readings.addAll(channel.getIntervalReadings(readingType, interval));
+                readings.addAll(channel.getIntervalReadings(readingType, range));
             }
         }
         return new ReadingInfos(readings);
