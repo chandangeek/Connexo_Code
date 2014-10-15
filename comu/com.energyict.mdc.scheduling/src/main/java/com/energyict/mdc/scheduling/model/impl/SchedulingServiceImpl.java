@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -19,16 +18,18 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -123,7 +124,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Override
     public NextExecutionSpecs findNextExecutionSpecs(long id) {
-        return dataModel.mapper(NextExecutionSpecs.class).getUnique("id", id).orNull();
+        return dataModel.mapper(NextExecutionSpecs.class).getUnique("id", id).orElse(null);
     }
 
     @Override
@@ -170,7 +171,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     }
 
     @Override
-    public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, UtcInstant startDate) {
+    public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, Instant startDate) {
         return new ComScheduleBuilderImpl(name, temporalExpression, startDate);
     }
 
@@ -193,7 +194,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     class ComScheduleBuilderImpl implements ComScheduleBuilder {
         private ComSchedule instance;
 
-        ComScheduleBuilderImpl(String name, TemporalExpression temporalExpression, UtcInstant startDate) {
+        ComScheduleBuilderImpl(String name, TemporalExpression temporalExpression, Instant startDate) {
             instance = dataModel.getInstance(ComScheduleImpl.class);
             instance.setName(Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name);
             instance.setTemporalExpression(temporalExpression);

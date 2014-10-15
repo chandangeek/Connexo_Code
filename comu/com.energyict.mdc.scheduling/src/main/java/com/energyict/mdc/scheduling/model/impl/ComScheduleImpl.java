@@ -6,8 +6,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.UtcInstant;
+import java.time.Clock;
+import java.time.Instant;
 import com.energyict.mdc.common.Global;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -88,8 +88,8 @@ public class ComScheduleImpl implements ComSchedule {
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     private SchedulingStatus schedulingStatus;
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    private UtcInstant startDate;
-    private Date obsoleteDate;
+    private Instant startDate;
+    private Instant obsoleteDate;
 
     @Override
     public long getId() {
@@ -133,12 +133,12 @@ public class ComScheduleImpl implements ComSchedule {
     }
 
     @Override
-    public UtcInstant getStartDate() {
+    public Instant getStartDate() {
         return startDate;
     }
 
     @Override
-    public void setStartDate(UtcInstant startDate) {
+    public void setStartDate(Instant startDate) {
         this.startDate = startDate;
     }
 
@@ -146,7 +146,7 @@ public class ComScheduleImpl implements ComSchedule {
     public Date getPlannedDate() {
         Calendar calendar = Calendar.getInstance();
         if (this.startDate!=null) {
-            calendar.setTime(this.startDate.toDate());
+            calendar.setTimeInMillis(this.startDate.toEpochMilli());
         }
         return SchedulingStatus.PAUSED.equals(this.schedulingStatus)?null:this.getNextTimestamp(calendar);
     }
@@ -191,7 +191,7 @@ public class ComScheduleImpl implements ComSchedule {
     public void makeObsolete() {
         this.comTaskUsages.clear();
         this.eventService.postEvent(EventType.COMSCHEDULES_BEFORE_OBSOLETE.topic(), this);
-        this.obsoleteDate = this.clock.now();
+        this.obsoleteDate = this.clock.instant();
         Save.UPDATE.save(this.dataModel, this, Obsolete.class);
         this.eventService.postEvent(EventType.COMSCHEDULES_OBSOLETED.topic(), this);
     }
@@ -203,7 +203,7 @@ public class ComScheduleImpl implements ComSchedule {
 
     @Override
     public Date getObsoleteDate() {
-        return this.obsoleteDate;
+        return this.obsoleteDate == null ? null : Date.from(obsoleteDate);
     }
 
     @Override

@@ -1,12 +1,12 @@
 package com.energyict.mdc.scheduling;
 
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
-
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
+
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -32,5 +32,5 @@ public interface SchedulingService {
     public Optional<ComSchedule> findScheduleBymRID(String mRID);
 
 
-    public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, UtcInstant startDate);
+    public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, Instant startDate);
 }
