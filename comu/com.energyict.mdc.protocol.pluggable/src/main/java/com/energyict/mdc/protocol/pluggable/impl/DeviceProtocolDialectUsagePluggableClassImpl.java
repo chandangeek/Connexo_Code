@@ -25,6 +25,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.time.Interval;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -263,7 +264,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     }
 
     @Override
-    public Date getModificationDate() {
+    public Instant getModificationDate() {
         return this.deviceProtocolPluggableClass.getModificationDate();
     }
 

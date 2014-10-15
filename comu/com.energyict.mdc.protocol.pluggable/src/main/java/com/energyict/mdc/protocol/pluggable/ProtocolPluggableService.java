@@ -13,7 +13,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.List;
 

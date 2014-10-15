@@ -19,7 +19,7 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLogBook;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateMidnight;
 import org.junit.*;
 import org.junit.runner.*;

@@ -23,7 +23,7 @@ public class CapabilityAdapterMappingFactoryImpl implements CapabilityAdapterMap
 
     @Override
     public Integer getCapabilitiesMappingForDeviceProtocol(String deviceProtocolJavaClassName) {
-        DeviceCapabilityMapping mapping = this.mapper.getUnique("deviceProtocolJavaClassName", deviceProtocolJavaClassName).orNull();
+        DeviceCapabilityMapping mapping = this.mapper.getUnique("deviceProtocolJavaClassName", deviceProtocolJavaClassName).orElse(null);
         if (mapping == null) {
             return null;
         }

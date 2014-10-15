@@ -63,7 +63,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty;
 import com.energyict.protocols.mdc.services.impl.Bus;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -135,7 +135,7 @@ public class DeviceProtocolPluggableClassImplTest {
         EventAdmin eventAdmin = mock(EventAdmin.class);
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("InMemoryPersistence.mdc.protocol.pluggable");
-        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
                 new MockModule(bundleContext, eventAdmin, deviceProtocolService),
@@ -506,7 +506,7 @@ public class DeviceProtocolPluggableClassImplTest {
 
         @Override
         public Optional<Code> findByPrimaryKey(long id) {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
