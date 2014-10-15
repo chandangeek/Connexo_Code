@@ -351,7 +351,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
                 DestinationSpec destination = messageService.getDestinationSpec(DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
                 RecurrentTaskBuilder taskBuilder = taskService.newBuilder();
                 taskBuilder.setName(taskName());
-                taskBuilder.setCronExpression(cronExpression());
+                taskBuilder.setScheduleExpressionString(cronExpression());
                 taskBuilder.setDestination(destination);
                 taskBuilder.setPayLoad(scheduledExcutionPayload());
                 taskBuilder.scheduleImmediately();

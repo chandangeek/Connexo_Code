@@ -138,7 +138,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
             if (clauseAppended) {
                 this.append(" and ");
             }
-            this.appendIntervalWhereClause("cs", "STOPDATE", this.lastSessionEnd);
+            this.appendIntervalWhereClause("cs", "STOPDATE", this.lastSessionEnd, IntervalBindStrategy.SECONDS);
         }
     }
 
@@ -173,7 +173,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     private void appendLastSessionStartWhereClause() {
         if (!this.isNull(this.lastSessionStart)) {
             this.appendWhereOrAnd();
-            this.appendIntervalWhereClause(TableSpecs.DDC_CONNECTIONTASK.name(), "LASTCOMMUNICATIONSTART", this.lastSessionStart);
+            this.appendIntervalWhereClause("ct", "LASTCOMMUNICATIONSTART", this.lastSessionStart, IntervalBindStrategy.SECONDS);
         }
     }
 

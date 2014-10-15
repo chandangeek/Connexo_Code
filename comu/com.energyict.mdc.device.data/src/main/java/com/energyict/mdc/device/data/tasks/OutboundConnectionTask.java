@@ -1,11 +1,8 @@
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionException;
 
 /**
  * Models a {@link ConnectionTask} that take initative to connect to external devices.
