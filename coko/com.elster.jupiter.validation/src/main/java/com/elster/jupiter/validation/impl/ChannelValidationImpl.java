@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -64,6 +65,10 @@ final class ChannelValidationImpl implements IChannelValidation {
 
     @Override
     public boolean hasActiveRules() {
+        activeRules = getMeterActivationValidation().getRuleSet().getRules().stream()
+                .filter(ValidationRule::isActive)
+                .flatMap(r -> r.getReadingTypes().stream())
+                .anyMatch(t -> getChannel().getReadingTypes().contains(t));
         return activeRules;
     }
 
