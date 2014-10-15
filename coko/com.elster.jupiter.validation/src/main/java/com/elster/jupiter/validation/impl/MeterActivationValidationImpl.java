@@ -207,8 +207,13 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     private Interval intervalToValidate(ChannelValidationImpl channelValidation, Interval interval) {
+        Interval maxScope = channelValidation.getMeterActivationValidation().getMeterActivation().getInterval();
+        if (!maxScope.overlaps(interval)) {
+            return new Interval(interval.getStart(), interval.getStart());
+        }
+        Interval clipped = maxScope.intersection(interval);
         Date lastChecked = getLatestDate(channelValidation.getLastChecked(), firstReadingTime(channelValidation));
-        return new Interval(getEarliestDate(lastChecked, adjusted(channelValidation, interval.getStart())), getLatestDate(channelValidation.getChannel().getLastDateTime(), interval.getEnd()));
+        return new Interval(getEarliestDate(lastChecked, adjusted(channelValidation, clipped.getStart())), getLatestDate(channelValidation.getChannel().getLastDateTime(), clipped.getEnd()));
     }
 
     private Date adjusted(ChannelValidationImpl channelValidation, Date date) {
