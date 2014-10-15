@@ -31,10 +31,10 @@ public class CloseIssuesTransaction implements Transaction<ActionInfo> {
     @Override
     public ActionInfo perform() {
         ActionInfo response = new ActionInfo();
-        IssueStatus status = issueService.findStatus(request.getStatus()).orNull();
+        IssueStatus status = issueService.findStatus(request.getStatus()).orElse(null);
         if (request.getIssues() != null && status != null && status.isHistorical()) {
             for (EntityReference issueRef : request.getIssues()) {
-                OpenIssue issue = issueService.findOpenIssue(issueRef.getId()).orNull();
+                OpenIssue issue = issueService.findOpenIssue(issueRef.getId()).orElse(null);
                 if (issue == null) {
                     response.addFail(getString(ISSUE_DOES_NOT_EXIST, thesaurus), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
                 } else if (issueRef.getVersion() != issue.getVersion()){

@@ -39,10 +39,10 @@ public class ActionResource extends BaseResource {
     @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getAllActionTypes(@BeanParam StandardParametersBean params){
         String issueTypeKey = params.getFirst(ISSUE_TYPE);
-        IssueType issueType = getIssueService().findIssueType(issueTypeKey).orNull();
+        IssueType issueType = getIssueService().findIssueType(issueTypeKey).orElse(null);
 
         String issueReasonKey = params.getFirst(REASON);
-        IssueReason issueReason = getIssueService().findReason(issueReasonKey).orNull();
+        IssueReason issueReason = getIssueService().findReason(issueReasonKey).orElse(null);
 
         Query<IssueActionType> query = getIssueActionService().getActionTypeQuery();
         Condition condition = Condition.TRUE;

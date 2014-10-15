@@ -31,13 +31,13 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             this.id = issue.getId();
             this.reason = new IssueReasonInfo(issue.getReason());
             this.status = new IssueStatusInfo(issue.getStatus());
-            this.dueDate = issue.getDueDate() != null ? issue.getDueDate().getTime() : 0;
+            this.dueDate = issue.getDueDate() != null ? issue.getDueDate().toEpochMilli() : 0;
             this.assignee = (issue.getAssignee() != null ? new IssueAssigneeInfo(issue.getAssignee()) : null);
             try {
                 this.device = issue.getDevice() != null ? deviceType.getConstructor(EndDevice.class).newInstance(issue.getDevice()) : null;
             } catch (ReflectiveOperationException e) {
             }
-            this.creationDate = issue.getCreateTime().getTime();
+            this.creationDate = issue.getCreateTime().toEpochMilli();
             this.version = issue.getVersion();
         }
     }

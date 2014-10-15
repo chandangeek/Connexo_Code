@@ -19,8 +19,8 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -38,7 +38,9 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
+
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -180,9 +182,8 @@ public class Mocks extends JerseyTest {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(id);
         when(meter.getMRID()).thenReturn(mrid);
-        Optional<MeterActivation> optionalMA = mock(Optional.class);
-        when(optionalMA.isPresent()).thenReturn(false);
-        when(meter.getCurrentMeterActivation()).thenReturn(optionalMA);
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         return meter;
     }
 
@@ -291,7 +292,7 @@ public class Mocks extends JerseyTest {
         Optional<T> optional = mock(Optional.class);
         when(optional.get()).thenReturn(type);
         when(optional.isPresent()).thenReturn(true);
-        when(optional.orNull()).thenReturn(type);
+        when(optional.orElse(null)).thenReturn(type);
         return optional;
     }
     
@@ -300,7 +301,7 @@ public class Mocks extends JerseyTest {
     }
     
      protected CreationRule mockCreationRule(long id, String name){
-        UtcInstant utcInstant = new UtcInstant(new Date());
+        Instant instant = Instant.now();
         IssueReason reason = getDefaultReason();
         CreationRuleTemplate template = getDefaultCreationRuleTemplate();
         CreationRule rule = mock(CreationRule.class);
@@ -313,8 +314,8 @@ public class Mocks extends JerseyTest {
         when(rule.getActions()).thenReturn(Collections.<CreationRuleAction>emptyList());
         when(rule.getParameters()).thenReturn(null);
         when(rule.getTemplate()).thenReturn(template);
-        when(rule.getModTime()).thenReturn(utcInstant);
-        when(rule.getCreateTime()).thenReturn(utcInstant);
+        when(rule.getModTime()).thenReturn(instant);
+        when(rule.getCreateTime()).thenReturn(instant);
         when(rule.getVersion()).thenReturn(2L);
         return rule;
     }
@@ -331,7 +332,7 @@ public class Mocks extends JerseyTest {
         when(issue.getDueDate()).thenReturn(null);
         when(issue.getAssignee()).thenReturn(assingee);
         when(issue.getDevice()).thenReturn(meter);
-        when(issue.getCreateTime()).thenReturn(new UtcInstant(0));
+        when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
         return issue;
     }
@@ -340,7 +341,7 @@ public class Mocks extends JerseyTest {
         IssueComment comment = mock(IssueComment.class);
         when(comment.getId()).thenReturn(id);
         when(comment.getComment()).thenReturn(text);
-        when(comment.getCreateTime()).thenReturn(new UtcInstant(0));
+        when(comment.getCreateTime()).thenReturn(Instant.EPOCH);
         when(comment.getVersion()).thenReturn(1L);
         when(comment.getUser()).thenReturn(user);
         return comment;

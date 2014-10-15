@@ -5,7 +5,7 @@ import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -41,8 +41,8 @@ public class ActionResourceTest extends Mocks {
         Query<IssueActionType> query = mock(Query.class);
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueActionType>emptyList());
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
-        when(issueService.findIssueType(null)).thenReturn(Optional.absent());
-        when(issueService.findReason(null)).thenReturn(Optional.absent());
+        when(issueService.findIssueType(null)).thenReturn(Optional.empty());
+        when(issueService.findReason(null)).thenReturn(Optional.empty());
         Response response = target("/actions").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
@@ -53,8 +53,8 @@ public class ActionResourceTest extends Mocks {
         Query<IssueActionType> query = mock(Query.class);
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueActionType>emptyList());
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
-        when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.<IssueType>absent());
-        when(issueService.findReason(null)).thenReturn(Optional.absent());
+        when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.empty());
+        when(issueService.findReason(null)).thenReturn(Optional.empty());
 
         Map<String, Object> map = target("/actions")
                 .queryParam(ISSUE_TYPE, issueType.getUUID()).request().get(Map.class);
@@ -70,7 +70,7 @@ public class ActionResourceTest extends Mocks {
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueActionType>emptyList());
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
         when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.of(issueType));
-        when(issueService.findReason(null)).thenReturn(Optional.absent());
+        when(issueService.findReason(null)).thenReturn(Optional.empty());
 
         Map<String, Object> map = target("/actions")
                 .queryParam(ISSUE_TYPE, issueType.getUUID()).request().get(Map.class);
@@ -89,7 +89,7 @@ public class ActionResourceTest extends Mocks {
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(actionTypes);
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
         when(issueService.findIssueType(issueType.getUUID())).thenReturn(Optional.of(issueType));
-        when(issueService.findReason(null)).thenReturn(Optional.absent());
+        when(issueService.findReason(null)).thenReturn(Optional.empty());
 
         Map<String, Object> map = target("/actions")
                 .queryParam(ISSUE_TYPE, issueType.getUUID()).request().get(Map.class);

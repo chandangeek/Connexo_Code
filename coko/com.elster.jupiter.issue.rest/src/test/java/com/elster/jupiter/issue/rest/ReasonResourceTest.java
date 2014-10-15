@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -66,7 +66,7 @@ public class ReasonResourceTest extends Mocks {
 
     @Test
     public void testGetUnexistingReason(){
-        when(issueService.findReason("not-exsist")).thenReturn(Optional.<IssueReason>absent());
+        when(issueService.findReason("not-exsist")).thenReturn(Optional.empty());
 
         Response response = target("/reasons/not-exsist").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());

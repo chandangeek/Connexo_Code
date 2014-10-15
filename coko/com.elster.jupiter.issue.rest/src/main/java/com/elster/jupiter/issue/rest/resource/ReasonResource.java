@@ -6,7 +6,7 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
@@ -33,7 +33,7 @@ public class ReasonResource extends BaseResource {
     @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getReasons(@BeanParam StandardParametersBean params) {
         validateMandatory(params, ISSUE_TYPE);
-        IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orNull();
+        IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orElse(null);
         Query<IssueReason> query = getIssueService().query(IssueReason.class);
         Condition condition = where("issueType").isEqualTo(issueType);
         List<IssueReason> reasons = query.select(condition);
