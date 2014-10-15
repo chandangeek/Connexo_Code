@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.messages-grid',
     requires: [
-        'Mdc.view.setup.messages.PrivilegesInfoPanel'
+        'Mdc.view.setup.messages.PrivilegesInfoPanel',
+        'Uni.view.toolbar.PagingTop'
     ],
     ui: 'medium',
     hidden: true,
@@ -10,14 +11,6 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
         paddingLeft: 0,
         paddingRight: 0
     },
-    tools: [
-        {
-            xtype: 'button',
-            itemId: 'messages-actionbutton',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            iconCls: 'x-uni-action-iconD'
-        }
-    ],
     columns: [
         {
             header: Uni.I18n.translate('messages.grid.name', 'MDC', 'Messages'),
@@ -42,7 +35,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
 
                 if (Ext.isArray(value)) {
                     Ext.each(value, function (item) {
-                        result += item.toString();
+                        result += item.name.toString();
                         if (value.indexOf(item) != value.length - 1) result += ' - ';
                     });
                 }
@@ -75,5 +68,28 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
                 plain: true
             }
         }
-    ]
+    ],
+    initComponent: function () {
+        var me = this;
+        me.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                store: me.store,
+                dock: 'top',
+                displayMsg: Uni.I18n.translate('messages.pagingtoolbartop.displayMsgs', 'MDC', '{0} - {1} of {2} messages'),
+                displayMoreMsg: Uni.I18n.translate('messages.pagingtoolbartop.displayMoreMsgs', 'MDC', '{0} - {1} of more than {2} messages'),
+                emptyMsg: Uni.I18n.translate('messages.pagingtoolbartop.emptyMsgsMessage', 'MDC', 'There are no messages to display'),
+                items: [
+                    '->',
+                    {
+                        xtype: 'button',
+                        itemId: 'messages-actionbutton',
+                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        iconCls: 'x-uni-action-iconD'
+                    }
+                ]
+            }
+        ];
+        me.callParent(arguments);
+    }
 });

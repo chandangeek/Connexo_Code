@@ -4,23 +4,22 @@ Ext.define('Mdc.model.MessageCategory', {
         'Mdc.model.Message'
     ],
     fields: [
-        { name: 'DeviceMessageCategory', type: 'string' }
+        { name: 'name', type: 'string' }
     ],
     associations: [
         {
             type: 'hasMany',
             model: 'Mdc.model.Message',
-            name: 'DeviceMessageEnablements',
-            instanceName: 'DeviceMessageEnablements',
-            associationKey: 'DeviceMessageEnablements',
+            name: 'deviceMessageEnablements',
+            instanceName: 'deviceMessageEnablements',
+            associationKey: 'deviceMessageEnablements',
             getterName: 'getMessageEnablements',
             setterName: 'setMessageEnablements'
         }
     ],
     proxy: {
         type: 'rest',
-//        url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/validationrulesets',
-        url: '/apps/mdc/fakedata/messages.json',
+        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/devicemessageenablements',
         reader: {
             type: 'json',
             root: 'categories'

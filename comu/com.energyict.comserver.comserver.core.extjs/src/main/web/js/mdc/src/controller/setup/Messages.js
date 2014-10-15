@@ -1,13 +1,18 @@
 Ext.define('Mdc.controller.setup.Messages', {
     extend: 'Ext.app.Controller',
-    requires: [],
+    requires: [
+        'Mdc.store.MessageCategories',
+        'Mdc.model.MessageCategory'
+    ],
     views: [
         'Mdc.view.setup.messages.MessagesOverview'
     ],
     stores: [
         'DeviceConfigMessages',
-        'MessagesPrivileges'
+        'MessagesPrivileges',
+        'MessageCategories'
     ],
+    models: [ 'Mdc.model.MessageCategory' ],
     refs: [
         { ref: 'messagesCategoriesGrid', selector: 'messages-categories-grid' },
         { ref: 'messagesCategoriesActionMenu', selector: '#messages-categories-actionmenu' },
@@ -54,7 +59,6 @@ Ext.define('Mdc.controller.setup.Messages', {
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
 
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
-
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
@@ -66,6 +70,9 @@ Ext.define('Mdc.controller.setup.Messages', {
     },
 
     onMessagesCategoriesGridAfterRender: function (grid) {
+        var model = Ext.ModelManager.getModel('Mdc.model.MessageCategory');
+        model.getProxy().setExtraParam('deviceType', grid.deviceTypeId);
+        model.getProxy().setExtraParam('deviceConfig', grid.deviceConfigId);
         grid.store.load({
             callback: function (messagesCategories) {
                 if (messagesCategories.length > 1) {
@@ -85,13 +92,12 @@ Ext.define('Mdc.controller.setup.Messages', {
         if (noItemsFoundPanel) noItemsFoundPanel.destroy();
         grid.setVisible(false);
         menu.removeAll(true);
-
         if (record) {
-            var enablements = record['DeviceMessageEnablementsStore'];
-
+            var enablements = record['deviceMessageEnablementsStore'];
             if (enablements && enablements.getRange().length > 1) {
-                grid.setTitle(record.get('DeviceMessageCategory'));
-                grid.getView().bindStore(record['DeviceMessageEnablementsStore']);
+                grid.setTitle(Uni.I18n.translate('messages.titleof','MDC','Messages of ') + record.get('name'));
+                grid.getView().bindStore(record['deviceMessageEnablementsStore']);
+                gridContainer.down('pagingtoolbartop').bindStore(record['deviceMessageEnablementsStore']);
 
                 Ext.defer(function () {
                     grid.doLayout();
@@ -134,7 +140,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                 gridContainer.add(
                     {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('messages.grid.empty.title', 'MDC', 'No messages found'),
+                        title: Uni.I18n.translate('messages.grid.empty.title', 'MDC', 'Device protocol did not specify any messages.'),
                         reasons: [
                             Uni.I18n.translate('messages.grid.emptyCmp.item1', 'MDC', 'No messages have been defined yet.'),
                             Uni.I18n.translate('messages.grid.emptyCmp.item2', 'MDC', 'No messages is available for this category.')
@@ -146,6 +152,7 @@ Ext.define('Mdc.controller.setup.Messages', {
     },
 
     onMessageChange: function (sm, selection) {
+        var me = this;
         var record = selection[0],
             menu = this.getMessagesActionMenu();
 
@@ -179,8 +186,9 @@ Ext.define('Mdc.controller.setup.Messages', {
         Ext.widget('privileges-info-panel');
     },
 
-    onMessagesCategoriesActionMenuClick: function (menu, item) {
+    onMessagesCategoriesActionMenuClick: function (menu, item) {debugger;
         var messagesCategory = this.getMessagesCategoriesGrid().getSelectionModel().getSelection()[0];
+        console.log('!!!' + messagesCategory.toString());
         if (messagesCategory) {
             switch (item.action) {
                 case 'deactivateAll':
@@ -213,8 +221,8 @@ Ext.define('Mdc.controller.setup.Messages', {
             selectPrivilegesPanel = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                 confirmation: function () {
-                    var privileges = this.down('checkboxgroup').getValues().privileges;
-                    me[action](record, privileges);
+                    var privileges = this.down('checkboxgroup').getValues().privilege;
+                    me[action](record, privileges, me);
                     this.close();
                 },
                 listeners: {
@@ -234,13 +242,14 @@ Ext.define('Mdc.controller.setup.Messages', {
                         labelAlign: 'left',
                         labelStyle: 'padding-left: 53px',
                         labelPad: 50,
+                        store: 'MessagesPrivileges',
                         columns: 1,
                         vertical: true,
                         items: [
-                            { boxLabel: 'Level 1', name: 'privileges', inputValue: '1', checked: true },
-                            { boxLabel: 'Level 2', name: 'privileges', inputValue: '2', checked: true },
-                            { boxLabel: 'Level 3', name: 'privileges', inputValue: '3', checked: true },
-                            { boxLabel: 'Level 4', name: 'privileges', inputValue: '4' }
+                            { boxLabel: 'Level 1', name: 'name', inputValue: 'MessagesPrivileges'[0].privilege, checked: true },
+                            { boxLabel: 'Level 2', name: 'name', inputValue: 'MessagesPrivileges'[1].privilege, checked: true },
+                            { boxLabel: 'Level 3', name: 'name', inputValue: 'MessagesPrivileges'[2].privilege, checked: true },
+                            { boxLabel: 'Level 4', name: 'name', inputValue: 'MessagesPrivileges'[3].privilege }
                         ]
                     }
                 ]
@@ -259,43 +268,37 @@ Ext.define('Mdc.controller.setup.Messages', {
     activateAll: function (messagesCategory, privileges) {
         // Should be integrated with REST when it will be ready
         var inactiveEnablements = [];
-        Ext.each(messagesCategory.DeviceMessageEnablementsStore.getRange(), function (e) {
+        Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
             if (!e.get('active')) inactiveEnablements.push(e);
         });
-        console.log('List of inactive messages for activation', inactiveEnablements, 'List of privileges', privileges);
     },
 
     deactivateAll: function (messagesCategory) {
         // Should be integrated with REST when it will be ready
         var activeEnablements = [];
-        Ext.each(messagesCategory.DeviceMessageEnablementsStore.getRange(), function (e) {
+        Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
             if (e.get('active')) activeEnablements.push(e);
         });
-        console.log('List of active messages for deactivation', activeEnablements);
     },
 
     changePrivilegesForAll: function (messagesCategory, privileges) {
         // Should be integrated with REST when it will be ready
         var activeEnablements = [];
-        Ext.each(messagesCategory.DeviceMessageEnablementsStore.getRange(), function (e) {
+        Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
             if (e.get('active')) activeEnablements.push(e);
         });
-        console.log('List of active messages for change privileges', activeEnablements, 'List of privileges', privileges);
     },
 
     activate: function (message, privileges) {
         // Should be integrated with REST when it will be ready
-        console.log('Message for activation', message, 'List of privileges', privileges);
     },
 
     deactivate: function (message) {
         // Should be integrated with REST when it will be ready
-        console.log('Message for deactivation', message);
     },
 
     changePrivileges: function (message, privileges) {
         // Should be integrated with REST when it will be ready
-        console.log('Message for change privileges', message, 'List of privileges', privileges);
     }
 });
 
