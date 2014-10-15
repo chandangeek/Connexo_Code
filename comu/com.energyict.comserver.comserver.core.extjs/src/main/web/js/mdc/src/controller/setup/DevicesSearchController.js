@@ -55,6 +55,12 @@ Ext.define('Mdc.controller.setup.DevicesSearchController', {
 
     getSideFilterForm: function() {
         return this.getDevicesSearchSideFilterForm();
+    },
+
+    applyFilter: function () {
+        var filterForm = this.getSideFilterForm();
+        filterForm.updateRecord();
+        filterForm.getRecord().save();
     }
 
 

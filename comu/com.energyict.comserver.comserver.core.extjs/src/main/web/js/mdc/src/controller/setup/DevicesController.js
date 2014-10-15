@@ -47,17 +47,6 @@ Ext.define('Mdc.controller.setup.DevicesController', {
         this.callParent(arguments);
     },
 
-    applyFilter: function () {
-        var filterForm = this.getSideFilterForm();
-        filterForm.updateRecord();
-        filterForm.getRecord().save();
-        var store = this.getStore('Mdc.store.Devices');
-        var router = this.getController('Uni.controller.history.Router');
-        router.filter = filterForm.getRecord();
-        store.setFilterModel(router.filter);
-        store.load();
-    },
-
     clearFilter: function () {
         this.getSideFilterForm().getRecord().getProxy().destroy();
     },
@@ -96,6 +85,8 @@ Ext.define('Mdc.controller.setup.DevicesController', {
             filterView.setFilter('mRID', mRIDField.getFieldLabel(), mRIDValue);
         }
     },
+
+    applyFilter: function() {},
 
     getSideFilterForm: function() {},
 

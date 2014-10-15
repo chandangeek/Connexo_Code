@@ -40,9 +40,79 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     },
 
     initFilterModel: function () {
-        //this.getSideFilterForm().loadRecord(Ext.create('Mdc.model.DeviceFilter'));
         var router = this.getController('Uni.controller.history.Router');
         this.getSideFilterForm().loadRecord(router.filter);
         this.setFilterView();
+    },
+
+    applyFilter: function () {
+        var filterForm = this.getSideFilterForm();
+        filterForm.updateRecord();
+        filterForm.getRecord().save();
+        var store = this.getStore('Mdc.store.Devices');
+        var router = this.getController('Uni.controller.history.Router');
+        router.filter = filterForm.getRecord();
+        store.setFilterModel(router.filter);
+        store.load();
+        this.setFilterView();
+    },
+
+    removeTheFilter: function (key) {
+        var router = this.getController('Uni.controller.history.Router');
+        var record = router.filter;
+        switch (key) {
+            default:
+                record.set(key, null);
+        }
+        record.save();
+        var filterForm = this.getSideFilterForm();
+        filterForm.loadRecord(record);
+
+        this.applyFilter();
+    },
+
+    clearFilter: function () {
+        this.getCriteriaPanel().removeAll();
+        var router = this.getController('Uni.controller.history.Router');
+        var record = router.filter;
+        record.set('mRID', null);
+        record.set('serialNumber', null);
+        record.set('deviceTypes', null);
+        record.set('deviceConfigurations', null);
+        record.save();
+        var filterForm = this.getSideFilterForm();
+        filterForm.loadRecord(record);
+        this.applyFilter();
+    },
+
+    setFilterView: function () {
+        var filterForm = this.getSideFilterForm();
+        var filterView = this.getCriteriaPanel();
+
+        var serialNumberField = filterForm.down('[name=serialNumber]');
+        var serialNumberValue = serialNumberField.getValue().trim();
+        var mRIDField = filterForm.down('[name=mRID]');
+        var mRIDValue = mRIDField.getValue().trim();
+
+        if (serialNumberValue != "") {
+            filterView.setFilter('serialNumber', serialNumberField.getFieldLabel(), serialNumberValue);
+        }
+        if (mRIDValue != "") {
+            filterView.setFilter('mRID', mRIDField.getFieldLabel(), mRIDValue);
+        }
+
+        var deviceTypeCombo = filterForm.down('[name=deviceTypes]');
+        var deviceConfigsCombo = filterForm.down('[name=deviceConfigurations]');
+
+        if (!_.isEmpty(deviceTypeCombo.getRawValue())) {
+            var filterView = this.getCriteriaPanel();
+            filterView.setFilter(deviceTypeCombo.getName(), deviceTypeCombo.getFieldLabel(), deviceTypeCombo.getRawValue());
+        }
+
+        if (!_.isEmpty(deviceConfigsCombo.getRawValue())) {
+            var filterView = this.getCriteriaPanel();
+            filterView.setFilter(deviceConfigsCombo.getName(), deviceConfigsCombo.getFieldLabel(), deviceConfigsCombo.getRawValue());
+        }
     }
+
 });
