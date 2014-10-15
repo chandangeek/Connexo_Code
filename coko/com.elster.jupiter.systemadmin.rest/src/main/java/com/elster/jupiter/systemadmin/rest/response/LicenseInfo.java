@@ -1,11 +1,10 @@
 package com.elster.jupiter.systemadmin.rest.response;
 
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.nls.NlsService;
+import java.util.Map;
+import java.util.Set;
 
-import javax.management.monitor.StringMonitor;
-import java.util.*;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.nls.NlsService;
 
 public class LicenseInfo extends LicenseShortInfo {
 
@@ -22,7 +21,7 @@ public class LicenseInfo extends LicenseShortInfo {
         super(nlsService, license);
         this.type = license.getType().name().toLowerCase();
         this.description = license.getDescription();
-        this.validfrom = license.getActivation().getTime();
+        this.validfrom = license.getActivation().toEpochMilli();
         this.graceperiod = license.getGracePeriodInDays();
         this.content = license.getLicensedValues().entrySet();
     }

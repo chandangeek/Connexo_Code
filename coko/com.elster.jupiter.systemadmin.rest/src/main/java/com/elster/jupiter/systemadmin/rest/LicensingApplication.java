@@ -1,13 +1,9 @@
 package com.elster.jupiter.systemadmin.rest;
 
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.rest.util.*;
-import com.elster.jupiter.systemadmin.rest.resource.LicenseResource;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
+
+import javax.ws.rs.core.Application;
+
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -16,8 +12,16 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.ws.rs.core.Application;
-import java.util.Set;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.systemadmin.rest.resource.LicenseResource;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.google.common.collect.ImmutableSet;
 
 @Component(name = "com.elster.jupiter.systemadmin.rest", service = Application.class, immediate = true, property = {"alias=/lic"})
 public class LicensingApplication extends Application implements BinderProvider {

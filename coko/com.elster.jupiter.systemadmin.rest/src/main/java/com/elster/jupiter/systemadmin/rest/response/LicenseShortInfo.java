@@ -3,11 +3,6 @@ package com.elster.jupiter.systemadmin.rest.response;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-
-import java.util.Date;
-import java.util.Map;
-import java.util.Properties;
 
 public class LicenseShortInfo {
     protected String applicationkey;
@@ -21,7 +16,7 @@ public class LicenseShortInfo {
         this.applicationkey = license.getApplicationKey();
         this.applicationname = nlsService.getThesaurus(this.applicationkey, Layer.REST).getString(this.applicationkey, this.applicationkey);
         this.status = license.getStatus().name().toLowerCase();
-        this.expires = license.getExpiration().getTime();
+        this.expires = license.getExpiration().toEpochMilli();
     }
 
     public String getStatus() {

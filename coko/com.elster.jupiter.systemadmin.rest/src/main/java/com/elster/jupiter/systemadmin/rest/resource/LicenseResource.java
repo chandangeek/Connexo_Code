@@ -7,7 +7,7 @@ import com.elster.jupiter.systemadmin.rest.response.LicenseInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseListInfo;
 import com.elster.jupiter.systemadmin.rest.response.RootEntity;
 import com.elster.jupiter.systemadmin.rest.transations.UploadLicenseTransaction;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.glassfish.jersey.media.multipart.*;
 
 
