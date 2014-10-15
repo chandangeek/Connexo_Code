@@ -1,8 +1,9 @@
 package com.elster.jupiter.util.cron.impl;
 
 import com.elster.jupiter.util.cron.CronExpression;
-
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 /**
@@ -37,4 +38,18 @@ class QuartzCronExpressionAdapter implements CronExpression {
         return quartzCronExpression.getCronExpression();
     }
 
+    @Override
+    public String encoded() {
+        return toString();
+    }
+
+    @Override
+    public ZonedDateTime nextOccurrence(ZonedDateTime time) {
+        if (!time.getZone().equals(quartzCronExpression.getTimeZone().toZoneId())) {
+            QuartzCronExpression clone = new QuartzCronExpression(quartzCronExpression.getCronExpression());
+            clone.setTimeZone(TimeZone.getTimeZone(time.getZone()));
+            return ZonedDateTime.ofInstant(clone.getNextValidTimeAfter(time.toInstant()), time.getZone());
+        }
+        return ZonedDateTime.ofInstant(quartzCronExpression.getNextValidTimeAfter(time.toInstant()), time.getZone());
+    }
 }

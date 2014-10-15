@@ -10,11 +10,21 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
 public class UtilModule extends AbstractModule {
+	
+	private final Clock clock;
+
+    public UtilModule(Clock clock) {
+        this.clock = clock;
+    }
+
+    public UtilModule() {
+    	this.clock = Clock.systemDefaultZone();
+    }
 
     @Override
     protected void configure() {
         bind(JsonService.class).to(JsonServiceImpl.class).in(Scopes.SINGLETON);
         bind(BeanService.class).to(BeanServiceImpl.class).in(Scopes.SINGLETON);
-        bind(Clock.class).toInstance(Clock.systemDefaultZone());
+        bind(Clock.class).toInstance(clock);
     }
 }

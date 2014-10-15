@@ -1,12 +1,13 @@
 package com.elster.jupiter.util.cron;
 
-import java.time.Instant;
 
+import java.time.Instant;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 /**
  * Interface for classes that model a Cron expression.
  */
-public interface CronExpression {
+public interface CronExpression extends ScheduleExpression {
 
     /**
      * Calculates the next date after the given date that matches this CronExpression.
