@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.messages.MessagesCategoriesGrid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('messages.category.name', 'MDC', 'Message category'),
-                dataIndex: 'DeviceMessageCategory',
+                dataIndex: 'name',
                 flex: 1
             },
             {
