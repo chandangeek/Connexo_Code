@@ -867,6 +867,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: 'Device',
                     route: '{mRID}',
                     controller: 'Mdc.controller.setup.Devices',
+                    privileges: ['privilege.view.device', 'privilege.administrate.device'],
                     action: 'showDeviceDetailsView',
                     callback: function (route) {
                         this.getApplication().on('loadDevice', function (record) {
@@ -882,12 +883,14 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Protocol dialects',
                             route: 'protocols',
                             controller: 'Mdc.controller.setup.DeviceProtocolDialects',
+                            privileges: ['privilege.administrate.protocol', 'privilege.view.protocol'],
                             action: 'showProtocolDialectsView',
                             items: {
                                 edit: {
                                     title: 'Edit protocol dialect',
                                     route: '{protocolDialectId}/edit',
                                     controller: 'Mdc.controller.setup.DeviceProtocolDialects',
+                                    privileges: ['privilege.administrate.protocol'],
                                     action: 'showProtocolDialectsEditView',
                                     callback: function (route) {
                                         this.getApplication().on('loadDeviceProtocolDialect', function (record) {
@@ -904,12 +907,14 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Connection methods',
                             route: 'connectionmethods',
                             controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                             action: 'showDeviceConnectionMethods',
                             items: {
                                 addoutbound: {
                                     title: 'Add outbound',
                                     route: 'addoutbound',
                                     controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                                    privileges: ['privilege.administrate.deviceConfiguration'],
                                     action: 'showAddDeviceConnectionMethodView',
                                     params: {
                                         'type': 'Outbound'
@@ -920,6 +925,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: 'addinbound',
                                     controller: 'Mdc.controller.setup.DeviceConnectionMethods',
                                     action: 'showAddDeviceConnectionMethodView',
+                                    privileges: ['privilege.administrate.deviceConfiguration'],
                                     params: {
                                         'type': 'Inbound'
                                     }
@@ -928,6 +934,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: 'Edit connection method',
                                     route: '{connectionMethodId}/edit',
                                     controller: 'Mdc.controller.setup.DeviceConnectionMethods',
+                                    privileges: ['privilege.administrate.deviceConfiguration'],
                                     action: 'showDeviceConnectionMethodEditView',
                                     callback: function (route) {
                                         this.getApplication().on('loadConnectionMethod', function (record) {
@@ -943,11 +950,13 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Registers',
                             route: 'registers',
                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                             action: 'showDeviceRegisterConfigurationsView',
                             items: {
                                 register: {
                                     route: '{registerId}',
                                     controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                     action: 'showDeviceRegisterConfigurationDetailsView',
                                     callback: function (route) {
                                         this.getApplication().on('loadRegisterConfiguration', function (record) {
@@ -962,6 +971,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: 'Register data',
                                             route: 'data',
                                             controller: 'Mdc.controller.setup.DeviceRegisterData',
+                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                             action: 'showDeviceRegisterDataView',
                                             filter: 'Mdc.model.RegisterDataFilter'
                                         }
@@ -973,12 +983,14 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Data validation',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
+                            privileges: ['privilege.view.deviceValidation'],
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {
                             title: 'Communication planning',
                             route: 'communicationplanning',
                             controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                            privileges: ['privilege.view.scheduleDevice'],
                             action: 'showDeviceCommunicationScheduleView',
                             items: {
 
@@ -986,6 +998,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: 'Add shared communication schedules',
                                     route: 'add',
                                     controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                                    privileges: ['privilege.administrate.schedule'],
                                     action: 'addSharedCommunicationSchedule'
                                 }
 
@@ -995,6 +1008,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Communication tasks',
                             route: 'communicationtasks',
                             controller: 'Mdc.controller.setup.DeviceCommunicationTasks',
+                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                             action: 'showDeviceCommunicationTasksView',
                             items: {
 
@@ -1004,12 +1018,14 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Load profiles',
                             route: 'loadprofiles',
                             controller: 'Mdc.controller.setup.DeviceLoadProfiles',
+                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                             action: 'showView',
                             items: {
                                 loadprofile: {
                                     title: 'Load profile',
                                     route: '{loadProfileId}',
                                     controller: 'Mdc.controller.setup.DeviceLoadProfileOverview',
+                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                     action: 'showOverview',
                                     callback: function (route) {
                                         this.getApplication().on('loadProfileOfDeviceLoad', function (record) {
@@ -1023,12 +1039,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: Uni.I18n.translate('routing.channels', 'MDC', 'Channels'),
                                             route: 'channels',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannels',
+                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                             action: 'showOverview',
                                             items: {
                                                 channel: {
                                                     title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
                                                     route: '{channelId}',
                                                     controller: 'Mdc.controller.setup.DeviceLoadProfileChannelOverview',
+                                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                                     action: 'showOverview',
                                                     callback: function (route) {
                                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
@@ -1042,6 +1060,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
                                                             route: 'graph',
                                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
+                                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                                             action: 'showGraphOverview',
                                                             filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                                         },
@@ -1049,6 +1068,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
                                                             route: 'table',
                                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
+                                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                                             action: 'showTableOverview',
                                                             filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                                         },
@@ -1065,6 +1085,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: 'Load profile data',
                                             route: 'graph',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileData',
+                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                             action: 'showGraphOverview',
                                             filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
                                         },
@@ -1072,6 +1093,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: 'Load profile data',
                                             route: 'table',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileData',
+                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                             action: 'showTableOverview',
                                             filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
                                         },
@@ -1087,12 +1109,14 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('router.logbooks', 'MDC', 'Logbooks'),
                             route: 'logbooks',
                             controller: 'Mdc.controller.setup.DeviceLogbooks',
+                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                             action: 'showView',
                             items: {
                                 logbook: {
                                     title: Uni.I18n.translate('router.logbook', 'MDC', 'Logbook'),
                                     route: '{logbookId}',
                                     controller: 'Mdc.controller.setup.DeviceLogbookOverview',
+                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                     action: 'showOverview',
                                     redirect: 'devices/device/logbooks/logbook/overview',
                                     callback: function (route) {
@@ -1108,12 +1132,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                             title: Uni.I18n.translate('router.overview', 'MDC', 'Overview'),
                                             route: 'overview',
                                             controller: 'Mdc.controller.setup.DeviceLogbookOverview',
+                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                             action: 'showOverview'
                                         },
                                         data: {
                                             title: Uni.I18n.translate('router.logbookData', 'MDC', 'Logbook data'),
                                             route: 'data',
                                             controller: 'Mdc.controller.setup.DeviceLogbookData',
+                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                             action: 'showOverview',
                                             filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                                         }
@@ -1129,12 +1155,14 @@ Ext.define('Mdc.controller.history.Setup', {
             title: 'Search',
             route: 'search',
             controller: 'Mdc.controller.setup.SearchItems',
+            privileges: ['privilege.view.device', 'privilege.administrate.device'],
             action: 'showSearchItems',
             items: {
                 bulkAction: {
                     title: 'Bulk action',
                     route: 'bulk',
                     controller: 'Mdc.controller.setup.SearchItemsBulkAction',
+                    privileges: ['privilege.administrate.device'],
                     action: 'showBulkAction'
                 }
             }
