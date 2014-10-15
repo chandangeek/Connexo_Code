@@ -1,21 +1,24 @@
 package com.elster.jupiter.users.rest.impl;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.rest.DomainInfos;
-import com.elster.jupiter.users.rest.GroupInfos;
-import com.elster.jupiter.users.security.Privileges;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.DomainInfos;
+import com.elster.jupiter.users.security.Privileges;
 
 @Path("/domains")
 public class DomainResource {

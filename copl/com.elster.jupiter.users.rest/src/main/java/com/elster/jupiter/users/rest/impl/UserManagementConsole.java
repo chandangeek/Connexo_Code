@@ -4,7 +4,7 @@ import org.osgi.service.component.annotations.*;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.*;
 import com.elster.jupiter.users.*;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.users.rest.usermanagement", service = UserManagementConsole.class, property = {"osgi.command.scope=jupiter", "osgi.command.function=userpass"}, immediate = true)
 public class UserManagementConsole {

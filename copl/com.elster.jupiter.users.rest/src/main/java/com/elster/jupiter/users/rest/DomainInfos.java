@@ -1,11 +1,11 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserDirectory;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.elster.jupiter.users.UserDirectory;
 
 @XmlRootElement
 public class DomainInfos {

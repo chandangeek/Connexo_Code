@@ -1,29 +1,25 @@
 package com.elster.jupiter.users.rest.impl;
 
+import java.util.List;
+
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.rest.PrivilegeInfos;
 import com.elster.jupiter.users.rest.ResourceInfos;
-import com.elster.jupiter.users.rest.UserInfos;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
-import com.google.common.base.Optional;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.util.List;
 
 @Path("/resources")
 public class ResourceResource {

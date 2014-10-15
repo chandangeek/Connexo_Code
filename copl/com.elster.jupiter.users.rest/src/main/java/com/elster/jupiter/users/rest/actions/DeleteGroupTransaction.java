@@ -4,7 +4,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;

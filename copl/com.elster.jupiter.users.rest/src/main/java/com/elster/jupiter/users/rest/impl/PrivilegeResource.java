@@ -1,15 +1,6 @@
 package com.elster.jupiter.users.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.rest.GroupInfos;
-import com.elster.jupiter.users.rest.PrivilegeInfos;
-import com.elster.jupiter.users.security.Privileges;
-import com.elster.jupiter.util.conditions.Order;
+import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -19,7 +10,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-import java.util.List;
+
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.PrivilegeInfos;
+import com.elster.jupiter.users.security.Privileges;
+import com.elster.jupiter.util.conditions.Order;
 
 @Path("/privileges")
 public class PrivilegeResource {

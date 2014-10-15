@@ -1,11 +1,11 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.Resource;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.elster.jupiter.users.Resource;
 
 @XmlRootElement
 public class ResourceInfos {

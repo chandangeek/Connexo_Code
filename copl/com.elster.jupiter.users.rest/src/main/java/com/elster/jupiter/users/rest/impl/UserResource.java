@@ -1,5 +1,23 @@
 package com.elster.jupiter.users.rest.impl;
 
+import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -11,26 +29,9 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.PrivilegeInfos;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.rest.UserInfos;
-import com.elster.jupiter.users.rest.actions.CreateUserTransaction;
-import com.elster.jupiter.users.rest.actions.DeleteUserTransaction;
 import com.elster.jupiter.users.rest.actions.UpdateUserTransaction;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
-import com.google.common.base.Optional;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.*;
-import java.util.List;
 
 @Path("/users")
 public class UserResource {
