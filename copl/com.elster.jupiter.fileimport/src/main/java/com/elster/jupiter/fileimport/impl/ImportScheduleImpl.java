@@ -96,7 +96,7 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public CronExpression getScheduleExpression() {
         if (cronExpression == null) {
-            cronExpression = cronExpressionParser.parse(cronString);
+            cronExpression = cronExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
         }
         return cronExpression;
     }
