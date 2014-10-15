@@ -72,6 +72,8 @@ Ext.define('Dsh.view.widget.HeatMap', {
             store = Ext.getStore(me.store);
 
         if (me.parent == 'connections') {
+            var combineStore = Ext.create('Dsh.store.CombineStore');
+            combineStore.load();
             me.tbar = [
                 {
                     xtype: 'container',
@@ -85,7 +87,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
                     displayField: 'localizedValue',
                     queryMode: 'local',
                     valueField: 'breakdown',
-                    store: 'Dsh.store.CombineStore',
+                    store: combineStore,
                     autoSelect: true
                 }
             ]
