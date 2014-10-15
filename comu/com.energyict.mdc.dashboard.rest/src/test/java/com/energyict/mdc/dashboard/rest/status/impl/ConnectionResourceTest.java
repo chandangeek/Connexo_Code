@@ -31,12 +31,6 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.google.common.base.Optional;
 import com.jayway.jsonpath.JsonModel;
-import org.joda.time.DateTime;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-
-import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -44,12 +38,19 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.core.Response;
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.dashboard.rest.status.ComServerStatusResource} component.
@@ -238,71 +239,37 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Instant endDate = startDate.plus(1, ChronoUnit.HOURS);
         DateTime now = DateTime.now();
         Date plannedNext = now.plusHours(2).toDate();
+
+        DeviceType deviceType = mockDeviceType();
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration();
+        ComSchedule comSchedule = mockComSchedule();
+        PartialScheduledConnectionTask partialConnectionTask = mockPartialScheduledConnectionTask();
+        ComServer comServer = mockComServer();
+        ComPort comPort = mockComPort(comServer);
+        Device device = mockDevice(deviceType, deviceConfiguration);
+        ComWindow window = mockWindow(PartialTime.fromHours(9), PartialTime.fromHours(17));
+
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
-        ComSession comSession = mock(ComSession.class);
-        Optional<ComSession> comSessionOptional = Optional.of(comSession);
-        when(connectionTask.getLastComSession()).thenReturn(comSessionOptional);
+        ComSession comSession = mockComSession(startDate, endDate);
         when(connectionTask.getId()).thenReturn(1234L);
         when(connectionTask.getName()).thenReturn("fancy name");
-        PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
-        when(partialConnectionTask.getName()).thenReturn("partial connection task name");
-        when(partialConnectionTask.getId()).thenReturn(991L);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.isDefault()).thenReturn(true);
-        Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("1234-5678-9012");
-        when(device.getName()).thenReturn("some device");
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getId()).thenReturn(1010L);
-        when(deviceType.getName()).thenReturn("device type");
-        when(device.getDeviceType()).thenReturn(deviceType);
         when(connectionTask.getDevice()).thenReturn(device);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(123123L);
-        when(deviceConfiguration.getName()).thenReturn("123123");
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
-        when(comTaskExecution1.getConnectionTask()).thenReturn((ConnectionTask) connectionTask);
-        when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
-        when(comTaskExecution1.getDevice()).thenReturn(device);
-        when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
+        ScheduledComTaskExecution comTaskExecution1 = mockScheduledComTaskExecution(comSchedule, connectionTask, device);
         when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
         when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.OnHold);
         when(connectionTask.getCurrentRetryCount()).thenReturn(7);
-        ComServer comServer = mock(ComServer.class);
-        when(comServer.getId()).thenReturn(1212L);
-        when(comServer.getName()).thenReturn("com server");
         when(connectionTask.getExecutingComServer()).thenReturn(comServer);
-        when(comSession.getNumberOfFailedTasks()).thenReturn(401);
-        when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
-        when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(3);
-        when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
-        when(comSession.getStartDate()).thenReturn(startDate);
-        when(comSession.getStopDate()).thenReturn(endDate);
         when(connectionTask.getConnectionType()).thenReturn(new OutboundTcpIpConnectionType());
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
-        ComPort comPort = mock(ComPort.class);
-        when(comPort.getName()).thenReturn("com port");
-        when(comPort.getId()).thenReturn(99L);
-        when(comPort.getComServer()).thenReturn(comServer);
         when(comSession.getComPort()).thenReturn(comPort);
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         when(connectionTask.getPlannedNextExecutionTimestamp()).thenReturn(plannedNext);
-        ComWindow window = mock(ComWindow.class);
-        when(window.getStart()).thenReturn(PartialTime.fromHours(9));
-        when(window.getEnd()).thenReturn(PartialTime.fromHours(17));
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
-        ComSchedule comSchedule = mock(ComSchedule.class);
-        when(comSchedule.getName()).thenReturn("Weekly billing");
-        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS),new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
-        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
-        when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
-        when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(new Date());
-        when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(new Date());
-        when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(new Date());
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
         when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
@@ -340,55 +307,114 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
         assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.getTime());
-    }    @Test
+    }
+
+    private ComWindow mockWindow(PartialTime start, PartialTime end) {
+        ComWindow window = mock(ComWindow.class);
+        when(window.getStart()).thenReturn(start);
+        when(window.getEnd()).thenReturn(end);
+        return window;
+    }
+
+    private ComServer mockComServer() {
+        ComServer comServer = mock(ComServer.class);
+        when(comServer.getId()).thenReturn(1212L);
+        when(comServer.getName()).thenReturn("com server");
+        return comServer;
+    }
+
+    private ComPort mockComPort(ComServer comServer) {
+        ComPort comPort = mock(ComPort.class);
+        when(comPort.getName()).thenReturn("com port");
+        when(comPort.getId()).thenReturn(99L);
+        when(comPort.getComServer()).thenReturn(comServer);
+        return comPort;
+    }
+
+    private PartialScheduledConnectionTask mockPartialScheduledConnectionTask() {
+        PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
+        when(partialConnectionTask.getName()).thenReturn("partial connection task name");
+        when(partialConnectionTask.getId()).thenReturn(991L);
+        return partialConnectionTask;
+    }
+
+    private Device mockDevice(DeviceType deviceType, DeviceConfiguration deviceConfiguration) {
+        Device device = mock(Device.class);
+        when(device.getmRID()).thenReturn("1234-5678-9012");
+        when(device.getName()).thenReturn("some device");
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        return device;
+    }
+
+    private ScheduledComTaskExecution mockScheduledComTaskExecution(ComSchedule comSchedule, ConnectionTask connectionTask, Device device) {
+        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        when(comTaskExecution1.getConnectionTask()).thenReturn(connectionTask);
+        when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
+        when(comTaskExecution1.getDevice()).thenReturn(device);
+        when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
+        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
+        when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(new Date());
+        when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(new Date());
+        when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(new Date());
+        return comTaskExecution1;
+    }
+
+    private DeviceConfiguration mockDeviceConfiguration() {
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(123123L);
+        when(deviceConfiguration.getName()).thenReturn("123123");
+        return deviceConfiguration;
+    }
+
+    private ComSession mockComSession(Instant startDate, Instant endDate) {
+        ComSession comSession = mock(ComSession.class);
+        when(comSession.getNumberOfFailedTasks()).thenReturn(401);
+        when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
+        when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(3);
+        when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
+        when(comSession.getStartDate()).thenReturn(startDate);
+        when(comSession.getStopDate()).thenReturn(endDate);
+        return comSession;
+    }
+
+    @Test
 
     public void testCommunicationTaskJsonBinding() throws Exception {
         long connectionTaskId = 30L;
 
         Instant startDate = Instant.ofEpochMilli(1412771995988L);
+        Instant endDate = startDate.plus(1, ChronoUnit.HOURS);
         Date lastExecStart = Date.from(startDate.plus(2, ChronoUnit.HOURS));
         Date lastSuccess = Date.from(startDate.plus(3, ChronoUnit.HOURS));
         DateTime now = DateTime.now();
         Date plannedNext = now.plusHours(2).toDate();
+
+        ComSession comSession = mockComSession(startDate, endDate);
+        DeviceType deviceType = mockDeviceType();
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration();
+        Device device = mockDevice(deviceType, deviceConfiguration);
+
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(connectionTaskId);
-        Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("1234-5678-9012");
-        when(device.getName()).thenReturn("some device");
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getId()).thenReturn(1010L);
-        when(deviceType.getName()).thenReturn("device type");
-        when(device.getDeviceType()).thenReturn(deviceType);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(123123L);
-        when(deviceConfiguration.getName()).thenReturn("123123");
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         ComTask comTask1 = mock(ComTask.class);
         when(comTask1.getName()).thenReturn("Read all");
         ComTask comTask2 = mock(ComTask.class);
         when(comTask2.getName()).thenReturn("Basic check");
-        when(comTaskExecution1.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        when(comTaskExecution1.getConnectionTask()).thenReturn((ConnectionTask) connectionTask);
-        when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
-        when(comTaskExecution1.getDevice()).thenReturn(device);
-        when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
-        ComSchedule comSchedule = mock(ComSchedule.class);
-        when(comSchedule.getName()).thenReturn("Weekly billing");
-        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS), new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
-        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
-        when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
-        when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(lastExecStart);
-        when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(lastSuccess);
-        when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(plannedNext);
-        Finder<ComTaskExecution> comTaskExecutionFinder = mockFinder(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        ComSchedule comSchedule = mockComSchedule();
+        ScheduledComTaskExecution comTaskExecution1 = mockScheduledComTaskExecution(lastExecStart, lastSuccess, plannedNext, connectionTask, comSchedule, Arrays.asList(comTask1, comTask2));
+
+        ComTaskExecutionSession comTaskExecutionSession1 = mock(ComTaskExecutionSession.class);
+        when(comTaskExecutionSession1.getComTaskExecution()).thenReturn(comTaskExecution1);
+        when(comTaskExecutionSession1.getDevice()).thenReturn(device);
+        when(comTaskExecutionSession1.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
+        when(comSession.getComTaskExecutionSessions()).thenReturn(Arrays.asList(comTaskExecutionSession1));
         when(connectionTaskService.findConnectionTask(30L)).thenReturn(Optional.of(connectionTask));
-        when(communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutionFinder);
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
-        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
-        String response = target("/connections/"+connectionTaskId+"/communications").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/connections/"+connectionTaskId+"/latestcommunications").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
 
@@ -418,7 +444,35 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Boolean>get("$.communications[0].alwaysExecuteOnInbound")).isEqualTo(false);
         assertThat(jsonModel.<Object>get("$.communications[0].connectionTask")).isNull();
     }
-    
+
+    private ScheduledComTaskExecution mockScheduledComTaskExecution(Date lastExecStart, Date lastSuccess, Date plannedNext, ConnectionTask connectionTask, ComSchedule comSchedule, List<ComTask> comTasks) {
+        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        when(comTaskExecution1.getComTasks()).thenReturn(comTasks);
+        when(comTaskExecution1.getConnectionTask()).thenReturn(connectionTask);
+        when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
+        when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
+        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
+        when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(lastExecStart);
+        when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(lastSuccess);
+        when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(plannedNext);
+        return comTaskExecution1;
+    }
+
+    private DeviceType mockDeviceType() {
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(1010L);
+        when(deviceType.getName()).thenReturn("device type");
+        return deviceType;
+    }
+
+    private ComSchedule mockComSchedule() {
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(comSchedule.getName()).thenReturn("Weekly billing");
+        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS), new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
+        return comSchedule;
+    }
+
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
 

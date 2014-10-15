@@ -9,14 +9,13 @@ import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.security.Privileges;
@@ -50,27 +49,25 @@ public class ConnectionResource {
     public static final LongAdapter LONG_ADAPTER = new LongAdapter();
 
     private final ConnectionTaskService connectionTaskService;
-    private final CommunicationTaskService communicationTaskService;
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
     private final ExceptionFactory exceptionFactory;
-    private final ComTaskExecutionInfoFactory comTaskExecutionInfoFactory;
     private final MeteringGroupsService meteringGroupsService;
+    private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory) {
         super();
         this.connectionTaskService = connectionTaskService;
-        this.communicationTaskService = communicationTaskService;
         this.engineModelService = engineModelService;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.connectionTaskInfoFactory = connectionTaskInfoFactory;
         this.exceptionFactory = exceptionFactory;
-        this.comTaskExecutionInfoFactory = comTaskExecutionInfoFactory;
         this.meteringGroupsService = meteringGroupsService;
+        this.comTaskExecutionSessionInfoFactory = comTaskExecutionSessionInfoFactory;
     }
 
     @GET
@@ -188,7 +185,7 @@ public class ConnectionResource {
     }
 
     @GET
-    @Path("/{connectionId}/communications")
+    @Path("/{connectionId}/latestcommunications")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public PagedInfoList getCommunications(@PathParam("connectionId") long connectionId, @BeanParam QueryParameters queryParameters) {
@@ -196,8 +193,13 @@ public class ConnectionResource {
         if (!connectionTaskOptional.isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_TASK, connectionId);
         }
-        List<ComTaskExecution> comTaskExecutions = communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTaskOptional.get()).from(queryParameters).find();
-        return PagedInfoList.asJson("communications",comTaskExecutionInfoFactory.from(comTaskExecutions),queryParameters);
+        Optional<ComSession> lastComSessionOptional = connectionTaskOptional.get().getLastComSession();
+        List<ComTaskExecutionSession> comTaskExecutionSessions = new ArrayList<>();
+        if (lastComSessionOptional.isPresent()) {
+            comTaskExecutionSessions.addAll(lastComSessionOptional.get().getComTaskExecutionSessions());
+        }
+
+        return PagedInfoList.asJson("communications",comTaskExecutionSessionInfoFactory.from(comTaskExecutionSessions),queryParameters);
     }
 
 }
