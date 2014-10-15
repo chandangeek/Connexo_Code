@@ -95,13 +95,14 @@ public class RecurrentTaskImplTest {
 
     @Test
     public void testCreateTaskOccurrence() {
+        recurrentTask.updateNextExecution();
 
         TaskOccurrence taskOccurrence = recurrentTask.createTaskOccurrence();
 
         verify(taskOccurrenceFactory).persist(taskOccurrence);
         assertThat(taskOccurrence.getPayLoad()).isEqualTo(PAYLOAD);
         assertThat(taskOccurrence.getRecurrentTask()).isEqualTo(recurrentTask);
-        assertThat(taskOccurrence.getTriggerTime()).isEqualTo(NOW);
+        assertThat(taskOccurrence.getTriggerTime()).isEqualTo(NEXT);
     }
 
     @Test
