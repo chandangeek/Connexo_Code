@@ -1,6 +1,7 @@
 package com.elster.jupiter.time.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -16,18 +17,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
-@Component(name = "com.energyict.time.extjs", service = {TranslationKeyProvider.class},
+@Component(name = "com.elster.jupiter.time.extjs", service = {TranslationKeyProvider.class},
         property = {"name=" + TimeUiInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
 public class TimeUiInstaller implements TranslationKeyProvider {
 
     public static final String COMPONENT_NAME = "TME";
-    public static final String HTTP_RESOURCE_ALIAS = "/time";
+    public static final String HTTP_RESOURCE_ALIAS = "/tme";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/time";
     private static final Logger LOGGER = Logger.getLogger(TimeUiInstaller.class.getName());
     private volatile ServiceRegistration<HttpResource> registration;
 
     public TimeUiInstaller() {
-
     }
 
     @Activate
@@ -62,4 +62,5 @@ public class TimeUiInstaller implements TranslationKeyProvider {
         }
         return null;
     }
+
 }
