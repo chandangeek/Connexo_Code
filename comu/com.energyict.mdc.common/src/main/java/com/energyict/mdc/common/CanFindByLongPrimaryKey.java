@@ -1,6 +1,6 @@
 package com.energyict.mdc.common;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Models the behavior of a component that is capable of finding objects
