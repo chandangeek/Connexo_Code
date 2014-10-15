@@ -128,7 +128,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
             assertEquals("Expecting the VerifyTimeDifferenceCommand to have 1 issue.", 1, basicCheckCommand.getVerifyTimeDifferenceCommand().getIssues().size());
             assertEquals("Expecting the VerifyTimeDifferenceCommand to have 1 problem.", 1, basicCheckCommand.getVerifyTimeDifferenceCommand().getProblems().size());
             assertEquals("Expecting the VerifyTimeDifferenceCommand to have no warnings.", 0, basicCheckCommand.getVerifyTimeDifferenceCommand().getWarnings().size());
-            assertEquals("Expecting a time difference of 60s.", TimeDuration.seconds(60), basicCheckCommand.getVerifyTimeDifferenceCommand().getTimeDifference());
+            assertEquals("Expecting a time difference of 60s.", TimeDuration.seconds(60), basicCheckCommand.getVerifyTimeDifferenceCommand().getTimeDifference().get());
         }
     }
 

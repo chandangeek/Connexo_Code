@@ -116,7 +116,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         verify(deviceProtocol).getTime();
         // time difference is between boundaries, should set the frozenClock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
-        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference());
+        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference().get());
     }
 
     @Test
@@ -264,7 +264,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // time difference is between boundaries, should set the frozenClock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // verify the timedifference
-        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference());
+        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference().get());
     }
 
     @Test
@@ -309,7 +309,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // time difference is between boundaries, should set the Clock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // verify the timedifference
-        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference());
+        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference().get());
     }
 
     @Test
@@ -334,7 +334,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // time difference is between boundaries, should set the Clock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // verify the timedifference
-        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference());
+        Assert.assertEquals(new TimeDuration((int) timeDifferenceInMillis, TimeDuration.TimeUnit.MILLISECONDS), clockCommand.getTimeDifference().get());
     }
 
     @Test
