@@ -23,7 +23,7 @@ public class FlagsReadingInfo extends ReadingInfo {
 
     @Override
     protected BaseReading createNew(Register register) {
-        BaseReading reading = new ReadingImpl(register.getReadingType().getMRID(), BigDecimal.valueOf(this.value), this.id == null ? this.timeStamp : new Date(this.id));
+        BaseReading reading = new ReadingImpl(register.getReadingType().getMRID(), BigDecimal.valueOf(this.value), this.timeStamp);
         return reading;
     }
 }
