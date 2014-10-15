@@ -5,7 +5,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;

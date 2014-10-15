@@ -29,7 +29,7 @@ import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;

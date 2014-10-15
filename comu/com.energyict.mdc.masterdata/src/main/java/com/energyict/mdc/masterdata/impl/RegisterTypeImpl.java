@@ -4,7 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;

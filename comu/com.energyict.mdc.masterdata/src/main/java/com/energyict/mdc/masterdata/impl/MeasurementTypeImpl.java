@@ -10,25 +10,28 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.time.Clock;
+
+import java.time.Clock;
+import java.time.Instant;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableMap;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -67,7 +70,7 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
     private boolean cumulative;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    private Date modificationDate;
+    private Instant modificationDate;
     @Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_TIMEOFUSE_TOO_SMALL + "}")
     private int timeOfUse;
 
@@ -89,7 +92,7 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
 
     @Override
     public void save () {
-        this.modificationDate = this.clock.now();
+        this.modificationDate = this.clock.instant();
         super.save();
         this.synchronizeOldValues();
     }
@@ -221,10 +224,10 @@ public abstract class MeasurementTypeImpl extends PersistentNamedObject<Measurem
     @Override
     public void setUnit(Unit unit) {
         Optional<Phenomenon> phenomenon = this.masterDataService.findPhenomenonByUnit(unit);
-        setPhenomenon(phenomenon.orNull());
+        setPhenomenon(phenomenon.orElse(null));
     }
 
-    public Date getModificationDate() {
+    public Instant getModificationDate() {
         return this.modificationDate;
     }
 

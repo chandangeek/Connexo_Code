@@ -9,19 +9,18 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import java.time.Instant;
 import java.util.Date;
 
 import static com.elster.jupiter.util.Checks.is;
-
-/**
- * @author Karel
- */
 
 public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements Phenomenon {
 
@@ -83,7 +82,7 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
     private Unit unit;
     @Size(max= StringColumnLengthConstraints.PHENOMENON_MEASUREMENT_CODE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String measurementCode;
-    private Date modificationDate;
+    private Instant modificationDate;
 
     @Inject
     protected PhenomenonImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MasterDataService masterDataService) {

@@ -1,10 +1,11 @@
 package com.energyict.mdc.masterdata.impl;
 
+import java.time.Instant;
+
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 
@@ -17,7 +18,7 @@ class RegisterTypeInGroup {
     private Reference<RegisterType> registerType = ValueReference.absent();
     @IsPresent
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
-    private UtcInstant createTime;
+    private Instant createTime;
 
     @Inject
     RegisterTypeInGroup(DataModel dataModel) {

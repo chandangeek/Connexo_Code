@@ -23,7 +23,7 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.*;
 import org.junit.rules.TestRule;

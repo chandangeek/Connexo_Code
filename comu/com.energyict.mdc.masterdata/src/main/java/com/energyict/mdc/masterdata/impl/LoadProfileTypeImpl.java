@@ -7,7 +7,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -20,12 +19,17 @@ import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.google.common.base.Optional;
+
+import java.util.Optional;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -76,7 +80,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private long oldIntervalSeconds;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    private Date modificationDate;
+    private Instant modificationDate;
     private List<LoadProfileTypeChannelTypeUsageImpl> channelTypeUsages = new ArrayList<>();
 
     private Clock clock;
@@ -110,7 +114,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
 
     @Override
     public void save () {
-        this.modificationDate = this.clock.now();
+        this.modificationDate = this.clock.instant();
         if(intervalChanged){
             updateChannelTypeUsagesAccordingToNewInterval();
             this.intervalChanged = false;

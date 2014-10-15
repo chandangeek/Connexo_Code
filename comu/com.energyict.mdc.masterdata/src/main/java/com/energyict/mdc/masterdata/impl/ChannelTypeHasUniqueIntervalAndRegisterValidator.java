@@ -3,7 +3,7 @@ package com.energyict.mdc.masterdata.impl;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

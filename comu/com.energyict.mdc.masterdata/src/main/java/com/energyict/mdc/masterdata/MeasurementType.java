@@ -5,6 +5,8 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
+
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -78,7 +80,7 @@ public interface MeasurementType extends HasId {
      *
      * @return the last modification date
      */
-    public Date getModificationDate();
+    public Instant getModificationDate();
 
     public int getTimeOfUse();
 

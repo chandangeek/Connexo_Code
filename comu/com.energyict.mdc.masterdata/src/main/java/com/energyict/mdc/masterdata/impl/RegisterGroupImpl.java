@@ -4,27 +4,30 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
+
 
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
-    private Date modificationDate;
+    private Instant modificationDate;
     private List<RegisterTypeInGroup> registerTypeInGroups = new ArrayList<>();
 
     private final Clock clock;
@@ -50,7 +53,7 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     @Override
     public void save () {
-        this.modificationDate = this.clock.now();
+        this.modificationDate = this.clock.instant();
         super.save();
     }
 

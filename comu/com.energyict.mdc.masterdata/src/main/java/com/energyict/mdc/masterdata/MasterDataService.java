@@ -6,7 +6,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.List;
 

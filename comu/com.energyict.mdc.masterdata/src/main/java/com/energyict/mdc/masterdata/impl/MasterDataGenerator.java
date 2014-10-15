@@ -12,7 +12,7 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.ReadingTypeInformation;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.HashSet;
