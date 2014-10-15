@@ -17,7 +17,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,8 +110,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Override
     public Optional<UsagePointGroup> findUsagePointGroup(String mRID) {
-        List<UsagePointGroup> found = dataModel.mapper(UsagePointGroup.class).select(Operator.EQUAL.compare("mRID", mRID));
-        return found.isEmpty() ? Optional.<UsagePointGroup>absent() : Optional.of(found.get(0));
+    	return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();
     }
 
     @Override
@@ -163,8 +162,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Override
     public Optional<EndDeviceGroup> findEndDeviceGroup(String mRID) {
-        List<EndDeviceGroup> found = dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("mRID", mRID));
-        return found.isEmpty() ? Optional.<EndDeviceGroup>absent() : Optional.of(found.get(0));
+        return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();       
     }
 
     @Reference

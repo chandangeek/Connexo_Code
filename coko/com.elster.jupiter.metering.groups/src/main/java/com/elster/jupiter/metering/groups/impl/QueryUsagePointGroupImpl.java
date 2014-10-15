@@ -8,12 +8,14 @@ import com.elster.jupiter.metering.groups.impl.query.QueryBuilder;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.IntermittentInterval;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
+
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements QueryUsagePointGroup {
@@ -31,23 +33,23 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
     }
 
     @Override
-    public List<UsagePoint> getMembers(Date date) {
+    public List<UsagePoint> getMembers(Instant instant) {
         return meteringService.getUsagePointQuery().select(getCondition());
     }
 
     @Override
-    public List<UsagePointMembership> getMembers(Interval interval) {
-        IntermittentInterval intervals = new IntermittentInterval(interval);
+    public List<UsagePointMembership> getMembers(Range<Instant> range) {
+        RangeSet<Instant> ranges = ImmutableRangeSet.of(range);
         List<UsagePointMembership> memberships = new ArrayList<>();
-        for (UsagePoint usagePoint : getMembers((Date) null)) {
-            memberships.add(new UsagePointMembershipImpl(usagePoint, intervals));
+        for (UsagePoint usagePoint : getMembers((Instant) null)) {
+            memberships.add(new UsagePointMembershipImpl(usagePoint, ranges));
         }
         return memberships;
     }
 
     @Override
-    public boolean isMember(UsagePoint usagePoint, Date date) {
-        return getMembers(date).contains(usagePoint);
+    public boolean isMember(UsagePoint usagePoint, Instant instant) {
+        return getMembers(instant).contains(usagePoint);
     }
 
     public void setCondition(Condition condition) {

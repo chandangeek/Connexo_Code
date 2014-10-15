@@ -2,9 +2,9 @@ package com.elster.jupiter.metering.groups;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 public interface UsagePointGroup extends IdentifiedObject {
@@ -17,11 +17,11 @@ public interface UsagePointGroup extends IdentifiedObject {
      */
     String getType();
 
-    List<UsagePoint> getMembers(Date date);
+    List<UsagePoint> getMembers(Instant instant);
 
-    List<UsagePointMembership> getMembers(Interval interval);
+    List<UsagePointMembership> getMembers(Range<Instant> range);
 
-    boolean isMember(UsagePoint usagePoint, Date date);
+    boolean isMember(UsagePoint usagePoint, Instant instant);
 
     void setName(String name);
 

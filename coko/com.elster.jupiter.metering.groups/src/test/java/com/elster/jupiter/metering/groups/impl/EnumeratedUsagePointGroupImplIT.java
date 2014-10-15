@@ -23,11 +23,15 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.util.Optional;
+
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -42,7 +46,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnumeratedUsagePointGroupImplIT {
@@ -119,16 +122,16 @@ public class EnumeratedUsagePointGroupImplIT {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             EnumeratedUsagePointGroup enumeratedUsagePointGroup = meteringGroupsService.createEnumeratedUsagePointGroup("Mine");
             enumeratedUsagePointGroup.setMRID("mine");
-            enumeratedUsagePointGroup.add(usagePoint, Interval.sinceEpoch());
+            enumeratedUsagePointGroup.add(usagePoint, Range.atLeast(Instant.EPOCH));
             enumeratedUsagePointGroup.save();
             ctx.commit();
         }
 
         Optional<UsagePointGroup> found = meteringGroupsService.findUsagePointGroup("mine");
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(EnumeratedUsagePointGroup.class);
         EnumeratedUsagePointGroup group = (EnumeratedUsagePointGroup) found.get();
-        List<UsagePoint> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate());
+        List<UsagePoint> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate().toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(usagePoint.getId());
     }

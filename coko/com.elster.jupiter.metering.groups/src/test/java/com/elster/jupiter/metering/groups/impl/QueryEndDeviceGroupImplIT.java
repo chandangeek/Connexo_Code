@@ -25,7 +25,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Operator;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -43,8 +43,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueryEndDeviceGroupImplIT {
@@ -136,10 +134,10 @@ public class QueryEndDeviceGroupImplIT {
         }
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("mine");
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(QueryEndDeviceGroup.class);
         QueryEndDeviceGroup group = (QueryEndDeviceGroup) found.get();
-        List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate());
+        List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate().toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
     }

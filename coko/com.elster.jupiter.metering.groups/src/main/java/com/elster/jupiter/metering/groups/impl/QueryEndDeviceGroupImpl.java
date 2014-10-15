@@ -11,13 +11,15 @@ import com.elster.jupiter.metering.groups.impl.query.SimpleConditionOperation;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.IntermittentInterval;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEndDeviceGroup {
@@ -37,23 +39,23 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     }
 
     @Override
-    public List<EndDevice> getMembers(Date date) {
-        return meteringGroupService.getEndDeviceQueryProvider(getQueryProviderName()).findEndDevices(date, getCondition());
+    public List<EndDevice> getMembers(Instant instant) {
+        return meteringGroupService.getEndDeviceQueryProvider(getQueryProviderName()).findEndDevices(instant, getCondition());
     }
 
     @Override
-    public List<EndDeviceMembership> getMembers(Interval interval) {
-        IntermittentInterval intervals = new IntermittentInterval(interval);
+    public List<EndDeviceMembership> getMembers(Range<Instant> range) {
+        RangeSet<Instant> ranges = ImmutableRangeSet.of(range);
         List<EndDeviceMembership> memberships = new ArrayList<>();
-        for (EndDevice endDevice : getMembers((Date) null)) {
-            memberships.add(new EndDeviceMembershipImpl(endDevice, intervals));
+        for (EndDevice endDevice : getMembers((Instant) null)) {
+            memberships.add(new EndDeviceMembershipImpl(endDevice, ranges));
         }
         return memberships;
     }
 
     @Override
-    public boolean isMember(EndDevice endDevice, Date date) {
-        return getMembers(date).contains(endDevice);
+    public boolean isMember(EndDevice endDevice, Instant instant) {
+        return getMembers(instant).contains(endDevice);
     }
 
     public void setCondition(Condition condition) {

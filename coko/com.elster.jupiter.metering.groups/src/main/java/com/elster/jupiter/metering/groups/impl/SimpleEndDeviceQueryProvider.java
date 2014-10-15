@@ -6,11 +6,13 @@ import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Date;
+
+import java.time.Instant;
 import java.util.List;
 
 @Component(name = "com.elster.jupiter.metering.groups.impl.SimpleEndDeviceQueryProvider", service = {EndDeviceQueryProvider.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
@@ -32,11 +34,11 @@ public class SimpleEndDeviceQueryProvider implements EndDeviceQueryProvider {
 
     @Override
     public List<EndDevice> findEndDevices(Condition conditions) {
-        return findEndDevices(new Date(), conditions);
+        return findEndDevices(Instant.now(), conditions);
     }
 
     @Override
-    public List<EndDevice> findEndDevices(Date date, Condition conditions) {
+    public List<EndDevice> findEndDevices(Instant instant, Condition conditions) {
         return meteringService.getEndDeviceQuery().select(conditions);
     }
 }

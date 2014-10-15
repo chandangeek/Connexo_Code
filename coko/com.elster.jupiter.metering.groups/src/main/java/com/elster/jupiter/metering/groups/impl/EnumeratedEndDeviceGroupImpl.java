@@ -6,18 +6,25 @@ import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
-import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,12 +59,12 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         Map<EndDevice, EndDeviceMembershipImpl> map = new HashMap<>();
         for (EntryImpl entry : entries) {
             if (!map.containsKey(entry.getEndDevice())) {
-                EndDeviceMembershipImpl newMembership = new EndDeviceMembershipImpl(entry.getEndDevice(), IntermittentInterval.NEVER);
+                EndDeviceMembershipImpl newMembership = new EndDeviceMembershipImpl(entry.getEndDevice(), ImmutableRangeSet.of());
                 map.put(entry.getEndDevice(), newMembership);
                 memberships.add(newMembership);
             }
             EndDeviceMembershipImpl membership = map.get(entry.getEndDevice());
-            membership.addInterval(entry.getInterval());
+            membership.addRange(entry.getRange());
         }
 
     }
@@ -86,17 +93,17 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
             this.meteringService = meteringService;
         }
 
-        EntryImpl init(EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Interval interval) {
+        EntryImpl init(EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
             this.endDeviceGroup = endDeviceGroup;
             this.groupId = endDeviceGroup.getId();
             this.endDevice = endDevice;
             this.endDeviceId = endDevice.getId();
-            this.interval = interval;
+            this.interval = Interval.of(Effectivity.requireValid(range));
             return this;
         }
 
-        static EntryImpl from(DataModel dataModel, EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Interval interval) {
-            return dataModel.getInstance(EntryImpl.class).init(endDeviceGroup, endDevice, interval);
+        static EntryImpl from(DataModel dataModel, EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
+            return dataModel.getInstance(EntryImpl.class).init(endDeviceGroup, endDevice, range);
         }
 
         @Override
@@ -141,14 +148,14 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     }
 
     @Override
-    public Entry add(EndDevice endDevice, Interval interval) {
+    public Entry add(EndDevice endDevice, Range<Instant> range) {
         EndDeviceMembershipImpl membership = forEndDevice(endDevice);
         if (membership == null) {
-            membership = new EndDeviceMembershipImpl(endDevice, IntermittentInterval.NEVER);
+            membership = new EndDeviceMembershipImpl(endDevice, ImmutableRangeSet.of());
             getMemberships().add(membership);
         }
-        membership.addInterval(interval);
-        EntryImpl entry = EntryImpl.from(dataModel, this, endDevice, membership.resultingInterval(interval));
+        membership.addRange(range);
+        EntryImpl entry = EntryImpl.from(dataModel, this, endDevice, membership.resultingRange(range));
         getEntries().add(entry);
         return entry;
     }
@@ -156,10 +163,10 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     @Override
     public void remove(Entry entry) {
         EndDeviceMembershipImpl membership = forEndDevice(entry.getEndDevice());
-        Interval interval = membership.getIntervals().intervalAt(entry.getInterval().getStart());
-        if (interval != null && interval.equals(entry.getInterval())) {
-            membership.removeInterval(interval);
-            if (membership.getIntervals().isEmpty()) {
+        Range<Instant> range = membership.getRanges().rangeContaining(entry.getRange().lowerEndpoint());
+        if (range != null && range.equals(entry.getRange())) {
+            membership.removeRange(range);
+            if (membership.getRanges().isEmpty()) {
                 getMemberships().remove(membership);
             }
         }
@@ -183,8 +190,8 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
             DiffList<Entry> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
             entryDiff.clear();
             for (EndDeviceMembership membership : memberships) {
-                for (Interval interval : membership.getIntervals().getIntervals()) {
-                    entryDiff.add(EntryImpl.from(dataModel, this, membership.getEndDevice(), interval));
+                for (Range<Instant> range : membership.getRanges().asRanges()) {
+                    entryDiff.add(EntryImpl.from(dataModel, this, membership.getEndDevice(), range));
                 }
             }
             entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
@@ -203,43 +210,41 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     }
 
     @Override
-    public List<EndDevice> getMembers(final Date date) {
+    public List<EndDevice> getMembers(final Instant instant) {
         return FluentIterable.from(getMemberships())
-                .filter(Active.at(date))
+                .filter(Active.at(instant))
                 .transform(To.END_DEVICE)
                 .toList();
     }
 
     @Override
-    public List<EndDeviceMembership> getMembers(Interval interval) {
-        final IntermittentInterval intervalScope = IntermittentInterval.from(interval);
+    public List<EndDeviceMembership> getMembers(Range<Instant> range) {
         return FluentIterable.from(getMemberships())
-                .filter(Active.during(interval))
+                .filter(Active.during(range))
                 .transform(new Function<EndDeviceMembershipImpl, EndDeviceMembership>() {
                     @Override
                     public EndDeviceMembership apply(EndDeviceMembershipImpl input) {
-                        return input.withIntervals(input.getIntervals().intersection(intervalScope));
+                        return input.withRanges(input.getRanges().subRangeSet(range));
                     }
                 })
                 .toList();
     }
 
     @Override
-    public boolean isMember(final EndDevice endDevice, Date date) {
+    public boolean isMember(final EndDevice endDevice, Instant instant) {
         return !FluentIterable.from(getMemberships())
                 .filter(With.endDevice(endDevice))
-                .filter(Active.at(date))
+                .filter(Active.at(instant))
                 .isEmpty();
     }
 
     @Override
-    public void endMembership(EndDevice endDevice, Date date) {
-        Optional<EndDeviceMembershipImpl> first = FluentIterable.from(getMemberships())
-                .filter(With.endDevice(endDevice))
-                .filter(Active.at(date)).first();
-        if (first.isPresent()) {
-            first.get().removeInterval(Interval.startAt(date));
-        }
+    public void endMembership(EndDevice endDevice, Instant instant) {
+    	getMemberships().stream()
+        	.filter( member -> member.getEndDevice().equals(endDevice))
+            .filter( member -> member.getRanges().contains(instant))
+            .findFirst()
+            .ifPresent(member -> member.removeRange(Range.atLeast(instant)));
     }
 
     private EndDeviceMembershipImpl forEndDevice(EndDevice endDevice) {
@@ -250,39 +255,39 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     private static abstract class Active implements Predicate<EndDeviceMembershipImpl> {
 
-        public static Active at(Date date) {
-            return new ActiveAt(date);
+        public static Active at(Instant instant) {
+            return new ActiveAt(instant);
         }
 
-        public static Active during(Interval interval) {
-            return new ActiveDuring(interval);
+        public static Active during(Range<Instant> range) {
+            return new ActiveDuring(range);
         }
     }
 
     private static class ActiveDuring extends Active {
-        private final Interval interval;
+        private final Range<Instant> range;
 
-        private ActiveDuring(Interval interval) {
-            this.interval = interval;
+        private ActiveDuring(Range<Instant> range) {
+            this.range = range;
         }
 
         @Override
         public boolean apply(EndDeviceMembershipImpl membership) {
-            return membership != null && membership.getIntervals().overlaps(IntermittentInterval.from(interval));
+            return membership != null && !membership.getRanges().subRangeSet(range).isEmpty();
         }
     }
 
 
     private static class ActiveAt extends Active {
-        private final Date date;
+        private final Instant instant;
 
-        private ActiveAt(Date date) {
-            this.date = date;
+        private ActiveAt(Instant instant) {
+            this.instant = instant;
         }
 
         @Override
         public boolean apply(EndDeviceMembershipImpl membership) {
-            return membership != null && membership.getIntervals().contains(date);
+            return membership != null && membership.getRanges().contains(instant);
         }
     }
 
