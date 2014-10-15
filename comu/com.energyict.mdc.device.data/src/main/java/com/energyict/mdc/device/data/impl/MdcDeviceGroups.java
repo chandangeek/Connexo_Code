@@ -29,7 +29,7 @@ import static com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider.DE
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-10 (12:08)
  */
-@Component(name = "com.elster.jupiter.playground.devicegroups", service = MdcDeviceGroups.class,
+@Component(name = "com.energyict.mdc.device.data.mdcgroups", service = MdcDeviceGroups.class,
         property = {
                 "osgi.command.scope=mdcgroups",
                 "osgi.command.function=create",
@@ -43,6 +43,7 @@ public class MdcDeviceGroups {
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile DeviceService deviceService;
 
+    @SuppressWarnings("unused")
     public void create(String name, String mRID, String... fieldsAndValues) {
         this.transactionService.execute(() -> this.doCreate(name, mRID, fieldsAndValues));
     }
