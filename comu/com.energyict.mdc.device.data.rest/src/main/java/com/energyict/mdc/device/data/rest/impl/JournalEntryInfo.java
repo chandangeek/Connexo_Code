@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class JournalEntryInfo {
     public Date timestamp;
     public String details;
+    public String errorDetails;
     @XmlJavaTypeAdapter(LogLevelAdapter.class)
     public ComServer.LogLevel logLevel;
 }
