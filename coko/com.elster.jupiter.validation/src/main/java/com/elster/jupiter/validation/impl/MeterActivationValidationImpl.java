@@ -177,6 +177,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         getMeterActivation().getChannels().stream()
                 .filter(c -> c.getReadingTypes().stream().map(ReadingType::getMRID).anyMatch(readingTypeCode::equals))
                 .forEach(c -> validateChannel(c, interval));
+        save();
     }
 
     // given interval is interpreted as consumption interval for cumulative
@@ -325,6 +326,8 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     @Override
     public void activate() {
         setActive(true);
+        getMeterActivation().getChannels().stream()
+                .forEach(c -> getChannelValidation(c).or(() -> addChannelValidation(c)));
     }
 
     @Override

@@ -183,6 +183,14 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
             if (!meterValidation.get().getActivationStatus()) {
                 meterValidation.get().setActivationStatus(true);
                 meterValidation.get().save();
+                Optional<MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
+                if (currentMeterActivation.isPresent()) {
+                    getUpdatedMeterActivationValidations(currentMeterActivation.get()).stream()
+                            .forEach(m -> {
+                                m.activate();
+                                m.save();
+                            });
+                }
             } // else already active
         } else {
             createMeterValidation(meter, true);
