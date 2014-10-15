@@ -4,7 +4,7 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
