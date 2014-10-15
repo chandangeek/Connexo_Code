@@ -19,6 +19,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -55,10 +59,9 @@ public class DefaultRecurrentTaskBuilderTest {
         });
 
         defaultRecurrentTaskBuilder = new DefaultRecurrentTaskBuilder(dataModel, cronExpressionParser);
-
         when(clock.instant()).thenReturn(NOW);
-        when(cronExpressionParser.parse(CRON_STRING)).thenReturn(cronExpression);
-        when(cronExpression.nextAfter(NOW)).thenReturn(FIRST);
+        when(cronExpressionParser.parse(CRON_STRING)).thenReturn(Optional.of(cronExpression));
+        when(cronExpression.nextOccurrence(ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()))).thenReturn(ZonedDateTime.ofInstant(FIRST, ZoneId.systemDefault()));
     }
 
     @After
@@ -69,7 +72,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testCronStringAndScheduleImmediately() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();
@@ -81,7 +84,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testCronString() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();
@@ -94,7 +97,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testName() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();
@@ -106,7 +109,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testPayload() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();
@@ -118,7 +121,7 @@ public class DefaultRecurrentTaskBuilderTest {
     public void testDestination() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
                 .scheduleImmediately()
-                .setCronExpression(CRON_STRING)
+                .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
                 .build();

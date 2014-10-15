@@ -4,30 +4,40 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
-import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 /**
  * RecurrentTaskBuilder implementation that builds instances of RecurrentTaskImpl
  */
 class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
 
-    private final CronExpressionParser cronExpressionParser;
+    private final ScheduleExpressionParser scheduleExpressionParser;
 
     private String cronString;
+    private ScheduleExpression scheduleExpression;
     private String name;
     private String payload;
     private DestinationSpec destination;
     private boolean scheduleImmediately;
     private final DataModel dataModel;
 
-    public DefaultRecurrentTaskBuilder(DataModel dataModel, CronExpressionParser cronExpressionParser) {
+    public DefaultRecurrentTaskBuilder(DataModel dataModel, ScheduleExpressionParser scheduleExpressionParser) {
         this.dataModel = dataModel;
-        this.cronExpressionParser = cronExpressionParser;
+        this.scheduleExpressionParser = scheduleExpressionParser;
     }
 
     @Override
-    public RecurrentTaskBuilder setCronExpression(String expression) {
+    public RecurrentTaskBuilder setScheduleExpressionString(String expression) {
         cronString = expression;
+        scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
+        return this;
+    }
+
+    @Override
+    public RecurrentTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression) {
+        cronString = scheduleExpression.encoded();
+        this.scheduleExpression = scheduleExpression;
         return this;
     }
 
@@ -57,7 +67,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
 
     @Override
     public RecurrentTask build() {
-        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, cronExpressionParser.parse(cronString), destination, payload);
+        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, scheduleExpression, destination, payload);
         if (scheduleImmediately) {
             recurrentTask.updateNextExecution();
         }

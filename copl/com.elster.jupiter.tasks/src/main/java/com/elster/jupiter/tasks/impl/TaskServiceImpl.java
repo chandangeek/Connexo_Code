@@ -11,11 +11,13 @@ import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.TaskServiceAlreadyLaunched;
+import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import java.time.Clock;
 import java.util.Optional;
+import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -66,11 +68,14 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Activate
     public void activate() {
+        CompositeScheduleExpressionParser scheduleExpressionParser = new CompositeScheduleExpressionParser();
+        scheduleExpressionParser.add(new TemporalExpressionParser());
+        scheduleExpressionParser.add(cronExpressionParser);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(Clock.class).toInstance(clock);
-                bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+                bind(ScheduleExpressionParser.class).toInstance(scheduleExpressionParser);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(QueryService.class).toInstance(queryService);
                 bind(MessageService.class).toInstance(messageService);

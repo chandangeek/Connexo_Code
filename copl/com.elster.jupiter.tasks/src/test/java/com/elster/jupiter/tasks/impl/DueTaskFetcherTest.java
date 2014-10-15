@@ -71,7 +71,7 @@ public class DueTaskFetcherTest {
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(clock.instant()).thenReturn(NOW);
         when(messageService.getDestinationSpec(DESTINATION)).thenReturn(Optional.of(destination));
-        when(cronExpressionParser.parse(CRON)).thenReturn(cronExpression);
+        when(cronExpressionParser.parse(CRON)).thenReturn(java.util.Optional.of(cronExpression));
         when(dataModel.getConnection(false)).thenReturn(connection);
         when(dataModel.getInstance(RecurrentTaskImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
