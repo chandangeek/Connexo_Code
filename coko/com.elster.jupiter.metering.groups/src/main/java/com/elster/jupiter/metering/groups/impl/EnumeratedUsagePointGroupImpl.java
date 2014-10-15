@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Interval;
@@ -94,7 +95,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
             this.groupId = usagePointGroup.getId();
             this.usagePoint = usagePoint;
             this.usagePointId = usagePoint.getId();
-            this.interval = Interval.of(range);
+            this.interval = Interval.of(Effectivity.requireValid(range));
             return this;
         }
 
