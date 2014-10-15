@@ -15,12 +15,14 @@ import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.CloseIssuesTransaction;
 import com.elster.jupiter.issue.rest.transactions.CreateCommentTransaction;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.cep.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
@@ -47,7 +49,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getAllIssues(@BeanParam StandardParametersBean params) {
-        validateMandatory(params, ISSUE_TYPE, START, LIMIT);
+        validateMandatory(params, START, LIMIT);
         Class<? extends IssueDataCollection> apiClass = getQueryApiClass(params);
         Class<? extends Issue> eagerClass = getEagerApiClass(apiClass);
         Query<? extends IssueDataCollection> query = getIssueDataCollectionService().query(apiClass, eagerClass, EndDevice.class, User.class, IssueReason.class,
@@ -171,8 +173,8 @@ public class IssueResource extends BaseResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        getIssueActionService().executeAction(action.get(), issue.get(), request.getParameters());
-        return Response.ok().build();
+        IssueActionResult actionResult = getIssueActionService().executeAction(action.get(), issue.get(), request.getParameters());
+        return entity(actionResult).build();
     }
 
     private Class<? extends IssueDataCollection> getQueryApiClass(StandardParametersBean params){
@@ -222,15 +224,11 @@ public class IssueResource extends BaseResource {
 
     private Condition addAssigneeQueryCondition(StandardParametersBean params) {
         Condition conditionAssignee = Condition.TRUE;
-        if (params.get(ASSIGNEE_ID) != null) {
+        String assigneeType = params.getFirst(ASSIGNEE_TYPE);
+        if (getIssueService().checkIssueAssigneeType(assigneeType)) {
             Long assigneeId = params.getFirstLong(ASSIGNEE_ID);
             if (assigneeId > 0) {
-                String assigneeType = params.getFirst(ASSIGNEE_TYPE);
-                if (getIssueService().checkIssueAssigneeType(assigneeType)) {
-                    conditionAssignee = where("baseIssue." + params.getFirst(ASSIGNEE_TYPE).toLowerCase() + ".id").isEqualTo(assigneeId);
-                }
-            } else {
-                conditionAssignee = where("baseIssue.assigneeType").isNull();
+                conditionAssignee = where("baseIssue." + params.getFirst(ASSIGNEE_TYPE).toLowerCase() + ".id").isEqualTo(assigneeId);
             }
         }
         return conditionAssignee;
@@ -242,7 +240,7 @@ public class IssueResource extends BaseResource {
             conditionReason = conditionReason.or(where("baseIssue.reason.key").isEqualTo(reason));
         }
         conditionReason = conditionReason == Condition.FALSE ? Condition.TRUE : conditionReason;
-        IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orNull();
+        IssueType issueType = getIssueService().findIssueType(IssueDataCollectionService.ISSUE_TYPE_UUID).orNull();
         conditionReason = conditionReason.and(where("baseIssue.reason.issueType").isEqualTo(issueType));
         return conditionReason;
     }
