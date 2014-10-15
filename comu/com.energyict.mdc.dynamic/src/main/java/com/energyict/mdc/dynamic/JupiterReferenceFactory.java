@@ -129,7 +129,7 @@ public class JupiterReferenceFactory<T extends HasId> extends AbstractValueFacto
         @Override
         @SuppressWarnings("unchecked")
         public T load () {
-            return this.factory.findByPrimaryKey(this.id.longValue()).orNull();
+            return this.factory.findByPrimaryKey(this.id.longValue()).orElse(null);
         }
 
         @Override
