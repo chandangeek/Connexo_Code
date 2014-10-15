@@ -19,8 +19,6 @@ import java.util.Date;
         @JsonSubTypes.Type(value = FlagsReadingInfo.class, name = "flags")
 })
 public abstract class ReadingInfo {
-    @JsonProperty("id")
-    public Long id;
     @JsonProperty("timeStamp")
     public Date timeStamp;
     @JsonProperty("reportedDateTime")
@@ -32,9 +30,6 @@ public abstract class ReadingInfo {
     }
 
     public ReadingInfo(Reading reading) {
-        if(reading.getTimeStamp() != null) {
-            this.id = reading.getTimeStamp().getTime();
-        }
         this.timeStamp = reading.getTimeStamp();
         this.reportedDateTime = reading.getReportedDateTime();
         this.editedDateTime = reading.getActualReading().edited() ? this.reportedDateTime : null;
