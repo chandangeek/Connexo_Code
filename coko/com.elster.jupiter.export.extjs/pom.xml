@@ -45,7 +45,7 @@
         <profile>
             <id>sencha-build</id>
             <properties>
-                <js.dir>js/systemadmin</js.dir>
+                <js.dir>js/export</js.dir>
             </properties>
         </profile>
     </profiles>
@@ -59,8 +59,8 @@
                 </includes>
             </resource>
             <resource>
-                <directory>src/main/web/js/systemadmin/build</directory>
-                <targetPath>js/systemadmin/build</targetPath>
+                <directory>src/main/web/js/export/build</directory>
+                <targetPath>js/export/build</targetPath>
                 <includes>
                     <include>resources/**/*</include>
                     <include>*.js</include>
