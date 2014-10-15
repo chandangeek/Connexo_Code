@@ -187,7 +187,6 @@ Ext.define('Uni.controller.history.Router', {
              */
             buildUrl: function (arguments, queryParams) {
                 arguments = Ext.applyIf(arguments || {}, me.arguments);
-                queryParams = Ext.applyIf(queryParams || {}, me.queryParams);
                 var url = this.crossroad ?
                     '#' + this.crossroad.interpolate(arguments) :
                     '#' + this.path;
