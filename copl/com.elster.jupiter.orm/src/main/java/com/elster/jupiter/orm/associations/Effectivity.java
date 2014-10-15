@@ -2,10 +2,13 @@ package com.elster.jupiter.orm.associations;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.BoundType;
+import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
+
 import static com.google.common.base.Preconditions.*;
 
 public interface Effectivity {
@@ -27,8 +30,14 @@ public interface Effectivity {
 	}
 	
 	default boolean overlaps(Range<Instant> otherRange) {
-		Range<Instant> thisRange = getRange();
-		return thisRange.isConnected(otherRange) && !thisRange.intersection(otherRange).isEmpty();
+		return ImmutableRangeSet.of(getRange()).subRangeSet(otherRange).isEmpty();
+	}
+	
+	default Optional<Range<Instant>> intersection(Range<Instant> otherRange) {
+		return Optional.of(getRange())
+			.filter( thisRange -> thisRange.isConnected(otherRange))
+			.map(thisRange -> thisRange.intersection(otherRange))
+			.filter(range -> !range.isEmpty());
 	}
 	/*
 	 * Helper method for validating range
