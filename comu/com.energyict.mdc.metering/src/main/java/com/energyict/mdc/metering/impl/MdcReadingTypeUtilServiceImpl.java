@@ -95,7 +95,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     @Override
     public ReadingType getReadingTypeFrom(ObisCode obisCode, Unit unit) {
         String readingTypeMridFrom = getReadingTypeMridFrom(obisCode, unit);
-        return this.meteringService.getReadingType(readingTypeMridFrom).orNull();
+        return this.meteringService.getReadingType(readingTypeMridFrom).orElse(null);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
         readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval));
         readingTypeCodeBuilder.period(MacroPeriodMapping.getMacroPeriodFor(registerObisCode, interval));
 
-        return this.meteringService.getReadingType(readingTypeCodeBuilder.code()).orNull();
+        return this.meteringService.getReadingType(readingTypeCodeBuilder.code()).orElse(null);
     }
 
     private ReadingTypeCodeBuilder copyReadingTypeFields(ReadingType readingType) {

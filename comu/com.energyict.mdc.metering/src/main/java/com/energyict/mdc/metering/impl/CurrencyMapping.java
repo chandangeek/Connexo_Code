@@ -2,7 +2,7 @@ package com.energyict.mdc.metering.impl;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.Currency;
 
@@ -35,14 +35,14 @@ enum CurrencyMapping {
     }
 
     public static Optional<Currency> getCurrencyFor(Unit unit){
-        if(Optional.fromNullable(unit).isPresent()){
+        if(Optional.ofNullable(unit).isPresent()){
             for (CurrencyMapping currencyMapping : values()) {
                 if(currencyMapping.baseUnit == unit.getDlmsCode()){
                     return Optional.of(currencyMapping.currency);
                 }
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     int getBaseUnit() {

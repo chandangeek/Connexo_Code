@@ -2,7 +2,7 @@ package com.energyict.mdc.metering.impl;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 
 import java.util.Currency;
