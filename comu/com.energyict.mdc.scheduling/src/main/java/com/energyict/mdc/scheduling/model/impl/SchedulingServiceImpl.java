@@ -18,7 +18,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.tasks.TaskService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
@@ -157,12 +157,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     private Optional<ComSchedule> findUniqueSchedule(String fieldName, Object value) {
         Condition condition = where(fieldName).isEqualTo(value).and(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
-        List<ComSchedule> comSchedules = this.dataModel.query(ComSchedule.class).select(condition);
-        if (comSchedules.isEmpty()) {
-            return Optional.absent();
-        } else {
-            return Optional.of(comSchedules.get(0));
-        }
+        return this.dataModel.query(ComSchedule.class).select(condition).stream().findFirst();
     }
 
     @Override

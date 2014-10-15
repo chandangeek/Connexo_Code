@@ -1,7 +1,7 @@
 package com.energyict.mdc.scheduling;
 
 import com.elster.jupiter.time.TemporalExpression;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;

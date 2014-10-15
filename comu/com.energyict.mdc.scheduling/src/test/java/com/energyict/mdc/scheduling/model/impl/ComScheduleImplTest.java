@@ -11,7 +11,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
