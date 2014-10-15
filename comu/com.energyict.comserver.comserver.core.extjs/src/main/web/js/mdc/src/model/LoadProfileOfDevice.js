@@ -32,7 +32,7 @@ Ext.define('Mdc.model.LoadProfileOfDevice', {
             persist: false,
             mapping: function (data) {
                 var value = data.interval,
-                    timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
+                    timeUnitsStore = Ext.getStore('TimeUnits'),
                     result = '',
                     timeUnit,
                     index;

@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.util.Common'
+        'Uni.util.Common',
+        'Mdc.store.TimeUnits'
     ],
 
     models: [
@@ -19,7 +20,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         'Mdc.store.ComPortPools',
         'Mdc.store.BaudRates',
         'Mdc.store.Parities',
-        'Mdc.store.TimeUnits',
+        'TimeUnits',
         'Mdc.store.LogLevels',
         'Mdc.store.ComPortTypes',
         'Mdc.store.FlowControls',

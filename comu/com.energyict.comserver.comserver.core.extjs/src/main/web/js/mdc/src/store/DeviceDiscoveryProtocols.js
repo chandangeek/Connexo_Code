@@ -5,7 +5,7 @@ Ext.define('Mdc.store.DeviceDiscoveryProtocols', {
     ],
     model: 'Mdc.model.DeviceDiscoveryProtocol',
     storeId: 'DeviceDiscoveryProtocols',
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '../../api/plr/devicediscoveryprotocols',

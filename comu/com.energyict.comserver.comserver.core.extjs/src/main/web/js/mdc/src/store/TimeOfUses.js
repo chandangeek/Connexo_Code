@@ -1,6 +1,6 @@
 Ext.define('Mdc.store.TimeOfUses',{
     extend: 'Ext.data.Store',
-    autoLoad: true,
+    autoLoad: false,
     model: 'Mdc.model.field.TimeOfUse',
     storeId: 'timeOfUses',
 

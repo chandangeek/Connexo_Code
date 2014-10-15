@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.setup.PropertiesView', {
 
     requires: [
         'Uni.property.model.Property',
-        'Mdc.view.setup.property.PropertyView'
+        'Mdc.view.setup.property.PropertyView',
+        'Mdc.store.TimeUnits'
     ],
 
     models: [

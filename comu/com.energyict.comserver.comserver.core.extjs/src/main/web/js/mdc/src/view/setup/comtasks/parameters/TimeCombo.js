@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.TimeCombo', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.communication-tasks-parameters-timecombo',
     store: 'Mdc.store.TimeUnits',
-    queryMode: 'local',
+   // queryMode: 'local',
     width: 143,
     displayField: 'timeUnit',
     valueField: 'timeUnit',

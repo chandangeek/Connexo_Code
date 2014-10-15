@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Mdc.store.Intervals'
     ],
     columns: {
         items: [
@@ -31,7 +32,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
                 header: 'Interval',
                 dataIndex: 'timeDuration',
                 renderer: function (value) {
-                    var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
+                    var intervalRecord = Ext.getStore('Intervals').getById(value.id);
 
                     return intervalRecord.get('name');
                 },

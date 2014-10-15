@@ -1,6 +1,6 @@
 Ext.define('Mdc.store.ConnectionTypes', {
     extend: 'Ext.data.Store',
-//    autoLoad: true,
+    autoLoad: false,
     requires: [
         'Mdc.model.ConnectionType'
     ],

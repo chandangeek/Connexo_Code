@@ -3,7 +3,8 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
 
     requires: [
         'Mdc.model.ComPortPool',
-        'Mdc.model.ComPort'
+        'Mdc.model.ComPort',
+        'Mdc.store.DeviceDiscoveryProtocols'
     ],
 
     views: [
@@ -109,7 +110,12 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
             form = itemPanel.down('form'),
             model = this.getModel('Mdc.model.ComPortPool'),
             id = record.getId();
+
+        deviceDiscoveryProtocolsStore = this.getStore('Mdc.store.DeviceDiscoveryProtocols');
+
         itemPanel.setLoading(this.getModel('Mdc.model.ComPortPool'));
+
+        !deviceDiscoveryProtocolsStore.getCount() && deviceDiscoveryProtocolsStore.load();
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {

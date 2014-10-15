@@ -75,8 +75,17 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         });
     },
 
-    showOverview: function (mRID, loadProfileId, channelId) {
+    showTableOverview: function (mRID, loadProfileId, channelId) {
+        this.showOverview(mRID, loadProfileId, channelId, true);
+    },
+
+    showGraphOverview: function (mRID, loadProfileId, channelId) {
+        this.showOverview(mRID, loadProfileId, channelId, false);
+    },
+
+    showOverview: function (mRID, loadProfileId, channelId, isTable) {
         var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             models = {
                 device: me.getModel('Mdc.model.Device'),
                 loadProfile: me.getModel('Mdc.model.LoadProfileOfDevice'),
@@ -86,6 +95,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             router = me.getController('Uni.controller.history.Router'),
             widget;
 
+        viewport.setLoading();
         dataStore.getProxy().setUrl({
             mRID: mRID,
             loadProfileId: loadProfileId,
@@ -124,13 +134,20 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(mRID, loadProfileId, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
+                viewport.setLoading(false);
                 widget.setLoading();
+                widget.down('#deviceLoadProfileChannelGraphViewBtn').setDisabled(!isTable);
+                widget.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
                         me.showReadingsCount(dataStore);
-                        me.showGraphView(record);
-                        widget.setLoading(false);
+                        if (!isTable) {
+                            me.showGraphView(record);
+                        }
+                        widget.down('#deviceLoadProfileChannelGraphView').setVisible(!isTable);
+                        widget.down('#deviceLoadProfileChannelTableView').setVisible(isTable);
                         widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfileChannelTableView').isVisible() && dataStore.count());
+                        widget.setLoading(false);
                     }
                 }, me);
                 if (Ext.isEmpty(router.filter.data.intervalStart)) {
@@ -214,15 +231,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
 
 
     toggleView: function (button) {
-        var page = this.getPage(),
+        var router = this.getController('Uni.controller.history.Router'),
             showTable = button.action === 'showTableView';
 
-        page.down('#deviceLoadProfileChannelGraphViewBtn').setDisabled(!showTable);
-        page.down('#deviceLoadProfileChannelGraphView').setVisible(!showTable);
-        page.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(showTable);
-        page.down('#deviceLoadProfileChannelTableView').setVisible(showTable);
-        page.down('#readingsCount').setVisible(showTable && this.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData').count());
-        showTable && page.down('#deviceLoadProfileChannelTableView').down('#deviceLoadProfileChannelDataGrid').getView().refresh();
+        if (showTable) {
+            router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').forward();
+        } else {
+            router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').forward();
+        }
+
     },
 
     showPreview: function (selectionModel, record) {
