@@ -151,7 +151,7 @@ public class OrmClientImpl implements OrmClient {
         return this.dataModel.mapper(RelationAttributeType.class).
                 getUnique(
                         "relationType", type,
-                        "name", name).orNull();
+                        "name", name).orElse(null);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class OrmClientImpl implements OrmClient {
         return this.dataModel.mapper(Constraint.class).
                 getUnique(
                         "relationType", relationType,
-                        "name", constraintName).orNull();
+                        "name", constraintName).orElse(null);
     }
 
     @Override

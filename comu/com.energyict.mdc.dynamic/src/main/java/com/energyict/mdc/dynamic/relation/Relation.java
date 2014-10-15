@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.relation;
 
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObject;
@@ -13,7 +14,7 @@ import java.util.Map;
  * The values for a number of attributes defined by a <code>RelationType</code> within a
  * defined period
  */
-public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwner {
+public interface Relation extends IdBusinessObject, ReadOnlyDynamicAttributeOwner, Effectivity {
 
     /**
      * returns the relation id this version belongs to

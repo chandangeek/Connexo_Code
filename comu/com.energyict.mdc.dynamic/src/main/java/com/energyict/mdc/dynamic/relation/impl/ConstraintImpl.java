@@ -18,7 +18,6 @@ import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.exceptions.MultipleNonRejectConstraintsNotAllowedException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -27,11 +26,12 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ConstraintImpl extends PersistentNamedObject implements Constraint {
@@ -40,7 +40,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
     private final List<ConstraintMember> members = new ArrayList<>();
     private final Reference<RelationType> relationType = ValueReference.absent();
     private boolean rejectViolations;
-    private Date modDate;
+    private Instant modDate;
 
     @Inject
     ConstraintImpl(DataModel dataModel, Thesaurus thesaurus) {

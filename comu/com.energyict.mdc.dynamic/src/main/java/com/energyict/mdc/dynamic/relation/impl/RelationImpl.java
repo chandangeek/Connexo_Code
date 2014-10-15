@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class RelationImpl implements Relation {
 
@@ -170,11 +171,11 @@ public class RelationImpl implements Relation {
     }
 
     public Date getFrom() {
-        return period.getStart();
+        return period.getStart() == null ? null : Date.from(period.getStart());
     }
 
     public Date getTo() {
-        return period.getEnd();
+        return period.getEnd() == null ? null : Date.from(period.getEnd());
     }
 
     public Date getCreDate() {
@@ -351,8 +352,9 @@ public class RelationImpl implements Relation {
     }
 
 
+    @Override
     public boolean includes(Date date) {
-        return period.contains(date, Interval.EndpointBehavior.OPEN_CLOSED);
+        return isEffectiveAt(Objects.requireNonNull(date).toInstant());
     }
 
     private void updateTo(Date newTo) throws BusinessException, SQLException {
@@ -410,19 +412,19 @@ public class RelationImpl implements Relation {
     }
 
     public boolean startsBefore(Date testDate) {
-        return period.startsBefore(testDate);
+        return period.startsBefore(Objects.requireNonNull(testDate).toInstant());
     }
 
     public boolean startsAfter(Date testDate) {
-        return period.startsAfter(testDate);
+        return period.startsAfter(Objects.requireNonNull(testDate).toInstant());
     }
 
     public boolean endsBefore(Date testDate) {
-        return period.endsBefore(testDate);
+        return period.endsBefore(Objects.requireNonNull(testDate).toInstant());
     }
 
     public boolean endsAfter(Date testDate) {
-        return period.endsAfter(testDate);
+        return period.endsAfter(Objects.requireNonNull(testDate).toInstant());
     }
 
     protected void doSetRelationType(RelationType type) {
@@ -471,6 +473,11 @@ public class RelationImpl implements Relation {
         }
     }
 
+    @Override
+    public Interval getInterval() {
+    	return period;
+    }
+    
     /**
      * {@inheritDoc}
      */

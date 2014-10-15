@@ -132,7 +132,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public RelationType findRelationType(int id) {
-        return this.ormClient.getRelationTypeFactory().getUnique("id", id).orNull();
+        return this.ormClient.getRelationTypeFactory().getUnique("id", id).orElse(null);
     }
 
     @Override
@@ -152,7 +152,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public RelationAttributeType findRelationAttributeType(int id) {
-        return this.ormClient.getRelationAttributeTypeFactory().getUnique("id", id).orNull();
+        return this.ormClient.getRelationAttributeTypeFactory().getUnique("id", id).orElse(null);
     }
 
 }

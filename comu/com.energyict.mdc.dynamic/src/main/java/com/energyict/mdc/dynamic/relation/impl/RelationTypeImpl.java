@@ -27,7 +27,6 @@ import com.energyict.mdc.dynamic.relation.exceptions.NameTooLongException;
 import com.energyict.mdc.dynamic.relation.exceptions.NoLockAttributeException;
 import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -35,13 +34,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -58,7 +58,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private boolean active;
     private boolean hasTimeResolution;
     private String displayName;
-    private Date modDate;
+    private Instant modDate;
     private int lockAttributeTypeId;
     private RelationAttributeType lockAttributeType;
     private boolean system;
@@ -715,7 +715,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return new RelationFactory(this);
     }
 
-    Date getModDate() {
+    Instant getModDate() {
         return this.modDate;
     }
 
