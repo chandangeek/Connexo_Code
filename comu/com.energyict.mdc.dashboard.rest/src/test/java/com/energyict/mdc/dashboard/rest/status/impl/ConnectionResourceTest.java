@@ -287,6 +287,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ComPort comPort = mock(ComPort.class);
         when(comPort.getName()).thenReturn("com port");
         when(comPort.getId()).thenReturn(99L);
+        when(comPort.getComServer()).thenReturn(comServer);
         when(comSession.getComPort()).thenReturn(comPort);
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         when(connectionTask.getPlannedNextExecutionTimestamp()).thenReturn(plannedNext);

@@ -24,6 +24,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -343,6 +344,10 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         ComPort comPort = mock(ComPort.class);
         when(comPort.getName()).thenReturn("com port");
         when(comPort.getId()).thenReturn(99L);
+        ComServer comServer = mock(ComServer.class);
+        (when(comServer.getId())).thenReturn(991L);
+        (when(comServer.getName())).thenReturn("rudi.local");
+        when(comPort.getComServer()).thenReturn(comServer);
         when(comSession.getComPort()).thenReturn(comPort);
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         OutboundTcpIpConnectionType connectionType = mock(OutboundTcpIpConnectionType.class);
