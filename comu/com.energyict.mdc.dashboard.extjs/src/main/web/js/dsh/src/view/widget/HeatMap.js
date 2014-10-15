@@ -106,7 +106,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         if (me.parent == 'connections') {
             var combo = me.getCombo();
             combo.on('change', function (combo, newValue) {
-                me.store.proxy.extraParams.filter = '[{"property":"breakdown", "value": "' + newValue + '"}]';
+                me.store.addFilter({property: 'breakdown', value: newValue}, false);
                 me.reload();
             });
 

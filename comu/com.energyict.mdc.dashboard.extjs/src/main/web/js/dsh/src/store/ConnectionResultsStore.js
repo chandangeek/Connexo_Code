@@ -1,8 +1,8 @@
 Ext.define('Dsh.store.ConnectionResultsStore', {
-    extend: 'Ext.data.Store',
+    extend: 'Uni.data.store.Filterable',
     model: 'Dsh.model.ConnectionResults',
     autoLoad: false,
-
+    remoteFilter: true,
     proxy: {
         type: 'ajax',
         url: '/api/dsr/connectionheatmap',
