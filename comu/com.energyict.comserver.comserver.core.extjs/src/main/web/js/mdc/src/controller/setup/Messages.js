@@ -186,9 +186,8 @@ Ext.define('Mdc.controller.setup.Messages', {
         Ext.widget('privileges-info-panel');
     },
 
-    onMessagesCategoriesActionMenuClick: function (menu, item) {debugger;
+    onMessagesCategoriesActionMenuClick: function (menu, item) {
         var messagesCategory = this.getMessagesCategoriesGrid().getSelectionModel().getSelection()[0];
-        console.log('!!!' + messagesCategory.toString());
         if (messagesCategory) {
             switch (item.action) {
                 case 'deactivateAll':
