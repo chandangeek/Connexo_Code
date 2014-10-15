@@ -1,12 +1,11 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Mdc.view.setup.deviceregisterdata.MainPreview',
     alias: 'widget.deviceregisterreportpreview-billing',
     requires: [
         'Mdc.view.setup.deviceregisterdata.ValidationPreview'
     ],
     itemId: 'deviceregisterreportpreview',
     title: '',
-    frame: true,
 
     items: {
         xtype: 'form',
@@ -30,7 +29,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         name: 'timeStamp',
                         format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
-                            return Ext.util.Format.date(value, this.format);
+                            if(!Ext.isEmpty(value)) {
+                                return Ext.util.Format.date(new Date(value), this.format);
+                            }
                         }
                     },
                     {
@@ -38,7 +39,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         name: 'reportedDateTime',
                         format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
-                            return Ext.util.Format.date(value, this.format);
+                            if(!Ext.isEmpty(value)) {
+                                return Ext.util.Format.date(value, this.format);
+                            }
                         }
                     },
                     {
@@ -46,7 +49,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         labelWidth: 200,
                         name: 'interval',
                         renderer: function (value) {
-                            if (value) {
+                            if(!Ext.isEmpty(value)) {
                                 var startDate = new Date(value.start),
                                     endDate = new Date(value.end),
                                     format = 'M j, Y \\a\\t G:i';

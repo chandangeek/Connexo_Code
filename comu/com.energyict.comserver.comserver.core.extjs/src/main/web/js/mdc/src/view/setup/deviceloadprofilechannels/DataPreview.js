@@ -5,20 +5,21 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
     requires: [
         'Mdc.view.setup.deviceloadprofilechannels.DataActionMenu',
         'Uni.form.field.IntervalFlagsDisplay',
-        'Mdc.view.setup.deviceloadprofilechannels.ValidationPreview'
+        'Mdc.view.setup.deviceloadprofilechannels.ValidationPreview',
+        'Uni.form.field.EditedDisplay'
     ],
     title: '',
     frame: true,
 
     /* Commented because of JP-5861
-    tools: [
-        {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            iconCls: 'x-uni-action-iconD'
-        }
-    ],
-    */
+     tools: [
+     {
+     xtype: 'button',
+     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+     iconCls: 'x-uni-action-iconD'
+     }
+     ],
+     */
 
     items: {
         xtype: 'form',
@@ -28,7 +29,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
         },
         items: [
             {
-                xtype:'fieldcontainer',
+                xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
                 labelAlign: 'top',
                 layout: 'vbox',
@@ -73,30 +74,55 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
 
         // 1 means cumulative
         if (accumulationBehavior && accumulationBehavior == 1) {
-            me.items.items[0].items.push({
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
-                name: 'value',
-                renderer: function (value, metaData, record) {
-                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-
-                }
-            }, {
-
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
-                name: 'delta',
-                renderer: function (value, metaData, record) {
-                    return !Ext.isEmpty(value) ? value + ' ' + measurementType: '';
-                }
-            });
-        } else {
             me.items.items[0].items.push(
                 {
-                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                    name: 'value',
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            name: 'value',
+                            renderer: function (value) {
+                                return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                            }
+                        },
+                        {
+                            xtype: 'edited-displayfield',
+                            name: 'editedTime',
+                            margin: '0 0 0 10'
+                        }
+                    ]
+                },
+                {
+
+                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
+                    name: 'delta',
                     renderer: function (value, metaData, record) {
                         return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
                     }
-                });
+                }
+            );
+        } else {
+            me.items.items[0].items.push({
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                layout: 'hbox',
+                items: [
+                    {
+                        xtype: 'displayfield',
+                        name: 'value',
+                        renderer: function (value) {
+                            return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                        }
+                    },
+                    {
+                        xtype: 'edited-displayfield',
+                        name: 'editedDate',
+                        margin: '0 0 0 10'
+                    }
+                ]
+            });
         }
 
         me.items.items[0].items.push(

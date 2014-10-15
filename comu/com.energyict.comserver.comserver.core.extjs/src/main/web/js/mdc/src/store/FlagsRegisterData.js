@@ -1,8 +1,8 @@
 Ext.define('Mdc.store.FlagsRegisterData', {
     extend: 'Mdc.store.RegisterData',
     requires: [
-        'Mdc.model.RegisterData'
+        'Mdc.model.FlagsRegisterData'
     ],
-    model: 'Mdc.model.RegisterData',
+    model: 'Mdc.model.FlagsRegisterData',
     storeId: 'FlagsRegisterData'
 });

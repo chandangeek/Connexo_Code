@@ -53,6 +53,12 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
                                 itemId: 'readingsCount',
                                 hidden: true,
                                 flex: 1
+                            },
+                            '->',
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('deviceloadprofilechannels.data.editReadings', 'MDC', 'Edit readings'),
+                                href: me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data/editreadings').buildUrl()
                             }
                         ]
                     },
