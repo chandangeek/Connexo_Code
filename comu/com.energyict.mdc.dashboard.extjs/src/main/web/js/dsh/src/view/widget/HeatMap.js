@@ -163,7 +163,8 @@ Ext.define('Dsh.view.widget.HeatMap', {
                         "color": "#707070",
                         "fontWeight": "bold"
                     }
-                }
+                },
+                opposite: true
             },
             yAxis: {
                 title: {
@@ -182,7 +183,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 align: 'right',
                 layout: 'vertical',
                 verticalAlign: 'top',
-                symbolHeight: 100
+                symbolHeight: 250
             },
             tooltip: {
                 formatter: function () {
