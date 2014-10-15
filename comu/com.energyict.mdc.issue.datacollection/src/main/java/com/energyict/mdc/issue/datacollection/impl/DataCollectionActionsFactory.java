@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
 import com.google.inject.*;
@@ -100,7 +101,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     private void addDefaultActions() {
         try {
             actionProviders.put(RetryConnectionTaskAction.class.getName(), injector.getProvider(RetryConnectionTaskAction.class));
-            actionProviders.put(RetryConnectionTaskAction.class.getName(), injector.getProvider(RetryConnectionTaskAction.class));
+            actionProviders.put(RetryCommunicationTaskAction.class.getName(), injector.getProvider(RetryCommunicationTaskAction.class));
             actionProviders.put(RetryCommunicationTaskNowAction.class.getName(), injector.getProvider(RetryCommunicationTaskNowAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());

@@ -36,7 +36,7 @@ public class RetryCommunicationTaskNowAction extends AbstractIssueAction {
             issue.save();
             ComTaskExecution comTaskExecution = ((IssueDataCollection) issue).getCommunicationTask().get();
             comTaskExecution.runNow();
-            result.success();
+            result.success(MessageSeeds.ACTION_RETRY_COM_TASK_SUCCESS.getTranslated(thesaurus));
         }
         return result;
     }

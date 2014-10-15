@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -38,7 +39,7 @@ public class RetryConnectionTaskAction extends AbstractIssueAction {
             issue.save();
             ScheduledConnectionTask task = (ScheduledConnectionTask)((IssueDataCollection) issue).getConnectionTask().get();
             task.scheduleNow();
-            result.success();
+            result.success(MessageSeeds.ACTION_RETRY_CONNECTION_SUCCESS.getTranslated(thesaurus));
         }
         return result;
     }

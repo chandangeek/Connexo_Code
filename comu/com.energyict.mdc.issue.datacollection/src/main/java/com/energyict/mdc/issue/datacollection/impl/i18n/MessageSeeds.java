@@ -68,6 +68,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // Actions 1501 -
     ACTION_RETRY_NOW(1501, "ActionRetryNow", "Retry now", Level.INFO),
     ACTION_RETRY(1502, "ActionRetry", "Retry", Level.INFO),
+    ACTION_RETRY_CONNECTION_SUCCESS(1503, "ActionRetryConnectionSuccess", "Connection has been retriggered", Level.INFO),
+    ACTION_RETRY_COM_TASK_SUCCESS(1503, "ActionRetryCommunicationSuccess", "Communication task has been retriggered", Level.INFO),
+
     ;
 
     private final int number;
