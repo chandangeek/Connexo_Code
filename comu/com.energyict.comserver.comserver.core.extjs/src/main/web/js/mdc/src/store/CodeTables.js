@@ -5,7 +5,7 @@ Ext.define('Mdc.store.CodeTables', {
     ],
     model: 'Mdc.model.CodeTable',
     storeId: 'CodeTables',
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '../../api/plr/codetables',

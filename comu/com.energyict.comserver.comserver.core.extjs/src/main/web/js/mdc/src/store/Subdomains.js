@@ -5,7 +5,7 @@ Ext.define('Mdc.store.Subdomains',{
     ],
     model: 'Mdc.model.Subdomain',
     storeId: 'Subdomains',
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '/api/ddr/field/enddevicesubdomains',

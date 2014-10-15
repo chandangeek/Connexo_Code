@@ -5,10 +5,10 @@ Ext.define('Mdc.store.UserFileReferences', {
     ],
     model: 'Mdc.model.UserFileReference',
     storeId: 'UserFileReferences',
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '../../api/plr/userfilereferences',
+        url: '/api/plr/userfilereferences',
         reader: {
             type: 'json',
             root: 'UserFile'

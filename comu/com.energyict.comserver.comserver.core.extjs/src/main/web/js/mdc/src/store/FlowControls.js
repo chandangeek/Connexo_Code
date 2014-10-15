@@ -4,7 +4,7 @@ Ext.define('Mdc.store.FlowControls',{
         'Mdc.model.field.FlowControl'
     ],
     model: 'Mdc.model.field.FlowControl',
-    autoLoad: true,
+    autoLoad: false,
     storeId: 'FlowControls',
 
     proxy: {

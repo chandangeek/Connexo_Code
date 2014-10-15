@@ -5,7 +5,7 @@ Ext.define('Mdc.store.EventsOrActions',{
     ],
     model: 'Mdc.model.EventOrAction',
     storeId: 'EventsOrActions',
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '/api/ddr/field/enddeviceeventoractions',
