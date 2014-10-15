@@ -96,7 +96,7 @@ public class AppServiceConsoleService {
             }
         });
         try (TransactionContext context = transactionService.getContext()) {
-            appService.createAppServer(name, cronExpressionParser.parse(cronString));
+            appService.createAppServer(name, cronExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new));
             context.commit();
         } finally {
             threadPrincipalService.clear();
