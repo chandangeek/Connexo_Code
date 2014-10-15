@@ -1,5 +1,5 @@
 Ext.define('Dsh.model.connection.Overview', {
-    extend: 'Ext.data.Model',
+    extend: 'Dsh.model.Filterable',
     requires: [
         'Dsh.model.Summary',
         'Dsh.model.Counter',

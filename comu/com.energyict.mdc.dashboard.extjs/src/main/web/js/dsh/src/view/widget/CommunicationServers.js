@@ -8,7 +8,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
 
     tbar: {
         xtype: 'container',
-        html: '<h3>' + Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Down communication servers') + '</h3>',
+        html: '<h3>' + Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Communication servers') + '</h3>',
         itemId: 'connection-summary-title-panel'
     },
 
@@ -54,13 +54,12 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
         var router = this.router;
         this.buttons = [
             {
-                text: Uni.I18n.translate('overview.widget.communicationServers.viewAll', 'DSH', 'View all communication servers'),
+                text: Uni.I18n.translate('overview.widget.communicationServers.viewAll', 'DSH', 'View all'),
                 ui: 'link',
                 href: router.getRoute('administration/comservers').buildUrl()
             }
         ];
         this.callParent(arguments);
-        this.reload();
     },
 
     serverTpl: new Ext.XTemplate(
@@ -87,6 +86,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             elm = me.down('#servers-dataview'),
             store = Ext.getStore(me.store);
 
+        me.setLoading();
         store.load(function () {
             var groups = store.getGroups().map(function (item) {
                 item.title = Uni.I18n.translate('overview.widget.communicationServers.title.' + item.name, 'DSH', item.name);
@@ -121,6 +121,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 fields: ['children', 'name', 'title', 'tooltip', 'expand'],
                 data: groups
             }));
+            me.setLoading(false);
         });
     }
 });

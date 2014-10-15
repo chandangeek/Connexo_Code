@@ -34,9 +34,12 @@ Ext.define('Dsh.controller.CommunicationOverview', {
 
     loadData: function () {
         var me = this,
-            model = me.getModel('Dsh.model.communication.Overview');
-        me.getCommunicationOverview().setLoading();
+            model = me.getModel('Dsh.model.communication.Overview'),
+            router = this.getController('Uni.controller.history.Router');
 
+        model.setFilter(router.filter);
+        me.getCommunicationOverview().setLoading();
+        me.getCommunicationServers().reload();
         model.load(null, {
                 success: function (record) {
                     me.getSummary().setRecord(record.getSummary());

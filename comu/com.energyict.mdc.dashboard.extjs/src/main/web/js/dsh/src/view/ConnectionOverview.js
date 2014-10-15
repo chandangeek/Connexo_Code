@@ -69,11 +69,11 @@ Ext.define('Dsh.view.ConnectionOverview', {
                         data: [
                             {
                                 link: Uni.I18n.translate('connection.widget.quicklinks.viewAll', 'DSH', 'View all connections'),
-                                href: me.router.getRoute('workspace/connections/details').buildUrl()
+                                href: me.router.getRoute('workspace/connections/details').buildUrl(null, me.router.queryParams)
                             },
                             {
                                 link: me.router.getRoute('workspace/communications').title,
-                                href: me.router.getRoute('workspace/communications').buildUrl()
+                                href: me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams)
                             }
                         ]
                     }

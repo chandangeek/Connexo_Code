@@ -98,6 +98,7 @@ Ext.define('Dsh.controller.Connections', {
             var id = record.get('id'),
                 title = ' ' + record.get('title');
             preview.loadRecord(record);
+            preview.setTitle(title);
             commPanel.show();
             commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationsOf', 'DSH', 'Communications of') + title);
             commStore.setConnectionId(id);

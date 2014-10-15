@@ -63,7 +63,7 @@ Ext.define('Dsh.view.widget.Summary', {
                             });
                             bar.render(view.getEl().down('#bar-' + pos));
 
-                            var filter = {};
+                            var filter = me.router.filter.getWriteData(true, true);
                             filter[view.record.get('alias')] = record.get('id');
                             var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
                             view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
