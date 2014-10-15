@@ -98,7 +98,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public TaskOccurrence createTaskOccurrence() {
-        TaskOccurrence occurrence = TaskOccurrenceImpl.from(dataModel, this, clock.now());
+        TaskOccurrence occurrence = TaskOccurrenceImpl.from(dataModel, this, nextExecution.toDate());
         occurrence.save();
         return occurrence;
     }
