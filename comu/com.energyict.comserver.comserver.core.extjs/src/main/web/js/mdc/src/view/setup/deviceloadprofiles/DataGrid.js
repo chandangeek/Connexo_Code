@@ -48,11 +48,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                                 validationFlag = '<span class="icon-validation icon-validation-red"></span>';
                                 break;
                             default:
-                                validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
+                                validationFlag = '';
                                 break;
                         }
                     }
-                    if (Ext.isEmpty(data[channel.id]) && record.data.channelValidationData && record.data.channelValidationData[channel.id] && (record.data.channelValidationData[channel.id].validationResult === 'validationStatus.suspect')) {
+
+                    if (Ext.isEmpty(data[channel.id]) && !Ext.isEmpty(validationFlag)) {
                         return validationFlag;
                     } else if (!Ext.isEmpty(data[channel.id])) {
                         return '<span class="validation-column-align">' + data[channel.id] + ' ' + channel.unitOfMeasure.unit + ' ' + validationFlag + '</span>';
