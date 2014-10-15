@@ -90,8 +90,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                         preview.down('#validateNowLoadProfile').hide();
                         Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].hide();
                     } else {
-                        preview.down('#validateNowLoadProfile').hide();
-                        Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].hide();
+                        preview.down('#validateNowLoadProfile').show();
+                        Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].show();
                     }
                     preview.down('#deviceLoadProfilesPreviewForm').loadRecord(rec);
                     preview.setLoading(false);
