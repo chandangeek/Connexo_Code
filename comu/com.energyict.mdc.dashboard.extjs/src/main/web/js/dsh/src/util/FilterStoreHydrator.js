@@ -1,6 +1,8 @@
 Ext.define('Dsh.util.FilterStoreHydrator', {
     extract: function(filter) {
         var data = filter.getData();
+        data.deviceGroups = data.deviceGroup;
+        delete data.deviceGroup;
 
         // transform all single items int array
         _.map(data, function (item, key) {

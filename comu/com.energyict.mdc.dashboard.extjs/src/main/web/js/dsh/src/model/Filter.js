@@ -16,6 +16,7 @@ Ext.define('Dsh.model.Filter', {
         { name: 'comSchedules', type: 'auto' },
         { name: 'comTasks', type: 'auto' },
         { name: 'connectionTypes', type: 'auto' },
+        { name: 'deviceGroup', type: 'auto' },
         { name: 'deviceTypes', type: 'auto' }
     ],
     associations: [

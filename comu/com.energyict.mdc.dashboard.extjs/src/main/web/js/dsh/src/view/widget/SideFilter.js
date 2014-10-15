@@ -32,6 +32,14 @@ Ext.define('Dsh.view.widget.SideFilter', {
             },
             items: [
                 {
+                    itemId: 'device-group',
+                    name: 'deviceGroup',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
+                    displayField: 'name',
+                    valueField: 'id',
+                    store: 'Dsh.store.filter.DeviceGroup'
+                },
+                {
                     itemId: 'current-state',
                     name: 'currentStates',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
