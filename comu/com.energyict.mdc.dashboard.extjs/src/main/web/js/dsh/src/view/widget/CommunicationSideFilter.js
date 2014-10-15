@@ -28,7 +28,7 @@ Ext.define('Dsh.view.widget.CommunicationSideFilter', {
             items: [
                 {
                     itemId: 'device-group',
-                    name: 'deviceGroups',
+                    name: 'deviceGroup',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
                     displayField: 'name',
                     valueField: 'id',
