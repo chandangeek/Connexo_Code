@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.device.data.rest.LogLevelAdapter;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.rest.impl.comserver.LogLevelAdapter;
 import java.util.Date;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
