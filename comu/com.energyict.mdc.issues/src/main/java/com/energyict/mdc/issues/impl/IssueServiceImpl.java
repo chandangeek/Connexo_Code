@@ -1,10 +1,13 @@
 package com.energyict.mdc.issues.impl;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
+import java.util.Date;
+
 import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -43,12 +46,12 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public  Problem newProblem (Object source, String description, Object... arguments) {
-        return new ProblemImpl(this.clock.now(), source, description, arguments);
+        return new ProblemImpl(Date.from(this.clock.instant()), source, description, arguments);
     }
 
     @Override
     public  Warning newWarning (Object source, String description, Object... arguments) {
-        return new WarningImpl(this.clock.now(), source, description, arguments);
+        return new WarningImpl(Date.from(this.clock.instant()), source, description, arguments);
     }
 
     @Override

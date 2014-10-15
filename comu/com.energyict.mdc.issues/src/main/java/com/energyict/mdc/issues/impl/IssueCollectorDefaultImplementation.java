@@ -1,7 +1,9 @@
 package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
+
+import java.time.Clock;
+
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.Problem;
@@ -9,6 +11,7 @@ import com.energyict.mdc.issues.Warning;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,28 +41,28 @@ public class IssueCollectorDefaultImplementation implements IssueCollector {
      * {@inheritDoc}
      */
     public Issue addProblem (String description) {
-        return this.addIssue(new ProblemImpl(this.clock.now(), description));
+        return this.addIssue(new ProblemImpl(Date.from(this.clock.instant()), description));
     }
 
     /**
      * {@inheritDoc}
      */
     public Issue addProblem(Object source, String description, Object... arguments) {
-        return this.addIssue(new ProblemImpl(this.clock.now(), source, description));
+        return this.addIssue(new ProblemImpl(Date.from(this.clock.instant()), source, description));
     }
 
     /**
      * {@inheritDoc}
      */
     public Issue addWarning (String description) {
-        return this.addIssue(new WarningImpl(this.clock.now(), description));
+        return this.addIssue(new WarningImpl(Date.from(this.clock.instant()), description));
     }
 
     /**
      * {@inheritDoc}
      */
     public Issue addWarning(Object source, String description, Object... arguments) {
-        return this.addIssue(new WarningImpl(this.clock.now(), source, description));
+        return this.addIssue(new WarningImpl(Date.from(this.clock.instant()), source, description));
     }
 
     /**

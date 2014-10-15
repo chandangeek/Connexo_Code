@@ -12,7 +12,6 @@
 
   <artifactId>mdc.issues</artifactId>
   <packaging>bundle</packaging>
-  <version>${comserver.version}</version>
   <name>[MDC] mdc.issues</name>
   <description>
     Provides support to collect issues that are found while collecting data from physical devices.

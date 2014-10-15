@@ -1,6 +1,6 @@
 package com.energyict.mdc.issues.impl;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.energyict.mdc.issues.IssueService;
 import com.google.inject.AbstractModule;
 
