@@ -12,6 +12,7 @@ import ch.iec.tc57._2011.getmeterreadingsmessage.MeterReadingsPayloadType;
 import ch.iec.tc57._2011.getmeterreadingsmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -21,13 +22,18 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Range;
+
 import net.jcip.annotations.NotThreadSafe;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -69,12 +75,12 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
             MeterReadingsPayloadType meterReadingsPayloadType = objectFactory.createMeterReadingsPayloadType();
             payload.value = meterReadingsPayloadType;
             meterReadingsPayloadType.setMeterReadings(payloadObjectFactory.createMeterReadings());
-            Interval interval = getInterval(request);
+            Range<Instant> range = getRange(request);
 
-            addForRequestedUsagePoints(request, meterReadingsPayloadType, interval);
-            addForRequestedEndDevices(request, meterReadingsPayloadType, interval);
-            addForRequestedUsagePointGroups(request, meterReadingsPayloadType, interval);
-            addForRequestedEndDeviceGroups(request, meterReadingsPayloadType, interval);
+            addForRequestedUsagePoints(request, meterReadingsPayloadType, range);
+            addForRequestedEndDevices(request, meterReadingsPayloadType, range);
+            addForRequestedUsagePointGroups(request, meterReadingsPayloadType, range);
+            addForRequestedEndDeviceGroups(request, meterReadingsPayloadType, range);
         }
     }
 
@@ -94,118 +100,130 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
         return set;
     }
 
-    private void addForEndDevice(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.EndDevice endDevice, Interval interval) {
+    private void addForEndDevice(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.EndDevice endDevice, Range<Instant> range) {
         if (endDevice instanceof Meter) {
-            addForMeter(meterReadingsPayloadType, (Meter) endDevice, interval);
+            addForMeter(meterReadingsPayloadType, (Meter) endDevice, range);
         } else {
-            meterReadingsGenerator.addEndDeviceEvents(meterReadingsPayloadType.getMeterReadings(), endDevice, interval);
+            meterReadingsGenerator.addEndDeviceEvents(meterReadingsPayloadType.getMeterReadings(), endDevice, range);
         }
     }
 
-    private void addForEndDeviceGroup(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.groups.EndDeviceGroup endDeviceGroup, Interval interval) {
-        for (EndDeviceMembership membership : endDeviceGroup.getMembers(interval)) {
+    private void addForEndDeviceGroup(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.groups.EndDeviceGroup endDeviceGroup, Range<Instant> range) {
+        for (EndDeviceMembership membership : endDeviceGroup.getMembers(range)) {
             addForMembership(meterReadingsPayloadType, membership);
         }
     }
 
     private void addForMembership(MeterReadingsPayloadType meterReadingsPayloadType, UsagePointMembership membership) {
-        for (Interval subInterval : membership.getIntervals()) {
-            addForUsagePoint(meterReadingsPayloadType, membership.getUsagePoint(), subInterval);
+        for (Range<Instant> subRange : membership.getRanges().asRanges()) {
+            addForUsagePoint(meterReadingsPayloadType, membership.getUsagePoint(), subRange);
         }
     }
 
     private void addForMembership(MeterReadingsPayloadType meterReadingsPayloadType, EndDeviceMembership membership) {
-        for (Interval subInterval : membership.getIntervals()) {
-            addForEndDevice(meterReadingsPayloadType, membership.getEndDevice(), subInterval);
+        for (Range<Instant> subRange : membership.getRanges().asRanges()) {
+            addForEndDevice(meterReadingsPayloadType, membership.getEndDevice(), subRange);
         }
     }
 
-    private void addForMeter(MeterReadingsPayloadType meterReadingsPayloadType, Meter meter, Interval interval) {
-        Set<Map.Entry<Interval,MeterActivation>> entries = getMeterActivationsPerInterval(meter, interval).entrySet();
-        for (Map.Entry<Interval, MeterActivation> entry : entries) {
+    private void addForMeter(MeterReadingsPayloadType meterReadingsPayloadType, Meter meter, Range<Instant> range) {
+        Set<Map.Entry<Range<Instant>,MeterActivation>> entries = getMeterActivationsPerInterval(meter, range).entrySet();
+        for (Map.Entry<Range<Instant>, MeterActivation> entry : entries) {
             meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue(), entry.getKey());
         }
     }
 
-    private void addForRequestedEndDeviceGroups(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Interval interval) {
+    private void addForRequestedEndDeviceGroups(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Range<Instant> range) {
         for (String endDeviceGroupMrid : requestedEndDeviceGroups(request)) {
             Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupMrid);
             if (found.isPresent()) {
-                addForEndDeviceGroup(meterReadingsPayloadType, found.get(), interval);
+                addForEndDeviceGroup(meterReadingsPayloadType, found.get(), range);
             }
         }
     }
 
-    private void addForRequestedEndDevices(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Interval interval) {
+    private void addForRequestedEndDevices(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Range<Instant> range) {
         for (String endDeviceMrid : requestedEndDevices(request)) {
             Optional<com.elster.jupiter.metering.EndDevice> found = meteringService.findEndDevice(endDeviceMrid);
             if (found.isPresent() && found.get() instanceof Meter) {
-                addForMeter(meterReadingsPayloadType, (Meter) found.get(), interval);
+                addForMeter(meterReadingsPayloadType, (Meter) found.get(), range);
             }
         }
     }
 
-    private void addForRequestedUsagePointGroups(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Interval interval) {
+    private void addForRequestedUsagePointGroups(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Range<Instant> range) {
         for (String usagePointGroupMrID : requestedUsagePointGroups(request)) {
             Optional<com.elster.jupiter.metering.groups.UsagePointGroup> found = meteringGroupsService.findUsagePointGroup(usagePointGroupMrID);
             if (found.isPresent()) {
-                addForUsagePointGroup(meterReadingsPayloadType, found.get(), interval);
+                addForUsagePointGroup(meterReadingsPayloadType, found.get(), range);
             }
         }
     }
 
-    private void addForRequestedUsagePoints(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Interval interval) {
+    private void addForRequestedUsagePoints(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Range<Instant> range) {
         List<String> usagePointMrids = requestedUsagePoints(request);
         for (String usagePointMrid : usagePointMrids) {
             Optional<com.elster.jupiter.metering.UsagePoint> found = meteringService.findUsagePoint(usagePointMrid);
             if (found.isPresent()) {
-                addForUsagePoint(meterReadingsPayloadType, found.get(), interval);
+                addForUsagePoint(meterReadingsPayloadType, found.get(), range);
             }
         }
     }
 
-    private void addForUsagePoint(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.UsagePoint usagePoint, Interval interval) {
-        Set<Map.Entry<Interval,MeterActivation>> entries = getMeterActivationsPerInterval(usagePoint, interval).entrySet();
-        for (Map.Entry<Interval, MeterActivation> entry : entries) {
+    private void addForUsagePoint(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.UsagePoint usagePoint, Range<Instant> range) {
+        Set<Map.Entry<Range<Instant>,MeterActivation>> entries = getMeterActivationsPerInterval(usagePoint, range).entrySet();
+        for (Map.Entry<Range<Instant>, MeterActivation> entry : entries) {
             meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue(), entry.getKey());
         }
     }
 
-    private void addForUsagePointGroup(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.groups.UsagePointGroup usagePointGroup, Interval interval) {
-        List<UsagePointMembership> memberships = usagePointGroup.getMembers(interval);
+    private void addForUsagePointGroup(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.groups.UsagePointGroup usagePointGroup, Range<Instant> range) {
+        List<UsagePointMembership> memberships = usagePointGroup.getMembers(range);
         for (UsagePointMembership membership : memberships) {
             addForMembership(meterReadingsPayloadType, membership);
         }
     }
 
-    private Interval getInterval(GetMeterReadingsRequestType request) {
+    private Range<Instant> getRange(GetMeterReadingsRequestType request) {
         Date startTime = request.getStartTime();
         Date endTime = request.getEndTime();
-        return new Interval(startTime, endTime);
+        if (startTime == null) {
+        	if (endTime == null) {
+        		return Range.all();
+        	} else {
+        		return Range.atMost(endTime.toInstant());
+        	}
+        } else {
+        	if (endTime == null) {
+        		return Range.atLeast(startTime.toInstant());
+        	} else {
+        		return Range.closed(startTime.toInstant(), endTime.toInstant());
+        	}
+        }
     }
 
-    private Map<Interval, MeterActivation> getMeterActivationsPerInterval(com.elster.jupiter.metering.UsagePoint usagePoint, Interval interval) {
-        Map<Interval, MeterActivation> map = new HashMap<>();
+    private Map<Range<Instant>, MeterActivation> getMeterActivationsPerInterval(com.elster.jupiter.metering.UsagePoint usagePoint, Range<Instant> range) {
+        Map<Range<Instant>, MeterActivation> map = new HashMap<>();
         for (MeterActivation meterActivation : usagePoint.getMeterActivations()) {
-            if (meterActivation.getInterval().overlaps(interval)) {
-                map.put(intersection(meterActivation, interval), meterActivation);
+            if (meterActivation.overlaps(range)) {
+                map.put(intersection(meterActivation, range).get(), meterActivation);
             }
         }
         return map;
     }
 
-    private Map<Interval, MeterActivation> getMeterActivationsPerInterval(Meter meter, Interval interval) {
-        Map<Interval, MeterActivation> map = new HashMap<>();
+    private Map<Range<Instant>, MeterActivation> getMeterActivationsPerInterval(Meter meter, Range<Instant> range) {
+        Map<Range<Instant>, MeterActivation> map = new HashMap<>();
         for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getInterval().overlaps(interval)) {
-                map.put(intersection(meterActivation, interval), meterActivation);
+            if (meterActivation.overlaps(range)) {
+                map.put(intersection(meterActivation, range).get(), meterActivation);
             }
         }
         return map;
     }
 
-    private Interval intersection(MeterActivation meterActivation, Interval interval) {
-        return meterActivation.getInterval().intersection(interval);
+    private Optional<Range<Instant>> intersection(MeterActivation meterActivation, Range<Instant> range) {
+    	return meterActivation.intersection(range);
     }
 
     private List<String> requestedEndDeviceGroups(GetMeterReadingsRequestType request) {

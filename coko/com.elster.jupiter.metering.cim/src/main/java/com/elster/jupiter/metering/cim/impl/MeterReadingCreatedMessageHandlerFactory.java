@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.cim.CimMessageHandlerFactory;
 import com.elster.jupiter.metering.cim.OutputStreamProvider;
 import com.elster.jupiter.metering.cim.Sender;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;

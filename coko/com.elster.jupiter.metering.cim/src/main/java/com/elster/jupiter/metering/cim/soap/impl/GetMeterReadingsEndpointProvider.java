@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.cim.soap.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.soap.whiteboard.EndPointProvider;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;

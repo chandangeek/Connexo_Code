@@ -4,11 +4,16 @@ import ch.iec.tc57._2011.meterreadings_.MeterReadings;
 import ch.iec.tc57._2011.schema.message.CreatedMeterReadings;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ObjectFactory;
+
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.cim.Sender;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 
+import java.time.Clock;
+import java.time.Instant;
+
+import com.google.common.collect.Range;
+
+import java.util.Date;
 import java.util.UUID;
 
 public class MessageGenerator {
@@ -23,7 +28,7 @@ public class MessageGenerator {
         this.clock = clock;
     }
 
-    public void generateMessage(com.elster.jupiter.metering.Meter meter, Interval interval) {
+    public void generateMessage(com.elster.jupiter.metering.Meter meter, Range<Instant> range) {
         MeterActivation meterActivation = meter.getCurrentMeterActivation().get();
 
         CreatedMeterReadings message = messageObjectFactory.createCreatedMeterReadings();
@@ -31,7 +36,7 @@ public class MessageGenerator {
         message.setPayload(messageObjectFactory.createPayloadType());
 
 
-        MeterReadings meterReadings = meterReadingsGenerator.createMeterReadings(meterActivation, interval);
+        MeterReadings meterReadings = meterReadingsGenerator.createMeterReadings(meterActivation, range);
 
         sender.send(message, meterReadings);
     }
@@ -42,7 +47,7 @@ public class MessageGenerator {
         header.setNoun("MeterReadings");
         header.setRevision("");
         header.setContext("");
-        header.setTimestamp(clock.now());
+        header.setTimestamp(Date.from(clock.instant()));
         header.setSource("MDM");
         header.setAsyncReplyFlag(false);
         header.setAckRequired(false);

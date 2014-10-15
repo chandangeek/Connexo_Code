@@ -21,9 +21,10 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.collections.BinarySearch;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -42,31 +43,31 @@ public class MeterReadingsGenerator {
         this.filter = filter;
     }
 
-    public MeterReadings createMeterReadings(MeterActivation meterActivation, Interval interval) {
+    public MeterReadings createMeterReadings(MeterActivation meterActivation, Range<Instant> range) {
         MeterReadings meterReadings = payloadObjectFactory.createMeterReadings();
-        addMeterReadings(meterReadings, meterActivation, interval);
+        addMeterReadings(meterReadings, meterActivation, range);
         return meterReadings;
     }
 
-    public MeterReadings createMeterReadings(EndDevice endDevice, Interval interval) {
+    public MeterReadings createMeterReadings(EndDevice endDevice, Range<Instant> range) {
         MeterReadings meterReadings = payloadObjectFactory.createMeterReadings();
         MeterReading meterReading = createMeterReading(meterReadings, createMeter(endDevice), null);
-        addEndDeviceEvents(meterReading, endDevice, interval);
+        addEndDeviceEvents(meterReading, endDevice, range);
         return meterReadings;
     }
 
-    public void addMeterReadings(MeterReadings meterReadings, MeterActivation meterActivation, Interval interval) {
-        MeterReading meterReading = createMeterReading(meterReadings, createMeter(meterActivation.getMeter().orNull()), createUsagePoint(meterActivation.getUsagePoint().orNull()));
+    public void addMeterReadings(MeterReadings meterReadings, MeterActivation meterActivation, Range<Instant> range) {
+        MeterReading meterReading = createMeterReading(meterReadings, createMeter(meterActivation.getMeter().orElse(null)), createUsagePoint(meterActivation.getUsagePoint().orElse(null)));
         if (meterActivation.getMeter().isPresent()) {
-            addEndDeviceEvents(meterReading, meterActivation.getMeter().get(), interval);
+            addEndDeviceEvents(meterReading, meterActivation.getMeter().get(), range);
         }
         for (Channel channel : meterActivation.getChannels()) {
-            addBaseReadings(meterReading, getReadings(channel, interval), getValidationQualities(channel, interval));
+            addBaseReadings(meterReading, getReadings(channel, range), getValidationQualities(channel, range));
         }
     }
 
-    private List<ReadingQualityRecord> getValidationQualities(Channel channel, Interval interval) {
-        List<com.elster.jupiter.metering.ReadingQualityRecord> qualities = channel.findReadingQuality(interval);
+    private List<ReadingQualityRecord> getValidationQualities(Channel channel, Range<Instant> range) {
+        List<com.elster.jupiter.metering.ReadingQualityRecord> qualities = channel.findReadingQuality(range);
         Collections.sort(qualities, new Comparator<com.elster.jupiter.metering.ReadingQualityRecord>() {
             @Override
             public int compare(com.elster.jupiter.metering.ReadingQualityRecord first, com.elster.jupiter.metering.ReadingQualityRecord second) {
@@ -85,19 +86,20 @@ public class MeterReadingsGenerator {
         return point;
     }
 
-    public void addEndDeviceEvents(MeterReadings meterReadings, EndDevice endDevice, Interval interval) {
+    public void addEndDeviceEvents(MeterReadings meterReadings, EndDevice endDevice, Range<Instant> range) {
         MeterReading meterReading = payloadObjectFactory.createMeterReading();
         meterReadings.getMeterReading().add(meterReading);
         meterReading.setMeter(createMeter(endDevice));
-        addEndDeviceEvents(meterReading, endDevice, interval);
+        addEndDeviceEvents(meterReading, endDevice, range);
     }
-    private void addEndDeviceEvents(MeterReading meterReading, EndDevice endDevice, Interval interval) {
-        List<EndDeviceEventRecord> deviceEvents = endDevice.getDeviceEvents(interval);
+    
+    private void addEndDeviceEvents(MeterReading meterReading, EndDevice endDevice, Range<Instant> range) {
+        List<EndDeviceEventRecord> deviceEvents = endDevice.getDeviceEvents(range);
         for (EndDeviceEventRecord deviceEvent : deviceEvents) {
             EndDeviceEvent endDeviceEvent = payloadObjectFactory.createEndDeviceEvent();
             endDeviceEvent.setEndDeviceEventType(toEndDeviceEventType(deviceEvent.getEventType()));
             endDeviceEvent.setMRID(deviceEvent.getMRID());
-            endDeviceEvent.setCreatedDateTime(deviceEvent.getCreatedDateTime());
+            endDeviceEvent.setCreatedDateTime(Date.from(deviceEvent.getCreatedDateTime()));
             endDeviceEvent.setIssuerID(deviceEvent.getIssuerID());
             endDeviceEvent.setIssuerTrackingID(deviceEvent.getIssuerTrackingID());
             endDeviceEvent.setSeverity(deviceEvent.getSeverity());
@@ -111,7 +113,7 @@ public class MeterReadingsGenerator {
             return null;
         }
         ch.iec.tc57._2011.meterreadings_.Status state = payloadObjectFactory.createStatus();
-        state.setDateTime(status.getDateTime());
+        state.setDateTime(Date.from(status.getDateTime()));
         state.setReason(status.getReason());
         state.setRemark(status.getRemark());
         state.setValue(status.getValue());
@@ -124,31 +126,31 @@ public class MeterReadingsGenerator {
         return type;
     }
 
-    private List<? extends BaseReadingRecord> getReadings(Channel channel, Interval interval) {
+    private List<? extends BaseReadingRecord> getReadings(Channel channel, Range<Instant> range) {
         if (channel.isRegular()) {
-            return channel.getIntervalReadings(interval);
+            return channel.getIntervalReadings(range);
         }
-        return channel.getRegisterReadings(interval);
+        return channel.getRegisterReadings(range);
     }
 
     void addBaseReadings(MeterReading meterReading, List<? extends BaseReadingRecord> intervalReadings, List<com.elster.jupiter.metering.ReadingQualityRecord> validationQualities) {
-        BinarySearch<Date, com.elster.jupiter.metering.ReadingQualityRecord> binarySearch = binarySearchByTimestamp(validationQualities);
+        BinarySearch<Instant, com.elster.jupiter.metering.ReadingQualityRecord> binarySearch = binarySearchByTimestamp(validationQualities);
         for (BaseReadingRecord baseReading : intervalReadings) {
             List<com.elster.jupiter.metering.ReadingQualityRecord> relevantQualities = relevantQualities(baseReading, binarySearch);
             addReadingsPerReadingType(meterReading, baseReading, relevantQualities);
         }
     }
 
-    private BinarySearch<Date, com.elster.jupiter.metering.ReadingQualityRecord> binarySearchByTimestamp(List<com.elster.jupiter.metering.ReadingQualityRecord> validationQualities) {
-        return BinarySearch.in(validationQualities).using(new BinarySearch.Key<Date, com.elster.jupiter.metering.ReadingQualityRecord>() {
+    private BinarySearch<Instant, com.elster.jupiter.metering.ReadingQualityRecord> binarySearchByTimestamp(List<com.elster.jupiter.metering.ReadingQualityRecord> validationQualities) {
+        return BinarySearch.in(validationQualities).using(new BinarySearch.Key<Instant, com.elster.jupiter.metering.ReadingQualityRecord>() {
                 @Override
-                public Date getKey(com.elster.jupiter.metering.ReadingQualityRecord readingQuality) {
+                public Instant getKey(com.elster.jupiter.metering.ReadingQualityRecord readingQuality) {
                     return readingQuality.getReadingTimestamp();
                 }
             });
     }
 
-    private List<com.elster.jupiter.metering.ReadingQualityRecord> relevantQualities(BaseReadingRecord baseReading, BinarySearch<Date, com.elster.jupiter.metering.ReadingQualityRecord> binarySearch) {
+    private List<com.elster.jupiter.metering.ReadingQualityRecord> relevantQualities(BaseReadingRecord baseReading, BinarySearch<Instant, com.elster.jupiter.metering.ReadingQualityRecord> binarySearch) {
         int first = binarySearch.firstOccurrence(baseReading.getTimeStamp());
         if (first < 0) {
             return Collections.emptyList();
@@ -186,7 +188,7 @@ public class MeterReadingsGenerator {
         }
         Reading reading = payloadObjectFactory.createReading();
         reading.setReadingType(readingType);
-        reading.setReportedDateTime(baseReading.getTimeStamp());
+        reading.setReportedDateTime(Date.from(baseReading.getTimeStamp()));
         reading.setValue(baseReading.getValue().toString());
         if (baseReading instanceof IntervalReading) {
             ProfileStatus profileStatus = ((IntervalReading) baseReading).getProfileStatus();
@@ -196,7 +198,7 @@ public class MeterReadingsGenerator {
                     ReadingQuality.ReadingQualityType qualityType = payloadObjectFactory.createReadingQualityReadingQualityType();
                     qualityType.setRef(flag.getCimCode().get());
                     readingQuality.setReadingQualityType(qualityType);
-                    readingQuality.setTimeStamp(baseReading.getTimeStamp());
+                    readingQuality.setTimeStamp(Date.from(baseReading.getTimeStamp()));
                 }
             }
         }
@@ -205,7 +207,7 @@ public class MeterReadingsGenerator {
             ReadingQuality.ReadingQualityType readingQualityType = payloadObjectFactory.createReadingQualityReadingQualityType();
             readingQualityType.setRef(quality.getType().getCode());
             readingQuality.setReadingQualityType(readingQualityType);
-            readingQuality.setTimeStamp(quality.getTimestamp());
+            readingQuality.setTimeStamp(Date.from(quality.getTimestamp()));
             reading.getReadingQualities().add(readingQuality);
         }
         meterReading.getReadings().add(reading);

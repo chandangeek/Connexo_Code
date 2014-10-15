@@ -1,11 +1,8 @@
 package com.elster.jupiter.metering.cim;
 
-import com.elster.jupiter.util.time.Clock;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,7 +16,7 @@ public class FileOutputStreamProvider implements OutputStreamProvider {
     private final Clock clock;
     private int count = 0;
     private LocalDate localDate;
-    private static final DateTimeFormatter FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
+    private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final NumberFormat NUMBER_FORMAT = new DecimalFormat("000000");
 
     public FileOutputStreamProvider(Clock clock, String path, String extension) {
@@ -30,7 +27,7 @@ public class FileOutputStreamProvider implements OutputStreamProvider {
     }
 
     private LocalDate currentLocalDate() {
-        return new LocalDate(clock.now(), DateTimeZone.forTimeZone(clock.getTimeZone()));
+        return LocalDate.now(clock);
     }
 
     @Override
@@ -52,7 +49,7 @@ public class FileOutputStreamProvider implements OutputStreamProvider {
         }
         File file = null;
         while(file == null || file.exists()) {
-            file = new File(path + FORMAT.print(localDate) + NUMBER_FORMAT.format(++count) + '.' + extension);
+            file = new File(path + FORMAT.format(localDate) + NUMBER_FORMAT.format(++count) + '.' + extension);
         }
         boolean success = file.createNewFile();
         if (!success) {

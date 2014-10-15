@@ -9,7 +9,7 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import net.jcip.annotations.ThreadSafe;
 
 import javax.jws.WebParam;
