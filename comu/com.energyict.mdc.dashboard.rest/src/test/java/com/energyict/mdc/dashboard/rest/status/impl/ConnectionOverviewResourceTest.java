@@ -31,7 +31,6 @@ import java.util.Optional;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -121,7 +120,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
         when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
         DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
-        when(dataCollectionKpiService.findDataCollectionKpi(anyInt())).thenReturn(Optional.of(dataCollectionKpi));
+        when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
         when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
         when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
         when(endDeviceGroup.getName()).thenReturn("South region");

@@ -2,7 +2,6 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
@@ -13,6 +12,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import java.util.ArrayList;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -31,18 +31,18 @@ public class ConnectionOverviewInfoFactory {
     private final SummaryInfoFactory summaryInfoFactory;
     private final Thesaurus thesaurus;
     private final DashboardService dashboardService;
-    private final ExceptionFactory exceptionFactory;
     private final DataCollectionKpiService dataCollectionKpiService;
     private final KpiScoreFactory kpiScoreFactory;
 
     @Inject
-    public ConnectionOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, ExceptionFactory exceptionFactory, DataCollectionKpiService dataCollectionKpiService, KpiScoreFactory kpiScoreFactory) {
+    public ConnectionOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory,
+                                         Thesaurus thesaurus, DashboardService dashboardService,
+                                         DataCollectionKpiService dataCollectionKpiService, KpiScoreFactory kpiScoreFactory) {
         this.breakdownFactory = breakdownFactory;
         this.overviewFactory = overviewFactory;
         this.summaryInfoFactory = summaryInfoFactory;
         this.thesaurus = thesaurus;
         this.dashboardService = dashboardService;
-        this.exceptionFactory = exceptionFactory;
         this.dataCollectionKpiService = dataCollectionKpiService;
         this.kpiScoreFactory = kpiScoreFactory;
     }
@@ -54,9 +54,11 @@ public class ConnectionOverviewInfoFactory {
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown(endDeviceGroup);
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup);
         SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
-        DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(0).get();
-        ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview,comSessionSuccessIndicatorOverview,comPortPoolBreakdown,connectionTypeBreakdown,deviceTypeBreakdown,summaryData);
-        info.kpi = kpiScoreFactory.getKpiAsInfo(dataCollectionKpi);
+        ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData);
+        Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup);
+        if (dataCollectionKpiOptional.isPresent()) {
+            info.kpi = kpiScoreFactory.getKpiAsInfo(dataCollectionKpiOptional.get());
+        }
         info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
         return info;
     }
