@@ -45,8 +45,10 @@ public class NumericalReadingInfo extends ReadingInfo {
 
     public NumericalReadingInfo(NumericalReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive, DataValidationStatus dataValidationStatus) {
         super(reading);
-        this.value = reading.getQuantity().getValue();
-        this.rawValue = reading.getQuantity().getValue();
+        if(reading.getQuantity() != null) {
+            this.value = reading.getQuantity().getValue();
+            this.rawValue = reading.getQuantity().getValue();
+        }
         if (this.value != null){
             int numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
             this.value = this.value.setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
