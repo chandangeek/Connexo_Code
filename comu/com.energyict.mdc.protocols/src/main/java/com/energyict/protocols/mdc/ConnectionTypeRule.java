@@ -20,7 +20,7 @@ import com.energyict.protocols.mdc.channels.serial.optical.rxtx.RxTxOpticalConne
 import com.energyict.protocols.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.protocols.mdc.channels.sms.OutboundProximusSmsConnectionType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * List all existing ConnectionType pluggable classes
@@ -66,7 +66,7 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
                 return Optional.of(connectionTypeRule.name());
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
 
