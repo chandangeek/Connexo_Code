@@ -3,7 +3,7 @@ package com.elster.jupiter.events.rest.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.transaction.TransactionService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
