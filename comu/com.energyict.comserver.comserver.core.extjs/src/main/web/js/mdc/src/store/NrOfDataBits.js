@@ -4,12 +4,12 @@ Ext.define('Mdc.store.NrOfDataBits',{
         'Mdc.model.field.NrOfDataBits'
     ],
     model: 'Mdc.model.field.NrOfDataBits',
-    autoLoad: true,
+    autoLoad: false,
     storeId: 'NrOfDataBits',
 
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/field/nrOfDataBits',
+        url: '/api/mdc/field/nrOfDataBits',
         reader: {
             type: 'json',
             root: 'nrOfDataBits'

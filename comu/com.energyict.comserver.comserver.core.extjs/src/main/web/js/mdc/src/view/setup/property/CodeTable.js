@@ -17,6 +17,7 @@ Ext.define('Mdc.view.setup.property.CodeTable', {
 
     initComponent: function () {
         var codeTables = Ext.create('Mdc.store.CodeTables');
+        codeTables.load();
         this.items = [
             {
                 xtype: 'grid',

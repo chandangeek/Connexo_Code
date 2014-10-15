@@ -4,12 +4,12 @@ Ext.define('Mdc.store.BaudRates',{
         'Mdc.model.field.BaudRate'
     ],
     model: 'Mdc.model.field.BaudRate',
-    autoLoad: true,
+    autoLoad: false,
     storeId: 'BaudRates',
 
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/field/baudRate',
+        url: '/api/mdc/field/baudRate',
         reader: {
             type: 'json',
             root: 'baudRates'

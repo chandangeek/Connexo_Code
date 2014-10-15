@@ -4,12 +4,12 @@ Ext.define('Mdc.store.Parities',{
         'Mdc.model.field.Parity'
     ],
     model: 'Mdc.model.field.Parity',
-    autoLoad: true,
+    autoLoad: false,
     storeId: 'Parities',
 
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/field/parity',
+        url: '/api/mdc/field/parity',
         reader: {
             type: 'json',
             root: 'parities'

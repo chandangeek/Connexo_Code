@@ -8,8 +8,7 @@ Ext.define('Mdc.store.MessagesPrivileges', {
     ],
     proxy: {
         type: 'rest',
-//        url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/validationrulesets',
-        url: '/apps/mdc/fakedata/privileges.json',
+        url: '/api/dtc/devicemessageprivileges',
         reader: {
             type: 'json',
             root: 'privileges'

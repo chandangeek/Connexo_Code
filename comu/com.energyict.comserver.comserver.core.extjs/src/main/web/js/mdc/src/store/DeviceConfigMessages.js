@@ -5,7 +5,7 @@ Ext.define('Mdc.store.DeviceConfigMessages', {
     storeId: 'DeviceConfigMessages',
     sorters: [
         {
-            property: 'DeviceMessageCategory',
+            property: 'name',
             direction: 'ASC'
         }
     ]

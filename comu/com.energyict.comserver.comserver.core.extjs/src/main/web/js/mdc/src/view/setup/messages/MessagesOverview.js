@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                     {
                         xtype: 'device-configuration-menu',
                         deviceTypeId: me.deviceTypeId,
-                        deviceConfigurationId: me.deviceConfigId,
+                        deviceConfigId: me.deviceConfigId,
                         toggle: 9
                     }
                 ]
@@ -31,11 +31,13 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                     {
                         xtype: 'preview-container',
                         grid: {
-                            xtype: 'messages-categories-grid'
+                            xtype: 'messages-categories-grid',
+                            deviceTypeId: me.deviceTypeId,
+                            deviceConfigId: me.deviceConfigId
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('messages.categoriesGrid.empty.title', 'MDC', 'No message categories found'),
+                            title: Uni.I18n.translate('messages.categoriesGrid.empty.title', 'MDC', 'Device protocol did not specify any messages.'),
                             reasons: [
                                 Uni.I18n.translate('messages.CategoriesGrid.emptyCmp.item1', 'MDC', 'No message categories have been defined yet.'),
                                 Uni.I18n.translate('messages.CategoriesGrid.emptyCmp.item2', 'MDC', 'No message categories available for this device configuration.')
@@ -48,6 +50,7 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                 ]
             }
         ];
+
         me.callParent(arguments);
     }
 });
