@@ -63,8 +63,18 @@ public final class SqlBuilder implements SqlFragment {
         add(new TimestampFragment(date));
     }
 
+    @Deprecated
+    public void addTimestamp(java.util.Date date) {
+    	addTimestamp(date == null ? null : date.toInstant());
+    }
+    
     public void addDate(Instant date) {
         add(new DateFragment(date));
+    }
+    
+    @Deprecated
+    public void addDate(java.util.Date date) {
+    	addDate( date == null ? null : date.toInstant());
     }
 
     public StringBuilder getBuffer() {

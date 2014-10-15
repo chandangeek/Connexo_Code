@@ -3,6 +3,7 @@ package com.elster.jupiter.util.time;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
+import java.util.Date;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
@@ -40,6 +41,12 @@ public final class Interval {
         }
     }
 
+    @Deprecated
+    public Interval(Date start, Date end) {
+    	this.start = start == null ? -ETERNITY : getStartValue(start.toInstant());
+    	this.end = end == null ? ETERNITY : getEndValue(end.toInstant());
+    }
+    
     public static Interval of(Instant start, Instant end) {
     	return new Interval(start,end);
     }
