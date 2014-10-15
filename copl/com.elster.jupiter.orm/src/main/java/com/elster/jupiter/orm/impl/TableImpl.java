@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.FieldType;
 import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
@@ -661,14 +662,18 @@ public class TableImpl<T> implements Table<T> {
 				}
 			}
 		} else {
-			if (getMapperType().getType(column.getFieldName()) == null) {
-				throw new IllegalStateException(
-					Joiner.on(" ").
-						join("Table " + getName() + " : No field available for column",column.getName(),"mapped by",column.getFieldName()));
-			} else {
-				return;
-			}
-		}
+            try {
+                if (getMapperType().getType(column.getFieldName()) == null) {
+                    throw new IllegalStateException(
+                        Joiner.on(" ").
+                            join("Table " + getName() + " : No field available for column", column.getName(), "mapped by", column.getFieldName()));
+                } else {
+                    return;
+                }
+            } catch (MappingException e) {
+                throw new IllegalStateException("Table " + getName() + " Column " + column.getName() + " : " + e.toString(), e);
+            }
+        }
 		throw new IllegalTableMappingException("Table " + getName() + " : Column " + column.getName() + " has no mapping");
 	}
 	
