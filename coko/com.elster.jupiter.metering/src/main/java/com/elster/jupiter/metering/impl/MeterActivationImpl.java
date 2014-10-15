@@ -203,4 +203,13 @@ public class MeterActivationImpl implements MeterActivation {
 		return null;
 	}
 	
+	@Override 
+	public Instant getStart() {
+		return interval.getStart();
+	}
+	
+	@Override
+	public Instant getEnd() {
+		return interval.getEnd();
+	}
 }

@@ -15,4 +15,6 @@ public interface MeterActivation extends Effectivity , ReadingContainer {
 	boolean isCurrent();
     void endAt(Instant end);
     long getVersion();
+    Instant getStart();
+    Instant getEnd();
 }
