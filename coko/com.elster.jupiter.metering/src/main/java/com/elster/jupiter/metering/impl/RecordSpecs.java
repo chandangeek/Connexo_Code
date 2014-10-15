@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+
 import static com.elster.jupiter.ids.FieldType.INSTANT;
 import static com.elster.jupiter.ids.FieldType.LONGINTEGER;
 import static com.elster.jupiter.ids.FieldType.NUMBER;
@@ -7,7 +8,6 @@ import static com.elster.jupiter.ids.FieldType.TEXT;
 
 import java.time.Instant;
 import java.util.Optional;
-
 import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.google.common.collect.Range;
+
 
 public enum RecordSpecs {
 	SINGLEINTERVAL("Single Interval Data",true) {
@@ -104,11 +105,14 @@ public enum RecordSpecs {
 			result[0] = status.getBits();
 			result[1] = reading.getValue();
 			result[2] = ((Reading) reading).getText();
-			Optional<Range<Instant>> interval = reading.getTimePeriod();
-			if (interval.isPresent()) {
-				result[3] = interval.get().lowerEndpoint();
-				result[4] = interval.get().upperEndpoint();
-			}
+			reading.getTimePeriod().ifPresent(range -> {
+				if (range.hasLowerBound()) {
+					result[3] = range.lowerEndpoint();
+				}
+				if (range.hasUpperBound()) {
+					result[4] = range.upperEndpoint();
+				}
+			});
 			return result;
 		}
 	};
