@@ -2,7 +2,7 @@ package com.energyict.mdc.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

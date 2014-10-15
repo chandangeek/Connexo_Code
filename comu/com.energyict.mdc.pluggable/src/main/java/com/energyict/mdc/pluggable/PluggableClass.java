@@ -2,11 +2,10 @@ package com.energyict.mdc.pluggable;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
-
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasName;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -52,7 +51,7 @@ public interface PluggableClass extends HasId, HasName {
      *
      * @return The Date on which this PluggableClass was created or last modified
      */
-    public Date getModificationDate();
+    public Instant getModificationDate();
 
     /**
      * Returns the dynamic properties of this PluggableClass.

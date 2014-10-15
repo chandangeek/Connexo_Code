@@ -12,7 +12,6 @@
 
   <artifactId>mdc.pluggable</artifactId>
   <packaging>bundle</packaging>
-  <version>${comserver.version}</version>
   <name>[MDC] mdc.pluggable [init CPC]</name>
   <description>
     Provides support for plugging in new types of physical device connections and protocols.
@@ -22,7 +21,7 @@
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.dynamic</artifactId>
-      <version>${comserver.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
