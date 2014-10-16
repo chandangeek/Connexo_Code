@@ -1,6 +1,7 @@
 package com.energyict.mdc.pluggable.rest;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -12,7 +13,6 @@ import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValidationRule;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.pluggable.rest.impl.MessageSeeds;
