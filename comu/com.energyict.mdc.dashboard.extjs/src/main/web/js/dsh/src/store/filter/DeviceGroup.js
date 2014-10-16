@@ -5,7 +5,7 @@ Ext.define('Dsh.store.filter.DeviceGroup', {
 
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devicegroups',
+        url: '/api/ddr/devicegroups?type=QueryEndDeviceGroup"',
 
         reader: {
             type: 'json',
