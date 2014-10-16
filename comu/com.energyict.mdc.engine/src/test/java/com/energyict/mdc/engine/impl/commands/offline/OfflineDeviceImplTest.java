@@ -34,7 +34,7 @@ import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageServiceImpl;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -148,7 +148,7 @@ public class OfflineDeviceImplTest {
         when(mockedEnvironment.getApplicationContext()).thenReturn(applicationContext);
         when(applicationContext.getModulesImplementing(DeviceMessageFactory.class)).thenReturn(Arrays.asList(deviceMessageFactory));
         Environment.DEFAULT.set(mockedEnvironment);
-        when(this.offlineDeviceServiceProvider.findProtocolCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());
+        when(this.offlineDeviceServiceProvider.findProtocolCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
     }
 
     private int getTotalSizeOfProperties() {

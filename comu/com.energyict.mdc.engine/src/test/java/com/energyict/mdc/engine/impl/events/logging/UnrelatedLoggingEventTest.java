@@ -35,7 +35,7 @@ public class UnrelatedLoggingEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -53,7 +53,7 @@ public class UnrelatedLoggingEventTest {
     @Test
     public void testOccurrenceTimestampForDefaultConstructor () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
         UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider, LogLevel.DEBUG, "testOccurrenceTimestampForDefaultConstructor");
 
         // Business method
@@ -66,7 +66,7 @@ public class UnrelatedLoggingEventTest {
     @Test
     public void testOccurrenceTimestamp () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 17, 22, 01, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
 
         UnrelatedLoggingEvent event = new UnrelatedLoggingEvent(this.serviceProvider, LogLevel.INFO, "testOccurrenceTimestamp");
 

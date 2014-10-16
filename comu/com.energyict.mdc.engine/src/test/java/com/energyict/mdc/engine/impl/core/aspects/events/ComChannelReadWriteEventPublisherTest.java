@@ -12,7 +12,6 @@ import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 
 import org.junit.*;
 import org.junit.runner.*;

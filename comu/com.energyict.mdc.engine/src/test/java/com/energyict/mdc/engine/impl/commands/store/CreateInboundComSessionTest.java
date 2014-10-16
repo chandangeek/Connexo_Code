@@ -1,19 +1,19 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-
+import java.time.Clock;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +34,7 @@ public class CreateInboundComSessionTest {
 
     private static final long CONNECTION_TASK_ID = 1;
     private static final long COMPORT_ID = CONNECTION_TASK_ID + 1;
-    private final ProgrammableClock clock = new ProgrammableClock();
+    private final Clock clock = Clock.systemDefaultZone();
 
     @Mock
     private DeviceCommand.ExecutionLogger executionLogger;

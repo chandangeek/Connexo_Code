@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import java.util.Date;
+
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -12,6 +14,7 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+
 import org.joda.time.DateTimeConstants;
 
 /**
@@ -46,7 +49,7 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
         if (aboveMaximum(timeDifference)) {
             addIssue(getIssueService().newWarning(timeDifference, "timediffXlargerthanmaxdefined", timeDifference), CompletionCode.ConfigurationWarning);
         } else if (!belowMinimum(timeDifference)) {
-            deviceProtocol.setTime(getCommandRoot().getServiceProvider().clock().now());
+            deviceProtocol.setTime(Date.from(getCommandRoot().getServiceProvider().clock().instant()));
         }
     }
 

@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Provides functionality to update the cache of a Device in the database

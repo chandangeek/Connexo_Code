@@ -64,7 +64,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         }
         else {
             Calendar now = Calendar.getInstance();
-            now.setTimeInMillis(getServiceProvider().clock().now().getTime());
+            now.setTimeInMillis(getServiceProvider().clock().millis());
             return comWindow.includes(now);
         }
     }

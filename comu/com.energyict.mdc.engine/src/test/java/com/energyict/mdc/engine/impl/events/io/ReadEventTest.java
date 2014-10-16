@@ -40,7 +40,7 @@ public class ReadEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -59,7 +59,7 @@ public class ReadEventTest {
     @Test
     public void testConstructor () {
         Date occurrenceTimestamp = new DateTime(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(occurrenceTimestamp);
+        when(this.clock.instant()).thenReturn(occurrenceTimestamp.toInstant());
         byte[] bytes = "testConstructor".getBytes();
         ComPort comPort = mock(ComPort.class);
 
@@ -167,7 +167,7 @@ public class ReadEventTest {
     @Test
     public void testToStringDoesNotFail () throws IOException {
         Date occurrenceTimestamp = new DateTime(2012, Calendar.NOVEMBER, 7, 17, 22, 01, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(occurrenceTimestamp);
+        when(this.clock.instant()).thenReturn(occurrenceTimestamp.toInstant());
         byte[] bytes = "testToStringDoesNotFail".getBytes();
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);

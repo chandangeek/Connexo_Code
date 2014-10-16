@@ -54,7 +54,7 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -411,7 +411,7 @@ public abstract class JobExecution implements ScheduledJob {
 
     private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(ComTaskExecution comTaskExecution) {
         if (comTaskExecution.getComTasks().isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         } else {
             for (ComTask comTask : comTaskExecution.getComTasks()) {
                 Optional<ProtocolDialectConfigurationProperties> properties = getProtocolDialectConfigurationProperties(comTaskExecution.getDevice(), comTask);
@@ -420,7 +420,7 @@ public abstract class JobExecution implements ScheduledJob {
                 }
             }
             // Bugger: none of the ComTask were enabled with ProtocolDialectConfigurationProperties
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -430,7 +430,7 @@ public abstract class JobExecution implements ScheduledJob {
                 return comTaskEnablement.getProtocolDialectConfigurationProperties();
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private RescheduleBehavior getRescheduleBehavior() {

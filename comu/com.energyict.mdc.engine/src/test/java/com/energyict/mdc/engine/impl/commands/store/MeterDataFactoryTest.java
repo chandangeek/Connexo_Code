@@ -47,7 +47,7 @@ public class MeterDataFactoryTest {
         assertThat(intervalBlocks).hasSize(1);
         assertThat(intervalBlocks.get(0).getIntervals()).hasSize(1);
         assertThat(intervalBlocks.get(0).getIntervals().get(0).getValue()).isEqualTo(intervalValue);
-        assertThat(intervalBlocks.get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalDate);
+        assertThat(intervalBlocks.get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalDate.toInstant());
         assertThat(intervalBlocks.get(0).getReadingTypeCode()).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
     }
 

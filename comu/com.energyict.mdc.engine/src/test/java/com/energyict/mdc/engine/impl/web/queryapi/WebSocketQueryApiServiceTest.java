@@ -41,6 +41,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.joda.time.DateTimeConstants;
 import org.json.JSONException;
 import org.json.JSONStringer;
@@ -59,6 +60,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -279,7 +281,7 @@ public class WebSocketQueryApiServiceTest {
         String remoteHostName = "remote.testRefreshComPortWithChanges";
         RemoteComServer comServer = this.createRemoteComServerWithOneOutboundComPort(remoteHostName, onlineComServer);
         OutboundComPort comPort = comServer.getOutboundComPorts().get(0);
-        Date creationDate = comPort.getModificationDate();
+        Instant creationDate = comPort.getModificationDate();
 
         WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactoryImpl().newWebSocketQueryApiService(runningComServer);
         TestConnection connection = new TestConnection();
@@ -288,7 +290,7 @@ public class WebSocketQueryApiServiceTest {
         String query = this.getRefreshComPortQueryString(queryId, comPort);
 
         // Now update the ComPort's modification date
-        Date modificationDate = new Date(creationDate.getTime() + DateTimeConstants.MILLIS_PER_DAY);
+        Date modificationDate = new Date(creationDate.toEpochMilli() + DateTimeConstants.MILLIS_PER_DAY);
         this.updateComPortModificationDate(comPort, modificationDate);
 
         // Business method
@@ -339,7 +341,7 @@ public class WebSocketQueryApiServiceTest {
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.QUERY_ID).value(queryId);
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.METHOD).value(QueryMethod.RefreshComPort.name());
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.COMPORT).value(comPort.getId());
-        queryWriter.key(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE).value(comPort.getModificationDate().getTime());
+        queryWriter.key(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE).value(comPort.getModificationDate().toEpochMilli());
         queryWriter.endObject();
         return queryWriter.toString();
     }

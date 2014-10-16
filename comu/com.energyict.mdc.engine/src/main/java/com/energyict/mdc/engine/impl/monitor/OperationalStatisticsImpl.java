@@ -42,7 +42,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         super();
         this.clock = clock;
         this.thesaurus = thesaurus;
-        this.startTimestamp = this.clock.now();
+        this.startTimestamp = Date.from(this.clock.instant());
         this.changesInterPollDelay = changesInterPollDelay;
     }
 
@@ -53,7 +53,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
 
     @Override
     public TimeDuration getRunningTime () {
-        Date now = clock.now();
+        Date now = Date.from(clock.instant());
         return new TimeDuration(this.asSeconds(now.getTime() - this.startTimestamp.getTime()), TimeDuration.TimeUnit.SECONDS);
     }
 

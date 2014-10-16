@@ -9,7 +9,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.status.ComServerType;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -119,7 +118,7 @@ public class RunningComServerStatusImplTest {
     public void testComServerWithoutComPortsIsNotBlockedWhenLastCheckedForChangesWithinChangesInterpollDelay () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(now.minus(Duration.standardMinutes(1)).toDate());
@@ -135,7 +134,7 @@ public class RunningComServerStatusImplTest {
     public void testComServerWithoutComPortsIsNotBlockedWhenNotCheckedForChangesYetButStartedWithinChangesInterpollDelay () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(operationalStatistics.getStartTimestamp()).thenReturn(now.minus(Duration.standardMinutes(1)).toDate());
@@ -152,7 +151,7 @@ public class RunningComServerStatusImplTest {
     public void testComServerWithoutComPortsIsBlockedWhenLastCheckedForChangesOutsideChangesInterpollDelay () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(now.minus(Duration.standardMinutes(10)).toDate());
@@ -167,7 +166,7 @@ public class RunningComServerStatusImplTest {
     public void testComServerWithoutComPortsIsBlockedWhenNotCheckedForChangesYetAndStartedOutsideChangesInterpollDelay () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(null);
@@ -183,7 +182,7 @@ public class RunningComServerStatusImplTest {
     public void testBlockTimeForComServerWithoutComPortsWhenLastCheckedForChangesOutsideChangesInterpollDelay () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(now.minus(Duration.standardMinutes(15)).toDate());
@@ -198,7 +197,7 @@ public class RunningComServerStatusImplTest {
     public void testBlockTimeForComServerWithoutComPortsThatHasNotCheckedForChangesAndStartedOutsideChangesInterpollDelay () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(null);
@@ -214,7 +213,7 @@ public class RunningComServerStatusImplTest {
     public void testComServerWithComPortsIsNotBlocked () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         // Setup such that ComServer is not blocked
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
@@ -243,7 +242,7 @@ public class RunningComServerStatusImplTest {
     public void testComServerIsBlockAsSoonAsOneComPortIsBlocked () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         // Setup such that ComServer is not block
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
@@ -275,7 +274,7 @@ public class RunningComServerStatusImplTest {
     public void testComServerIsBlockAsSoonAsOneComPortIsBlockedBecauseNotCheckedForChangesOrWorkAndStartedOutsideInterpollDelay () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         // Setup such that ComServer is not block
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
@@ -309,7 +308,7 @@ public class RunningComServerStatusImplTest {
     public void testBlockTimeForComServerWithOneBlockedComPort () {
         Clock clock = mock(Clock.class);
         Instant now = new Instant(DateTimeConstants.MILLIS_PER_HOUR);
-        when(clock.now()).thenReturn(now.toDate());
+        when(clock.instant()).thenReturn(now.toDate().toInstant());
         // Setup such that ComServer is not block
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));

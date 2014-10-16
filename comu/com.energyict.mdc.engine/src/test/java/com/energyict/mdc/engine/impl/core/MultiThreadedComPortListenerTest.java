@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;

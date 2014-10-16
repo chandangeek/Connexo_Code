@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import java.time.Instant;
+
 /**
  * Provides a mock implementation for the {@link ComPort} interface
  * for demo purposes.
@@ -44,8 +46,8 @@ public abstract class MockComPort implements ComPort, Cloneable {
     }
 
     @Override
-    public Date getModificationDate() {
-        return new Date();
+    public Instant getModificationDate() {
+        return Instant.now();
     }
 
     public ComServer getComServer () {

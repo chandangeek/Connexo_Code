@@ -59,7 +59,7 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
         if (Math.abs(timeDifference) <= clockCommand.getClockTask().getMaximumClockDifference().getMilliSeconds()){
             long timeShift = getTimeShift(timeDifference);
             if (timeShift != 0) {
-                long currentDeviceTime = getCommandRoot().getServiceProvider().clock().now().getTime() - timeDifference;
+                long currentDeviceTime = getCommandRoot().getServiceProvider().clock().millis() - timeDifference;
                 Date now = new Date(currentDeviceTime + timeShift);
                 deviceProtocol.setTime(now);
                 this.timeSet = now;

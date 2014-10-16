@@ -5,7 +5,7 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,7 +32,7 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test(expected = NotFoundException.class)
     public void testLogBookDoesNotExist() {
-        when(this.logBookService.findById(LOGBOOK_ID)).thenReturn(Optional.absent());
+        when(this.logBookService.findById(LOGBOOK_ID)).thenReturn(Optional.empty());
 
         // Business method
         new LogBookIdentifierByIdImpl(LOGBOOK_ID, this.logBookService).getLogBook();

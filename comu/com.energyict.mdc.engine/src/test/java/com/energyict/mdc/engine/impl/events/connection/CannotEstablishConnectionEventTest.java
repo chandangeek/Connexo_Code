@@ -14,8 +14,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 
-import com.elster.jupiter.util.time.ProgrammableClock;
-
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -52,7 +50,7 @@ public class CannotEstablishConnectionEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 

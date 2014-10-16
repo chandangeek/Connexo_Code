@@ -11,9 +11,10 @@ import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 
@@ -48,8 +49,8 @@ public enum QueryMethod {
             Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
             Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
             if (comServer.isPresent()) {
-                Date modificationDate = this.getModificationDate(parameters);
-                if (comServer.get().getModificationDate().after(modificationDate)) {
+                Instant modificationDate = this.getModificationDate(parameters).toInstant();
+                if (comServer.get().getModificationDate().isAfter(modificationDate)) {
                     return comServer.get();
                 }
             }
@@ -62,7 +63,7 @@ public enum QueryMethod {
             Long comportId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
             Date modificationDate = this.getModificationDate(parameters);
             ComPort comPort = ServiceProvider.instance.get().engineModelService().findComPort(comportId);
-            if (comPort.getModificationDate().after(modificationDate)) {
+            if (comPort.getModificationDate().isAfter(modificationDate.toInstant())) {
                 return comPort;
             } else {
                 return null;

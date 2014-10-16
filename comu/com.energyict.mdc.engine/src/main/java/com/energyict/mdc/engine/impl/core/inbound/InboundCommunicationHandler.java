@@ -43,11 +43,14 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import org.joda.time.Duration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -175,8 +178,8 @@ public class InboundCommunicationHandler {
     private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e) {
         ComSessionBuilder comSessionBuilder =
                 serviceProvider.connectionTaskService().
-                        buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now()).
-                        addJournalEntry(serviceProvider.clock().now(), ComServer.LogLevel.ERROR, e.getMessage(), e);
+                        buildComSession(connectionTask, comPort.getComPortPool(), comPort, now()).
+                        addJournalEntry(now(), ComServer.LogLevel.ERROR, e.getMessage(), e);
         return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError, serviceProvider.clock());
     }
 
@@ -220,7 +223,7 @@ public class InboundCommunicationHandler {
     }
 
     private void startDeviceSessionInContext() {
-        context.buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now());
+        context.buildComSession(connectionTask, comPort.getComPortPool(), comPort, now());
     }
 
     public InboundComPort getComPort() {
@@ -313,7 +316,7 @@ public class InboundCommunicationHandler {
     }
 
     private ComSessionBuilder.EndedComSessionBuilder markSuccessful(ComSessionBuilder comSessionBuilder) {
-        return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.Success);
+        return comSessionBuilder.endSession(now(), ComSession.SuccessIndicator.Success);
     }
 
     private ComSessionBuilder.EndedComSessionBuilder markFailed(ComSessionBuilder comSessionBuilder, InboundDeviceProtocol.DiscoverResponseType reason) {
@@ -323,7 +326,7 @@ public class InboundCommunicationHandler {
                 throw CodingException.unrecognizedEnumValue(reason);
             }
             case DEVICE_DOES_NOT_EXPECT_INBOUND: {
-                return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.SetupError);
+                return comSessionBuilder.endSession(now(), ComSession.SuccessIndicator.SetupError);
             }
             case DEVICE_NOT_FOUND: {
                 /* Todo: deal with unknown device situation in which no ComSession is built yet
@@ -332,10 +335,10 @@ public class InboundCommunicationHandler {
                 return null;
             }
             case ENCRYPTION_REQUIRED: {
-                return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.SetupError);
+                return comSessionBuilder.endSession(now(), ComSession.SuccessIndicator.SetupError);
             }
             case SERVER_BUSY: {
-                return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.Broken);
+                return comSessionBuilder.endSession(now(), ComSession.SuccessIndicator.Broken);
             }
             default: {
                 throw CodingException.unrecognizedEnumValue(reason);
@@ -397,4 +400,7 @@ public class InboundCommunicationHandler {
         }
     }
 
+    private Date now() {
+    	return Date.from(serviceProvider.clock().instant());
+    }
 }

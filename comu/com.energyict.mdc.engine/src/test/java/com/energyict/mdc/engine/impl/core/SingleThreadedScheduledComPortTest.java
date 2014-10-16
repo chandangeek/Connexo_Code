@@ -58,7 +58,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.apache.log4j.PropertyConfigurator;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -252,8 +252,8 @@ public class SingleThreadedScheduledComPortTest {
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
                 thenReturn(comSessionBuilder);
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.<ComTaskEnablement>absent());
-        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());
+        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.empty());
+        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(Device.class), Matchers.<Date>any())).thenReturn(comTaskExecutionSessionBuilder);
     }
 
@@ -613,7 +613,7 @@ public class SingleThreadedScheduledComPortTest {
     @Test(timeout = 7000)
     public void testExecuteTasksOneByOneOutsideComWindow() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         Date now = new DateTime(2013, 8, 22, 9, 0, 0, 0).toDate();    // It's now 9 am
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 6); // Window is from 4 am to 6 am
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
@@ -660,7 +660,7 @@ public class SingleThreadedScheduledComPortTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("RealTimeDevComExec");
         Date now = new DateTime(2013, Calendar.AUGUST, 22, 9, 1, 0, 0).toDate();    // It's now 09:01 am
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 9); // Window is from 4 am to 9 am
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");

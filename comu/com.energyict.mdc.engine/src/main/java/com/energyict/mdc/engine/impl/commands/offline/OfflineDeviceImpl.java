@@ -26,7 +26,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;

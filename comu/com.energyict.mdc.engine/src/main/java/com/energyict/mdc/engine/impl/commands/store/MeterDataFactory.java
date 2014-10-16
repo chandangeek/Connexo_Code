@@ -46,22 +46,22 @@ public final class MeterDataFactory {
     public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister) {
         ReadingImpl reading = getRegisterReading(deviceRegister);
         if (deviceRegister.getFromTime() != null && deviceRegister.getToTime() != null) {
-            reading.setTimePeriod(deviceRegister.getFromTime(), deviceRegister.getToTime());
+            reading.setTimePeriod(deviceRegister.getFromTime().toInstant(), deviceRegister.getToTime().toInstant());
         }
         return reading;
     }
 
     private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister) {
         if(!collectedRegister.isTextRegister()){
-            return new ReadingImpl(
+            return ReadingImpl.of(
                     collectedRegister.getReadingType().getMRID(),
                     collectedRegister.getCollectedQuantity()!=null?collectedRegister.getCollectedQuantity().getAmount():BigDecimal.ZERO,
-                    collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime());
+                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime()).toInstant());
         } else {
-            return new ReadingImpl(
+            return ReadingImpl.of(
                     collectedRegister.getReadingType().getMRID(),
                     collectedRegister.getText(),
-                    collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime());
+                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime()).toInstant());
         }
     }
 
@@ -75,7 +75,7 @@ public final class MeterDataFactory {
     public static List<EndDeviceEvent> createEndDeviceEventsFor(CollectedLogBook deviceLogBook, long logBookId) {
         List<EndDeviceEvent> endDeviceEvents = new ArrayList<>();
         for (MeterProtocolEvent meterProtocolEvent : deviceLogBook.getCollectedMeterEvents()) {
-            EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(meterProtocolEvent.getEventType().getMRID(), meterProtocolEvent.getTime());
+            EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(meterProtocolEvent.getEventType().getMRID(), meterProtocolEvent.getTime().toInstant());
             endDeviceEvent.setLogBookId(logBookId);
             endDeviceEvent.setLogBookPosition(meterProtocolEvent.getDeviceEventId());
             endDeviceEvents.add(endDeviceEvent);
@@ -96,7 +96,7 @@ public final class MeterDataFactory {
         for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
             for (Pair<IntervalBlockImpl, IntervalValue> pair : DualIterable.endWithLongest(intervalBlock, intervalData.getIntervalValues())) {
                 // safest way to convert from Number to BigDecimal -> using the Number#toString()
-                pair.getFirst().addIntervalReading(new IntervalReadingImpl(intervalData.getEndTime(), new BigDecimal(pair.getLast().getNumber().toString())));
+                pair.getFirst().addIntervalReading(IntervalReadingImpl.of(intervalData.getEndTime().toInstant(), new BigDecimal(pair.getLast().getNumber().toString())));
             }
         }
         return new ArrayList<IntervalBlock>(intervalBlock);
@@ -108,7 +108,7 @@ public final class MeterDataFactory {
             ObisCode channelObisCode;
             channelObisCode = channelInfo.getChannelObisCode();
             String readingTypeMRID = getReadingTypeFrom(interval, readingTypeUtilService, channelInfo, channelObisCode);
-            intervalBlocks.add(new IntervalBlockImpl(readingTypeMRID));
+            intervalBlocks.add(IntervalBlockImpl.of(readingTypeMRID));
         }
         return intervalBlocks;
 

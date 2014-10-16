@@ -5,7 +5,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -47,7 +47,7 @@ public class ComTaskExecutionStartedEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -65,7 +65,7 @@ public class ComTaskExecutionStartedEventTest {
     @Test
     public void testOccurrenceTimestamp () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 15, 50, 44, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
@@ -82,7 +82,7 @@ public class ComTaskExecutionStartedEventTest {
     @Test
     public void testExecutionStartedTimestamp () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 15, 50, 43, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComPort comPort = mock(ComPort.class);
@@ -99,7 +99,7 @@ public class ComTaskExecutionStartedEventTest {
     @Test
     public void testExecutionStartedTimestampCopiedFromComTaskExecution () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 15, 50, 43, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getExecutionStartedTimestamp()).thenReturn(now);

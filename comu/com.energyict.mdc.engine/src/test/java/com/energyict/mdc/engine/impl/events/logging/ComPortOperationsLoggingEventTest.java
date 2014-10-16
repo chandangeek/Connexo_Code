@@ -42,7 +42,7 @@ public class ComPortOperationsLoggingEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -60,7 +60,7 @@ public class ComPortOperationsLoggingEventTest {
     @Test
     public void testOccurrenceTimestampForDefaultConstructor () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
 
         ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, mock(ComPort.class), LogLevel.DEBUG, "testOccurrenceTimestampForDefaultConstructor");
 
@@ -74,7 +74,7 @@ public class ComPortOperationsLoggingEventTest {
     @Test
     public void testOccurrenceTimestamp () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
 
         ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, null, LogLevel.INFO, "testOccurrenceTimestamp");
 

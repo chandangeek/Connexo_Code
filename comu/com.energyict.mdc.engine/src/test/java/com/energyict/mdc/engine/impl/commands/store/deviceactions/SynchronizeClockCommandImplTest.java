@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.ZoneId;
+
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
@@ -13,6 +14,7 @@ import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTest
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.ClockTask;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.junit.Assert;
@@ -89,7 +91,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void smallerThanMaxClockShiftTest() {
-        Clock currentTime = new ProgrammableClock().frozenAt(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate());
+        Clock currentTime = Clock.fixed(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
@@ -123,7 +125,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void largerThanMaxShiftSmallerThanMaxDiffTest() {
-        Clock currentTime = new ProgrammableClock().frozenAt(new DateTime(2013, DateTimeConstants.SEPTEMBER, 2, 10, 10, 10, 0).toDate());
+        Clock currentTime = Clock.fixed(new DateTime(2013, DateTimeConstants.SEPTEMBER, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
@@ -157,7 +159,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void largerThanMaxShiftSmallerThanMaxDiffButNegativeTest() {
-        Clock currentTime = new ProgrammableClock().frozenAt(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate());
+        Clock currentTime = Clock.fixed(new DateTime(2013, 9, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);
@@ -191,7 +193,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void largerThanMaxShiftLargerThanMaxDiffButNegativeTest() {
-        Clock currentTime = new ProgrammableClock().frozenAt(new DateTime(2013, DateTimeConstants.SEPTEMBER, 2, 10, 10, 10, 0).toDate());
+        Clock currentTime = Clock.fixed(new DateTime(2013, DateTimeConstants.SEPTEMBER, 2, 10, 10, 10, 0).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(currentTime);
         TimeDuration maxClockDifference = new TimeDuration(111);
         TimeDuration maxClockShift = new TimeDuration(50);

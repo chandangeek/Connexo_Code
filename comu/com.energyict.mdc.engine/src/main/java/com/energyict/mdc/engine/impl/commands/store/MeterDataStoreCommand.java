@@ -54,7 +54,7 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
         if (meterReadingsEntry != null) {
             meterReadingsEntry.getLast().addAllIntervalBlocks(intervalBlocks);
         } else {
-            MeterReadingImpl meterReading = new MeterReadingImpl();
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addAllIntervalBlocks(intervalBlocks);
             this.meterReadings.put(deviceIdentifier.getIdentifier(), Pair.of(deviceIdentifier, meterReading));
         }
@@ -72,7 +72,7 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
         if (meterReadingsEntry != null) {
             meterReadingsEntry.getLast().addAllReadings(registerReadings);
         } else {
-            MeterReadingImpl meterReading = new MeterReadingImpl();
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addAllReadings(registerReadings);
             this.meterReadings.put(deviceIdentifier.getIdentifier(), Pair.of(deviceIdentifier, meterReading));
         }
@@ -83,7 +83,7 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
         if (meterReadingsEntry != null) {
             meterReadingsEntry.getLast().addAllEndDeviceEvents(endDeviceEvents);
         } else {
-            MeterReadingImpl meterReading = new MeterReadingImpl();
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addAllEndDeviceEvents(endDeviceEvents);
             this.meterReadings.put(deviceIdentifier.getIdentifier(), Pair.of(deviceIdentifier, meterReading));
         }

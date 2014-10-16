@@ -10,7 +10,8 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.ZoneId;
+
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class EstablishConnectionEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -61,9 +62,9 @@ public class EstablishConnectionEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 11, 6, 13, 45, 17, 0).toDate());  // Random pick
-        Date now = frozenClock.now();
-        when(this.clock.now()).thenReturn(now);
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 11, 6, 13, 45, 17, 0).toDate().toInstant(), ZoneId.systemDefault());  // Random pick
+        Date now = Date.from(frozenClock.instant());
+        when(this.clock.instant()).thenReturn(frozenClock.instant());
 
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);

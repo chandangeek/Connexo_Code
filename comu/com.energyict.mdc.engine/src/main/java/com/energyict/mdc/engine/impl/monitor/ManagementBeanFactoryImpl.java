@@ -13,7 +13,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import java.time.Clock;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -95,7 +95,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
             Object registeredMBean = this.registeredMBeans.get(jmxName);
             if (registeredMBean == null) {
                 LOGGER.severe("Unable to find ComServerMonitorMBean for online comserver " + comServer.getName());
-                return Optional.absent();
+                return Optional.empty();
             }
             else {
                 return Optional.of((ComServerMonitorImplMBean) registeredMBean);
@@ -152,7 +152,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
             Object registeredMBean = this.registeredMBeans.get(jmxName);
             if (registeredMBean == null) {
                 LOGGER.severe("Unable to find ComPortMonitorMBean for outbound comport " + comPort.getName());
-                return Optional.absent();
+                return Optional.empty();
             }
             else {
                 return Optional.of((ScheduledComPortMonitorImplMBean) registeredMBean);

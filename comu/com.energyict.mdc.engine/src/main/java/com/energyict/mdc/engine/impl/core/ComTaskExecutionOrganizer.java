@@ -12,7 +12,7 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -201,7 +201,7 @@ public final class ComTaskExecutionOrganizer {
 
     private Key toKey(Device device, ComTaskExecution comTaskExecution, ComTask comTask) {
         Optional<ComTaskEnablement> foundComTaskEnablement = deviceConfigurationService.findComTaskEnablement(comTask, device.getDeviceConfiguration());
-        SecurityPropertySet securityPropertySet = getProperSecurityPropertySet(foundComTaskEnablement.orNull(), device, comTaskExecution);
+        SecurityPropertySet securityPropertySet = getProperSecurityPropertySet(foundComTaskEnablement.orElse(null), device, comTaskExecution);
         return Key.of(device, securityPropertySet);
     }
 

@@ -13,7 +13,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
 import java.text.MessageFormat;

@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import java.time.Clock;
 import java.time.ZoneId;
 
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;

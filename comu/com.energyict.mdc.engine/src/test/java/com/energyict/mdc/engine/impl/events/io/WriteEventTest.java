@@ -39,7 +39,7 @@ public class WriteEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -58,7 +58,7 @@ public class WriteEventTest {
     @Test
     public void testConstructor () {
         Date occurrenceTimestamp = new Date();
-        when(this.clock.now()).thenReturn(occurrenceTimestamp);
+        when(this.clock.instant()).thenReturn(occurrenceTimestamp.toInstant());
         byte[] bytes = "testConstructor".getBytes();
         ComPort comPort = mock(ComPort.class);
 

@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.ZoneId;
+
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -10,6 +11,7 @@ import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTest
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.TimeDifferenceCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -53,12 +55,12 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
 
     @Test
     public void executionTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
         final long timeDifferenceInMillis = 1000L;
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
-        long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
+        long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 1 seconds time difference
         TimeDifferenceCommandImpl timeDifferenceCommand = new TimeDifferenceCommandImpl(getMockedCommandRoot());
 
@@ -90,12 +92,12 @@ public class SingleExecutionCommandTest extends CommonCommandImplTests {
 
     @Test
     public void multipleExecutionTest(){
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
         final long timeDifferenceInMillis = 1000L;
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
-        long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
+        long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 1 seconds time difference
         TimeDifferenceCommandImpl timeDifferenceCommand = new TimeDifferenceCommandImpl(getMockedCommandRoot());
         ExecutionContext executionContext = this.newTestExecutionContext();

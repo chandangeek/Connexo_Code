@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.events.EventRegistrationRequestInitiator;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Provides the default implementation for the {@link EventRegistrationRequestInitiator} interface.

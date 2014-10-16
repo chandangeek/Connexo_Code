@@ -28,7 +28,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -112,7 +112,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         assertThat(currentMeterActivation).isNotNull();
         ReadingType registerReadingType = getReadingType(currentMeterActivation, registerObisCode1, kiloWattHours);
         assertThat(registerReadingType).isNotNull();
-        List<? extends BaseReadingRecord> readings = currentMeterActivation.getReadings(new Interval(justBeforeRegisterReadEventTime1, registerEventTime2), registerReadingType);
+        List<? extends BaseReadingRecord> readings = currentMeterActivation.getReadings(new Interval(justBeforeRegisterReadEventTime1, registerEventTime2).toOpenClosedRange(), registerReadingType);
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0).getQuantity(firstReadingTypeOfChannel).getValue()).isEqualTo(new BigDecimal(123));
     }

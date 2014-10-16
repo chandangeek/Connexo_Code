@@ -1,16 +1,18 @@
 package com.energyict.mdc.engine.impl.core.aspects.journaling;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.Instant;
+import java.time.ZoneId;
+
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
+
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -39,7 +41,7 @@ public class ComCommandJournalistTest {
     private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
 
     private ComCommandJournalist journalist;
-    private Clock clock = new ProgrammableClock().frozenAt(new Date(-1613851200000L)); // GMT + 1 : what happened then? I'll tell you: armistics of WOI, i.e. Nov 11th 1918
+    private Clock clock = Clock.fixed(Instant.ofEpochMilli(-1613851200000L), ZoneId.systemDefault()); // GMT + 1 : what happened then? I'll tell you: armistics of WOI, i.e. Nov 11th 1918
 
     @Before
     public void initializeJournalist () {
@@ -76,7 +78,7 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.INFO);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.now(), expectedCompletionCode, "", expectedCommandDescription);
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(Date.from(clock.instant()), expectedCompletionCode, "", expectedCommandDescription);
     }
 
     @Test
@@ -92,7 +94,7 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.DEBUG);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.now(), expectedCompletionCode, "", expectedCommandDescription);
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(Date.from(clock.instant()), expectedCompletionCode, "", expectedCommandDescription);
     }
 
     @Test
@@ -111,7 +113,7 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.now(), expectedCompletionCode, "", expectedCommandDescription);
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(Date.from(clock.instant()), expectedCompletionCode, "", expectedCommandDescription);
     }
 
     @Test
@@ -133,7 +135,7 @@ public class ComCommandJournalistTest {
 
         // Asserts
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(clock.now()), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(Date.from(clock.instant())), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
         String errorDescription = stringCaptor.getValue();
         assertThat(errorDescription).startsWith("Execution completed with 2 warning(s) and 0 problem(s)");
         assertThat(errorDescription).contains("01. First warning");
@@ -159,7 +161,7 @@ public class ComCommandJournalistTest {
 
         // Asserts
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(clock.now()), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(Date.from(clock.instant())), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
         String errorDescription = stringCaptor.getValue();
         assertThat(errorDescription).startsWith("Execution completed with 0 warning(s) and 2 problem(s)");
         assertThat(errorDescription).contains("01. First problem");
@@ -185,7 +187,7 @@ public class ComCommandJournalistTest {
 
         // Asserts
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(clock.now()), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(Date.from(clock.instant())), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
         String errorDescription = stringCaptor.getValue();
         assertThat(errorDescription).startsWith("Execution completed with 1 warning(s) and 1 problem(s)");
         assertThat(errorDescription).contains("01. Problem");
@@ -197,7 +199,7 @@ public class ComCommandJournalistTest {
         when(warning.isWarning()).thenReturn(true);
         when(warning.isProblem()).thenReturn(false);
         when(warning.getDescription()).thenReturn(description);
-        when(warning.getTimestamp()).thenReturn(clock.now());
+        when(warning.getTimestamp()).thenReturn(Date.from(clock.instant()));
         return warning;
     }
 
@@ -206,7 +208,7 @@ public class ComCommandJournalistTest {
         when(problem.isWarning()).thenReturn(false);
         when(problem.isProblem()).thenReturn(true);
         when(problem.getDescription()).thenReturn(description);
-        when(problem.getTimestamp()).thenReturn(clock.now());
+        when(problem.getTimestamp()).thenReturn(Date.from(clock.instant()));
         return problem;
     }
 

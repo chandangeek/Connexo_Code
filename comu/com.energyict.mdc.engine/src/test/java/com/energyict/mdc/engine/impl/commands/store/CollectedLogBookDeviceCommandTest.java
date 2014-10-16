@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;

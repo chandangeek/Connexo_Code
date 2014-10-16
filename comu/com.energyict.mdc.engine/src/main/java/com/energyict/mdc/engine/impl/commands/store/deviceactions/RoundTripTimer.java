@@ -21,14 +21,14 @@ public class RoundTripTimer {
      * Start the 'timer'
      */
     public void start() {
-        this.startTime = this.clock.now().getTime();
+        this.startTime = this.clock.millis();
     }
 
     /**
      * Stop the 'timer'
      */
     public void stop() {
-        this.stopTime = this.clock.now().getTime();
+        this.stopTime = this.clock.millis();
     }
 
     /**
@@ -40,7 +40,7 @@ public class RoundTripTimer {
         if (startTime == 0) {
             return 0;
         } else if (stopTime == 0) {
-            return this.clock.now().getTime() - startTime;
+            return this.clock.millis() - startTime;
         } else {
             return stopTime - startTime;
         }

@@ -4,7 +4,10 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+
 import java.time.Clock;
+import java.time.Instant;
+
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -56,7 +59,9 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
-import com.google.common.base.Optional;
+
+import java.util.Optional;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -172,6 +177,7 @@ public class JobExecutionTest {
 
     @Before
     public void setupEventPublisher() {
+    	when(clock.instant()).thenReturn(Instant.now());
         this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
         when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
@@ -219,7 +225,7 @@ public class JobExecutionTest {
         when(this.securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
         when(this.securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
 
-        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());
+        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
 
         ExecutionContext executionContext = newTestExecutionContext();
         root = spy(new CommandRootImpl(offlineDevice, executionContext, this.serviceProvider));
@@ -382,7 +388,7 @@ public class JobExecutionTest {
     public void timeDifferenceExceedsMaxShouldFailCompleteSessionTest() throws ConnectionException {
         Date meterTime = new DateTime(2013, 9, 18, 16, 0, 0, 0).toDate();
         Date systemTime = new DateTime(2013, 9, 18, 15, 0, 0, 0).toDate();
-        when(this.clock.now()).thenReturn(systemTime);
+        when(this.clock.instant()).thenReturn(systemTime.toInstant());
         when(deviceProtocol.getTime()).thenReturn(meterTime);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         ScheduledComTaskExecutionGroup jobExecution = getJobExecutionForBasicCheckInFrontTests();

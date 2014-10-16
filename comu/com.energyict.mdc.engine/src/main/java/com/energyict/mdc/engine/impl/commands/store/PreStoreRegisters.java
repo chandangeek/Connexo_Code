@@ -59,7 +59,7 @@ public class PreStoreRegisters {
 
     private Reading getOverflowCheckedReading(BigDecimal overflow, Reading scaledReading) {
         if (scaledReading.getValue().compareTo(overflow) > 0) {
-            return new ReadingImpl(scaledReading.getReadingTypeCode(), scaledReading.getValue().subtract(overflow), scaledReading.getTimeStamp());
+            return ReadingImpl.of(scaledReading.getReadingTypeCode(), scaledReading.getValue().subtract(overflow), scaledReading.getTimeStamp());
         }
         return scaledReading;
     }
@@ -69,7 +69,7 @@ public class PreStoreRegisters {
             return reading;
         } else {
             BigDecimal scaledValue = reading.getValue().scaleByPowerOfTen(scaler);
-            return new ReadingImpl(reading.getReadingTypeCode(), scaledValue, reading.getTimeStamp());
+            return ReadingImpl.of(reading.getReadingTypeCode(), scaledValue, reading.getTimeStamp());
         }
     }
 

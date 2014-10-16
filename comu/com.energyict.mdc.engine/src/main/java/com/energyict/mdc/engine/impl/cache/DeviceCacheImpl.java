@@ -6,11 +6,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import java.time.Clock;
+import java.time.Instant;
+
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import javax.inject.Inject;
 
 import java.io.ByteArrayInputStream;
@@ -46,7 +50,7 @@ public class DeviceCacheImpl implements DeviceCache {
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED_FOR_CACHE + "}")
     private Reference<Device> device = ValueReference.absent();
 
-    private Date modificationDate;
+    private Instant modificationDate;
 
     @Inject
     public DeviceCacheImpl(Thesaurus thesaurus, DataModel dataModel, Clock clock, ProtocolPluggableService protocolPluggableService) {
@@ -64,13 +68,13 @@ public class DeviceCacheImpl implements DeviceCache {
 
     @Override
     public void save() {
-        this.modificationDate = this.clock.now();
+        this.modificationDate = this.clock.instant();
         Save.CREATE.save(dataModel, this);
     }
 
     @Override
     public void update() {
-        this.modificationDate = this.clock.now();
+        this.modificationDate = this.clock.instant();
         Save.UPDATE.save(dataModel, this);
     }
 

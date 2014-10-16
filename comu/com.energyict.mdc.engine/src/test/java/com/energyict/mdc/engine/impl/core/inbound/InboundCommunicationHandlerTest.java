@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core.inbound;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -56,7 +55,7 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.assertj.core.api.Condition;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -140,7 +139,7 @@ public class InboundCommunicationHandlerTest {
     private FakeTransactionService transactionService = new FakeTransactionService();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private InboundCommunicationHandler handler;
-    private Clock clock = new ProgrammableClock();
+    private Clock clock = Clock.systemDefaultZone();
 
     @Before
     public void setup() {
@@ -163,9 +162,9 @@ public class InboundCommunicationHandlerTest {
         this.serviceProvider.setProtocolPluggableService(this.protocolPluggableService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         // The following prohibits the execution of every ComTask on all devices
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.<ComTaskEnablement>absent());
+        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.empty());
         this.serviceProvider.setEngineService(this.engineService);
-        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());
+        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         this.serviceProvider.setTransactionService(this.transactionService);
         when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         when(this.comServer.getId()).thenReturn(Long.valueOf(COMSERVER_ID));
@@ -240,17 +239,17 @@ public class InboundCommunicationHandlerTest {
         Date sessionStopClock = new DateTime(2012, 10, 25, 13, 0, 5, 0).toDate();   // 5 secs later
         Date connectionClosedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 5, 1).toDate();   // 5001 milli seconds later
         Clock clock = mock(Clock.class);
-        when(clock.now()).thenReturn(
-                connectionEstablishedEventOccurrenceClock,
-                sessionStartClock,
-                discoveryStartedLogMessageClock, // Once to actually log the message
-                discoveryStartedLogMessageClock, // Once to send the message in a LoggingEvent
-                discoveryResultLogEvent,    // Once to actually log the message
-                discoveryResultLogEvent,    // Once to send the message in a LoggingEvent
-                deviceNotFoundLogEvent,     // Once to actually log the message
-                deviceNotFoundLogEvent,     // Once to send the message in a LoggingEvent
-                sessionStopClock,
-                connectionClosedEventOccurrenceClock);
+        when(clock.instant()).thenReturn(
+                connectionEstablishedEventOccurrenceClock.toInstant(),
+                sessionStartClock.toInstant(),
+                discoveryStartedLogMessageClock.toInstant(), // Once to actually log the message
+                discoveryStartedLogMessageClock.toInstant(), // Once to send the message in a LoggingEvent
+                discoveryResultLogEvent.toInstant(),    // Once to actually log the message
+                discoveryResultLogEvent.toInstant(),    // Once to send the message in a LoggingEvent
+                deviceNotFoundLogEvent.toInstant(),     // Once to actually log the message
+                deviceNotFoundLogEvent.toInstant(),     // Once to send the message in a LoggingEvent
+                sessionStopClock.toInstant(),
+                connectionClosedEventOccurrenceClock.toInstant());
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
@@ -320,18 +319,18 @@ public class InboundCommunicationHandlerTest {
         Date noInboundConnectionTaskOnDeviceLogEventClock = new DateTime(2012, 10, 25, 13, 0, 3, 0).toDate();      // another sec later
         Date sessionStopClock = new DateTime(2012, 10, 25, 13, 0, 5, 0).toDate();   // 5 secs later
         Date connectionClosedEventOccurrenceClock = new DateTime(2012, 10, 25, 13, 0, 5, 1).toDate();   // 5001 milli seconds later
-        Clock clock =
-                new ProgrammableClock().ticksAt(
-                        connectionEstablishedEventOccurrenceClock,
-                        sessionStartClock,
-                        discoveryStartedLogMessageClock, // Once to actually log the message
-                        discoveryStartedLogMessageClock, // Once to send the message in a LoggingEvent
-                        discoveryResultLogEventClock,    // Once to actually log the message
-                        discoveryResultLogEventClock,    // Once to send the message in a LoggingEvent
-                        noInboundConnectionTaskOnDeviceLogEventClock,   // Once to actually log the message
-                        noInboundConnectionTaskOnDeviceLogEventClock,   // Once to send the message in a LoggingEvent
-                        sessionStopClock,
-                        connectionClosedEventOccurrenceClock);
+        Clock clock = mock(Clock.class);
+        when(clock.instant()).thenReturn(
+		    connectionEstablishedEventOccurrenceClock.toInstant(),
+		    sessionStartClock.toInstant(),
+		    discoveryStartedLogMessageClock.toInstant(), // Once to actually log the message
+		    discoveryStartedLogMessageClock.toInstant(), // Once to send the message in a LoggingEvent
+		    discoveryResultLogEventClock.toInstant(),    // Once to actually log the message
+		    discoveryResultLogEventClock.toInstant(),    // Once to send the message in a LoggingEvent
+		    noInboundConnectionTaskOnDeviceLogEventClock.toInstant(),   // Once to actually log the message
+		    noInboundConnectionTaskOnDeviceLogEventClock.toInstant(),   // Once to send the message in a LoggingEvent
+		    sessionStopClock.toInstant(),
+		    connectionClosedEventOccurrenceClock.toInstant());
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);

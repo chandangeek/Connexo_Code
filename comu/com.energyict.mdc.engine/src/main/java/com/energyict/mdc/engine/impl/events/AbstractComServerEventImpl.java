@@ -37,7 +37,7 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
     protected AbstractComServerEventImpl(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
-        this.occurrenceTimestamp = serviceProvider.clock().now();
+        this.occurrenceTimestamp = Date.from(serviceProvider.clock().instant());
     }
 
     private ServiceProvider getServiceProvider () {

@@ -18,7 +18,6 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -50,13 +49,16 @@ import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+
 import java.time.Clock;
+
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -66,6 +68,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.joda.time.Instant;
 import org.junit.*;
 import org.junit.rules.*;
 import org.junit.runner.*;
@@ -182,11 +185,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
     }
 
     private static void initializeClock() {
-        when(clock.getTimeZone()).thenReturn(utcTimeZone);
-        when(clock.now()).thenAnswer(new Answer<Date>() {
+        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(clock.instant()).thenAnswer(new Answer<Instant>() {
             @Override
-            public Date answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new Date();
+            public Instant answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return Instant.now();
             }
         });
     }
@@ -203,16 +206,16 @@ public abstract class AbstractCollectedDataIntegrationTest {
     }
 
     protected Date freezeClock(Date timeStamp) {
-        when(clock.getTimeZone()).thenReturn(utcTimeZone);
-        when(clock.now()).thenReturn(timeStamp);
+        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(clock.instant()).thenReturn(timeStamp.toInstant());
         return timeStamp;
     }
     protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.set(year, month, day, hour, minute, second);
         calendar.set(Calendar.MILLISECOND, millisecond);
-        when(clock.getTimeZone()).thenReturn(timeZone);
-        when(clock.now()).thenReturn(calendar.getTime());
+        when(clock.getZone()).thenReturn(timeZone.toZoneId());
+        when(clock.instant()).thenReturn(calendar.getTime().toInstant());
         return calendar.getTime();
     }
 

@@ -105,7 +105,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.comPort = comPort;
         this.connectionTask = connectionTask;
         this.serviceProvider = serviceProvider;
-        this.sessionBuilder = serviceProvider.connectionTaskService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, serviceProvider.clock().now());
+        this.sessionBuilder = serviceProvider.connectionTaskService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, Date.from(serviceProvider.clock().instant()));
         if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addConnectionPropertiesAsJournalEntries();
         }
@@ -461,7 +461,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private Date now() {
-        return serviceProvider.clock().now();
+        return Date.from(serviceProvider.clock().instant());
     }
 
     private void setComPortRelatedComChannel(ComPortRelatedComChannel comPortRelatedComChannel) {

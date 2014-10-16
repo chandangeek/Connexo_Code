@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.access;
 
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.Clock;
+
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -14,6 +15,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +42,7 @@ public class DaisyChainedLogOnCommandTest extends AbstractComCommandExecuteTest 
         when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
         EventPublisherImpl.setInstance(eventPublisher);
         ServiceProvider.instance.set(serviceProvider);
-        serviceProvider.setClock(new ProgrammableClock());
+        serviceProvider.setClock(Clock.systemDefaultZone());
     }
 
     @After

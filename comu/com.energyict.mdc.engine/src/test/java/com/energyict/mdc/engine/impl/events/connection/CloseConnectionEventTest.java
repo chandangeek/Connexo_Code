@@ -45,7 +45,7 @@ public class CloseConnectionEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -63,7 +63,7 @@ public class CloseConnectionEventTest {
     @Test
     public void testOccurrenceTimestamp () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 13, 45, 17, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
 
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);

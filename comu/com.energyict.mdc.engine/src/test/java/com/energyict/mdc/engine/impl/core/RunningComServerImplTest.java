@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;

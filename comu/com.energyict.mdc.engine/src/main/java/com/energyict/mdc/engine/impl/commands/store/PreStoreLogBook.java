@@ -1,7 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
+
 import java.time.Clock;
+import java.time.Instant;
+
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -46,19 +49,19 @@ public class PreStoreLogBook {
         OfflineLogBook offlineLogBook = this.comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier());
 
         List<EndDeviceEvent> filteredEndDeviceEvents = new ArrayList<>();
-        Date lastLogbook = null;
-        Date currentDate = this.clock.now();
+        Instant lastLogbook = null;
+        Instant currentDate = this.clock.instant();
         for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(deviceLogBook, offlineLogBook.getLogBookId())) {
-            if(uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getMRID(), endDeviceEvent.getCreatedDateTime()))){
-                if (!endDeviceEvent.getCreatedDateTime().after(currentDate)) {
+            if(uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getMRID(), Date.from(endDeviceEvent.getCreatedDateTime())))) {
+                if (!endDeviceEvent.getCreatedDateTime().isAfter(currentDate)) {
                     filteredEndDeviceEvents.add(endDeviceEvent);
-                    if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().after(lastLogbook)) {
+                    if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().isAfter(lastLogbook)) {
                         lastLogbook = endDeviceEvent.getCreatedDateTime();
                     }
                 }
             }
         }
-        return new LocalLogBook(filteredEndDeviceEvents, lastLogbook);
+        return new LocalLogBook(filteredEndDeviceEvents, lastLogbook == null ? null : Date.from(lastLogbook));
     }
 
     class LocalLogBook {

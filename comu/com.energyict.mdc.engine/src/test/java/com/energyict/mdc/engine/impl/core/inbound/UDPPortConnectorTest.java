@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;

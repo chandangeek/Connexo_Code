@@ -4,8 +4,8 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilde
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 
 import java.time.Clock;
-
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Handler;
@@ -33,7 +33,7 @@ public class ComCommandMessageJournalist extends Handler {
     @Override
     public void publish (LogRecord record) {
         this.comTaskExecutionSessionBuilder.addComTaskExecutionMessageJournalEntry(
-                this.clock.now(),
+        		Date.from(clock.instant()),
                 LogLevelMapper.forJavaUtilLogging().toComServerLogLevel(record.getLevel()),
                 extractInfo(record), "");
     }

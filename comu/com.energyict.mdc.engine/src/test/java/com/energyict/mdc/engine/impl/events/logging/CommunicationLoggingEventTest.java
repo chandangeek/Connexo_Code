@@ -46,7 +46,7 @@ public class CommunicationLoggingEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -64,7 +64,7 @@ public class CommunicationLoggingEventTest {
     @Test
     public void testOccurrenceTimestamp () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 6, 17, 22, 01, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
 
         CommunicationLoggingEvent event = new CommunicationLoggingEvent(this.serviceProvider, null, null, LogLevel.INFO, "testOccurrenceTimestamp");
 

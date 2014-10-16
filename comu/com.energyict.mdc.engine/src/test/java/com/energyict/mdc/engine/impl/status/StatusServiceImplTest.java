@@ -6,8 +6,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.ComServerStatus;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -36,7 +35,7 @@ public class StatusServiceImplTest {
 
     @Test
     public void testStatusWhenComServerWithSystemNameDoesNotExist () {
-        when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.<ComServer>absent());
+        when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.empty());
         StatusServiceImpl statusService = this.newStatusService();
 
         // Business method
@@ -53,7 +52,7 @@ public class StatusServiceImplTest {
 
     @Test
     public void testStatusOffNonRunningOnlineComServer () {
-        when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.<ComServer>absent());
+        when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.empty());
         StatusServiceImpl statusService = this.newStatusService();
 
         // Business method

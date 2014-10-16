@@ -6,7 +6,9 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.Instant;
+import java.time.ZoneId;
+
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -40,7 +42,7 @@ public class UndiscoveredEstablishConnectionEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(this.clock.instant()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -57,9 +59,9 @@ public class UndiscoveredEstablishConnectionEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 11, 6, 13, 45, 17, 0).toDate());  // Random pick
-        Date now = frozenClock.now();
-        when(this.clock.now()).thenReturn(now);
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 11, 6, 13, 45, 17, 0).toDate().toInstant(), ZoneId.systemDefault());  // Random pick
+        Instant now = frozenClock.instant();
+        when(this.clock.instant()).thenReturn(now);
 
         InboundComPort comPort = mock(InboundComPort.class);
         UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, comPort);
@@ -68,7 +70,7 @@ public class UndiscoveredEstablishConnectionEventTest {
         Date timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
-        assertThat(timestamp).isEqualTo(now);
+        assertThat(timestamp.toInstant()).isEqualTo(now);
     }
 
     @Test

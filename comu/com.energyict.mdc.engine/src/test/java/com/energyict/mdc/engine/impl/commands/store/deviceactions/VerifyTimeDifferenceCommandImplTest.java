@@ -41,7 +41,7 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
     public void timeDifferenceShouldFailAfterMaxClockDiffTest() {
         Date meterTime = new DateTime(2013, 9, 18, 16, 0, 0, 0).toDate();
         Clock systemTime = mock(Clock.class);
-        when(systemTime.now()).thenReturn(new DateTime(2013, 9, 18, 15, 0, 0, 0).toDate());
+        when(systemTime.instant()).thenReturn(new DateTime(2013, 9, 18, 15, 0, 0, 0).toDate().toInstant());
         serviceProvider.setClock(systemTime);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getTime()).thenReturn(meterTime);

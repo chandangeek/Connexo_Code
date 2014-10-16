@@ -6,7 +6,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -22,7 +21,7 @@ import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComServer;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTimeConstants;
 import org.junit.After;
 import org.junit.Before;
@@ -62,7 +61,7 @@ public class DeviceCommandExecutorImplTest {
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
-    private Clock clock = new ProgrammableClock();
+    private Clock clock = Clock.systemDefaultZone();
 
     @Mock
     private ComServer comServer;

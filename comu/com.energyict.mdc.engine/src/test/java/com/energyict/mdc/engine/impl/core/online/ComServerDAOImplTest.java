@@ -18,7 +18,8 @@ import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -113,7 +115,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testRefreshComServerThatHasNotChanged() {
-        Date modificationDate = new Date();
+        Instant modificationDate = Instant.now();
         when(this.comServer.getModificationDate()).thenReturn(modificationDate);
         OutboundCapableComServer reloaded = mock(OutboundCapableComServer.class);
         when(reloaded.getModificationDate()).thenReturn(modificationDate);
@@ -130,8 +132,8 @@ public class ComServerDAOImplTest {
         ComServer changed = mock(ComServer.class);
         Date january1st2012 = this.newDate(YEAR, Calendar.JANUARY, 1);
         Date february1st2012 = this.newDate(YEAR, Calendar.FEBRUARY, 1);
-        when(this.comServer.getModificationDate()).thenReturn(january1st2012);
-        when(changed.getModificationDate()).thenReturn(february1st2012);
+        when(this.comServer.getModificationDate()).thenReturn(january1st2012.toInstant());
+        when(changed.getModificationDate()).thenReturn(february1st2012.toInstant());
         when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(changed));
 
         // Business method and asserts
@@ -150,7 +152,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testRefreshComServerThatWasDeleted() {
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>absent());
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.empty());
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isNull();
@@ -158,7 +160,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testRefreshComPortThatHasNotChanged() {
-        Date modificationDate = new Date();
+        Instant modificationDate = Instant.now();
         OutboundComPort reloaded = mock(OutboundComPort.class);
         when(reloaded.getModificationDate()).thenReturn(modificationDate);
         when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(reloaded);
@@ -175,8 +177,8 @@ public class ComServerDAOImplTest {
         OutboundComPort changed = mock(OutboundComPort.class);
         Date january1st2012 = this.newDate(YEAR, Calendar.JANUARY, 1);
         Date february1st2012 = this.newDate(YEAR, Calendar.FEBRUARY, 1);
-        when(this.comPort.getModificationDate()).thenReturn(january1st2012);
-        when(changed.getModificationDate()).thenReturn(february1st2012);
+        when(this.comPort.getModificationDate()).thenReturn(january1st2012.toInstant());
+        when(changed.getModificationDate()).thenReturn(february1st2012.toInstant());
         when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(changed);
 
         // Business method and asserts

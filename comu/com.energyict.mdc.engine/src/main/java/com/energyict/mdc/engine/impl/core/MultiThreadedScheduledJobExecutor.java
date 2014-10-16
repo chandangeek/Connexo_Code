@@ -6,7 +6,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.Locale;
 import java.util.concurrent.BlockingQueue;

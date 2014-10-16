@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 
-import com.elster.jupiter.util.time.impl.DefaultClock;
 
 import org.junit.*;
 import org.junit.runner.RunWith;

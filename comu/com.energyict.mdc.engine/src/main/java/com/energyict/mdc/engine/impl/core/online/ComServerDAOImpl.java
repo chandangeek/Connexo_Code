@@ -68,7 +68,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.text.DateFormat;
 import java.util.Arrays;
@@ -102,6 +102,10 @@ public class ComServerDAOImpl implements ComServerDAO {
         public TransactionService transactionService();
 
         public EventService eventService();
+        
+        default public Date now() {
+        	return Date.from(clock().instant());
+        }
 
     }
 
@@ -158,12 +162,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ComServer getThisComServer() {
-        return getEngineModelService().findComServerBySystemName().orNull();
+        return getEngineModelService().findComServerBySystemName().orElse(null);
     }
 
     @Override
     public ComServer getComServer(String systemName) {
-        return this.getEngineModelService().findComServer(systemName).orNull();
+        return this.getEngineModelService().findComServer(systemName).orElse(null);
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
@@ -181,7 +185,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (reloaded.isPresent()) {
             if (reloaded.get().isObsolete()) {
                 return null;
-            } else if (reloaded.get().getModificationDate().after(comServer.getModificationDate())) {
+            } else if (reloaded.get().getModificationDate().isAfter(comServer.getModificationDate())) {
                 return reloaded.get();
             } else {
                 return comServer;
@@ -196,7 +200,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         ComPort reloaded = getEngineModelService().findComPort(comPort.getId());
         if (reloaded == null || reloaded.isObsolete()) {
             return null;
-        } else if (reloaded.getModificationDate().after(comPort.getModificationDate())) {
+        } else if (reloaded.getModificationDate().isAfter(comPort.getModificationDate())) {
             return reloaded;
         } else {
             return comPort;
@@ -315,7 +319,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private String getUniqueUserFileName(DateFormat timeStampFormat) {
-        String fileName = "Config_" + timeStampFormat.format(getClock().now());
+        String fileName = "Config_" + timeStampFormat.format(Date.from(getClock().instant()));
         int version = this.getVersion(fileName);
         if (version > 1) {
             fileName += "_(" + version + ")";
@@ -448,7 +452,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, final ComSession.SuccessIndicator successIndicator) {
         /* We should already be in a transaction so don't wrap it again */
-        return builder.endSession(serviceProvider.clock().now(), successIndicator).create();
+        return builder.endSession(serviceProvider.now(), successIndicator).create();
     }
 
     @Override
@@ -693,7 +697,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         LogBook logBook = (LogBook) logBookIdentifier.getLogBook();
         LogBook.LogBookUpdater logBookUpdater = logBook.getDevice().getLogBookUpdaterFor(logBook);
         logBookUpdater.setLastLogBookIfLater(lastLogBook);
-        logBookUpdater.setLastReadingIfLater(getClock().now()); // We assume the event will be persisted with a time difference of only a few milliseconds
+        logBookUpdater.setLastReadingIfLater(Date.from(getClock().instant())); // We assume the event will be persisted with a time difference of only a few milliseconds
         logBookUpdater.update();
     }
 

@@ -10,7 +10,7 @@ import com.energyict.mdc.engine.status.ComServerType;
 
 import java.time.Clock;
 import org.joda.time.Duration;
-import org.joda.time.Instant;
+import java.time.Instant;
 import org.joda.time.Interval;
 
 import java.util.Collections;
@@ -126,9 +126,9 @@ public class RunningComServerStatusImpl implements ComServerStatus {
     }
 
     private boolean isBlocked(Date lastActivity, Duration lenientDuration) {
-        Instant now = new Instant(this.clock.now());
-        Instant latestExpectedActivity = now.minus(lenientDuration.getMillis());
-        Instant lastActualActivity = new Instant(lastActivity.getTime());
+        Instant now = this.clock.instant();
+        Instant latestExpectedActivity = now.minusMillis(lenientDuration.getMillis());
+        Instant lastActualActivity = Instant.ofEpochMilli(lastActivity.getTime());
         return lastActualActivity.isBefore(latestExpectedActivity);
     }
 
@@ -156,8 +156,8 @@ public class RunningComServerStatusImpl implements ComServerStatus {
     }
 
     private Duration getBlockTime(Date lastActivity, Duration lenientDuration) {
-        Instant now = new Instant(this.clock.now());
-        return new Interval(new Instant(lastActivity.getTime()).plus(lenientDuration), now).toDuration();
+        org.joda.time.Instant now = new org.joda.time.Instant(clock.millis());
+        return new Interval(new org.joda.time.Instant(lastActivity.getTime()).plus(lenientDuration), now).toDuration();
     }
 
 }

@@ -2,11 +2,15 @@ package com.energyict.mdc.engine.impl.monitor;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+
 import java.time.Clock;
+
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.model.ComServer;
+
 import org.joda.time.DateTime;
+import java.time.Instant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.management.openmbean.CompositeData;
+
 import java.util.Date;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -68,7 +73,7 @@ public class ComServerOperationalStatisticsImplTest {
 
     @Test
     public void testCompositeDataItemTypes () {
-        when(this.clock.now()).thenReturn(new Date());
+        when(this.clock.instant()).thenReturn(Instant.now());
         ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer, this.clock, this.thesaurus);
 
         // Business method
@@ -87,7 +92,7 @@ public class ComServerOperationalStatisticsImplTest {
     public void testCompositeDataItemValues () {
         Date startTimestamp = new DateTime(2013, 4, 6, 22, 23, 4, 0).toDate();
         Date now = new DateTime(2013, 4, 6, 23, 24, 5, 0).toDate();
-        when(this.clock.now()).thenReturn(startTimestamp, now);
+        when(this.clock.instant()).thenReturn(startTimestamp.toInstant(), now.toInstant());
         ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer, this.clock, this.thesaurus);
 
         // Business method

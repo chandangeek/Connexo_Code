@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.Instant;
+import java.time.ZoneId;
+
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -31,6 +33,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,7 +96,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
 
     private static final ObisCode FIXED_LOAD_PROFILE_OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final TimeDuration FIXED_LOAD_PROFILE_INTERVAL = new TimeDuration(900);
-    private static final Clock LAST_READING = new ProgrammableClock().frozenAt(new Date());
+    private static final Clock LAST_READING = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     private static final long FIXED_DEVICE_ID = 123;
     private static final String FIXED_DEVICE_SERIAL_NUMBER = "FIXED_DEVICE_SERIAL_NUMBER";
     private final TestSerialNumberDeviceIdentifier serialNumberDeviceIdentifier = new TestSerialNumberDeviceIdentifier(FIXED_DEVICE_SERIAL_NUMBER);
@@ -106,7 +109,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private OfflineLoadProfile getMockedOfflineLoadProfile() {
         OfflineLoadProfile loadProfile = mock(OfflineLoadProfile.class);
         when(loadProfile.getLoadProfileTypeId()).thenReturn(LOAD_PROFILE_TYPE_ID);
-        when(loadProfile.getLastReading()).thenReturn(LAST_READING.now());
+        when(loadProfile.getLastReading()).thenReturn(Date.from(LAST_READING.instant()));
         when(loadProfile.getDeviceId()).thenReturn(FIXED_DEVICE_ID);
         when(loadProfile.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);
         when(loadProfile.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
@@ -178,7 +181,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LoadProfileReader loadProfileReader = legacyCommand.getLoadProfileReaders().get(0);
         assertEquals(FIXED_LOAD_PROFILE_OBIS_CODE, loadProfileReader.getProfileObisCode());
         assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getDeviceIdentifier().getIdentifier());
-        assertEquals(LAST_READING.now(), loadProfileReader.getStartReadingTime());
+        assertEquals(Date.from(LAST_READING.instant()), loadProfileReader.getStartReadingTime());
         assertNotNull(loadProfileReader.getEndReadingTime());
     }
 

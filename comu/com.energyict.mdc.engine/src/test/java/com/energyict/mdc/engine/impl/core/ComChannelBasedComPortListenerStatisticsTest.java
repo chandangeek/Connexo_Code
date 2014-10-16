@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.nls.NlsService;
+
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.Instant;
+import java.time.ZoneId;
+
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -20,6 +23,7 @@ import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +77,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
 
-    private Clock clock = new ProgrammableClock().frozenAt(new Date(514851820000L)); // what happened in GMT+3 ?
+    private Clock clock = Clock.fixed(Instant.ofEpochMilli(514851820000L), ZoneId.systemDefault()); // what happened in GMT+3 ?
     private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private HexService hexService;
 
@@ -352,7 +356,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     private void assertComSessionJournalMessage(String expectedMessage) {
-        verify(comSessionBuilder).addJournalEntry(eq(clock.now()), any(ComServer.LogLevel.class), eq(expectedMessage), isNull(Throwable.class));
+        verify(comSessionBuilder).addJournalEntry(eq(Date.from(clock.instant())), any(ComServer.LogLevel.class), eq(expectedMessage), isNull(Throwable.class));
     }
 
     private void assertNoComSessionJournalMessage() {

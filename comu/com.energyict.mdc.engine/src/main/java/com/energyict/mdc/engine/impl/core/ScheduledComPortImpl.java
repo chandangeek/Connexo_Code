@@ -8,11 +8,12 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
-
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
+
 import org.joda.time.DateTimeConstants;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -200,7 +201,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private void queriedForTasks () {
-        this.getOperationalMonitor().getOperationalStatistics().setLastCheckForChangesTimestamp(this.serviceProvider.clock().now());
+        this.getOperationalMonitor().getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(this.serviceProvider.clock().instant()));
     }
 
     private void scheduleAll(List<ComJob> jobs) {

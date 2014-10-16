@@ -10,7 +10,7 @@ import com.energyict.mdc.engine.model.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.model.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.model.impl.RemoteComServerImpl;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -39,7 +39,7 @@ public class EventRegistrationRequestInitiatorImplTest {
     @Test(expected = BusinessException.class)
     public void testNonExistingComServer () throws BusinessException {
         String comServerName = "Does not exist";
-        when(this.engineModelService.findComServer(comServerName)).thenReturn(Optional.<ComServer>absent());
+        when(this.engineModelService.findComServer(comServerName)).thenReturn(Optional.empty());
 
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineModelService).getRegistrationURL(comServerName);

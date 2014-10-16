@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import java.time.Clock;
+import java.time.Instant;
+
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -10,7 +12,8 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +57,7 @@ public class FailureLoggerImplTest {
         ExecutionLoggerImpl failureLogger = mock(ExecutionLoggerImpl.class);
         doCallRealMethod().when(failureLogger).logUnexpected(any(Throwable.class), eq(this.comTaskExecution));
         when(failureLogger.getComSessionBuilder()).thenReturn(comSessionBuilder);
-        when(comSessionBuilder.findFor(comTaskExecution)).thenReturn(Optional.<ComTaskExecutionSessionBuilder>absent());
+        when(comSessionBuilder.findFor(comTaskExecution)).thenReturn(Optional.empty());
 
         // Business method
         failureLogger.logUnexpected(new Exception("For testing purposes only"), this.comTaskExecution);
@@ -70,8 +73,7 @@ public class FailureLoggerImplTest {
         ScheduledConnectionTask scheduledConnectionTask = mock(ScheduledConnectionTask.class);
 
         ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
-        Clock clock = mock(Clock.class);
-        when(clock.now()).thenReturn(new Date());
+        Clock clock = Clock.systemDefaultZone();
         ExecutionLoggerImpl failureLogger = new CreateOutboundComSession(ComServer.LogLevel.DEBUG, scheduledConnectionTask, comSessionBuilder, successIndicator, clock);
 
         // Business method

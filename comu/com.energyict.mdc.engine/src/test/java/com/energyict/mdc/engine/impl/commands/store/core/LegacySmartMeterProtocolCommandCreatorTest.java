@@ -65,8 +65,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
 
     @Mock
     private IssueService issueService;
-    @Mock
-    private Clock clock;
+    private Clock clock = Clock.systemDefaultZone();
     @Mock
     private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)

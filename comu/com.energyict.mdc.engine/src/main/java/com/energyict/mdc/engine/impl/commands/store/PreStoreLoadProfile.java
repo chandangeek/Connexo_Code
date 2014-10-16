@@ -59,7 +59,7 @@ public class PreStoreLoadProfile {
         OfflineLoadProfile offlineLoadProfile = this.comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
         List<IntervalBlock> processedBlocks = new ArrayList<>();
         Date lastReading = null;
-        Date currentDate = this.clock.now();
+        Date currentDate = Date.from(clock.instant());
         for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, offlineLoadProfile.getInterval(), this.mdcReadingTypeUtilService), collectedLoadProfile.getChannelInfo())) {
             IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
             ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
@@ -67,9 +67,9 @@ public class PreStoreLoadProfile {
             Unit configuredUnit = this.mdcReadingTypeUtilService.getReadingTypeInformationFor(channelInfo.getReadingTypeMRID()).getUnit();
             int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
             BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, offlineLoadProfile);
-            IntervalBlockImpl processingBlock = new IntervalBlockImpl(intervalBlock.getReadingTypeCode());
+            IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
             for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
-                if (!intervalReading.getTimeStamp().after(currentDate)) {
+                if (!intervalReading.getTimeStamp().isAfter(currentDate.toInstant())) {
                     IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
                     IntervalReading overflowCheckedReading = getOverflowCheckedReading(channelOverFlowValue, scaledIntervalReading);
                     processingBlock.addIntervalReading(overflowCheckedReading);
@@ -83,7 +83,7 @@ public class PreStoreLoadProfile {
 
     private IntervalReading getOverflowCheckedReading(BigDecimal channelOverFlowValue, IntervalReading scaledIntervalReading) {
         if(scaledIntervalReading.getValue().compareTo(channelOverFlowValue) > 0){
-            return new IntervalReadingImpl(scaledIntervalReading.getTimeStamp(), scaledIntervalReading.getValue().subtract(channelOverFlowValue), scaledIntervalReading.getProfileStatus());
+            return IntervalReadingImpl.of(scaledIntervalReading.getTimeStamp(), scaledIntervalReading.getValue().subtract(channelOverFlowValue), scaledIntervalReading.getProfileStatus());
         }
         return scaledIntervalReading;
     }
@@ -105,7 +105,7 @@ public class PreStoreLoadProfile {
             return intervalReading;
         } else {
             BigDecimal scaledValue = intervalReading.getValue().scaleByPowerOfTen(scaler);
-            return new IntervalReadingImpl(intervalReading.getTimeStamp(), scaledValue, intervalReading.getProfileStatus());
+            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), scaledValue, intervalReading.getProfileStatus());
         }
     }
 
@@ -118,8 +118,8 @@ public class PreStoreLoadProfile {
     }
 
     private Date updateLastReadingIfLater(Date lastReading, IntervalReading intervalReading) {
-        if (lastReading == null || intervalReading.getTimeStamp().after(lastReading)) {
-            lastReading = intervalReading.getTimeStamp();
+        if (lastReading == null || intervalReading.getTimeStamp().isAfter(lastReading.toInstant())) {
+            lastReading = Date.from(intervalReading.getTimeStamp());
         }
         return lastReading;
     }

@@ -21,6 +21,8 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.google.common.collect.Range;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -112,8 +114,8 @@ public class CollectedRegisterListDeviceCommandTest {
         Reading registerValue = readingData.getReadings().get(0);
         Assert.assertEquals(collectedRegister.getCollectedQuantity().getAmount(), registerValue.getValue());
         Assert.assertEquals(collectedRegister.getEventTime(), registerValue.getTimeStamp());
-        Assert.assertEquals(collectedRegister.getFromTime(), registerValue.getTimePeriod().getStart());
-        Assert.assertEquals(collectedRegister.getToTime(), registerValue.getTimePeriod().getEnd());
+        Assert.assertEquals(collectedRegister.getFromTime(), registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null));
+        Assert.assertEquals(collectedRegister.getToTime(), registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null));
     }
 
     @Test

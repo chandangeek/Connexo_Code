@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Provides factory services for management beans (aka MBean)

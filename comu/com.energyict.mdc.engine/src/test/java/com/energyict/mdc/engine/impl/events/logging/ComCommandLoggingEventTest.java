@@ -49,7 +49,7 @@ public class ComCommandLoggingEventTest {
 
     @Before
     public void setupServiceProvider () {
-        when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
+        when(clock.instant()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate().toInstant()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
@@ -68,7 +68,7 @@ public class ComCommandLoggingEventTest {
     @Test
     public void testOccurrenceTimestamp () {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 22, 16, 23, 12, 0).toDate();  // Random pick
-        when(this.clock.now()).thenReturn(now);
+        when(this.clock.instant()).thenReturn(now.toInstant());
 
         ComCommandLoggingEvent event = new ComCommandLoggingEvent(this.serviceProvider, null, null, null, LogLevel.INFO, "testOccurrenceTimestamp");
 

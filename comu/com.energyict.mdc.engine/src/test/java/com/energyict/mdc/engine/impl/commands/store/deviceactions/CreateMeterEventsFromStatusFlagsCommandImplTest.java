@@ -2,8 +2,10 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.ZoneId;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -38,7 +40,8 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.junit.After;
@@ -118,7 +121,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     private void initializeDeviceLoadProfileWith(int intervalStateBit) {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(getFrozenClock().now(), intervalStateBit));
+        intervalDatas.add(new IntervalData(Date.from(getFrozenClock().instant()), intervalStateBit));
         when(deviceLoadProfile.getCollectedIntervalData()).thenReturn(intervalDatas);
     }
 
@@ -200,7 +203,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     private void verifyIntervalStateBitsWithMeterEvent(DeviceLogBook logBook, int meterEvent) {
         List<MeterProtocolEvent> expectedEventList = new ArrayList<>();
-        Date time = new Date(getFrozenClock().now().getTime() - DateTimeConstants.MILLIS_PER_SECOND * 30);    // 30 seconds before the end of the interval
+        Date time = new Date(getFrozenClock().millis() - DateTimeConstants.MILLIS_PER_SECOND * 30);    // 30 seconds before the end of the interval
         expectedEventList.add(new MeterProtocolEvent(time, meterEvent, 0, EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(meterEvent), null, 0, 0));
 
         assertThat(compareMeterEventList(expectedEventList, logBook.getCollectedMeterEvents())).isTrue();
@@ -238,7 +241,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     private Clock getFrozenClock() {
         if (frozenClock == null) {
-            frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 1, 1, 12, 0, 0, 0).toDate());
+            frozenClock = Clock.fixed(new DateTime(2012, 1, 1, 12, 0, 0, 0).toDate().toInstant(), ZoneId.systemDefault());
         }
         return frozenClock;
     }

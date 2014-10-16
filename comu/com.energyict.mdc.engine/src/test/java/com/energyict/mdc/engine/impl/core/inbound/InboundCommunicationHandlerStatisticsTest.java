@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;

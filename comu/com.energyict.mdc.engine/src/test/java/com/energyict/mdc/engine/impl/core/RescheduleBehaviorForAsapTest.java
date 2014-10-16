@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
+import java.time.ZoneId;
+
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -27,6 +28,7 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionException;
+
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,7 +80,7 @@ public class RescheduleBehaviorForAsapTest {
     private ConnectionTaskService connectionTaskService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
-    private Clock clock = new ProgrammableClock().frozenAt(new DateTime(2014, 5, 20, 16, 16, 17, 222).toDate());
+    private Clock clock = Clock.fixed(new DateTime(2014, 5, 20, 16, 16, 17, 222).toDate().toInstant(), ZoneId.systemDefault());
 
     @Before
     public void setUp() {

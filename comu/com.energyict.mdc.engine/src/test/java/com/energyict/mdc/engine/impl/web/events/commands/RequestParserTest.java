@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -356,7 +356,7 @@ public class RequestParserTest {
     public void testNonExistingConnectionTask() throws RequestParseException {
         this.mockConnectionTasks();
         RequestParser parser = new RequestParser(serviceProvider);
-        when(this.connectionTaskService.findConnectionTask(NON_EXISTING_CONNECTION_TASK_ID)).thenReturn(Optional.<ConnectionTask>absent());
+        when(this.connectionTaskService.findConnectionTask(NON_EXISTING_CONNECTION_TASK_ID)).thenReturn(Optional.empty());
 
         //Business method
         parser.parse("Register request for connectionTask: " + NON_EXISTING_CONNECTION_TASK_ID);

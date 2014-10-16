@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine;
 
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -16,6 +15,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+
 import org.fest.assertions.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +24,7 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
 import java.util.logging.Logger;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -70,7 +71,7 @@ public class GenericDeviceProtocolTest {
         protocol.init(offlineDevice, null);
 
         serviceProvider = new FakeServiceProvider();
-        serviceProvider.setClock(new ProgrammableClock());
+        serviceProvider.setClock(Clock.systemDefaultZone());
         serviceProvider.setConnectionTaskService(connectionTaskService);
         serviceProvider.setDeviceService(deviceService);
         CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(this.serviceProvider), this.serviceProvider);

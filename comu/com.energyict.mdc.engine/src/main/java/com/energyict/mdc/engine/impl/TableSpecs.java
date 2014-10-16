@@ -22,7 +22,7 @@ public enum TableSpecs {
             table.map(DeviceCacheImpl.class);
             Column device = table.column("DEVICEID").number().notNull().add();
             table.column("CONTENT").type("BLOB").conversion(ColumnConversion.BLOB2BYTE).map("simpleCache").add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").add();
             table.primaryKey("PK_CES_DEVICECACHE").on(device).add();
             table.foreignKey("FK_CES_DEVICECACHE_DEVICE").on(device).references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").map("device").add();
         }

@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import java.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComPort;
@@ -23,7 +22,7 @@ import static org.mockito.Mockito.*;
 public class CreateOutboundComSessionTest {
 
     private static final long CONNECTION_TASK_ID = 1;
-    private Clock clock = new ProgrammableClock();
+    private Clock clock = Clock.systemDefaultZone();
 
     @Test
     public void testConstructor() {

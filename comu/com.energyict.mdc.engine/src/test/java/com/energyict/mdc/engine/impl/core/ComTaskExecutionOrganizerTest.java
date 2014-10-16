@@ -22,7 +22,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
 import com.elster.jupiter.util.Pair;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -747,7 +747,7 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution comTaskExecution3 = createMockedComTaskExecution(device, createMockedLoadProfilesComTask());
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(deviceConfiguration))).
-            thenReturn(Optional.<ComTaskEnablement>absent());
+            thenReturn(Optional.empty());
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(masterDeviceConfiguration))).
             thenReturn(Optional.of(masterComTaskEnablement));
 
@@ -812,9 +812,9 @@ public class ComTaskExecutionOrganizerTest {
         when(device.getPhysicalGateway()).thenReturn(master1);
         when(master1.getPhysicalGateway()).thenReturn(masterOfMaster1);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(deviceConfiguration))).thenReturn(Optional.<ComTaskEnablement>absent());
+        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(deviceConfiguration))).thenReturn(Optional.empty());
         DeviceConfiguration master1DeviceConfiguration = master1.getDeviceConfiguration();
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(master1DeviceConfiguration))).thenReturn(Optional.<ComTaskEnablement>absent());
+        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(master1DeviceConfiguration))).thenReturn(Optional.empty());
         DeviceConfiguration masterOfMaster1DeviceConfiguration = masterOfMaster1.getDeviceConfiguration();
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(masterOfMaster1DeviceConfiguration);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(masterOfMaster1DeviceConfiguration);
@@ -843,9 +843,9 @@ public class ComTaskExecutionOrganizerTest {
         when(device.getPhysicalGateway()).thenReturn(master1);
         when(master1.getPhysicalGateway()).thenReturn(masterOfMaster1);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(deviceConfiguration))).thenReturn(Optional.<ComTaskEnablement>absent());
+        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(deviceConfiguration))).thenReturn(Optional.empty());
         DeviceConfiguration master1DeviceConfiguration = master1.getDeviceConfiguration();
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(master1DeviceConfiguration))).thenReturn(Optional.<ComTaskEnablement>absent());
+        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(master1DeviceConfiguration))).thenReturn(Optional.empty());
         DeviceConfiguration masterOfMaster1DeviceConfiguration = masterOfMaster1.getDeviceConfiguration();
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(masterOfMaster1DeviceConfiguration);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(masterOfMaster1DeviceConfiguration);

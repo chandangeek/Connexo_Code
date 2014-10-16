@@ -74,8 +74,7 @@ public class LegacyMeterProtocolCommandCreatorTest {
 
     @Before
     public void initBefore() {
-        Clock clock = mock(Clock.class);
-        when(clock.now()).thenReturn(new Date());
+        Clock clock = Clock.systemDefaultZone();
         serviceProvider.setClock(clock);
         DeviceService deviceService = mock(DeviceService.class);
         serviceProvider.setDeviceService(deviceService);

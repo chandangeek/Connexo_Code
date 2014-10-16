@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.ProgrammableClock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -22,7 +20,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +68,8 @@ public abstract class AbstractComCommandExecuteTest {
 
     private void setupServiceProvider() {
         serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
-        Clock clock = Clock.systemDefaultZone();     
+        Clock clock = Clock.systemDefaultZone();  
+        serviceProvider.setClock(clock);
         serviceProvider.setIssueService(new IssueServiceImpl(clock));
         serviceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
         serviceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));

@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.FakeServiceProvider;

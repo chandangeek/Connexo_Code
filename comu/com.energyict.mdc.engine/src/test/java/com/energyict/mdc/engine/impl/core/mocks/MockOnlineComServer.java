@@ -12,13 +12,14 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import java.time.Instant;
 
 /**
 * Provides a mock implementation for the {@link OnlineComServer} interface.
@@ -99,8 +100,8 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public Date getModificationDate() {
-        return new Date();
+    public Instant getModificationDate() {
+        return Instant.now();
     }
 
     @Override

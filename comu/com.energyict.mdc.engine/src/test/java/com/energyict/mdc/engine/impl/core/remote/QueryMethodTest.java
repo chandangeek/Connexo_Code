@@ -19,8 +19,10 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import org.joda.time.DateTime;
+import java.time.Instant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -124,7 +126,7 @@ public class QueryMethodTest {
 
     @Test
     public void testRefreshComServerWithoutModifications() throws IOException {
-        Date now = new Date();
+        Instant now = Instant.now();
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
@@ -134,7 +136,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
-        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, now.getTime());
+        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, now);
         Object refreshed = QueryMethod.RefreshComServer.execute(parameters, comServerDAO);
 
         // Asserts
@@ -143,8 +145,8 @@ public class QueryMethodTest {
 
     @Test
     public void testRefreshComServerWithModifications() throws IOException {
-        Date modificationDateBeforeChanges = new DateTime(2013, 4, 29, 11, 56, 8, 0).toDate();
-        Date modificationDateAfterChanges = new DateTime(2013, 4, 29, 12, 13, 59, 0).toDate();
+        Instant modificationDateBeforeChanges = new DateTime(2013, 4, 29, 11, 56, 8, 0).toDate().toInstant();
+        Instant modificationDateAfterChanges = new DateTime(2013, 4, 29, 12, 13, 59, 0).toDate().toInstant();
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
@@ -154,7 +156,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
-        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, modificationDateBeforeChanges.getTime());
+        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, modificationDateBeforeChanges);
         Object refreshed = QueryMethod.RefreshComServer.execute(parameters, comServerDAO);
 
         // Asserts
@@ -168,7 +170,7 @@ public class QueryMethodTest {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        when(comPort.getModificationDate()).thenReturn(now);
+        when(comPort.getModificationDate()).thenReturn(now.toInstant());
         when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(comPort);
 
         // Business method
@@ -188,7 +190,7 @@ public class QueryMethodTest {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        when(comPort.getModificationDate()).thenReturn(modificationDateAfterChanges);
+        when(comPort.getModificationDate()).thenReturn(modificationDateAfterChanges.toInstant());
         when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(comPort);
 
         // Business method

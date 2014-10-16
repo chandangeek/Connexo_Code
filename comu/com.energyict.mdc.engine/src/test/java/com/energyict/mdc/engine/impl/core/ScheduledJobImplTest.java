@@ -60,7 +60,7 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -169,8 +169,8 @@ public class ScheduledJobImplTest {
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
                 thenReturn(comSessionBuilder);
-        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.<ComTaskEnablement>absent());
-        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());
+        when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.empty());
+        when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(Device.class), Matchers.<Date>any())).thenReturn(comTaskExecutionSessionBuilder);
     }
 
