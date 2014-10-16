@@ -37,6 +37,8 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.Range;
 
@@ -299,6 +301,17 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         } else {
             this.lastSession.set(session);
             this.post();
+        }
+    }
+
+    @Override
+    public java.util.Optional<ComTaskExecutionSession> getLastSession() {
+        Optional<ComTaskExecutionSession> optional = this.lastSession.getOptional();
+        if (optional.isPresent()) {
+            return java.util.Optional.of(optional.get());
+        }
+        else {
+            return java.util.Optional.empty();
         }
     }
 
