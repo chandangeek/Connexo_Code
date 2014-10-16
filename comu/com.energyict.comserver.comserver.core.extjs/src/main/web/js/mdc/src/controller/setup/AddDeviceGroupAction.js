@@ -44,6 +44,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         {
             ref: 'addDeviceGroupSideFilter',
             selector: 'add-devicegroup-browse #addDeviceGroupSideFilter'
+        },
+        {
+            ref: 'nameTextField',
+            selector: 'devicegroup-wizard-step1 #deviceGroupNameTextField'
+        },
+        {
+            ref: 'dynamicRadioButton',
+            selector: 'devicegroup-wizard-step1 #dynamicDeviceGroup'
         }
     ],
 
@@ -87,11 +95,51 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     finishClick: function () {
+        this.addDeviceGroupWidget = null;
+        this.addDeviceGroup();
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('devices/devicegroups').forward();
     },
 
+    addDeviceGroup: function () {
+        var preloader = Ext.create('Ext.LoadMask', {
+            msg: "Loading...",
+            target: this.getAddDeviceGroupWizard()
+        });
+        preloader.show();
+        Ext.Ajax.request({
+            url: '../../api/ddr/devicegroups',
+            method: 'POST',
+            jsonData: {
+                mRID: this.getNameTextField().getValue(),
+                dynamic: this.getDynamicRadioButton().checked
+            },
+            success: function () {
+                router.getRoute('devices/devicegroups').forward();
+                self.getApplication().fireEvent('acknowledge', 'Device group added');
+            },
+            failure: function (response) {
+                if(response.status == 400) {
+                    var result = Ext.decode(response.responseText, true),
+                        errorTitle = 'Failed to add',
+                        errorText = 'Device group could not be added. There was a problem accessing the database';
+
+                    if (result !== null) {
+                        errorTitle = result.error;
+                        errorText = result.message;
+                    }
+
+                    self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                }
+            },
+            callback: function () {
+                preloader.destroy();
+            }
+        });
+    },
+
     cancelClick: function () {
+        this.addDeviceGroupWidget = null;
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('devices/devicegroups').forward();
     },
