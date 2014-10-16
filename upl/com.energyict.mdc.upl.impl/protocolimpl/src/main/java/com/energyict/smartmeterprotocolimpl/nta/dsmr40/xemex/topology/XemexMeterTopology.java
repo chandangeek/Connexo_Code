@@ -65,16 +65,6 @@ public class XemexMeterTopology extends MeterTopology {
         // get an MbusDeviceMap
         this.mbusMap = getMbusMapper();
 
-        if (this.mbusMap.size() > 0) {
-            try {
-                // check if all the mbus devices are configured in EIServer
-                checkToUpdateMbusMeters(mbusMap);
-                checkForDisappearedMbusMeters(mbusMap);
-            } finally {
-                ProtocolTools.closeConnection();
-            }
-        }
-
         StringBuilder sb = new StringBuilder();
         sb.append("Found ").append(this.mbusMap.size()).append(" MBus devices: ").append("\r\n");
         for (DeviceMapping deviceMapping : this.mbusMap) {
@@ -103,26 +93,5 @@ public class XemexMeterTopology extends MeterTopology {
             }
         }
         return mbusMap;
-    }
-
-    private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap) {
-        Device gatewayDevice = getRtuFromDatabaseBySerialNumber();
-        if (gatewayDevice != null) {
-            List<Device> mbusSlaves = gatewayDevice.getDownstreamDevices();
-            Iterator<Device> it = mbusSlaves.iterator();
-            while (it.hasNext()) {
-                Device mbus = it.next();
-                try {
-                    if (!mbusMap.contains(new DeviceMapping(mbus.getSerialNumber()))) {
-                        log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device - detaching from gateway.");
-                        mbus.updateGateway(null);
-                    }
-                } catch (SQLException e) {
-                    log(Level.INFO, "Failed to remove the gateway from MbusDevice " + mbus.getSerialNumber() + ".");
-                } catch (BusinessException e) {
-                    log(Level.INFO, "Failed to remove the gateway from MbusDevice " + mbus.getSerialNumber() + ".");
-                }
-            }
-        }
     }
 }
