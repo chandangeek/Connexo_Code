@@ -10,7 +10,8 @@ Ext.define('Dsh.controller.Main', {
         'Uni.store.PortalItems',
         'Uni.store.MenuItems',
         'Dsh.util.FilterStoreHydrator',
-        'Dsh.model.Filterable'
+        'Dsh.model.Filterable',
+        'Dsh.model.Kpi'
     ],
 
     controllers: [
