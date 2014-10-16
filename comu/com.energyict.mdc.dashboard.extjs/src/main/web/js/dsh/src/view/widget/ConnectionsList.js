@@ -28,6 +28,15 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 }
             },
             {
+                itemId: 'connectionMethod',
+                text: Uni.I18n.translate('connection.widget.details.connectionMethod', 'DSH', 'Connection method'),
+                dataIndex: 'connectionMethod',
+                flex: 1,
+                renderer: function (val) {
+                    return val ? val.name : ''
+                }
+            },
+            {
                 itemId: 'currentState',
                 text: Uni.I18n.translate('connection.widget.details.currentState', 'DSH', 'Current state'),
                 dataIndex: 'currentState',
@@ -67,20 +76,12 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                     return success + failed + notCompleted
                 },
                 header: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
-                flex: 2
+                flex: 1
             },
             {
                 itemId: 'startDateTime',
                 text: Uni.I18n.translate('connection.widget.details.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startDateTime',
-                xtype: 'datecolumn',
-                format: 'm/d/Y h:i:s',
-                flex: 1
-            },
-            {
-                itemId: 'endDateTime',
-                text: Uni.I18n.translate('connection.widget.details.finishedOn', 'DSH', 'Finished on'),
-                dataIndex: 'endDateTime',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',
                 flex: 1

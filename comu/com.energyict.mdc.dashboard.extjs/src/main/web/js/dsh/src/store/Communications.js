@@ -7,7 +7,7 @@ Ext.define('Dsh.store.Communications', {
     autoLoad: false,
     remoteFilter: true,
     url: '/api/dsr/connections/',
-    communicationsPostfix: '/communications',
+    communicationsPostfix: '/latestcommunications',
     proxy: {
         type: 'ajax',
         reader: {
