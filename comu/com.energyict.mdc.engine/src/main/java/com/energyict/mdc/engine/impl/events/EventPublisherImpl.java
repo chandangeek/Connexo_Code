@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;

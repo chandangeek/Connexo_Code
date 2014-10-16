@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 

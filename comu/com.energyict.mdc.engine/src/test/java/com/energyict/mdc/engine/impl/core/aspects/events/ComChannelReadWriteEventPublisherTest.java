@@ -12,7 +12,6 @@ import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
-
 import com.elster.jupiter.util.time.impl.DefaultClock;
 
 import org.junit.*;
@@ -23,6 +22,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Clock;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -60,7 +60,7 @@ public class ComChannelReadWriteEventPublisherTest {
 
     @Before
     public void setupServiceProvider () {
-        this.serviceProvider.setClock(new DefaultClock());
+        this.serviceProvider.setClock(Clock.systemDefaultZone());
         this.serviceProvider.setHexService(this.hexService);
         ServiceProvider.instance.set(this.serviceProvider);
     }

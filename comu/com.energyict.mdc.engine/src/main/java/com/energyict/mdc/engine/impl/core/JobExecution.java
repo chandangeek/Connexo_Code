@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;

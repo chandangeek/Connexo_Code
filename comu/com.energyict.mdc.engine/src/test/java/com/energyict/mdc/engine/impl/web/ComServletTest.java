@@ -20,11 +20,14 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.Clock;
 import java.util.Collections;
 
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
@@ -61,7 +64,7 @@ public class ComServletTest {
     @Before
     public void setupEventPublisher () {
         serviceProvider = new FakeServiceProvider();
-        serviceProvider.setClock(new DefaultClock());
+        serviceProvider.setClock(Clock.systemDefaultZone());
         serviceProvider.setProtocolPluggableService(protocolPluggableService);
         when(protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         ServiceProvider.instance.set(serviceProvider);

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;

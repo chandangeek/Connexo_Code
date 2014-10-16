@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;

@@ -6,7 +6,7 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilde
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;

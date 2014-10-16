@@ -19,12 +19,14 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.RegistersTask;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +47,7 @@ public class RegisterCommandImplTest {
 
     @Before
     public void setupServiceProvider() {
-        this.serviceProvider.setClock(new DefaultClock());
+        this.serviceProvider.setClock(Clock.systemDefaultZone());
         this.serviceProvider.setIssueService(new IssueServiceImpl());
         this.serviceProvider.setDeviceService(mock(DeviceService.class));
         ServiceProvider.instance.set(this.serviceProvider);

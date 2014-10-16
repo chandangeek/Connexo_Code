@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
@@ -62,7 +62,7 @@ public class UDPPortConnectorTest {
 
     private SocketService socketService;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private Clock clock = new DefaultClock();
+    private Clock clock = Clock.systemDefaultZone();
 
     @Before
     public void mockSocketService() {

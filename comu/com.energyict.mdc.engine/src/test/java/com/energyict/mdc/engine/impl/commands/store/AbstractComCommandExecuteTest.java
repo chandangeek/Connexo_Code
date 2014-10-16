@@ -23,12 +23,14 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.google.common.base.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
 import java.util.logging.Logger;
 
 import static org.mockito.Mockito.*;
@@ -68,8 +70,7 @@ public abstract class AbstractComCommandExecuteTest {
 
     private void setupServiceProvider() {
         serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
-        ProgrammableClock clock = new ProgrammableClock();
-        serviceProvider.setClock(clock);
+        Clock clock = Clock.systemDefaultZone();     
         serviceProvider.setIssueService(new IssueServiceImpl(clock));
         serviceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
         serviceProvider.setDeviceService(mock(DeviceService.class, RETURNS_DEEP_STUBS));
@@ -87,7 +88,7 @@ public abstract class AbstractComCommandExecuteTest {
     }
 
     private void resetServiceProvider() {
-        serviceProvider.setClock(new DefaultClock());
+        serviceProvider.setClock(Clock.systemDefaultZone());
         ServiceProvider.instance.set(null);
     }
 

@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.Issue;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.google.common.base.Optional;
 
 /**

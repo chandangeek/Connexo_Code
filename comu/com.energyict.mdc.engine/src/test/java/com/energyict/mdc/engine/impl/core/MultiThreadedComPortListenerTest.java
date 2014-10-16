@@ -17,6 +17,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
 import com.energyict.protocols.mdc.services.SocketService;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Clock;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -70,7 +72,7 @@ public class MultiThreadedComPortListenerTest {
     public void setupServiceProvider () throws IOException {
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setSocketService(this.socketService);
-        this.serviceProvider.setClock(new DefaultClock());
+        this.serviceProvider.setClock(Clock.systemDefaultZone());
         ServiceProvider.instance.set(this.serviceProvider);
         when(this.socketService.newTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());

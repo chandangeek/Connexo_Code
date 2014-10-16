@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.DeviceService;
@@ -65,7 +65,7 @@ public class RunningComServerImplTest {
     @Mock
     private EventAPIStatistics eventApiStatistics;
 
-    private Clock clock = new DefaultClock();
+    private Clock clock = Clock.systemDefaultZone();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
     @Before

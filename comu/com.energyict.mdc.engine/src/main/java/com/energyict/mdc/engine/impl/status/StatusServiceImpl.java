@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

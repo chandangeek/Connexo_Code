@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
+import java.time.ZoneId;
+
 import com.elster.jupiter.util.time.ProgrammableClock;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -14,6 +16,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,10 +87,10 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void verifyTimeDifferenceWithinBoundariesTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(),ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
         final long timeDifferenceInMillis = 3000L;
-        long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
+        long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
 
         BasicCheckCommandImpl basicCheckCommand = new BasicCheckCommandImpl(createCheckTimeDifference(), createCommandRoot(), comTaskExecution);
@@ -111,10 +114,10 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void verifyTimeDifferenceOutsideBoundariesTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
         long timeDifferenceInMillis = 60000L;
-        long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
+        long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 60 seconds time difference
 
         BasicCheckCommandImpl basicCheckCommand = new BasicCheckCommandImpl(createCheckTimeDifference(), createCommandRoot(), comTaskExecution);
@@ -153,9 +156,9 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void testJournalDescriptionWithErrorLevel () {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         final long timeDifferenceInMillis = 3000L;
-        long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
+        long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
         String correctMeterSerialNumber = "testJournalDescriptionWithErrorLevel";
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
@@ -172,9 +175,9 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void testJournalDescriptionWithInfoLevel () {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         final long timeDifferenceInMillis = 3000L;
-        long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
+        long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
         String correctMeterSerialNumber = "testJournalDescriptionWithInfoLevel";
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
@@ -191,9 +194,9 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void testJournalDescriptionWithTraceLevel () {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         final long timeDifferenceInMillis = 3000L;
-        long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
+        long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
         String correctMeterSerialNumber = "testJournalDescriptionWithTraceLevel";
         OfflineDevice offlineDevice = mock(OfflineDevice.class);

@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

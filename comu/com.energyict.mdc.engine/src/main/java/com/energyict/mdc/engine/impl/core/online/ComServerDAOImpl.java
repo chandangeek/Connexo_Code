@@ -6,7 +6,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;

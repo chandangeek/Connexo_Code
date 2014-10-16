@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;

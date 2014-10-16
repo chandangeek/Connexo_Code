@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
+import java.time.ZoneId;
+
 import com.elster.jupiter.util.time.ProgrammableClock;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -14,6 +16,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
+
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -99,12 +102,12 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void clockCommandSetClockTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         final long timeDifferenceInMillis = 3000L;
         serviceProvider.setClock(frozenClock);
-        validationDate = frozenClock.now();
+        validationDate = Date.from(frozenClock.instant());
         ClockTask clockTask = getSetClockTask();
-        long deviceTime = frozenClock.now().getTime() - timeDifferenceInMillis;
+        long deviceTime = frozenClock.millis() - timeDifferenceInMillis;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // 3 seconds time difference
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
@@ -121,11 +124,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandAboveMaxTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
-        validationDate = frozenClock.now();
+        validationDate = Date.from(frozenClock.instant());
         ClockTask clockTask = getSetClockTask();
-        long deviceTime = frozenClock.now().getTime() - ((long) MAXIMUM_CLOCK_DIFFERENCE * 1000 + 1000);
+        long deviceTime = frozenClock.millis() - ((long) MAXIMUM_CLOCK_DIFFERENCE * 1000 + 1000);
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // time difference larger than the max clock diff
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
@@ -141,11 +144,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandBelowMinTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock =  Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
-        validationDate = frozenClock.now();
+        validationDate = Date.from(frozenClock.instant());
         ClockTask clockTask = getSetClockTask();
-        long deviceTime = frozenClock.now().getTime() - ((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
+        long deviceTime = frozenClock.millis() - ((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // time difference smaller than the min clock diff
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
@@ -160,11 +163,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandWithinBoundaryWithNegativeTimeDiffTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(),ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
-        validationDate = frozenClock.now();
+        validationDate = Date.from(frozenClock.instant());
         ClockTask clockTask = getSetClockTask();
-        long deviceTime = frozenClock.now().getTime() + 5000L;
+        long deviceTime = frozenClock.millis() + 5000L;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // time difference  in the boundary but negative, clockset should be performed
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
@@ -188,11 +191,11 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandAboveMaxWithNegativeDiffTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+        Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
-        validationDate = frozenClock.now();
+        validationDate = Date.from(frozenClock.instant());
         ClockTask clockTask = getSetClockTask();
-        long deviceTime = frozenClock.now().getTime() + (long) MAXIMUM_CLOCK_DIFFERENCE * 1000 + 1000;
+        long deviceTime = frozenClock.millis() + (long) MAXIMUM_CLOCK_DIFFERENCE * 1000 + 1000;
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // time difference negative, but larger than the max clock diff
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
@@ -208,10 +211,9 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void setClockCommandBelowMinWithNegativeDiffTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+    	Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
-        validationDate = frozenClock.now();
-        ClockTask clockTask = getSetClockTask();
+        validationDate = Date.from(frozenClock.instant());ClockTask clockTask = getSetClockTask();
         long deviceTime = frozenClock.now().getTime() +((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // time difference negative, but smaller than the max clock diff
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
@@ -227,10 +229,9 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void clockCommandForceClockTest() {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
+    	Clock frozenClock = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
         serviceProvider.setClock(frozenClock);
-        validationDate = frozenClock.now();
-        ClockTask clockTask = getForceClockTask();
+        validationDate = Date.from(frozenClock.instant());ClockTask clockTask = getForceClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
         Assert.assertEquals("ClockCommandImpl {clockTaskType: FORCECLOCK}", clockCommand.toJournalMessageDescription(LogLevel.ERROR));
@@ -248,9 +249,9 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
     public void clockCommandSynchronizeClockTest() {
         final long timeDifferenceInMillis = 3000L;
         DateTime now = new DateTime(2012, 5, 1, 10, 52, 13, 111);
-        Clock systemTime = new ProgrammableClock().frozenAt(now.toDate());
+        Clock systemTime = Clock.fixed(now.toDate().toInstant());
         serviceProvider.setClock(systemTime);
-        validationDate = systemTime.now(); // set the validationDate to the meterTime + the clockDifference
+        validationDate = Date.from(systemTime.instant()); // set the validationDate to the meterTime + the clockDifference
         ClockTask clockTask = getSynchronizeClockTask();
         when(deviceProtocol.getTime()).thenReturn(now.minus(timeDifferenceInMillis).toDate()); // 3 seconds time difference
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
@@ -269,12 +270,12 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void clockCommandSynchronizeBelowMinTest() {
-        Clock systemTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate());
-        Clock meterTime = new ProgrammableClock().frozenAt(new DateTime(2012, 5, 1, 10, 52, 12, 111).toDate());   // 1 second behind the system time
+        Clock systemTime = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 13, 111).toDate().toInstant(), ZoneId.systemDefault());
+        Clock meterTime = Clock.fixed(new DateTime(2012, 5, 1, 10, 52, 12, 111).toDate().toInstant(), ZoneId.systemDefault());   // 1 second behind the system time
         serviceProvider.setClock(systemTime);
         ClockTask clockTask = getSynchronizeClockTask();
         ClockCommand clockCommand = new ClockCommandImpl(clockTask, createCommandRoot(), comTaskExecution);
-        long deviceTime = systemTime.now().getTime() - ((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
+        long deviceTime = systemTime.millis() - ((long) MINIMUM_CLOCK_DIFFERENCE * 1000 - 1000);
         when(deviceProtocol.getTime()).thenReturn(new Date(deviceTime)); // time difference is smaller than the min difference
         clockCommand.execute(deviceProtocol, newTestExecutionContext());
 

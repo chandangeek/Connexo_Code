@@ -8,7 +8,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.joda.time.Interval;

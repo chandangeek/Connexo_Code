@@ -39,7 +39,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;

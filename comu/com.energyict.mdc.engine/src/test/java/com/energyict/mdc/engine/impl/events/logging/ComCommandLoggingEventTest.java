@@ -11,7 +11,7 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import org.joda.time.DateTime;
 
 import java.io.IOException;

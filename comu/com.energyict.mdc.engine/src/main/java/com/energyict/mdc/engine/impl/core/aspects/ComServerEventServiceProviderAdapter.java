@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core.aspects;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 /**
 * Adapts the {@link com.energyict.mdc.engine.impl.core.ServiceProvider}

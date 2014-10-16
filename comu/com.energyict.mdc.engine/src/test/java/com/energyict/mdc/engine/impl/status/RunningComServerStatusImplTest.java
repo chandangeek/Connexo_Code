@@ -8,7 +8,7 @@ import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatisti
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.status.ComServerType;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Duration;
@@ -59,7 +59,7 @@ public class RunningComServerStatusImplTest {
         when(this.comServer.isOnline()).thenReturn(true);
         when(this.comServer.isRemote()).thenReturn(false);
         when(this.comServer.isOffline()).thenReturn(false);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(new DefaultClock(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
         // Business method
         ComServerType comServerType = comServerStatus.getComServerType();
@@ -73,7 +73,7 @@ public class RunningComServerStatusImplTest {
         when(this.comServer.isRemote()).thenReturn(true);
         when(this.comServer.isOnline()).thenReturn(false);
         when(this.comServer.isOffline()).thenReturn(false);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(new DefaultClock(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
         // Business method
         ComServerType comServerType = comServerStatus.getComServerType();
@@ -87,7 +87,7 @@ public class RunningComServerStatusImplTest {
         when(this.comServer.isOffline()).thenReturn(true);
         when(this.comServer.isRemote()).thenReturn(false);
         when(this.comServer.isOnline()).thenReturn(false);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(new DefaultClock(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
         // Business method
         ComServerType comServerType = comServerStatus.getComServerType();
@@ -98,7 +98,7 @@ public class RunningComServerStatusImplTest {
 
     @Test
     public void testComServerName () {
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(new DefaultClock(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
         // Business method
         String comServerName = comServerStatus.getComServerName();
@@ -109,7 +109,7 @@ public class RunningComServerStatusImplTest {
 
     @Test
     public void testIsRunning () {
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(new DefaultClock(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.isRunning()).isTrue();

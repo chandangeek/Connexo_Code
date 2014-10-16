@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;

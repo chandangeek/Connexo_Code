@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 /**
  * A RoundTrip calculator. Start the timer before you do a read ({@link #start()}), stop it after you do a read ({@link #stop()}.

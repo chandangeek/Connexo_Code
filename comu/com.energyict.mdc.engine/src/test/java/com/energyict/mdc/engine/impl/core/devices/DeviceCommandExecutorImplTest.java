@@ -5,7 +5,7 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.ConnectionTaskService;

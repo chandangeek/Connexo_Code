@@ -10,8 +10,12 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+
 import com.elster.jupiter.util.time.ProgrammableClock;
+
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -65,9 +69,9 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testOccurrenceTimestamp () {
-        Clock frozenClock = new ProgrammableClock().frozenAt(new DateTime(2012, Calendar.NOVEMBER, 6, 13, 45, 17, 0).toDate());  // Random pick
-        Date now = frozenClock.now();
-        when(this.clock.now()).thenReturn(now);
+        Clock frozenClock = Clock.fixed(new DateTime(2012, Calendar.NOVEMBER, 6, 13, 45, 17, 0).toDate().toInstant(),ZoneId.systemDefault());
+        Instant now = frozenClock.instant();
+        when(this.clock.instant()).thenReturn(now);
 
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
@@ -77,7 +81,7 @@ public class CannotEstablishConnectionEventTest {
         Date timestamp = event.getOccurrenceTimestamp();
 
         // Asserts
-        assertThat(timestamp).isEqualTo(now);
+        assertThat(timestamp.toInstant()).isEqualTo(now);
     }
 
     @Test

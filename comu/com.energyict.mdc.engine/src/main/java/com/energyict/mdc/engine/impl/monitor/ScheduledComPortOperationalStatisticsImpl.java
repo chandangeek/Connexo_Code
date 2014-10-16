@@ -4,7 +4,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;

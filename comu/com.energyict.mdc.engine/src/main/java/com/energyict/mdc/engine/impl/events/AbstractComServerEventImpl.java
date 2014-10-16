@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.events;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;

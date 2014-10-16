@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.ComServerStatus;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.google.common.base.Optional;
 
@@ -32,7 +32,7 @@ public class StatusServiceImplTest {
     private ManagementBeanFactory managementBeanFactory;
     @Mock
     private EngineModelService engineModelService;
-    private Clock clock = new DefaultClock();
+    private Clock clock = Clock.systemDefaultZone();
 
     @Test
     public void testStatusWhenComServerWithSystemNameDoesNotExist () {
