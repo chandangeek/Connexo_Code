@@ -142,12 +142,7 @@ public class MeterReadingsGenerator {
     }
 
     private BinarySearch<Instant, com.elster.jupiter.metering.ReadingQualityRecord> binarySearchByTimestamp(List<com.elster.jupiter.metering.ReadingQualityRecord> validationQualities) {
-        return BinarySearch.in(validationQualities).using(new BinarySearch.Key<Instant, com.elster.jupiter.metering.ReadingQualityRecord>() {
-                @Override
-                public Instant getKey(com.elster.jupiter.metering.ReadingQualityRecord readingQuality) {
-                    return readingQuality.getReadingTimestamp();
-                }
-            });
+        return BinarySearch.in(validationQualities).using(ReadingQualityRecord::getReadingTimestamp);
     }
 
     private List<com.elster.jupiter.metering.ReadingQualityRecord> relevantQualities(BaseReadingRecord baseReading, BinarySearch<Instant, com.elster.jupiter.metering.ReadingQualityRecord> binarySearch) {
