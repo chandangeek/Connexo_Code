@@ -21,7 +21,7 @@ Ext.define('Isu.model.Actions', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/actions',
+        url: '/api/idc/actions',
         reader: {
             type: 'json',
             root: 'data'

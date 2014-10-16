@@ -7,7 +7,7 @@ Ext.define('Isu.model.IssueStatus', {
     fields: [
         {
             name: 'id',
-            type: 'int'
+            type: 'auto'
         },
         {
             name: 'name',

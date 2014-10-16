@@ -158,7 +158,7 @@ Ext.define('Isu.model.Issues', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/isu/issue',
+        url: '/api/idc/issue',
         reader: {
             type: 'json',
             root: 'data'

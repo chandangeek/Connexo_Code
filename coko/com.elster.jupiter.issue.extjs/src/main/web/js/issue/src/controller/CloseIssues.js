@@ -86,7 +86,7 @@ Ext.define('Isu.controller.CloseIssues', {
             formPanel = closeView.down('issues-close-form'),
             form = formPanel.getForm(),
             formValues = form.getValues(),
-            url = '/api/isu/issue/close',
+            url = '/api/idc/issue/close',
             sendingData = {},
             preloader;
 

@@ -52,7 +52,7 @@ Ext.define('Isu.model.ExtraParams', {
     getDefaults: function () {
         return {
             sort: 'dueDate',
-            status: 1,
+            status: 'status.open',
             group: 'none'
         };
     },

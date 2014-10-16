@@ -17,7 +17,7 @@ Ext.define('Isu.model.IssuesGroups', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/issue/groupedlist',
+        url: '/api/idc/issue/groupedlist',
         reader: {
             type: 'json',
             root: 'data',

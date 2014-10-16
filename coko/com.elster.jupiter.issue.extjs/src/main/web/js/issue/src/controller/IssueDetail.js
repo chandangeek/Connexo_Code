@@ -79,7 +79,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 store.getProxy().url = store.getProxy().url.replace('{issue_id}', record.getId());
                 store.clearFilter();
 
-                store.proxy.url = '/api/isu/issue/' + id + '/comments';
+                store.proxy.url = '/api/idc/issue/' + id + '/comments';
                 store.load();
                 self.getApplication().fireEvent('changecontentevent', widget);
                 self.getCommentsPanel().bindStore(store);
