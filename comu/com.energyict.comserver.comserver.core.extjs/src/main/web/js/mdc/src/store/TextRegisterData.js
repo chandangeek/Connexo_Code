@@ -1,8 +1,8 @@
 Ext.define('Mdc.store.TextRegisterData', {
     extend: 'Mdc.store.RegisterData',
     requires: [
-        'Mdc.model.RegisterData'
+        'Mdc.model.TextRegisterData'
     ],
-    model: 'Mdc.model.RegisterData',
+    model: 'Mdc.model.TextRegisterData',
     storeId: 'TextRegisterData'
 });

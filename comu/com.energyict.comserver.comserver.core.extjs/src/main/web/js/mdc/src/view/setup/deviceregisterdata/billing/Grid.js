@@ -4,15 +4,24 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
     itemId: 'deviceregisterreportgrid',
     store: 'BillingRegisterData',
 
-    columns: {
-        items: [
+    initComponent: function () {
+        var me = this;
+
+        me.columns = [
+            {
+                xtype: 'edited-column',
+                header: Uni.I18n.translate('general.edited', 'MDC', 'Edited'),
+                dataIndex: 'editedDateTime'
+            },
             {
                 header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
                 xtype: 'datecolumn',
                 format: 'M j, Y \\a\\t G:i',
                 defaultRenderer: function (value) {
-                    return Ext.util.Format.date(value, this.format);
+                    if (!Ext.isEmpty(value)) {
+                        return Ext.util.Format.date(new Date(value), this.format);
+                    }
                 },
                 flex: 1
             },
@@ -20,7 +29,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                 header: Uni.I18n.translate('device.registerData.interval', 'MDC', 'Interval'),
                 dataIndex: 'interval',
                 renderer: function (value) {
-                    if (value) {
+                    if (!Ext.isEmpty(value)) {
                         var startDate = new Date(value.start),
                             endDate = new Date(value.end),
                             format = 'M j, Y \\a\\t G:i';
@@ -55,11 +64,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                         ? '<span class="validation-column-align">' + data + ' ' + record.get('unitOfMeasure') + ' ' + validationFlag + '</span>'
                         : '<span class="icon-validation icon-validation-black"></span>';
                 }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'deviceregisterdataactionmenu'
+                }
             }
-        ]
-    },
+        ];
 
-    initComponent: function () {
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

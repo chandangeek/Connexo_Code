@@ -9,6 +9,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'delta', type: 'auto'},
         {name: 'multiplier', type: 'int', useNull: true},
         {name: 'intervalFlags', type: 'auto'},
+        {name: 'editedTime', type: 'date', dateFormat: 'time'},
 
         {name: 'dataValidated', type:'auto'},
         {name: 'suspectReason', type:'auto'},

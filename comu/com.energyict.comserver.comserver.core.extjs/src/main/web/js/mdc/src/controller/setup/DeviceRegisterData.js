@@ -73,7 +73,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         var me = this,
             previewPanel = me.getDeviceregisterreportpreview(),
             form = previewPanel.down('form');
-        previewPanel.setTitle(Ext.util.Format.date(record.get('timeStamp'), 'M j, Y \\a\\t G:i'));
+        previewPanel.setTitle(Ext.util.Format.date(new Date(record.get('timeStamp')), 'M j, Y \\a\\t G:i'));
         form.loadRecord(record);
     },
 

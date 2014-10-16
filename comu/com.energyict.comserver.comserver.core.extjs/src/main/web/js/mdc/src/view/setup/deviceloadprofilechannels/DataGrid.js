@@ -6,12 +6,14 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
     requires: [
         'Uni.grid.column.Action',
         'Mdc.view.setup.deviceloadprofilechannels.DataActionMenu',
-        'Uni.grid.column.IntervalFlags'
+        'Uni.grid.column.IntervalFlags',
+        'Uni.grid.column.Edited'
     ],
     height: 395,
-    plugins: {
-        ptype: 'bufferedrenderer'
-    },
+    plugins: [
+        'bufferedrenderer',
+        'showConditionalToolTip'
+    ],
 
     //test
 
@@ -24,6 +26,11 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
             accumulationBehavior;
 
         me.columns = [
+            {
+                xtype: 'edited-column',
+                header: Uni.I18n.translate('general.edited', 'MDC', 'Edited'),
+                dataIndex: 'editedTime'
+            },
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',

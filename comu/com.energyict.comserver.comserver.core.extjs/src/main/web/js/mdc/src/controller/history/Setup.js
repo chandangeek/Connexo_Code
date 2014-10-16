@@ -911,7 +911,23 @@ Ext.define('Mdc.controller.history.Setup', {
                                             controller: 'Mdc.controller.setup.DeviceRegisterData',
                                             privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                             action: 'showDeviceRegisterDataView',
-                                            filter: 'Mdc.model.RegisterDataFilter'
+                                            filter: 'Mdc.model.RegisterDataFilter',
+                                            items: {
+                                                create: {
+                                                    title: 'Add register data',
+                                                    route: 'create',
+                                                    controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
+                                                    privileges: ['privilege.administrate.deviceConfiguration'],
+                                                    action: 'showDeviceRegisterConfigurationDataAddView'
+                                                },
+                                                edit: {
+                                                    title: 'Edit register data',
+                                                    route: '{timestamp}/edit',
+                                                    controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
+                                                    privileges: ['privilege.administrate.deviceConfiguration'],
+                                                    action: 'showDeviceRegisterConfigurationDataEditView'
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -1000,7 +1016,16 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
                                                             privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                                             action: 'showGraphOverview',
-                                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
+                                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
+                                                            items: {
+                                                                editreadings: {
+                                                                    title: Uni.I18n.translate('routing.editReadings', 'MDC', 'Edit readings'),
+                                                                    route: 'editreadings',
+                                                                    controller: 'Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings',
+                                                                    action: 'showOverview',
+                                                                    filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
+                                                                }
+                                                            }
                                                         },
                                                         tableData: {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),

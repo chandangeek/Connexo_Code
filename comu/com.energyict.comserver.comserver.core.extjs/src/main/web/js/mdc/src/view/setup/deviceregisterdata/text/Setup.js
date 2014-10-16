@@ -26,7 +26,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Setup', {
                                 Uni.I18n.translate('device.registerData.list.item1', 'MDC', 'No readings have been defined yet.'),
                                 Uni.I18n.translate('device.registerData.list.item2', 'MDC', 'No readings comply to the filter.')
                             ],
-                            stepItems: []
+                            stepItems: [
+                                {
+                                    text:  Uni.I18n.translate('device.registerData.add','MDC','Add register data'),
+                                    href: '#/devices/' + me.mRID + '/registers/' + me.registerId + '/data/create'
+                                }
+                            ]
                         },
                         previewComponent: {
                             xtype: 'deviceregisterreportpreview-text'

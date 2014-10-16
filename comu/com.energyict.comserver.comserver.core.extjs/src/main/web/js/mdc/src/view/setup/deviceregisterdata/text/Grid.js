@@ -4,15 +4,24 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
     itemId: 'deviceregisterreportgrid',
     store: 'TextRegisterData',
 
-    columns: {
-        items: [
+    initComponent: function () {
+        var me = this;
+
+        me.columns = [
+            {
+                xtype: 'edited-column',
+                header: Uni.I18n.translate('general.edited', 'MDC', 'Edited'),
+                dataIndex: 'editedDateTime'
+            },
             {
                 header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
                 xtype: 'datecolumn',
                 format: 'M j, Y \\a\\t G:i',
                 defaultRenderer: function (value) {
-                    return Ext.util.Format.date(value, this.format);
+                    if (!Ext.isEmpty(value)) {
+                        return Ext.util.Format.date(new Date(value), this.format);
+                    }
                 },
                 flex: 1
             },
@@ -26,11 +35,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
                     }
                 },
                 flex: 3
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'deviceregisterdataactionmenu'
+                }
             }
-        ]
-    },
+        ];
 
-    initComponent: function () {
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });
