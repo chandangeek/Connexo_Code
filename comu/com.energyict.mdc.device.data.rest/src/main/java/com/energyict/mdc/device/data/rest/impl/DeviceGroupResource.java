@@ -89,22 +89,26 @@ public class DeviceGroupResource {
 
         List<Integer> deviceTypes = (List) filter.get("deviceTypes");
         if ((deviceTypes != null) && (!deviceTypes.isEmpty())) {
+            Condition orCondition = Condition.FALSE;
             for (int deviceTypeId : deviceTypes) {
                 DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
                 if (deviceType != null) {
-                    condition = condition.and(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType.getName()));
+                    orCondition = orCondition.or(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType.getName()));
                 }
             }
+            condition = condition.and(orCondition);
         }
 
         List<Integer> deviceConfigurations = (List) filter.get("deviceConfigurations");
         if ((deviceConfigurations != null) && (!deviceConfigurations.isEmpty())) {
+            Condition orCondition = Condition.FALSE;
             for (int deviceConfigurationId : deviceConfigurations) {
                 DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
                 if (deviceConfiguration != null) {
-                    condition = condition.and(where("deviceConfiguration.name").isEqualTo(deviceConfiguration.getName()));
+                    orCondition = orCondition.or(where("deviceConfiguration.name").isEqualTo(deviceConfiguration.getName()));
                 }
             }
+            condition = condition.and(orCondition);
         }
 
         EndDeviceGroup endDeviceGroup;
