@@ -7,39 +7,34 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
 
     initComponent: function () {
         var me = this;
-        this.items = [
+        this.tbar =  [
             {
                 xtype: 'container',
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
-                style: {
-                    paddingBottom: '30px'
-                },
-                items: [
-                    {
-                        xtype: 'container',
-                        itemId: 'readOutsTitle',
-                        baseCls: 'x-panel-header-text-container-medium',
-                        html: me.wTitle
-                    },
-                    {
-                        xtype: 'container',
-                        flex: 1,
-                        width: 200,
-                        html: '<svg id="read-outs-legend-container" style="width: 100%"></svg>'
-                    }
-                ]
+                itemId: 'readOutsTitle',
+                baseCls: 'x-panel-header-text-container-medium',
+                html: me.wTitle
             },
             {
                 xtype: 'container',
+                flex: 1,
+                width: 200,
+                height: 30,
+                html: '<svg id="read-outs-legend-container" style="width: 100%"></svg>'
+            }
+        ];
+
+        this.items = [
+            {
+                hidden: true,
+                xtype: 'container',
+                itemId: 'empty',
+                html: 'Connections over time are not measured for the selected group'
+            },
+            {
+                xtype: 'container',
+                hidden: true,
                 itemId: 'chart',
-                height: 400,
-                style: {
-                    marginTop: '-130px',
-                    marginBottom: '180px'
-                }
+                height: 400
             }
         ];
 
@@ -54,14 +49,25 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
             me.hide();
         } else {
             me.show();
-            me.renderChart(me.down('#chart'));
-            // clean up
-            me.chart.series.map(function (obj) {
-                obj.remove()
-            });
-            store.each(function (kpi) {
-                me.chart.addSeries(kpi.getData())
-            });
+            var container = me.down('#chart');
+            var empty = me.down('#empty');
+
+            if (store.count()) {
+                container.show();
+                empty.hide();
+                me.renderChart(container);
+                // clean up
+                me.chart.series.map(function (obj) {
+                    obj.remove()
+                });
+                store.each(function (kpi) {
+                    me.chart.addSeries(kpi.getData())
+                });
+            } else {
+                container.hide();
+                empty.show();
+            }
+
         }
     },
 
