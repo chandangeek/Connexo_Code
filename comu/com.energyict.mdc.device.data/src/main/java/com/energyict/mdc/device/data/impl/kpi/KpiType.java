@@ -29,7 +29,7 @@ public enum KpiType {
 
         @Override
         protected DataCollectionKpiCalculator newCalculator(DataCollectionKpiImpl dataCollectionKpi, TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {
-            return new ConnectionSetupKpiCalculator(dataCollectionKpi, taskOccurrence.getTriggerTime(), serviceProvider.connectionTaskService());
+            return new ConnectionSetupKpiCalculator(dataCollectionKpi, taskOccurrence.getTriggerTime(), serviceProvider.connectionTaskService(), LOGGER);
         }
     },
 
@@ -41,7 +41,7 @@ public enum KpiType {
 
         @Override
         protected DataCollectionKpiCalculator newCalculator(DataCollectionKpiImpl dataCollectionKpi, TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {
-            return new CommunicationTaskExecutionKpiCalculator(dataCollectionKpi, taskOccurrence.getTriggerTime(), serviceProvider.communicationTaskService());
+            return new CommunicationTaskExecutionKpiCalculator(dataCollectionKpi, taskOccurrence.getTriggerTime(), serviceProvider.communicationTaskService(), LOGGER);
         }
     };
 
