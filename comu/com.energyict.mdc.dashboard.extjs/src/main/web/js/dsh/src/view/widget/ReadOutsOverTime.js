@@ -41,6 +41,13 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
         this.callParent(arguments);
     },
 
+    colorMap: {
+        0: '#70BB52', // success
+        1: '#71ADC6', // ongoing
+        2: '#EB5642', // failed
+        3: '#a9a9a9'  // target
+    },
+
     bindStore: function (store) {
         var me = this;
         var filter = me.router.filter;
@@ -60,8 +67,11 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 me.chart.series.map(function (obj) {
                     obj.remove()
                 });
-                store.each(function (kpi) {
-                    me.chart.addSeries(kpi.getData())
+
+                store.each(function (kpi, idx) {
+                    var data = kpi.getData();
+                    data.color = me.colorMap[idx];
+                    me.chart.addSeries(data);
                 });
             } else {
                 container.hide();
