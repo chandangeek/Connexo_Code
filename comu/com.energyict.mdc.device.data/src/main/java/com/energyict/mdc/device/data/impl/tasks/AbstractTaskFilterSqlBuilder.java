@@ -1,14 +1,20 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import org.joda.time.DateTimeConstants;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +54,10 @@ public abstract class AbstractTaskFilterSqlBuilder {
         this.actualBuilder.unionAll();
     }
 
+    protected void append(SqlFragment sqlFragment) {
+        this.actualBuilder.append(sqlFragment);
+    }
+
     protected void append(String sql) {
         this.actualBuilder.append(sql);
     }
@@ -81,7 +91,8 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(columnName);
             this.append(" = ");
             this.addLong(idBusinessObjects.iterator().next().getId());
-        } else {
+        }
+        else {
             List<List<? extends HasId>> chunksOfIdBusinessObjects = this.chopUp(idBusinessObjects);
             Iterator<List<? extends HasId>> chunkIterator = chunksOfIdBusinessObjects.iterator();
             while (chunkIterator.hasNext()) {
@@ -135,14 +146,33 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
     }
 
-    protected void appendIntervalWhereClause(String tableName, String columnName, Interval interval) {
+    protected void appendDeviceInGroupSql(List<QueryEndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor, String baseEntityAliasName) {
+        if (!deviceGroups.isEmpty()) {
+            this.appendWhereOrAnd();
+            this.append("(");
+            Iterator<QueryEndDeviceGroup> iterator = deviceGroups.iterator();
+            while (iterator.hasNext()) {
+                QueryEndDeviceGroup deviceGroup = iterator.next();
+                this.append(baseEntityAliasName);
+                this.append(".device in (");
+                this.append(queryExecutor.asFragment(deviceGroup.getCondition(), "id"));
+                this.append(")");
+                if (iterator.hasNext()) {
+                    this.append(" or ");
+                }
+            }
+            this.append(")");
+        }
+    }
+
+    protected void appendIntervalWhereClause(String tableName, String columnName, Interval interval, IntervalBindStrategy intervalBindStrategy) {
         if (interval.getStart() != null) {
             this.append(" (");
             this.append(tableName);
             this.append(".");
             this.append(columnName);
             this.append(" >=");
-            this.addLong(interval.getStart().getTime() / DateTimeConstants.MILLIS_PER_SECOND);
+            this.addLong(intervalBindStrategy.toLong(interval.getStart()));
             if (interval.getEnd() != null) {
                 this.append(" and ");
             }
@@ -155,11 +185,30 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(".");
             this.append(columnName);
             this.append(" <");
-            this.addLong(interval.getEnd().getTime() / DateTimeConstants.MILLIS_PER_SECOND);
-            this.append(") ");
-        } else {
+            this.addLong(intervalBindStrategy.toLong(interval.getEnd()));
             this.append(") ");
         }
+        else {
+            this.append(") ");
+        }
+    }
+
+    protected enum IntervalBindStrategy {
+        MILLIS {
+            @Override
+            protected long toLong(Date intervalDate) {
+                return intervalDate.getTime();
+            }
+        },
+
+        SECONDS {
+            @Override
+            protected long toLong(Date intervalDate) {
+                return intervalDate.getTime() / DateTimeConstants.MILLIS_PER_SECOND;
+            }
+        };
+
+        protected abstract long toLong(Date intervalDate);
     }
 
 }

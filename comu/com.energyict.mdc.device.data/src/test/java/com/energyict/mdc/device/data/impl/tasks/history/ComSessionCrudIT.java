@@ -9,6 +9,8 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
@@ -19,6 +21,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -27,12 +30,10 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -110,9 +111,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComSessionCrudIT {
@@ -214,6 +213,7 @@ public class ComSessionCrudIT {
                 new UserModule(),
                 new IdsModule(),
                 new MeteringModule(),
+                new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
@@ -221,7 +221,6 @@ public class ComSessionCrudIT {
                 new MasterDataModule(),
                 new ProtocolApiModule(),
                 new KpiModule(),
-                new TaskModule(),
                 new TasksModule(),
                 new MdcCommonModule(),
                 new EngineModelModule(),
@@ -234,17 +233,12 @@ public class ComSessionCrudIT {
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new TaskModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             ormService = injector.getInstance(OrmService.class);
-//            eventService = injector.getInstance(EventService.class);
-//            nlsService = injector.getInstance(NlsService.class);
-//            meteringService = injector.getInstance(MeteringService.class);
-//            readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
-//            engineModelService = injector.getInstance(EngineModelService.class);
-//            protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-//            inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
+            injector.getInstance(MeteringGroupsService.class);
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -294,7 +288,7 @@ public class ComSessionCrudIT {
             outboundTcpipComPortPool.setActive(true);
             outboundTcpipComPortPool.setComPortType(ComPortType.TCP);
             outboundTcpipComPortPool.setName("outTCPIPPool");
-            outboundTcpipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.MINUTES));
+            outboundTcpipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
             outboundTcpipComPortPool.save();
 
             connectionTask = this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)

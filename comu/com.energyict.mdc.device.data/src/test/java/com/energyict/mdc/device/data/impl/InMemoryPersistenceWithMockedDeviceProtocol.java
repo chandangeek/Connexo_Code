@@ -9,6 +9,8 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -155,6 +157,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new UserModule(),
                 new IdsModule(),
                 new MeteringModule(),
+                new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new IssuesModule(),
@@ -185,6 +188,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);

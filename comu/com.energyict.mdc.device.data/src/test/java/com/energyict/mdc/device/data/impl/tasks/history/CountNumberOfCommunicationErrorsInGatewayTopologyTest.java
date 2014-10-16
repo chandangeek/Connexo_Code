@@ -9,6 +9,8 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
@@ -153,6 +155,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new UserModule(),
                 new IdsModule(),
                 new MeteringModule(),
+                new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
@@ -180,6 +183,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             this.ormService = this.injector.getInstance(OrmService.class);
             this.deviceConfigurationService = this.injector.getInstance(DeviceConfigurationService.class);
             this.protocolPluggableService = this.injector.getInstance(ProtocolPluggableService.class);
+            injector.getInstance(MeteringGroupsService.class);
             DeviceDataModelServiceImpl deviceDataModelService = this.injector.getInstance(DeviceDataModelServiceImpl.class);
             this.communicationTaskService = deviceDataModelService.communicationTaskService();
             this.deviceService = deviceDataModelService.deviceService();

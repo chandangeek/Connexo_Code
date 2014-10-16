@@ -1,11 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.util.Holder;
-import com.elster.jupiter.util.HolderBuilder;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -13,9 +8,18 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Builds the SQL query that finds all {@link ConnectionTask}s
@@ -32,8 +36,8 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
 
-    public ConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock) {
-        super(filterSpecification, clock);
+    public ConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
+        super(filterSpecification, clock, deviceQueryExecutor);
         this.validate(filterSpecification);
         this.copyTaskStatuses(filterSpecification);
         this.lastSessionStart = filterSpecification.lastSessionStart;
@@ -57,7 +61,8 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
              * as that are the only three options.
              * In that case, it is easier to use empty set as that will avoid the complex clause to get the last session. */
             this.latestStatuses = EnumSet.noneOf(ConnectionTask.SuccessIndicator.class);
-        } else {
+        }
+        else {
             this.latestStatuses = EnumSet.noneOf(ConnectionTask.SuccessIndicator.class);
             for (ConnectionTask.SuccessIndicator successIndicator : filterSpecification.latestStatuses) {
                 this.latestStatuses.add(successIndicator);
@@ -71,7 +76,8 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
              * So in fact, he only cares about the fact that there is a last session. */
             this.latestResults = EnumSet.noneOf(ComSession.SuccessIndicator.class);
             this.requiresLastComSessionClause(true);
-        } else {
+        }
+        else {
             this.latestResults = EnumSet.noneOf(ComSession.SuccessIndicator.class);
             for (ComSession.SuccessIndicator successIndicator : filterSpecification.latestResults) {
                 this.latestResults.add(successIndicator);
@@ -87,33 +93,57 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
      * @throws IllegalArgumentException Thrown when the specifications are not valid
      */
     protected void validate(ConnectionTaskFilterSpecification filterSpecification) throws IllegalArgumentException {
-        if (filterSpecification.latestStatuses.contains(ConnectionTask.SuccessIndicator.NOT_APPLICABLE)
-                && !this.isNull(filterSpecification.lastSessionEnd)) {
+        if (   filterSpecification.latestStatuses.contains(ConnectionTask.SuccessIndicator.NOT_APPLICABLE)
+            && !this.isNull(filterSpecification.lastSessionEnd)) {
             throw new IllegalArgumentException("SuccessIndicator.NOT_APPLICABLE and last session end in interval cannot be combined");
         }
+    }
+
+    @Override
+    protected boolean requiresLastComSessionClause() {
+        return this.needsLastSessionJoinClause();
+    }
+
+    private boolean needsLastSessionJoinClause() {
+        return !this.isNull(this.lastSessionEnd)
+                || (   this.latestStatuses.contains(ConnectionTask.SuccessIndicator.SUCCESS)
+                    || this.latestStatuses.contains(ConnectionTask.SuccessIndicator.FAILURE))
+                || !this.latestResults.isEmpty();
+    }
+
+    @Override
+    protected void appendWhereClause(ServerConnectionTaskStatus taskStatus) {
+        super.appendWhereClause(taskStatus);
+        this.appendLastSessionClause();
+        this.appendNonStatusWhereClauses();
+        this.appendDeviceInGroupSql();
+    }
+
+    @Override
+    protected void appendNonStatusWhereClauses() {
+        super.appendNonStatusWhereClauses();
+        this.appendLastSessionClause();
+        this.appendDeviceInGroupSql();
     }
 
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
         SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
         this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
-        if (!this.isNull(this.lastSessionEnd)
-                || !this.latestStatuses.isEmpty()
-                || !this.latestResults.isEmpty()) {
-            this.appendLastSessionClause();
-            this.requiresLastComSessionClause(false);
-        }
+        this.appendJoinedTables();
         String sqlStartClause = sqlBuilder.getText();
-        Iterator<ServerConnectionTaskStatus> statusIterator = this.taskStatuses.iterator();
-        while (statusIterator.hasNext()) {
-            this.appendWhereClause(statusIterator.next());
-            if (statusIterator.hasNext()) {
-                this.unionAll();
-                this.append(sqlStartClause);
-                this.appendJoinedTables();
+        if (this.taskStatuses.isEmpty()) {
+            this.appendNonStatusWhereClauses();
+        }
+        else {
+            Iterator<ServerConnectionTaskStatus> statusIterator = this.taskStatuses.iterator();
+            while (statusIterator.hasNext()) {
+                this.appendWhereClause(statusIterator.next());
+                if (statusIterator.hasNext()) {
+                    this.unionAll();
+                    this.append(sqlStartClause);
+                }
             }
         }
-        this.appendLastSessionStartWhereClause();
-        this.appendNonStatusWhereClauses();
         this.append(" order by lastcommunicationstart desc");
         return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize);
     }
@@ -125,37 +155,51 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     }
 
     private void appendLastSessionClause() {
-        this.append(" join ");
-        this.append(TableSpecs.DDC_COMSESSION.name());
-        this.append(" cs on ct.lastsession = cs.id");
-        this.appendWhereOrAnd();
-        boolean clauseAppended = this.appendLastSessionStatusClause();
+        this.appendLastSessionStatusClause();
         if (!this.isNull(this.lastSessionEnd)) {
-            if (clauseAppended) {
-                this.append(" and ");
-            }
-            this.appendIntervalWhereClause("cs", "STOPDATE", this.lastSessionEnd);
+            this.appendWhereOrAnd();
+            this.appendIntervalWhereClause("cs", "STOPDATE", this.lastSessionEnd, IntervalBindStrategy.SECONDS);
         }
+        this.appendLastSessionStartWhereClause();
     }
 
     private boolean appendLastSessionStatusClause() {
         boolean result = false;
         if (!this.latestStatuses.isEmpty()) {
-            this.append(" cs.status in (");
-            this.appendEnumValues(this.latestStatuses);
+            this.appendWhereOrAnd();
+            this.append("(");
+            this.append(
+                this.latestStatuses.stream()
+                    .map(this::clauseFor)
+                    .collect(Collectors.joining(" or ")));
             this.append(")");
             result = true;
         }
         if (!this.latestResults.isEmpty()) {
-            if (!this.latestStatuses.isEmpty()) {
-                this.append(" and ");
-            }
+            this.appendWhereOrAnd();
             this.append(" cs.successIndicator in (");
             this.appendEnumValues(this.latestResults);
             this.append(")");
             result = true;
         }
         return result;
+    }
+
+    private String clauseFor(ConnectionTask.SuccessIndicator successIndicator) {
+        switch (successIndicator) {
+            case NOT_APPLICABLE: {
+                return " ct.lastsession is null";
+            }
+            case SUCCESS: {
+                return " cs.status = 1";
+            }
+            case FAILURE: {
+                return " cs.status = 0";
+            }
+            default: {
+                throw new IllegalArgumentException("Unsupported ConnectionTask.SuccessIndicator: " + successIndicator.name());
+            }
+        }
     }
 
     private void appendEnumValues(Set<? extends Enum> values) {
@@ -169,7 +213,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     private void appendLastSessionStartWhereClause() {
         if (!this.isNull(this.lastSessionStart)) {
             this.appendWhereOrAnd();
-            this.appendIntervalWhereClause(TableSpecs.DDC_CONNECTIONTASK.name(), "LASTCOMMUNICATIONSTART", this.lastSessionStart);
+            this.appendIntervalWhereClause("ct", "LASTCOMMUNICATIONSTART", this.lastSessionStart, IntervalBindStrategy.SECONDS);
         }
     }
 

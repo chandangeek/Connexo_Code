@@ -1,5 +1,42 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.kpi.impl.KpiModule;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
@@ -7,7 +44,6 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
-import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
@@ -30,46 +66,18 @@ import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.kpi.Kpi;
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -77,22 +85,15 @@ import org.osgi.service.log.LogService;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DataCollectionKpiImpl} component.
@@ -117,8 +118,12 @@ public class DataCollectionKpiImplTest {
     private static TaskService taskService;
     private static KpiService kpiService;
     private static DeviceDataModelServiceImpl deviceDataModelService;
-    private static EndDeviceGroup endDeviceGroup;
+    private static QueryEndDeviceGroup endDeviceGroup;
     private static CronExpressionParser cronExpressionParser;
+    private static CronExpression cronExpression;
+    private static MeteringGroupsService meteringGroupsService;
+    private static MeteringService meteringService;
+    private static DeviceService deviceService;
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -150,6 +155,10 @@ public class DataCollectionKpiImplTest {
     @BeforeClass
     public static void setUp() {
         cronExpressionParser = mock(CronExpressionParser.class, RETURNS_DEEP_STUBS);
+        cronExpression = mock(CronExpression.class);
+        when(cronExpression.encoded()).thenReturn("0 0 0/1 * * ? *");
+        when(cronExpressionParser.parse(anyString())).thenReturn(Optional.of(cronExpression));
+        when(cronExpression.nextOccurrence(any())).thenReturn(ZonedDateTime.now());
         taskService = mock(TaskService.class);
         licenseService = mock(LicenseService.class);
         when(licenseService.getLicenseForApplication("MDC")).thenReturn(com.google.common.base.Optional.absent());
@@ -185,6 +194,7 @@ public class DataCollectionKpiImplTest {
                 new TaskModule(),
                 new TasksModule(),
                 new KpiModule(),
+                new MeteringGroupsModule(),
                 new DeviceDataModule(),
                 new MockModule(),
                 new MeteringGroupsModule()
@@ -194,11 +204,10 @@ public class DataCollectionKpiImplTest {
             messageService = injector.getInstance(MessageService.class);
             taskService = injector.getInstance(TaskService.class);
             kpiService = injector.getInstance(KpiService.class);
+            meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            meteringService = injector.getInstance(MeteringService.class);
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
-            injector.getInstance(MeteringGroupsService.class);
-            MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DeviceService deviceService = injector.getInstance(DeviceServiceImpl.class);
+            deviceService = deviceDataModelService.deviceService();
 
             DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
             endDeviceQueryProvider.setMeteringService(meteringService);
@@ -206,7 +215,9 @@ public class DataCollectionKpiImplTest {
             meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
 
             Condition conditionDevice = where("deviceConfiguration.deviceType.name").isEqualTo(DEVICE_TYPE_NAME);
-            return meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
+            QueryEndDeviceGroup temp = meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
+            temp.save();
+            return temp;
         });
 
     }
@@ -240,6 +251,52 @@ public class DataCollectionKpiImplTest {
 
         // Asserts
         assertThat(found.isPresent()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testNonExistingKpiIsNotReturnedByFindById() {
+        // Business method
+        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(0);
+
+        // Asserts
+        assertThat(found.isPresent()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testCreatedKpiIsReturnedByFindByGroup() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.save();
+
+        // Business method
+        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(endDeviceGroup);
+
+        // Asserts
+        assertThat(found.isPresent()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testFindByGroupForDifferentGroup() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.save();
+
+        DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
+        endDeviceQueryProvider.setMeteringService(meteringService);
+        endDeviceQueryProvider.setDeviceService(deviceService);
+        meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
+
+        Condition conditionDevice = where("deviceConfiguration.deviceType.id").isEqualTo(97L);
+        QueryEndDeviceGroup otherEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
+
+        // Business method
+        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(otherEndDeviceGroup);
+
+        // Asserts
+        assertThat(found.isPresent()).isFalse();
     }
 
     @Test
@@ -370,7 +427,7 @@ public class DataCollectionKpiImplTest {
         // Asserts
         Kpi connectionKpi = kpi.connectionKpi().get();
         assertThat(connectionKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
-        assertThat(connectionKpi.getMembers()).hasSize(DataCollectionKpiService.MONITORED_STATUSSES.size());
+        assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
     }
 
     @Test
@@ -386,7 +443,7 @@ public class DataCollectionKpiImplTest {
         // Asserts
         Kpi communicationKpi = kpi.communicationKpi().get();
         assertThat(communicationKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
-        assertThat(communicationKpi.getMembers()).hasSize(DataCollectionKpiService.MONITORED_STATUSSES.size());
+        assertThat(communicationKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
     }
 
     @Test

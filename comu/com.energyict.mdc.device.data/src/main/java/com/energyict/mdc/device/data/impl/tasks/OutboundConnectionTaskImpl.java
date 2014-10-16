@@ -4,7 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
@@ -111,8 +111,9 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
      */
     protected TimeDuration getRescheduleRetryDelay() {
         if (this.getRescheduleDelay() == null || getRescheduleDelay().getSeconds() <= 0) {
-            return new TimeDuration(DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS, TimeDuration.SECONDS);
-        } else {
+            return new TimeDuration(DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS, TimeDuration.TimeUnit.SECONDS);
+        }
+        else {
             return this.getRescheduleDelay();
         }
     }

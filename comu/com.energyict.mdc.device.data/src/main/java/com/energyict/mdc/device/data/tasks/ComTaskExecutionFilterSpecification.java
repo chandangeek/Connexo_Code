@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -63,5 +64,12 @@ public class ComTaskExecutionFilterSpecification {
      * take this into account.
      */
     public Interval lastSessionEnd = null;
+
+    /**
+     * The {@link QueryEndDeviceGroup}s that contain the {@link com.energyict.mdc.device.data.Device}s
+     * to which the matching {@link ComTaskExecution}s should be linked
+     * or an empty set if the filter should not take this into account.
+     */
+    public Set<QueryEndDeviceGroup> deviceGroups = new HashSet<>();
 
 }

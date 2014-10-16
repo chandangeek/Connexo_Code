@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ValidationEvaluator;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import java.util.Date;

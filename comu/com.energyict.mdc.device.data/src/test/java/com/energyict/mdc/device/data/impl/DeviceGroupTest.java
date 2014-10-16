@@ -4,7 +4,6 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -24,7 +23,6 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -206,9 +204,9 @@ public class DeviceGroupTest {
                 new KpiModule(),
                 new TaskModule(),
                 new TasksModule(),
+                new MeteringGroupsModule(),
                 new DeviceDataModule(),
-                new MockModule(),
-                new MeteringGroupsModule()
+                new MockModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(MeteringGroupsService.class);
@@ -273,8 +271,7 @@ public class DeviceGroupTest {
             QueryEndDeviceGroup queryEndDeviceGroup =
                     meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
             queryEndDeviceGroup.setMRID("dynamic");
-            queryEndDeviceGroup.setLabel("MDC");
-            queryEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPRVIDER);
+            queryEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
             queryEndDeviceGroup.save();
             ctx.commit();
         }
@@ -286,7 +283,6 @@ public class DeviceGroupTest {
         List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
-        Assertions.assertThat(group.getLabel().equals("MDC"));
     }
 
     @Test
@@ -320,7 +316,7 @@ public class DeviceGroupTest {
             QueryEndDeviceGroup queryEndDeviceGroup =
                     meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
             queryEndDeviceGroup.setMRID("dynamic");
-            queryEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPRVIDER);
+            queryEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
             queryEndDeviceGroup.save();
             ctx.commit();
         }
