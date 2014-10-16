@@ -17,7 +17,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
         align: 'stretch'
     },
     style: {
-        padding: '20px'
+        padding: '0 20px'
     },
     defaults: {
         style: {
@@ -79,9 +79,12 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     }
                 ]
             },
-//            {
-//                xtype: 'read-outs-over-time'
-//            },
+            {
+                xtype: 'read-outs-over-time',
+                wTitle: Uni.I18n.translate('communications.widget.readOutsOverTime.title', 'DSH', 'Communications over time'),
+                router: me.router,
+                parent: 'communications'
+            },
             {
                 xtype: 'overview',
                 category: 'Communication',

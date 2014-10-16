@@ -15,7 +15,8 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         { ref: 'summary', selector: '#summary' },
         { ref: 'communicationServers', selector: '#communication-servers' },
         { ref: 'overview', selector: '#overview' },
-        { ref: 'breakdown', selector: '#breakdown' }
+        { ref: 'breakdown', selector: '#breakdown' },
+        { ref: 'kpi', selector: '#connection-overview read-outs-over-time' }
     ],
 
     init: function () {
@@ -45,6 +46,7 @@ Ext.define('Dsh.controller.ConnectionOverview', {
                     me.getSummary().setRecord(record.getSummary());
                     me.getOverview().bindStore(record.overviews());
                     me.getBreakdown().bindStore(record.breakdowns());
+                    me.getKpi().bindStore(record.kpi());
                     me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
                 },
                 callback: function () {

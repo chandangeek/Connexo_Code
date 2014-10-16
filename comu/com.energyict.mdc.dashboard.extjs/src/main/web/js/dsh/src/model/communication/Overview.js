@@ -3,7 +3,8 @@ Ext.define('Dsh.model.communication.Overview', {
     requires: [
         'Dsh.model.Summary',
         'Dsh.model.Counter',
-        'Dsh.model.Breakdown'
+        'Dsh.model.Breakdown',
+        'Dsh.model.Kpi'
     ],
     hasOne: {
         model: 'Dsh.model.Summary',
@@ -20,6 +21,10 @@ Ext.define('Dsh.model.communication.Overview', {
         {
             model: 'Dsh.model.Breakdown',
             name: 'breakdowns'
+        },
+        {
+            model: 'Dsh.model.Kpi',
+            name: 'kpi'
         }
     ],
     proxy: {

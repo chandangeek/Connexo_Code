@@ -17,7 +17,7 @@ Ext.define('Dsh.view.ConnectionOverview', {
         align: 'stretch'
     },
     style: {
-        padding: '20px'
+        padding: '0 20px'
     },
     defaults: {
         style: {
@@ -79,9 +79,12 @@ Ext.define('Dsh.view.ConnectionOverview', {
                     }
                 ]
             },
-//            {
-//                xtype: 'read-outs-over-time'
-//            },
+            {
+                xtype: 'read-outs-over-time',
+                wTitle: Uni.I18n.translate('connection.widget.readOutsOverTime.title', 'DSH', 'Connections over time'),
+                router: me.router,
+                parent: 'connections'
+            },
             {
                 xtype: 'overview',
                 category: 'Connection',
