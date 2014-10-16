@@ -16,13 +16,14 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                 items: [
                     {
                         xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'For device group'),
-                        labelAlign: 'left'
+                        fieldLabel: Uni.I18n.translate('overview.widget.headerSection.filter', 'DSH', 'Filter'),
+                        labelAlign: 'left',
+                        labelWidth: 30
                     },
                     {
                         xtype: 'button',
                         itemId: 'device-group',
-                        label: 'device group: ', //translate
+                        label: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'Device group: '),
                         arrowAlign: 'right',
                         menu: {
                             router: me.router,
