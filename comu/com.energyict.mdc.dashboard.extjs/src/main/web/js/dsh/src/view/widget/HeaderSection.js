@@ -22,6 +22,9 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                     },
                     {
                         xtype: 'button',
+                        style: {
+                            'background-color': '#71adc7'
+                        },
                         itemId: 'device-group',
                         label: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'Device group: '),
                         arrowAlign: 'right',
