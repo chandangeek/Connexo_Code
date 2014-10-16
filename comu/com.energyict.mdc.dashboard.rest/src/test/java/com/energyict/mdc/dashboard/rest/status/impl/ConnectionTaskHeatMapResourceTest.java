@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
@@ -10,6 +11,7 @@ import com.energyict.mdc.dashboard.impl.ConnectionTaskHeatMapRowImpl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.google.common.base.Optional;
 import com.jayway.jsonpath.JsonModel;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +20,7 @@ import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +34,7 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
     }
 
     @Test
-    public void testConnectionHeatMapByDeviceType() throws Exception {
+    public void testConnectionHeatMapByDeviceTypeWithoutDeviceGroup() throws Exception {
         ConnectionTaskDeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
         when(dashboardService.getConnectionsDeviceTypeHeatMap()).thenReturn(heatMap);
 
@@ -41,6 +44,39 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
         assertThat(model.<Object>get("$.heatMap")).isNotNull();
         assertThat(model.<List<String>>get("$.heatMap[*].data[*].id")).contains("Success").contains("SetupError").contains("Broken").contains("SomeTasksFailed");
         assertThat(model.<String>get("$.breakdown")).isEqualTo("deviceTypes");
+    }
+
+    @Test
+    public void testConnectionHeatMapByDeviceTypeWithDeviceGroup() throws Exception {
+        ConnectionTaskDeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
+        QueryEndDeviceGroup endDeviceGroup = mockQueryEndDeviceGroup(11, "North region", "OIU-OOU7YQ-OPI001");
+        Optional<QueryEndDeviceGroup> endDeviceGroupOptional = Optional.of(endDeviceGroup);
+        when(meteringGroupsService.findQueryEndDeviceGroup(19L)).thenReturn(endDeviceGroupOptional);
+        when(dashboardService.getConnectionsDeviceTypeHeatMap(endDeviceGroup)).thenReturn(heatMap);
+
+        String response = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter().property("breakdown", "deviceTypes").property("deviceGroup", 19L).create()).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+
+        assertThat(model.<Object>get("$.heatMap")).isNotNull();
+        assertThat(model.<List<String>>get("$.heatMap[*].data[*].id")).contains("Success").contains("SetupError").contains("Broken").contains("SomeTasksFailed");
+        assertThat(model.<String>get("$.breakdown")).isEqualTo("deviceTypes");
+    }
+
+    @Test
+    public void testConnectionHeatMapByDeviceTypeWithUnknownDeviceGroup() throws Exception {
+        when(meteringGroupsService.findQueryEndDeviceGroup(anyInt())).thenReturn(Optional.<QueryEndDeviceGroup>absent());
+
+        Response response = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter().property("breakdown", "deviceTypes").property("deviceGroup", -1L).create()).request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    private QueryEndDeviceGroup mockQueryEndDeviceGroup(long id, String name, String mrid) {
+        QueryEndDeviceGroup mock = mock(QueryEndDeviceGroup.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.getMRID()).thenReturn(mrid);
+        return mock;
     }
 
     private ConnectionTaskDeviceTypeHeatMap createDeviceTypeHeatMap() {

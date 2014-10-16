@@ -1,5 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
@@ -7,27 +9,59 @@ import com.energyict.mdc.dashboard.impl.ComCommandCompletionCodeOverviewImpl;
 import com.energyict.mdc.dashboard.impl.CommunicationTaskHeatMapRowImpl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.google.common.base.Optional;
+import com.jayway.jsonpath.JsonModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CommunicationTaskHeatMapResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
-    public void testConnectionHeatMapJsonBinding() throws Exception {
+    public void testCommunicationHeatMapJsonBinding() throws Exception {
         CommunicationTaskHeatMap heatMap = createHeatMap();
         when(dashboardService.getCommunicationTasksHeatMap()).thenReturn(heatMap);
 
-        Map<String, Object> map = target("/communicationheatmap").request().get(Map.class);
+        String response = target("/communicationheatmap").request().get(String.class);
+        JsonModel model = JsonModel.model(response);
 
-        assertThat(map).containsKey("heatMap");
+        assertThat(model.<Object>get("$.heatMap")).isNotNull();
+        assertThat(model.<Object>get("$.breakdown")).isEqualTo("deviceTypes");
+        assertThat(model.<Object>get("$.alias")).isEqualTo("deviceTypes");
+        assertThat(model.<List>get("$.heatMap")).isNotEmpty();
+        assertThat(model.<List>get("$.heatMap[*].displayValue")).containsExactly("deviceType1", "deviceType2", "deviceType3");
+    }
+
+    @Test
+    public void testCommunicationHeatMapJsonBindingWithDeviceGroup() throws Exception {
+        CommunicationTaskHeatMap heatMap = createHeatMap();
+        QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
+        Optional<QueryEndDeviceGroup> endDeviceGroupOptional = Optional.of(endDeviceGroup);
+        when(meteringGroupsService.findQueryEndDeviceGroup(19L)).thenReturn(endDeviceGroupOptional);
+        when(dashboardService.getCommunicationTasksHeatMap(endDeviceGroup)).thenReturn(heatMap);
+
+        String response = target("/communicationheatmap").queryParam("filter", ExtjsFilter.filter("deviceGroup", 19L)).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+
+        assertThat(model.<Object>get("$.heatMap")).isNotNull();
+        assertThat(model.<Object>get("$.breakdown")).isEqualTo("deviceTypes");
+        assertThat(model.<Object>get("$.alias")).isEqualTo("deviceTypes");
+        assertThat(model.<List>get("$.heatMap[*].displayValue")).containsExactly("deviceType1", "deviceType2", "deviceType3");
+    }
+
+    @Test
+    public void testCommunicationHeatMapJsonBindingWithUnknownDeviceGroup() throws Exception {
+        when(meteringGroupsService.findQueryEndDeviceGroup(anyInt())).thenReturn(Optional.<QueryEndDeviceGroup>absent());
+        Response response = target("/communicationheatmap").queryParam("filter", ExtjsFilter.filter("deviceGroup", -1L)).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
