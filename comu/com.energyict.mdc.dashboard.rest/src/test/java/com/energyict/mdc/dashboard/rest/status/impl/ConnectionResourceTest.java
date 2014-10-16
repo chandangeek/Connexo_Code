@@ -246,6 +246,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         PartialScheduledConnectionTask partialConnectionTask = mockPartialScheduledConnectionTask();
         ComServer comServer = mockComServer();
         ComPort comPort = mockComPort(comServer);
+        ComPortPool comPortPool = mockComPortPool();
         Device device = mockDevice(deviceType, deviceConfiguration);
         ComWindow window = mockWindow(PartialTime.fromHours(9), PartialTime.fromHours(17));
 
@@ -267,6 +268,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getConnectionType()).thenReturn(new OutboundTcpIpConnectionType());
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(comSession.getComPort()).thenReturn(comPort);
+        when(comSession.getComPortPool()).thenReturn(comPortPool);
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         when(connectionTask.getPlannedNextExecutionTimestamp()).thenReturn(plannedNext);
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
@@ -299,6 +301,10 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].duration.timeUnit")).isEqualTo("seconds");
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comServer.id")).isEqualTo(1212);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].comServer.name")).isEqualTo("com server");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comPort.id")).isEqualTo(99);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].comPort.name")).isEqualTo("com port");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comPortPool.id")).isEqualTo(1234321);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].comPortPool.name")).isEqualTo("Com port pool");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].direction")).isEqualTo("Outbound");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionType")).isEqualTo("OutboundTcpIp");
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].connectionMethod.id")).isEqualTo(991);
@@ -307,6 +313,13 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
         assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.getTime());
+    }
+
+    private ComPortPool mockComPortPool() {
+        ComPortPool comPortPool = mock(ComPortPool.class);
+        when(comPortPool.getName()).thenReturn("Com port pool");
+        when(comPortPool.getId()).thenReturn(1234321L);
+        return comPortPool;
     }
 
     private ComWindow mockWindow(PartialTime start, PartialTime end) {

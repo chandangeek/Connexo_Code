@@ -24,6 +24,7 @@ public class ConnectionTaskInfo {
     public Date endDateTime;
     public TimeDurationInfo duration;
     public IdWithNameInfo comPort;
+    public IdWithNameInfo comPortPool;
     public String direction;
     public String connectionType;
     public IdWithNameInfo comServer;
