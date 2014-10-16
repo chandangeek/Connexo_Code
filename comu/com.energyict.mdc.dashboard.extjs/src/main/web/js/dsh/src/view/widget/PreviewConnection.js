@@ -53,19 +53,19 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.widget.details.direction', 'DSH', 'Direction'),
-                    name: 'direction'
+                    fieldLabel: Uni.I18n.translate('connection.widget.details.connMethod', 'DSH', 'Connection method'),
+                    name: 'connectionMethod',
+                    renderer: function (val) {
+                        return val ? val.name : ''
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.connType', 'DSH', 'Connection type'),
                     name: 'connectionType'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.widget.details.connMethod', 'DSH', 'Connection method'),
-                    name: 'connectionMethod',
-                    renderer: function (val) {
-                        return val ? val.name : ''
-                    }
+                    fieldLabel: Uni.I18n.translate('connection.widget.details.direction', 'DSH', 'Direction'),
+                    name: 'direction'
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.connWindow', 'DSH', 'Connection window'),
@@ -79,10 +79,10 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.widget.details.nextConnection', 'DSH', 'Next connection'),
-                    name: 'nextExecution',
+                    fieldLabel: Uni.I18n.translate('connection.widget.details.commPortPool', 'DSH', 'Communication port pool'),
+                    name: 'comPortPool',
                     renderer: function (val) {
-                        return val ? Ext.Date.format(val, 'm/d/Y h:i:s') : '';
+                        return val ? val.name : ''
                     }
                 }
             ]
@@ -146,17 +146,17 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.widget.details.commServer', 'DSH', 'Communication server'),
-                    name: 'comServer',
-                    renderer: function (val) {
-                        return val ? '<a href="#/administration/comservers/' + val.id + '">' + val.name + '</a>' : ''
-                    }
-                },
-                {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commPort', 'DSH', 'Communication port'),
                     name: 'comPort',
                     renderer: function (val) {
                         return val ? val.name : ''
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('connection.widget.details.nextConnection', 'DSH', 'Next connection'),
+                    name: 'nextExecution',
+                    renderer: function (val) {
+                        return val ? Ext.Date.format(val, 'm/d/Y h:i:s') : '';
                     }
                 }
             ]
