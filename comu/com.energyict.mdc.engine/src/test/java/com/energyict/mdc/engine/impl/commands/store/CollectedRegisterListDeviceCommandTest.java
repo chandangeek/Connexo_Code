@@ -113,9 +113,9 @@ public class CollectedRegisterListDeviceCommandTest {
         Assert.assertEquals("Expecting only 1 registerValue", 1, readingData.getReadings().size());
         Reading registerValue = readingData.getReadings().get(0);
         Assert.assertEquals(collectedRegister.getCollectedQuantity().getAmount(), registerValue.getValue());
-        Assert.assertEquals(collectedRegister.getEventTime(), registerValue.getTimeStamp());
-        Assert.assertEquals(collectedRegister.getFromTime(), registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null));
-        Assert.assertEquals(collectedRegister.getToTime(), registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null));
+        Assert.assertEquals(collectedRegister.getEventTime().toInstant(), registerValue.getTimeStamp());
+        Assert.assertEquals(collectedRegister.getFromTime().toInstant(), registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null));
+        Assert.assertEquals(collectedRegister.getToTime().toInstant(), registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null));
     }
 
     @Test

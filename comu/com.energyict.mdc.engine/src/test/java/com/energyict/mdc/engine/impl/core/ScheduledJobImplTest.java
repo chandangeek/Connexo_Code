@@ -5,7 +5,9 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+
 import java.time.Clock;
+
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -60,9 +62,12 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
+
 import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -146,8 +151,7 @@ public class ScheduledJobImplTest {
     private IssueService issueService;
     @Mock
     private EventService eventService;
-    @Mock
-    private Clock clock;
+    private Clock clock = Clock.systemDefaultZone();
     @Mock
     private ThreadPrincipalService threadprincipalService;
 

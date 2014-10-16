@@ -68,7 +68,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.joda.time.Instant;
+import java.time.Instant;
 import org.junit.*;
 import org.junit.rules.*;
 import org.junit.runner.*;

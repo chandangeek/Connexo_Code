@@ -136,7 +136,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
-        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, now);
+        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, now.toEpochMilli());
         Object refreshed = QueryMethod.RefreshComServer.execute(parameters, comServerDAO);
 
         // Asserts
@@ -156,7 +156,7 @@ public class QueryMethodTest {
         // Business method
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, COMSERVER_ID);
-        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, modificationDateBeforeChanges);
+        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, modificationDateBeforeChanges.toEpochMilli());
         Object refreshed = QueryMethod.RefreshComServer.execute(parameters, comServerDAO);
 
         // Asserts
