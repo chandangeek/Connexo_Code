@@ -983,7 +983,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Data validation',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
-                            privileges: ['privilege.view.deviceValidation'],
+                            privileges: ['privilege.view.validateDevice'],
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {
