@@ -1,13 +1,15 @@
 package com.energyict.mdc.dashboard.rest.status;
 
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.engine.status.ComServerType;
+import com.energyict.mdc.engine.model.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.GET;
@@ -56,8 +58,8 @@ public class ComServerStatusSummaryResource {
         Client jerseyClient = this.newJerseyClient();
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path(ComServerStatusResource.class).host("{host}");
         ComServerStatusSummaryInfo statusSummaryInfo = new ComServerStatusSummaryInfo();
-        this.engineModelService.findAllOnlineComServers().stream().forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
-        this.engineModelService.findAllRemoteComServers().stream().forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
+        this.engineModelService.findAllOnlineComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
+        this.engineModelService.findAllRemoteComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
         return statusSummaryInfo;
     }
 
