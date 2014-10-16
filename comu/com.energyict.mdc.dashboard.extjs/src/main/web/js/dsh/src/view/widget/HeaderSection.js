@@ -15,10 +15,12 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                 xtype: 'toolbar',
                 items: [
                     {
-                        xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('overview.widget.headerSection.filter', 'DSH', 'Filter') + ': ',
-                        labelAlign: 'left',
-                        labelWidth: 30
+                        xtype: 'container',
+                        html: Uni.I18n.translate('overview.widget.headerSection.filter', 'DSH', 'Filter'),
+                        cls: 'x-form-display-field',
+                        style: {
+                            paddingRight: '10px'
+                        }
                     },
                     {
                         xtype: 'button',
@@ -26,7 +28,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                             'background-color': '#71adc7'
                         },
                         itemId: 'device-group',
-                        label: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'Device group: '),
+                        label: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'Device group') + ': ',
                         arrowAlign: 'right',
                         menu: {
                             router: me.router,
