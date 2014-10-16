@@ -77,8 +77,10 @@ Ext.define('Dsh.controller.Connections', {
 
     onCommunicationSelectionChange: function (grid, selected) {
         var me = this,
+            commPanel = me.getCommunicationsPanel(),
             record = selected[0],
             preview = me.getCommunicationPreview();
+        commPanel.show();
         record.data.devConfig = {
             config: record.data.deviceConfiguration,
             devType: record.data.deviceType
@@ -99,13 +101,13 @@ Ext.define('Dsh.controller.Connections', {
                 title = ' ' + record.get('title');
             preview.loadRecord(record);
             preview.setTitle(title);
-            commPanel.show();
             commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationsOf', 'DSH', 'Communications of') + title);
-            commStore.setConnectionId(id);
-            commStore.load();
-        } else {
-            commPanel.hide()
-        }
+            if (id) {
+                commStore.setConnectionId(id);
+                commStore.load();
+                commPanel.hide()
+            }
 
+        }
     }
 });
