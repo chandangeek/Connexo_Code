@@ -2,6 +2,7 @@ Ext.define('Cfg.store.Validators', {
     extend: 'Ext.data.Store',
     model: 'Cfg.model.Validator',
     storeId: 'validators',
+    autoLoad: false,
 
     proxy: {
         type: 'rest',

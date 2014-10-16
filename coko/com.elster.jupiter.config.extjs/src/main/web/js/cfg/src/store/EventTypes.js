@@ -1,6 +1,7 @@
 Ext.define('Cfg.store.EventTypes', {
     extend: 'Ext.data.Store',
     model: 'Cfg.model.EventType',
+    autoLoad: false,
 
     proxy: {
         type: 'rest',

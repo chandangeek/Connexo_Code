@@ -2,6 +2,7 @@ Ext.define('Cfg.store.ValidationActions', {
     extend: 'Ext.data.Store',
     model: 'Cfg.model.ValidationAction',
     storeId: 'validationActions',
+    autoLoad: false,
 
     proxy: {
         type: 'rest',
