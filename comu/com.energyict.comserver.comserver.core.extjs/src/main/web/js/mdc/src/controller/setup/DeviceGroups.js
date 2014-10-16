@@ -37,7 +37,11 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             },
             '#createDeviceGroupButton': {
                 click: this.showAddDeviceGroupWizard
-            }/*,
+            },
+            '#createDeviceGroupButtonFromEmptyGrid': {
+                click: this.showAddDeviceGroupWizard
+            }
+            /*,
              '#deviceGroupsGrid actioncolumn': {
              deleteDeviceGroup: this.deleteDeviceGroup
              },

@@ -52,6 +52,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         {
             ref: 'dynamicRadioButton',
             selector: 'devicegroup-wizard-step1 #dynamicDeviceGroup'
+        },
+        {
+            ref: 'filterForm',
+            selector: '#addDeviceGroupSideFilter form'
         }
     ],
 
@@ -102,40 +106,48 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     addDeviceGroup: function () {
+        var me = this;
+        var record = Ext.create('Mdc.model.DeviceGroup');
+        var router = this.getController('Uni.controller.history.Router');
         var preloader = Ext.create('Ext.LoadMask', {
             msg: "Loading...",
             target: this.getAddDeviceGroupWizard()
         });
         preloader.show();
-        Ext.Ajax.request({
-            url: '../../api/ddr/devicegroups',
-            method: 'POST',
-            jsonData: {
-                mRID: this.getNameTextField().getValue(),
-                dynamic: this.getDynamicRadioButton().checked
-            },
-            success: function () {
-                router.getRoute('devices/devicegroups').forward();
-                self.getApplication().fireEvent('acknowledge', 'Device group added');
-            },
-            failure: function (response) {
-                if(response.status == 400) {
-                    var result = Ext.decode(response.responseText, true),
-                        errorTitle = 'Failed to add',
-                        errorText = 'Device group could not be added. There was a problem accessing the database';
+        if (record) {
+            record.set('name', this.getNameTextField().getValue());
+            record.set('dynamic', this.getDynamicRadioButton().checked);
+            record.set('filter', this.getController('Uni.controller.history.Router').filter.data);
+            record.save({
+                /*Ext.Ajax.request({
+                 url: '../../api/ddr/devicegroups',
+                 method: 'POST',
+                 jsonData: {
+                 mRID: this.getNameTextField().getValue(),
+                 dynamic: this.getDynamicRadioButton().checked
+                 },*/
+                success: function () {
+                    me.getController('Uni.controller.history.Router').getRoute('devices/devicegroups').forward();
+                    me.getApplication().fireEvent('acknowledge', 'Device group added');
+                },
+                failure: function (response) {
+                    if (response.status == 400) {
+                        var result = Ext.decode(response.responseText, true),
+                            errorTitle = 'Failed to add',
+                            errorText = 'Device group could not be added. There was a problem accessing the database';
 
-                    if (result !== null) {
-                        errorTitle = result.error;
-                        errorText = result.message;
+                        if (result !== null) {
+                            errorTitle = result.error;
+                            errorText = result.message;
+                        }
+                        self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
                     }
-
-                    self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                },
+                callback: function () {
+                    preloader.destroy();
                 }
-            },
-            callback: function () {
-                preloader.destroy();
-            }
-        });
+            });
+        }
     },
 
     cancelClick: function () {
