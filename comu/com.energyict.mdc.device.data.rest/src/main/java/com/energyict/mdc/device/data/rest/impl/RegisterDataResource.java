@@ -66,7 +66,7 @@ public class RegisterDataResource {
                 validationStatusForRegister, dataValidationStatuses);
         readingInfos = filter(readingInfos, uriInfo.getQueryParameters());
 
-        List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos, ((ri1, ri2) -> ri1.timeStamp.compareTo(ri2.timeStamp))).from(queryParameters).find();
+        List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos, ((ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp))).from(queryParameters).find();
         return PagedInfoList.asJson("data", paginatedReadingInfo, queryParameters);
     }
 

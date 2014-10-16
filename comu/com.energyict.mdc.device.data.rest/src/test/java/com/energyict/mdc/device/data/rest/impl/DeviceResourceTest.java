@@ -14,7 +14,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -372,9 +372,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testGetAllLoadProfiles() throws Exception {
         Device device1 = mock(Device.class);
         Channel channel1 = mockChannel("channel1", "1.1.1", 1);
-        LoadProfile loadProfile1 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.MINUTES));
-        LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.MINUTES));
-        LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.MINUTES), channel1);
+        LoadProfile loadProfile1 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
+        LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
+        LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
@@ -393,9 +393,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testGetAllLoadProfilesIsSorted() throws Exception {
         Device device1 = mock(Device.class);
         Channel channel1 = mockChannel("channel1", "1.1.1", 1);
-        LoadProfile loadProfile1 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.MINUTES));
-        LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.MINUTES));
-        LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.MINUTES), channel1);
+        LoadProfile loadProfile1 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
+        LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
+        LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
@@ -406,9 +406,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device1 = mock(Device.class);
         Channel channel1 = mockChannel("Z-channel1", "1.1", 0);
         Channel channel2 = mockChannel("A-channel2", "1.2", 1);
-        LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(15, TimeDuration.MINUTES), channel1, channel2);
-        LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.MINUTES));
-        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES));
+        LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1, channel2);
+        LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
+        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
@@ -443,9 +443,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testGetNonExistingLoadProfile() throws Exception {
         Device device1 = mock(Device.class);
-        LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(15, TimeDuration.MINUTES));
-        LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.MINUTES));
-        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES));
+        LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
+        LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
+        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
@@ -459,7 +459,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device1 = mock(Device.class);
         Channel channel1 = mockChannel("channel1", "1.1", 0);
         Channel channel2 = mockChannel("channel2", "1.2", 1);
-        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES), channel1, channel2);
+        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1, channel2);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
         when(deviceService.findByUniqueMrid("mrid2")).thenReturn(device1);
         when(channel1.getDevice()).thenReturn(device1);
@@ -510,7 +510,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ChannelSpec channelSpec = mock(ChannelSpec.class);
         when(channelSpec.getId()).thenReturn(channel_id);
         when(channel1.getChannelSpec()).thenReturn(channelSpec);
-        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES), channel1);
+        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1);
         when(channel1.getLoadProfile()).thenReturn(loadProfile3);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
         when(deviceService.findByUniqueMrid("mrid2")).thenReturn(device1);
