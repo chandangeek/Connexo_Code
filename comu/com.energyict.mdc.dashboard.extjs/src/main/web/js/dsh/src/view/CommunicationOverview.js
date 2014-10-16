@@ -82,6 +82,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
             {
                 xtype: 'read-outs-over-time',
                 wTitle: Uni.I18n.translate('communications.widget.readOutsOverTime.title', 'DSH', 'Communications over time'),
+                router: me.router,
                 parent: 'communications'
             },
             {

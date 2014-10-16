@@ -2,6 +2,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.read-outs-over-time',
     itemId: 'read-outs-over-time',
+    hidden: true,
     layout: 'fit',
 
     initComponent: function () {
@@ -47,15 +48,21 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
 
     bindStore: function (store) {
         var me = this;
-        me.renderChart(me.down('#chart'));
+        var filter = me.router.filter;
 
-        // clean up
-        me.chart.series.map(function (obj) {
-            obj.remove()
-        });
-        store.each(function (kpi) {
-            me.chart.addSeries(kpi.getData())
-        });
+        if (!filter.get('deviceGroup')) {
+            me.hide();
+        } else {
+            me.show();
+            me.renderChart(me.down('#chart'));
+            // clean up
+            me.chart.series.map(function (obj) {
+                obj.remove()
+            });
+            store.each(function (kpi) {
+                me.chart.addSeries(kpi.getData())
+            });
+        }
     },
 
     renderChart: function (container) {
