@@ -1,14 +1,5 @@
 package com.elster.jupiter.validators.impl;
 
-import static com.elster.jupiter.validation.ValidationResult.VALID;
-import static com.elster.jupiter.validation.ValidationResult.NOT_VALIDATED;
-import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -17,11 +8,19 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static com.elster.jupiter.validation.ValidationResult.*;
 
 class ThresholdValidator extends AbstractValidator {
 
@@ -58,7 +57,7 @@ class ThresholdValidator extends AbstractValidator {
     }
 
     @Override
-    public void init(Channel channel, ReadingType readingType, Interval interval) {
+    public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         this.readingType = readingType;
         this.minimum = getRequiredQuantity(properties, MIN, readingType);
         this.maximum = getRequiredQuantity(properties, MAX, readingType);

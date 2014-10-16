@@ -15,8 +15,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +52,7 @@ abstract class AbstractValidator implements IValidator {
     }
 
     @Override
-    public Map<Date, ValidationResult> finish() {
+    public Map<Instant, ValidationResult> finish() {
         return Collections.emptyMap();
     }
 

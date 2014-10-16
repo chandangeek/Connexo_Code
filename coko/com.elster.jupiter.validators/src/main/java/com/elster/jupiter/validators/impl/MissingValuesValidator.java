@@ -9,17 +9,20 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.BitSet;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static com.elster.jupiter.util.Ranges.copy;
 
 /**
  * This Validator will interpret Intervals as being closed. i.e. start and end time are included in the interval. So when validating missing readings for a five minute interval over a period of five minutes will expect 2 readings.
@@ -29,7 +32,7 @@ class MissingValuesValidator extends AbstractValidator {
 
     private static final String READING_QUALITY_TYPE_CODE = "3.5.259";
     
-    private Interval interval;
+    private Range<Instant> interval;
     private long millisBetweenReadings;
     private BitSet bitSet;
     private int expectedReadings;
@@ -57,33 +60,37 @@ class MissingValuesValidator extends AbstractValidator {
     }
 
     @Override
-    public void init(Channel channel, ReadingType readingType, Interval interval) {
+    public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         if (!channel.isRegular() || readingType.getMeasuringPeriod().getMinutes() == 0) {
             this.interval = null;
             return;
         }
         this.millisBetweenReadings = readingType.getMeasuringPeriod().getMinutes() * DateTimeConstants.MILLIS_PER_MINUTE;
         this.interval = interval;
-        if (interval.getStart().getTime() % millisBetweenReadings != 0) {
-            long adjustedStart = (interval.getStart().getTime() / millisBetweenReadings) * millisBetweenReadings + millisBetweenReadings;
-            this.interval = interval.withStart(new Date(adjustedStart));
+        if (interval.lowerEndpoint().toEpochMilli() % millisBetweenReadings != 0) {
+            long adjustedStart = (interval.lowerEndpoint().toEpochMilli() / millisBetweenReadings) * millisBetweenReadings + millisBetweenReadings;
+            this.interval = copy(interval).withClosedLowerBound(Instant.ofEpochMilli(adjustedStart));
         }
-        openEnded = interval.isInfinite();
+        openEnded = !interval.hasUpperBound();
         if (openEnded) {
             bitSet = new BitSet();
         } else {
-            expectedReadings = (int) (interval.durationInMillis() / millisBetweenReadings + 1);
+            expectedReadings = (int) (durationInMillis(interval) / millisBetweenReadings + 1);
             bitSet = new BitSet(expectedReadings);
         }
     }
 
-    private int toIndex(Date time) {
-        return (int) ((time.getTime() - interval.getStart().getTime()) / millisBetweenReadings);
+    private long durationInMillis(Range<Instant> range) {
+        return Duration.between(range.lowerEndpoint(), range.upperEndpoint()).toMillis();
     }
 
-    private Date toTime(int index) {
-        long millis = (index * millisBetweenReadings) + interval.getStart().getTime();
-        return new Date(millis);
+    private int toIndex(Instant time) {
+        return (int) ((time.toEpochMilli() - interval.lowerEndpoint().toEpochMilli()) / millisBetweenReadings);
+    }
+
+    private Instant toTime(int index) {
+        long millis = (index * millisBetweenReadings) + interval.lowerEndpoint().toEpochMilli();
+        return Instant.ofEpochMilli(millis);
     }
 
     @Override
@@ -113,11 +120,11 @@ class MissingValuesValidator extends AbstractValidator {
     }
 
     @Override
-    public Map<Date, ValidationResult> finish() {
+    public Map<Instant, ValidationResult> finish() {
         if (interval == null) {
             return Collections.emptyMap();
         }
-        ImmutableMap.Builder<Date, ValidationResult> builder = ImmutableMap.builder();
+        ImmutableMap.Builder<Instant, ValidationResult> builder = ImmutableMap.builder();
         for (int i = 0; i < expectedReadings; i++) {
             if (!bitSet.get(i)) {
                 builder.put(toTime(i), ValidationResult.SUSPECT);

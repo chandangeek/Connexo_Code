@@ -1,10 +1,5 @@
 package com.elster.jupiter.validators.impl;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -14,9 +9,15 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /*
  * WARNING: The following implementation does not check the "OVERFLOW" flag on a register.
@@ -38,7 +39,7 @@ class RegisterIncreaseValidator extends AbstractValidator {
     }
 
     @Override
-    public void init(Channel channel, ReadingType readingType, Interval interval) {
+    public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         this.channel = channel;
         failEqualData = (boolean) properties.get(FAIL_EQUAL_DATA);
     }

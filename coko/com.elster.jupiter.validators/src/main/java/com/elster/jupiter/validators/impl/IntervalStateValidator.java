@@ -16,18 +16,19 @@ import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MessageSeeds;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 class IntervalStateValidator extends AbstractValidator {
@@ -47,7 +48,7 @@ class IntervalStateValidator extends AbstractValidator {
 
 
     @Override
-    public void init(Channel channel, ReadingType readingType, Interval interval) {
+    public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         initParameters(properties);
     }
 
@@ -163,7 +164,7 @@ class IntervalStateValidator extends AbstractValidator {
                     return Optional.of(flagParameter);
                 }
             }
-            return Optional.absent();
+            return Optional.empty();
         }
         
         public IntervalFlag[] getFlags() {
