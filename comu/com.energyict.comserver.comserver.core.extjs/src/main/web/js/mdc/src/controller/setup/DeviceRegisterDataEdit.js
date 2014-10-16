@@ -180,7 +180,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
     showDeviceRegisterConfigurationDataEditView: function(mRID, registerId, timestamp) {
         var me = this,
-            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            router = me.getController('Uni.controller.history.Router');
 
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
@@ -197,7 +198,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 var type = register.get('type');
                                 var widget = Ext.widget('deviceregisterreportedit-' + type, {
                                     edit: true,
-                                    returnLink: '#/devices/' + mRID + '/registers/' + registerId + '/data',
+                                    returnLink: router.getRoute('devices/device/registers/register/data').buildUrl({mRID: mRID, registerId: registerId}),
                                     registerType: type
                                 });
                                 me.getApplication().fireEvent('loadRegisterConfiguration', register);
@@ -219,7 +220,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
     showDeviceRegisterConfigurationDataAddView: function(mRID, registerId) {
         var me = this,
-            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            router = me.getController('Uni.controller.history.Router');
 
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
@@ -232,13 +234,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         var type = register.get('type');
                         var widget = Ext.widget('deviceregisterreportedit-' + type, {
                             edit: false,
-                            returnLink: '#/devices/' + mRID + '/registers/' + registerId + '/data',
+                            returnLink: router.getRoute('devices/device/registers/register/data').buildUrl({mRID: mRID, registerId: registerId}),
                             registerType: type
                         });
                         widget.setValues(register);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        widget.down('#stepsMenu').setTitle(Uni.I18n.translate('device.registerData.new', 'MDC', 'New register data'));
+                        widget.down('#stepsMenu').setTitle(Uni.I18n.translate('device.registerData.addData', 'MDC', 'Add register data'));
                     },
 
                     callback: function () {
