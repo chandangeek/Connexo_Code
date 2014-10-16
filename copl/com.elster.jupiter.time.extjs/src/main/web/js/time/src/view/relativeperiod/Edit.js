@@ -3,8 +3,6 @@ Ext.define('Tme.view.relativeperiod.Edit', {
     xtype: 'tme-relativeperiod-edit',
 
     requires: [
-        'Tme.store.RelativePeriodEdit',
-        'Tme.model.RelativePeriodEdit'
     ],
 
     title: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
@@ -21,6 +19,8 @@ Ext.define('Tme.view.relativeperiod.Edit', {
         return this.edit;
     },
 
+    categoryStore: undefined,
+
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
@@ -36,6 +36,8 @@ Ext.define('Tme.view.relativeperiod.Edit', {
 
     initComponent: function () {
         var me = this;
+
+        me.categoryStore = Ext.getStore('Tme.store.RelativePeriodCategories');
 
         me.items = [
             {
@@ -57,7 +59,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                         name: 'category',
                         fieldLabel: Uni.I18n.translate('relativeperiod.category', 'TME', 'Category'),
                         itemId: 'comTaskComboBox',
-                        store: this.categoryStore,
+                        store: me.categoryStore,
                         queryMode: 'local',
                         displayField: 'name',
                         valueField: 'id',
