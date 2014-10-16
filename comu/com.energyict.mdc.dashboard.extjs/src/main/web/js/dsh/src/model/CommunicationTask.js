@@ -34,12 +34,12 @@ Ext.define('Dsh.model.CommunicationTask', {
             }
         }
     ],
-    hasOne: [
-        {
-            model: 'Dsh.model.ConnectionTask',
-            name: 'connectionTask'
-        }
-    ]
+    hasOne: {
+        model:'Dsh.model.ConnectionTask',
+        associationKey: 'connectionTask',
+        name: 'connectionTask',
+        getterName: 'getConnectionTask'
+    }
 });
 
 

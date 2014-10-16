@@ -49,7 +49,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 itemId: 'latestStatus',
                 text: Uni.I18n.translate('connection.widget.details.latestStatus', 'DSH', 'Latest status'),
                 dataIndex: 'latestStatus',
-                flex:1,
+                flex: 1,
                 renderer: function (val) {
                     return val ? val.displayValue : ''
                 }
@@ -69,9 +69,9 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'taskCount',
                 itemId: 'taskCount',
                 renderer: function (val) {
-                    var success = val.numberOfSuccessfulTasks ? '<tpl><span class="fa fa-check fa-lg" style="color: green; position: relative; vertical-align: 0% !important;"></span><span style="position: relative; left: 4px">' + val.numberOfSuccessfulTasks + '</span></tpl>' : '',
-                        failed = val.numberOfFailedTasks ? '<tpl><span class="fa fa-times fa-lg" style="color: red; position: relative; left: 26px; vertical-align: 0% !important;"></span><span style="position: relative; left: 30px">' + val.numberOfFailedTasks + '</span></tpl>' : '',
-                        notCompleted = val.numberOfIncompleteTasks ? '<tpl><span class="fa fa-ban fa-lg" style="color: #333333; position: relative; left: 52px; vertical-align: 0% !important"></span><span  style="position: relative; left: 56px">' + val.numberOfIncompleteTasks + '</span></tpl>' : ''
+                    var success = val.numberOfSuccessfulTasks ? '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + val.numberOfSuccessfulTasks + '</span></tpl>' : '',
+                        failed = val.numberOfFailedTasks ? '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure" style="position: relative; left: 30px"><span style="position: relative; top: -3px; left: 34px">' + val.numberOfFailedTasks + '</span></tpl>' : '',
+                        notCompleted = val.numberOfIncompleteTasks ? '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete" style="position: relative; left: 56px"><span  style="position: relative; top: -3px; left: 60px">' + val.numberOfIncompleteTasks + '</span></tpl>' : ''
                         ;
                     return success + failed + notCompleted
                 },
@@ -92,6 +92,9 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             }
         ]
     },
+
+
+
     dockedItems: [
         {
             itemId: 'pagingtoolbartop',
@@ -117,7 +120,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             view = me.getView(),
             tip = Ext.create('Ext.tip.ToolTip', {
                 target: view.el,
-                delegate: 'span.fa',
+                delegate: 'img.ct-result',
                 trackMouse: true,
                 renderTo: Ext.getBody(),
                 listeners: {
@@ -128,9 +131,9 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                             failed = taskCount.numberOfFailedTasks + ' ' + Uni.I18n.translate('connection.widget.details.comTasksFailed', 'DSH', 'communication tasks failed'),
                             success = taskCount.numberOfSuccessfulTasks + ' ' + Uni.I18n.translate('connection.widget.details.comTasksSuccessful', 'DSH', 'communication tasks successful'),
                             notCompleted = taskCount.numberOfIncompleteTasks + ' ' + Uni.I18n.translate('connection.widget.details.comTasksNotCompleted', 'DSH', 'communication tasks not completed');
-                        (tip.triggerElement.className.search('fa-ban') !== -1) && (res = notCompleted);
-                        (tip.triggerElement.className.search('fa-check') !== -1) && (res = success);
-                        (tip.triggerElement.className.search('fa-time') !== -1) && (res = failed);
+                        (tip.triggerElement.className.search('ct-success') !== -1) && (res = success);
+                        (tip.triggerElement.className.search('ct-failure') !== -1) && (res = failed);
+                        (tip.triggerElement.className.search('ct-incomplete') !== -1) && (res = notCompleted);
                         tip.update(res);
                     }
                 }
@@ -142,7 +145,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 renderTo: Ext.getBody(),
                 listeners: {
                     show: function () {
-                       var rowEl = Ext.get(ResultTip.triggerElement).up('tr'),
+                        var rowEl = Ext.get(ResultTip.triggerElement).up('tr'),
                             latestResult = view.getRecord(rowEl).get('latestResult');
                         if (latestResult.retries) {
                             ResultTip.update(latestResult.retries + ' ' + Uni.I18n.translate('connection.widget.details.retries', 'DSH', 'retries'));

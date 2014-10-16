@@ -74,7 +74,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
         '</tr>',
         '<tpl if="blockedSince">',
         '<tr>',
-            '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.downSince', 'DSH', 'Down since') + '</td>',
+            '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.downSince', 'DSH', 'Blocked since') + '</td>',
         '<td></td>{[Ext.util.Format.date(new Date(values.blockedSince), "D M j, Y G:i")]}',
         '</tr>',
         '</tpl>',

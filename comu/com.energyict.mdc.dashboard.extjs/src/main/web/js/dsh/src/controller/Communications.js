@@ -68,16 +68,14 @@ Ext.define('Dsh.controller.Communications', {
             preview = me.getCommunicationPreview(),
             connPreview = me.getConnectionPreview(),
             record = selected[0];
-        if (record) {
-            var connTaskData = record.get('connectionTask'),
-                connTaskRecord = Ext.create('Dsh.model.ConnectionTask', connTaskData);
+        if (record ) {
             preview.loadRecord(record);
             preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
-
-            if (connTaskData) {
-                connPreview.setTitle(connTaskData.connectionMethod.name + ' on ' + connTaskData.device.name);
+            if (record.getData().connectionTask) {
+                var conTask = record.getConnectionTask();
+                connPreview.setTitle(conTask.get('connectionMethod').name + ' on ' + conTask.get('device').name);
                 connPreview.show();
-                connPreview.loadRecord(connTaskRecord);
+                connPreview.loadRecord(conTask);
             } else {
                 connPreview.hide()
             }
