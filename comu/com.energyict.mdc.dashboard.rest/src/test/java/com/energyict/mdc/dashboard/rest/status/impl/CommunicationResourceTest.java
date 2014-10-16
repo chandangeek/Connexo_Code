@@ -250,7 +250,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.IOError);
         when(comTaskExecutionSession.getComSession()).thenReturn(comSession);
-        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
+        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(java.util.Optional.of(comTaskExecutionSession));
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getName()).thenReturn("partial connection task name");
         Device device = mock(Device.class);
@@ -374,7 +374,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutionFinder);
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
-        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
+        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(java.util.Optional.of(comTaskExecutionSession));
         return connectionTask;
     }
 
@@ -388,6 +388,5 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(finder.find()).thenReturn(list);
         return finder;
     }
-
 
 }
