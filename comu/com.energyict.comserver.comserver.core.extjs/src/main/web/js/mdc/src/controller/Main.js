@@ -32,6 +32,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceDataValidation',
         'Mdc.controller.setup.DeviceGroups',
         'Mdc.controller.setup.DeviceLoadProfileChannelData',
+        'Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings',
         'Mdc.controller.setup.DeviceLoadProfileChannelOverview',
         'Mdc.controller.setup.DeviceLoadProfileChannels',
         'Mdc.controller.setup.DeviceLoadProfileData',
