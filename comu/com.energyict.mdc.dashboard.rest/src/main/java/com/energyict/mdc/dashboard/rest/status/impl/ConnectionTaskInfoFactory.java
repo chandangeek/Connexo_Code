@@ -58,7 +58,7 @@ public class ConnectionTaskInfoFactory {
             info.endDateTime = Date.from(comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0));
             info.duration=new TimeDurationInfo(Duration.ofMillis(info.endDateTime.getTime()-info.startDateTime.getTime()).getSeconds());   // JP-6022
             info.comPort = new IdWithNameInfo(comSession.getComPort());
-            info.comPortPool = new IdWithNameInfo(comSession.getComPortPool());
+            info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());
         }
 

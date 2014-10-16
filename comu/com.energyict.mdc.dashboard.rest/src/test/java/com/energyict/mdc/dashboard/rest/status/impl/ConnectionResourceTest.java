@@ -25,6 +25,7 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
@@ -246,7 +247,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         PartialScheduledConnectionTask partialConnectionTask = mockPartialScheduledConnectionTask();
         ComServer comServer = mockComServer();
         ComPort comPort = mockComPort(comServer);
-        ComPortPool comPortPool = mockComPortPool();
+        OutboundComPortPool comPortPool = mockComPortPool();
         Device device = mockDevice(deviceType, deviceConfiguration);
         ComWindow window = mockWindow(PartialTime.fromHours(9), PartialTime.fromHours(17));
 
@@ -268,7 +269,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getConnectionType()).thenReturn(new OutboundTcpIpConnectionType());
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(comSession.getComPort()).thenReturn(comPort);
-        when(comSession.getComPortPool()).thenReturn(comPortPool);
+        when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         when(connectionTask.getPlannedNextExecutionTimestamp()).thenReturn(plannedNext);
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
@@ -315,8 +316,8 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.getTime());
     }
 
-    private ComPortPool mockComPortPool() {
-        ComPortPool comPortPool = mock(ComPortPool.class);
+    private OutboundComPortPool mockComPortPool() {
+        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("Com port pool");
         when(comPortPool.getId()).thenReturn(1234321L);
         return comPortPool;

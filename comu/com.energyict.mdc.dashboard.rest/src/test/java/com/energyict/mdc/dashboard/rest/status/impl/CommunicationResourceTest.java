@@ -31,22 +31,23 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.google.common.base.Optional;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-
-import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.dashboard.rest.status.ComServerStatusResource} component.
@@ -328,6 +329,10 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(partialConnectionTask.getName()).thenReturn("partial connection task name");
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.isDefault()).thenReturn(true);
+        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
+        when(comPortPool.getName()).thenReturn("com port pool");
+        when(comPortPool.getId()).thenReturn(91L);
+        when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         Device device = mock(Device.class);
         when(device.getmRID()).thenReturn("1234-5678-9012");
         when(device.getName()).thenReturn("some device");
