@@ -1,10 +1,7 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
-import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
-import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
-import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.request.*;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
@@ -38,6 +35,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_DOES_NOT_EXIST;
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_WAS_ALREADY_CHANGED;
+import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -153,10 +153,31 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.CLOSE_ISSUE)
+    @Deprecated
     public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext){
-        User author = (User)securityContext.getUserPrincipal();
-        ActionInfo info = getTransactionService().execute(new CloseIssuesTransaction(request, getIssueService(), author, getThesaurus()));
-        return entity(info).build();
+        /* TODO this method should be removed when FE implements dynamic actions */
+        ActionInfo response = new ActionInfo();
+        try(TransactionContext context = getTransactionService().getContext()) {
+            IssueStatus status = getIssueService().findStatus(request.getStatus()).orNull();
+            if (request.getIssues() != null && status != null && status.isHistorical()) {
+                for (EntityReference issueRef : request.getIssues()) {
+                    OpenIssue issue = getIssueDataCollectionService().findOpenIssue(issueRef.getId()).orNull();
+                    if (issue == null) {
+                        response.addFail(getString(ISSUE_DOES_NOT_EXIST, getThesaurus()), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+                    } else if (issueRef.getVersion() != issue.getVersion()) {
+                        response.addFail(getString(ISSUE_WAS_ALREADY_CHANGED, getThesaurus()), issueRef.getId(), issue.getTitle());
+                    } else {
+                        issue.addComment(request.getComment(), (User) securityContext.getUserPrincipal());
+                        issue.close(status);
+                        response.addSuccess(issueRef.getId());
+                    }
+                }
+            } else {
+                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            }
+            context.commit();
+        }
+        return entity(response).build();
     }
 
     @PUT
