@@ -99,7 +99,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         if (btn === 'confirm') {
             var me = cfg.config.me,
                 readingToDelete = cfg.config.readingToDelete,
-                router = me.getController('Uni.controller.history.Router');
+                router = me.getController('Uni.controller.history.Router'),
+                type = readingToDelete.get("type"),
+                dataStore = me.getStore(me.getReadingTypePrefix(type));
 
             readingToDelete.getProxy().extraParams = ({mRID: router.arguments.mRID, registerId: router.arguments.registerId});
             readingToDelete.destroy({
@@ -107,17 +109,24 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                     if(operation.wasSuccessful()) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.registerData.removed', 'MDC', 'Register data successfully removed'));
                         router.getRoute('devices/device/registers/register/data').forward();
+                        dataStore.load();
                     }
                 }
             });
         }
     },
 
-    getReadingModelClassByType: function(type) {
+    getReadingTypePrefix: function(type) {
         if(!Ext.isEmpty(type)) {
-            return ('Mdc.model.' + type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
+            return (type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
         }
-        return 'Mdc.model.RegisterData';
+        return 'RegisterData';
+    },
+
+    getReadingModelClassByType: function(type) {
+        var me = this;
+
+        return ('Mdc.model.' + me.getReadingTypePrefix(type));
     },
 
     getReadingModelInstanceByType: function(type) {

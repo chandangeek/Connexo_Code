@@ -1084,6 +1084,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                                     title: Uni.I18n.translate('routing.editReadings', 'MDC', 'Edit readings'),
                                                                     route: 'editreadings',
                                                                     controller: 'Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings',
+                                                                    privileges: ['privilege.administrate.deviceConfiguration'],
                                                                     action: 'showOverview',
                                                                     filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                                                 }
