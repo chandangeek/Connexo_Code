@@ -15,7 +15,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;

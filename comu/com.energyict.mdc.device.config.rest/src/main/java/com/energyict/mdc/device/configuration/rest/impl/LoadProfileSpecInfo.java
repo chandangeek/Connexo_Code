@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
