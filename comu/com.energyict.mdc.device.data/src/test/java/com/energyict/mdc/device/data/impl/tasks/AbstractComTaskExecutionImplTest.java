@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -20,7 +20,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.scheduling.TemporalExpression;
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -116,7 +116,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         ipComPortPool.setActive(true);
         ipComPortPool.setComPortType(ComPortType.TCP);
         ipComPortPool.setName(name);
-        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.MINUTES));
+        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.save();
         return ipComPortPool;
     }

@@ -79,9 +79,9 @@ public class ConnectionTaskFilterSpecification {
     public boolean useLastComSession = false;
 
     /**
-     * The {@link EndDeviceGroup}s that contains the {@link com.energyict.mdc.device.data.Device}s
-     * to which the matching {@link ConnectionTask} should be linked
-     * or <code>null</code> if the filter should not take this into account.
+     * The {@link QueryEndDeviceGroup}s that contain the {@link com.energyict.mdc.device.data.Device}s
+     * to which the matching {@link ConnectionTask}s should be linked
+     * or an empty set if the filter should not take this into account.
      */
     public Set<QueryEndDeviceGroup> deviceGroups = new HashSet<>();
 

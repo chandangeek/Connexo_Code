@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
@@ -65,6 +66,16 @@ public interface CommunicationTaskService {
     public Map<TaskStatus, Long> getComTaskExecutionStatusCount();
 
     /**
+     * Counts all {@link ComTaskExecution}s that relate to
+     * {@link Device}s in the specified {@link QueryEndDeviceGroup},
+     * grouping them by their respective {@link TaskStatus}.
+     *
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The numbers, broken down by TaskStatus
+     */
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount(QueryEndDeviceGroup deviceGroup);
+
+    /**
      * Counts all {@link ComTaskExecution}s that match the specified filter,
      * grouping them by their respective {@link TaskStatus}.
      *
@@ -83,7 +94,18 @@ public interface CommunicationTaskService {
     public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses);
 
     /**
-     * Counts all {@link ComTaskExecution}s for {@link ComSchedule}s,
+     * Counts all {@link ComTaskExecution}s that relate to {@link Device}s
+     * in the specified {@link QueryEndDeviceGroup} for {@link ComSchedule}s,
+     * grouping them by their respective {@link TaskStatus}.
+     *
+     * @param taskStatuses The Set of TaskStatus
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The numbers, broken down by ComSchedule and TaskStatus
+     */
+    public Map<ComSchedule, Map<TaskStatus, Long>> getCommunicationTasksComScheduleBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup);
+
+    /**
+     * Counts all {@link ComTaskExecution}s,
      * grouping them by the {@link com.energyict.mdc.device.config.DeviceType}
      * of the related {@link com.energyict.mdc.device.data.Device}.
      *
@@ -91,6 +113,18 @@ public interface CommunicationTaskService {
      * @return The numbers, broken down by DeviceType and TaskStatus
      */
     public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses);
+
+    /**
+     * Counts all {@link ComTaskExecution}s that relate to {@link Device}s
+     * in the specified {@link QueryEndDeviceGroup},
+     * grouping them by the {@link com.energyict.mdc.device.config.DeviceType}
+     * of the related Device.
+     *
+     * @param taskStatuses The Set of TaskStatus
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The numbers, broken down by DeviceType and TaskStatus
+     */
+    public Map<DeviceType, Map<TaskStatus, Long>> getCommunicationTasksDeviceTypeBreakdown(Set<TaskStatus> taskStatuses, QueryEndDeviceGroup deviceGroup);
 
     /**
      * Finds all {@link ConnectionTask}s that match the specified filter.
@@ -180,12 +214,22 @@ public interface CommunicationTaskService {
     public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval);
 
     /**
-     * Counts the last {@link ComSession} of all {@link ConnectionTask}s,
+     * Counts the last {@link ComSession} of all {@link ComTaskExecution}s,
      * grouping them by their respective highest priority {@link CompletionCode}.
      *
      * @return The numbers, broken down by SuccessIndicator
      */
     public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+
+    /**
+     * Counts the last {@link ComSession} of all {@link ComTaskExecution}s
+     * that relate to {@link Device}s in the specified {@link QueryEndDeviceGroup},
+     * grouping them by their respective highest priority {@link CompletionCode}.
+     *
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The numbers, broken down by SuccessIndicator
+     */
+    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(QueryEndDeviceGroup deviceGroup);
 
     /**
      * Counts all {@link ComTaskExecution}s grouping them by their
@@ -196,5 +240,16 @@ public interface CommunicationTaskService {
      * @return The counters
      */
     public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap();
+
+    /**
+     * Counts all {@link ComTaskExecution}s that relate to {@link Device}s
+     * in the specified {@link QueryEndDeviceGroup},
+     * grouping them by the {@link DeviceType} and the {@link CompletionCode}
+     * of the task's last {@link ComTaskExecutionSession session}.
+     * The counters are returned in the order of CompletionCode.
+     *
+     * @return The counters
+     */
+    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup);
 
 }

@@ -66,9 +66,10 @@ public class ComTaskExecutionFilterSpecification {
     public Interval lastSessionEnd = null;
 
     /**
-     * The {@link com.elster.jupiter.metering.groups.EndDeviceGroup}s that contains the {@link com.energyict.mdc.device.data.Device}s
-     * to which the matching {@link com.energyict.mdc.tasks.ComTask} should be linked
-     * or <code>null</code> if the filter should not take this into account.
+     * The {@link QueryEndDeviceGroup}s that contain the {@link com.energyict.mdc.device.data.Device}s
+     * to which the matching {@link ComTaskExecution}s should be linked
+     * or an empty set if the filter should not take this into account.
      */
     public Set<QueryEndDeviceGroup> deviceGroups = new HashSet<>();
+
 }

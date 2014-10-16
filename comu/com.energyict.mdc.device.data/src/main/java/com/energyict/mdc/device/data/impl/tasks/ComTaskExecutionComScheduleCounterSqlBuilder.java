@@ -1,8 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.time.Clock;
+
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 /**
@@ -16,8 +20,8 @@ public class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTas
 
     private ServerComTaskStatus taskStatus;
 
-    public ComTaskExecutionComScheduleCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock) {
-        super(clock);
+    public ComTaskExecutionComScheduleCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock, ComTaskExecutionFilterSpecification filterSpecification, QueryExecutor<Device> queryExecutor) {
+        super(clock, filterSpecification, queryExecutor);
         this.taskStatus = taskStatus;
     }
 
@@ -49,6 +53,7 @@ public class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTas
         this.append("cte.discriminator = ");
         this.append(ComTaskExecutionImpl.SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR);
         this.appendWhereClause(this.taskStatus);
+        this.appendDeviceInGroupSql();
     }
 
     private void appendGroupByClause() {

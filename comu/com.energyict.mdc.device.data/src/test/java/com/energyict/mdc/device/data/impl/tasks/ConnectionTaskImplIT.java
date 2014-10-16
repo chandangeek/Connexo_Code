@@ -1,10 +1,11 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -35,7 +36,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import org.junit.AfterClass;
@@ -60,7 +60,7 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
-    protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.HOURS);
+    protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
     private static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
 
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK1_ID;
@@ -272,7 +272,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         ipComPortPool.setActive(true);
         ipComPortPool.setComPortType(ComPortType.TCP);
         ipComPortPool.setName(name);
-        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.MINUTES));
+        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.save();
         return ipComPortPool;
     }
@@ -282,7 +282,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         modemComPortPool.setActive(true);
         modemComPortPool.setComPortType(ComPortType.SERIAL);
         modemComPortPool.setName(name);
-        modemComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.MINUTES));
+        modemComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         modemComPortPool.save();
         return modemComPortPool;
     }

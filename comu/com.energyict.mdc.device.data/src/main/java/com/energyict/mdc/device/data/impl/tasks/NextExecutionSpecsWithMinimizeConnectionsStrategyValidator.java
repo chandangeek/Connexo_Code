@@ -1,14 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import org.joda.time.DateTimeConstants;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.joda.time.DateTimeConstants;
 
 /**
  * Validates the {@link ValidNextExecutionSpecsWithMinimizeConnectionsStrategy} constraint
@@ -49,7 +50,7 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
     }
 
     private void validateSecondsNotAllowed(NextExecutionSpecs nextExecutionSpecs) {
-        if (nextExecutionSpecs.getTemporalExpression().getEvery().getTimeUnitCode() == TimeDuration.SECONDS) {
+        if (nextExecutionSpecs.getTemporalExpression().getEvery().getTimeUnit() == TimeDuration.TimeUnit.SECONDS) {
             this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED);
         }
     }
@@ -77,7 +78,7 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
     private void validateOffsetWithinComWindow(NextExecutionSpecs nextExecutionSpecs, ComWindow comWindow) {
         TimeDuration offset = nextExecutionSpecs.getTemporalExpression().getOffset();
         if (offset == null) {
-            offset = new TimeDuration(0, TimeDuration.SECONDS); // Midnight
+            offset = new TimeDuration(0, TimeDuration.TimeUnit.SECONDS); // Midnight
         }
         if (this.isNotNull(comWindow)) {
             /* Note that it's possible that the offset is 3 days, 16 hours and 30 min
@@ -134,7 +135,7 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
     }
 
     private TimeDuration truncateToDay(TimeDuration timeDuration) {
-        return new TimeDuration(timeDuration.getSeconds() % DateTimeConstants.SECONDS_PER_DAY, TimeDuration.SECONDS);
+        return new TimeDuration(timeDuration.getSeconds() % DateTimeConstants.SECONDS_PER_DAY, TimeDuration.TimeUnit.SECONDS);
     }
 
     private enum ViolationMode {

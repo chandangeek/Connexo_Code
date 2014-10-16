@@ -1,12 +1,18 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,22 +24,28 @@ import java.util.Set;
  */
 public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractTaskFilterSqlBuilder {
 
-    private Set<DeviceType> deviceTypes;
-    private Set<ComTask> comTasks;
-    private Set<ComSchedule> comSchedules;
+    private final Set<DeviceType> deviceTypes;
+    private final Set<ComTask> comTasks;
+    private final Set<ComSchedule> comSchedules;
+    private final QueryExecutor<Device> queryExecutor;
+    private final List<QueryEndDeviceGroup> deviceGroups;
 
-    public AbstractComTaskExecutionFilterSqlBuilder(Clock clock) {
+    public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, QueryExecutor<Device> queryExecutor) {
         super(clock);
         this.deviceTypes = new HashSet<>();
         this.comTasks = new HashSet<>();
         this.comSchedules = new HashSet<>();
+        this.deviceGroups = Collections.emptyList();
+        this.queryExecutor = queryExecutor;
     }
 
-    public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, ComTaskExecutionFilterSpecification filter) {
+    public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, ComTaskExecutionFilterSpecification filter, QueryExecutor<Device> queryExecutor) {
         super(clock);
         this.deviceTypes = new HashSet<>(filter.deviceTypes);
         this.comTasks = new HashSet<>(filter.comTasks);
         this.comSchedules = new HashSet<>(filter.comSchedules);
+        this.deviceGroups = new ArrayList<>(filter.deviceGroups);
+        this.queryExecutor = queryExecutor;
     }
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
@@ -49,6 +61,10 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
 
     private void appendDeviceTypeSql() {
         this.appendDeviceTypeSql(this.communicationTaskAliasName(), this.deviceTypes);
+    }
+
+    protected void appendDeviceInGroupSql() {
+        this.appendDeviceInGroupSql(this.deviceGroups, this.queryExecutor, "cte");
     }
 
     private void appendComTaskSql() {
