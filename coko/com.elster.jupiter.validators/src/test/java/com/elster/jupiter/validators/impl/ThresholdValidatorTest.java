@@ -11,12 +11,12 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MessageSeeds;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,11 +25,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 
-import static com.elster.jupiter.validators.impl.ThresholdValidator.MIN;
 import static com.elster.jupiter.validators.impl.ThresholdValidator.MAX;
-
+import static com.elster.jupiter.validators.impl.ThresholdValidator.MIN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -64,7 +63,7 @@ public class ThresholdValidatorTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         ImmutableMap<String, Object> properties = ImmutableMap.of(MIN, (Object) MINIMUM, MAX, MAXIMUM);
         thresholdValidator = new ThresholdValidator(thesaurus, propertySpecService, properties);
-        thresholdValidator.init(channel, readingType, new Interval(new Date(7000L), new Date(14000L)));
+        thresholdValidator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
     }
 
     @After

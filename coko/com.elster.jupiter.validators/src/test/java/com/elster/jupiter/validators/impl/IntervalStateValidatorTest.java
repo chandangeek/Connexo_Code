@@ -1,22 +1,5 @@
 package com.elster.jupiter.validators.impl;
 
-import static com.elster.jupiter.validators.impl.IntervalStateValidator.INTERVAL_FLAGS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -28,9 +11,25 @@ import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.impl.IntervalStateValidator.IntervalFlag;
+import com.google.common.collect.Range;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.elster.jupiter.validators.impl.IntervalStateValidator.INTERVAL_FLAGS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IntervalStateValidatorTest {
@@ -60,7 +59,7 @@ public class IntervalStateValidatorTest {
         flags.addValue(validator.new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"));
         flags.addValue(validator.new IntervalFlag(Flag.POWERDOWN, "powerDown", "Power down"));
         
-        validator.init(channel, readingType, new Interval(new Date(7000L), new Date(14000L)));
+        validator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
     }
 
     @After

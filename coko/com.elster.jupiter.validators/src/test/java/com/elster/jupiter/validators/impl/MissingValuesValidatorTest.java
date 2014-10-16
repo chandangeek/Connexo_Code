@@ -8,8 +8,8 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationResult;
+import com.google.common.collect.Range;
 import org.assertj.core.data.MapEntry;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -21,8 +21,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Mock;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,16 +42,16 @@ public class MissingValuesValidatorTest {
     @Rule
     public TestRule usingMocks = MockitoRule.initMocks(this);
 
-    public DateTime base;
-    public Date start;
-    public Date startPlus7;
-    public Date startPlus10;
-    public Date startPlus20;
-    public Date startPlus30;
-    public Date startPlus37;
-    public Date startPlus40;
-    public Date startPlus50;
-    public Date end;
+    public Instant base;
+    public Instant start;
+    public Instant startPlus7;
+    public Instant startPlus10;
+    public Instant startPlus20;
+    public Instant startPlus30;
+    public Instant startPlus37;
+    public Instant startPlus40;
+    public Instant startPlus50;
+    public Instant end;
 
     @Mock
     private Thesaurus thesaurus;
@@ -63,7 +64,7 @@ public class MissingValuesValidatorTest {
     @Mock
     private IntervalReadingRecord intervalReading;
 
-    public MissingValuesValidatorTest(DateTime base) {
+    public MissingValuesValidatorTest(Instant base) {
         this.base = base;
     }
 
@@ -81,15 +82,15 @@ public class MissingValuesValidatorTest {
     public void setUp() {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE10);
         when(channel.isRegular()).thenReturn(true);
-        start = base.toDate();
-        startPlus7 = base.plusMinutes(7).toDate();
-        startPlus10 = base.plusMinutes(10).toDate();
-        startPlus20 = base.plusMinutes(20).toDate();
-        startPlus30 = base.plusMinutes(30).toDate();
-        startPlus37 = base.plusMinutes(37).toDate();
-        startPlus40 = base.plusMinutes(40).toDate();
-        startPlus50 = base.plusMinutes(50).toDate();
-        end = base.plusMinutes(60).toDate();
+        start = base;
+        startPlus7 = base.plus(7, ChronoUnit.MINUTES);
+        startPlus10 = base.plus(10, ChronoUnit.MINUTES);
+        startPlus20 = base.plus(20, ChronoUnit.MINUTES);
+        startPlus30 = base.plus(30, ChronoUnit.MINUTES);
+        startPlus37 = base.plus(37, ChronoUnit.MINUTES);
+        startPlus40 = base.plus(40, ChronoUnit.MINUTES);
+        startPlus50 = base.plus(50, ChronoUnit.MINUTES);
+        end = base.plus(60, ChronoUnit.MINUTES);
     }
 
     @After
@@ -102,9 +103,9 @@ public class MissingValuesValidatorTest {
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
-        validator.init(channel, readingType, new Interval(start, end));
+        validator.init(channel, readingType, Range.openClosed(start, end));
 
-        for (Date date : new Date[]{start, startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
+        for (Instant date : new Instant[]{start, startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
             when(intervalReading.getTimeStamp()).thenReturn(date);
             assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
         }
@@ -117,9 +118,9 @@ public class MissingValuesValidatorTest {
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
-        validator.init(channel, readingType, new Interval(start, end));
+        validator.init(channel, readingType, Range.closed(start, end));
 
-        for (Date date : new Date[]{startPlus10, startPlus20, startPlus50, startPlus40, end}) {
+        for (Instant date : new Instant[]{startPlus10, startPlus20, startPlus50, startPlus40, end}) {
             when(intervalReading.getTimeStamp()).thenReturn(date);
             assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
         }
@@ -132,9 +133,9 @@ public class MissingValuesValidatorTest {
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
-        validator.init(channel, readingType, Interval.startAt(start));
+        validator.init(channel, readingType, Range.atLeast(start));
 
-        for (Date date : new Date[]{start, startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
+        for (Instant date : new Instant[]{start, startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
             when(intervalReading.getTimeStamp()).thenReturn(date);
             assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
         }
@@ -147,9 +148,9 @@ public class MissingValuesValidatorTest {
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
-        validator.init(channel, readingType, Interval.startAt(start));
+        validator.init(channel, readingType, Range.atLeast(start));
 
-        for (Date date : new Date[]{startPlus10, startPlus20, startPlus50, startPlus40, end}) {
+        for (Instant date : new Instant[]{startPlus10, startPlus20, startPlus50, startPlus40, end}) {
             when(intervalReading.getTimeStamp()).thenReturn(date);
             assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
         }
@@ -162,7 +163,7 @@ public class MissingValuesValidatorTest {
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
-        validator.init(channel, readingType, new Interval(start, end));
+        validator.init(channel, readingType, Range.closed(start, end));
 
         assertThat(validator.finish()).contains(
                 MapEntry.entry(start, ValidationResult.SUSPECT),
@@ -180,7 +181,7 @@ public class MissingValuesValidatorTest {
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
-        validator.init(channel, readingType, new Interval(startPlus10, startPlus37));
+        validator.init(channel, readingType, Range.closed(startPlus10, startPlus37));
 
         assertThat(validator.finish()).contains(
                 MapEntry.entry(startPlus10, ValidationResult.SUSPECT),
@@ -194,7 +195,7 @@ public class MissingValuesValidatorTest {
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
-        validator.init(channel, readingType, new Interval(startPlus7, startPlus30));
+        validator.init(channel, readingType, Range.closed(startPlus7, startPlus30));
 
         assertThat(validator.finish()).contains(
                 MapEntry.entry(startPlus10, ValidationResult.SUSPECT),
@@ -208,7 +209,7 @@ public class MissingValuesValidatorTest {
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
-        validator.init(channel, readingType, new Interval(startPlus7, startPlus37));
+        validator.init(channel, readingType, Range.closed(startPlus7, startPlus37));
 
         assertThat(validator.finish()).contains(
                 MapEntry.entry(startPlus10, ValidationResult.SUSPECT),
@@ -224,7 +225,7 @@ public class MissingValuesValidatorTest {
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
-        validator.init(channel, readingType, new Interval(start, end));
+        validator.init(channel, readingType, Range.closed(start, end));
 
         assertThat(validator.finish()).isEmpty();
     }
@@ -233,12 +234,12 @@ public class MissingValuesValidatorTest {
     public void testPossibleIntOverflow() {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
-        validator.init(channel, readingType, Interval.startAt(start));
+        validator.init(channel, readingType, Range.atLeast(start));
 
-        when(intervalReading.getTimeStamp()).thenReturn(new DateTime(start).plusDays(400).toDate());
+        when(intervalReading.getTimeStamp()).thenReturn(start.plus(400, ChronoUnit.DAYS));
         assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
 
-        Map<Date, ValidationResult> finish = validator.finish();
+        Map<Instant, ValidationResult> finish = validator.finish();
 
         assertThat(finish).isNotEmpty();
         assertThat(finish.keySet().stream().noneMatch(d -> d.compareTo(start) < 0)).isTrue();

@@ -1,24 +1,5 @@
 package com.elster.jupiter.validators.impl;
 
-import static com.elster.jupiter.validators.impl.RegisterIncreaseValidator.FAIL_EQUAL_DATA;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -28,9 +9,26 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static com.elster.jupiter.validators.impl.RegisterIncreaseValidator.FAIL_EQUAL_DATA;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterIncreaseTest {
@@ -57,7 +55,7 @@ public class RegisterIncreaseTest {
     public void setUp() {
         ImmutableMap<String, Object> properties = ImmutableMap.of(FAIL_EQUAL_DATA, (Object) true);
         validator = new RegisterIncreaseValidator(thesaurus, propertySpecService, properties);
-        validator.init(channel, readingType, new Interval(new Date(7000L), new Date(14000L)));
+        validator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
         List<BaseReadingRecord> records = Arrays.asList(previousReadingRecord);
         when(channel.getReadingsBefore(readingRecord.getTimeStamp(), 1)).thenReturn(records);
     }
@@ -110,7 +108,7 @@ public class RegisterIncreaseTest {
     public void testValidationSuspectFailEqualDataFalse() {
         ImmutableMap<String, Object> properties = ImmutableMap.of(FAIL_EQUAL_DATA, (Object) false);
         validator = new RegisterIncreaseValidator(thesaurus, propertySpecService, properties);
-        validator.init(channel, readingType, new Interval(new Date(7000L), new Date(14000L)));
+        validator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
 
         when(previousReadingRecord.getValue()).thenReturn(value);
         when(readingRecord.getValue()).thenReturn(biggerValue);
