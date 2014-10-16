@@ -5,7 +5,7 @@ Ext.define('Dxp.controller.history.Export', {
 
     routeConfig: {
         administration: {
-            title: 'Administration',
+            title: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
@@ -14,14 +14,12 @@ Ext.define('Dxp.controller.history.Export', {
                     route: 'dataexporttasks',
                     controller: 'Dxp.controller.Tasks',
                     action: 'showOverview',
-                    privileges: [], // TODO
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.add', 'UNI', 'Add'),
                             route: 'add',
                             controller: 'Dxp.controller.Tasks',
-                            action: 'showAddExportTask',
-                            privileges: [] // TODO
+                            action: 'showAddExportTask'
                         }
                     }
                 }

@@ -7,7 +7,7 @@ Ext.define('Dxp.controller.Tasks', {
     showOverview: function () {
         var me = this,
             view = Ext.create('Dxp.view.tasks.Overview');
-
+        debugger;
         me.getApplication().fireEvent('changecontentevent', view);
     },
 

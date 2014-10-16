@@ -2,22 +2,23 @@ Ext.define('Dxp.controller.Main', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.controller.Navigation',
-        'Uni.controller.history.EventBus'
+        'Uni.store.PortalItems',
+        'Uni.store.MenuItems'
     ],
 
     controllers: [
-        'Dxp.controller.history.Export'
+        'Dxp.controller.history.Export',
+        'Dxp.controller.Tasks'
     ],
 
     stores: [
-        'Uni.store.MenuItems',
-        'Uni.store.PortalItems'
     ],
 
     init: function () {
         this.initHistorians();
         this.initMenu();
+
+        this.callParent(arguments);
     },
 
     /**
