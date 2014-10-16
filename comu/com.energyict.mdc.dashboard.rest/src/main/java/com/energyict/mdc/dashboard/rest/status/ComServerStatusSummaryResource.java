@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status;
 
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
@@ -10,6 +11,7 @@ import javax.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.GET;
@@ -115,11 +117,15 @@ public class ComServerStatusSummaryResource {
     }
 
     private List<OnlineComServer> findAllOnlineComServers() {
-        return this.engineModelService.findAllOnlineComServers();
+        return this.filterActive(this.engineModelService.findAllOnlineComServers());
     }
 
     private List<RemoteComServer> findAllRemoteComServers() {
-        return this.engineModelService.findAllRemoteComServers();
+        return this.filterActive(this.engineModelService.findAllRemoteComServers());
+    }
+
+    private <T extends ComServer> List<T> filterActive (List<T> comServers) {
+        return comServers.stream().filter(ComServer::isActive).collect(Collectors.toList());
     }
 
 }
