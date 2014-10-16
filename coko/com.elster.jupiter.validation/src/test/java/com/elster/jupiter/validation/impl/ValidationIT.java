@@ -26,8 +26,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -36,10 +36,10 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.google.common.base.Optional;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,8 +50,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -76,12 +78,12 @@ public class ValidationIT {
     private static final long METERACTIVATION_ID = 101L;
     private static final long CHANNEL1_ID = 1001L;
     private static final long CHANNEL2_ID = 1002L;
-    private static final Date date1 = new DateTime(1983, 5, 31, 14, 0, 0).toDate();
-    private static final Date date2 = new DateTime(1983, 5, 31, 15, 0, 0).toDate();
-    private static final Date date3 = new DateTime(1983, 5, 31, 16, 0, 0).toDate();
-    private static final Date date4 = new DateTime(1983, 5, 31, 17, 0, 0).toDate();
-    private static final Date date5 = new DateTime(1983, 5, 31, 18, 0, 0).toDate();
-    private static final Date date6 = new DateTime(1983, 5, 31, 19, 0, 0).toDate();
+    private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant date2 = ZonedDateTime.of(1983, 5, 31, 15, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant date3 = ZonedDateTime.of(1983, 5, 31, 16, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant date4 = ZonedDateTime.of(1983, 5, 31, 17, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant date5 = ZonedDateTime.of(1983, 5, 31, 18, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant date6 = ZonedDateTime.of(1983, 5, 31, 19, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -225,8 +227,8 @@ public class ValidationIT {
         });
     }
 
-    private Interval interval(Date from, Date to) {
-        return new Interval(from, to);
+    private Range<Instant> interval(Instant from, Instant to) {
+        return Ranges.closed(from, to);
     }
 
 

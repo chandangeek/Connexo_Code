@@ -2,7 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.validation.ChannelValidation;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -10,5 +10,5 @@ import java.util.Date;
  * Time: 15:00
  */
 public interface IChannelValidation extends ChannelValidation {
-    void setLastChecked(Date date);
+    void setLastChecked(Instant date);
 }

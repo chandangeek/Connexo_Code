@@ -6,12 +6,12 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by tgr on 5/09/2014.
@@ -24,11 +24,11 @@ public interface ValidationEvaluator {
 
     List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings);
 
-    List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Interval interval);
+    List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval);
 
     boolean isValidationEnabled(Meter meter);
 
     boolean isValidationEnabled(Channel channel);
 
-    Optional<Date> getLastChecked(Meter meter, ReadingType readingType);
+    Optional<Instant> getLastChecked(Meter meter, ReadingType readingType);
 }

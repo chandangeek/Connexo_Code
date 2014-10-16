@@ -5,6 +5,7 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.collect.ImmutableList;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -13,17 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 public class DataValidationStatusImpl implements DataValidationStatus {
-    private final Date timeStamp;
+    private final Instant timeStamp;
     private final Map<ReadingQuality, List<? extends ValidationRule>> qualityRecordList = new HashMap<>();
     private boolean completelyValidated;
 
-    public DataValidationStatusImpl(Date timeStamp, boolean completelyValidated) {
+    public DataValidationStatusImpl(Instant timeStamp, boolean completelyValidated) {
         this.timeStamp = timeStamp;
         this.completelyValidated = completelyValidated;
     }
 
     @Override
-    public Date getReadingTimestamp() {
+    public Instant getReadingTimestamp() {
         return timeStamp;
     }
 

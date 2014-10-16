@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.google.common.base.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -10,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -33,7 +33,7 @@ public class ValidReadingTypeValidatorTest {
 
     @Test
     public void testInvalid() throws Exception {
-        when(meteringService.getReadingType("valid")).thenReturn(Optional.<ReadingType>absent());
+        when(meteringService.getReadingType("valid")).thenReturn(Optional.<ReadingType>empty());
 
         assertThat(new ValidReadingTypeValidator(meteringService).isValid("valid", context)).isFalse();
     }

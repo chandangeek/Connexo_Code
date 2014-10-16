@@ -1,12 +1,12 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.collect.Range;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface IMeterActivationValidation extends MeterActivationValidation {
 
@@ -16,15 +16,15 @@ public interface IMeterActivationValidation extends MeterActivationValidation {
 
     void makeObsolete();
 
-    void validate(Interval interval);
+    void validate(Range<Instant> interval);
 
-    void validate(Interval interval, String readingTypeCode);
+    void validate(Range<Instant> interval, String readingTypeCode);
 
-    void updateLastChecked(Date lastChecked);
+    void updateLastChecked(Instant lastChecked);
 
     boolean isAllDataValidated();
 
-    Date getMinLastChecked();
+    Instant getMinLastChecked();
 
-    Date getMaxLastChecked();
+    Instant getMaxLastChecked();
 }

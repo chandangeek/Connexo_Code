@@ -2,7 +2,7 @@ package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.Channel;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface ChannelValidation {
 
@@ -10,7 +10,7 @@ public interface ChannelValidation {
 
     MeterActivationValidation getMeterActivationValidation();
 
-    Date getLastChecked();
+    Instant getLastChecked();
 
     Channel getChannel();
 

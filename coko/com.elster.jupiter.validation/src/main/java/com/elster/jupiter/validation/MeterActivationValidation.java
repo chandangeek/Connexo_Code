@@ -3,9 +3,9 @@ package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
-import com.google.common.base.Optional;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 
 public interface MeterActivationValidation {
@@ -22,7 +22,7 @@ public interface MeterActivationValidation {
 
     Set<ChannelValidation> getChannelValidations();
 
-    Date getLastRun();
+    Instant getLastRun();
 
     boolean isActive();
 

@@ -9,10 +9,10 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.MessageSeeds;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationRule;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationRule {
 

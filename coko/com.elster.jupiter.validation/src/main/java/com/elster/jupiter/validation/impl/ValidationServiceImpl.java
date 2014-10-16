@@ -23,8 +23,6 @@ import com.elster.jupiter.util.Upcast;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -35,8 +33,8 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -47,16 +45,19 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.Ranges.does;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.isNull;
 import static java.util.Comparator.naturalOrder;
@@ -183,21 +184,17 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
             if (!meterValidation.get().getActivationStatus()) {
                 meterValidation.get().setActivationStatus(true);
                 meterValidation.get().save();
-                Optional<MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
-                if (currentMeterActivation.isPresent()) {
-                    getUpdatedMeterActivationValidations(currentMeterActivation.get()).stream()
+                meter.getCurrentMeterActivation().ifPresent(activation -> {
+                    getUpdatedMeterActivationValidations(activation).stream()
                             .forEach(m -> {
                                 m.activate();
                                 m.save();
                             });
-                }
+                });
             } // else already active
         } else {
             createMeterValidation(meter, true);
-            Optional<MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
-            if (currentMeterActivation.isPresent()) {
-                getUpdatedMeterActivationValidations(currentMeterActivation.get());
-            }
+            meter.getCurrentMeterActivation().ifPresent(this::getUpdatedMeterActivationValidations);
         }
     }
 
@@ -230,7 +227,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public void updateLastChecked(MeterActivation meterActivation, Date date) {
+    public void updateLastChecked(MeterActivation meterActivation, Instant date) {
         if (date == null) {
             throw new IllegalArgumentException("Last checked date is absent");
         }
@@ -240,7 +237,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public void updateLastChecked(Channel channel, Date date) {
+    public void updateLastChecked(Channel channel, Instant date) {
         if (channel == null || date == null) {
             throw new IllegalArgumentException("Last checked date or channel is absent");
         }
@@ -256,7 +253,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
                 });
     }
 
-    private void saveLastChecked(IMeterActivationValidation validation, Date date) {
+    private void saveLastChecked(IMeterActivationValidation validation, Instant date) {
         validation.updateLastChecked(date);
         validation.save();
     }
@@ -275,32 +272,32 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public Optional<Date> getLastChecked(MeterActivation meterActivation) {
+    public Optional<Instant> getLastChecked(MeterActivation meterActivation) {
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(meterActivation);
 
-        List<Date> dates = validations.stream()
+        List<Instant> dates = validations.stream()
                 .filter(m -> m.getChannelValidations().stream().anyMatch(ChannelValidation::hasActiveRules))
                 .map(IMeterActivationValidation::getMinLastChecked)
                 .collect(Collectors.toList());
-        Comparator<Date> comparator = nullsFirst(naturalOrder());
-        return Optional.fromNullable(dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null);
+        Comparator<Instant> comparator = nullsFirst(naturalOrder());
+        return Optional.ofNullable(dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null);
     }
 
     @Override
-    public Optional<Date> getLastChecked(Channel channel) {
+    public Optional<Instant> getLastChecked(Channel channel) {
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(channel.getMeterActivation());
 
-        Date lastChecked = null;
-        List<Date> dates = validations.stream()
+        Instant lastChecked = null;
+        List<Instant> dates = validations.stream()
                 .map(m -> m.getChannelValidation(channel))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(ChannelValidation::getLastChecked)
                 .collect(Collectors.toList());
         if (dates.stream().anyMatch(isNull())) {
-            return Optional.<Date>absent();
+            return Optional.<Instant>empty();
         }
-        return Optional.fromNullable(dates.stream().min(naturalOrder()).orElse(null));
+        return Optional.ofNullable(dates.stream().min(naturalOrder()).orElse(null));
     }
 
     private <T> BinaryOperator<T> min(final Comparator<? super T> comparator) {
@@ -308,15 +305,15 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
-        return dataModel.mapper(IValidationRuleSet.class).getOptional(id).transform(UPCAST);
+    public Optional<? extends ValidationRuleSet> getValidationRuleSet(long id) {
+        return dataModel.mapper(IValidationRuleSet.class).getOptional(id);
     }
 
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(String name) {
         Condition condition = Operator.EQUAL.compare("name", name).and(Operator.ISNULL.compare(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD));
         List<ValidationRuleSet> ruleSets = getRuleSetQuery().select(condition);
-        return ruleSets.isEmpty() ? Optional.<ValidationRuleSet>absent() : Optional.of(ruleSets.get(0));
+        return ruleSets.isEmpty() ? Optional.<ValidationRuleSet>empty() : Optional.of(ruleSets.get(0));
     }
 
     @Override
@@ -337,7 +334,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public void validate(MeterActivation meterActivation, Interval interval) {
+    public void validate(MeterActivation meterActivation, Range<Instant> interval) {
         if (isValidationActive(meterActivation)) {
             List<IMeterActivationValidation> meterActivationValidations = getUpdatedMeterActivationValidations(meterActivation);
             meterActivationValidations.stream()
@@ -347,13 +344,13 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public void validateForNewData(MeterActivation meterActivation, Interval interval) {
+    public void validateForNewData(MeterActivation meterActivation, Range<Instant> interval) {
         boolean validationActive = isValidationActive(meterActivation);
         List<IMeterActivationValidation> meterActivationValidations = getUpdatedMeterActivationValidations(meterActivation);
 
         meterActivationValidations.stream()
                 .peek(m -> {
-                    if (!validationActive || !m.isActive() && interval.startsBefore(m.getMaxLastChecked())) {
+                    if (!validationActive || !m.isActive() && does(interval).startBefore(m.getMaxLastChecked())) {
                         handleDataOverwrite(m, interval);
                     }
                 })
@@ -362,11 +359,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
                 .forEach(m -> m.validate(interval));
     }
 
-    private void handleDataOverwrite(IMeterActivationValidation meterActivationValidation, Interval interval) {
+    private void handleDataOverwrite(IMeterActivationValidation meterActivationValidation, Range<Instant> interval) {
         meterActivationValidation.getChannelValidations().stream()
-                .filter(c -> interval.startsBefore(c.getLastChecked()))
+                .filter(c -> does(interval).startBefore(c.getLastChecked()))
                 .map(IChannelValidation.class::cast)
-                .forEach(c -> c.setLastChecked(interval.getStart()));
+                .forEach(c -> c.setLastChecked(interval.lowerEndpoint()));
         meterActivationValidation.save();
 
         meterActivationValidation.getChannelValidations().stream()
@@ -412,7 +409,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public void validate(MeterActivation meterActivation, String readingTypeCode, Interval interval) {
+    public void validate(MeterActivation meterActivation, String readingTypeCode, Range<Instant> interval) {
         if (isValidationActive(meterActivation)) {
             List<IMeterActivationValidation> meterActivationValidations = getUpdatedMeterActivationValidations(meterActivation);
             meterActivationValidations.stream()
@@ -514,7 +511,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public ValidationEvaluator getEvaluator(Meter meter, Interval interval) {
+    public ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval) {
         return new ValidationEvaluatorForMeter(this, meter, interval);
     }
 

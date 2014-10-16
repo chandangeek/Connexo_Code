@@ -3,10 +3,11 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+
+import java.time.Clock;
 
 public class ValidationModule extends AbstractModule {
 

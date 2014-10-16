@@ -11,7 +11,6 @@ import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -21,9 +20,9 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -48,11 +47,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private String aliasName;
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
-    private UtcInstant obsoleteTime;
+    private Instant obsoleteTime;
 
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     private String userName;
 
     private List<IValidationRule> rules;
@@ -132,11 +131,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         return version;
     }
 
-    UtcInstant getCreateTime() {
+    Instant getCreateTime() {
         return createTime;
     }
 
-    UtcInstant getModTime() {
+    Instant getModTime() {
         return modTime;
     }
 
@@ -204,7 +203,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public void delete() {
-        this.setObsoleteTime(new UtcInstant(new Date())); // mark obsolete
+        this.setObsoleteTime(Instant.now()); // mark obsolete
         for (IValidationRule validationRule : doGetRules()) {
             validationRule.delete();
         }
@@ -335,15 +334,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public Date getObsoleteDate() {
-        return getObsoleteTime() != null ? getObsoleteTime().toDate() : null;
-    }
-
-    private UtcInstant getObsoleteTime() {
+    public Instant getObsoleteDate() {
         return this.obsoleteTime;
     }
 
-    private void setObsoleteTime(UtcInstant obsoleteTime) {
+    private void setObsoleteTime(Instant obsoleteTime) {
         this.obsoleteTime = obsoleteTime;
     }
 }

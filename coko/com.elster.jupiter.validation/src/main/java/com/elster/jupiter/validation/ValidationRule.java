@@ -3,7 +3,7 @@ package com.elster.jupiter.validation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +43,7 @@ public interface ValidationRule {
 
     String getName();
 
-    Date getObsoleteDate();
+    Instant getObsoleteDate();
 
     long getVersion();
 

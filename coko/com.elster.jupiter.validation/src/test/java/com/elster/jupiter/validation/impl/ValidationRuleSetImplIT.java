@@ -28,7 +28,6 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -44,9 +43,9 @@ import org.osgi.service.event.EventAdmin;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -152,8 +151,8 @@ public class ValidationRuleSetImplIT {
                 minMaxRule.activate();
                 validationRuleSet.save();
 
-                Optional<ValidationRuleSet> found = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId());
-                assertThat(found).isPresent();
+                Optional<? extends ValidationRuleSet> found = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId());
+                assertThat(found.isPresent()).isTrue();
                 assertThat(found.get().getRules()).hasSize(2);
             }
         });

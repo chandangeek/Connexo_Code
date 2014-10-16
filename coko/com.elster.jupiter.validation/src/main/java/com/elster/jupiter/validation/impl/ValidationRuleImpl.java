@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -22,16 +21,15 @@ import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -57,11 +55,11 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @ExistingValidator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_VALIDATOR + "}")
     private String implementation; //validator classname
-    private UtcInstant obsoleteTime;
+    private Instant obsoleteTime;
 
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     private String userName;
     // associations
     @Valid
@@ -150,16 +148,18 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     @Override
     public ReadingTypeInValidationRule addReadingType(String mRID) {
-        Optional<ReadingType> optional = meteringService.getReadingType(mRID);
-        if (!optional.isPresent()) {
-            ReadingTypeInValidationRuleImpl empty = ReadingTypeInValidationRuleImpl.from(dataModel, this, mRID);
-            if (getId() != 0) {
-                Save.UPDATE.validate(dataModel, empty);
-            }
-            readingTypesInRule.add(empty);
-            return empty;
+        return meteringService.getReadingType(mRID)
+                .map(this::addReadingType)
+                .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
+    }
+
+    private ReadingTypeInValidationRule readingTypeInValidationRuleFor(String mRID) {
+        ReadingTypeInValidationRuleImpl empty = ReadingTypeInValidationRuleImpl.from(dataModel, this, mRID);
+        if (getId() != 0) {
+            Save.UPDATE.validate(dataModel, empty);
         }
-        return addReadingType(optional.get());
+        readingTypesInRule.add(empty);
+        return empty;
     }
 
     @Override
@@ -168,7 +168,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     public void delete() {
-        this.setObsoleteTime(new UtcInstant(new Date())); // mark obsolete
+        this.setObsoleteTime(Instant.now()); // mark obsolete
         ruleFactory().update(this);
         eventService.postEvent(EventType.VALIDATIONRULE_DELETED.topic(), this);
     }
@@ -187,13 +187,9 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     @Override
     public boolean isRequired(final String propertyKey) {
-        Optional<PropertySpec> propertySpecOptional = Iterables.tryFind(getValidator().getPropertySpecs(), new Predicate<PropertySpec>() {
-            @Override
-            public boolean apply(PropertySpec input) {
-                return propertyKey.equals(input.getName());
-            }
-        });
-        return propertySpecOptional.isPresent() && propertySpecOptional.get().isRequired();
+        return getValidator().getPropertySpecs().stream()
+                .filter(PropertySpec::isRequired)
+                .anyMatch(spec -> propertyKey.equals(spec.getName()));
     }
 
     private Validator getValidator() {
@@ -336,7 +332,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public Date validateChannel(Channel channel, Interval interval) {
+    public Instant validateChannel(Channel channel, Range<Instant> interval) {
         if (!active) {
             return null;
         }
@@ -365,15 +361,15 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public Date getObsoleteDate() {
-        return getObsoleteTime() != null ? getObsoleteTime().toDate() : null;
+    public Instant getObsoleteDate() {
+        return getObsoleteTime() != null ? getObsoleteTime() : null;
     }
 
-    private UtcInstant getObsoleteTime() {
+    private Instant getObsoleteTime() {
         return this.obsoleteTime;
     }
 
-    private void setObsoleteTime(UtcInstant obsoleteTime) {
+    private void setObsoleteTime(Instant obsoleteTime) {
         this.obsoleteTime = obsoleteTime;
     }
 
@@ -382,11 +378,11 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         return version;
     }
 
-    UtcInstant getCreateTime() {
+    Instant getCreateTime() {
         return createTime;
     }
 
-    UtcInstant getModTime() {
+    Instant getModTime() {
         return modTime;
     }
 

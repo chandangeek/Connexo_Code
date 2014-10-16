@@ -9,27 +9,28 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.google.common.base.Optional;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -87,13 +88,13 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         if (!readings.isEmpty()) {
             List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
             boolean configured = !channelValidations.isEmpty();
-            Date lastChecked = configured ? getMinLastChecked(channelValidations.stream()
+            Instant lastChecked = configured ? getMinLastChecked(channelValidations.stream()
                     .filter(ChannelValidation::hasActiveRules)
                     .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
 
             ListMultimap<String, IValidationRule> validationRuleMap = getValidationRulesPerReadingQuality(channelValidations);
 
-            ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, getInterval(readings));
+            ListMultimap<Instant, ReadingQualityRecord> readingQualities = getReadingQualities(channel, getInterval(readings));
             ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
             for (BaseReading reading : readings) {
                 List<ReadingQualityRecord> qualities = (readingQualities.containsKey(reading.getTimeStamp()) ? readingQualities.get(reading.getTimeStamp()) : new ArrayList<ReadingQualityRecord>());
@@ -115,19 +116,19 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
     }
 
     @Override
-    public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Interval interval) {
+    public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
         List<DataValidationStatus> result = new ArrayList<>();
         List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
         boolean configured = !channelValidations.isEmpty();
-        Date lastChecked = configured ? getMinLastChecked(channelValidations.stream()
+        Instant lastChecked = configured ? getMinLastChecked(channelValidations.stream()
                 .filter(ChannelValidation::hasActiveRules)
                 .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
 
         ListMultimap<String, IValidationRule> validationRuleMap = getValidationRulesPerReadingQuality(channelValidations);
 
-        ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, interval);
+        ListMultimap<Instant, ReadingQualityRecord> readingQualities = getReadingQualities(channel, interval);
 
-        Set<Date> timesWithReadings = new HashSet<>();
+        Set<Instant> timesWithReadings = new HashSet<>();
 
         ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         for (BaseReading reading : readings) {
@@ -147,10 +148,10 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
 
         }
 
-        Set<Date> timesWithoutReadings = new HashSet<>(readingQualities.keySet());
+        Set<Instant> timesWithoutReadings = new HashSet<>(readingQualities.keySet());
         timesWithoutReadings.removeAll(timesWithReadings);
 
-        for (Date readingTimestamp : timesWithoutReadings) {
+        for (Instant readingTimestamp : timesWithoutReadings) {
             List<ReadingQuality> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
             boolean wasValidated = wasValidated(lastChecked, readingTimestamp);
             boolean fullyValidated = configured && wasValidated;
@@ -160,8 +161,8 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
     }
 
 
-    private Date getMinLastChecked(Iterable<Date> dates) {
-        Comparator<Date> comparator = nullsFirst(naturalOrder());
+    private Instant getMinLastChecked(Iterable<Instant> dates) {
+        Comparator<Instant> comparator = nullsFirst(naturalOrder());
         return dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null;
     }
 
@@ -177,30 +178,30 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         return Multimaps.index(rules, i -> i.getReadingQualityType().getCode());
     }
 
-    private ListMultimap<Date, ReadingQualityRecord> getReadingQualities(Channel channel, Interval interval) {
+    private ListMultimap<Instant, ReadingQualityRecord> getReadingQualities(Channel channel, Range<Instant> interval) {
         List<ReadingQualityRecord> readingQualities = channel.findReadingQuality(interval);
         return Multimaps.index(readingQualities, ReadingQualityRecord::getReadingTimestamp);
     }
 
-    private Interval getInterval(List<? extends BaseReading> readings) {
-        Date min = null;
-        Date max = null;
+    private Range<Instant> getInterval(List<? extends BaseReading> readings) {
+        Instant min = null;
+        Instant max = null;
         for (BaseReading reading : readings) {
-            if (min == null || reading.getTimeStamp().before(min)) {
+            if (min == null || reading.getTimeStamp().isBefore(min)) {
                 min = reading.getTimeStamp();
             }
-            if (max == null || reading.getTimeStamp().after(max)) {
+            if (max == null || reading.getTimeStamp().isAfter(max)) {
                 max = reading.getTimeStamp();
             }
         }
-        return new Interval(min, max);
+        return Ranges.closed(min, max);
     }
 
-    private boolean wasValidated(Date lastChecked, Date readingTimestamp) {
+    private boolean wasValidated(Instant lastChecked, Instant readingTimestamp) {
         return lastChecked != null && readingTimestamp.compareTo(lastChecked) <= 0;
     }
 
-    private DataValidationStatus createDataValidationStatusListFor(Date timeStamp, boolean completelyValidated, List<? extends ReadingQuality> qualities, ListMultimap<String, IValidationRule> validationRuleMap) {
+    private DataValidationStatus createDataValidationStatusListFor(Instant timeStamp, boolean completelyValidated, List<? extends ReadingQuality> qualities, ListMultimap<String, IValidationRule> validationRuleMap) {
         DataValidationStatusImpl validationStatus = new DataValidationStatusImpl(timeStamp, completelyValidated);
         for (ReadingQuality quality : qualities) {
             validationStatus.addReadingQuality(quality, filterDuplicates(validationRuleMap.get(quality.getTypeCode())));
@@ -238,16 +239,14 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
     }
 
     @Override
-    public Optional<Date> getLastChecked(Meter meter, ReadingType readingType) {
-        Date max = meter.getMeterActivations().stream()
+    public Optional<Instant> getLastChecked(Meter meter, ReadingType readingType) {
+        return meter.getMeterActivations().stream()
                 .flatMap(m -> m.getChannels().stream())
                 .filter(k -> k.getReadingTypes().contains(readingType))
                 .filter(validationService::isValidationActive)
                 .map(validationService::getLastChecked)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .max(naturalOrder())
-                .orElse(null);
-        return Optional.fromNullable(max);
+                .max(naturalOrder());
     }
 }

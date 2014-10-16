@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.google.common.base.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -42,7 +42,7 @@ public class UniqueValidationRuleSetNameValidatorTest {
 
     @Test
     public void testValidReturnsTrue() {
-        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.<ValidationRuleSet>absent());
+        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.<ValidationRuleSet>empty());
 
         UniqueValidationRuleSetNameValidator validator = new UniqueValidationRuleSetNameValidator(validationService);
 
@@ -69,7 +69,7 @@ public class UniqueValidationRuleSetNameValidatorTest {
 
     @Test
     public void testValidDoesNotTouchContext() {
-        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.<ValidationRuleSet>absent());
+        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.<ValidationRuleSet>empty());
 
         UniqueValidationRuleSetNameValidator validator = new UniqueValidationRuleSetNameValidator(validationService);
 

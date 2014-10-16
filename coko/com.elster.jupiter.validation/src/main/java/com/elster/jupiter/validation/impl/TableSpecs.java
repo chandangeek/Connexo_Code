@@ -26,7 +26,7 @@ public enum TableSpecs {
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
-            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2UTCINSTANT).add();
+            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULESET").on(idColumn).add();
             table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();
@@ -44,7 +44,7 @@ public enum TableSpecs {
             Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).map("ruleSetId").add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2UTCINSTANT).add();
+            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
             table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
@@ -70,9 +70,9 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column ruleSetIdColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).map("ruleSetId").add();
             Column meterActivationId = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).add();
-            table.column("LASTRUN").number().conversion(NUMBER2UTCINSTANT).map("lastRun").add();
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.column("ACTIVE").bool().map("active").add();
-            table.column("OBSOLETETIME").number().conversion(NUMBER2UTCINSTANT).map("obsoleteTime").add();
+            table.column("OBSOLETETIME").number().conversion(NUMBER2INSTANT).map("obsoleteTime").add();
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(MeteringService.COMPONENTNAME, "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).onDelete(DeleteRule.RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
@@ -85,7 +85,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).add();
             Column meterActivationValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
-            table.column("LASTCHECKED").number().conversion(NUMBER2UTCINSTANT).map("lastChecked").add();
+            table.column("LASTCHECKED").number().conversion(NUMBER2INSTANT).map("lastChecked").add();
             table.column("ACTIVERULES").bool().map("activeRules").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(MeteringService.COMPONENTNAME, "MTR_CHANNEL").onDelete(RESTRICT).map("channel").on(channelRef).add();

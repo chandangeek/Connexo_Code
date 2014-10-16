@@ -2,12 +2,12 @@ package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.readings.ReadingQuality;
 
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 
 public interface DataValidationStatus {
 
-    Date getReadingTimestamp();
+    Instant getReadingTimestamp();
 
     boolean completelyValidated();
 

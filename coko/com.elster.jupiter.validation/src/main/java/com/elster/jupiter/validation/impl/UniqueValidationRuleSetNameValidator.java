@@ -2,11 +2,11 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 public class UniqueValidationRuleSetNameValidator implements ConstraintValidator<UniqueName, ValidationRuleSet> {
 

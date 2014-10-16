@@ -7,12 +7,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
-import com.google.common.base.Optional;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
+import com.google.common.collect.Range;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,11 +20,16 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 
+import static com.elster.jupiter.util.Ranges.copy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -35,12 +37,12 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MeterActivationValidationImplTest {
 
-    private static final Date DATE1 = new DateMidnight(2012, 11, 19).toDate();
-    private static final Date DATE1AND15 = new DateTime(2012, 11, 19, 0, 15, 0).toDate();
-    private static final Date DATE2 = new DateMidnight(2012, 12, 19).toDate();
-    private static final Date DATE3 = new DateMidnight(2012, 12, 24).toDate();
-    private static final Date DATE4 = new DateMidnight(2012, 12, 1).toDate();
-    private static final Interval INTERVAL = new Interval(DATE1, DATE2);
+    private static final Instant DATE1 = ZonedDateTime.of(2012, 11, 19, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant DATE1AND15 = ZonedDateTime.of(2012, 11, 19, 0, 15, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant DATE2 = ZonedDateTime.of(2012, 12, 19, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant DATE3 = ZonedDateTime.of(2012, 12, 24, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant DATE4 = ZonedDateTime.of(2012, 12, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Range<Instant> INTERVAL = Range.closed(DATE1, DATE2);
     private static final long FIRST_CHANNEL_ID = 1001L;
     private static final long SECOND_CHANNEL_ID = 1002L;
 
@@ -74,7 +76,7 @@ public class MeterActivationValidationImplTest {
                 return new ChannelValidationImpl();
             }
         });
-        when(clock.now()).thenReturn(DATE3);
+        when(clock.instant()).thenReturn(DATE3);
         when(meteringService.findChannel(FIRST_CHANNEL_ID)).thenReturn(Optional.of(channel1));
         when(meteringService.findChannel(SECOND_CHANNEL_ID)).thenReturn(Optional.of(channel2));
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
@@ -121,7 +123,7 @@ public class MeterActivationValidationImplTest {
     @Test
     public void testValidateOneRuleAppliesToOneChannel() throws Exception {
         doReturn(Collections.singleton(readingType1)).when(rule1).getReadingTypes();
-        when(rule1.validateChannel(channel1, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE4);
+        when(rule1.validateChannel(channel1, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE4);
         when(channel1.getLastDateTime()).thenReturn(DATE4);
 
         meterActivationValidation.validate(INTERVAL);
@@ -137,10 +139,10 @@ public class MeterActivationValidationImplTest {
     public void testValidateBothRulesApplyToBothChannels() throws Exception {
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule1).getReadingTypes();
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule2).getReadingTypes();
-        when(rule1.validateChannel(channel1, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE4);
-        when(rule1.validateChannel(channel2, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE2);
-        when(rule2.validateChannel(channel1, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE2);
-        when(rule2.validateChannel(channel2, INTERVAL.withStart(DATE1AND15))).thenReturn(DATE4);
+        when(rule1.validateChannel(channel1, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE4);
+        when(rule1.validateChannel(channel2, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE2);
+        when(rule2.validateChannel(channel1, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE2);
+        when(rule2.validateChannel(channel2, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE4);
         when(channel1.getLastDateTime()).thenReturn(DATE4);
         when(channel2.getLastDateTime()).thenReturn(DATE4);
 

@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.streams.Accumulator;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.Validator;
@@ -17,14 +16,16 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.Ranges.copy;
 import static com.elster.jupiter.util.streams.Predicates.notNull;
 
 class ChannelRuleValidator {
@@ -36,18 +37,18 @@ class ChannelRuleValidator {
     }
 
     // interval is interpreted as closed
-    Date validateReadings(Channel channel, Interval interval) {
-        ListMultimap<Date, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, interval);
-        Optional<Date> lastChecked = channel.getReadingTypes().stream()
+    Instant validateReadings(Channel channel, Range<Instant> interval) {
+        ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, interval);
+        Optional<Instant> lastChecked = channel.getReadingTypes().stream()
                 .filter(r -> rule.getReadingTypes().contains(r))
                 .map(r -> validateReadings(channel, interval, r, existingReadingQualities))
                 .filter(notNull())
-                .max(Comparator.<Date>naturalOrder());
+                .max(Comparator.<Instant>naturalOrder());
         return lastChecked.orElse(null);
     }
 
-    private Date validateReadings(Channel channel, Interval interval, ReadingType channelReadingType, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities) {
-        Accumulator<Date, ValidatedResult> lastChecked = new Accumulator<>((d, v) -> determineLastChecked(v, d));
+    private Instant validateReadings(Channel channel, Range<Instant> interval, ReadingType channelReadingType, ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities) {
+        Accumulator<Instant, ValidatedResult> lastChecked = new Accumulator<>((d, v) -> determineLastChecked(v, d));
 
         Consumer<ValidatedResult> validatedResultHandler = validationTarget -> {
             handleValidationResult(channel, existingReadingQualities, validationTarget);
@@ -67,9 +68,9 @@ class ChannelRuleValidator {
         return lastChecked.getAccumulated();
     }
 
-    private Stream<ValidatedResult> validatedResults(Validator validator, Channel channel, ReadingType channelReadingType, Interval interval) {
+    private Stream<ValidatedResult> validatedResults(Validator validator, Channel channel, ReadingType channelReadingType, Range<Instant> interval) {
         if (channel.isRegular()) {
-            Interval toRequest = interval.withStart(new Date(interval.getStart().getTime() - 1));
+            Range<Instant> toRequest = copy(interval).withClosedLowerBound(interval.lowerEndpoint().minusMillis(1));
             return channel.getIntervalReadings(channelReadingType, toRequest).stream()
                     .map(intervalReading -> new ReadingTarget(intervalReading, validator.validate(intervalReading)));
         }
@@ -77,7 +78,7 @@ class ChannelRuleValidator {
                 .map(readingRecord -> new ReadingTarget(readingRecord, validator.validate(readingRecord)));
     }
 
-    private ListMultimap<Date, ReadingQualityRecord> getExistingReadingQualities(Channel channel, Interval interval) {
+    private ListMultimap<Instant, ReadingQualityRecord> getExistingReadingQualities(Channel channel, Range<Instant> interval) {
         List<ReadingQualityRecord> readingQualities = channel.findReadingQuality(interval);
         return ArrayListMultimap.create(Multimaps.index(readingQualities, ReadingQualityRecord::getReadingTimestamp));
     }
@@ -87,7 +88,7 @@ class ChannelRuleValidator {
 
         Optional<BaseReadingRecord> getReadingRecord();
 
-        Date getTimestamp();
+        Instant getTimestamp();
 
         ValidationResult getResult();
 
@@ -111,7 +112,7 @@ class ChannelRuleValidator {
         }
 
         @Override
-        public Date getTimestamp() {
+        public Instant getTimestamp() {
             return readingRecord.getTimeStamp();
         }
 
@@ -122,10 +123,10 @@ class ChannelRuleValidator {
     }
 
     private static class MissingTarget implements ValidatedResult {
-        private final Date timestamp;
+        private final Instant timestamp;
         private final ValidationResult validationResult;
 
-        private MissingTarget(Date timestamp, ValidationResult validationResult) {
+        private MissingTarget(Instant timestamp, ValidationResult validationResult) {
             this.timestamp = timestamp;
             this.validationResult = validationResult;
         }
@@ -136,7 +137,7 @@ class ChannelRuleValidator {
         }
 
         @Override
-        public Date getTimestamp() {
+        public Instant getTimestamp() {
             return timestamp;
         }
 
@@ -146,7 +147,7 @@ class ChannelRuleValidator {
         }
     }
 
-    private void handleValidationResult(Channel channel, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
+    private void handleValidationResult(Channel channel, ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
         if (target.ruleFailed()) {
             handleRuleFailed(channel, existingReadingQualities, target);
             return;
@@ -154,21 +155,21 @@ class ChannelRuleValidator {
         handleRulePassed(existingReadingQualities, target);
     }
 
-    private void handleRulePassed(ListMultimap<Date, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
+    private void handleRulePassed(ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
         Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(existingReadingQualities, target.getTimestamp());
         if (existingQualityForType.isPresent() && existingQualityForType.get().isActual()) {
             existingQualityForType.get().makePast();
         }
     }
 
-    private void handleRuleFailed(Channel channel, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
+    private void handleRuleFailed(Channel channel, ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
         setValidationQuality(channel, existingReadingQualities, target);
         if (ValidationAction.FAIL.equals(rule.getAction())) {
             setSuspectQuality(channel, existingReadingQualities, target);
         }
     }
 
-    private void setSuspectQuality(Channel channel, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
+    private void setSuspectQuality(Channel channel, ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
         Optional<ReadingQualityRecord> suspectQuality = existingReadingQualities.get(target.getTimestamp()).stream()
                 .filter(ReadingQualityRecord::isSuspect)
                 .findFirst();
@@ -182,7 +183,7 @@ class ChannelRuleValidator {
         }
     }
 
-    private void setValidationQuality(Channel channel, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
+    private void setValidationQuality(Channel channel, ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities, ValidatedResult target) {
         Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(existingReadingQualities, target.getTimestamp());
         if (existingQualityForType.isPresent()) {
             if (!existingQualityForType.get().isActual()) {
@@ -196,13 +197,13 @@ class ChannelRuleValidator {
     }
 
 
-    private Optional<ReadingQualityRecord> getExistingReadingQualityForType(ListMultimap<Date, ReadingQualityRecord> existingReadingQualities, Date timeStamp) {
+    private Optional<ReadingQualityRecord> getExistingReadingQualityForType(ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities, Instant timeStamp) {
         return existingReadingQualities.get(timeStamp).stream()
                 .filter(input -> rule.getReadingQualityType().equals(input.getType()))
                 .findFirst();
     }
 
-    private Date determineLastChecked(ValidatedResult target, Date lastChecked) {
+    private Instant determineLastChecked(ValidatedResult target, Instant lastChecked) {
         if (!ValidationResult.NOT_VALIDATED.equals(target.getResult())) {
             return lastChecked == null ? target.getTimestamp() : Ordering.natural().max(lastChecked, target.getTimestamp());
         }

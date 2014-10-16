@@ -10,7 +10,6 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
@@ -20,6 +19,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public enum Fakes {
     ;
@@ -182,7 +182,7 @@ public enum Fakes {
 
         @Override
         public Optional<T> getOptional(Object... values) {
-            return Optional.fromNullable(store.get(new Key(values)));
+            return Optional.ofNullable(store.get(new Key(values)));
         }
 
         @Override
@@ -270,7 +270,7 @@ public enum Fakes {
 
         @Override
         public Optional<T> lockNoWait(Object... values) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         @Override

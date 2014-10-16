@@ -15,7 +15,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
@@ -24,9 +24,8 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import org.joda.time.DateMidnight;
+import com.google.common.collect.Range;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,11 +35,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
+import static com.elster.jupiter.util.Ranges.copy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.*;
@@ -58,9 +61,11 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     public static final String PROPERTY_NAME_2 = "max";
     public static final String PROPERTY_NAME_3 = "other_property";
     public static final Quantity PROPERTY_VALUE = Unit.UNITLESS.amount(new BigDecimal(100));
-    private static final Interval INTERVAL = new Interval(new DateMidnight(2012, 12, 1).toDate(), new DateMidnight(2012, 12, 5).toDate());
-    private static final Date DATE1 = new DateMidnight(2012, 12, 3).toDate();
-    private static final Date DATE2 = new DateMidnight(2012, 12, 4).toDate();
+    public static final Instant START = ZonedDateTime.of(2012, 12, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    public static final Instant END = ZonedDateTime.of(2012, 12, 5, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Range<Instant> INTERVAL = Ranges.closed(START, END);
+    private static final Instant DATE1 = ZonedDateTime.of(2012, 12, 3, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant DATE2 = ZonedDateTime.of(2012, 12, 4, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
     private ValidationRuleImpl validationRule;
 
@@ -105,7 +110,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Before
     public void setUp() {
-        when(channel.findReadingQuality(new ReadingQualityType("3.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>absent(), Optional.of(readingQuality));
+        when(channel.findReadingQuality(new ReadingQualityType("3.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>empty(), Optional.of(readingQuality));
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -132,8 +137,8 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(validator.getPropertySpecs()).thenReturn(Arrays.asList(properySpec));
         when(properySpec.getName()).thenReturn(PROPERTY_NAME);
         when(properySpec.getValueFactory()).thenReturn(valueFactory);
-        when(validator.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
-        when(channel.getIntervalReadings(readingType2, INTERVAL.withStart(new Date(INTERVAL.dbStart() - 1)))).thenReturn(Arrays.asList(intervalReadingRecord));
+        doReturn(Optional.<ReadingQualityType>empty()).when(validator).getReadingQualityTypeCode();
+        when(channel.getIntervalReadings(readingType2, copy(INTERVAL).withClosedLowerBound(START.minusMillis(1)))).thenReturn(Arrays.asList(intervalReadingRecord));
         when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));
     }
 

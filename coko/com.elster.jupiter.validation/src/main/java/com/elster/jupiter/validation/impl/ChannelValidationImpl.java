@@ -4,11 +4,10 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Objects;
 
 final class ChannelValidationImpl implements IChannelValidation {
@@ -16,7 +15,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     private long id;
     private Reference<Channel> channel = ValueReference.absent();
     private Reference<IMeterActivationValidation> meterActivationValidation = ValueReference.absent();
-    private UtcInstant lastChecked;
+    private Instant lastChecked;
     private boolean activeRules;
 
     @SuppressWarnings("unused")
@@ -50,13 +49,13 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
 
     @Override
-    public Date getLastChecked() {
-        return lastChecked != null ? lastChecked.toDate() : null;
+    public Instant getLastChecked() {
+        return lastChecked;
     }
 
     @Override
-    public void setLastChecked(Date date) {
-        lastChecked = new UtcInstant(date);
+    public void setLastChecked(Instant date) {
+        lastChecked = date;
     }
 
     public Channel getChannel() {

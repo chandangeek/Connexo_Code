@@ -4,11 +4,11 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import com.google.common.collect.Range;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface ValidationService {
 
@@ -24,11 +24,11 @@ public interface ValidationService {
 
     List<ValidationRuleSet> getValidationRuleSets();
 
-    Optional<Date> getLastChecked(Channel channel);
+    Optional<Instant> getLastChecked(Channel channel);
 
     boolean isValidationActive(Channel channel);
 
-    Optional<ValidationRuleSet> getValidationRuleSet(long id);
+    Optional<? extends ValidationRuleSet> getValidationRuleSet(long id);
 
     Optional<ValidationRuleSet> getValidationRuleSet(String name);
 
@@ -54,17 +54,17 @@ public interface ValidationService {
 
     /* last checked */
 
-    Optional<Date> getLastChecked(MeterActivation meterActivation);
+    Optional<Instant> getLastChecked(MeterActivation meterActivation);
 
-    void updateLastChecked(MeterActivation meterActivation, Date date);
+    void updateLastChecked(MeterActivation meterActivation, Instant date);
 
-    void updateLastChecked(Channel channel, Date date);
+    void updateLastChecked(Channel channel, Instant date);
 
-    void validate(MeterActivation meterActivation, Interval interval);
+    void validate(MeterActivation meterActivation, Range<Instant> interval);
 
-    void validateForNewData(MeterActivation meterActivation, Interval interval);
+    void validateForNewData(MeterActivation meterActivation, Range<Instant> interval);
 
-    void validate(MeterActivation meterActivation, String readingTypeCode, Interval interval);
+    void validate(MeterActivation meterActivation, String readingTypeCode, Range<Instant> interval);
 
     List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation);
 
@@ -72,5 +72,5 @@ public interface ValidationService {
 
     ValidationEvaluator getEvaluator();
 
-    ValidationEvaluator getEvaluator(Meter meter, Interval interval);
+    ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval);
 }
