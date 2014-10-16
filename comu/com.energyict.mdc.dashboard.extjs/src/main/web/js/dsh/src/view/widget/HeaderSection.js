@@ -16,7 +16,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                 items: [
                     {
                         xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('overview.widget.headerSection.filter', 'DSH', 'Filter'),
+                        fieldLabel: Uni.I18n.translate('overview.widget.headerSection.filter', 'DSH', 'Filter') + ': ',
                         labelAlign: 'left',
                         labelWidth: 30
                     },
