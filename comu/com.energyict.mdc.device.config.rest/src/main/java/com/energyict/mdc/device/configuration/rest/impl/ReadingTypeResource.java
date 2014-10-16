@@ -5,11 +5,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
-import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.rest.ReadingTypeComparator;
+import com.energyict.mdc.common.rest.*;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.configuration.rest.ReadingTypeInfo;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -45,7 +41,7 @@ public class ReadingTypeResource {
     public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
         if (!queryFilter.getFilterProperties().isEmpty()) {
-            long phenomenonId = Long.parseLong(queryFilter.getProperty("unit"));
+            long phenomenonId = queryFilter.getProperty("unit", new LongAdapter());
             ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter());
 
             //Unit unit = queryFilter.getProperty("unit", new UnitAdapter());
