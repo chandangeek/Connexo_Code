@@ -19,21 +19,19 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.google.inject.Provider;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,7 +82,7 @@ public class ComTaskImpl implements ComTask, HasId {
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY +"}")
     private String name;
     private boolean storeData; // Indication whether to store the data which is read
-    private Instant modificationDate;
+    private Date modificationDate;
 
     /**
      * Holds a list of all {@link ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
@@ -170,7 +168,7 @@ public class ComTaskImpl implements ComTask, HasId {
 
     @Override
     public void save() {
-        this.modificationDate= Instant.now();
+        this.modificationDate=new Date();
         Save.action(getId()).save(this.dataModel, this);
     }
 

@@ -27,7 +27,7 @@ public enum TableSpecs {
             table.column("NAME").varChar().map(ComTaskImpl.Fields.NAME.fieldName()).add();
             table.column("STOREDATA").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
             table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map(ComTaskImpl.Fields.MOD_DATE.fieldName()).insert("sysdate").update("sysdate").add();
+            table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map(ComTaskImpl.Fields.MOD_DATE.fieldName()).insert("sysdate").update("sysdate").add();
             table.primaryKey("PK_CTS_COMTASK").on(idColumn).add();
         }
     },

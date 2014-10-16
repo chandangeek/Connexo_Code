@@ -11,8 +11,8 @@ import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
-import java.util.Optional;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
