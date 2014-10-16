@@ -7,38 +7,40 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import java.util.List;
-import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 
-import javax.annotation.security.RolesAllowed;
+import java.util.LinkedHashMap;
+import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/devicegroups")
 public class DeviceGroupResource {
 
     private final MeteringGroupsService meteringGroupsService;
     private final RestQueryService restQueryService;
+    private final DeviceConfigurationService deviceConfigurationService;;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, RestQueryService restQueryService) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, RestQueryService restQueryService) {
         this.meteringGroupsService = meteringGroupsService;
+        this.deviceConfigurationService = deviceConfigurationService;
         this.restQueryService = restQueryService;
     }
 
@@ -62,14 +64,60 @@ public class DeviceGroupResource {
 
     private List<EndDeviceGroup> queryEndDeviceGroups(com.elster.jupiter.rest.util.QueryParameters queryParameters) {
         Query<EndDeviceGroup> query = meteringGroupsService.getEndDeviceGroupQuery();
-        RestQuery<EndDeviceGroup> restQuery = queryService.wrap(query);
+        RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
 
-    @PUT
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
-    public Response createDeviceGroup(@PathParam("mRID") String mrid,@PathParam("dynamic") Boolean dynamic, DeviceGroupInfo deviceGroupInfo) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
+        //String groupMRID = deviceGroupInfo.mRID;
+        String name = deviceGroupInfo.name;
+        boolean dynamic = deviceGroupInfo.dynamic;
+        LinkedHashMap filter = (LinkedHashMap) deviceGroupInfo.filter;
+        String mRID = (String) filter.get("mRID");
+        Condition condition = Condition.TRUE;
+        if ((mRID != null) && (!"".equals(mRID))) {
+            condition = condition.and(where("mRID").isEqualTo(mRID));
+        }
+
+        String serialNumber = (String) filter.get("serialNumber");
+        if ((serialNumber != null) && (!"".equals(serialNumber))) {
+            condition = condition.and(where("serialNumber").isEqualTo(serialNumber));
+        }
+
+        List<Integer> deviceTypes = (List) filter.get("deviceTypes");
+        if ((deviceTypes != null) && (!deviceTypes.isEmpty())) {
+            for (int deviceTypeId : deviceTypes) {
+                DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
+                if (deviceType != null) {
+                    condition = condition.and(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType.getName()));
+                }
+            }
+        }
+
+        List<Integer> deviceConfigurations = (List) filter.get("deviceConfigurations");
+        if ((deviceConfigurations != null) && (!deviceConfigurations.isEmpty())) {
+            for (int deviceConfigurationId : deviceConfigurations) {
+                DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
+                if (deviceConfiguration != null) {
+                    condition = condition.and(where("deviceConfiguration.name").isEqualTo(deviceConfiguration.getName()));
+                }
+            }
+        }
+
+        EndDeviceGroup endDeviceGroup;
+        if (dynamic) {
+            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(condition);
+            endDeviceGroup.setName(name);
+            endDeviceGroup.setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider");
+        } else {
+            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(name);
+        }
+        endDeviceGroup.save();
+
+
         return Response.ok().build();
     }
 
