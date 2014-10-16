@@ -67,6 +67,7 @@ Ext.define('Uni.form.field.DateTime', {
                 xtype: 'datefield',
                 itemId: 'date-time-field-date',
                 submitValue: false,
+                allowBlank: false,
                 width: '100%',
                 listeners: {
                     change: {
@@ -197,6 +198,10 @@ Ext.define('Uni.form.field.DateTime', {
             if (minutes) {
                 date += minutes * 60000;
             }
+        }
+
+        if(me.getRawValue) {
+            return date;
         }
 
         date = new Date(date);

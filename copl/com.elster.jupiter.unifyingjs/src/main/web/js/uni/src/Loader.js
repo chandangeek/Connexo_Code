@@ -72,7 +72,7 @@ Ext.define('Uni.Loader', {
         Uni.I18n.init(components);
     },
 
-    // <debug>
+    //<debug>
     /**
      * Used during development to load in paths for packages.
      *
@@ -98,7 +98,7 @@ Ext.define('Uni.Loader', {
             Ext.Loader.setPath(pkg.name, pkg.path);
         }
     },
-    // </debug>
+    //</debug>
 
     onReady: function (callback) {
         var me = this;
@@ -109,11 +109,7 @@ Ext.define('Uni.Loader', {
         me.loadStores();
         me.loadVtypes();
 
-        Uni.Auth.load(function () {
-            Uni.I18n.load(function () {
-                callback();
-            });
-        });
+        callback();
     },
 
     loadFont: function () {
@@ -132,34 +128,10 @@ Ext.define('Uni.Loader', {
         Ext.require('Uni.store.Apps');
         Ext.require('Uni.store.AppItems');
         Ext.require('Uni.store.Notifications');
-        Ext.require('Uni.store.Translations');
-        Ext.require('Uni.store.Privileges');
     },
 
     loadVtypes: function () {
         Ext.create('Uni.view.form.field.Vtypes').init();
-    },
-
-    loadScript: function (src, callback) {
-        var me = this,
-            script = document.createElement('script'),
-            loaded;
-
-        script.setAttribute('src', src);
-        if (callback) {
-            me.scriptLoadingCount++;
-            script.onreadystatechange = script.onload = function () {
-                if (!loaded) {
-                    me.scriptLoadingCount--;
-                    if (me.scriptLoadingCount === 0) {
-                        callback();
-                    }
-                }
-                loaded = true;
-            };
-        }
-
-        document.getElementsByTagName('head')[0].appendChild(script);
     },
 
     loadStyleSheet: function (href) {

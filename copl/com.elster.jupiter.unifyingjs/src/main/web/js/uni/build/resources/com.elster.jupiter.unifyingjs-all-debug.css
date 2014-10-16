@@ -1,11 +1,11 @@
 /* including package com.elster.jupiter.unifyingjs */
 @font-face {
-    font-family: 'icomoon';
-    src: url(../../fonts/icomoon/fonts/icomoon.eot);
-    /* IE9 */
-    src: url(../../fonts/icomoon/fonts/icomoon.eot?#iefix) format("embedded-opentype"), url(../../fonts/icomoon/fonts/icomoon.woff) format("woff"), url(../../fonts/icomoon/fonts/icomoon.ttf) format("truetype"), url(../../fonts/icomoon/fonts/icomoon.svg#icomoon) format("svg");
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'icomoon';
+  src: url(../../fonts/icomoon/fonts/icomoon.eot);
+  /* IE9 */
+  src: url(../../fonts/icomoon/fonts/icomoon.eot?#iefix) format("embedded-opentype"), url(../../fonts/icomoon/fonts/icomoon.woff) format("woff"), url(../../fonts/icomoon/fonts/icomoon.ttf) format("truetype"), url(../../fonts/icomoon/fonts/icomoon.svg#icomoon) format("svg");
+  font-weight: normal;
+  font-style: normal;
 }
 
 /*
@@ -13,390 +13,357 @@ TODO Move this into a separate button UI.
 */
 /* line 61, ../../sass/etc/all.scss */
 .uni-btn-transparent {
-    background: none !important;
-    border: none;
-    border-radius: 0;
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
-    padding: 0 !important;
+  background: none !important;
+  border: none;
+  border-radius: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  padding: 0 !important;
 }
-
 /* line 23, ../../sass/etc/all.scss */
 .uni-btn-transparent .x-btn-button {
-    padding-right: 10px;
-    padding-left: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
 }
-
 /* line 29, ../../sass/etc/all.scss */
 .uni-btn-transparent .x-btn-button .x-btn-inner {
-    color: white;
+  color: white;
 }
-
 /* line 33, ../../sass/etc/all.scss */
 .uni-btn-transparent .x-btn-button .x-btn-glyph {
-    opacity: 1;
-    height: auto;
-    line-height: 36px;
-    margin-top: 3px;
-    margin-left: 10px;
+  opacity: 1;
+  height: auto;
+  line-height: 36px;
+  margin-top: 3px;
+  margin-left: 10px;
 }
 
 /* line 68, ../../sass/etc/all.scss */
 .x-tool-edit,
 .x-tool-edit:before {
-    color: white;
-    font-family: icomoon;
-    background-image: none;
-    content: "\e010";
+  color: white;
+  font-family: icomoon;
+  background-image: none;
+  content: "\e010";
 }
 
 /* line 77, ../../sass/etc/all.scss */
 .x-border-layout-ct {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 /* line 83, ../../sass/etc/all.scss */
 .nav-appswitcher-menu {
-    width: 390px;
-    height: 265px;
-    overflow-y: auto;
+  width: 390px;
+  height: 265px;
+  overflow-y: auto;
 }
-
 /* line 88, ../../sass/etc/all.scss */
 .nav-appswitcher-menu .app-item {
-    float: left;
-    padding: 8px;
-    margin: 8px;
-    margin-right: auto;
-    margin-left: auto;
+  float: left;
+  padding: 8px;
+  margin: 8px;
+  margin-right: auto;
+  margin-left: auto;
 }
-
 /* line 96, ../../sass/etc/all.scss */
 .nav-appswitcher-menu .app-item img {
-    width: 74px;
-    height: 74px;
+  width: 74px;
+  height: 74px;
 }
-
 /* line 101, ../../sass/etc/all.scss */
 .nav-appswitcher-menu .app-item h3 {
-    font-size: 12px;
-    font-weight: normal;
-    text-align: center;
-    padding-top: 5px;
-    margin: 0;
+  font-size: 12px;
+  font-weight: normal;
+  text-align: center;
+  padding-top: 5px;
+  margin: 0;
 }
 
 /* line 113, ../../sass/etc/all.scss */
 .uni-submenu {
-    background-color: #cbcbcb;
-    padding: 10px;
-    padding-bottom: 16px;
-    margin-top: 8px;
-    margin-right: 6px;
-    margin-left: 8px;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    -khtml-border-radius: 8px;
-    border-radius: 8px;
+  background-color: #cbcbcb;
+  padding: 10px;
+  padding-bottom: 16px;
+  margin-top: 8px;
+  margin-right: 6px;
+  margin-left: 8px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -khtml-border-radius: 8px;
+  border-radius: 8px;
 }
-
 /* line 131, ../../sass/etc/all.scss */
 .uni-submenu .x-btn {
-    background: none !important;
-    border: none;
-    border-radius: 0;
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
-    padding: 0 !important;
-    height: 28px;
+  background: none !important;
+  border: none;
+  border-radius: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  padding: 0 !important;
+  height: 28px;
 }
-
 /* line 23, ../../sass/etc/all.scss */
 .uni-submenu .x-btn .x-btn-button {
-    padding-right: 10px;
-    padding-left: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
 }
-
 /* line 29, ../../sass/etc/all.scss */
 .uni-submenu .x-btn .x-btn-button .x-btn-inner {
-    color: white;
+  color: white;
 }
-
 /* line 33, ../../sass/etc/all.scss */
 .uni-submenu .x-btn .x-btn-button .x-btn-glyph {
-    opacity: 1;
-    height: auto;
-    line-height: 36px;
-    margin-top: 3px;
-    margin-left: 10px;
+  opacity: 1;
+  height: auto;
+  line-height: 36px;
+  margin-top: 3px;
+  margin-left: 10px;
 }
-
 /* line 135, ../../sass/etc/all.scss */
 .uni-submenu .x-btn .x-btn-button .x-btn-inner {
-    font-weight: normal;
-    text-align: left;
-    color: #686868;
+  font-weight: normal;
+  text-align: left;
+  color: #686868;
 }
-
 /* line 147, ../../sass/etc/all.scss */
 .uni-submenu .x-pressed .x-btn-button .x-btn-inner {
-    color: #70bb51;
+  color: #70bb51;
 }
-
 /* line 155, ../../sass/etc/all.scss */
 .uni-submenu .x-over .x-btn-button .x-btn-inner {
-    color: #74af74;
+  color: #74af74;
 }
 
 /* line 165, ../../sass/etc/all.scss */
 .uni-portal-container .uni-portal-panel {
-    margin: 10px;
+  margin: 10px;
 }
-
 /* line 168, ../../sass/etc/all.scss */
 .uni-portal-container .uni-portal-panel .x-panel-body-default {
-    border-color: #157fcc !important;
+  border-color: #157fcc !important;
 }
 
 /* line 174, ../../sass/etc/all.scss */
 .x-panel-ghost {
-    z-index: 1;
+  z-index: 1;
 }
 
 /* line 178, ../../sass/etc/all.scss */
 .x-portal-body {
-    padding: 0 0 0 8px;
+  padding: 0 0 0 8px;
 }
 
 /* line 183, ../../sass/etc/all.scss */
 .x-portal .x-portal-column {
-    padding: 8px 8px 0 0;
+  padding: 8px 8px 0 0;
 }
-
 /* line 188, ../../sass/etc/all.scss */
 .x-portal .x-panel-dd-spacer {
-    border: 2px dashed #7fbee1;
-    background: #bfdef0;
-    border-radius: 4px;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    margin-bottom: 10px;
+  border: 2px dashed #7fbee1;
+  background: #bfdef0;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  margin-bottom: 10px;
 }
 
 /* line 198, ../../sass/etc/all.scss */
 .x-portlet {
-    margin-bottom: 10px;
-    padding: 1px;
+  margin-bottom: 10px;
+  padding: 1px;
 }
 
 /* line 203, ../../sass/etc/all.scss */
 .x-portlet .x-panel-body {
-    background: #fff;
+  background: #fff;
 }
 
 /* line 207, ../../sass/etc/all.scss */
 .portlet-content {
-    padding: 10px;
-    font-size: 11px;
+  padding: 10px;
+  font-size: 11px;
 }
 
 /* line 215, ../../sass/etc/all.scss */
 .browse-page .info-panel {
-    margin-top: 5px;
-    margin-right: 10px;
-    margin-bottom: 5px;
-    margin-left: 10px;
+  margin-top: 5px;
+  margin-right: 10px;
+  margin-bottom: 5px;
+  margin-left: 10px;
 }
-
 /* line 223, ../../sass/etc/all.scss */
 .browse-page .info-panel .info-props {
-    padding: 10px;
+  padding: 10px;
 }
-
 /* line 227, ../../sass/etc/all.scss */
 .browse-page .info-panel .info-prop-row {
-    padding: 1px;
+  padding: 1px;
 }
-
 /* line 233, ../../sass/etc/all.scss */
 .browse-page .info-panel .info-prop-key {
-    text-align: right;
-    margin-right: 4px;
-    color: #575854;
+  text-align: right;
+  margin-right: 4px;
+  color: #575854;
 }
-
 /* line 239, ../../sass/etc/all.scss */
 .browse-page .info-panel .info-prop-value {
-    margin-left: 4px;
+  margin-left: 4px;
 }
-
 /* line 243, ../../sass/etc/all.scss */
 .browse-page .info-panel .info-map {
-    border: 1px solid #3fd8ff;
-    margin: 10px;
+  border: 1px solid #3fd8ff;
+  margin: 10px;
 }
-
 /* line 248, ../../sass/etc/all.scss */
 .browse-page .info-panel .info-panel-col-left {
-    margin-right: 5px;
+  margin-right: 5px;
 }
-
 /* line 252, ../../sass/etc/all.scss */
 .browse-page .info-panel .info-panel-col-right {
-    margin-left: 5px;
+  margin-left: 5px;
 }
 
 /* line 260, ../../sass/etc/all.scss */
 .edit-window {
-    padding: 10px;
+  padding: 10px;
 }
-
 /* line 263, ../../sass/etc/all.scss */
 .edit-window td {
-    width: auto !important;
+  width: auto !important;
 }
-
 /* line 267, ../../sass/etc/all.scss */
 .edit-window td:first-child {
-    width: 50% !important;
+  width: 50% !important;
 }
-
 /* line 271, ../../sass/etc/all.scss */
 .edit-window td.x-trigger-cell {
-    width: 22px !important;
-    position: absolute;
-    right: 1px;
+  width: 22px !important;
+  position: absolute;
+  right: 1px;
 }
-
 /* line 277, ../../sass/etc/all.scss */
 .edit-window td.x-form-trigger-input-cell {
-    width: 100% !important;
+  width: 100% !important;
 }
-
 /* line 281, ../../sass/etc/all.scss */
 .edit-window .x-form-invalid td.x-form-item-body {
-    width: 44% !important;
+  width: 44% !important;
 }
 
 /* line 289, ../../sass/etc/all.scss */
 .filter-form-wrapper .filter-form {
-    margin-top: 10px;
+  margin-top: 10px;
 }
-
 /* line 292, ../../sass/etc/all.scss */
 .filter-form-wrapper .filter-form .x-panel-header-default {
-    background-color: transparent;
+  background-color: transparent;
 }
-
 /* line 296, ../../sass/etc/all.scss */
 .filter-form-wrapper .filter-form .x-panel-header-text-container-default {
-    color: #007dc3;
-    font-size: 16px;
+  color: #007dc3;
+  font-size: 16px;
 }
-
 /* line 301, ../../sass/etc/all.scss */
 .filter-form-wrapper .filter-form .x-panel-body {
-    padding: 5px;
+  padding: 5px;
 }
-
 /* line 305, ../../sass/etc/all.scss */
 .filter-form-wrapper .filter-form .x-toolbar {
-    padding: 6px;
+  padding: 6px;
 }
-
 /* line 309, ../../sass/etc/all.scss */
 .filter-form-wrapper .filter-form .x-toolbar-footer {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 /* line 318, ../../sass/etc/all.scss */
 .x-panel .x-panel-header-default, .x-panel .x-panel-body-default, .x-panel .x-panel-body-default-framed {
-    border-color: transparent;
+  border-color: transparent;
 }
-
 /* line 322, ../../sass/etc/all.scss */
 .x-panel .x-grid-body {
-    border-color: silver;
+  border-color: silver;
 }
 
 /* line 328, ../../sass/etc/all.scss */
 .x-window .x-window-body-default {
-    border-color: transparent;
+  border-color: transparent;
 }
 
 /* line 335, ../../sass/etc/all.scss */
 .ux-notification-light .x-window-body {
-    text-align: center;
-    padding: 15px 5px 20px 5px;
-    background-color: transparent;
-    border: 0px;
+  text-align: center;
+  padding: 15px 5px 20px 5px;
+  background-color: transparent;
+  border: 0px;
 }
 
 /* line 342, ../../sass/etc/all.scss */
 .ux-notification-light .x-window-header {
-    background-color: transparent;
-    border: 0px;
+  background-color: transparent;
+  border: 0px;
 }
 
 /* line 347, ../../sass/etc/all.scss */
 .ux-notification-light {
-    background-image: url("images/shared/fader.png");
-    border: 1px solid grey;
+  background-image: url("images/shared/fader.png");
+  border: 1px solid grey;
 }
 
 /* line 352, ../../sass/etc/all.scss */
 .uni-info-icon {
-    float: right;
+  float: right;
 }
 
 /* line 356, ../../sass/etc/all.scss */
 .icon-info-small {
-    float: right;
-    background-image: url("images/shared/icon-info-small.png");
+  float: right;
+  background-image: url("images/shared/icon-info-small.png");
 }
 
 /* line 362, ../../sass/etc/all.scss */
 .x-grid-row-selected .icon-info-small, .x-grid-row-over .icon-info-small {
-    background-image: url("images/shared/icon-info-small-white.png");
+  background-image: url("images/shared/icon-info-small-white.png");
 }
 
 /* line 369, ../../sass/etc/all.scss */
 .validation-column-align {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 /* line 373, ../../sass/etc/all.scss */
 .icon-validation {
-    background-size: 100% 100%;
-    display: inline-block;
-    height: 13px;
-    width: 13px;
-    vertical-align: middle;
-    background-position: left;
+  background-size: 100% 100%;
+  display: inline-block;
+  height: 13px;
+  width: 13px;
+  vertical-align: middle;
+  background-position: left;
 }
 
 /* line 382, ../../sass/etc/all.scss */
 .icon-validation-black {
-    background-image: url("images/shared/Not-validated.png");
+  background-image: url("images/shared/Not-validated.png");
 }
 
 /* line 386, ../../sass/etc/all.scss */
 .icon-validation-red {
-    background-image: url("images/shared/Suspect.png");
+  background-image: url("images/shared/Suspect.png");
 }
 
 /* line 390, ../../sass/etc/all.scss */
 .icon-filter {
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAQAAADY4iz3AAAAgUlEQVR4XqXL0QmDMBgE4KML+FQQtEHBQEDAERwloziCI2UER3CEfwHlmh6UUGqfeh/wXziC0UZeMoQYKFtIsgVKBOBXT89hgTIsntkKSJ96ZnNus1rCO13ldkdnj+gs372rUNJOjTUUayd8po41JeI7d76U963UUy6nQ37/+nt6AuFSTUUWSLwtAAAAAElFTkSuQmCC);
-    display: inline-block;
-    height: 13px;
-    width: 13px;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAQAAADY4iz3AAAAgUlEQVR4XqXL0QmDMBgE4KML+FQQtEHBQEDAERwloziCI2UER3CEfwHlmh6UUGqfeh/wXziC0UZeMoQYKFtIsgVKBOBXT89hgTIsntkKSJ96ZnNus1rCO13ldkdnj+gs372rUNJOjTUUayd8po41JeI7d76U963UUy6nQ37/+nt6AuFSTUUWSLwtAAAAAElFTkSuQmCC);
+  display: inline-block;
+  height: 13px;
+  width: 13px;
 }
 
 /* line 397, ../../sass/etc/all.scss */
 .icon-edit {
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAQAAADY4iz3AAABCElEQVR4AUXAsUpCYRgG4Pec49oabrVa6f+f7/2+IxlCFoYNgoJLDeIiOEZEgdfQbZSEYUSCEBRIERQ0uNYQ3UPQWiLlgzmmAM1pP3mVUVzHnIQAE313NUAT3q3VMKMBwKJ86q0fLrUAydoIUxICssmxlXns23a91QTcCwCJACnxwRJrZAoAD22gDfZhIUDHnvhkf2UbSCq+LQO+xQJAvX7zPj7wDrC623EF/VAFwEXtuyO/xzE7LLuqz+gjNwCJkK3wBr8kzWfXccv6FJcASQGQE15IzhYssBav9Jy7gEWYYo/rbNoqoF39Yh6wADMykUCVZ/lLDlkELMQfOZUJe9p1VUkDEuHfD98yRLLTNcEZAAAAAElFTkSuQmCC);
-    display: inline-block;
-    height: 13px;
-    width: 13px;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAQAAADY4iz3AAABCElEQVR4AUXAsUpCYRgG4Pec49oabrVa6f+f7/2+IxlCFoYNgoJLDeIiOEZEgdfQbZSEYUSCEBRIERQ0uNYQ3UPQWiLlgzmmAM1pP3mVUVzHnIQAE313NUAT3q3VMKMBwKJ86q0fLrUAydoIUxICssmxlXns23a91QTcCwCJACnxwRJrZAoAD22gDfZhIUDHnvhkf2UbSCq+LQO+xQJAvX7zPj7wDrC623EF/VAFwEXtuyO/xzE7LLuqz+gjNwCJkK3wBr8kzWfXccv6FJcASQGQE15IzhYssBav9Jy7gEWYYo/rbNoqoF39Yh6wADMykUCVZ/lLDlkELMQfOZUJe9p1VUkDEuHfD98yRLLTNcEZAAAAAElFTkSuQmCC);
+  display: inline-block;
+  height: 13px;
+  width: 13px;
 }
