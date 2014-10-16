@@ -1,9 +1,8 @@
-Ext.define('Mdc.store.RelativePeriodCategories',{
+Ext.define('Tme.store.RelativePeriodCategories', {
     extend: 'Ext.data.Store',
-    autoLoad: true,
-    fields: ['id','name'],
+    fields: ['id', 'name'],
     storeId: 'relativePeriodCategories',
-
+    model: 'Tme.model.RelativePeriod',
     proxy: {
         type: 'rest',
         url: '../../api/tmr/relativeperiods/categories',

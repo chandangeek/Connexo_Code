@@ -1,4 +1,4 @@
-Ext.define('Tme.store.RelativePeriods',{
+Ext.define('Tme.store.RelativePeriods', {
     extend: 'Ext.data.Store',
     requires: [
         'Tme.model.RelativePeriod'

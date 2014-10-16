@@ -7,20 +7,18 @@ Ext.define('Tme.model.RelativePeriod', {
         'from',
         'to',
         'categories'
-
     ],
     idProperty: 'id',
     associations: [
         {
-            name: 'from'
-            //TODO define
-        },
-        {
-            name: 'to'
-            //TODO define
-        },
-        {name: 'categories', type: 'hasMany', model: 'Mdc.model.Categories', associationKey: 'categories',
-            getterName: 'getCategories', setterName: 'setCategories', foreignKey: 'relativePeriodCategories'}
+            name: 'categories',
+            type: 'hasMany',
+            model: 'Tme.model.Categories',
+            associationKey: 'categories',
+            getterName: 'getCategories',
+            setterName: 'setCategories',
+            foreignKey: 'relativePeriodCategories'
+        }
     ],
     proxy: {
         type: 'rest',

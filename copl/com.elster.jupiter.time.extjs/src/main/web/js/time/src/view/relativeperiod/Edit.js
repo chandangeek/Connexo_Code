@@ -1,5 +1,5 @@
 Ext.define('Tme.view.relativeperiod.Edit', {
-    extend: 'Ext.view.container.ContentContainer',
+    extend: 'Ext.panel.Panel',
     xtype: 'tme-relativeperiod-edit',
 
     requires: [

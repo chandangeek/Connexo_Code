@@ -5,7 +5,6 @@ Ext.define('Tme.controller.RelativePeriods', {
     ],
 
     views: [
-        'Tme.view.relativeperiod.RelativePeriodEdit'
     ],
 
     stores: [
