@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
         }
     ],
 
-    setParams: function (mRID ,model, isTable) {
+    setParams: function (mRID ,model) {
         var me = this,
             menu = this.down('#deviceLoadProfilesSubMenu'),
             formatHref;
@@ -46,9 +46,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
         menu.setTitle(model.get('name'));
 
         Ext.Array.each(menu.query('menuitem'), function (item) {
-            if (item.itemId === 'loadProfileOfDeviceDataLink' && isTable) {
-                item.href = '/tableData';
-            }
             formatHref = me.router.getRoute(me.commonRoute + item.href).buildUrl({mRID: mRID, loadProfileId: model.getId()});
 
             item.href = formatHref;
