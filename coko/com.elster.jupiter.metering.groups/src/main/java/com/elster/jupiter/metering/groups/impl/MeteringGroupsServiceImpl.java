@@ -151,7 +151,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     @Override
     public Query<EndDeviceGroup> getQueryEndDeviceGroupQuery() {
         Query<EndDeviceGroup> endDeviceGroupQuery = queryService.wrap(dataModel.query(EndDeviceGroup.class));
-        endDeviceGroupQuery.setRestriction(Where.where("class").isEqualTo(QueryEndDeviceGroup.TYPE_IDENTIFIER));
+        endDeviceGroupQuery.setRestriction(Where.where("class").isEqualTo(QueryEndDeviceGroup.TYPE_IDENTIFIER).and(Where.where("label").isEqualTo("MDC")));
         return endDeviceGroupQuery;
     }
 
