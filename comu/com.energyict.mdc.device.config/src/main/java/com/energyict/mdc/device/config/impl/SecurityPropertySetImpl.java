@@ -30,7 +30,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;

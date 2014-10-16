@@ -48,7 +48,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -57,17 +56,24 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
+
+import java.time.Clock;
+import java.time.Instant;
+
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.google.common.base.Optional;
+
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -123,7 +129,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private DeviceCommunicationConfiguration communicationConfiguration;
     private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
     private int communicationFunctionMask;
-    private Date modificationDate;
+    private Instant modificationDate;
     private Clock clock;
     private final Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
     private final Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider;
@@ -724,20 +730,20 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public void activate() {
         this.active = true;
-        this.modificationDate = this.clock.now();
+        this.modificationDate = this.clock.instant();
         super.save();
     }
 
     public void deactivate() {
         this.getEventService().postEvent(EventType.DEVICECONFIGURATION_VALIDATEDEACTIVATE.topic(), this);
         this.active = false;
-        this.modificationDate = this.clock.now();
+        this.modificationDate = this.clock.instant();
         super.save();
     }
 
     @Override
     public void save() {
-        this.modificationDate = this.clock.now();
+        this.modificationDate = this.clock.instant();
         super.save();
         if (this.communicationConfiguration != null) {
             getCommunicationConfiguration().save();

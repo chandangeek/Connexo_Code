@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -38,7 +38,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -104,7 +103,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     private Optional<User> getCurrentUser() {
         Principal principal = threadPrincipalService.getPrincipal();
         if (!(principal instanceof User)) {
-            return Optional.absent();
+            return Optional.empty();
         }
         return Optional.of((User) principal);
     }
@@ -411,7 +410,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
                 return Optional.of(comTaskEnablement);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override

@@ -56,7 +56,7 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -239,7 +239,7 @@ public class InMemoryPersistence {
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.applicationContext.getTranslator()).thenReturn(translator);
         this.licenseService = mock(LicenseService.class);
-        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
+        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
     }
 
     public void cleanUpDataBase() throws SQLException {

@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.device.config.security.Privileges;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Defines the {@link com.energyict.mdc.common.UserAction}s that relate to device message executions
@@ -34,6 +34,6 @@ public enum DeviceMessageUserAction {
                 return Optional.of(userAction);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 }

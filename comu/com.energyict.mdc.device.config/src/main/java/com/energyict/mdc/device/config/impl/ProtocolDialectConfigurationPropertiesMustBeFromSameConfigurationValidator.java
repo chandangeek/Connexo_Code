@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 

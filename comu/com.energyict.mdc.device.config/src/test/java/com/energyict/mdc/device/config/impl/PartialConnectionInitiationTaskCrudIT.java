@@ -67,7 +67,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -209,7 +209,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(applicationContext.getTranslator()).thenReturn(translator);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         initializeDatabase(false, false);
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
         engineModelService = injector.getInstance(EngineModelService.class);
@@ -264,7 +264,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
@@ -313,7 +313,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
@@ -358,7 +358,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(connectionInitiationTask.getId());
-        assertThat(found).isAbsent();
+        assertThat(found.isPresent()).isFalse();
 
     }
 

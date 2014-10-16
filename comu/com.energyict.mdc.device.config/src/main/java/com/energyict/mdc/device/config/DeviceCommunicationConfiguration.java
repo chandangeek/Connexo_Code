@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.List;
 import java.util.Set;

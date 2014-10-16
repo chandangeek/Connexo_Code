@@ -6,7 +6,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.inject.Inject;
 

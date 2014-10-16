@@ -66,7 +66,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -214,7 +214,7 @@ public class PartialInboundConnectiontaskCrudIT {
         when(applicationContext.getTranslator()).thenReturn(translator);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
-        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         initializeDatabase(false, false);
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
         engineModelService = injector.getInstance(EngineModelService.class);
@@ -270,7 +270,7 @@ public class PartialInboundConnectiontaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
@@ -311,8 +311,8 @@ public class PartialInboundConnectiontaskCrudIT {
 
         Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.getPartialConnectionTask(notTheDefault.getId());
         Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.getPartialConnectionTask(theDefault.getId());
-        assertThat(foundTheNotDefault).isPresent();
-        assertThat(foundTheDefault).isPresent();
+        assertThat(foundTheNotDefault.isPresent()).isTrue();
+        assertThat(foundTheDefault.isPresent()).isTrue();
         assertThat(foundTheNotDefault.get().isDefault()).isFalse();
         assertThat(foundTheDefault.get().isDefault()).isTrue();
     }
@@ -342,8 +342,8 @@ public class PartialInboundConnectiontaskCrudIT {
 
         Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.getPartialConnectionTask(notTheDefault.getId());
         Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.getPartialConnectionTask(theDefault.getId());
-        assertThat(foundTheNotDefault).isPresent();
-        assertThat(foundTheDefault).isPresent();
+        assertThat(foundTheNotDefault.isPresent()).isTrue();
+        assertThat(foundTheDefault.isPresent()).isTrue();
         assertThat(foundTheNotDefault.get().isDefault()).isFalse();
         assertThat(foundTheDefault.get().isDefault()).isTrue();
     }
@@ -380,7 +380,7 @@ public class PartialInboundConnectiontaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
@@ -519,7 +519,7 @@ public class PartialInboundConnectiontaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(inboundConnectionTask.getId());
-        assertThat(found).isAbsent();
+        assertThat(found.isPresent()).isFalse();
 
     }
 

@@ -2,7 +2,7 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Enables the execution of a {@link com.energyict.mdc.tasks.ComTask} against Devices
