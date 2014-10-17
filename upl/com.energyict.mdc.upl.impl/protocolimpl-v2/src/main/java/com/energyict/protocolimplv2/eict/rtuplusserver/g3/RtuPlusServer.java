@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
@@ -11,7 +12,13 @@ import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -29,6 +36,7 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.MdcManager;
@@ -44,7 +52,13 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Copyrights EnergyICT
@@ -188,7 +202,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology result = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
+        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all registered meters
         try {
@@ -197,11 +211,21 @@ public class RtuPlusServer implements DeviceProtocol {
             throw IOExceptionHandler.handle(e, getDlmsSession());
         }
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {     //Using callHomeId as a general property
-            result.addSlaveDevice(new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName()));
+            DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName());
+            deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
+            deviceTopology.addAdditionalCollectedDeviceInfo(
+                    new DeviceProtocolProperty(
+                            slaveDeviceIdentifier,
+                            nodeAddressPropertySpec(),
+                            String.valueOf(sapAssignmentItem.getSap())
+                    )
+            );
         }
-        return result;
+        return deviceTopology;
+    }
 
-        //TODO update nodeaddress on meters ???
+    private PropertySpec nodeAddressPropertySpec() {
+        return PropertySpecFactory.stringPropertySpec(MeterProtocol.NODEID, "");
     }
 
     @Override

@@ -4,8 +4,8 @@ import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.meterdata.CollectedAddressProperties;
 import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.meterdata.DeviceIpAddress;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
@@ -14,8 +14,8 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdw.core.Device;
 import org.fest.assertions.core.Condition;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
@@ -222,11 +222,11 @@ public class PacketBuilderTest {
         ArrayList<CollectedData> collectedData = new ArrayList<CollectedData>();
         packetBuilder.addCollectedData(collectedData);
 
-        // Assert that we have exactly one CollectedAddressProperties
+        // Assert that we have exactly one DeviceIpAddress
         assertThat(collectedData).areExactly(1, new Condition<CollectedData>() {
             @Override
             public boolean matches (CollectedData value) {
-                return value instanceof CollectedAddressProperties;
+                return value instanceof DeviceIpAddress;
             }
         });
     }
