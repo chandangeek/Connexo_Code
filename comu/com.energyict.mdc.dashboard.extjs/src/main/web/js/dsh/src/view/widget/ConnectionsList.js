@@ -76,7 +76,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                     return success + failed + notCompleted
                 },
                 header: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
-                flex: 1
+                flex: 2
             },
             {
                 itemId: 'startDateTime',
