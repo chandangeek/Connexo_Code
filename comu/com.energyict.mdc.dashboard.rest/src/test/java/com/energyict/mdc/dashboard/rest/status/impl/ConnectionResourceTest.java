@@ -271,7 +271,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comSession.getComPort()).thenReturn(comPort);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
-        when(connectionTask.getPlannedNextExecutionTimestamp()).thenReturn(plannedNext);
+        when(connectionTask.getNextExecutionTimestamp()).thenReturn(plannedNext);
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);

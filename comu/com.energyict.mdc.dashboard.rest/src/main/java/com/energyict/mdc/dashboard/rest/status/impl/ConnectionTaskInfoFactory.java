@@ -85,7 +85,7 @@ public class ConnectionTaskInfoFactory {
             } else {
                 info.window = thesaurus.getString(MessageSeeds.NO_RESTRICTIONS.getKey(), MessageSeeds.NO_RESTRICTIONS.getDefaultFormat());
             }
-            info.nextExecution=scheduledConnectionTask.getPlannedNextExecutionTimestamp();
+            info.nextExecution=scheduledConnectionTask.getNextExecutionTimestamp();
         }
         return info;
     }
