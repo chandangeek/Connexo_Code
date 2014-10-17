@@ -15,7 +15,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.base.Optional;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
@@ -23,10 +22,10 @@ import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-
 
 public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTest {
 

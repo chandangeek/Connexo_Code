@@ -12,6 +12,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -19,18 +21,19 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +47,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
 
     public static final long DEVICE_ID = 56854L;
-    public static final java.util.Date NOW = Date.from(ZonedDateTime.of(2014, 6, 14, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant());
+    public static final Instant NOW = ZonedDateTime.of(2014, 6, 14, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
+
     @Mock
     private MdcPropertyUtils mdcPropertyUtils;
     @Mock
@@ -87,8 +91,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(mdcAmrSystem));
         when(device.getId()).thenReturn(DEVICE_ID);
         when(mdcAmrSystem.findMeter("" + DEVICE_ID)).thenReturn(Optional.of(meter));
-        when(clock.now()).thenReturn(NOW);
-        when(clock.getTimeZone()).thenReturn(TimeZone.getDefault());
+        when(clock.instant()).thenReturn(NOW);
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         when(device.forValidation()).thenReturn(deviceValidation);
         when(ch1.getDevice()).thenReturn(device);
         when(ch2.getDevice()).thenReturn(device);
@@ -127,12 +131,12 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(ch2.getReadingType()).thenReturn(channelReadingType2);
 
         doReturn(Arrays.asList(meterActivation1, meterActivation2, meterActivation3)).when(meter).getMeterActivations();
-        ZonedDateTime fromReg = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-        ZonedDateTime from = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusYears(2);
-        ZonedDateTime to = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusDays(10);
-        when(meterActivation1.getInterval()).thenReturn(Interval.endAt(Date.from(from.toInstant())));
+        ZonedDateTime fromReg = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+        ZonedDateTime from = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(2);
+        ZonedDateTime to = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusDays(10);
+        when(meterActivation1.getInterval()).thenReturn(Interval.endAt(from.toInstant()));
         when(meterActivation2.getInterval()).thenReturn(new Interval(Date.from(from.toInstant()), Date.from(to.toInstant())));
-        when(meterActivation3.getInterval()).thenReturn(Interval.startAt(Date.from(to.toInstant())));
+        when(meterActivation3.getInterval()).thenReturn(Interval.startAt(to.toInstant()));
         when(meterActivation1.getChannels()).thenReturn(Arrays.asList(channel1, channel2, channel3));
         when(channel1.getMeterActivation()).thenReturn(meterActivation1);
         when(channel2.getMeterActivation()).thenReturn(meterActivation1);
@@ -167,31 +171,29 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         doReturn(Arrays.asList(channelReadingType1)).when(channel8).getReadingTypes();
         doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
         when(validationService.getEvaluator()).thenReturn(evaluator);
-        when(validationService.getEvaluator(eq(meter), any(Interval.class))).thenReturn(evaluator);
+        when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(evaluator);
         when(suspect.getTypeCode()).thenReturn("3.5.258");
         when(notSuspect.getTypeCode()).thenReturn("0.0.0");
         when(suspect.getType()).thenReturn(new ReadingQualityType("3.5.258"));
         when(notSuspect.getType()).thenReturn(new ReadingQualityType("0.0.0"));
 
         Interval regInterval1 = new Interval(Date.from(fromReg.toInstant()), Date.from(to.toInstant()));
-        Date toNow = Date.from(ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
-        Interval wholeRegInterval = new Interval(Date.from(fromReg.toInstant()), toNow);
+        Instant toNow = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
+        Range<Instant> wholeRegInterval = Range.openClosed(fromReg.toInstant(), toNow);
         when(deviceValidation.getValidationStatus(eq(register1), anyList(), eq(wholeRegInterval))).thenReturn(Arrays.asList(validationStatus1, validationStatus2, validationStatus3));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus1).getReadingQualities();
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus2).getReadingQualities();
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus3).getReadingQualities();
 
-        ZonedDateTime fromCh = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-        Interval chInterval1 = new Interval(Date.from(fromCh.toInstant()), Date.from(to.toInstant()));
-        Interval chInterval2 = new Interval(Date.from(to.toInstant()), toNow);
-        Interval wholeInterval = new Interval(Date.from(fromCh.toInstant()), toNow);
+        ZonedDateTime fromCh = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+        Range wholeInterval = Range.openClosed(fromCh.toInstant(), toNow);
         when(deviceValidation.getValidationStatus(eq(ch1), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus4));
         when(deviceValidation.getValidationStatus(eq(ch2), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus4).getReadingQualities();
         doReturn(Arrays.asList(suspect, notSuspect)).when(validationStatus5).getReadingQualities();
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus6).getReadingQualities();
 
-        when(deviceValidation.getLastChecked()).thenReturn(Optional.<Date>absent());
+        when(deviceValidation.getLastChecked()).thenReturn(Optional.<Instant>empty());
     }
 
 }
