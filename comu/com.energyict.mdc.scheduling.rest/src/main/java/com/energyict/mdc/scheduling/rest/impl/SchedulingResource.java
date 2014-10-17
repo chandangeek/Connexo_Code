@@ -1,8 +1,10 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.UtcInstant;
+
+import java.time.Clock;
+import java.time.Instant;
+
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.BooleanAdapter;
 import com.energyict.mdc.common.rest.IdListBuilder;
@@ -21,7 +23,7 @@ import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.security.Privileges;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -37,6 +39,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -46,6 +49,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 @Path("/schedules")
 public class SchedulingResource {
@@ -72,7 +76,7 @@ public class SchedulingResource {
         String mrid = queryFilter.getFilterProperties().get("mrid") != null ? queryFilter.<String>getProperty("mrid") : null;
         boolean available = queryFilter.getFilterProperties().get("available") != null ? queryFilter.<Boolean>getProperty("available") : false;
         List<ComSchedule> comSchedules = new ArrayList<>();
-        Calendar calendar = Calendar.getInstance(clock.getTimeZone());
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(clock.getZone()));
         if (mrid != null && available) {
             Device device = deviceService.findByUniqueMrid(mrid);
             List<ComSchedule> possibleComSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
@@ -213,7 +217,7 @@ public class SchedulingResource {
     @RolesAllowed(Privileges.ADMINISTRATE_SCHEDULE)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
-                comScheduleInfo.startDate == null ? null : new UtcInstant(comScheduleInfo.startDate)).mrid(comScheduleInfo.mRID).build();
+                comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate.toInstant()).mrid(comScheduleInfo.mRID).build();
         if (comScheduleInfo.comTaskUsages != null) {
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         }
@@ -243,7 +247,7 @@ public class SchedulingResource {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression == null ? null : comScheduleInfo.temporalExpression.asTemporalExpression());
-        comSchedule.setStartDate(comScheduleInfo.startDate == null ? null : new UtcInstant(comScheduleInfo.startDate));
+        comSchedule.setStartDate(comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate.toInstant());
         comSchedule.setmRID(comScheduleInfo.mRID);
         if (comScheduleInfo.comTaskUsages != null) {
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);

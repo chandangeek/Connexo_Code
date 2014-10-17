@@ -10,12 +10,15 @@ import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import org.joda.time.DateTimeConstants;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -35,7 +38,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         List<ComSchedule> comSchedules = new ArrayList<>();
         ListPager<ComSchedule> comSchedulePage = ListPager.of(comSchedules);
         when(schedulingService.findAllSchedules(any(Calendar.class))).thenReturn(comSchedulePage);
-        when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
@@ -55,7 +58,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
         ListPager<ComSchedule> comSchedulePage = ListPager.of(Arrays.asList(mockedSchedule));
         when(schedulingService.findAllSchedules(any(Calendar.class))).thenReturn(comSchedulePage);
-        when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(1);
@@ -88,7 +91,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
         when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
-        when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
         comScheduleInfo.plannedDate=new Date();
@@ -137,7 +140,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComTask comTask3 = mockComTask(COM_TASK_3,"Com task 3");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
         when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
-        when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
         comScheduleInfo.plannedDate=new Date();
@@ -176,7 +179,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComTask comTask4 = mockComTask(COM_TASK_4,"Com task 4");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2, comTask3));
         when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
-        when(clock.getTimeZone()).thenReturn(Calendar.getInstance().getTimeZone());
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
         comScheduleInfo.plannedDate=new Date();

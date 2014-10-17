@@ -26,7 +26,7 @@ public class ComScheduleInfo {
         comScheduleInfo.name = comSchedule.getName();
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
         comScheduleInfo.plannedDate = comSchedule.getPlannedDate();
-        comScheduleInfo.startDate = comSchedule.getStartDate()==null?null:comSchedule.getStartDate().toDate();
+        comScheduleInfo.startDate = comSchedule.getStartDate()==null?null: Date.from(comSchedule.getStartDate());
         comScheduleInfo.isInUse = inUse;
         comScheduleInfo.comTaskUsages = ComTaskInfo.from(comSchedule.getComTasks());
         comScheduleInfo.mRID = comSchedule.getmRID();
