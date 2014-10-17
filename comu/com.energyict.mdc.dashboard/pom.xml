@@ -12,7 +12,6 @@
 
   <artifactId>mdc.dashboard</artifactId>
   <packaging>bundle</packaging>
-  <version>${comserver.version}</version>
   <name>[MDC] mdc.dashboard</name>
   <description>
     Provides services that support the meter data collection dashboard(s)
