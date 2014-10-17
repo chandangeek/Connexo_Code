@@ -2,7 +2,6 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ComWindow;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
@@ -62,6 +61,7 @@ public class ConnectionTaskInfoFactory {
             info.duration=new TimeDurationInfo(Duration.ofMillis(info.endDateTime.getTime()-info.startDateTime.getTime()).getSeconds());   // JP-6022
             info.comPort = new IdWithNameInfo(comSession.getComPort());
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());
+            info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
         }
 
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),connectionTask.getConnectionType().getDirection().name());
@@ -87,7 +87,7 @@ public class ConnectionTaskInfoFactory {
             } else {
                 info.window = thesaurus.getString(MessageSeeds.NO_RESTRICTIONS.getKey(), MessageSeeds.NO_RESTRICTIONS.getDefaultFormat());
             }
-            info.nextExecution=scheduledConnectionTask.getPlannedNextExecutionTimestamp();
+            info.nextExecution=scheduledConnectionTask.getNextExecutionTimestamp();
         }
         return info;
     }

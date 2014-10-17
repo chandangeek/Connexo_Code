@@ -19,7 +19,6 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -69,7 +68,7 @@ public class CommunicationResource {
         List<ComTaskExecution> communicationTasksByFilter = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart(), queryParameters.getLimit() + 1);
         List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(communicationTasksByFilter.size());
         for (ComTaskExecution comTaskExecution : communicationTasksByFilter) {
-            Optional<ComTaskExecutionSession> lastComTaskExecutionSession = communicationTaskService.findLastSessionFor(comTaskExecution);
+            java.util.Optional<ComTaskExecutionSession> lastComTaskExecutionSession = communicationTaskService.findLastSessionFor(comTaskExecution);
             comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastComTaskExecutionSession));
         }
 

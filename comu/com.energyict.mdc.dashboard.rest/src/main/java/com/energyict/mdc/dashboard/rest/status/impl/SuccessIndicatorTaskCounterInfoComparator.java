@@ -16,7 +16,7 @@ public class SuccessIndicatorTaskCounterInfoComparator implements java.util.Comp
 
     public SuccessIndicatorTaskCounterInfoComparator() {
         successIndicatorSortingMap.put(successIndicatorAdaptor.marshal(ComSession.SuccessIndicator.Success), 1);
-        successIndicatorSortingMap.put(MessageSeeds.SOME_TASKS_FAILED.getKey(), 2);
+        successIndicatorSortingMap.put(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), 2);
         successIndicatorSortingMap.put(successIndicatorAdaptor.marshal(ComSession.SuccessIndicator.Broken), 3);
         successIndicatorSortingMap.put(successIndicatorAdaptor.marshal(ComSession.SuccessIndicator.SetupError), 4);
     }

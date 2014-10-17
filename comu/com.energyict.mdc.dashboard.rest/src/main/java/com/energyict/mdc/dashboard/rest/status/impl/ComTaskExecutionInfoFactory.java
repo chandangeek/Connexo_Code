@@ -38,7 +38,7 @@ public class ComTaskExecutionInfoFactory {
         this.connectionTaskInfoFactory = connectionTaskInfoFactoryProvider;
     }
 
-    public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) throws Exception {
+    public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, java.util.Optional<ComTaskExecutionSession> comTaskExecutionSession) throws Exception {
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
         info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
         for (ComTask comTask : comTaskExecution.getComTasks()) {

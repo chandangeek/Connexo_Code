@@ -15,6 +15,10 @@ import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import javax.ws.rs.core.Application;
 import org.mockito.Mock;
 
@@ -70,6 +74,7 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setTransactionService(transactionService);
         dashboardApplication.setDataCollectionKpiService(dataCollectionKpiService);
         dashboardApplication.setMeteringGroupsService(meteringGroupsService);
+        dashboardApplication.setClock(Clock.fixed(LocalDateTime.of(2014, 10, 1, 16, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault()));
         return dashboardApplication;
     }
 }

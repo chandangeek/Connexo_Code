@@ -92,7 +92,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").request().get(ConnectionOverviewInfo.class);
 
         Comparator<TaskCounterInfo> counterInfoComparator = (o1, o2) -> Long.valueOf(o2.count).compareTo(o1.count);
-        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(3);
+        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(4);
         assertThat(connectionOverviewInfo.overviews.get(0).counters).isSortedAccordingTo(counterInfoComparator);
         assertThat(connectionOverviewInfo.overviews.get(1).counters).isSortedAccordingTo(counterInfoComparator);
 
@@ -128,7 +128,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(ConnectionOverviewInfo.class);
 
         Comparator<TaskCounterInfo> counterInfoComparator = (o1, o2) -> Long.valueOf(o2.count).compareTo(o1.count);
-        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(3);
+        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(4);
         assertThat(connectionOverviewInfo.overviews.get(0).counters).isSortedAccordingTo(counterInfoComparator);
         assertThat(connectionOverviewInfo.overviews.get(1).counters).isSortedAccordingTo(counterInfoComparator);
 
@@ -136,14 +136,51 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(0).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
+    }
+
+    @Test
+    public void testGetOverviewWithKpisWithDeviceGroup() throws UnsupportedEncodingException {
+        int deviceGroupId = 123;
+
+        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
+        QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
+        when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
+        when(dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup)).thenReturn(comSessionSuccessIndicatorOverview);
+        ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
+        when(dashboardService.getComPortPoolBreakdown(endDeviceGroup)).thenReturn(comPortPoolBreakdown);
+        ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
+        when(dashboardService.getConnectionTypeBreakdown(endDeviceGroup)).thenReturn(connectionStatusBreakdown);
+        DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
+        when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
+        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
+        when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
+        when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
+        when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
+        when(endDeviceGroup.getName()).thenReturn("South region");
+
+        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(ConnectionOverviewInfo.class);
+
         assertThat(connectionOverviewInfo.kpi).isNotNull();
-        assertThat(connectionOverviewInfo.kpi.get(0).name).isEqualTo("Success");
-        assertThat(connectionOverviewInfo.kpi.get(1).name).isEqualTo("Ongoing");
-        assertThat(connectionOverviewInfo.kpi.get(2).name).isEqualTo("Failed");
-        assertThat(connectionOverviewInfo.kpi.get(3).name).isEqualTo("Target");
+        assertThat(connectionOverviewInfo.kpi.time).hasSize(96); // all day
+        assertThat(connectionOverviewInfo.kpi.series.get(0).name).isEqualTo("Success");
+        assertThat(connectionOverviewInfo.kpi.series.get(1).name).isEqualTo("Ongoing");
+        assertThat(connectionOverviewInfo.kpi.series.get(2).name).isEqualTo("Failed");
+        assertThat(connectionOverviewInfo.kpi.series.get(3).name).isEqualTo("Target");
         assertThat(connectionOverviewInfo.deviceGroup.id).isEqualTo(123);
         assertThat(connectionOverviewInfo.deviceGroup.name).isEqualTo("South region");
         assertThat(connectionOverviewInfo.deviceGroup.alias).isEqualTo("deviceGroups");
+
+        // Assert the first KPI (alignment between different lists on index)
+        assertThat(connectionOverviewInfo.kpi.time.get(56)).isEqualTo(Date.from(LocalDateTime.of(2014,10,1,14, 0, 0).toInstant(ZoneOffset.UTC)).getTime());
+        assertThat(connectionOverviewInfo.kpi.series.get(0).name).isEqualTo("Success");
+        assertThat(connectionOverviewInfo.kpi.series.get(0).data.get(56)).isEqualTo(BigDecimal.valueOf(10L));
+        assertThat(connectionOverviewInfo.kpi.series.get(1).name).isEqualTo("Ongoing");
+        assertThat(connectionOverviewInfo.kpi.series.get(1).data.get(56)).isEqualTo(BigDecimal.valueOf(80L));
+        assertThat(connectionOverviewInfo.kpi.series.get(2).name).isEqualTo("Failed");
+        assertThat(connectionOverviewInfo.kpi.series.get(2).data.get(56)).isEqualTo(BigDecimal.valueOf(10L));
+        assertThat(connectionOverviewInfo.kpi.series.get(3).name).isEqualTo("Target");
+        assertThat(connectionOverviewInfo.kpi.series.get(3).data.get(56)).isEqualTo(BigDecimal.valueOf(100L));
     }
 
     private DataCollectionKpi mockDataCollectionKpi() {

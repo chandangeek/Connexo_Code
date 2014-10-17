@@ -25,58 +25,48 @@ public class SummaryInfoFactory {
 
     public SummaryInfo from(SummaryData summaryData) {
         SummaryInfo info = new SummaryInfo();
-        SubTaskCounterInfo successfulConnections;
+        TaskSummaryCounterInfo successfulConnections;
         TaskSummaryCounterInfo pendingConnections;
         TaskSummaryCounterInfo failedConnections;
-        TaskSummaryCounterInfo connectionsWithAllTasksSuccessful;
         TaskSummaryCounterInfo connectionsWithFailingTasks;
 
         info.total = summaryData.getTotal();
 
-        successfulConnections=new SubTaskCounterInfo();
+        successfulConnections=new TaskSummaryCounterInfo();
         successfulConnections.count= summaryData.getSuccess();
         successfulConnections.id= asJsonStringList(EnumSet.of(TaskStatus.Waiting));
         successfulConnections.displayName=thesaurus.getString(MessageSeeds.SUCCESS.getKey(),"Success");
+        successfulConnections.name=KpiId.Success.name();
         info.counters.add(successfulConnections);
 
-        Long allTasksSuccessful = summaryData.getAllTasksSuccessful();
-        if (allTasksSuccessful!=null) {
-            connectionsWithAllTasksSuccessful = new TaskSummaryCounterInfo();
-            connectionsWithAllTasksSuccessful.count = allTasksSuccessful;
-            connectionsWithAllTasksSuccessful.id = null; // not navigable
-            connectionsWithAllTasksSuccessful.displayName = thesaurus.getString(MessageSeeds.ALL_TASKS_SUCCESSFUL.getKey(), "All tasks successful");
-            successfulConnections.counters.add(connectionsWithAllTasksSuccessful);
-        }
-
-        Long atLeastOneTaskFailed = summaryData.getAtLeastOneTaskFailed();
-        if (allTasksSuccessful!=null) {
+        Long atLeastOneTaskFailed = summaryData.getSuccessWithFailedTasks();
+        if (atLeastOneTaskFailed!=null) {
             connectionsWithFailingTasks = new TaskSummaryCounterInfo();
             connectionsWithFailingTasks.count = atLeastOneTaskFailed;
             connectionsWithFailingTasks.id = null; // not navigable
-            connectionsWithFailingTasks.displayName = thesaurus.getString(MessageSeeds.SOME_TASKS_FAILED.getKey(), "At least one task failed");
-            successfulConnections.counters.add(connectionsWithFailingTasks);
+            connectionsWithFailingTasks.displayName = thesaurus.getString(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), "Success with failed tasks");
+            connectionsWithFailingTasks.name = KpiId.SuccessWithFailedTasks.name();
+            info.counters.add(connectionsWithFailingTasks);
         }
 
         pendingConnections=new TaskSummaryCounterInfo();
         pendingConnections.count= summaryData.getPending();
         pendingConnections.id= asJsonStringList(EnumSet.of(TaskStatus.Pending, TaskStatus.Busy, TaskStatus.Retrying));
         pendingConnections.displayName=thesaurus.getString(MessageSeeds.ONGOING.getKey(), "Ongoing");
+        pendingConnections.name=KpiId.Ongoing.name();
         info.counters.add(pendingConnections);
 
         failedConnections=new TaskSummaryCounterInfo();
         failedConnections.count= summaryData.getFailed();
         failedConnections.id=asJsonStringList(EnumSet.of(TaskStatus.Failed,TaskStatus.NeverCompleted));
         failedConnections.displayName=thesaurus.getString(MessageSeeds.FAILED.getKey(), "Failed");
+        failedConnections.name=KpiId.Failed.name();
         info.counters.add(failedConnections);
         return info;
     }
 
     private List<String> asJsonStringList(Set<TaskStatus> taskStatuses) {
         return taskStatuses.stream().map(TASK_STATUS_ADAPTER::marshal).collect(Collectors.<String>toList());
-    }
-
-    class SubTaskCounterInfo extends TaskSummaryCounterInfo {
-        public List<TaskSummaryCounterInfo> counters = new ArrayList<>();
     }
 
 }

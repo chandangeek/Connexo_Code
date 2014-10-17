@@ -6,7 +6,8 @@ import java.util.List;
  * Created by bvn on 8/19/14.
  */
 class TaskSummaryCounterInfo {
-    public List<String> id;
-    public String displayName;
+    public List<String> id; // Id to be used in a filter
+    public String displayName; // Localized name to display in the UI
+    public String name; // Untranslated name of this counter
     public long count;
 }

@@ -54,7 +54,6 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         String response = target("/communicationoverview").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].counters")).isEmpty();
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
@@ -74,7 +73,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
 
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
-        when(endDeviceGroup.getName()).thenReturn("северный область");
+        when(endDeviceGroup.getName()).thenReturn("Northern region");
         when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
 
         TaskStatusOverview statusOverview = createCommunicationStatusOverview();
@@ -94,7 +93,6 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         String response = target("/communicationoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].counters")).isEmpty();
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
@@ -103,23 +101,24 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].id")).containsExactly("Waiting");
         assertThat(jsonModel.<List>get("$.communicationSummary.counters[1].id")).contains("Busy", "Retrying", "Pending").hasSize(3);
         assertThat(jsonModel.<List>get("$.communicationSummary.counters[2].id")).contains("NeverCompleted", "Failed").hasSize(2);
+        assertThat(jsonModel.<List>get("$.communicationSummary.counters[*].name")).containsExactly("Success", "Ongoing", "Failed");
 
         assertThat(jsonModel.<List<Integer>>get("$.overviews[*].counters[*].count")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
         assertThat(jsonModel.<List<Integer>>get("$.breakdowns[*].counters[*].failingCount")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
         
         assertThat(jsonModel.<Integer>get("$.deviceGroup.id")).isEqualTo(321);
-        assertThat(jsonModel.<String>get("$.deviceGroup.name")).isEqualTo("северный область");
+        assertThat(jsonModel.<String>get("$.deviceGroup.name")).isEqualTo("Northern region");
         assertThat(jsonModel.<String>get("$.deviceGroup.alias")).isEqualTo("deviceGroups");
-        assertThat(jsonModel.<List>get("$.kpi")).isNotNull();
-        assertThat(jsonModel.<String>get("$.kpi[0].name")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.kpi[1].name")).isEqualTo("Ongoing");
-        assertThat(jsonModel.<String>get(("$.kpi[2].name"))).isEqualTo("Failed");
-        assertThat(jsonModel.<String>get(("$.kpi[3].name"))).isEqualTo("Target");
+        assertThat(jsonModel.<Object>get("$.kpi")).isNotNull();
+        assertThat(jsonModel.<String>get("$.kpi.series[0].name")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.kpi.series[1].name")).isEqualTo("Ongoing");
+        assertThat(jsonModel.<String>get(("$.kpi.series[2].name"))).isEqualTo("Failed");
+        assertThat(jsonModel.<String>get(("$.kpi.series[3].name"))).isEqualTo("Target");
     }
 
     private DataCollectionKpi mockDataCollectionKpi() {
         DataCollectionKpi dataCollectionKpi = mock(DataCollectionKpi.class);
-        when(dataCollectionKpi.calculatesConnectionSetupKpi()).thenReturn(true);
+        when(dataCollectionKpi.calculatesComTaskExecutionKpi()).thenReturn(true);
         when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
         kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 0, 0).toInstant(ZoneOffset.UTC)), 10, 80, 10, 100));
