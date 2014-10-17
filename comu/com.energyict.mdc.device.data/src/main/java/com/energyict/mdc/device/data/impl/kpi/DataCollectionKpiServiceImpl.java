@@ -38,25 +38,13 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
 
     @Override
     public Optional<DataCollectionKpi> findDataCollectionKpi(long id) {
-        com.google.common.base.Optional<DataCollectionKpi> dataCollectionDeviceGroup = this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getOptional(id);
-        if (dataCollectionDeviceGroup.isPresent()) {
-            return Optional.of(dataCollectionDeviceGroup.get());
-        }
-        else {
-            return Optional.empty();
-        }
+        return this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getOptional(id);
     }
 
     @Override
     public Optional<DataCollectionKpi> findDataCollectionKpi(QueryEndDeviceGroup group) {
-        com.google.common.base.Optional<DataCollectionKpi> dataCollectionDeviceGroup = this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getUnique(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP
+        return this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getUnique(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP
                 .fieldName(), group);
-        if (dataCollectionDeviceGroup.isPresent()) {
-            return Optional.of(dataCollectionDeviceGroup.get());
-        }
-        else {
-            return Optional.empty();
-        }
     }
 
     @Override

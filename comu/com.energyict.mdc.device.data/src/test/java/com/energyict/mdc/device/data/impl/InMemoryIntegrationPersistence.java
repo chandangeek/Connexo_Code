@@ -5,7 +5,6 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -35,7 +34,6 @@ import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import java.time.Clock;import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
@@ -73,7 +71,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -88,15 +85,15 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -134,7 +131,7 @@ public class InMemoryIntegrationPersistence {
     private ValidationService validationService;
 
     public InMemoryIntegrationPersistence() {
-        this(new DefaultClock());
+        this(Clock.systemDefaultZone());
     }
 
     public InMemoryIntegrationPersistence(Clock clock) {
@@ -258,7 +255,7 @@ public class InMemoryIntegrationPersistence {
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.applicationContext.getTranslator()).thenReturn(translator);
         this.licenseService = mock(LicenseService.class);
-        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
+        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
     }
 
     public void cleanUpDataBase() throws SQLException {

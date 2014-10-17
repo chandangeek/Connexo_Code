@@ -1,28 +1,23 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
-
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link KpiMembers} component.
@@ -102,18 +97,18 @@ public class KpiMembersTest {
         DateTime timestamp = new DateTime(INTERVAL_START_MILLIS).plusMinutes(KPI_INTERVAL_MINUTES);
         KpiMember kpiMember = mock(KpiMember.class);
         when(kpiMember.getName()).thenReturn(taskStatus.name());
-        when(kpiMember.getTarget(any(Date.class))).thenReturn(TARGET);
+        when(kpiMember.getTarget(any(Instant.class))).thenReturn(TARGET);
         List<KpiEntry> kpiEntries = Stream.of(scores).
                 map(s -> {
                     KpiEntry kpiEntry = mock(KpiEntry.class);
                     when(kpiEntry.getScore()).thenReturn(s);
                     when(kpiEntry.getTarget()).thenReturn(TARGET);
-                    when(kpiEntry.getTimestamp()).thenReturn(timestamp.toDate());
+                    when(kpiEntry.getTimestamp()).thenReturn(timestamp.toDate().toInstant());
                     timestamp.plusMinutes(KPI_INTERVAL_MINUTES);
                     return kpiEntry;
                 }).
                 collect(Collectors.toList());
-        doReturn(kpiEntries).when(kpiMember).getScores(this.testInterval());
+        doReturn(kpiEntries).when(kpiMember).getScores(this.testInterval().toClosedRange());
         return kpiMember;
     }
 

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
@@ -13,9 +15,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
-
-import com.elster.jupiter.properties.PropertySpec;
-import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,6 +22,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -70,11 +70,11 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
                                     new SimpleFilterCriterium(securityPropertySetAspect, SimpleFilterCriterium.Operator.EQUALS, securityPropertySet)));
             List<Relation> relations = relationType.findByFilter(searchFilter);
             if (relations.isEmpty()) {
-                return Optional.absent();
+                return Optional.empty();
             }
             else {
                 for (Relation relation : relations) {
-                    if (relation.getPeriod().isEffective(activeDate)) {
+                    if (relation.getPeriod().contains(activeDate.toInstant(), Interval.EndpointBehavior.OPEN_CLOSED)) {
                         return Optional.of(relation);
                     }
                 }
@@ -83,7 +83,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         }
         else {
             // No RelationType means there are not security properties
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

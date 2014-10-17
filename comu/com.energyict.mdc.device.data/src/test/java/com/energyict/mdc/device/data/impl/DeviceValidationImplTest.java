@@ -4,14 +4,14 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import java.time.Clock;import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Channel;
-import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Range;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -20,8 +20,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +72,7 @@ public class DeviceValidationImplTest {
         deviceValidation = new DeviceValidationImpl(amrSystem, validationService, clock, device);
 
         when(device.findKoreMeter(amrSystem)).thenReturn(Optional.of(meter));
-        when(device.findKoreChannel(channel, NOW)).thenReturn(Optional.of(koreChannel));
+        when(device.findKoreChannel(channel, NOW.toInstant())).thenReturn(Optional.of(koreChannel));
         when(koreChannel.getMeterActivation()).thenReturn(meterActivation);
         doReturn(asList(readingType)).when(koreChannel).getReadingTypes();
         doReturn(asList(meterActivation)).when(meter).getMeterActivations();
@@ -92,7 +94,7 @@ public class DeviceValidationImplTest {
 
         when(channel.getReadingType()).thenReturn(readingType);
         when(device.findOrCreateKoreMeter(amrSystem)).thenReturn(meter);
-        when(validationService.getEvaluator(eq(meter), any(Interval.class))).thenReturn(validationEvaluator);
+        when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(validationEvaluator);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
     }
 
@@ -112,7 +114,7 @@ public class DeviceValidationImplTest {
     @Test
     public void testIsValidationActiveInactiveWithoutKoreMeter() {
         when(validationService.validationEnabled(meter)).thenReturn(true);
-        when(device.findKoreMeter(amrSystem)).thenReturn(Optional.absent());
+        when(device.findKoreMeter(amrSystem)).thenReturn(Optional.empty());
 
         boolean validationActive = deviceValidation.isValidationActive();
         assertThat(validationActive).isFalse();
@@ -122,7 +124,7 @@ public class DeviceValidationImplTest {
     public void testValidationActiveForChannelInactiveIfDeviceInactive() {
         when(validationService.validationEnabled(meter)).thenReturn(false);
 
-        boolean validationActive = deviceValidation.isValidationActive(channel, NOW);
+        boolean validationActive = deviceValidation.isValidationActive(channel, NOW.toInstant());
         assertThat(validationActive).isFalse();
     }
 
@@ -132,7 +134,7 @@ public class DeviceValidationImplTest {
         when(validationEvaluator.isValidationEnabled(koreChannel)).thenReturn(true);
         when(channelValidation2.hasActiveRules()).thenReturn(true);
 
-        boolean validationActive = deviceValidation.isValidationActive(channel, NOW);
+        boolean validationActive = deviceValidation.isValidationActive(channel, NOW.toInstant());
         assertThat(validationActive).isTrue();
     }
 
@@ -147,20 +149,20 @@ public class DeviceValidationImplTest {
         when(koreChannel4.getMainReadingType()).thenReturn(readingType);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         when(readingType.getMRID()).thenReturn("MRID");
-        when(validationService.getLastChecked(koreChannel2)).thenReturn(Optional.of(LAST_CHECKED));
-        when(validationService.getLastChecked(koreChannel4)).thenReturn(Optional.absent());
-        when(validationEvaluator.getLastChecked(meter, readingType)).thenReturn(Optional.of(LAST_CHECKED), Optional.<Date>absent());
+        when(validationService.getLastChecked(koreChannel2)).thenReturn(Optional.of(LAST_CHECKED.toInstant()));
+        when(validationService.getLastChecked(koreChannel4)).thenReturn(Optional.empty());
+        when(validationEvaluator.getLastChecked(meter, readingType)).thenReturn(Optional.of(LAST_CHECKED.toInstant()), Optional.<Instant>empty());
         when(koreChannel1.getMeterActivation()).thenReturn(meterActivation1);
         when(koreChannel2.getMeterActivation()).thenReturn(meterActivation1);
         when(koreChannel3.getMeterActivation()).thenReturn(meterActivation2);
         when(koreChannel4.getMeterActivation()).thenReturn(meterActivation2);
-        when(meterActivation1.getInterval()).thenReturn(Interval.endAt(SWITCH));
-        when(meterActivation2.getInterval()).thenReturn(Interval.startAt(SWITCH));
+        when(meterActivation1.getInterval()).thenReturn(Interval.endAt(SWITCH.toInstant()));
+        when(meterActivation2.getInterval()).thenReturn(Interval.startAt(SWITCH.toInstant()));
 
-        deviceValidation.validateChannel(channel, null, NOW);
+        deviceValidation.validateChannel(channel, null, NOW.toInstant());
 
-        verify(validationService).validate(meterActivation1, "MRID", Interval.startAt(LAST_CHECKED).withEnd(SWITCH));
-        verify(validationService).validate(meterActivation2, "MRID", Interval.startAt(SWITCH).withEnd(NOW));
+        verify(validationService).validate(meterActivation1, "MRID", Interval.startAt(LAST_CHECKED.toInstant()).withEnd(SWITCH.toInstant()).toClosedRange());
+        verify(validationService).validate(meterActivation2, "MRID", Interval.startAt(SWITCH.toInstant()).withEnd(NOW.toInstant()).toClosedRange());
     }
 
     @Test
@@ -174,19 +176,19 @@ public class DeviceValidationImplTest {
         when(koreChannel4.getMainReadingType()).thenReturn(readingType);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         when(readingType.getMRID()).thenReturn("MRID");
-        when(validationService.getLastChecked(koreChannel2)).thenReturn(Optional.of(LAST_CHECKED));
-        when(validationService.getLastChecked(koreChannel4)).thenReturn(Optional.absent());
+        when(validationService.getLastChecked(koreChannel2)).thenReturn(Optional.of(LAST_CHECKED.toInstant()));
+        when(validationService.getLastChecked(koreChannel4)).thenReturn(Optional.empty());
         when(koreChannel1.getMeterActivation()).thenReturn(meterActivation1);
         when(koreChannel2.getMeterActivation()).thenReturn(meterActivation1);
         when(koreChannel3.getMeterActivation()).thenReturn(meterActivation2);
         when(koreChannel4.getMeterActivation()).thenReturn(meterActivation2);
         when(meterActivation1.getInterval()).thenReturn(Interval.of(Instant.EPOCH, SWITCH.toInstant()));
-        when(meterActivation2.getInterval()).thenReturn(Interval.startAt(SWITCH));
+        when(meterActivation2.getInterval()).thenReturn(Interval.startAt(SWITCH.toInstant()));
 
-        deviceValidation.validateChannel(channel, MANUAL_LAST_CHECKED, NOW);
+        deviceValidation.validateChannel(channel, MANUAL_LAST_CHECKED.toInstant(), NOW.toInstant());
 
-        verify(validationService).validate(meterActivation1, "MRID", Interval.startAt(MANUAL_LAST_CHECKED).withEnd(SWITCH));
-        verify(validationService).validate(meterActivation2, "MRID", Interval.startAt(SWITCH).withEnd(NOW));
+        verify(validationService).validate(meterActivation1, "MRID", Interval.startAt(MANUAL_LAST_CHECKED.toInstant()).withEnd(SWITCH.toInstant()).toClosedRange());
+        verify(validationService).validate(meterActivation2, "MRID", Interval.startAt(SWITCH.toInstant()).withEnd(NOW.toInstant()).toClosedRange());
     }
 
 }

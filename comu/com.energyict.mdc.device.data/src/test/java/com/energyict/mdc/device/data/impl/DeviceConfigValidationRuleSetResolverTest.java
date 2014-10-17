@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.DeviceService;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -89,7 +89,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
 
     @Test
     public void testNoMeter() {
-        when(meterActivation.getMeter()).thenReturn(Optional.<Meter>absent());
+        when(meterActivation.getMeter()).thenReturn(Optional.<Meter>empty());
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
