@@ -77,7 +77,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD(88,"noSuchComSession" ,"No such communication session exists for this connection method"),
     INBOUND(89, ConnectionType.Direction.INBOUND.name(), "Inbound"),
     OUTBOUND(90, ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
-    DEFAULT_NOT_DEFINED(91, "DefaultNotDefined", "Default (not defined yet)"),
     COMPLETE(92, "Complete", "Complete"),
     INCOMPLETE(93, "Incomplete", "Incomplete"),
     NO_SUCH_SECURITY_PROPERTY_SET_ON_DEVICE(94, "NoSuchSecurityPropertySetOnDevice", "No security settings with id {0} exist for device ''{1}''"),
