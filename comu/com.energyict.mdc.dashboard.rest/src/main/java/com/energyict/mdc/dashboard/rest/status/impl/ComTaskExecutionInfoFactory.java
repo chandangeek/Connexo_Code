@@ -65,7 +65,7 @@ public class ComTaskExecutionInfoFactory {
         }
         info.urgency = comTaskExecution.getExecutionPriority();
         info.currentState = new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
-        info.latestResult = comTaskExecutionSession.map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus);
+        info.latestResult = comTaskExecutionSession.map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus));
         info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
         info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();

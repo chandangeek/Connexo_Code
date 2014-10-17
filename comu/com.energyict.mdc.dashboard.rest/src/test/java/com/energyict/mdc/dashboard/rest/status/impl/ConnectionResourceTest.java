@@ -67,9 +67,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         DeviceType deviceType2 = mock(DeviceType.class);
         DeviceType deviceType3 = mock(DeviceType.class);
 
-        when(deviceConfigurationService.findDeviceType(101L)).thenReturn(deviceType1);
-        when(deviceConfigurationService.findDeviceType(102L)).thenReturn(deviceType2);
-        when(deviceConfigurationService.findDeviceType(103L)).thenReturn(deviceType3);
+        when(deviceConfigurationService.findDeviceType(101L)).thenReturn(Optional.of(deviceType1));
+        when(deviceConfigurationService.findDeviceType(102L)).thenReturn(Optional.of(deviceType2));
+        when(deviceConfigurationService.findDeviceType(103L)).thenReturn(Optional.of(deviceType3));
 
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("deviceTypes", Arrays.asList(101L, 102L, 103L))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 

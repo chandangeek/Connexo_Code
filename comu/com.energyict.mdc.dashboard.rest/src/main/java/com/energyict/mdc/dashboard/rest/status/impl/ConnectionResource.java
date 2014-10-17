@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -147,9 +148,12 @@ public class ConnectionResource {
         filter.deviceTypes = new HashSet<>();
         if (filterProperties.containsKey(HeatMapBreakdownOption.deviceTypes.name())) {
             List<Long> deviceTypeIds = jsonQueryFilter.getPropertyList(FilterOption.deviceTypes.name(), LONG_ADAPTER);
-            for (Long deviceTypeId : deviceTypeIds) {
-                filter.deviceTypes.add(deviceConfigurationService.findDeviceType(deviceTypeId));
-            }
+            filter.deviceTypes.addAll(
+                    deviceTypeIds.stream()
+                        .map(deviceConfigurationService::findDeviceType)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toList()));
         }
 
         if (filterProperties.containsKey(FilterOption.startIntervalFrom.name()) || filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
