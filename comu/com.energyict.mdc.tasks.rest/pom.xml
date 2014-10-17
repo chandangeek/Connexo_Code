@@ -13,7 +13,6 @@
 
     <artifactId>mdc.tasks.rest</artifactId>
     <packaging>bundle</packaging>
-    <version>${comserver.version}</version>
     <name>[MDC] mdc.tasks.rest</name>
     <description>
         Contains Rest implementations to interface between the FrontEnd and BackEnd regarding communication tasks
