@@ -121,21 +121,21 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.startedOn', 'DSH', 'Started on'),
                     name: 'startTime',
                     renderer: function (val) {
-                        return Ext.Date.format(val, 'm/d/Y h:i:s');
+                        return Ext.Date.format(val, 'd/m/Y h:i:s');
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successfully on'),
                     name: 'successfulFinishTime',
                     renderer: function (val) {
-                        return Ext.Date.format(val, 'm/d/Y h:i:s');
+                        return Ext.Date.format(val, 'd/m/Y h:i:s');
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.nextComm', 'DSH', 'Next communication'),
                     name: 'nextCommunication',
                     renderer: function (val) {
-                        return Ext.Date.format(val, 'm/d/Y h:i:s');
+                        return Ext.Date.format(val, 'd/m/Y h:i:s');
                     }
                 }
             ]
