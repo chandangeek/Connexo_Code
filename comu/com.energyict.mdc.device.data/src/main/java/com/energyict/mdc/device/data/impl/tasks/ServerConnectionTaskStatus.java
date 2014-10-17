@@ -32,7 +32,8 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            return !task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE) || task.getNextExecutionTimestamp() == null;
+            return !task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                || task.getNextExecutionTimestamp() == null;
         }
 
         @Override
@@ -116,7 +117,7 @@ public enum ServerConnectionTaskStatus {
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
             Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && now.getTime() >= nextExecutionTimestamp.getTime());
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() <= now.getTime());
         }
 
         @Override
@@ -129,9 +130,6 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".id and cte.obsolete_date is null and comport is not null) and ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".lastExecutionFailed = 0 ");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".status = 0 ");
@@ -154,7 +152,9 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
                 && (task.getLastSuccessfulCommunicationEnd() == null && task.getCurrentRetryCount() == 0);
         }
 
@@ -197,7 +197,9 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
                 && (this.strictlyBetween(task.getCurrentRetryCount(), 0, task.getMaxNumberOfTries()));
         }
 
@@ -237,9 +239,12 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
                 && task.lastExecutionFailed()
-                && task.getCurrentRetryCount() == 0;
+                && task.getCurrentRetryCount() == 0
+                && task.getLastSuccessfulCommunicationEnd() != null;
         }
 
         @Override
@@ -286,7 +291,10 @@ public enum ServerConnectionTaskStatus {
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
             Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() >= now.getTime());
+                && task.getCurrentRetryCount() == 0
+                && !task.lastExecutionFailed()
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
+                && task.getLastSuccessfulCommunicationEnd() != null;
         }
 
         @Override

@@ -23,13 +23,13 @@ import static com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider.DE
 /**
  * Examples of usage:
  * <ul>
- * <li>create deviceType.id 23 deviceConfiguration.id 54: creates a device group that will contain devices whose type is 23 and configuration is 54</li>
+ * <li>create Example deviceType.id 23 deviceConfiguration.id 54: creates a device group (named Example) that will contain devices whose type is 23 and configuration is 54</li>
  * </ul>.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-10 (12:08)
  */
-@Component(name = "com.elster.jupiter.playground.devicegroups", service = MdcDeviceGroups.class,
+@Component(name = "com.energyict.mdc.device.data.mdcgroups", service = MdcDeviceGroups.class,
         property = {
                 "osgi.command.scope=mdcgroups",
                 "osgi.command.function=create",
@@ -43,6 +43,7 @@ public class MdcDeviceGroups {
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile DeviceService deviceService;
 
+    @SuppressWarnings("unused")
     public void create(String name, String mRID, String... fieldsAndValues) {
         this.transactionService.execute(() -> this.doCreate(name, mRID, fieldsAndValues));
     }
@@ -61,7 +62,7 @@ public class MdcDeviceGroups {
         }
         else {
             System.out.println("The number of fields and values must match, i.e. every field must have a value");
-            System.out.println("Usage:\n\t mdcgroups::create <name> <mRID> <fieldsAndValues>");
+            System.out.println("Usage:\n\t mdcgroups:create <name> <mRID> <fieldsAndValues>");
             return null;
         }
     }

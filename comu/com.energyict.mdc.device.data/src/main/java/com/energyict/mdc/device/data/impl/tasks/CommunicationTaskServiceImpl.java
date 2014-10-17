@@ -835,19 +835,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution) {
-        Condition condition = where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution);
-        Finder<ComTaskExecutionSession> page =
-                DefaultFinder.
-                        of(ComTaskExecutionSession.class, condition, this.deviceDataModelService.dataModel()).
-                        sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false).
-                        paged(1, 1);
-        List<ComTaskExecutionSession> allSessions = page.find();
-        if (allSessions.isEmpty()) {
-            return Optional.absent();
-        } else {
-            return Optional.of(allSessions.get(0));
-        }
+    public java.util.Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.getLastSession();
     }
 
     @Override
