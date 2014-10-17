@@ -112,7 +112,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 });
                 me.loadProfileModel = record;
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record, isTable);
+                if (isTable) {
+                    widget.down('#deviceLoadProfilesSubMenuPanel #loadProfileOfDeviceDataLink').hide();
+                    widget.down('#deviceLoadProfilesSubMenuPanel #loadProfileOfDeviceDataTableLink').show();
+                } else {
+                    widget.down('#deviceLoadProfilesSubMenuPanel #loadProfileOfDeviceDataTableLink').hide();
+                    widget.down('#deviceLoadProfilesSubMenuPanel #loadProfileOfDeviceDataLink').show();
+                }
+                widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 viewport.setLoading(false);
                 widget.setLoading();

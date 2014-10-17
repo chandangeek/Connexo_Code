@@ -33,6 +33,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
                     itemId: 'loadProfileOfDeviceDataLink',
                     href: '/data',
                     hrefTarget: '_self'
+                },
+                {
+                    text: Uni.I18n.translate('deviceloadprofiles.loadProfileData', 'MDC', 'Load profile data'),
+                    itemId: 'loadProfileOfDeviceDataTableLink',
+                    href: '/tableData',
+                    hidden: true,
+                    hrefTarget: '_self'
                 }
             ]
         }
@@ -47,10 +54,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
 
         Ext.Array.each(menu.query('menuitem'), function (item) {
             formatHref = me.router.getRoute(me.commonRoute + item.href).buildUrl({mRID: mRID, loadProfileId: model.getId()});
-
             item.href = formatHref;
             item.el && item.el.down('a').set({href: formatHref});
             (window.location.hash == formatHref) && item.addCls('current');
+            if (item.itemId === 'loadProfileOfDeviceDataTableLink' && !item.isHidden()) {
+                item.addCls('current');
+            }
         });
     }
 });
