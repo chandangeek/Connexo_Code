@@ -120,7 +120,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
 
     private DataCollectionKpi mockDataCollectionKpi() {
         DataCollectionKpi dataCollectionKpi = mock(DataCollectionKpi.class);
-        when(dataCollectionKpi.calculatesConnectionSetupKpi()).thenReturn(true);
+        when(dataCollectionKpi.calculatesComTaskExecutionKpi()).thenReturn(true);
         when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
         kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 0, 0).toInstant(ZoneOffset.UTC)), 10, 80, 10, 100));

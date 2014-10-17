@@ -35,43 +35,41 @@ public class KpiScoreFactory {
 
     public KpiInfo getKpiAsInfo(DataCollectionKpi dataCollectionKpi) {
         KpiInfo kpiInfo = new KpiInfo();
-        if (dataCollectionKpi.calculatesConnectionSetupKpi()) {
-            kpiInfo.time = new ArrayList<>();
-            kpiInfo.series = new ArrayList<>();
-            KpiScoreInfo success = new KpiScoreInfo(KpiId.Success.name());
-            KpiScoreInfo ongoing = new KpiScoreInfo(KpiId.Ongoing.name());
-            KpiScoreInfo failed = new KpiScoreInfo(KpiId.Failed.name());
-            KpiScoreInfo target = new KpiScoreInfo(KpiId.Target.name());
-            kpiInfo.series.add(success);
-            kpiInfo.series.add(ongoing);
-            kpiInfo.series.add(failed);
-            kpiInfo.series.add(target);
+        kpiInfo.time = new ArrayList<>();
+        kpiInfo.series = new ArrayList<>();
+        KpiScoreInfo success = new KpiScoreInfo(KpiId.Success.name());
+        KpiScoreInfo ongoing = new KpiScoreInfo(KpiId.Ongoing.name());
+        KpiScoreInfo failed = new KpiScoreInfo(KpiId.Failed.name());
+        KpiScoreInfo target = new KpiScoreInfo(KpiId.Target.name());
+        kpiInfo.series.add(success);
+        kpiInfo.series.add(ongoing);
+        kpiInfo.series.add(failed);
+        kpiInfo.series.add(target);
 
-            TemporalAmount frequency = dataCollectionKpi.connectionSetupKpiCalculationIntervalLength().get();
-            Interval intervalByPeriod = getIntervalByPeriod(frequency);
-            List<DataCollectionKpiScore> kpiScores = dataCollectionKpi.getConnectionSetupKpiScores(intervalByPeriod);
-            Instant timeIndex = Instant.ofEpochMilli(intervalByPeriod.getStart().getTime());
-            Instant endTimeIndex = Instant.ofEpochMilli(intervalByPeriod.getEnd().getTime());
+        TemporalAmount frequency = dataCollectionKpi.connectionSetupKpiCalculationIntervalLength().get();
+        Interval intervalByPeriod = getIntervalByPeriod(frequency);
+        List<DataCollectionKpiScore> kpiScores = dataCollectionKpi.getConnectionSetupKpiScores(intervalByPeriod);
+        Instant timeIndex = Instant.ofEpochMilli(intervalByPeriod.getStart().getTime());
+        Instant endTimeIndex = Instant.ofEpochMilli(intervalByPeriod.getEnd().getTime());
 
-            int kpiScoreIndex=0;
-            kpiScores.add(new SentinelKpiScore());
-            while (timeIndex.isBefore(endTimeIndex)) {
-                kpiInfo.time.add(Date.from(timeIndex).getTime());
-                DataCollectionKpiScore kpiScore = kpiScores.get(kpiScoreIndex);
-                if (kpiScore.getTimestamp().toInstant().equals(timeIndex)) {
-                    success.data.add(kpiScore.getSuccess());
-                    ongoing.data.add(kpiScore.getOngoing());
-                    failed.data.add(kpiScore.getFailed());
-                    target.data.add(kpiScore.getTarget());
-                    kpiScoreIndex++;
-                } else {
-                    success.data.add(null);
-                    ongoing.data.add(null);
-                    failed.data.add(null);
-                    target.data.add(null);
-                }
-                timeIndex = timeIndex.plus(frequency);
+        int kpiScoreIndex=0;
+        kpiScores.add(new SentinelKpiScore());
+        while (timeIndex.isBefore(endTimeIndex)) {
+            kpiInfo.time.add(Date.from(timeIndex).getTime());
+            DataCollectionKpiScore kpiScore = kpiScores.get(kpiScoreIndex);
+            if (kpiScore.getTimestamp().toInstant().equals(timeIndex)) {
+                success.data.add(kpiScore.getSuccess());
+                ongoing.data.add(kpiScore.getOngoing());
+                failed.data.add(kpiScore.getFailed());
+                target.data.add(kpiScore.getTarget());
+                kpiScoreIndex++;
+            } else {
+                success.data.add(null);
+                ongoing.data.add(null);
+                failed.data.add(null);
+                target.data.add(null);
             }
+            timeIndex = timeIndex.plus(frequency);
         }
         return kpiInfo;
     }
@@ -87,7 +85,7 @@ public class KpiScoreFactory {
                 endDay = LocalDate.now(clock);
             } else if (temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofHours(1).getSeconds()) {
                 startDay = LocalDate.now(clock).with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-                endDay = LocalDate.now(clock).with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+                endDay = LocalDate.now(clock).with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
             } else if (temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofDays(1).getSeconds()) {
                 startDay = LocalDate.now(clock).with(TemporalAdjusters.firstDayOfMonth());
                 endDay = LocalDate.now(clock).with(TemporalAdjusters.lastDayOfMonth());
