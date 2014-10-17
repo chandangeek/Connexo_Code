@@ -47,7 +47,7 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
     public void testAddRuleSetsToDeviceConfiguration() throws Exception {
     	doReturn(Optional.of(validationRuleSet1)).when(validationService).getValidationRuleSet(RULESET_ID_1);
     	doReturn(Optional.of(validationRuleSet2)).when(validationService).getValidationRuleSet(RULESET_ID_2);
-        when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(propertyUtils.convertPropertySpecsToPropertyInfos(anyList(), anyMap())).thenReturn(Collections.<PropertyInfo>emptyList());
@@ -66,7 +66,7 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration)).thenReturn(Arrays.asList(readingType1, readingType2));
         when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule1));
         when(validationRuleSet2.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule2));
-        when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(Optional.of(deviceType));
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
@@ -80,7 +80,7 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
 
     @Test
     public void testAddAllRuleSetsToDeviceConfigurationWithoutNonMatching() throws Exception {
-        when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(Optional.of(deviceType));
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 

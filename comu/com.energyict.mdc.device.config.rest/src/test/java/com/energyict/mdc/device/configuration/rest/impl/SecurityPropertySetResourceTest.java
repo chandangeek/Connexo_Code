@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -33,7 +34,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         Group group1 = mockUserGroup(66L, "Z - user group 1");
         Group group2 = mockUserGroup(67L, "A - user group 2");
         Group group3 = mockUserGroup(68L, "O - user group 1");
@@ -78,7 +79,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         Group group1 = mockUserGroup(66L, "Z - user group 1", Arrays.asList(Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_1));
         Group group2 = mockUserGroup(67L, "A - user group 2", Arrays.asList(Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_4));
         Group group3 = mockUserGroup(68L, "O - user group 3", Collections.emptyList());

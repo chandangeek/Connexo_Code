@@ -52,11 +52,9 @@ public class ResourceHelper {
 
 
     public DeviceType findDeviceTypeByIdOrThrowException(long id) {
-        DeviceType deviceType = deviceConfigurationService.findDeviceType(id);
-        if (deviceType == null) {
-            throw new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND);
-        }
-        return deviceType;
+        return deviceConfigurationService
+                .findDeviceType(id)
+                .orElseThrow(() -> new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND));
      }
 
     public DeviceConfiguration findDeviceConfigurationForDeviceTypeOrThrowException(DeviceType deviceType, long deviceConfigurationId) {

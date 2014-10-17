@@ -9,6 +9,7 @@ import com.jayway.jsonpath.JsonModel;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
@@ -34,7 +35,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
@@ -55,7 +56,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
@@ -77,7 +78,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
@@ -96,7 +97,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
@@ -112,7 +113,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
@@ -131,7 +132,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));

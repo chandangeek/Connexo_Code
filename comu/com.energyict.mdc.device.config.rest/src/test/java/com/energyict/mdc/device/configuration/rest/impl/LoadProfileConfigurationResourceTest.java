@@ -29,7 +29,7 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 1);
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>(1);
         deviceConfigurations.add(deviceConfiguration);
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
         return deviceConfiguration;
     }
@@ -55,7 +55,7 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
         List<LoadProfileSpec> loadProfileSpecs = getLoadProfileSpecs(5);
         List<LoadProfileType> loadProfileTypes = getLoadProfileTypes(10);
 
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
         when(deviceType.getLoadProfileTypes()).thenReturn(loadProfileTypes);
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
         when(deviceConfiguration.getLoadProfileSpecs()).thenReturn(loadProfileSpecs);

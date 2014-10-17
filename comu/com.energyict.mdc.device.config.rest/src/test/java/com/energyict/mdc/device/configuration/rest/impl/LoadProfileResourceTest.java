@@ -23,7 +23,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         DeviceType deviceType = mockDeviceType("device", 1);
         List<LoadProfileType> loadProfiles = getLoadProfileTypes(3);
         when(deviceType.getLoadProfileTypes()).thenReturn(loadProfiles);
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
 
         Map<String, Object> map = target("/devicetypes/1/loadprofiletypes").queryParam("available", false).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(3);
@@ -42,7 +42,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
 
         when(masterDataService.findAllLoadProfileTypes()).thenReturn(allLoadProfiles);
         when(deviceType.getLoadProfileTypes()).thenReturn(assignedToDeviceType);
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
 
         Map<String, Object> map = target("/devicetypes/1/loadprofiletypes").queryParam("available", true).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(12);
@@ -58,7 +58,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(2, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(null);
-        when(deviceConfigurationService.findDeviceType(2)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(2)).thenReturn(Optional.of(deviceType));
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.empty());
         when(masterDataService.findLoadProfileType(2)).thenReturn(Optional.of(loadProfileType));
 
@@ -79,7 +79,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(1, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
 
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.of(loadProfileType));
         when(masterDataService.findLoadProfileType(9999)).thenReturn(Optional.empty());
 
