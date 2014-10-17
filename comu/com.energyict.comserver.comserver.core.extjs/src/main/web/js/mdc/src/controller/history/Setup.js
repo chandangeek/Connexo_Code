@@ -1172,6 +1172,20 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
                             }
+                        },
+                        securitysettings: {
+                            title: 'Security settings',
+                            route: 'securitysettings',
+                            controller: 'Mdc.controller.setup.DeviceSecuritySettings',
+                            action: 'showDeviceSecuritySettings',
+                            items: {
+                                edit: {
+                                    title: 'Edit security setting',
+                                    route: '{securitySettingId}/edit',
+                                    controller: 'Mdc.controller.setup.DeviceSecuritySettings',
+                                    action: 'showDeviceSecuritySettingEditView'
+                                }
+                            }
                         }
                     }
                 }

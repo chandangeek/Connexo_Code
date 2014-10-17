@@ -1,8 +1,7 @@
 Ext.define('Mdc.model.DeviceSecuritySetting', {
     extend: 'Ext.data.Model',
     requires: [
-        'Uni.property.model.Property',
-        'Mdc.model.ExecutionLevel'
+        'Uni.property.model.Property'
     ],
     fields: [
         {name: 'id', type: 'int', useNull: true},
@@ -15,11 +14,6 @@ Ext.define('Mdc.model.DeviceSecuritySetting', {
     ],
 
     associations: [
-        {name: 'executionLevels', type: 'hasMany', model: 'Mdc.model.ExecutionLevel', associationKey: 'executionLevels',
-            getTypeDiscriminator: function (node) {
-                return 'Mdc.model.ExecutionLevel';
-            }
-        },
         {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
                 return 'Uni.property.model.Property';
