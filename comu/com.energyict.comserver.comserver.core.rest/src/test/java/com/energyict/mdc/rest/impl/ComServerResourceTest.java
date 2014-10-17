@@ -22,7 +22,7 @@ import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,14 +65,14 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
     @Test
     public void testGetNonExistingComServer() throws Exception {
-        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.<ComServer>absent());
+        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.empty());
         final Response response = target("/comservers/8").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void testGetComPortsForNonExistingComServer() throws Exception {
-        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.absent());
+        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.empty());
         final Response response = target("/comservers/8/comports").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -322,7 +322,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
     @Test
     public void testCannotUpdateNonExistingComServer() throws Exception {
-        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.<ComServer>absent());
+        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.empty());
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -349,7 +349,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
     @Test
     public void testDeleteNonExistingComServerThrows404() throws Exception {
-        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.<ComServer>absent());
+        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.empty());
         final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }

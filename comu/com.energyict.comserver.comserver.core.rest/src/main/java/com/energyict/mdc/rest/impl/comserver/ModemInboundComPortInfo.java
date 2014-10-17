@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.channels.serial.*;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -47,69 +47,69 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     @Override
     protected void writeTo(ModemBasedInboundComPort source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
-        Optional<Integer> ringCount = Optional.fromNullable(this.ringCount);
+        Optional<Integer> ringCount = Optional.ofNullable(this.ringCount);
         if(ringCount.isPresent()) {
             source.setRingCount(ringCount.get());
         }
-        Optional<Integer> maximumNumberOfDialErrors = Optional.fromNullable(this.maximumNumberOfDialErrors);
+        Optional<Integer> maximumNumberOfDialErrors = Optional.ofNullable(this.maximumNumberOfDialErrors);
         if(maximumNumberOfDialErrors.isPresent()) {
             source.setMaximumDialErrors(maximumNumberOfDialErrors.get());
         }
-        Optional<TimeDurationInfo> connectTimeout = Optional.fromNullable(this.connectTimeout);
+        Optional<TimeDurationInfo> connectTimeout = Optional.ofNullable(this.connectTimeout);
         if(connectTimeout.isPresent()) {
             source.setConnectTimeout(connectTimeout.get().asTimeDuration());
         }
-        Optional<TimeDurationInfo> delayAfterConnect = Optional.fromNullable(this.delayAfterConnect);
+        Optional<TimeDurationInfo> delayAfterConnect = Optional.ofNullable(this.delayAfterConnect);
         if(delayAfterConnect.isPresent()) {
             source.setDelayAfterConnect(delayAfterConnect.get().asTimeDuration());
         }
-        Optional<TimeDurationInfo> delayBeforeSend = Optional.fromNullable(this.delayBeforeSend);
+        Optional<TimeDurationInfo> delayBeforeSend = Optional.ofNullable(this.delayBeforeSend);
         if(delayBeforeSend.isPresent()) {
             source.setDelayBeforeSend(delayBeforeSend.get().asTimeDuration());
         }
-        Optional<TimeDurationInfo> atCommandTimeout = Optional.fromNullable(this.atCommandTimeout);
+        Optional<TimeDurationInfo> atCommandTimeout = Optional.ofNullable(this.atCommandTimeout);
         if(atCommandTimeout.isPresent()) {
             source.setAtCommandTimeout(atCommandTimeout.get().asTimeDuration());
         }
-        Optional<BigDecimal> atCommandTry = Optional.fromNullable(this.atCommandTry);
+        Optional<BigDecimal> atCommandTry = Optional.ofNullable(this.atCommandTry);
         if(atCommandTry.isPresent()) {
             source.setAtCommandTry(atCommandTry.get());
         }
-        Optional<List<Map<String, String>>> modemInitStrings = Optional.fromNullable(this.modemInitStrings);
+        Optional<List<Map<String, String>>> modemInitStrings = Optional.ofNullable(this.modemInitStrings);
         if(modemInitStrings.isPresent()) {
             source.setModemInitStrings(fromMaps(MAP_KEY,modemInitStrings.get()));
         }
-        Optional<String> addressSelector = Optional.fromNullable(this.addressSelector);
+        Optional<String> addressSelector = Optional.ofNullable(this.addressSelector);
         if(addressSelector.isPresent()) {
             source.setAddressSelector(addressSelector.get());
         }
-        Optional<String> postDialCommands = Optional.fromNullable(this.postDialCommands);
+        Optional<String> postDialCommands = Optional.ofNullable(this.postDialCommands);
         if(postDialCommands.isPresent()) {
             source.setPostDialCommands(postDialCommands.get());
         }
-        Optional<SerialPortConfiguration> serialPortConfiguration = Optional.fromNullable(source.getSerialPortConfiguration());
-        SerialPortConfiguration updatedSerialPortConfiguration = serialPortConfiguration.or(new SerialPortConfiguration());
-        Optional<String> name = Optional.fromNullable(this.name);
+        Optional<SerialPortConfiguration> serialPortConfiguration = Optional.ofNullable(source.getSerialPortConfiguration());
+        SerialPortConfiguration updatedSerialPortConfiguration = serialPortConfiguration.orElse(new SerialPortConfiguration());
+        Optional<String> name = Optional.ofNullable(this.name);
         if(name.isPresent()) {
             updatedSerialPortConfiguration.setComPortName(name.get());
         }
-        Optional<BaudrateValue> baudrate = Optional.fromNullable(this.baudrate);
+        Optional<BaudrateValue> baudrate = Optional.ofNullable(this.baudrate);
         if(baudrate.isPresent()) {
             updatedSerialPortConfiguration.setBaudrate(baudrate.get());
         }
-        Optional<NrOfDataBits> nrOfDataBits = Optional.fromNullable(this.nrOfDataBits);
+        Optional<NrOfDataBits> nrOfDataBits = Optional.ofNullable(this.nrOfDataBits);
         if(nrOfDataBits.isPresent()) {
             updatedSerialPortConfiguration.setNrOfDataBits(nrOfDataBits.get());
         }
-        Optional<NrOfStopBits> nrOfStopBits = Optional.fromNullable(this.nrOfStopBits);
+        Optional<NrOfStopBits> nrOfStopBits = Optional.ofNullable(this.nrOfStopBits);
         if(nrOfStopBits.isPresent()) {
             updatedSerialPortConfiguration.setNrOfStopBits(nrOfStopBits.get());
         }
-        Optional<Parities> parity = Optional.fromNullable(this.parity);
+        Optional<Parities> parity = Optional.ofNullable(this.parity);
         if(parity.isPresent()) {
             updatedSerialPortConfiguration.setParity(parity.get());
         }
-        Optional<FlowControl> flowControl = Optional.fromNullable(this.flowControl);
+        Optional<FlowControl> flowControl = Optional.ofNullable(this.flowControl);
         if(flowControl.isPresent()) {
             updatedSerialPortConfiguration.setFlowControl(flowControl.get());
         }
@@ -119,11 +119,11 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     @Override
     protected ModemBasedInboundComPort.ModemBasedInboundComPortBuilder build(ModemBasedInboundComPort.ModemBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
         super.build(builder, engineModelService);
-        Optional<TimeDurationInfo> delayAfterConnect = Optional.fromNullable(this.delayAfterConnect);
+        Optional<TimeDurationInfo> delayAfterConnect = Optional.ofNullable(this.delayAfterConnect);
         if (delayAfterConnect.isPresent()) {
             builder.delayAfterConnect(delayAfterConnect.get().asTimeDuration());
         }
-        Optional<TimeDurationInfo> delayBeforeSend = Optional.fromNullable(this.delayBeforeSend);
+        Optional<TimeDurationInfo> delayBeforeSend = Optional.ofNullable(this.delayBeforeSend);
         if (delayBeforeSend.isPresent()) {
             builder.delayBeforeSend(delayBeforeSend.get().asTimeDuration());
         }

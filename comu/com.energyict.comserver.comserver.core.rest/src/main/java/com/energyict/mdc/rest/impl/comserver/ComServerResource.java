@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.security.Privileges;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -106,8 +106,8 @@ public class ComServerResource {
         comServerInfo.writeTo(comServer,engineModelService);
         comServer.save();
 
-        Optional<List<InboundComPortInfo>> inboundComPorts = Optional.fromNullable(comServerInfo.inboundComPorts);
-        Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.fromNullable(comServerInfo.outboundComPorts);
+        Optional<List<InboundComPortInfo>> inboundComPorts = Optional.ofNullable(comServerInfo.inboundComPorts);
+        Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.ofNullable(comServerInfo.outboundComPorts);
         List<ComPortInfo> allComPorts = new ArrayList<>();
         if(inboundComPorts.isPresent()) {
             allComPorts.addAll(inboundComPorts.get());
@@ -130,8 +130,8 @@ public class ComServerResource {
     public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
 
-        Optional<List<InboundComPortInfo>> inboundComPorts = Optional.fromNullable(comServerInfo.inboundComPorts);
-        Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.fromNullable(comServerInfo.outboundComPorts);
+        Optional<List<InboundComPortInfo>> inboundComPorts = Optional.ofNullable(comServerInfo.inboundComPorts);
+        Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.ofNullable(comServerInfo.outboundComPorts);
         List<ComPortInfo> allComPortInfos = new ArrayList<>();
         if (inboundComPorts.isPresent()) {
             allComPortInfos.addAll(inboundComPorts.get());

@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -180,8 +181,8 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
     }
 
     @Override
-    public Date getModificationDate() {
-        return new Date();
+    public Instant getModificationDate() {
+        return Instant.now();
     }
 
     @Override

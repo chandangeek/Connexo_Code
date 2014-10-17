@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -22,7 +22,7 @@ public abstract class InboundComPortInfo<T extends InboundComPort, B extends Inb
     public InboundComPortInfo(InboundComPort comPort) {
         super(comPort);
         this.direction = "inbound";
-        Optional<InboundComPortPool> comPortPool = Optional.fromNullable(comPort.getComPortPool());
+        Optional<InboundComPortPool> comPortPool = Optional.ofNullable(comPort.getComPortPool());
         if(comPortPool.isPresent()) {
             this.comPortPool_id = comPort.getComPortPool().getId();
         }
@@ -31,10 +31,10 @@ public abstract class InboundComPortInfo<T extends InboundComPort, B extends Inb
     @Override
     protected void writeTo(T source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
-        Optional<Long> comPortPool_id = Optional.fromNullable(this.comPortPool_id);
-        Optional<InboundComPortPool> inboundComPortPool = Optional.absent();
+        Optional<Long> comPortPool_id = Optional.ofNullable(this.comPortPool_id);
+        Optional<InboundComPortPool> inboundComPortPool = Optional.empty();
         if (comPortPool_id.isPresent()) {
-            inboundComPortPool=Optional.fromNullable(engineModelService.findInboundComPortPool(comPortPool_id.get()));
+            inboundComPortPool=Optional.ofNullable(engineModelService.findInboundComPortPool(comPortPool_id.get()));
             if(inboundComPortPool.isPresent()) {
                 source.setComPortPool(inboundComPortPool.get());
             }
@@ -44,10 +44,10 @@ public abstract class InboundComPortInfo<T extends InboundComPort, B extends Inb
     @Override
     protected B build(B builder, EngineModelService engineModelService) {
         super.build(builder, engineModelService);
-        Optional<Long> comPortPool_id = Optional.fromNullable(this.comPortPool_id);
-        Optional<InboundComPortPool> inboundComPortPool = Optional.absent();
+        Optional<Long> comPortPool_id = Optional.ofNullable(this.comPortPool_id);
+        Optional<InboundComPortPool> inboundComPortPool = Optional.empty();
         if (comPortPool_id.isPresent()) {
-            inboundComPortPool=Optional.fromNullable(engineModelService.findInboundComPortPool(comPortPool_id.get()));
+            inboundComPortPool=Optional.ofNullable(engineModelService.findInboundComPortPool(comPortPool_id.get()));
         }
         if(inboundComPortPool.isPresent()){
             builder.comPortPool(inboundComPortPool.get());

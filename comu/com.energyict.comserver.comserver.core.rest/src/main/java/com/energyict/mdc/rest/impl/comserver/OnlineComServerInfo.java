@@ -3,7 +3,7 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -44,31 +44,31 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer> {
 
     public OnlineComServer writeTo(OnlineComServer comServerSource,EngineModelService engineModelService) {
         super.writeTo(comServerSource,engineModelService);
-        Optional<String> queryAPIPostUri = Optional.fromNullable(this.queryAPIPostUri);
+        Optional<String> queryAPIPostUri = Optional.ofNullable(this.queryAPIPostUri);
         if(queryAPIPostUri.isPresent()) {
             comServerSource.setQueryAPIPostUri(queryAPIPostUri.get());
         }
-        Optional<Boolean> usesDefaultQueryAPIPostUri = Optional.fromNullable(this.usesDefaultQueryAPIPostUri);
+        Optional<Boolean> usesDefaultQueryAPIPostUri = Optional.ofNullable(this.usesDefaultQueryAPIPostUri);
         if(usesDefaultQueryAPIPostUri.isPresent()) {
             comServerSource.setUsesDefaultQueryAPIPostUri(usesDefaultQueryAPIPostUri.get());
         }
-        Optional<String> eventRegistrationUri = Optional.fromNullable(this.eventRegistrationUri);
+        Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
         if(eventRegistrationUri.isPresent()) {
             comServerSource.setEventRegistrationUri(eventRegistrationUri.get());
         }
-        Optional<Boolean> usesDefaultEventRegistrationUri = Optional.fromNullable(this.usesDefaultEventRegistrationUri);
+        Optional<Boolean> usesDefaultEventRegistrationUri = Optional.ofNullable(this.usesDefaultEventRegistrationUri);
         if(usesDefaultEventRegistrationUri.isPresent()) {
             comServerSource.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
         }
-        Optional<Integer> storeTaskQueueSize = Optional.fromNullable(this.storeTaskQueueSize);
+        Optional<Integer> storeTaskQueueSize = Optional.ofNullable(this.storeTaskQueueSize);
         if(storeTaskQueueSize.isPresent()) {
             comServerSource.setStoreTaskQueueSize(storeTaskQueueSize.get());
         }
-        Optional<Integer> storeTaskThreadPriority = Optional.fromNullable(this.storeTaskThreadPriority);
+        Optional<Integer> storeTaskThreadPriority = Optional.ofNullable(this.storeTaskThreadPriority);
         if(storeTaskThreadPriority.isPresent()) {
             comServerSource.setStoreTaskThreadPriority(storeTaskThreadPriority.get());
         }
-        Optional<Integer> numberOfStoreTaskThreads = Optional.fromNullable(this.numberOfStoreTaskThreads);
+        Optional<Integer> numberOfStoreTaskThreads = Optional.ofNullable(this.numberOfStoreTaskThreads);
         if(numberOfStoreTaskThreads.isPresent()) {
             comServerSource.setNumberOfStoreTaskThreads(numberOfStoreTaskThreads.get());
         }

@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedInboundComPort, ServletBasedInboundComPort.ServletBasedInboundComPortBuilder> {
 
@@ -25,31 +25,31 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
 
     protected void writeTo(ServletBasedInboundComPort source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
-        Optional<Boolean> useHttps = Optional.fromNullable(this.useHttps);
+        Optional<Boolean> useHttps = Optional.ofNullable(this.useHttps);
         if(useHttps.isPresent()) {
             source.setHttps(useHttps.get());
         }
-        Optional<String> keyStoreFilePath = Optional.fromNullable(this.keyStoreFilePath);
+        Optional<String> keyStoreFilePath = Optional.ofNullable(this.keyStoreFilePath);
         if(keyStoreFilePath.isPresent()) {
             source.setKeyStoreSpecsFilePath(keyStoreFilePath.get());
         }
-        Optional<String> keyStorePassword = Optional.fromNullable(this.keyStorePassword);
+        Optional<String> keyStorePassword = Optional.ofNullable(this.keyStorePassword);
         if(keyStorePassword.isPresent()) {
             source.setKeyStoreSpecsPassword(keyStorePassword.get());
         }
-        Optional<String> trustStoreFilePath = Optional.fromNullable(this.trustStoreFilePath);
+        Optional<String> trustStoreFilePath = Optional.ofNullable(this.trustStoreFilePath);
         if(trustStoreFilePath.isPresent()) {
             source.setTrustStoreSpecsFilePath(trustStoreFilePath.get());
         }
-        Optional<String> trustStorePassword = Optional.fromNullable(this.trustStorePassword);
+        Optional<String> trustStorePassword = Optional.ofNullable(this.trustStorePassword);
         if(trustStorePassword.isPresent()) {
             source.setTrustStoreSpecsPassword(trustStorePassword.get());
         }
-        Optional<Integer> portNumber = Optional.fromNullable(this.portNumber);
+        Optional<Integer> portNumber = Optional.ofNullable(this.portNumber);
         if(portNumber.isPresent()) {
             source.setPortNumber(portNumber.get());
         }
-        Optional<String> contextPath = Optional.fromNullable(this.contextPath);
+        Optional<String> contextPath = Optional.ofNullable(this.contextPath);
         if(contextPath.isPresent()) {
             source.setContextPath(contextPath.get());
         }

@@ -5,7 +5,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.model.*;
 import com.energyict.mdc.engine.model.security.Privileges;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -83,7 +83,7 @@ public class ComPortPoolComPortResource {
     }
 
     private ComPortPool findComPortPoolOrThrowException(long id) {
-        Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
+        Optional<ComPortPool> comPortPool = Optional.ofNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
             throw new WebApplicationException("No ComPortPool with id " + id,
                     Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build());

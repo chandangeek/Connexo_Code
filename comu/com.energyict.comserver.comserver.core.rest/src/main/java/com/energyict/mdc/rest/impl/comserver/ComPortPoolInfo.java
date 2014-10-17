@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -47,19 +47,19 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     }
 
     protected S writeTo(S source, ProtocolPluggableService protocolPluggableService) {
-        Optional<String> name = Optional.fromNullable(this.name);
+        Optional<String> name = Optional.ofNullable(this.name);
         if(name.isPresent()) {
             source.setName(name.get());
         }
-        Optional<String> description = Optional.fromNullable(this.description);
+        Optional<String> description = Optional.ofNullable(this.description);
         if(description.isPresent()) {
             source.setDescription(description.get());
         }
-        Optional<ComPortType> type = Optional.fromNullable(this.type);
+        Optional<ComPortType> type = Optional.ofNullable(this.type);
         if(type.isPresent()) {
             source.setComPortType(type.get());
         }
-        Optional<Boolean> active = Optional.fromNullable(this.active);
+        Optional<Boolean> active = Optional.ofNullable(this.active);
         if(active.isPresent()) {
             source.setActive(active.get());
         }

@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.*;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -36,15 +36,15 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
 
     public RemoteComServer writeTo(RemoteComServer comServerSource,EngineModelService engineModelService) {
         super.writeTo(comServerSource,engineModelService);
-        Optional<String> eventRegistrationUri = Optional.fromNullable(this.eventRegistrationUri);
+        Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
         if(eventRegistrationUri.isPresent()) {
             comServerSource.setEventRegistrationUri(eventRegistrationUri.get());
         }
-        Optional<Boolean> usesDefaultEventRegistrationUri = Optional.fromNullable(this.usesDefaultEventRegistrationUri);
+        Optional<Boolean> usesDefaultEventRegistrationUri = Optional.ofNullable(this.usesDefaultEventRegistrationUri);
         if(usesDefaultEventRegistrationUri.isPresent()) {
             comServerSource.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
         }
-        Optional<Long> onlineComServerId = Optional.fromNullable(this.onlineComServerId);
+        Optional<Long> onlineComServerId = Optional.ofNullable(this.onlineComServerId);
         if(onlineComServerId.isPresent()) {
             Optional<? extends ComServer> onlineComServer = engineModelService.findComServer(onlineComServerId.get());
             if(onlineComServer.isPresent() && OnlineComServer.class.isAssignableFrom(onlineComServer.get().getClass())) {

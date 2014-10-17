@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.security.Privileges;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +67,7 @@ public class ComPortResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public ComPortInfo getComPort(@PathParam("id") long id) {
-        Optional<ComPort> comPort = Optional.fromNullable(engineModelService.findComPort(id));
+        Optional<ComPort> comPort = Optional.ofNullable(engineModelService.findComPort(id));
         if (!comPort.isPresent()) {
             throw new WebApplicationException("No ComPort with id "+id,
                 Response.status(Response.Status.NOT_FOUND).entity("No ComPort with id "+id).build());

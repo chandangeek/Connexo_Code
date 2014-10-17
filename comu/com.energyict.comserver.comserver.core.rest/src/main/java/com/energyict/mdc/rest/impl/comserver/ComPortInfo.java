@@ -10,7 +10,10 @@ import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.util.Optional;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -20,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -46,7 +50,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public Long comServer_id;
     public String comServerName;
     public Integer numberOfSimultaneousConnections = Integer.valueOf(0);
-    public Date modificationDate;
+    public Instant modificationDate;
     public Integer ringCount;
     public Integer maximumNumberOfDialErrors;
     public TimeDurationInfo connectTimeout;
@@ -93,23 +97,23 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     }
 
     protected void writeTo(T source,EngineModelService engineModelService) {
-        Optional<String> name = Optional.fromNullable(this.name);
+        Optional<String> name = Optional.ofNullable(this.name);
         if(name.isPresent()) {
             source.setName(name.get());
         }
-        Optional<String> description = Optional.fromNullable(this.description);
+        Optional<String> description = Optional.ofNullable(this.description);
         if(description.isPresent()) {
             source.setDescription(description.get());
         }
-        Optional<Boolean> active = Optional.fromNullable(this.active);
+        Optional<Boolean> active = Optional.ofNullable(this.active);
         if(active.isPresent()) {
             source.setActive(active.get());
         }
-        Optional<ComPortType> comPortType = Optional.fromNullable(this.comPortType);
+        Optional<ComPortType> comPortType = Optional.ofNullable(this.comPortType);
         if(comPortType.isPresent()) {
             source.setComPortType(comPortType.get());
         }
-        Optional<Integer> numberOfSimultaneousConnections = Optional.fromNullable(this.numberOfSimultaneousConnections);
+        Optional<Integer> numberOfSimultaneousConnections = Optional.ofNullable(this.numberOfSimultaneousConnections);
         if(numberOfSimultaneousConnections.isPresent()) {
             source.setNumberOfSimultaneousConnections(numberOfSimultaneousConnections.get());
         }

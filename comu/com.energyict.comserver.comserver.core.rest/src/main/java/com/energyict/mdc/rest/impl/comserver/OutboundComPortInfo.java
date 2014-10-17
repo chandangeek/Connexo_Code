@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +65,7 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
     protected OutboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
         OutboundComPort outboundComPort = build(comServer.newOutboundComPort(this.name, this.numberOfSimultaneousConnections), engineModelService).add();
         for (Long outboundComPortPoolId : outboundComPortPoolIds) {
-            Optional<OutboundComPortPool> outboundComPortPool = Optional.fromNullable(engineModelService.findOutboundComPortPool(outboundComPortPoolId));
+            Optional<OutboundComPortPool> outboundComPortPool = Optional.ofNullable(engineModelService.findOutboundComPortPool(outboundComPortPoolId));
             if (outboundComPortPool.isPresent()) {
                 outboundComPortPool.get().addOutboundComPort(outboundComPort);
             }

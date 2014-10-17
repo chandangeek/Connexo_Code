@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -62,7 +62,7 @@ public class ComPortPoolResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public ComPortPoolInfo<?> getComPortPool(@PathParam("id") long id) {
-        Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
+        Optional<ComPortPool> comPortPool = Optional.ofNullable(engineModelService.findComPortPool(id));
         if (comPortPool.isPresent()) {
             return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
         }
@@ -128,7 +128,7 @@ public class ComPortPoolResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public Response deleteComPortPool(@PathParam("id") long id) {
-        Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
+        Optional<ComPortPool> comPortPool = Optional.ofNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
             return Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build();
         }
@@ -147,7 +147,7 @@ public class ComPortPoolResource {
             handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool, engineModelService, getBoolean(uriInfo, ALL));
         }
         if(InboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
-            handleInboundPoolPorts((InboundComPortPool)comPortPool, Optional.fromNullable(comPortPoolInfo.inboundComPorts));
+            handleInboundPoolPorts((InboundComPortPool)comPortPool, Optional.ofNullable(comPortPoolInfo.inboundComPorts));
         }
         return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool, engineModelService)).build();
     }
@@ -158,7 +158,7 @@ public class ComPortPoolResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
-        Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
+        Optional<ComPortPool> comPortPool = Optional.ofNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
             throw new WebApplicationException("No ComPortPool with id " + id, Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build());
         }
@@ -167,7 +167,7 @@ public class ComPortPoolResource {
             handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool.get(), engineModelService, getBoolean(uriInfo, ALL));
         }
         if(InboundComPortPool.class.isAssignableFrom(comPortPool.get().getClass())) {
-            handleInboundPoolPorts((InboundComPortPool)comPortPool.get(), Optional.fromNullable(comPortPoolInfo.inboundComPorts));
+            handleInboundPoolPorts((InboundComPortPool)comPortPool.get(), Optional.ofNullable(comPortPoolInfo.inboundComPorts));
         }
         comPortPool.get().save();
         return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
@@ -245,7 +245,7 @@ public class ComPortPoolResource {
         }
 
         for (ComPortInfo comPortInfo : newComPortIdMap.values()) {
-            Optional<? extends ComPort> comPort = Optional.fromNullable(engineModelService.findComPort(comPortInfo.id));
+            Optional<? extends ComPort> comPort = Optional.ofNullable(engineModelService.findComPort(comPortInfo.id));
             if (!comPort.isPresent()) {
                 throw new WebApplicationException("No ComPort with id "+comPortInfo.id,
                         Response.status(Response.Status.NOT_FOUND).entity("No ComPort with id "+comPortInfo.id).build());

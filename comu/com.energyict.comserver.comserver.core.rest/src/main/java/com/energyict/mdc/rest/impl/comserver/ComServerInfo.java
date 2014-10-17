@@ -10,7 +10,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -77,27 +77,27 @@ public abstract class ComServerInfo<S extends ComServer> {
     }
 
     public S writeTo(S source,EngineModelService engineModelService) {
-        Optional<String> name = Optional.fromNullable(this.name);
+        Optional<String> name = Optional.ofNullable(this.name);
         if(name.isPresent()) {
             source.setName(name.get());
         }
-        Optional<Boolean> active = Optional.fromNullable(this.active);
+        Optional<Boolean> active = Optional.ofNullable(this.active);
         if(active.isPresent()) {
             source.setActive(active.get());
         }
-        Optional<ComServer.LogLevel> serverLogLevel = Optional.fromNullable(this.serverLogLevel);
+        Optional<ComServer.LogLevel> serverLogLevel = Optional.ofNullable(this.serverLogLevel);
         if(serverLogLevel.isPresent()) {
             source.setServerLogLevel(serverLogLevel.get());
         }
-        Optional<ComServer.LogLevel> communicationLogLevel = Optional.fromNullable(this.communicationLogLevel);
+        Optional<ComServer.LogLevel> communicationLogLevel = Optional.ofNullable(this.communicationLogLevel);
         if(communicationLogLevel.isPresent()) {
             source.setCommunicationLogLevel(communicationLogLevel.get());
         }
-        Optional<TimeDurationInfo> changesInterPollDelay = Optional.fromNullable(this.changesInterPollDelay);
+        Optional<TimeDurationInfo> changesInterPollDelay = Optional.ofNullable(this.changesInterPollDelay);
         if (changesInterPollDelay.isPresent()) {
             source.setChangesInterPollDelay(changesInterPollDelay.get().asTimeDuration());
         }
-        Optional<TimeDurationInfo> schedulingInterPollDelay = Optional.fromNullable(this.schedulingInterPollDelay);
+        Optional<TimeDurationInfo> schedulingInterPollDelay = Optional.ofNullable(this.schedulingInterPollDelay);
         if (schedulingInterPollDelay.isPresent()) {
             source.setSchedulingInterPollDelay(schedulingInterPollDelay.get().asTimeDuration());
         }

@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundComPort, TCPBasedInboundComPort.TCPBasedInboundComPortBuilder> {
 
@@ -19,7 +19,7 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
 
     protected void writeTo(TCPBasedInboundComPort source,EngineModelService engineModelService) {
         super.writeTo(source, engineModelService);
-        Optional<Integer> portNumber = Optional.fromNullable(this.portNumber);
+        Optional<Integer> portNumber = Optional.ofNullable(this.portNumber);
         if(portNumber.isPresent()) {
             source.setPortNumber(portNumber.get());
         }
