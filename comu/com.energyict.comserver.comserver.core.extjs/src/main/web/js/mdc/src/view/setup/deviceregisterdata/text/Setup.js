@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Setup', {
                             ],
                             stepItems: [
                                 {
-                                    text:  Uni.I18n.translate('device.registerData.add','MDC','Add register data'),
+                                    text:  Uni.I18n.translate('device.registerData.addReading','MDC','Add reading'),
                                     href: '#/devices/' + me.mRID + '/registers/' + me.registerId + '/data/create'
                                 }
                             ]

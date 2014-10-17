@@ -976,14 +976,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                             filter: 'Mdc.model.RegisterDataFilter',
                                             items: {
                                                 create: {
-                                                    title: Uni.I18n.translate('device.registerData.addData', 'MDC', 'Add register data'),
+                                                    title: Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'),
                                                     route: 'create',
                                                     controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
                                                     privileges: ['privilege.administrate.deviceConfiguration'],
                                                     action: 'showDeviceRegisterConfigurationDataAddView'
                                                 },
                                                 edit: {
-                                                    title: Uni.I18n.translate('device.registerData.editData', 'MDC', 'Edit register data'),
+                                                    title: Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'),
                                                     route: '{timestamp}/edit',
                                                     controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
                                                     privileges: ['privilege.administrate.deviceConfiguration'],
