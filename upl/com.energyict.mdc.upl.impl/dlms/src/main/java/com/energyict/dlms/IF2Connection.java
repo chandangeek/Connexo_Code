@@ -2,7 +2,9 @@ package com.energyict.dlms;
 
 import com.energyict.dialer.connection.HHUSignOn;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -187,6 +189,10 @@ public class IF2Connection implements DLMSConnection {
         return this.maxRetries;
     }
 
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
+    }
 
     /**
      * Do the HHUSignOn if required, send an ack-power-up and connect request message to the IF2 interface.

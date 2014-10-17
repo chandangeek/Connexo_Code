@@ -4,7 +4,9 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -65,7 +67,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
         } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
             throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);   //Received error code from the meter, instead of the expected value
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDLMSConnection().getMaxRetries() + 1);
+            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDLMSConnection().getMaxTries());
         }
     }
 

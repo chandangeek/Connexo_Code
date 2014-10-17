@@ -2,12 +2,24 @@ package com.energyict.dlms.protocolimplv2;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.AuthenticationTypes;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AssociationSN;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -223,7 +235,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
                 throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsV2Connection().getMaxRetries() + 1);
+                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
             }
             try {
                 decryptedResponse = new OctetString(berEncodedData, 0);
@@ -239,7 +251,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
                 throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsV2Connection().getMaxRetries() + 1);
+                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
             }
             if (response.length == 0) {
                 return new byte[0];

@@ -250,4 +250,9 @@ public class SecureConnection implements DLMSConnection {
     public int getMaxRetries() {
         return getTransportConnection().getMaxRetries();
     }
+
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
+    }
 }

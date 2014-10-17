@@ -2,10 +2,13 @@ package com.energyict.dlms.protocolimplv2.connection;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -486,5 +489,10 @@ public class TCPIPConnection implements DlmsV2Connection {
 
     public int getMaxRetries() {
         return maxRetries;
+    }
+
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
     }
 }

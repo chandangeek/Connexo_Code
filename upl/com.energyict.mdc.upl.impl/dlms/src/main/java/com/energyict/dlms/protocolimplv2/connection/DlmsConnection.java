@@ -131,4 +131,9 @@ public interface DlmsConnection {
      */
     int getMaxRetries();
 
+    /**
+     * Getter for the maximum number of tries of this communication session
+     */
+    int getMaxTries();
+
 }

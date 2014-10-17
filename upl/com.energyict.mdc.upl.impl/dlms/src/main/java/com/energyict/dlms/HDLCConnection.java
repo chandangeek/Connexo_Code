@@ -1306,4 +1306,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         return iMaxRetries;
     }
 
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
+    }
 }

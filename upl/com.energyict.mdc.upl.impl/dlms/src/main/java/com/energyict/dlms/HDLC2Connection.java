@@ -1067,6 +1067,11 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         return iMaxRetries;
     }
 
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
+    }
+
     public long getlForceDelay() {
         return lForceDelay;
     }

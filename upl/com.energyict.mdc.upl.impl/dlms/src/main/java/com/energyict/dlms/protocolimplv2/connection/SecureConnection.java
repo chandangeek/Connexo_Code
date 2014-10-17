@@ -3,7 +3,11 @@ package com.energyict.dlms.protocolimplv2.connection;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.XdlmsApduTags;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.protocol.ProtocolUtils;
@@ -260,5 +264,10 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
     public int getMaxRetries() {
         return getTransportConnection().getMaxRetries();
+    }
+
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
     }
 }

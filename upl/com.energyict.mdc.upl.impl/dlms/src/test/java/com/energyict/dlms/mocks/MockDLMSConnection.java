@@ -4,7 +4,11 @@
 package com.energyict.dlms.mocks;
 
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -135,6 +139,11 @@ public class MockDLMSConnection implements DLMSConnection {
     }
 
     public int getMaxRetries() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxTries() {
         return 0;
     }
 }
