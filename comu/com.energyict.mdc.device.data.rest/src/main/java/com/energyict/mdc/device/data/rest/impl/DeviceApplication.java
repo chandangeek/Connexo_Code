@@ -103,7 +103,8 @@ public class DeviceApplication extends Application implements InstallService {
                 ChannelResource.class,
                 DeviceGroupResource.class,
                 SecurityPropertySetResource.class,
-                ConnectionMethodResource.class
+                ConnectionMethodResource.class,
+                ComSessionResource.class
         );
     }
 
@@ -272,6 +273,9 @@ public class DeviceApplication extends Application implements InstallService {
             bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
             bind(ChannelResource.class).to(ChannelResource.class);
             bind(ValidationInfoHelper.class).to(ValidationInfoHelper.class);
+            bind(ComSessionInfoFactory.class).to(ComSessionInfoFactory.class);
+            bind(ComTaskExecutionSessionInfoFactory.class).to(ComTaskExecutionSessionInfoFactory.class);
+            bind(JournalEntryInfoFactory.class).to(JournalEntryInfoFactory.class);
         }
     }
 
