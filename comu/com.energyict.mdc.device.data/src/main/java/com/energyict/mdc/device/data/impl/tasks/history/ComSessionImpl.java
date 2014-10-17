@@ -149,14 +149,14 @@ public class ComSessionImpl implements ComSession {
     public Finder<ComSessionJournalEntry> getJournalEntries(Set<ComServer.LogLevel> levels) {
         return DefaultFinder.of(
                 ComSessionJournalEntry.class,
-                where("logLevel").
-                   in(new ArrayList<>(levels)),
+                where("logLevel").in(new ArrayList<>(levels)).and(where("comSession").isEqualTo(this)),
                 this.dataModel).
                 defaultSortColumn("timestamp desc");
     }
 
     @Override
-    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries(Set<ComServer.LogLevel> levels, int start, int pageSize) {
+    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries(Set<ComServer.LogLevel> levels) {
+        // Todo: Ask Karel how to specify a condition to match a subclass
         /* select * from DDC_COMTASKEXECJOURNALENTRY cteje
              join DDC_COMTASKEXECSESSION ctes on cteje.COMTASKEXECSESSION = ctes.id
             where (    discriminator = '1'
@@ -168,7 +168,8 @@ public class ComSessionImpl implements ComSession {
                          where("class").isEqualTo("1")
                     .and(where("logLevel").in(new ArrayList<>(levels)))
                     .and(where("comTaskExecutionSession.comSession").isEqualTo(this)),
-                this.dataModel).
+                this.dataModel,
+                ComTaskExecutionSession.class).
                 defaultSortColumn("timestamp desc");
     }
 
