@@ -36,8 +36,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
-import org.joda.time.Duration;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 

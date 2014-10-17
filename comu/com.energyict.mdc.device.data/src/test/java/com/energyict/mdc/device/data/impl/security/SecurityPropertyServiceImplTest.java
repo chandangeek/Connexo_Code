@@ -72,6 +72,7 @@ import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -128,7 +129,7 @@ public class SecurityPropertyServiceImplTest {
 
     @Before
     public void initializeMocks () {
-        when(Date.from(clock.instant())).thenReturn(new Date());
+        when(clock.instant()).thenReturn(Instant.now());
         when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);

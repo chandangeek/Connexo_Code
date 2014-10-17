@@ -76,7 +76,7 @@ public class DeviceValidationImplTest {
         when(koreChannel.getMeterActivation()).thenReturn(meterActivation);
         doReturn(asList(readingType)).when(koreChannel).getReadingTypes();
         doReturn(asList(meterActivation)).when(meter).getMeterActivations();
-        when(meterActivation.getInterval()).thenReturn(Interval.sinceEpoch());
+        when(meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(meterActivation.getChannels()).thenReturn(asList(koreChannel));
         when(meterActivationValidation1.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation1, channelValidation2));
         when(meterActivationValidation2.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation3));
@@ -84,7 +84,7 @@ public class DeviceValidationImplTest {
         when(channelValidation1.hasActiveRules()).thenReturn(false);
         when(channelValidation2.hasActiveRules()).thenReturn(false);
         when(channelValidation3.hasActiveRules()).thenReturn(false);
-        when(Date.from(clock.instant())).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW.toInstant());
 
         when(meterActivationValidation1.getChannelValidation(koreChannel)).thenReturn(Optional.of(channelValidation2));
 
@@ -156,8 +156,8 @@ public class DeviceValidationImplTest {
         when(koreChannel2.getMeterActivation()).thenReturn(meterActivation1);
         when(koreChannel3.getMeterActivation()).thenReturn(meterActivation2);
         when(koreChannel4.getMeterActivation()).thenReturn(meterActivation2);
-        when(meterActivation1.getInterval()).thenReturn(Interval.endAt(SWITCH.toInstant()));
-        when(meterActivation2.getInterval()).thenReturn(Interval.startAt(SWITCH.toInstant()));
+        when(meterActivation1.getRange()).thenReturn(Range.closedOpen(Instant.EPOCH, SWITCH.toInstant()));
+        when(meterActivation2.getRange()).thenReturn(Range.atLeast(SWITCH.toInstant()));
 
         deviceValidation.validateChannel(channel, null, NOW.toInstant());
 
@@ -182,8 +182,8 @@ public class DeviceValidationImplTest {
         when(koreChannel2.getMeterActivation()).thenReturn(meterActivation1);
         when(koreChannel3.getMeterActivation()).thenReturn(meterActivation2);
         when(koreChannel4.getMeterActivation()).thenReturn(meterActivation2);
-        when(meterActivation1.getInterval()).thenReturn(Interval.of(Instant.EPOCH, SWITCH.toInstant()));
-        when(meterActivation2.getInterval()).thenReturn(Interval.startAt(SWITCH.toInstant()));
+        when(meterActivation1.getRange()).thenReturn(Range.closed(Instant.EPOCH, SWITCH.toInstant()));
+        when(meterActivation2.getRange()).thenReturn(Range.atLeast(SWITCH.toInstant()));
 
         deviceValidation.validateChannel(channel, MANUAL_LAST_CHECKED.toInstant(), NOW.toInstant());
 
