@@ -1,8 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.relations;
 
+import com.elster.jupiter.properties.BooleanFactory;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -33,7 +32,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
     private DataMapper<PluggableClassRelationAttributeTypeUsage> mapper;
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
 
-    public SecurityPropertySetRelationTypeSupport (
+    public SecurityPropertySetRelationTypeSupport(
             DataModel dataModel,
             ProtocolPluggableService protocolPluggableService,
             RelationService relationService,
@@ -60,8 +59,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
                 this.registerRelationType();
             }
             return relationType;
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -73,9 +71,11 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         relationTypeShadow.setHasTimeResolution(true);
         RelationAttributeTypeShadow deviceAttribute = this.deviceAttributeTypeShadow();
         RelationAttributeTypeShadow securityPropertySetAttribute = this.securityPropertySetAttributeTypeShadow();
+        RelationAttributeTypeShadow statusAttributeTypeShadow = this.statusAttributeTypeShadow();
         relationTypeShadow.setLockAttributeTypeShadow(deviceAttribute);
         relationTypeShadow.add(deviceAttribute);
         relationTypeShadow.add(securityPropertySetAttribute);
+        relationTypeShadow.add(statusAttributeTypeShadow);
         for (PropertySpec propertySpec : securitySupport.getSecurityProperties()) {
             relationTypeShadow.add(this.relationAttributeTypeShadowFor(propertySpec));
         }
@@ -83,7 +83,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         return this.createRelationType(relationTypeShadow, propertySpecService);
     }
 
-    private RelationAttributeTypeShadow deviceAttributeTypeShadow () {
+    private RelationAttributeTypeShadow deviceAttributeTypeShadow() {
         RelationAttributeTypeShadow shadow = new RelationAttributeTypeShadow();
         shadow.setName(DEVICE_ATTRIBUTE_NAME);
         shadow.setRequired(true);
@@ -94,7 +94,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         return shadow;
     }
 
-    private RelationAttributeTypeShadow securityPropertySetAttributeTypeShadow () {
+    private RelationAttributeTypeShadow securityPropertySetAttributeTypeShadow() {
         RelationAttributeTypeShadow shadow = new RelationAttributeTypeShadow();
         shadow.setName(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME);
         shadow.setRequired(true);
@@ -105,7 +105,17 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         return shadow;
     }
 
-    private RelationAttributeTypeShadow relationAttributeTypeShadowFor (PropertySpec propertySpec) {
+    private RelationAttributeTypeShadow statusAttributeTypeShadow() {
+        RelationAttributeTypeShadow shadow = new RelationAttributeTypeShadow();
+        shadow.setName(STATUS_ATTRIBUTE_NAME);
+        shadow.setRequired(true);
+        shadow.setIsDefault(false);
+        shadow.setNavigatable(false);
+        shadow.setValueFactoryClass(BooleanFactory.class);
+        return shadow;
+    }
+
+    private RelationAttributeTypeShadow relationAttributeTypeShadowFor(PropertySpec propertySpec) {
         RelationAttributeTypeShadow shadow = new RelationAttributeTypeShadow();
         shadow.setName(propertySpec.getName());
         shadow.setIsDefault(false);
@@ -116,7 +126,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         return shadow;
     }
 
-    private ConstraintShadow constraintShadowFor (RelationAttributeTypeShadow deviceAttributeTypeShadow, RelationAttributeTypeShadow securityPropertySetAttributeTypeShadow) {
+    private ConstraintShadow constraintShadowFor(RelationAttributeTypeShadow deviceAttributeTypeShadow, RelationAttributeTypeShadow securityPropertySetAttributeTypeShadow) {
         ConstraintShadow shadow = new ConstraintShadow();
         shadow.add(deviceAttributeTypeShadow);
         shadow.add(securityPropertySetAttributeTypeShadow);
@@ -125,11 +135,11 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         return shadow;
     }
 
-    private void activate (RelationType relationType) {
+    private void activate(RelationType relationType) {
         relationType.activate();
     }
 
-    private void registerRelationType () {
+    private void registerRelationType() {
         RelationType relationType = this.findRelationType();
         PluggableClassRelationAttributeTypeRegistry registry = new PluggableClassRelationAttributeTypeRegistry(this.mapper);
         if (!registry.isDefaultAttribute(relationType.getAttributeType(DEVICE_ATTRIBUTE_NAME))) {
@@ -138,7 +148,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         }
     }
 
-    private void unregisterRelationType () {
+    private void unregisterRelationType() {
         if (this.deviceProtocolHasSecurityProperties()) {
             RelationType relationType = this.findRelationType();
             PluggableClassRelationAttributeTypeRegistry registry = new PluggableClassRelationAttributeTypeRegistry(this.mapper);
@@ -148,12 +158,11 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
     }
 
     @Override
-    public void deleteRelationType () {
+    public void deleteRelationType() {
         RelationType relationType;
         try {
             relationType = this.findRelationType();
-        }
-        catch (ApplicationException e) {
+        } catch (ApplicationException e) {
             /* Creation of relation type failed before, no need to unRegister and delete the relation type
              * However, since we are compiling with AspectJ's Xlint option set to error level
              * to trap advice that does not apply,
@@ -168,10 +177,10 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         }
     }
 
-    private boolean isUsedByAnotherPluggableClass (RelationType relationType) {
+    private boolean isUsedByAnotherPluggableClass(RelationType relationType) {
         PluggableClassRelationAttributeTypeRegistry registry = new PluggableClassRelationAttributeTypeRegistry(this.mapper);
         return registry.isDefaultAttribute(relationType.getAttributeType(DEVICE_ATTRIBUTE_NAME))
-            || registry.isDefaultAttribute(relationType.getAttributeType(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME));
+                || registry.isDefaultAttribute(relationType.getAttributeType(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME));
     }
 
 }

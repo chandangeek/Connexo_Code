@@ -22,4 +22,11 @@ public interface SecurityPropertySetRelationAttributeTypeNames {
      */
     public String SECURITY_PROPERTY_SET_ATTRIBUTE_NAME = "securityPropertySet";
 
+    /**
+     * The name of the attribute that references the status
+     * when status = COMPLETE the security set can be used,
+     * status = INCOMPLETE not all required properties are filled in
+     */
+    public String STATUS_ATTRIBUTE_NAME = "status";
+
 }
