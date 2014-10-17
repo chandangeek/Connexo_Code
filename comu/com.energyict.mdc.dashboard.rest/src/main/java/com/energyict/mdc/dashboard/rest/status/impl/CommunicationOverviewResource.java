@@ -7,7 +7,6 @@ import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.engine.model.security.Privileges;
-import com.google.common.base.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -16,6 +15,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Optional;
 
 /**
  * Created by bvn on 7/29/14.

@@ -15,9 +15,9 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -61,19 +61,18 @@ public class ComTaskExecutionInfoFactory {
                 if (nextExecutionSpecs.isPresent()) {
                     info.comScheduleFrequency = TemporalExpressionInfo.from(nextExecutionSpecs.get().getTemporalExpression());
                 }
-
             }
         }
         info.urgency = comTaskExecution.getExecutionPriority();
         info.currentState = new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
-        info.latestResult = comTaskExecutionSession.isPresent() ? CompletionCodeInfo.from(comTaskExecutionSession.get().getHighestPriorityCompletionCode(), thesaurus) : null;
+        info.latestResult = comTaskExecutionSession.map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus);
         info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
         info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
-        if (connectionTask!=null) {
-            Optional<ComSession> comSessionOptional = comTaskExecutionSession.isPresent() ? Optional.of(comTaskExecutionSession.get().getComSession()) : Optional.absent();
+        if (connectionTask != null) {
+            Optional<ComSession> comSessionOptional = comTaskExecutionSession.map(ComTaskExecutionSession::getComSession);
             info.connectionTask = connectionTaskInfoFactory.get().from(connectionTask, comSessionOptional);
         }
         return info;

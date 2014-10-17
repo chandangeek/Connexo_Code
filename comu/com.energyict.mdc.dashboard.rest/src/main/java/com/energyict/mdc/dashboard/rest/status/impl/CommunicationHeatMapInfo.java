@@ -25,15 +25,14 @@ public class CommunicationHeatMapInfo {
     public CommunicationHeatMapInfo() {
     }
 
-    public CommunicationHeatMapInfo(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus)
-            throws Exception {
+    public CommunicationHeatMapInfo(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus) {
         this.breakdown = HeatMapBreakdownOption.deviceTypes;
         this.alias = breakdown.filterOption();
-        this.heatMap=new ArrayList<>();
+        this.heatMap = new ArrayList<>();
         this.heatMap.addAll(createHeatMap(heatMap,thesaurus));
     }
 
-    private List<HeatMapRowInfo> createHeatMap(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus) throws Exception {
+    private List<HeatMapRowInfo> createHeatMap(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus) {
         List<HeatMapRowInfo> heatMapInfoList = new ArrayList<>();
         if (heatMap!=null) {
             for (CommunicationTaskHeatMapRow row : heatMap) {
@@ -58,7 +57,5 @@ public class CommunicationHeatMapInfo {
         }
         return heatMapInfoList;
     }
-
-
 
 }

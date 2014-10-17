@@ -8,7 +8,6 @@ import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.engine.model.security.Privileges;
-import com.google.common.base.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -18,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 @Path("/connectionheatmap")
 public class ConnectionHeatMapResource {
@@ -54,19 +54,20 @@ public class ConnectionHeatMapResource {
 
         if (jsonQueryFilter.getProperty(Constants.DEVICE_GROUP)!=null) {
             Optional<QueryEndDeviceGroup> deviceGroupOptional = meteringGroupService.findQueryEndDeviceGroup(jsonQueryFilter.getProperty(Constants.DEVICE_GROUP, new LongAdapter()));
-            if (!deviceGroupOptional.isPresent()) {
-                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
-            }
-            switch (breakdown) {
-                case connectionTypes:
-                    return new ConnectionHeatMapInfo(dashboardService.getConnectionTypeHeatMap(deviceGroupOptional.get()),breakdown,thesaurus);
-                case deviceTypes:
-                    return new ConnectionHeatMapInfo(dashboardService.getConnectionsDeviceTypeHeatMap(deviceGroupOptional.get()),breakdown,thesaurus);
-                case comPortPools:
-                    return new ConnectionHeatMapInfo(dashboardService.getConnectionsComPortPoolHeatMap(deviceGroupOptional.get()),breakdown,thesaurus);
-                default:
-                    throw new WebApplicationException("Invalid breakdown: "+breakdown, Response.Status.BAD_REQUEST);
-            }
+            return deviceGroupOptional
+                    .map(g -> {
+                        switch (breakdown) {
+                            case connectionTypes:
+                                return new ConnectionHeatMapInfo(dashboardService.getConnectionTypeHeatMap(g), breakdown, thesaurus);
+                            case deviceTypes:
+                                return new ConnectionHeatMapInfo(dashboardService.getConnectionsDeviceTypeHeatMap(g), breakdown, thesaurus);
+                            case comPortPools:
+                                return new ConnectionHeatMapInfo(dashboardService.getConnectionsComPortPoolHeatMap(g), breakdown, thesaurus);
+                            default:
+                                throw new WebApplicationException("Invalid breakdown: " + breakdown, Response.Status.BAD_REQUEST);
+                        }
+                    })
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP));
         }
 
         switch (breakdown) {

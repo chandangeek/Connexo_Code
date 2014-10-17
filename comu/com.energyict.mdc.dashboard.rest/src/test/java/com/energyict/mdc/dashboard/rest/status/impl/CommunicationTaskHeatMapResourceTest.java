@@ -9,12 +9,12 @@ import com.energyict.mdc.dashboard.impl.ComCommandCompletionCodeOverviewImpl;
 import com.energyict.mdc.dashboard.impl.CommunicationTaskHeatMapRowImpl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.google.common.base.Optional;
 import com.jayway.jsonpath.JsonModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
 
@@ -59,7 +59,7 @@ public class CommunicationTaskHeatMapResourceTest extends DashboardApplicationJe
 
     @Test
     public void testCommunicationHeatMapJsonBindingWithUnknownDeviceGroup() throws Exception {
-        when(meteringGroupsService.findQueryEndDeviceGroup(anyInt())).thenReturn(Optional.<QueryEndDeviceGroup>absent());
+        when(meteringGroupsService.findQueryEndDeviceGroup(anyInt())).thenReturn(Optional.<QueryEndDeviceGroup>empty());
         Response response = target("/communicationheatmap").queryParam("filter", ExtjsFilter.filter("deviceGroup", -1L)).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
