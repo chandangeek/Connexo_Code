@@ -3,8 +3,8 @@ package com.elster.jupiter.parties.impl;
 import static com.elster.jupiter.domain.util.Save.action;
 import static com.google.common.base.Objects.toStringHelper;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,9 +31,9 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 
 @Unique(fields="mRID", groups = Save.Create.class)
 abstract class PartyImpl implements Party {
@@ -55,8 +55,8 @@ abstract class PartyImpl implements Party {
     @Valid
     private TelephoneNumber phone2;
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     private String userName;
 
     // associations
@@ -121,12 +121,12 @@ abstract class PartyImpl implements Party {
         return version;
     }
 
-    Date getCreateTime() {
-        return createTime == null ? null : createTime.toDate();
+    Instant getCreateTime() {
+        return createTime;
     }
 
-    Date getModTime() {
-        return modTime == null ? null : modTime.toDate();
+    Instant getModTime() {
+        return modTime;
     }
 
     String getUserName() {
@@ -167,13 +167,13 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public List<PartyInRoleImpl> getPartyInRoles(Interval interval) {
-        return partyInRoles.effective(interval);
+    public List<PartyInRoleImpl> getPartyInRoles(Range<Instant> range) {
+        return partyInRoles.effective(range);
     }
 
     @Override
-    public List<PartyInRoleImpl> getPartyInRoles(Date date) {
-        return partyInRoles.effective(date);
+    public List<PartyInRoleImpl> getPartyInRoles(Instant instant) {
+        return partyInRoles.effective(instant);
     }
     
     @Override
@@ -188,31 +188,31 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public PartyRepresentation appointDelegate(User user, Date start) {
-        Interval interval = Interval.startAt(start);
-        validateAddingDelegate(user, interval);
+    public PartyRepresentation appointDelegate(User user, Instant start) {
+    	Range<Instant> range = Range.atLeast(start);
+        validateAddingDelegate(user, range);
         PartyRepresentationImpl representation = partyRepresentationProvider.get();
-        representation.init(this, user, interval);
+        representation.init(this, user, range);
         representations.add(representation);
         touch();
         return representation;
     }
 
     @Override
-    public void adjustRepresentation(PartyRepresentation representation, Interval newInterval) {
+    public void adjustRepresentation(PartyRepresentation representation, Range<Instant> newRange) {
         if (!representations.contains(representation)) {
             throw new IllegalArgumentException();
         }
-        ((PartyRepresentationImpl) representation).setInterval(newInterval);
+        ((PartyRepresentationImpl) representation).setRange(newRange);
         dataModel.update(representation);
         touch();
     }
 
     @Override
-    public void unappointDelegate(User user, Date end) {
+    public void unappointDelegate(User user, Instant end) {
         for (PartyRepresentationImpl representation : representations) {
-            if (representation.getDelegate().equals(user) && representation.getInterval().isEffective(end)) {
-                representation.setInterval(representation.getInterval().withEnd(end));
+            if (representation.getDelegate().equals(user) && representation.isEffectiveAt(end)) {
+                representation.setRange(representation.getRange().intersection(Range.lessThan(end)));
                 dataModel.update(representation);
                 touch();
                 return;
@@ -222,7 +222,7 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public PartyInRoleImpl assumeRole(PartyRole role, Date start) {
+    public PartyInRoleImpl assumeRole(PartyRole role, Instant start) {
         PartyInRoleImpl candidate = partyInRoleProvider.get();
         candidate.init(this, role, Interval.startAt(start));
         validateAddingRole(candidate);
@@ -232,12 +232,12 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public PartyInRoleImpl terminateRole(PartyInRole partyInRole, Date date) { 
+    public PartyInRoleImpl terminateRole(PartyInRole partyInRole, Instant date) { 
         PartyInRoleImpl toUpdate = null;
         if (partyInRole.getParty() == this) {
         	toUpdate = (PartyInRoleImpl) partyInRole;
         }
-        if (toUpdate == null || !partyInRole.getInterval().isEffective(date)) {
+        if (toUpdate == null || !partyInRole.isEffectiveAt(date)) {
             throw new IllegalArgumentException();
         }
         toUpdate.terminate(date);
@@ -246,16 +246,18 @@ abstract class PartyImpl implements Party {
         return toUpdate;
     }
 
-    private void validateAddingDelegate(User user, Interval interval) {
+    private void validateAddingDelegate(User user, Range<Instant> range) {
         for (PartyRepresentation representation : representations) {
-            if (representation.getDelegate().getName().equals(user.getName()) && interval.overlaps(representation.getInterval())) {
+            if (representation.getDelegate().getName().equals(user.getName()) && 
+            		range.isConnected(representation.getRange()) &&
+            		!range.intersection(representation.getRange()).isEmpty()) {
                 throw new IllegalArgumentException();
             }
         }
     }
 
     private void validateAddingRole(PartyInRoleImpl candidate) {
-        for (PartyInRole partyInRole : partyInRoles.effective(candidate.getInterval())) {
+        for (PartyInRole partyInRole : partyInRoles.effective(candidate.getRange())) {
             if (candidate.conflictsWith(partyInRole)) {
                 throw new IllegalArgumentException("Conflicts with existing Role : " + partyInRole);
             }

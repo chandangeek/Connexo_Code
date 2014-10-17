@@ -46,7 +46,7 @@ public class OrmCacheTest {
         }
     }
     
-    private static final boolean printSql = true;
+    private static final boolean printSql = false;
     
     private static Injector getInjector(InMemoryBootstrapModule boot) {
     	return Guice.createInjector(

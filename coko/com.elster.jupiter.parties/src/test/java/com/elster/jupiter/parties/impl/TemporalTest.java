@@ -23,6 +23,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,7 +31,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +51,7 @@ public class TemporalTest {
         }
     }
     
-    private static final boolean printSql = true;
+    private static final boolean printSql = false;
 
     @BeforeClass
     public static void setUp() throws SQLException {
@@ -97,7 +98,7 @@ public class TemporalTest {
         	organization.setDescription("Buy and Improve");
         	organization.save();
         	PartyRole role = partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
-        	organization.assumeRole(role,new Date());
+        	organization.assumeRole(role, Instant.now());
         	context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext())  {

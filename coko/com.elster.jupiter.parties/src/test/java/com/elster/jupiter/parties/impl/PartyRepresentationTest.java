@@ -3,7 +3,7 @@ package com.elster.jupiter.parties.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +14,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
+import java.time.Clock;
+import com.google.common.collect.Range;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartyRepresentationTest {
@@ -33,7 +33,7 @@ public class PartyRepresentationTest {
 
     @Test
     public void testCreation() {
-    	PartyRepresentation rep =  new PartyRepresentationImpl(clock,userService).init(party, user, Interval.startAt(new Date()));
+    	PartyRepresentation rep =  new PartyRepresentationImpl(clock,userService).init(party, user, Range.atLeast(Instant.now()));
     	assertThat(rep.getParty()).isEqualTo(party);
     }
 }

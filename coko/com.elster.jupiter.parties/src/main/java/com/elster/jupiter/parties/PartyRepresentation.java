@@ -1,13 +1,15 @@
 package com.elster.jupiter.parties;
 
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.Interval;
+import java.time.Instant;
 
-public interface PartyRepresentation {
+import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.users.User;
+import com.google.common.collect.Range;
+
+public interface PartyRepresentation  extends Effectivity {
     User getDelegate();
     Party getParty();
-    Interval getInterval();
     boolean isCurrent();
 
-    void setInterval(Interval interval);
+    void setRange(Range<Instant> range);
 }

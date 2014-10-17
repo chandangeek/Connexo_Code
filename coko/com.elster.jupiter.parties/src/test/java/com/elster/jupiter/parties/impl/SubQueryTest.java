@@ -4,8 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
-import java.util.Date;
-
+import java.time.Instant;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,7 +52,7 @@ public class SubQueryTest {
         }
     }
     
-    private static final boolean printSql = true;
+    private static final boolean printSql = false;
 
     @BeforeClass
     public static void setUp() throws SQLException {
@@ -102,7 +101,7 @@ public class SubQueryTest {
         	organization.save();
         	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
         	PartyRole role = partyService.getPartyRoles().get(0);
-        	organization.assumeRole(role,new Date());
+        	organization.assumeRole(role, Instant.now());
         	context.commit();
         }
         Subquery subquery = dataModel.query(Party.class,PartyInRole.class).asSubquery(Where.where("aliasName").isEqualTo("Melrose Place"),"partyInRoles.role");

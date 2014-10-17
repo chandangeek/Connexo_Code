@@ -1,6 +1,6 @@
 package com.elster.jupiter.parties.impl;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -12,8 +12,8 @@ import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
 import javax.inject.Inject;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -26,9 +26,9 @@ class PartyRoleImpl implements PartyRole {
 	private String description;
 	private long version;
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
+	private Instant createTime;
 	@SuppressWarnings("unused")
-	private UtcInstant modTime;
+	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 	
@@ -135,15 +135,15 @@ class PartyRoleImpl implements PartyRole {
 
 	@Override
 	public List<Party> getParties() {
-		return getParties(Optional.<Date>absent());
+		return getParties(Optional.empty());
 	}
 
 	@Override
-	public List<Party> getParties(Date effectiveDate) {
+	public List<Party> getParties(Instant effectiveDate) {
 		return getParties(Optional.of(effectiveDate));			
 	}
 	
-	private List<Party> getParties(Optional<Date> effectiveDate) {
+	private List<Party> getParties(Optional<Instant> effectiveDate) {
 		Condition condition = 
 			Where.where("partyInRoles.interval").isEffective().and(
 			Where.where("partyInRoles.role").isEqualTo(this));

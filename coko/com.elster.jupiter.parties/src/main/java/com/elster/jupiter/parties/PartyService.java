@@ -1,9 +1,9 @@
 package com.elster.jupiter.parties;
 
 import com.elster.jupiter.domain.util.Query;
-import com.google.common.base.Optional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PartyService {
 	static String COMPONENTNAME = "PRT";
