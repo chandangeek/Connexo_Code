@@ -4,12 +4,13 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.Device;
+import org.joda.time.DateMidnight;
+import org.junit.Test;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.joda.time.DateMidnight;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -84,7 +85,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCommunicationReferencingDevicesOnDateWithoutReferencingDevicesOnThatDate () {
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
         Device master = this.createSimpleDevice();
         this.createSlaveDevice("Slave1", master);
         this.createSlaveDevice("Slave2", master);
@@ -99,7 +100,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCommunicationReferencingDevicesOnDateWithReferencingDevices () {
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         Device slave2 = this.createSlaveDevice("Slave2", master);
@@ -164,7 +165,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testAllCommunicationReferencingDevicesOnDateWithoutReferencingDevicesOnThatDate () {
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         this.createSlaveDevice("Slave2", slave1);
@@ -179,7 +180,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testAllCommunicationReferencingDevicesOnDateWithReferencingDevices () {
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         Device slave2 = this.createSlaveDevice("Slave2", slave1);
@@ -212,7 +213,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testAllCommunicationTopologiesWithoutReferencingDevicesOnThatDate () {
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         Device slave2 = this.createSlaveDevice("Slave2", slave1);
@@ -227,7 +228,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testAllCommunicationTopologiesWithReferencingDevices () {
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         Device slave2 = this.createSlaveDevice("Slave2", slave1);
@@ -263,22 +264,22 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Transactional
     public void testAllCommunicationTopologiesForComplexCase () {
         Device D1 = this.createSimpleDevice();
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_JAN_1ST_2013.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_1ST_2013.toDate().toInstant());
         Device D8 = this.createSlaveDevice("D8", D1);
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_JAN_1ST_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_1ST_2014.toDate().toInstant());
         Device D2 = this.createSlaveDevice("D2", D1);
         Device D3 = this.createSlaveDevice("D3", D1);
         Device D4 = this.createSlaveDevice("D4", D2);
         Device D6 = this.createSlaveDevice("D6", D3);
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_JAN_20TH_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_20TH_2014.toDate().toInstant());
         D4.setCommunicationGateway(D3);
         D4.save();
         Device D5 = this.createSlaveDevice("D5", D2);
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_JAN_10TH_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_10TH_2014.toDate().toInstant());
         Device D7 = this.createSlaveDevice("D7", D3);
         D6.clearCommunicationGateway();
         D6.save();
-        when(Date.from(clock.instant())).thenReturn(MIDNIGHT_JAN_20TH_2014.toDate());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_20TH_2014.toDate().toInstant());
         D6.setCommunicationGateway(D3);
         D6.save();
         D7.clearCommunicationGateway();

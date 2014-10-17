@@ -285,7 +285,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private Instant clippedEnd(com.elster.jupiter.metering.Channel c, Instant until) {
-        return Ordering.<Instant>from(nullsLast(naturalOrder())).min(until, c.getMeterActivation().getInterval().getEnd());
+        return Ordering.<Instant>from(nullsLast(naturalOrder())).min(until, c.getMeterActivation().getRange().hasUpperBound() ? c.getMeterActivation().getRange().upperEndpoint() : null);
     }
 
     private Instant defaultStart(com.elster.jupiter.metering.Channel channel, ReadingType readingType) {
@@ -298,7 +298,7 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     private Instant firstReading(com.elster.jupiter.metering.Channel channel) {
         int minutes = channel.getMainReadingType().getMeasuringPeriod().getMinutes();
-        Instant start = channel.getMeterActivation().getInterval().getStart();
+        Instant start = channel.getMeterActivation().getRange().lowerEndpoint();
         return Instant.from(start.plus(minutes, ChronoUnit.MINUTES));
     }
 

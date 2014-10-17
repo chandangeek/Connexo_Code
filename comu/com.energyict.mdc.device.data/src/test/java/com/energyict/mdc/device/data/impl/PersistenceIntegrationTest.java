@@ -23,12 +23,11 @@ import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.sql.SQLException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -128,12 +127,7 @@ public abstract class PersistenceIntegrationTest {
 
     private static void initializeClock() {
         when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
-        when(Date.from(clock.instant())).thenAnswer(new Answer<Date>() {
-            @Override
-            public Date answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new Date();
-            }
-        });
+        when(clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
     }
 
     protected Date freezeClock (int year, int month, int day) {
@@ -153,7 +147,7 @@ public abstract class PersistenceIntegrationTest {
         calendar.set(year, month, day, hour, minute, second);
         calendar.set(Calendar.MILLISECOND, millisecond);
         when(clock.getZone()).thenReturn(timeZone.toZoneId());
-        when(Date.from(clock.instant())).thenReturn(calendar.getTime());
+        when(clock.instant()).thenReturn(calendar.getTime().toInstant());
         return calendar.getTime();
     }
 
