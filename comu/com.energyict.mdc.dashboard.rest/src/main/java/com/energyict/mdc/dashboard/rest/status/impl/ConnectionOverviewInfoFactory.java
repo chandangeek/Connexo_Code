@@ -96,7 +96,7 @@ public class ConnectionOverviewInfoFactory {
     private void addAtLeastOntTaskFailedCounter(ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, TaskSummaryInfo perLatestResultOverview) {
         TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
         taskCounterInfo.id = null; // Not filterable
-        taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.SOME_TASKS_FAILED.getKey(), MessageSeeds.SOME_TASKS_FAILED.getDefaultFormat());
+        taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getDefaultFormat());
         taskCounterInfo.count = comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount();
         perLatestResultOverview.total += taskCounterInfo.count;
         perLatestResultOverview.counters.add(taskCounterInfo);

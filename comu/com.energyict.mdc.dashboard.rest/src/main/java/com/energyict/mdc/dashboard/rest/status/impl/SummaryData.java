@@ -11,8 +11,7 @@ import java.util.Map;
  */
 public class SummaryData {
     private long success;
-    private Long allTasksSuccessful;
-    private Long atLeastOneTaskFailed;
+    private Long successWithFailedTasks;
     private long pending;
     private long failed;
     private long total;
@@ -26,10 +25,10 @@ public class SummaryData {
         success=counts.get(TaskStatus.Waiting);
     }
 
-    public SummaryData(TaskStatusOverview taskStatusOverview, long atLeastOneTaskFailed) {
+    public SummaryData(TaskStatusOverview taskStatusOverview, long successWithFailedTasks) {
         this(taskStatusOverview);
-        this.atLeastOneTaskFailed =atLeastOneTaskFailed;
-        allTasksSuccessful=success - this.atLeastOneTaskFailed;
+        this.successWithFailedTasks = successWithFailedTasks;
+        this.success-=this.successWithFailedTasks;
     }
 
     private Map<TaskStatus, Long> getTaskStatusCountsAsMap(TaskStatusOverview taskStatusOverview) {
@@ -50,12 +49,8 @@ public class SummaryData {
         return success;
     }
 
-    public Long getAllTasksSuccessful() {
-        return allTasksSuccessful;
-    }
-
-    public Long getAtLeastOneTaskFailed() {
-        return atLeastOneTaskFailed;
+    public Long getSuccessWithFailedTasks() {
+        return successWithFailedTasks;
     }
 
     public long getPending() {

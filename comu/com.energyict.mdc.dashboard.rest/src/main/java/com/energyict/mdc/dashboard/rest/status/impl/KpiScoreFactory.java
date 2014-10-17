@@ -38,10 +38,10 @@ public class KpiScoreFactory {
         if (dataCollectionKpi.calculatesConnectionSetupKpi()) {
             kpiInfo.time = new ArrayList<>();
             kpiInfo.series = new ArrayList<>();
-            KpiScoreInfo success = new KpiScoreInfo(MessageSeeds.SUCCESS.getKey());
-            KpiScoreInfo ongoing = new KpiScoreInfo(MessageSeeds.ONGOING.getKey());
-            KpiScoreInfo failed = new KpiScoreInfo(MessageSeeds.FAILED.getKey());
-            KpiScoreInfo target = new KpiScoreInfo(MessageSeeds.TARGET.getKey());
+            KpiScoreInfo success = new KpiScoreInfo(KpiId.Success.name());
+            KpiScoreInfo ongoing = new KpiScoreInfo(KpiId.Ongoing.name());
+            KpiScoreInfo failed = new KpiScoreInfo(KpiId.Failed.name());
+            KpiScoreInfo target = new KpiScoreInfo(KpiId.Target.name());
             kpiInfo.series.add(success);
             kpiInfo.series.add(ongoing);
             kpiInfo.series.add(failed);
