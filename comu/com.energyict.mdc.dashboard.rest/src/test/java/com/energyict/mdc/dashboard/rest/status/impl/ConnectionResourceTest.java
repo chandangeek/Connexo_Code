@@ -30,7 +30,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.google.common.base.Optional;
 import com.jayway.jsonpath.JsonModel;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
@@ -39,6 +38,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.ws.rs.core.Response;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -67,9 +67,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         DeviceType deviceType2 = mock(DeviceType.class);
         DeviceType deviceType3 = mock(DeviceType.class);
 
-        when(deviceConfigurationService.findDeviceType(101L)).thenReturn(deviceType1);
-        when(deviceConfigurationService.findDeviceType(102L)).thenReturn(deviceType2);
-        when(deviceConfigurationService.findDeviceType(103L)).thenReturn(deviceType3);
+        when(deviceConfigurationService.findDeviceType(101L)).thenReturn(Optional.of(deviceType1));
+        when(deviceConfigurationService.findDeviceType(102L)).thenReturn(Optional.of(deviceType2));
+        when(deviceConfigurationService.findDeviceType(103L)).thenReturn(Optional.of(deviceType3));
 
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("deviceTypes", Arrays.asList(101L, 102L, 103L))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
@@ -165,7 +165,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
         assertThat(captor.getValue().lastSessionStart.getEnd()).isNull();
         assertThat(captor.getValue().lastSessionEnd).isNull();
     }
@@ -177,7 +177,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
         assertThat(captor.getValue().lastSessionStart.getStart()).isNull();
         assertThat(captor.getValue().lastSessionEnd).isNull();
     }
@@ -193,10 +193,10 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(new Date(1407916436000L));
-        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(new Date(1407916784000L));
-        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
-        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916784000L));
+        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
+        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916784000L));
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916784000L));
     }
 
     @Test
@@ -205,7 +205,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
         assertThat(captor.getValue().lastSessionEnd.getEnd()).isNull();
         assertThat(captor.getValue().lastSessionStart).isNull();
     }
@@ -217,7 +217,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
         assertThat(captor.getValue().lastSessionEnd.getStart()).isNull();
         assertThat(captor.getValue().lastSessionStart).isNull();
     }
@@ -229,8 +229,8 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
-        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916784000L));
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916784000L));
         assertThat(captor.getValue().lastSessionStart).isNull();
     }
 
@@ -275,7 +275,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
-        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(java.util.Optional.of(comTaskExecutionSession));
+        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
         String response = target("/connections").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
@@ -425,7 +425,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecutionSession1.getDevice()).thenReturn(device);
         when(comTaskExecutionSession1.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
         when(comSession.getComTaskExecutionSessions()).thenReturn(Arrays.asList(comTaskExecutionSession1));
-        when(connectionTaskService.findConnectionTask(30L)).thenReturn(Optional.of(connectionTask));
+        when(connectionTaskService.findConnectionTask(30L)).thenReturn(Optional.<ConnectionTask>of(connectionTask));
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
         String response = target("/connections/"+connectionTaskId+"/latestcommunications").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);

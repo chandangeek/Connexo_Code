@@ -49,8 +49,8 @@ public class KpiScoreFactory {
         TemporalAmount frequency = dataCollectionKpi.connectionSetupKpiCalculationIntervalLength().get();
         Interval intervalByPeriod = getIntervalByPeriod(frequency);
         List<DataCollectionKpiScore> kpiScores = dataCollectionKpi.getConnectionSetupKpiScores(intervalByPeriod);
-        Instant timeIndex = Instant.ofEpochMilli(intervalByPeriod.getStart().getTime());
-        Instant endTimeIndex = Instant.ofEpochMilli(intervalByPeriod.getEnd().getTime());
+        Instant timeIndex = intervalByPeriod.getStart();
+        Instant endTimeIndex = intervalByPeriod.getEnd();
 
         int kpiScoreIndex=0;
         kpiScores.add(new SentinelKpiScore());

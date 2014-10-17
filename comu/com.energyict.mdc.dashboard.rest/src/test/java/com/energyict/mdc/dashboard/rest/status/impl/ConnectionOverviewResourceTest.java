@@ -121,7 +121,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
         DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
         when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
-        when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
+        when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
         when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
         when(endDeviceGroup.getName()).thenReturn("South region");
 
@@ -155,7 +155,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
         DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
         when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
-        when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
+        when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
         when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
         when(endDeviceGroup.getName()).thenReturn("South region");
 

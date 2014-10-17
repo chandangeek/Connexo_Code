@@ -1,12 +1,12 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.engine.model.security.Privileges;
-import com.google.common.base.Optional;
+
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -40,11 +40,10 @@ public class ConnectionOverviewResource {
     public ConnectionOverviewInfo getConnectionOverview(@BeanParam JsonQueryFilter filter) throws Exception {
 
         if (filter.getProperty("deviceGroup")!=null) {
-            Optional<QueryEndDeviceGroup> optional = meteringGroupService.findQueryEndDeviceGroup(filter.getProperty("deviceGroup", new LongAdapter()));
-            if (!optional.isPresent()) {
-                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
-            }
-            return connectionOverviewInfoFactory.asInfo(optional.get());
+            return meteringGroupService
+                    .findQueryEndDeviceGroup(filter.getProperty("deviceGroup", new LongAdapter()))
+                    .map(connectionOverviewInfoFactory::asInfo)
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP));
         } else {
             return connectionOverviewInfoFactory.asInfo();
         }

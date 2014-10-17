@@ -11,11 +11,11 @@ import com.energyict.mdc.dashboard.impl.ConnectionTaskHeatMapRowImpl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.google.common.base.Optional;
 import com.jayway.jsonpath.JsonModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
 
@@ -64,7 +64,7 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
 
     @Test
     public void testConnectionHeatMapByDeviceTypeWithUnknownDeviceGroup() throws Exception {
-        when(meteringGroupsService.findQueryEndDeviceGroup(anyInt())).thenReturn(Optional.<QueryEndDeviceGroup>absent());
+        when(meteringGroupsService.findQueryEndDeviceGroup(anyInt())).thenReturn(Optional.<QueryEndDeviceGroup>empty());
 
         Response response = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter().property("breakdown", "deviceTypes").property("deviceGroup", -1L).create()).request().get();
 

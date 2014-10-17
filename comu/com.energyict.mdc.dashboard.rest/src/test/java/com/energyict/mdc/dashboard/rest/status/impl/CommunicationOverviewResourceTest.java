@@ -74,7 +74,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
         when(endDeviceGroup.getName()).thenReturn("Northern region");
-        when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(com.google.common.base.Optional.of(endDeviceGroup));
+        when(meteringGroupsService.findQueryEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
 
         TaskStatusOverview statusOverview = createCommunicationStatusOverview();
         when(dashboardService.getCommunicationTaskStatusOverview(endDeviceGroup)).thenReturn(statusOverview);

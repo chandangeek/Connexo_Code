@@ -2,10 +2,11 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
+
+import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
 import org.joda.time.DateTimeConstants;
-import org.joda.time.Duration;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +66,7 @@ public class ComServerStatusResourceTest extends DashboardApplicationJerseyTest 
         ComServerStatus notRunning = mock(ComServerStatus.class);
         when(notRunning.isRunning()).thenReturn(true);
         when(notRunning.isBlocked()).thenReturn(true);
-        when(notRunning.getBlockTime()).thenReturn(new Duration(DateTimeConstants.MILLIS_PER_MINUTE * 5));
+        when(notRunning.getBlockTime()).thenReturn(Duration.ofMillis(DateTimeConstants.MILLIS_PER_MINUTE * 5));
         when(notRunning.getBlockTimestamp()).thenReturn(new Date());
         when(notRunning.getComServerName()).thenReturn("testServerRunningAndBlocked");
         when(notRunning.getComServerType()).thenReturn(ComServerType.ONLINE);

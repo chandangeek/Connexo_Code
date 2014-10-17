@@ -7,12 +7,12 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.dashboard.DashboardService;
-import com.google.common.base.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import java.util.Optional;
 
 @Path("/communicationheatmap")
 public class CommunicationHeatMapResource {
@@ -41,11 +41,11 @@ public class CommunicationHeatMapResource {
     public CommunicationHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
         if (jsonQueryFilter.getProperty(Constants.DEVICE_GROUP) != null) {
             Optional<QueryEndDeviceGroup> deviceGroupOptional = meteringGroupService.findQueryEndDeviceGroup(jsonQueryFilter.getProperty(Constants.DEVICE_GROUP, new LongAdapter()));
-            if (!deviceGroupOptional.isPresent()) {
-                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
-            }
-            return new CommunicationHeatMapInfo(dashboardService.getCommunicationTasksHeatMap(deviceGroupOptional.get()), thesaurus);
+            return deviceGroupOptional
+                    .map(g -> new CommunicationHeatMapInfo(dashboardService.getCommunicationTasksHeatMap(g), thesaurus))
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP));
         }
         return new CommunicationHeatMapInfo(dashboardService.getCommunicationTasksHeatMap(), thesaurus);
     }
+
 }
