@@ -275,7 +275,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
-        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(java.util.Optional.of(comTaskExecutionSession));
+        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
         String response = target("/connections").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
@@ -425,7 +425,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecutionSession1.getDevice()).thenReturn(device);
         when(comTaskExecutionSession1.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
         when(comSession.getComTaskExecutionSessions()).thenReturn(Arrays.asList(comTaskExecutionSession1));
-        when(connectionTaskService.findConnectionTask(30L)).thenReturn(Optional.of(connectionTask));
+        when(connectionTaskService.findConnectionTask(30L)).thenReturn(Optional.<ConnectionTask>of(connectionTask));
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
         String response = target("/connections/"+connectionTaskId+"/latestcommunications").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
