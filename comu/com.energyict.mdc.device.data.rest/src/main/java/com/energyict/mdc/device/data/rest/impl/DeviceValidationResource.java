@@ -6,7 +6,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.MeterActivationValidation;
@@ -23,8 +23,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -37,12 +37,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeviceValidationResource {
@@ -71,11 +74,11 @@ public class DeviceValidationResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
 
-        Optional<MeterActivation> activation = meter.getCurrentMeterActivation();
+        Optional<? extends MeterActivation> activation = meter.getCurrentMeterActivation();
 
-        DeviceConfiguration deviceConfig = deviceConfigurationService.findDeviceConfiguration(device.getDeviceConfiguration().getId());
-        if (deviceConfig != null) {
-            List<ValidationRuleSet> linkedRuleSets = deviceConfig.getValidationRuleSets();
+        Optional<DeviceConfiguration> deviceConfig = deviceConfigurationService.findDeviceConfiguration(device.getDeviceConfiguration().getId());
+        if (deviceConfig.isPresent()) {
+            List<ValidationRuleSet> linkedRuleSets = deviceConfig.get().getValidationRuleSets();
             fillValidationRuleSetStatus(linkedRuleSets, activation, result);
         }
         Collections.sort(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR);
@@ -83,7 +86,7 @@ public class DeviceValidationResource {
                 ListPager.of(result).from(queryParameters).find(), queryParameters)).build();
     }
 
-    private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, Optional<MeterActivation> activation, List<DeviceValidationRuleSetInfo> result) {
+    private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, Optional<? extends MeterActivation> activation, List<DeviceValidationRuleSetInfo> result) {
         List<? extends MeterActivationValidation> validations = activation.isPresent() ? validationService.getMeterActivationValidations(activation.get()) : Collections.<MeterActivationValidation>emptyList();
         for (ValidationRuleSet ruleset : linkedRuleSets) {
             MeterActivationValidation meterActivationValidationForRuleset = getMeterActivationValidationForRuleset(validations, ruleset);
@@ -108,7 +111,7 @@ public class DeviceValidationResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
         ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
-        Optional<MeterActivation> activation = meter.getCurrentMeterActivation();
+        Optional<? extends MeterActivation> activation = meter.getCurrentMeterActivation();
         if (activation.isPresent()) {
             setValidationRuleSetActivationStatus(activation.get(), ruleSet, status);
         } else {
@@ -145,9 +148,13 @@ public class DeviceValidationResource {
     private DeviceValidationStatusInfo determineStatus(Device device) {
         Meter meter = getMeterFor(device);
         DeviceValidation deviceValidation = device.forValidation();
-        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo(deviceValidation.isValidationActive(), deviceValidation.getLastChecked().orNull(), meter.hasData());
+        DeviceValidationStatusInfo deviceValidationStatusInfo =
+                new DeviceValidationStatusInfo(
+                        deviceValidation.isValidationActive(),
+                        deviceValidation.getLastChecked().map(Date::from).orElse(null),
+                        meter.hasData());
 
-        ZonedDateTime end = ZonedDateTime.ofInstant(clock.now().toInstant(), clock.getTimeZone().toZoneId()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+        ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
         collectRegisterData(device, deviceValidationStatusInfo, end);
         collectLoadProfileData(device, deviceValidationStatusInfo, end);
@@ -170,7 +177,7 @@ public class DeviceValidationResource {
                 .count();
         if (statuses.isEmpty()) {
             deviceValidationStatusInfo.allDataValidated &= device.getRegisters().stream()
-                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.now()));
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
         } else {
             deviceValidationStatusInfo.allDataValidated &= statuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
@@ -192,7 +199,7 @@ public class DeviceValidationResource {
         if (statuses.isEmpty()) {
             deviceValidationStatusInfo.allDataValidated &= device.getLoadProfiles().stream()
                     .flatMap(l -> l.getChannels().stream())
-                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.now()));
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
         } else {
             deviceValidationStatusInfo.allDataValidated = statuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
@@ -216,17 +223,17 @@ public class DeviceValidationResource {
             if (deviceValidationStatusInfo.lastChecked == null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
             }
-            Date lastCheckedDate = new Date(deviceValidationStatusInfo.lastChecked);
+            Instant lastCheckedDate = Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked);
             for (MeterActivation meterActivation : resourceHelper.getMeterActivationsMostCurrentFirst(meter)) {
-                if (meterActivation.isEffective(lastCheckedDate) || meterActivation.getInterval().startsAfter(lastCheckedDate)) {
-                    Optional<Date> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
+                if (meterActivation.isEffectiveAt(lastCheckedDate) || meterActivation.getInterval().startsAfter(lastCheckedDate)) {
+                    Optional<Instant> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
                     if (meterActivation.isCurrent()) {
-                        if (meterActivationLastChecked.isPresent() && lastCheckedDate.after(meterActivationLastChecked.get())) {
+                        if (meterActivationLastChecked.isPresent() && lastCheckedDate.isAfter(meterActivationLastChecked.get())) {
                             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", meterActivationLastChecked.get());
                         }
                         validationService.updateLastChecked(meterActivation, lastCheckedDate);
                     } else {
-                        Date lastCheckedDateToSet = smallest(meterActivationLastChecked.or(meterActivation.getStart()), lastCheckedDate);
+                        Instant lastCheckedDateToSet = smallest(meterActivationLastChecked.orElse(meterActivation.getStart()), lastCheckedDate);
                         validationService.updateLastChecked(meterActivation, lastCheckedDateToSet);
                     }
                 }
@@ -236,8 +243,8 @@ public class DeviceValidationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    private Date smallest(Date date1, Date date2) {
-        return Ordering.natural().min(date1, date2);
+    private Instant smallest(Instant instant1, Instant instant2) {
+        return Ordering.natural().min(instant1, instant2);
     }
 
     @Path("/validate")
@@ -249,12 +256,12 @@ public class DeviceValidationResource {
         Meter meter = getMeterFor(device);
         List<MeterActivation> meterActivations = resourceHelper.getMeterActivationsMostCurrentFirst(meter);
         if (!meterActivations.isEmpty()) {
-            Interval interval = Interval.startAt(meterActivations.get(meterActivations.size() - 1).getStart());
-            ValidationEvaluator evaluator = validationService.getEvaluator(meter, interval);
+            Range<Instant> range = meterActivations.get(meterActivations.size() - 1).getRange();
+            ValidationEvaluator evaluator = validationService.getEvaluator(meter, range);
             meterActivations.forEach(meterActivation -> {
                 if (!evaluator.isAllDataValidated(meterActivation)) {
-                    Date date = validationService.getLastChecked(meterActivation).or(meterActivation.getStart());
-                    validationService.validate(meterActivation, Interval.startAt(date));
+                    Instant instant = validationService.getLastChecked(meterActivation).orElse(meterActivation.getStart());
+                    validationService.validate(meterActivation, Range.atLeast(instant));
                 }
             });
         }
@@ -263,11 +270,8 @@ public class DeviceValidationResource {
 
 
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
-        Optional<ValidationRuleSet> rulesetRef = validationService.getValidationRuleSet(validationRuleSetId);
-        if (!rulesetRef.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return rulesetRef.get();
+        Optional<? extends ValidationRuleSet> rulesetRef = validationService.getValidationRuleSet(validationRuleSetId);
+        return rulesetRef.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
 

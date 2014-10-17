@@ -28,7 +28,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 
 public class LogBookResource {
-    
+
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
     private static final String DOMAIN = "domain";
@@ -36,7 +36,7 @@ public class LogBookResource {
     private static final String EVENT_OR_ACTION = "eventOrAction";
 
     private static final Comparator<LogBook> LOG_BOOK_COMPARATOR_BY_NAME = new LogBookComparator();
-    
+
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
@@ -57,7 +57,7 @@ public class LogBookResource {
         List<LogBookInfo> logBookInfos = LogBookInfo.from(logBooksOnPage, thesaurus);
         return Response.ok(PagedInfoList.asJson("data", logBookInfos, queryParameters)).build();
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}")
@@ -66,7 +66,7 @@ public class LogBookResource {
         LogBook logBook = findLogBookOrThrowException(device, logBookId);
         return Response.ok(LogBookInfo.from(logBook, thesaurus)).build();
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}/data")
@@ -83,7 +83,7 @@ public class LogBookResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
-    
+
     private EndDeviceEventRecordFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) {
         EndDeviceEventRecordFilterSpecification filter = new EndDeviceEventRecordFilterSpecification();
         Map<String, Object> filterProperties = jsonQueryFilter.getFilterProperties();
@@ -95,7 +95,7 @@ public class LogBookResource {
         if (filterProperties.containsKey(INTERVAL_END)) {
             intervalEnd = jsonQueryFilter.getDate(INTERVAL_END);
         }
-        filter.interval = new Interval(intervalStart, intervalEnd);
+        filter.range = new Interval(intervalStart, intervalEnd).toOpenClosedRange();
         if (filterProperties.containsKey(DOMAIN)) {
             filter.domain = jsonQueryFilter.getProperty(DOMAIN, new EndDeviceDomainAdapter());
         }
@@ -107,7 +107,7 @@ public class LogBookResource {
         }
         return filter;
     }
-    
+
     public static class LogBookComparator implements Comparator<LogBook> {
 
         @Override
@@ -115,7 +115,7 @@ public class LogBookResource {
             return o1.getLogBookType().getName().compareToIgnoreCase(o2.getLogBookType().getName());
         }
     }
-    
+
     private LogBook findLogBookOrThrowException(Device device, long logBookId) {
         for (LogBook logBook : device.getLogBooks()) {
             if (logBook.getId() == logBookId) {

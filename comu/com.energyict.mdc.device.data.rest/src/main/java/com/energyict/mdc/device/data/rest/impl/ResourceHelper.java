@@ -14,12 +14,12 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -48,7 +48,7 @@ public class ResourceHelper {
     public Register findRegisterOrThrowException(Device device, long registerId) {
         List<Register> registers = device.getRegisters();
         for (Register register : registers) {
-            Optional<RegisterSpec> registerSpecOptional = Optional.fromNullable(register.getRegisterSpec());
+            Optional<RegisterSpec> registerSpecOptional = Optional.ofNullable(register.getRegisterSpec());
             if (registerSpecOptional.isPresent() && registerSpecOptional.get().getId() == registerId) {
                 return register;
             }
@@ -156,7 +156,7 @@ public class ResourceHelper {
                 return channelRef;
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<com.elster.jupiter.metering.Channel> getLoadProfileChannel(Channel channel, Meter meter) {
@@ -166,7 +166,7 @@ public class ResourceHelper {
                 return channelRef;
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
@@ -175,7 +175,7 @@ public class ResourceHelper {
                 return Optional.of(channel);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public ConnectionTask<?, ?> findConnectionTaskOrThrowException(Device device, long connectionMethodId) {

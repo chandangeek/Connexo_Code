@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-
 import java.util.Date;
 
 public class DeviceValidationStatusInfo extends ValidationStatusInfo {
@@ -13,4 +12,5 @@ public class DeviceValidationStatusInfo extends ValidationStatusInfo {
     public DeviceValidationStatusInfo(boolean isActive, Date lastChecked, boolean hasValidation) {
         super(isActive, lastChecked, hasValidation);
     }
+
 }
