@@ -914,14 +914,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                             filter: 'Mdc.model.RegisterDataFilter',
                                             items: {
                                                 create: {
-                                                    title: 'Add register data',
+                                                    title: Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'),
                                                     route: 'create',
                                                     controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
                                                     privileges: ['privilege.administrate.deviceConfiguration'],
                                                     action: 'showDeviceRegisterConfigurationDataAddView'
                                                 },
                                                 edit: {
-                                                    title: 'Edit register data',
+                                                    title: Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'),
                                                     route: '{timestamp}/edit',
                                                     controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
                                                     privileges: ['privilege.administrate.deviceConfiguration'],
@@ -937,7 +937,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Data validation',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
-                            privileges: ['privilege.view.deviceValidation'],
+                            privileges: ['privilege.view.validateDevice'],
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {
@@ -1022,6 +1022,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                                     title: Uni.I18n.translate('routing.editReadings', 'MDC', 'Edit readings'),
                                                                     route: 'editreadings',
                                                                     controller: 'Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings',
+                                                                    privileges: ['privilege.administrate.deviceConfiguration'],
                                                                     action: 'showOverview',
                                                                     filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                                                 }

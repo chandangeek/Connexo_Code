@@ -22,11 +22,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
         if (me.isEdit()) {
             me.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             me.down('#addEditButton').action = 'editRegisterDataAction';
-            me.down('#registerDataEditForm').setTitle(Uni.I18n.translate('device.registerData.editData', 'MDC', 'Edit register data'));
+            me.down('#registerDataEditForm').setTitle(Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'));
         } else {
             me.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             me.down('#addEditButton').action = 'addRegisterDataAction';
-            me.down('#registerDataEditForm').setTitle(Uni.I18n.translate('device.registerData.editData', 'MDC', 'Add register data'));
+            me.down('#registerDataEditForm').setTitle(Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'));
         }
         me.down('#cancelLink').href = returnLink;
     },

@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                 break;
             case 'viewSuspects':
                 filterParams.onlySuspect = true;
-                route = 'devices/device/loadprofiles/loadprofile/channels/channel/data';
+                route = 'devices/device/loadprofiles/loadprofile/channels/channel/tableData';
                 break;
         }
 
