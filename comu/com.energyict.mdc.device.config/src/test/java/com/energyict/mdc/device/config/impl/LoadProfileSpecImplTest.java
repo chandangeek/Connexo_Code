@@ -56,9 +56,11 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
     }
 
     private DeviceConfiguration getReloadedDeviceConfiguration(){
-        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(this.deviceConfiguration.getId());
+        return inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceConfiguration(this.deviceConfiguration.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + this.deviceConfiguration.getId()));
     }
-    
+
     private LoadProfileSpec createDefaultTestingLoadProfileSpecWithOverruledObisCode() {
         LoadProfileSpec loadProfileSpec;
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = getReloadedDeviceConfiguration().createLoadProfileSpec(this.loadProfileType);

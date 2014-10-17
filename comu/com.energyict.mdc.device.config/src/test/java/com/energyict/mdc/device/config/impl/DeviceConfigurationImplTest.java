@@ -700,6 +700,8 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     }
 
     private DeviceConfiguration reloadDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
+        return inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceConfiguration(deviceConfiguration.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + deviceConfiguration.getId()));
     }
 }

@@ -5,6 +5,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 /**
  * CanActAsGateWay and IsDirectlyAddressable are not allowed to
@@ -29,17 +30,17 @@ public class ImmutablePropertiesCanNotChangeForActiveConfigurationValidator impl
         if (deviceConfiguration==null) {
             return true;
         }
-        DeviceConfiguration originalConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
-        if (originalConfiguration==null) {
+        Optional<DeviceConfiguration> originalConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        if (!originalConfiguration.isPresent()) {
             return true;
         }
         boolean valid=true;
         if (deviceConfiguration.isActive()) {
-            if (deviceConfiguration.canActAsGateway()!=originalConfiguration.canActAsGateway()) {
+            if (deviceConfiguration.canActAsGateway()!=originalConfiguration.get().canActAsGateway()) {
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode(DeviceConfigurationImpl.Fields.CAN_ACT_AS_GATEWAY.fieldName()).addConstraintViolation().disableDefaultConstraintViolation();
                 valid=false;
             }
-            if (deviceConfiguration.canBeDirectlyAddressable()!=originalConfiguration.canBeDirectlyAddressable()) {
+            if (deviceConfiguration.canBeDirectlyAddressable()!=originalConfiguration.get().canBeDirectlyAddressable()) {
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode(DeviceConfigurationImpl.Fields.IS_DIRECTLY_ADDRESSABLE.fieldName()).addConstraintViolation().disableDefaultConstraintViolation();
                 valid=false;
             }

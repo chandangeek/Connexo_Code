@@ -431,7 +431,10 @@ public class PartialInboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        DeviceConfiguration reloadedDeviceConfig =
+                deviceConfigurationService
+                        .findDeviceConfiguration(deviceConfiguration.getId())
+                        .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + deviceConfiguration.getId()));
         PartialInboundConnectionTask partialConnectionTask1 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName1);
         Assertions.assertThat(partialConnectionTask1.isDefault()).isFalse();
         PartialInboundConnectionTask partialConnectionTask2 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName2);
@@ -475,7 +478,10 @@ public class PartialInboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        DeviceConfiguration reloadedDeviceConfig =
+                deviceConfigurationService
+                        .findDeviceConfiguration(deviceConfiguration.getId())
+                        .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + deviceConfiguration.getId()));
         PartialInboundConnectionTask partialConnectionTask1 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName1);
         Assertions.assertThat(partialConnectionTask1.isDefault()).isFalse();
         PartialInboundConnectionTask partialConnectionTask2 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName2);

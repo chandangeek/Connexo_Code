@@ -149,13 +149,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public DeviceType findDeviceTypeByName(String name) {
-        return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name).orElse(null);
+    public Optional<DeviceType> findDeviceTypeByName(String name) {
+        return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name);
     }
 
     @Override
-    public DeviceConfiguration findDeviceConfiguration(long deviceConfigId) {
-        return this.getDataModel().mapper((DeviceConfiguration.class)).getUnique("id", deviceConfigId).orElse(null);
+    public Optional<DeviceConfiguration> findDeviceConfiguration(long id) {
+        return this.getDataModel().mapper((DeviceConfiguration.class)).getUnique("id", id);
     }
 
     @Override
@@ -554,7 +554,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             preparedStatement.setLong(1, comSchedule.getId());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    deviceConfigurations.add(this.findDeviceConfiguration(resultSet.getLong(1)));
+                    deviceConfigurations.add(this.findDeviceConfiguration(resultSet.getLong(1)).get());
                 }
             }
         }

@@ -45,15 +45,15 @@ public interface DeviceConfigurationService {
      * @param name The name
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
-    public DeviceType findDeviceTypeByName(String name);
+    public Optional<DeviceType> findDeviceTypeByName(String name);
 
     /**
      * Finds a {@link DeviceConfiguration} which is uniquely identified by the given ID
      *
-     * @param deviceConfigId the id of the DeviceConfiguration
+     * @param id the id of the DeviceConfiguration
      * @return the DeviceConfiguration or <code>null</code> if there is no such DeviceConfiguration
      */
-    public DeviceConfiguration findDeviceConfiguration(long deviceConfigId);
+    public Optional<DeviceConfiguration> findDeviceConfiguration(long id);
 
     /**
      * Finds a {@link ChannelSpec} which is uniquely identified by the given ID

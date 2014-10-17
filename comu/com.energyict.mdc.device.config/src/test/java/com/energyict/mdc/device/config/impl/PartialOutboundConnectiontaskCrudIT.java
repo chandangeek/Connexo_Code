@@ -486,7 +486,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
         PartialScheduledConnectionTask partialConnectionTask1 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName1);
         assertThat(partialConnectionTask1.isDefault()).isFalse();
         PartialScheduledConnectionTask partialConnectionTask2 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName2);
@@ -532,7 +532,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
         PartialScheduledConnectionTask partialConnectionTask1 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName1);
         assertThat(partialConnectionTask1.isDefault()).isFalse();
         PartialScheduledConnectionTask partialConnectionTask2 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName2);
@@ -570,7 +570,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
 
         PartialScheduledConnectionTask task;
         try (TransactionContext context = transactionService.getContext()) {
@@ -641,7 +641,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
 
         PartialScheduledConnectionTask task;
         try (TransactionContext context = transactionService.getContext()) {
