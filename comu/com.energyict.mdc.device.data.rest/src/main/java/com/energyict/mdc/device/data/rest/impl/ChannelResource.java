@@ -91,7 +91,7 @@ public class ChannelResource {
     private void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
         List<DataValidationStatus> states =
                 channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());
-        channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, Date.from(lastChecked(channel)));
+        channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, lastChecked(channel));
         if (states.isEmpty()) {
             channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
         }
@@ -112,9 +112,9 @@ public class ChannelResource {
         return channel.getDevice().forValidation().isValidationActive(channel, clock.instant());
     }
 
-    private Instant lastChecked(Channel channel) {
+    private Date lastChecked(Channel channel) {
         Optional<Instant> optional = channel.getDevice().forValidation().getLastChecked(channel);
-        return optional.orElse(null);
+        return optional.map(Date::from).orElse(null);
     }
 
     private Range<Instant> lastMonth() {
@@ -152,7 +152,7 @@ public class ChannelResource {
         Meter meter = resourceHelper.getMeterFor(device);
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         Optional<com.elster.jupiter.metering.Channel> koreChannel = resourceHelper.getLoadProfileChannel(channel, meter);
-        if(!koreChannel.isPresent()) {
+        if (!koreChannel.isPresent()) {
             exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfileId, channelId);
         }
         List<BaseReading> editedReadings = new LinkedList<>();
@@ -226,7 +226,7 @@ public class ChannelResource {
     }
 
     private ValidationStatusInfo determineStatus(Channel channel) {
-        return new ValidationStatusInfo(isValidationActive(channel), Date.from(lastChecked(channel)), hasData(channel));
+        return new ValidationStatusInfo(isValidationActive(channel), lastChecked(channel), hasData(channel));
     }
 
     private boolean hasData(Channel channel) {
