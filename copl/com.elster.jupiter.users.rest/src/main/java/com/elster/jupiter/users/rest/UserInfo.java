@@ -2,13 +2,13 @@ package com.elster.jupiter.users.rest;
 
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class UserInfo {
@@ -33,8 +33,8 @@ public class UserInfo {
         version = user.getVersion();
         domain = user.getDomain();
         language = user.getLanguage();
-        createdOn = DateFormat.getDateTimeInstance().format(user.getCreationDate());
-        modifiedOn = DateFormat.getDateTimeInstance().format(user.getModifiedDate());
+        createdOn = DateFormat.getDateTimeInstance().format(Date.from(user.getCreationDate()));
+        modifiedOn = DateFormat.getDateTimeInstance().format(Date.from(user.getModifiedDate()));
         for (Group group : user.getGroups()) {
             groups.add(new GroupInfo(group));
         }
