@@ -46,7 +46,9 @@ Ext.define('Dsh.controller.CommunicationOverview', {
                     me.getSummary().setRecord(record.getSummary());
                     me.getOverview().bindStore(record.overviews());
                     me.getBreakdown().bindStore(record.breakdowns());
-                    me.getKpi().setRecord(record.getKpi());
+                    if (record.raw.kpi) {
+                        me.getKpi().setRecord(record.getKpi());
+                    }
                     me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
                 },
                 callback: function () {

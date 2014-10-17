@@ -53,7 +53,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
         var me = this;
         var filter = me.router.filter;
 
-        if (!filter.get('deviceGroup')) {
+        if (!filter.get('deviceGroup') || !record) {
             me.hide();
         } else {
             me.show();
