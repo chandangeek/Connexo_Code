@@ -32,7 +32,7 @@ public class ThesaurusResource {
 	@Produces(MediaType.APPLICATION_JSON) 
     public ThesaurusInfo getThesaurus(@Context UriInfo uriInfo) {
         MultivaluedMap<String,String> parameters = uriInfo.getQueryParameters();
-        List<String> components = Optional.ofNullable(parameters.get("cmp")).or(Collections.<String>emptyList());
+        List<String> components = Optional.ofNullable(parameters.get("cmp")).orElse(Collections.<String>emptyList());
         ThesaurusInfo thesaurusInfo = new ThesaurusInfo();
         for (String component : components) {
             addComponent(thesaurusInfo, component);
