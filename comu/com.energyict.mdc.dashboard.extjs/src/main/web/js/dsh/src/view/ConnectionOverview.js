@@ -82,6 +82,7 @@ Ext.define('Dsh.view.ConnectionOverview', {
             {
                 xtype: 'read-outs-over-time',
                 wTitle: Uni.I18n.translate('connection.widget.readOutsOverTime.title', 'DSH', 'Connections over time'),
+                yLabel: Uni.I18n.translate('connection.widget.readOutsOverTime.yLabel', 'DSH', 'Number of connections'),
                 router: me.router,
                 parent: 'connections'
             },

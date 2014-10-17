@@ -4,6 +4,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
     itemId: 'read-outs-over-time',
     hidden: true,
     layout: 'fit',
+    yLabel: '',
 
     initComponent: function () {
         var me = this;
@@ -136,7 +137,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 },
                 yAxis: {
                     title: {
-                        text: 'Number of connections'
+                        text: me.yLabel
                     },
                     labels: {
                         format: '{value}%'
