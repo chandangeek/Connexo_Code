@@ -30,7 +30,7 @@ public class ComServerStatusInfoFactory {
         info.blocked = status.isBlocked();
         info.defaultUri = defaultUri;
         if (info.blocked) {
-            info.blockTime = new TimeDurationInfo((int) status.getBlockTime().getStandardSeconds());
+            info.blockTime = new TimeDurationInfo((int) status.getBlockTime().getSeconds());
             info.blockedSince = status.getBlockTimestamp();
         }
         return info;
