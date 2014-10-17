@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.model.security.Privileges;
 import javax.annotation.security.RolesAllowed;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.GET;

@@ -68,7 +68,7 @@ public class CommunicationResource {
         List<ComTaskExecution> communicationTasksByFilter = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart(), queryParameters.getLimit() + 1);
         List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(communicationTasksByFilter.size());
         for (ComTaskExecution comTaskExecution : communicationTasksByFilter) {
-            Optional<ComTaskExecutionSession> lastComTaskExecutionSession = communicationTaskService.findLastSessionFor(comTaskExecution);
+            java.util.Optional<ComTaskExecutionSession> lastComTaskExecutionSession = communicationTaskService.findLastSessionFor(comTaskExecution);
             comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastComTaskExecutionSession));
         }
 
