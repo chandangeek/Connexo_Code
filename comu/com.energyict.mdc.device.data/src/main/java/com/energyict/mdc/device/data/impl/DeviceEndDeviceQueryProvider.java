@@ -9,13 +9,13 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
-import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider", service = {EndDeviceQueryProvider.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
 public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
@@ -49,11 +49,11 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
 
     @Override
     public List<EndDevice> findEndDevices(Condition conditions) {
-        return findEndDevices(new Date(), conditions);
+        return findEndDevices(Instant.now(), conditions);
     }
 
     @Override
-    public List<EndDevice> findEndDevices(Date date, Condition conditions) {
+    public List<EndDevice> findEndDevices(Instant date, Condition conditions) {
         List<Device> devices = deviceService.findAllDevices(conditions).find();
         List<EndDevice> meters = new ArrayList<EndDevice>();
         for (Device device : devices) {

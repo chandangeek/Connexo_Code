@@ -1,5 +1,16 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -36,25 +47,13 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Interval;
-import java.util.Optional;
 import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,6 +64,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -124,7 +124,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private void releaseTimedOutComTasks(OutboundComPortPool outboundComPortPool) {
-        long now = this.toSeconds(this.deviceDataModelService.clock().now());
+        long now = this.toSeconds(this.deviceDataModelService.clock().instant());
         int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
         this.deviceDataModelService.executeUpdate(this.releaseTimedOutComTaskExecutionsSqlBuilder(outboundComPortPool, now, timeOutSeconds));
     }
@@ -138,8 +138,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         return sqlBuilder;
     }
 
-    private long toSeconds(Date time) {
-        return time.getTime() / DateTimeConstants.MILLIS_PER_SECOND;
+    private long toSeconds(Instant time) {
+        return time.toEpochMilli() / DateTimeConstants.MILLIS_PER_SECOND;
     }
 
     @Override
@@ -592,7 +592,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 resultSet.first();  // There is always at least one row since we are counting
                 long minId = resultSet.getLong(0);
                 if (resultSet.wasNull()) {
-                    return Optional.absent();    // There were not ComTaskExecutions
+                    return Optional.empty();    // There were not ComTaskExecutions
                 } else {
                     long maxId = resultSet.getLong(1);
                     return Optional.of(new ScheduledComTaskExecutionIdRange(comScheduleId, minId, maxId));
@@ -626,7 +626,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private java.sql.Date nowAsSqlDate() {
-        return new java.sql.Date(this.deviceDataModelService.clock().now().getTime());
+        return new java.sql.Date(this.deviceDataModelService.clock().instant().toEpochMilli());
     }
 
     private PreparedStatement getObsoleteComTaskExecutionInRangePreparedStatement() throws SQLException {
@@ -703,7 +703,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public ComTaskExecution findComTaskExecution(long id) {
-        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).getUnique("id", id).orNull();
+        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).getUnique("id", id).orElse(null);
     }
 
     @Override
@@ -769,7 +769,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
         List<OutboundComPortPool> comPortPools = this.deviceDataModelService.engineModelService().findContainingComPortPoolsForComPort((OutboundComPort) comPort);
         if (!comPortPools.isEmpty()) {
-            long nowInSeconds = this.deviceDataModelService.clock().now().getTime() / DateTimeConstants.MILLIS_PER_SECOND;
+            long nowInSeconds = this.deviceDataModelService.clock().instant().toEpochMilli() / DateTimeConstants.MILLIS_PER_SECOND;
             DataMapper<ComTaskExecution> mapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
             com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = mapper.builder("cte", "LEADING(cte) USE_NL(ct)");
             sqlBuilder.append(", ");
@@ -805,7 +805,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device) {
         if (comPort.isActive()) {
             InboundComPortPool inboundComPortPool = comPort.getComPortPool();
-            Date now = this.deviceDataModelService.clock().now();
+            Date now = Date.from(this.deviceDataModelService.clock().instant());
             Condition condition = where("connectionTask.paused").isEqualTo(false)
                     .and(where("connectionTask.comServer").isNull())
                     .and(where("connectionTask.obsoleteDate").isNull())
@@ -827,7 +827,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds) {
-        Date now = this.deviceDataModelService.clock().now();
+        Date now = Date.from(this.deviceDataModelService.clock().instant());
         Condition condition = where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
                 .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)))
                 .and(where("connectionTask.comServer").isNull());

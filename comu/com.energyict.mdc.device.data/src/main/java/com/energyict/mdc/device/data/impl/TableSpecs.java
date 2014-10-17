@@ -62,8 +62,8 @@ public enum TableSpecs {
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar(32).map(DeviceFields.TIMEZONE.fieldName()).add();
             Column externid = table.column("MRID").varChar().map(DeviceFields.MRID.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
-            table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").add();
+            table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2INSTANT).map("yearOfCertification").add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             table.
@@ -166,7 +166,7 @@ public enum TableSpecs {
             table.map(LoadProfileImpl.class);
             Column id = table.addAutoIdColumn();
             Column deviceId = table.column("DEVICEID").number().notNull().add();
-            table.column("LASTREADING").number().map("lastReading").conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
+            table.column("LASTREADING").number().map("lastReading").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column loadprofilespecid = table.column("LOADPROFILESPECID").number().add();
             table.primaryKey("PK_DDC_LOADPROFILE").on(id).add();
             table.foreignKey("FK_DDC_LOADPROFILE_LPSPEC").on(loadprofilespecid).references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOADPROFILESPEC").map("loadProfileSpec").add();
@@ -183,8 +183,8 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column logBookSpecId = table.column("LOGBOOKSPECID").number().notNull().add();
             Column deviceid = table.column("DEVICEID").number().notNull().add();
-            table.column("LASTLOGBOOK").number().map(LogBookImpl.FieldNames.LATEST_EVENT_OCCURRENCE_IN_METER.fieldName()).conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
-            table.column("LASTLOGBOOKCREATETIME").number().map(LogBookImpl.FieldNames.LATEST_EVENT_CREATED_IN_DB.fieldName()).conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
+            table.column("LASTLOGBOOK").number().map(LogBookImpl.FieldNames.LATEST_EVENT_OCCURRENCE_IN_METER.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("LASTLOGBOOKCREATETIME").number().map(LogBookImpl.FieldNames.LATEST_EVENT_CREATED_IN_DB.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.primaryKey("PK_DDC_LOGBOOK").on(id).add();
             table.foreignKey("FK_DDC_LOGBOOK_LOGBOOKSPEC").on(logBookSpecId).references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOGBOOKSPEC").map("logBookSpec").add();
             table.foreignKey("FK_DDC_LOGBOOK_DEVICE").on(deviceid).references(DDC_DEVICE.name()).map("device").reverseMap("logBooks").composition().add();
@@ -201,12 +201,12 @@ public enum TableSpecs {
             // Common columns
             Column device = table.column("DEVICE").number().notNull().add();
             Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map(ConnectionTaskFields.MODIFICATION_DATE.fieldName()).add();
-            table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ConnectionTaskFields.MODIFICATION_DATE.fieldName()).add();
+            table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.IS_DEFAULT.fieldName()).add();
             table.column("STATUS").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.STATUS.fieldName()).add();
-            table.column("LASTCOMMUNICATIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map(ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName()).add();
-            table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2DATE).number().map(ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName()).add();
+            table.column("LASTCOMMUNICATIONSTART").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName()).add();
+            table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2INSTANT).number().map(ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName()).add();
             Column comServer = table.column("COMSERVER").number().add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
@@ -217,8 +217,8 @@ public enum TableSpecs {
             table.column("COMWINDOWSTART").number().conversion(NUMBER2INT).map("comWindow.start.millis").add();
             table.column("COMWINDOWEND").number().conversion(NUMBER2INT).map("comWindow.end.millis").add();
             Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
-            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName()).add();
-            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ConnectionTaskFields.PLANNED_NEXT_EXECUTION_TIMESTAMP.fieldName()).add();
+            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName()).add();
+            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ConnectionTaskFields.PLANNED_NEXT_EXECUTION_TIMESTAMP.fieldName()).add();
             table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.CONNECTION_STRATEGY.fieldName()).add();
             table.column("PRIORITY").number().conversion(NUMBER2INT).map(ConnectionTaskFields.PRIORITY.fieldName()).add();
             table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.ALLOW_SIMULTANEOUS_CONNECTIONS.fieldName()).add();
@@ -272,7 +272,7 @@ public enum TableSpecs {
             table.column("NAME").varChar().map("name").add();
             Column deviceProtocolId = table.column("DEVICEPROTOCOLID").number().conversion(NUMBER2LONG).notNull().map("pluggableClassId").add();
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modificationDate").add();
             Column configurationProperties = table.column("CONFIGURATIONPROPERTIESID").number().add();
             table.foreignKey("FK_DDC_PROTDIALECTPROPS_PC").on(deviceProtocolId).references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").map("deviceProtocolPluggableClass").add();
             table.foreignKey("FK_DDC_PROTDIALECTPROPS_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("dialectPropertiesList").add();
@@ -292,18 +292,18 @@ public enum TableSpecs {
             Column comTask = table.column("COMTASK").number().add();
             Column comSchedule = table.column("COMSCHEDULE").number().add();
             Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
-            table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName()).add();
-            Column nextExecutionTimestamp = table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).add();
+            table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName()).add();
+            Column nextExecutionTimestamp = table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).add();
             Column comPort = table.column("COMPORT").number().add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map(ComTaskExecutionFields.MODIFICATIONDATE.fieldName()).add();
-            Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionFields.MODIFICATIONDATE.fieldName()).add();
+            Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
             Column priority = table.column("PRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()).add();
             table.column("USEDEFAULTCONNECTIONTASK").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).add();
             table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName()).add();
-            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).add();
+            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).add();
             table.column("EXECUTIONPRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.EXECUTION_PRIORITY.fieldName()).add();
-            table.column("EXECUTIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.EXECUTIONSTART.fieldName()).add();
-            table.column("LASTSUCCESSFULCOMPLETION").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName()).add();
+            table.column("EXECUTIONSTART").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.EXECUTIONSTART.fieldName()).add();
+            table.column("LASTSUCCESSFULCOMPLETION").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName()).add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).add();
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add();
@@ -353,8 +353,8 @@ public enum TableSpecs {
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
             Column statistics = table.column("COMSTATISTICS").number().notNull().add();
-            Column startDate = table.column("STARTDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
-            table.column("STOPDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
+            Column startDate = table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
+            table.column("STOPDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
             table.column("TOTALMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TOTAL_TIME.fieldName()).add();
             table.column("CONNECTMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.CONNECT_MILLIS.fieldName()).add();
             table.column("TALKMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TALK_MILLIS.fieldName()).add();
@@ -412,8 +412,8 @@ public enum TableSpecs {
             Column device = table.column("DEVICE").number().notNull().add();
             Column session = table.column("COMSESSION").number().notNull().add();
             Column statistics = table.column("COMSTATISTICS").number().notNull().add();
-            table.column("STARTDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
-            table.column("STOPDATE").number().notNull().conversion(NUMBER2UTCINSTANT).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
+            table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
+            table.column("STOPDATE").number().notNull().conversion(NUMBER2INSTANT).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
             Column successIndicator = table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComTaskExecutionSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
             table.column("MOD_DATE").type("DATE").map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
@@ -468,7 +468,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "varchar(1)");
             Column comtaskexecsession = table.column("COMTASKEXECSESSION").number().notNull().add();
-            table.column("TIMESTAMP").number().conversion(NUMBER2UTCINSTANT).notNull().map("timestamp").add();
+            table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
             table.column("ERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("errorDescription").add();
             table.column("COMMANDDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("commandDescription").add();
             table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
@@ -495,7 +495,7 @@ public enum TableSpecs {
             Column comsession = table.column("COMSESSION").number().notNull().add();
             table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
             table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).notNull().map("message").add();
-            table.column("TIMESTAMP").number().conversion(NUMBER2UTCINSTANT).notNull().map("timestamp").add();
+            table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();
             table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
             table.foreignKey("FK_DDC_COMSESSIONJENTR_SESSION").

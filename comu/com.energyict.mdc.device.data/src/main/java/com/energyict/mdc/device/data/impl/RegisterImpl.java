@@ -58,7 +58,7 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     public Optional<R> getReading(Date timestamp) {
         List<R> atMostOne = this.getReadings(new Interval(timestamp, timestamp));
         if (atMostOne.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         else {
             return Optional.of(atMostOne.get(0));
@@ -104,25 +104,17 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
 
     @Override
     public Optional<R> getLastReading() {
-        Optional<ReadingRecord> lastReading = this.device.getLastReadingFor(this);
-        if (lastReading.isPresent()) {
-            List<ReadingQuality> readingQualities = this.getReadingQualities(Arrays.asList(lastReading.get())).get(0);
-            return Optional.of(this.toReading(Pair.of(lastReading.get(), readingQualities)));
-        }
-        else {
-            return Optional.absent();
-        }
+        return this.device.getLastReadingFor(this).map(this::toReading);
+    }
+
+    private R toReading(ReadingRecord readingRecord) {
+        List<ReadingQuality> readingQualities = this.getReadingQualities(Arrays.asList(readingRecord)).get(0);
+        return this.toReading(Pair.of(readingRecord, readingQualities));
     }
 
     @Override
     public Optional<Date> getLastReadingDate() {
-        Optional<R> lastReading = this.getLastReading();
-        if (lastReading.isPresent()) {
-            return Optional.of(lastReading.get().getTimeStamp());
-        }
-        else {
-            return Optional.absent();
-        }
+        return this.getLastReading().map(Reading::getTimeStamp);
     }
 
     @Override

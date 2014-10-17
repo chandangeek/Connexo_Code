@@ -1,20 +1,19 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.engine.model.ComServer;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.UtcInstant;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
+import com.energyict.mdc.engine.model.ComServer;
 
 import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -26,7 +25,7 @@ import java.util.Date;
 public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJournalEntry> implements ComSessionJournalEntry {
 
     private Reference<ComSession> comSession = ValueReference.absent();
-    private UtcInstant timestamp;
+    private Instant timestamp;
     private ComServer.LogLevel logLevel;
     private String message;
     private String stackTrace;
@@ -44,7 +43,7 @@ public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJou
 
     @Override
     public Date getTimestamp () {
-        return timestamp.toDate();
+        return Date.from(timestamp);
     }
 
     @Override
@@ -79,7 +78,7 @@ public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJou
 
     private ComSessionJournalEntryImpl init(ComSessionImpl comSession, Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
         this.comSession.set(comSession);
-        this.timestamp = new UtcInstant(timestamp);
+        this.timestamp = timestamp == null ? null : timestamp.toInstant();
         this.logLevel = logLevel;
         this.message = message;
         this.stackTrace = StackTracePrinter.print(cause);

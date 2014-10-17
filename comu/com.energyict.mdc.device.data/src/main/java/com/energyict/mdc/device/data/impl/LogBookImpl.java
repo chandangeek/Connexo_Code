@@ -7,17 +7,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.masterdata.LogBookType;
 
+import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-
-import javax.inject.Inject;
 
 /**
  * Copyrights EnergyICT
@@ -46,8 +45,8 @@ public class LogBookImpl implements LogBook {
     private long id;
     private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LogBookSpec> logBookSpec = ValueReference.absent();
-    private UtcInstant lastEventOccurrence;
-    private UtcInstant latestEventAddition;
+    private Instant lastEventOccurrence;
+    private Instant latestEventAddition;
 
 
     @Inject
@@ -74,7 +73,7 @@ public class LogBookImpl implements LogBook {
     @Override
     public Date getLastLogBook() {
         if (lastEventOccurrence != null) {
-            return lastEventOccurrence.toDate();
+            return Date.from(lastEventOccurrence);
         } else {
             return null;
         }
@@ -101,13 +100,13 @@ public class LogBookImpl implements LogBook {
 
     @Override
     public Date getLatestEventAdditionDate() {
-        return latestEventAddition !=null? latestEventAddition.toDate():null;
+        return latestEventAddition !=null ? Date.from(latestEventAddition) : null;
     }
 
     @Override
     public List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval) {
         EndDeviceEventRecordFilterSpecification filter = new EndDeviceEventRecordFilterSpecification();
-        filter.interval = interval;
+        filter.range = interval.toClosedRange();
         return getEndDeviceEventsByFilter(filter);
     }
     
@@ -126,18 +125,18 @@ public class LogBookImpl implements LogBook {
 
         @Override
         public LogBook.LogBookUpdater setLastLogBookIfLater(Date lastReading) {
-            UtcInstant logBookLastReading = this.logBook.lastEventOccurrence;
-            if (lastReading != null && (logBookLastReading == null || lastReading.after(logBookLastReading.toDate()))) {
-                this.logBook.lastEventOccurrence = new UtcInstant(lastReading);
+            Instant logBookLastReading = this.logBook.lastEventOccurrence;
+            if (lastReading != null && (logBookLastReading == null || lastReading.toInstant().isAfter(logBookLastReading))) {
+                this.logBook.lastEventOccurrence = lastReading.toInstant();
             }
             return this;
         }
 
         @Override
         public LogBook.LogBookUpdater setLastReadingIfLater(Date createTime) {
-            UtcInstant logBookCreateTime = this.logBook.latestEventAddition;
-            if (createTime != null && (logBookCreateTime == null || createTime.after(logBookCreateTime.toDate()))) {
-                this.logBook.latestEventAddition = new UtcInstant(createTime);
+            Instant logBookCreateTime = this.logBook.latestEventAddition;
+            if (createTime != null && (logBookCreateTime == null || createTime.toInstant().isAfter(logBookCreateTime))) {
+                this.logBook.latestEventAddition = createTime.toInstant();
             }
             return this;
 

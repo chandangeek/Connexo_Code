@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
-import java.time.Clock;import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
@@ -28,7 +28,8 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public class ProtocolDialectPropertiesImpl
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private Map<String,String> relationAttributeNamePropertyMap;
-    private Date modificationDate;
+    private Instant modificationDate;
 
     private ProtocolPluggableService protocolPluggableService;
 

@@ -8,7 +8,6 @@ import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -63,7 +62,7 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
         this.comTaskExecutionSession.set(comTaskExecutionSession);
         this.completionCode = completionCode;
         this.errorDescription = errorDescription;
-        this.timestamp = new UtcInstant(timestamp);
+        this.timestamp = timestamp == null ? null : timestamp.toInstant();
         this.commandDescription = commandDescription;
         return this;
     }

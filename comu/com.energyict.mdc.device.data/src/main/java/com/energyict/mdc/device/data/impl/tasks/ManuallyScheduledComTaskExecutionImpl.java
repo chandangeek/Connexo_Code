@@ -7,7 +7,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import java.time.Clock;import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.elster.jupiter.time.TemporalExpression;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -16,7 +17,6 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -28,13 +28,14 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import java.util.Optional;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ManuallyScheduledComTaskExecution} interface.
@@ -59,7 +60,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     public ManuallyScheduledComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
         super.initializeFrom(device, comTaskEnablement);
         this.setComTask(comTaskEnablement.getComTask());
-        this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties().orNull());
+        this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null));
         this.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
         if (temporalExpression != null) {
             this.setNextExecutionSpecsFrom(temporalExpression);

@@ -1,5 +1,11 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
@@ -14,15 +20,8 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
 import com.energyict.mdc.engine.model.ComServer;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -68,8 +67,8 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     private Reference<ComTaskExecution> comTaskExecution = ValueReference.absent();
 
-    private UtcInstant startDate;
-    private UtcInstant stopDate;
+    private Instant startDate;
+    private Instant stopDate;
     private SuccessIndicator successIndicator;
     private List<ComTaskExecutionJournalEntry> comTaskExecutionJournalEntries = new ArrayList<>();
 
@@ -128,12 +127,12 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     @Override
     public Date getStartDate() {
-        return startDate.toDate();
+        return Date.from(startDate);
     }
 
     @Override
     public Date getStopDate() {
-        return stopDate.toDate();
+        return Date.from(stopDate);
     }
 
     @Override
@@ -189,8 +188,8 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
         this.comSession.set(comSession);
         this.comTaskExecution.set(comTaskExecution);
         this.device.set(device);
-        this.startDate = new UtcInstant(interval.getStart());
-        this.stopDate = new UtcInstant(interval.getEnd());
+        this.startDate = interval.getStart();
+        this.stopDate = interval.getEnd();
         this.successIndicator = successIndicator;
         return this;
     }

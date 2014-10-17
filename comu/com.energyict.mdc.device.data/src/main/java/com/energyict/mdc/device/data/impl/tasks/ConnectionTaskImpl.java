@@ -60,6 +60,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -106,9 +107,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Reference<PCTT> partialConnectionTask = ValueReference.absent();
     private boolean isDefault = false;
     private ConnectionTaskLifecycleStatus status = ConnectionTaskLifecycleStatus.INCOMPLETE;
-    private Date obsoleteDate;
-    private Date lastCommunicationStart;
-    private Date lastSuccessfulCommunicationEnd;
+    private Instant obsoleteDate;
+    private Instant lastCommunicationStart;
+    private Instant lastSuccessfulCommunicationEnd;
     private transient PropertyCache<ConnectionType, ConnectionTaskProperty> cache;
     private long pluggableClassId;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
@@ -117,7 +118,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Reference<ComSession> lastSession = ValueReference.absent();
-    private Date modificationDate;
+    private Instant modificationDate;
 
     private final Clock clock;
     private final ServerConnectionTaskService connectionTaskService;
@@ -250,7 +251,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public void save() {
         this.validateNotObsolete();
-        this.modificationDate = this.now();
+        this.modificationDate = clock.instant();
         super.save();
         this.saveAllProperties();
     }
@@ -308,7 +309,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void makeObsolete() {
         this.reloadComServerAndObsoleteDate();
         this.validateMakeObsolete();
-        this.obsoleteDate = this.now();
+        this.obsoleteDate = clock.instant();
         this.makeDependentsObsolete();
         this.unRegisterConnectionTaskFromComTasks();
         this.post();
@@ -321,7 +322,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void reloadComServerAndObsoleteDate() {
         ConnectionTask updatedVersionOfMyself = this.connectionTaskService.findConnectionTask(this.getId()).get();
         this.comServer.set(updatedVersionOfMyself.getExecutingComServer());
-        this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate();
+        this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate() == null ? null : updatedVersionOfMyself.getObsoleteDate().toInstant();
     }
 
     protected void makeDependentsObsolete() {
@@ -386,7 +387,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected void doExecutionStarted(ComServer comServer) {
         this.setExecutingComServer(comServer);
-        this.lastCommunicationStart = this.now();
+        this.lastCommunicationStart = clock.instant();
     }
 
     // Keep as reference for ConnectionTaskExecutionAspects implementation in the mdc.engine bundle
@@ -397,7 +398,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected void doExecutionCompleted() {
         this.setExecutingComServer(null);
-        this.lastSuccessfulCommunicationEnd = this.now();
+        this.lastSuccessfulCommunicationEnd = clock.instant();
     }
 
     public String getName() {
@@ -644,12 +645,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Date getLastCommunicationStart() {
-        return lastCommunicationStart;
+        return lastCommunicationStart == null ? null : Date.from(lastCommunicationStart);
     }
 
     @Override
     public Date getLastSuccessfulCommunicationEnd() {
-        return lastSuccessfulCommunicationEnd;
+        return lastSuccessfulCommunicationEnd == null ? null : Date.from(lastSuccessfulCommunicationEnd);
     }
 
     @Override
@@ -698,7 +699,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     @XmlAttribute
     public Date getObsoleteDate() {
-        return this.obsoleteDate;
+        return obsoleteDate == null ? null : Date.from(obsoleteDate);
     }
 
     @Override
@@ -865,7 +866,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Date getModificationDate() {
-        return this.modificationDate;
+        return modificationDate == null ? null : Date.from(modificationDate);
     }
 
 

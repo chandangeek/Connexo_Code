@@ -29,7 +29,7 @@ public class AbstractDataCollectionKpiCalculatorImpl {
         for (KpiMember kpiMember : koreKpi.getMembers()) {
             MonitoredTaskStatus taskStatus = MonitoredTaskStatus.valueOf(kpiMember.getName());
             long counter = taskStatus.calculateFrom(statusCounters);
-            kpiMember.score(this.timestamp, new BigDecimal(counter));
+            kpiMember.score(this.timestamp.toInstant(), new BigDecimal(counter));
         }
     }
 

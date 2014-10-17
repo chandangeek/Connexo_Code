@@ -62,12 +62,12 @@ public abstract class ReadingImpl implements Reading {
 
     @Override
     public Date getTimeStamp() {
-        return this.actualReading.getTimeStamp();
+        return Date.from(this.actualReading.getTimeStamp());
     }
 
     @Override
     public Date getReportedDateTime() {
-        return this.actualReading.getReportedDateTime();
+        return Date.from(this.actualReading.getReportedDateTime());
     }
 
     @Override

@@ -113,6 +113,7 @@ import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -169,8 +170,8 @@ public class DeviceImpl implements Device {
     private String serialNumber;
     private String timeZoneId;
     private TimeZone timeZone;
-    private Date modificationDate;
-    private Date yearOfCertification;
+    private Instant modificationDate;
+    private Instant yearOfCertification;
 
     @Valid
     private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
@@ -266,7 +267,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public void save() {
-        this.modificationDate = Date.from(clock.instant());
+        this.modificationDate = clock.instant();
         if (this.id > 0) {
             Save.UPDATE.save(dataModel, this);
             this.saveNewAndDirtyDialectProperties();
@@ -473,16 +474,16 @@ public class DeviceImpl implements Device {
 
     @Override
     public void setYearOfCertification(Date yearOfCertification) {
-        this.yearOfCertification = yearOfCertification;
+        this.yearOfCertification = yearOfCertification == null ? null : yearOfCertification.toInstant();
     }
 
     @Override
     public Date getYearOfCertification() {
-        return yearOfCertification;
+        return yearOfCertification == null ? null : Date.from(yearOfCertification);
     }
 
     public Date getModDate() {
-        return this.modificationDate;
+        return modificationDate == null ? null : Date.from(this.modificationDate);
     }
 
     @Override
@@ -1126,7 +1127,7 @@ public class DeviceImpl implements Device {
             }
             java.util.Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
-                List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval);
+                List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval.toClosedRange());
                 validationStatus.stream()
                         .filter(s -> s.getReadingTimestamp().isAfter(meterActivationInterval.getStart()))
                         .forEach(s -> {
@@ -1235,18 +1236,18 @@ public class DeviceImpl implements Device {
         return meterActivations;
     }
 
-    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Date when) {
+    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Instant when) {
         return findKoreChannel(channel::getReadingType, when);
     }
 
-    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Date when) {
+    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Instant when) {
         return findKoreChannel(() -> register.getReadingType(), when);
     }
 
-    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Supplier<ReadingType> readingTypeSupplier, Date when) {
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Supplier<ReadingType> readingTypeSupplier, Instant when) {
         Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
         if (found.isPresent()) {
-            Optional<? extends MeterActivation> meterActivation = found.get().getMeterActivation(when.toInstant());
+            Optional<? extends MeterActivation> meterActivation = found.get().getMeterActivation(when);
             if (meterActivation.isPresent()) {
                 return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
             }

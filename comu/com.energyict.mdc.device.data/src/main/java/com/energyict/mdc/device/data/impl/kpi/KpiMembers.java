@@ -45,7 +45,7 @@ class KpiMembers {
         KpiMember targetMember = this.targetMember();
         List<List<? extends KpiEntry>> entries =
                 Stream.of(MonitoredTaskStatus.values()).
-                    map(s -> this.kpiMembers.get(s).getScores(interval)).
+                    map(s -> this.kpiMembers.get(s).getScores(interval.toClosedRange())).
                     collect(Collectors.toList());
         List<DataCollectionKpiScore> scores = new ArrayList<>();
         for (int i = 0; i < entries.get(0).size(); i++) {

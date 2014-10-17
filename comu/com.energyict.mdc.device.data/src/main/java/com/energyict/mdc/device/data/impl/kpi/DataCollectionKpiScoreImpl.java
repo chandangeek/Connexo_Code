@@ -1,10 +1,8 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -40,7 +38,7 @@ public final class DataCollectionKpiScoreImpl implements DataCollectionKpiScore 
 
     @Override
     public BigDecimal getTarget() {
-        return this.targetMember.getTarget(this.timestamp);
+        return this.targetMember.getTarget(this.timestamp.toInstant());
     }
 
     @Override
