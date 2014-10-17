@@ -11,7 +11,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MessageSeeds;
 import com.elster.jupiter.validators.MissingRequiredProperty;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -48,7 +48,7 @@ abstract class AbstractValidator implements IValidator {
 
     @Override
     public Optional<ReadingQualityType> getReadingQualityTypeCode() {
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override

@@ -233,7 +233,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testGetReadingQualityTypeCode() {
-        assertThat(thresholdValidator.getReadingQualityTypeCode()).isAbsent();
+        assertThat(thresholdValidator.getReadingQualityTypeCode().isPresent()).isFalse();
     }
 
 }
