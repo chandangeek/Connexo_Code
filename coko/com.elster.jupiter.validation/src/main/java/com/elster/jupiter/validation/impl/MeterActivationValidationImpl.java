@@ -225,7 +225,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     private Instant firstReadingTime(ChannelValidationImpl channelValidation) {
-        return adjusted(channelValidation, channelValidation.getChannel().getMeterActivation().getInterval().getStart());
+        return adjusted(channelValidation, channelValidation.getChannel().getMeterActivation().getRange().lowerEndpoint());
     }
 
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {

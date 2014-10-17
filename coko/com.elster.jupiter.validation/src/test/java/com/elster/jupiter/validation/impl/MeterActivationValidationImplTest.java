@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.google.common.collect.Range;
 import org.junit.After;
@@ -93,7 +92,7 @@ public class MeterActivationValidationImplTest {
         when(channel2.getMainReadingType()).thenReturn(readingType2);
         when(readingType1.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType2.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
-        when(meterActivation.getInterval()).thenReturn(Interval.startAt(DATE1));
+        when(meterActivation.getRange()).thenReturn(Range.atLeast(DATE1));
 
         meterActivationValidation = new MeterActivationValidationImpl(dataModel, clock).init(meterActivation);
         meterActivationValidation.setRuleSet(validationRuleSet);
