@@ -50,7 +50,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1040,7 +1040,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         simpleComTask.createStatusInformationTask();
         simpleComTask.save();
 
-        ComScheduleBuilder builder = inMemoryPersistence.getSchedulingService().newComSchedule(mRIDAndName, new TemporalExpression(TimeDuration.days(1)), new UtcInstant(clock.now()));
+        ComScheduleBuilder builder = inMemoryPersistence.getSchedulingService().newComSchedule(mRIDAndName, new TemporalExpression(TimeDuration.days(1)), new UtcInstant(Date.from(clock.instant())));
         builder.mrid(mRIDAndName);
         ComSchedule comSchedule = builder.build();
         comSchedule.addComTask(simpleComTask);

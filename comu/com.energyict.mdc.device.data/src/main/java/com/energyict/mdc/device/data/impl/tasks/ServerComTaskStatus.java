@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.util.time.Clock;
-import org.joda.time.DateTimeConstants;
-
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import org.joda.time.DateTimeConstants;
 
+import java.time.Clock;
 import java.util.Date;
 
 /**
@@ -240,7 +239,7 @@ public enum ServerComTaskStatus {
 
     public final void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
         sqlBuilder.appendWhereOrAnd();
-        this.completeFindBySqlBuilder(sqlBuilder, clock.now());
+        this.completeFindBySqlBuilder(sqlBuilder, Date.from(clock.instant()));
     }
 
     protected void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Date date) {

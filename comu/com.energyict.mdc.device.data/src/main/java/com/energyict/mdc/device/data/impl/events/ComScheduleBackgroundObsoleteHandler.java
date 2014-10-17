@@ -7,7 +7,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.osgi.service.event.EventConstants;
 
 import java.util.Map;

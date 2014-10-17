@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.Collection;
 import java.util.Date;

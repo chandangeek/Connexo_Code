@@ -15,7 +15,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

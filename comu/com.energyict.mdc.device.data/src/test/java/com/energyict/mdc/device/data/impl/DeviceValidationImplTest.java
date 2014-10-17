@@ -4,14 +4,13 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
+import java.time.Clock;import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Channel;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -83,7 +82,7 @@ public class DeviceValidationImplTest {
         when(channelValidation1.hasActiveRules()).thenReturn(false);
         when(channelValidation2.hasActiveRules()).thenReturn(false);
         when(channelValidation3.hasActiveRules()).thenReturn(false);
-        when(clock.now()).thenReturn(NOW);
+        when(Date.from(clock.instant())).thenReturn(NOW);
 
         when(meterActivationValidation1.getChannelValidation(koreChannel)).thenReturn(Optional.of(channelValidation2));
 

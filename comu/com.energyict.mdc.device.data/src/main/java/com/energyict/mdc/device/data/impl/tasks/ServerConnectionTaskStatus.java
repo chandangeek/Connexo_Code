@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.Clock;
 import org.joda.time.DateTimeConstants;
 
+import java.time.Clock;
 import java.util.Date;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -138,7 +137,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp <=");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
         }
 
     },
@@ -178,7 +177,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".lastsuccessfulcommunicationend is null");
@@ -221,7 +220,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
         }
 
     },
@@ -265,7 +264,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".lastsuccessfulcommunicationend is not null");
@@ -312,7 +311,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".lastsuccessfulcommunicationend is not null");

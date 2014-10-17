@@ -9,7 +9,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.validation.ConstraintValidatorContext;
 

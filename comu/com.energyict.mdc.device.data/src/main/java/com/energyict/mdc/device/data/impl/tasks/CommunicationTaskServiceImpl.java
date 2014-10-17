@@ -48,7 +48,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
 

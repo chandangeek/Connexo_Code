@@ -12,7 +12,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

@@ -4,7 +4,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.model.ComServer;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.Duration;
 
 import java.util.Date;

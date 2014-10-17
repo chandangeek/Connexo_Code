@@ -10,7 +10,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.Date;
 import java.util.List;

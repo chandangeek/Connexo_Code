@@ -25,7 +25,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.fest.assertions.core.Condition;
 import org.junit.Before;
 import org.junit.Test;

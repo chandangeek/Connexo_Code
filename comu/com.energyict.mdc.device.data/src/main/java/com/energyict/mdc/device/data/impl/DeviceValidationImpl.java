@@ -7,8 +7,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.IntermittentInterval;
+import java.time.Clock;import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -18,7 +17,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Ordering;
 
 import java.time.Instant;
@@ -313,7 +312,7 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     private ValidationEvaluator getEvaluator() {
         if (evaluator == null) {
-            evaluator = validationService.getEvaluator(fetchKoreMeter(), Interval.endAt(clock.now()));
+            evaluator = validationService.getEvaluator(fetchKoreMeter(), Interval.endAt(Date.from(clock.instant())));
         }
         return evaluator;
     }

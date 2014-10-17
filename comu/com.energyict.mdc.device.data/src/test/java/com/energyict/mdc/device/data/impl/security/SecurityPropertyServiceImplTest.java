@@ -45,8 +45,7 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.ApplicationContext;
+import java.time.Clock;import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
@@ -82,7 +81,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -133,7 +132,7 @@ public class SecurityPropertyServiceImplTest {
 
     @Before
     public void initializeMocks () {
-        when(this.clock.now()).thenReturn(new Date());
+        when(Date.from(clock.instant())).thenReturn(new Date());
         when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);

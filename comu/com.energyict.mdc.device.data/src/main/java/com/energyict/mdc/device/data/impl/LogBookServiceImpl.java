@@ -6,7 +6,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;

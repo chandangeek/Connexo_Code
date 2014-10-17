@@ -11,10 +11,10 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.pluggable.PluggableClassUsage;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.google.common.base.Optional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a task that is able to establish a connection

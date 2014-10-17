@@ -17,7 +17,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.Collection;
 import java.util.List;

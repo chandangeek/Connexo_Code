@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
@@ -53,7 +52,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;
@@ -61,11 +59,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -264,7 +264,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                         this.getAllProperties(),
                         new SimpleRelationTransactionExecutor<ConnectionType>(
                                 this,
-                                this.clock.now(),
+                                Date.from(clock.instant()),
                                 this.findRelationType(),
                                 this.getThesaurus()));
             }
@@ -295,7 +295,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     protected Date now() {
-        return this.clock.now();
+        return Date.from(clock.instant());
     }
 
     protected void validateNotObsolete() {
@@ -438,7 +438,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Relation getDefaultRelation() {
-        return this.getDefaultRelation(this.clock.now());
+        return this.getDefaultRelation(Date.from(clock.instant()));
     }
 
     @Override
@@ -461,7 +461,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     public List<ConnectionTaskProperty> getAllProperties() {
-        return this.getAllProperties(this.clock.now());
+        return this.getAllProperties(Date.from(clock.instant()));
     }
 
     public List<ConnectionTaskProperty> getAllProperties(Date date) {
@@ -548,14 +548,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void setProperty(String propertyName, Object value) {
-        Date now = this.clock.now();
+        Date now = Date.from(clock.instant());
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
         this.cache.put(now, propertyName, value);
     }
 
     @Override
     public void removeProperty(String propertyName) {
-        Date now = this.clock.now();
+        Date now = Date.from(clock.instant());
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
         this.cache.remove(now, propertyName);
     }
@@ -579,7 +579,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Object get(String attributeName) {
-        return this.get(attributeName, this.clock.now());
+        return this.get(attributeName, Date.from(clock.instant()));
     }
 
     @Override
@@ -589,7 +589,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Object get(RelationAttributeType attributeType) {
-        return this.get(attributeType, this.clock.now());
+        return this.get(attributeType, Date.from(clock.instant()));
     }
 
     @Override
@@ -686,22 +686,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Optional<ComSession.SuccessIndicator> getLastSuccessIndicator() {
-        Optional<ComSession> lastComSession = this.getLastComSession();
-        if (lastComSession.isPresent()) {
-            return Optional.of(lastComSession.get().getSuccessIndicator());
-        } else {
-            return Optional.absent();
-        }
+        return this.getLastComSession().map(ComSession::getSuccessIndicator);
     }
 
     @Override
     public Optional<TaskExecutionSummary> getLastTaskExecutionSummary() {
         Optional<ComSession> lastComSession = this.getLastComSession();
-        if (lastComSession.isPresent()) {
-            return Optional.<TaskExecutionSummary>of(lastComSession.get());
-        } else {
-            return Optional.absent();
-        }
+        return lastComSession.map(TaskExecutionSummary.class::cast);
     }
 
     @Override
@@ -879,7 +870,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
 
     protected TimeZone getClocksTimeZone() {
-        return this.clock.getTimeZone();
+        return TimeZone.getTimeZone(this.clock.getZone());
     }
 
 

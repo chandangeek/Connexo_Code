@@ -17,7 +17,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.LongCounter;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import net.jcip.annotations.NotThreadSafe;
 import org.joda.time.Duration;
 
