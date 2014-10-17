@@ -275,7 +275,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
-        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
+        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(java.util.Optional.of(comTaskExecutionSession));
         String response = target("/connections").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
@@ -497,5 +497,5 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(finder.find()).thenReturn(list);
         return finder;
     }
-    
+
 }

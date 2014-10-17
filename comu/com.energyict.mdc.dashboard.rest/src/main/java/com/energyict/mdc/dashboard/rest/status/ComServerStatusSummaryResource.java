@@ -4,12 +4,11 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.status.ComServerType;
 import com.energyict.mdc.engine.model.security.Privileges;
-
-import javax.annotation.security.RolesAllowed;
+import com.energyict.mdc.engine.status.ComServerType;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.GET;
