@@ -86,6 +86,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     @Test
     public void testGetNonExistingDeviceType() throws Exception {
+        when(deviceConfigurationService.findDeviceType(12345)).thenReturn(Optional.empty());
         Response response = target("/devicetypes/12345").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -837,7 +838,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     @Test
     public void testGetDeviceCommunicationByIdWithNonExistingDeviceType() throws Exception {
         long deviceType_id = 41;
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(null);
+        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.empty());
         Response response = target("/devicetypes/41/deviceconfigurations/14").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
