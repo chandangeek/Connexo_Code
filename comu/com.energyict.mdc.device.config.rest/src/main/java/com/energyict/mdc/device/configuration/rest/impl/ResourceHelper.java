@@ -31,21 +31,18 @@ public class ResourceHelper {
     public RegisterGroup findRegisterGroupByIdOrThrowException(long id) {
         return masterDataService
                 .findRegisterGroup(id)
-                .map(Function.identity())
                 .orElseThrow(() -> new WebApplicationException("No register group with id " + id, Response.Status.NOT_FOUND));
     }
 
     public com.energyict.mdc.masterdata.RegisterType findRegisterTypeByIdOrThrowException(long id) {
         return masterDataService
                 .findRegisterType(id)
-                .map(Function.identity())
                 .orElseThrow(() -> new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND));
      }
 
     public ChannelType findChannelTypeByIdOrThrowException(long id) {
         return masterDataService
                 .findChannelTypeById(id)
-                .map(Function.identity())
                 .orElseThrow(() -> new WebApplicationException("No channel type with id " + id, Response.Status.NOT_FOUND));
      }
 

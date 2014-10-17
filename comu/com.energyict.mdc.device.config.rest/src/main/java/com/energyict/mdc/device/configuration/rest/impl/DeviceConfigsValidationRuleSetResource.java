@@ -89,10 +89,10 @@ public class DeviceConfigsValidationRuleSetResource {
     private DeviceConfigurationInfos AddSelectedDeviceConfigurations(ValidationRuleSet ruleset, List<Long> ids) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         for (Long id : ids) {
-            DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(id);
-            if (deviceConfiguration != null) {
-                deviceConfiguration.addValidationRuleSet(ruleset);
-                result.add(deviceConfiguration);
+            Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(id);
+            if (deviceConfiguration.isPresent()) {
+                deviceConfiguration.get().addValidationRuleSet(ruleset);
+                result.add(deviceConfiguration.get());
             }
         }
         return result;
