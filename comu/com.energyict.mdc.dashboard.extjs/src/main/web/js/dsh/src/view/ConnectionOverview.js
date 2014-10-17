@@ -50,7 +50,7 @@ Ext.define('Dsh.view.ConnectionOverview', {
                     {
                         xtype: 'summary',
                         flex: 2,
-                        wTitle: Uni.I18n.translate('connection.widget.summary.title', 'DSH', 'Connection summary'),
+                        wTitle: Uni.I18n.translate('connection.widget.summary.title', 'DSH', 'Connections summary'),
                         router: me.router,
                         parent: 'connections'
                     },
