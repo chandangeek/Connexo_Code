@@ -54,7 +54,6 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         String response = target("/communicationoverview").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].counters")).isEmpty();
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
@@ -94,7 +93,6 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         String response = target("/communicationoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].counters")).isEmpty();
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
@@ -103,6 +101,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].id")).containsExactly("Waiting");
         assertThat(jsonModel.<List>get("$.communicationSummary.counters[1].id")).contains("Busy", "Retrying", "Pending").hasSize(3);
         assertThat(jsonModel.<List>get("$.communicationSummary.counters[2].id")).contains("NeverCompleted", "Failed").hasSize(2);
+        assertThat(jsonModel.<List>get("$.communicationSummary.counters[*].name")).containsExactly("Success", "Ongoing", "Failed");
 
         assertThat(jsonModel.<List<Integer>>get("$.overviews[*].counters[*].count")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
         assertThat(jsonModel.<List<Integer>>get("$.breakdowns[*].counters[*].failingCount")).isSortedAccordingTo((c1,c2)->c2.compareTo(c1));
@@ -119,7 +118,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
 
     private DataCollectionKpi mockDataCollectionKpi() {
         DataCollectionKpi dataCollectionKpi = mock(DataCollectionKpi.class);
-        when(dataCollectionKpi.calculatesConnectionSetupKpi()).thenReturn(true);
+        when(dataCollectionKpi.calculatesComTaskExecutionKpi()).thenReturn(true);
         when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
         kpiScores.add(mockDataCollectionKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 0, 0).toInstant(ZoneOffset.UTC)), 10, 80, 10, 100));

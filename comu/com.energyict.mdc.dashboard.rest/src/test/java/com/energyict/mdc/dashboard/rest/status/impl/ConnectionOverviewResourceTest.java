@@ -92,7 +92,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").request().get(ConnectionOverviewInfo.class);
 
         Comparator<TaskCounterInfo> counterInfoComparator = (o1, o2) -> Long.valueOf(o2.count).compareTo(o1.count);
-        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(3);
+        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(4);
         assertThat(connectionOverviewInfo.overviews.get(0).counters).isSortedAccordingTo(counterInfoComparator);
         assertThat(connectionOverviewInfo.overviews.get(1).counters).isSortedAccordingTo(counterInfoComparator);
 
@@ -128,7 +128,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(ConnectionOverviewInfo.class);
 
         Comparator<TaskCounterInfo> counterInfoComparator = (o1, o2) -> Long.valueOf(o2.count).compareTo(o1.count);
-        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(3);
+        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(4);
         assertThat(connectionOverviewInfo.overviews.get(0).counters).isSortedAccordingTo(counterInfoComparator);
         assertThat(connectionOverviewInfo.overviews.get(1).counters).isSortedAccordingTo(counterInfoComparator);
 

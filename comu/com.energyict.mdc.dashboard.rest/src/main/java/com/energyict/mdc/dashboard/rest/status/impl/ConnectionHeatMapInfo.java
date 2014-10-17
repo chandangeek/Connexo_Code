@@ -5,6 +5,7 @@ import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
+import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -53,8 +54,8 @@ public class ConnectionHeatMapInfo {
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }
                     TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                    taskCounterInfo.id = MessageSeeds.SOME_TASKS_FAILED.getKey();
-                    taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.SOME_TASKS_FAILED.getKey(), MessageSeeds.SOME_TASKS_FAILED.getKey());
+                    taskCounterInfo.id = MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey();
+                    taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey());
                     taskCounterInfo.count = counters.getAtLeastOneTaskFailedCount();
                     heatMapRowInfo.data.add(taskCounterInfo);
                 }
