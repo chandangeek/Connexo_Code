@@ -4,9 +4,17 @@ import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptio
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -69,30 +77,37 @@ public class IssueDataCollectionApplication extends Application implements Binde
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
     }
+
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
+
     @Reference
     public void setIssueActionService(IssueActionService issueActionService) {
         this.issueActionService = issueActionService;
     }
+
     @Reference
     public void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
         this.issueDataCollectionService = issueDataCollectionService;
     }
+
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
