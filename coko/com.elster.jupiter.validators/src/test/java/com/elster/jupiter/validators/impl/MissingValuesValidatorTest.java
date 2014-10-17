@@ -10,8 +10,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.collect.Range;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.assertj.core.data.MapEntry;
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,12 +26,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Mock;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -71,10 +71,10 @@ public class MissingValuesValidatorTest {
     @Parameterized.Parameters
     public static List<Object[]> params() {
         return Arrays.asList(
-                new Object[]{new DateTime(1992, 1, 14, 16, 0)}, // Winter time
-                new Object[]{new DateTime(1992, 8, 14, 16, 0)},  // Summer time
-                new Object[]{new DateTime(2013, 4, 7, 2, 50)},  // Winter -> Summer
-                new Object[]{new DateTime(2013, 9, 29, 1, 50)}  // Summer -> Winter
+                new Instant[]{LocalDateTime.of(1992, 1, 14, 16, 0).toInstant(ZoneOffset.UTC)}, // Winter time
+                new Object[]{LocalDateTime.of(1992, 8, 14, 16, 0).toInstant(ZoneOffset.UTC)},  // Summer time
+                new Object[]{LocalDateTime.of(2013, 4, 7, 2, 50).toInstant(ZoneOffset.UTC)},  // Winter -> Summer
+                new Object[]{LocalDateTime.of(2013, 9, 29, 1, 50).toInstant(ZoneOffset.UTC)}  // Summer -> Winter
         );
     }
 
