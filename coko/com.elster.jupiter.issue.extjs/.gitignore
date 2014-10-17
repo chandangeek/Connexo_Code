@@ -11,3 +11,7 @@ log/
 .gradle/
 bin/
 generated/
+.externalToolBuilders/
+maven-eclipse.xml
+.gitmodules
+.gitignore
