@@ -45,7 +45,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.glassfish.jersey.client.ClientResponse;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -107,7 +107,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         deviceTypeInfo.deviceProtocolPluggableClassName = "theProtocol";
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
-        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.absent();
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.empty();
         when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
@@ -155,7 +155,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
-        when(protocolPluggableService.findDeviceProtocolPluggableClassByName(anyString())).thenReturn(Optional.<DeviceProtocolPluggableClass>absent());
+        when(protocolPluggableService.findDeviceProtocolPluggableClassByName(anyString())).thenReturn(Optional.empty());
 
         ClientResponse response = target("/devicetypes/").request().post(json, ClientResponse.class);
     }
@@ -665,7 +665,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(registerType101));
-        when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.<RegisterType>absent());
+        when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.empty());
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
@@ -1114,7 +1114,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
-        when(masterDataService.findRegisterType(12345)).thenReturn(Optional.<RegisterType>absent());
+        when(masterDataService.findRegisterType(12345)).thenReturn(Optional.empty());
         registerConfigInfo.registerType = 12345L;
         Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/").request().post(json);

@@ -7,7 +7,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Matchers;
 

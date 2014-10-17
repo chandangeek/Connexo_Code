@@ -13,7 +13,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -173,7 +173,7 @@ public class DeviceConfigsValidationRuleSetResource {
     }
 
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
-        Optional<ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(validationRuleSetId);
+        Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(validationRuleSetId);
         if (!ruleSetRef.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }

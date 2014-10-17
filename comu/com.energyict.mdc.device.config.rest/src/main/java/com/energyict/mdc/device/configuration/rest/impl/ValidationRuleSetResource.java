@@ -13,7 +13,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +78,7 @@ public class ValidationRuleSetResource {
             @PathParam("validationRuleSetId") long validationRuleSetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        Optional<ValidationRuleSet> optional = validationService.getValidationRuleSet(validationRuleSetId);
+        Optional<? extends ValidationRuleSet> optional = validationService.getValidationRuleSet(validationRuleSetId);
         if (optional.isPresent()) {
             ValidationRuleSet ruleSet = optional.get();
             deviceConfiguration.removeValidationRuleSet(ruleSet);

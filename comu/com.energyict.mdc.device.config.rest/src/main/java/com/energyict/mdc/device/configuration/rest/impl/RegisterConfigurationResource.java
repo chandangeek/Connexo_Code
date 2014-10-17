@@ -13,7 +13,7 @@ import com.energyict.mdc.device.configuration.rest.RegisterConfigurationComparat
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

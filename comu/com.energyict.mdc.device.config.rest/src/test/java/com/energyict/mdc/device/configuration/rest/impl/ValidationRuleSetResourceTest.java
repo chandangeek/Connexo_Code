@@ -7,7 +7,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.Arrays;
 import java.util.Collections;
 import javax.ws.rs.client.Entity;
@@ -22,6 +22,7 @@ import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 
 public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
@@ -44,8 +45,8 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
 
     @Test
     public void testAddRuleSetsToDeviceConfiguration() throws Exception {
-        when(validationService.getValidationRuleSet(RULESET_ID_1)).thenReturn(Optional.of(validationRuleSet1));
-        when(validationService.getValidationRuleSet(RULESET_ID_2)).thenReturn(Optional.of(validationRuleSet2));
+    	doReturn(Optional.of(validationRuleSet1)).when(validationService).getValidationRuleSet(RULESET_ID_1);
+    	doReturn(Optional.of(validationRuleSet2)).when(validationService).getValidationRuleSet(RULESET_ID_2);
         when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(deviceType);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
