@@ -7,7 +7,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -44,7 +44,7 @@ public class IssueAssigmentServiceImplTest extends BaseTest {
             assertThat(assignmentRules).isNotEmpty();
 
             Optional<AssignmentRule> ruleRef = getIssueAssignmentService().findAssignmentRule(rule.getId());
-            assertThat(ruleRef).isNotEqualTo(Optional.absent());
+            assertThat(ruleRef).isNotEqualTo(Optional.empty());
 
             List<IssueForAssign> issueList = new ArrayList<>();
             issueList.add(new IssueForAssignImpl(issue));

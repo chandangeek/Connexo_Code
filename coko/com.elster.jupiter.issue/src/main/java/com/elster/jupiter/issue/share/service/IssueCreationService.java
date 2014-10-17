@@ -5,7 +5,7 @@ import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.List;
 

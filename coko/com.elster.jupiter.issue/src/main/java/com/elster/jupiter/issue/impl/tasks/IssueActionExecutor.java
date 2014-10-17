@@ -5,7 +5,7 @@ import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.HashMap;
 import java.util.List;

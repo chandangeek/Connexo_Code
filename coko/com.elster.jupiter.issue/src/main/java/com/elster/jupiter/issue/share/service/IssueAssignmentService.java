@@ -3,7 +3,7 @@ package com.elster.jupiter.issue.share.service;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.List;
 
