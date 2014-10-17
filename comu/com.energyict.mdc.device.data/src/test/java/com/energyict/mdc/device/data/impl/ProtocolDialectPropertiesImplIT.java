@@ -154,7 +154,9 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @Before
     public void refreshConfigurationProperties() {
-        deviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
+        deviceConfiguration = inMemoryPersistence.getDeviceConfigurationService()
+                                    .findDeviceConfiguration(deviceConfiguration.getId())
+                                    .orElseThrow(() -> new RuntimeException("Failure to reload device configuration before running next test"));
         DeviceCommunicationConfiguration communicationConfiguration = deviceConfiguration.getCommunicationConfiguration();
         protocolDialect1ConfigurationProperties = this.getProtocolDialectConfigurationPropertiesFromConfiguration(communicationConfiguration, DIALECT_1_NAME);
         protocolDialect2ConfigurationProperties = getProtocolDialectConfigurationPropertiesFromConfiguration(communicationConfiguration, DIALECT_2_NAME);
@@ -475,7 +477,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         Relation mockedRelation = mock(Relation.class);
         when(mockedRelation.getRelationType()).thenReturn(relationType);
         Date from = new Date();
-        when(mockedRelation.getPeriod()).thenReturn(Interval.startAt(from));
+        when(mockedRelation.getPeriod()).thenReturn(Interval.startAt(from.toInstant()));
         when(mockedRelation.getFrom()).thenReturn(from);
         when(mockedRelation.getTo()).thenReturn(null);
         when(mockedRelation.includes(any(Date.class))).thenReturn(true);
