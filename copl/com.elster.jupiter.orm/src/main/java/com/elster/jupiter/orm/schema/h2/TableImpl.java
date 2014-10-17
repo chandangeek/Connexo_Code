@@ -5,12 +5,12 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.schema.ExistingColumn;
 import com.elster.jupiter.orm.schema.ExistingIndex;
 import com.elster.jupiter.orm.schema.ExistingTable;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class TableImpl implements ExistingTable {
 
