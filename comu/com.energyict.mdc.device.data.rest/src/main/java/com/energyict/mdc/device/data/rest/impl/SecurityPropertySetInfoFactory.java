@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
@@ -49,8 +50,9 @@ public class SecurityPropertySetInfoFactory {
 
         securityPropertySetInfo.properties = new ArrayList<>();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs() , typedProperties, securityPropertySetInfo.properties);
+        changeToRequiredProperties(securityPropertySetInfo.properties);
         securityPropertySetInfo.status = new IdWithNameInfo();
-        if (securityPropertySetInfo.properties.stream().anyMatch(p -> p.required && p.propertyValueInfo == null)) {
+        if (!getStatus(device, securityPropertySet)) {
             securityPropertySetInfo.status.id = CompletionState.INCOMPLETE;
             securityPropertySetInfo.status.name = thesaurus.getString(MessageSeeds.INCOMPLETE.getKey(), MessageSeeds.INCOMPLETE.getDefaultFormat());
         } else {
@@ -64,6 +66,15 @@ public class SecurityPropertySetInfoFactory {
             }
         }
         return securityPropertySetInfo;
+    }
+
+    private boolean getStatus(Device device, SecurityPropertySet securityPropertySet){
+        for (SecurityProperty securityProperty: device.getSecurityProperties(securityPropertySet)) {
+            if (!securityProperty.isComplete()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
@@ -80,6 +91,14 @@ public class SecurityPropertySetInfoFactory {
 
         CompletionState(MessageSeeds seed) {
             this.seed = seed;
+        }
+    }
+
+    //TODO JP-6225
+    //should be removed when implementing this issue
+    private void changeToRequiredProperties (List<PropertyInfo> propertyInfoList) {
+        for (PropertyInfo propertyInfo: propertyInfoList) {
+            propertyInfo.required = true;
         }
     }
 

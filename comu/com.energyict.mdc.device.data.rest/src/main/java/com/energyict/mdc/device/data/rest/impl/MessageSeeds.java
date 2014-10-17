@@ -60,8 +60,8 @@ public enum MessageSeeds implements MessageSeed {
     WAITING(69, "Waiting", "Waiting"),
     DEFAULT(70, "Default", "Default"),
     DEFAULT_NOT_DEFINED(71, "DefaultNotDefined", "Default (not defined yet)"),
-    COMPLETE(72, "Complete", "Complete"),
-    INCOMPLETE(73, "Incomplete", "Incomplete"),
+    COMPLETE(76, "Complete", "Complete"),
+    INCOMPLETE(77, "Incomplete", "Incomplete"),
     NO_SUCH_SECURITY_PROPERTY_SET_ON_DEVICE(74, "NoSuchSecurityPropertySetOnDevice", "No security settings with id {0} exist for device ''{1}''"),
     NO_SUCH_SECURITY_PROPERTY_SET(75, "NoSuchSecurityPropertySet", "No security settings with id {0} exist");
 
