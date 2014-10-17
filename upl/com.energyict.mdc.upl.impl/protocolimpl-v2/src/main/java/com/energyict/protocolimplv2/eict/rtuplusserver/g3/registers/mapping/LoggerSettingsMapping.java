@@ -6,6 +6,7 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.LoggerSettings;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -13,6 +14,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -26,6 +28,10 @@ public class LoggerSettingsMapping extends RegisterMapping {
 
     public LoggerSettingsMapping(final DlmsSession session) {
         super(session);
+    }
+
+    public LoggerSettingsMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
+        super(logger, cosemObjectFactory);
     }
 
     @Override

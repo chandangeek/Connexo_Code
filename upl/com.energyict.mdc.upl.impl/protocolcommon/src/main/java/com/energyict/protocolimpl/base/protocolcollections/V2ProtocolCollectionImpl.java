@@ -35,6 +35,7 @@ public class V2ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolClasses.add("com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155");  this.protocolNames.add("Elster MTU155 CTR");
         this.protocolClasses.add("com.energyict.protocolimplv2.eict.eiweb.EIWeb");  this.protocolNames.add("EnergyICT RTU EIWeb");
         this.protocolClasses.add("com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer");  this.protocolNames.add("EnergyICT RTU+Server2 G3 DLMS");
+        this.protocolClasses.add("com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer");  this.protocolNames.add("EnergyICT RTU+Server2 IDIS DLMS");
         this.protocolClasses.add("com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3)");
         this.protocolClasses.add("com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3) Mbus Slave");
         this.protocolClasses.add("com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS Gateway");

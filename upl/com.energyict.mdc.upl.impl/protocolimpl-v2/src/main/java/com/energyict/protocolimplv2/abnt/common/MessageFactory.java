@@ -61,7 +61,6 @@ public class MessageFactory implements DeviceMessageSupport {
         supportedMessages.add(DeviceActionMessage.DemandResetWithForceClock);
         supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureAutomaticDemandReset);
         supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureHolidayList);
         supportedMessages.add(ClockDeviceMessage.EnableOrDisableDST);
         supportedMessages.add(ClockDeviceMessage.ConfigureDSTWithoutHour);
 

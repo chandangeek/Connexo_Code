@@ -25,6 +25,8 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  */
 public class DlmsConfigurationSupport implements ConfigurationSupport {
 
+    private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
+
     @Override
     public List<PropertySpec> getRequiredProperties() {
         return Collections.emptyList();
@@ -47,53 +49,53 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
                 this.deviceId());
     }
 
-    private PropertySpec timeZonePropertySpec() {
+    protected PropertySpec timeZonePropertySpec() {
         return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
     }
 
-    private PropertySpec validateInvokeIdPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(VALIDATE_INVOKE_ID);
+    protected PropertySpec validateInvokeIdPropertySpec() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID);
     }
 
-    private PropertySpec deviceId() {
+    protected PropertySpec deviceId() {
         return PropertySpecFactory.stringPropertySpec(DEVICE_ID, DEFAULT_DEVICE_ID);
     }
 
-    private PropertySpec requestTimeZonePropertySpec() {
+    protected PropertySpec requestTimeZonePropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(REQUEST_TIMEZONE);
     }
 
-    private PropertySpec forcedDelayPropertySpec() {
+    protected PropertySpec forcedDelayPropertySpec() {
         return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(
                 FORCED_DELAY,
                 new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000));
     }
 
-    private PropertySpec conformanceBlockValuePropertySpec() {
+    protected PropertySpec conformanceBlockValuePropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(CONFORMANCE_BLOCK_VALUE, BigDecimal.valueOf(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK));
     }
 
-    private PropertySpec manufacturerPropertySpec() {
+    protected PropertySpec manufacturerPropertySpec() {
         return PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(MANUFACTURER, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000");
     }
 
-    private PropertySpec maxRecPduSizePropertySpec() {
+    protected PropertySpec maxRecPduSizePropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
-    private PropertySpec bulkRequestPropertySpec() {
+    protected PropertySpec bulkRequestPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(BULK_REQUEST);
     }
 
-    private PropertySpec cipheringTypePropertySpec() {
+    protected PropertySpec cipheringTypePropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(CIPHERING_TYPE, DEFAULT_CIPHERING_TYPE);
     }
 
-    private PropertySpec ntaSimulationToolPropertySpec() {
+    protected PropertySpec ntaSimulationToolPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(NTA_SIMULATION_TOOL);
     }
 
-    private PropertySpec fixMbusHexShortIdPropertySpec() {
+    protected PropertySpec fixMbusHexShortIdPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(FIX_MBUS_HEX_SHORT_ID);
     }
 }

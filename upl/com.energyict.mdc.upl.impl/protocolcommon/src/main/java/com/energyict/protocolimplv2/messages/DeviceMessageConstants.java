@@ -75,26 +75,20 @@ public class DeviceMessageConstants {
     public static final String passwordAttributeName = "password";   // commonly used translation key
     public static final String apnAttributeName = "NetworkConnectivityMessage.apn";
     public static final String whiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.whitelist.phonenumbers";
+    public static final String discoverDuration = "NetworkConnectivityMessage.discover.duration";
+    public static final String discoverInterval = "NetworkConnectivityMessage.discover.interval";
+    public static final String repeaterCallInterval = "NetworkConnectivityMessage.repeater.call.interval";
+    public static final String repeaterCallThreshold = "NetworkConnectivityMessage.repeater.call.threshold";
+    public static final String repeaterCallTimeslots = "NetworkConnectivityMessage.repeater.call.timeslots";
     public static final String systemRebootThreshold = "ConfigurationChangeDeviceMessage.systemRebootThreshold";
     public static final String enableSSL = "ConfigurationChangeDeviceMessage.enableSSL";
     public static final String deviceName = "ConfigurationChangeDeviceMessage.deviceName";
     public static final String ntpAddress = "ConfigurationChangeDeviceMessage.ntpAddress";
     public static final String enableAutomaticDemandResetAttributeName = "ConfigurationChangeDeviceMessage.enabledemandreset";
-    public static final String holidayRecord1AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord1";
-    public static final String holidayRecord2AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord2";
-    public static final String holidayRecord3AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord3";
-    public static final String holidayRecord4AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord4";
-    public static final String holidayRecord5AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord5";
-    public static final String holidayRecord6AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord6";
-    public static final String holidayRecord7AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord7";
-    public static final String holidayRecord8AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord8";
-    public static final String holidayRecord9AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord9";
-    public static final String holidayRecord10AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord10";
-    public static final String holidayRecord11AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord11";
-    public static final String holidayRecord12AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord12";
-    public static final String holidayRecord13AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord13";
-    public static final String holidayRecord14AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord14";
-    public static final String holidayRecord15AttributeName = "ConfigurationChangeDeviceMessage.holidayrecord15";
+    public static final String localMacAddress = "ConfigurationChangeDeviceMessage.localMacAddress";
+    public static final String maxCredit = "ConfigurationChangeDeviceMessage.maxCredit";
+    public static final String zeroCrossDelay = "ConfigurationChangeDeviceMessage.zeroCrossDelay";
+    public static final String synchronisationBit = "ConfigurationChangeDeviceMessage.synchronisationBit";
 
     public static final String managedWhiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.managed.whitelist.phonenumbers";
     public static final String smsCenterPhoneNumberAttributeName = "NetworkConnectivityMessage.smscenter.phonenumber";
@@ -563,4 +557,5 @@ public class DeviceMessageConstants {
     public static final String fileInfo = "fileInfo";
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
     public static final String servletURL = "servletURL";
+    public static final String logLevel = "logLevel";
 }

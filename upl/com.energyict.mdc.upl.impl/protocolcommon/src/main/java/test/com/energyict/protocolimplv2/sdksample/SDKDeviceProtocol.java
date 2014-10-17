@@ -236,13 +236,13 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         //TODO
-        return null;
+        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         //TODO
-        return null;
+        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override

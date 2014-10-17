@@ -3,8 +3,11 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,7 +20,10 @@ public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpec {
 
     DownloadFile(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.fileInfo)),
     PushConfiguration(1),
-    PushLogsNow(2);
+    PushLogsNow(2),
+    SetServerLogLevel(3, PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.logLevel, BigDecimal.valueOf(0), BigDecimal.valueOf(7))),
+    SetWebPortalLogLevel(4, PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.logLevel, BigDecimal.valueOf(0), BigDecimal.valueOf(7))),
+    ;
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.LOGGING_CONFIGURATION;
 

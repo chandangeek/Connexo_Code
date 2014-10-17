@@ -49,12 +49,13 @@ import java.util.logging.Level;
  */
 public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism {
 
+    public static final String CALLING_AP_TITLE = "CallingAPTitle";
+    public static final String CALLING_AP_TITLE_DEFAULT = "0000000000000000";
+
     private static final ObisCode FIRMWARE_VERSION = ObisCode.fromString("1.0.0.2.0.255");
     private static final String READ_CACHE_DEFAULT_VALUE = "0";
-    private static final String CALLING_AP_TITLE_DEFAULT = "0000000000000000";
     private static final String READCACHE_PROPERTY = "ReadCache";
     private static final String LIMITMAXNROFDAYS_PROPERTY = "LimitMaxNrOfDays";
-    private static final String CALLING_AP_TITLE = "CallingAPTitle";
     private static final String LOAD_PROFILE_OBIS_CODE_PROPERTY = "LoadProfileObisCode";
     public static final String OBISCODE_LOAD_PROFILE1 = "1.0.99.1.0.255";   //Quarterly
     private static final String MAX_NR_OF_DAYS_DEFAULT = "0";
@@ -217,6 +218,12 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
         String callingAPTitle = properties.getProperty(CALLING_AP_TITLE, CALLING_AP_TITLE_DEFAULT).trim();
         setCallingAPTitle(callingAPTitle);
         loadProfileObisCode = ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, OBISCODE_LOAD_PROFILE1).trim());
+
+        String oldMacAddress = properties.getProperty(DlmsProtocolProperties.SERVER_MAC_ADDRESS, "1:17");
+        String nodeAddress = properties.getProperty(AbstractDLMSProtocol.NODEID, "");
+        String updatedMacAddress = oldMacAddress.replaceAll("x", nodeAddress);
+        properties.setProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, updatedMacAddress.split(":").length > 2 ? updatedMacAddress.split(":")[1] : "17");
+        properties.setProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, updatedMacAddress.split(":").length > 1 ? updatedMacAddress.split(":")[0] : "1");
     }
 
     private boolean isReadCache() {
@@ -244,8 +251,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     protected List doGetOptionalKeys() {
         List<String> optional = new ArrayList<String>();
         optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
-        optional.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS);
-        optional.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS);
+        optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
         optional.add(DlmsProtocolProperties.CONNECTION);
         optional.add(DlmsProtocolProperties.TIMEOUT);
         optional.add(DlmsProtocolProperties.ADDRESSING_MODE);

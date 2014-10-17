@@ -62,7 +62,24 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.PPPDaemonResetThreshold),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.modemResetThreshold),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.systemRebootThreshold)
-    );
+    ),
+    ClearWhiteList(25),
+    EnableWhiteList(26),
+    DisableWhiteList(27),
+    EnableOperatingWindow(28),
+    DisableOperatingWindow(29),
+    SetOperatingWindowStartTime(30, PropertySpecFactory.timeOfDayPropertySpec(DeviceMessageConstants.startTime)),
+    SetOperatingWindowEndTime(31, PropertySpecFactory.timeOfDayPropertySpec(DeviceMessageConstants.endTime)),
+    RunMeterDiscovery(32),
+    RunAlarmMeterDiscovery(33),
+    RunRepeaterCall(34),
+    SetNetworkManagementParameters(35,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.discoverDuration),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.discoverInterval),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.repeaterCallInterval),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.repeaterCallThreshold),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.repeaterCallTimeslots)
+    ),;
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 

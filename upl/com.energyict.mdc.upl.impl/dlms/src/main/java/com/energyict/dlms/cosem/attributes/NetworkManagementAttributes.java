@@ -12,11 +12,7 @@ import com.energyict.obis.ObisCode;
 public enum NetworkManagementAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
-    DISCVOER_DURATION(2, 0x08),
-    DISCOVER_INTERVAL(3, 0x10),
-    REPEATER_CALL_INTERVAL(4, 0x18),
-    REPEATER_CALL_THRESHOLD(5, 0x20),
-    REPEATER_CALL_TIMESLOTS(6, 0x28);
+    NETWORK_MGMT_PARAMETERS(2, 0x08);
 
     private final int attributeNumber;
     private final int shortName;

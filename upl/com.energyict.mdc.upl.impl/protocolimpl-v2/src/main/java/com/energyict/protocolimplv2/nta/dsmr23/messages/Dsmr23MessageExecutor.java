@@ -44,6 +44,8 @@ import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.User;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -76,6 +78,8 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -227,7 +231,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getDeviceMessageAttributeValue();
         String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getDeviceMessageAttributeValue();
-        String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage("LoadProfileRegister", "fromDate", loadProfileContent);
+
+        String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage(
+                "LoadProfileRegister",
+                getDefaultDateFormatter().format(new Date(Long.parseLong(fromDateEpoch))),
+                loadProfileContent
+        );
         Date fromDate = new Date(Long.valueOf(fromDateEpoch));
         try {
             LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
@@ -292,6 +301,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, e));
             return collectedMessage;
         }
+    }
+
+    private DateFormat getDefaultDateFormatter() {
+        User user = MeteringWarehouse.getCurrentUser();
+        DateFormat formatter = new SimpleDateFormat(user.getDateFormat() + " " + user.getLongTimeFormat());
+        formatter.setTimeZone(MeteringWarehouse.getCurrent().getSystemTimeZone());
+        return formatter;
     }
 
     private CollectedMessage partialLoadProfileRequest(OfflineDeviceMessage pendingMessage) throws IOException {
