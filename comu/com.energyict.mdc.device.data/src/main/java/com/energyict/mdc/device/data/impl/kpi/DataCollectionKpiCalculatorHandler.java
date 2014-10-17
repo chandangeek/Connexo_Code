@@ -2,15 +2,10 @@ package com.energyict.mdc.device.data.impl.kpi;
 
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Calculates the scores for a {@link DataCollectionKpiImpl}.
@@ -20,7 +15,6 @@ import java.util.logging.Logger;
  */
 public class DataCollectionKpiCalculatorHandler implements TaskExecutor {
 
-    private static final Logger LOGGER = Logger.getLogger(DataCollectionKpiCalculatorHandler.class.getName());
 
     private final DataCollectionKpiService dataCollectionKpiService;
     private final ConnectionTaskService connectionTaskService;
@@ -35,19 +29,23 @@ public class DataCollectionKpiCalculatorHandler implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        try {
-            Long id = Long.valueOf(taskOccurrence.getPayLoad());
-            Optional<DataCollectionKpi> dataCollectionKpi = this.dataCollectionKpiService.findDataCollectionKpi(id);
-            if (dataCollectionKpi.isPresent()) {
-                DataCollectionKpiCalculator calculator = new DataCollectionKpiCalculator(taskOccurrence.getTriggerTime(), this.connectionTaskService, this.communicationTaskService);
-                calculator.calculateAndStore((DataCollectionKpiImpl) dataCollectionKpi.get());
-            }
-            else {
-                LOGGER.log(Level.SEVERE, "Payload '" + taskOccurrence.getPayLoad() + "' is not the unique identifier of a " + DataCollectionKpi.class.getSimpleName());
-            }
+        KpiType.calculatorForRecurrentPayload(taskOccurrence, new ServiceProvider()).calculateAndStore();
+    }
+
+    private class ServiceProvider implements KpiType.ServiceProvider {
+        @Override
+        public DataCollectionKpiService dataCollectionKpiService() {
+            return dataCollectionKpiService;
         }
-        catch (NumberFormatException e) {
-            LOGGER.log(Level.SEVERE, "Payload '" + taskOccurrence.getPayLoad() + "' cannot be parsed to Long", e);
+
+        @Override
+        public ConnectionTaskService connectionTaskService() {
+            return connectionTaskService;
+        }
+
+        @Override
+        public CommunicationTaskService communicationTaskService() {
+            return communicationTaskService;
         }
     }
 

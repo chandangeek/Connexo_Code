@@ -200,7 +200,7 @@ public interface CommunicationTaskService {
 
     public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 
-    public Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
+    public java.util.Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
 
     public List<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution);
 
