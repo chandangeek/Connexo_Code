@@ -13,15 +13,15 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
-import com.google.common.base.Optional;
 import com.google.inject.Injector;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public abstract class ConnectionEvent extends DataCollectionEvent{
+public abstract class ConnectionEvent extends DataCollectionEvent implements Cloneable {
     private Optional<ConnectionTask> connectionTask;
     private final ConnectionTaskService connectionTaskService;
 

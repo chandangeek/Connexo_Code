@@ -12,8 +12,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.MeterReadingEventHandlerFactory", service = MessageHandlerFactory.class,
         property = {"subscriber=" + ModuleConstants.AQ_METER_READING_EVENT_SUBSC, "destination=" + EventService.JUPITER_EVENTS}, immediate = true)
@@ -23,10 +26,11 @@ public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
     private volatile IssueService issueService;
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
+    private volatile Clock clock;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new MeterReadingEventHandler(jsonService, issueService, issueCreationService, meteringService, thesaurus);
+        return new MeterReadingEventHandler(jsonService, issueService, issueCreationService, meteringService, clock, thesaurus);
     }
 
     @Reference
@@ -53,4 +57,10 @@ public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
     }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
 }

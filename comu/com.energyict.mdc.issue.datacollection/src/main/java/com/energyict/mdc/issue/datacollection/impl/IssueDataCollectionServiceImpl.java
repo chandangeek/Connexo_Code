@@ -23,7 +23,6 @@ import com.energyict.mdc.issue.datacollection.impl.database.TableSpecs;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.install.Installer;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,6 +32,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.issue.datacollection", service = {InstallService.class, TranslationKeyProvider.class, IssueDataCollectionService.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
 public class IssueDataCollectionServiceImpl implements InstallService, TranslationKeyProvider, IssueDataCollectionService {
@@ -45,9 +45,11 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     private volatile DeviceService deviceService;
     private volatile DataModel dataModel;
 
-    public IssueDataCollectionServiceImpl() {
-    }
+    // For OSGi framework
+    @SuppressWarnings("unused")
+    public IssueDataCollectionServiceImpl() {}
 
+    // For unit testing
     @Inject
     public IssueDataCollectionServiceImpl(IssueService issueService, IssueActionService issueActionService, MessageService messageService, NlsService nlsService, OrmService ormService, QueryService queryService, DeviceService deviceService){
         setMessageService(messageService);

@@ -17,14 +17,18 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.google.common.base.Optional;
+
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
 import com.google.inject.Injector;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class MeterEvent extends DataCollectionEvent {
     private String endDeviceEventType;
@@ -44,7 +48,11 @@ public class MeterEvent extends DataCollectionEvent {
     @Override
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
         long timestamp = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP);
-        List<EndDeviceEventRecord> deviceEvents = getKoreDevice().getDeviceEvents(new Interval(new Date(timestamp), new Date(timestamp)));
+        List<EndDeviceEventRecord> deviceEvents =
+                getKoreDevice().getDeviceEvents(
+                        Range.range(
+                                Instant.ofEpochMilli(timestamp), BoundType.OPEN,
+                                Instant.ofEpochMilli(timestamp), BoundType.CLOSED));
         if (deviceEvents.size() != 1) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_EVENT_IDENTIFIER);
         }

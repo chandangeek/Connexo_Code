@@ -1,5 +1,7 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
+import com.energyict.mdc.issue.datacollection.event.MeterReadingEvent;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -12,13 +14,19 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.issue.datacollection.event.MeterReadingEvent;
-import com.google.common.base.Optional;
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
 import org.osgi.service.event.EventConstants;
 
-import java.util.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -34,6 +42,7 @@ public class MeterReadingEventHandler implements MessageHandler {
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final MeteringService meteringService;
+    private final Clock clock;
     private final Thesaurus thesaurus;
 
     public MeterReadingEventHandler(
@@ -41,11 +50,13 @@ public class MeterReadingEventHandler implements MessageHandler {
             IssueService issueService,
             IssueCreationService issueCreationService,
             MeteringService meteringService,
+            Clock clock,
             Thesaurus thesaurus) {
         this.jsonService = jsonService;
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.meteringService = meteringService;
+        this.clock = clock;
         this.thesaurus = thesaurus;
     }
 
@@ -63,11 +74,16 @@ public class MeterReadingEventHandler implements MessageHandler {
             Long readingStart = getLong(map, METER_READING_EVENT_READING_START);
             Long readingEnd = getLong(map, METER_READING_EVENT_READING_END);
             IssueStatus status = getEventStatus(issueService);
-            Set<ReadingType> readingTypes = meterRef.get().getReadingTypes(new Interval(new Date(readingStart), new Date(readingEnd)));
+            Set<ReadingType> readingTypes =
+                    meterRef.get().getReadingTypes(
+                            Range.range(
+                                    Instant.ofEpochMilli(readingStart), BoundType.OPEN,
+                                    Instant.ofEpochMilli(readingEnd), BoundType.CLOSED));
             List<IssueEvent> events = new ArrayList<>(readingTypes.size());
-            for (ReadingType readingType : readingTypes) {
-                events.add(new MeterReadingEvent(meterRef.get(), readingType, status, issueService));
-            }
+            events.addAll(
+                    readingTypes.stream()
+                        .map(readingType -> new MeterReadingEvent(meterRef.get(), readingType, status, issueService, clock))
+                        .collect(Collectors.toList()));
             issueCreationService.dispatchCreationEvent(events);
         }
     }
@@ -76,7 +92,7 @@ public class MeterReadingEventHandler implements MessageHandler {
         Query<IssueStatus> statusQuery = issueService.query(IssueStatus.class);
         List<IssueStatus> statusList = statusQuery.select(where("isHistorical").isEqualTo(Boolean.FALSE));
         if (statusList.isEmpty()) {
-            LOG.severe("Issue creation failed, because no not-final statuses was found");
+            LOG.severe("Issue creation failed, because no non-final statuses was found");
             return null;
         }
         return statusList.get(0);

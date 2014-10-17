@@ -1,16 +1,5 @@
 package com.energyict.mdc.issue.datacollection.event;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -22,18 +11,30 @@ import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.google.common.base.Optional;
+
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.share.cep.IssueEvent;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.google.inject.Injector;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public abstract class DataCollectionEvent implements IssueEvent {
+public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     protected static final Logger LOG = Logger.getLogger(DataCollectionEvent.class.getName());
 
     private final IssueDataCollectionService issueDataCollectionService;
@@ -86,7 +87,7 @@ public abstract class DataCollectionEvent implements IssueEvent {
 
     protected EventDescription getDescription() {
         if (eventDescription == null){
-            throw new IllegalStateException("You are trying to get event description for not initialized event");
+            throw new IllegalStateException("You are trying to get event description for event that was not initialized yet");
         }
         return eventDescription;
     }
@@ -149,12 +150,11 @@ public abstract class DataCollectionEvent implements IssueEvent {
         return meterList.get(0);
     }
 
-    protected Date getLastSuccessfulCommunicationEnd(Device concentrator) {
-        Date lastSuccessfulCommTask = new Date(0);
-
+    protected Instant getLastSuccessfulCommunicationEnd(Device concentrator) {
+        Instant lastSuccessfulCommTask = Instant.EPOCH;
         for (ConnectionTask<?, ?> task : concentrator.getConnectionTasks()) {
-            Date taskEnd = task.getLastSuccessfulCommunicationEnd();
-            if (taskEnd != null && lastSuccessfulCommTask.before(taskEnd)) {
+            Instant taskEnd = task.getLastSuccessfulCommunicationEnd().toInstant();
+            if (taskEnd != null && lastSuccessfulCommTask.isBefore(taskEnd)) {
                 lastSuccessfulCommTask = taskEnd;
             }
         }
@@ -162,12 +162,16 @@ public abstract class DataCollectionEvent implements IssueEvent {
     }
 
     protected int getNumberOfDevicesWithEvents(Device concentrator) {
-        Date start = getLastSuccessfulCommunicationEnd(concentrator);
+        Instant start = getLastSuccessfulCommunicationEnd(concentrator);
         int numberOfDevicesWithEvents = 0;
         try {
             DataCollectionEventDescription description = DataCollectionEventDescription.valueOf(this.eventDescription.getUniqueKey());
             if (description != null && description.getErrorType() != null) {
-                numberOfDevicesWithEvents = this.getCommunicationTaskService().countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(description.getErrorType(), concentrator, Interval.startAt(start));
+                numberOfDevicesWithEvents = this.getCommunicationTaskService().
+                        countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(
+                                description.getErrorType(),
+                                concentrator,
+                                Interval.startAt(start));
             }
         } catch (RuntimeException ex){
             LOG.log(Level.WARNING, "Incorrect communication type for concentrator[id={0}]", concentrator.getId());
@@ -212,10 +216,10 @@ public abstract class DataCollectionEvent implements IssueEvent {
         if (existingIssue == null) {
             Query<OpenIssueDataCollection> query = getIssueDataCollectionService().query(OpenIssueDataCollection.class);
             List<OpenIssueDataCollection> theSameIssues = query.select(getConditionForExistingIssue());
-            if (theSameIssues.size() > 0){
+            if (!theSameIssues.isEmpty()) {
                 existingIssue = Optional.of(theSameIssues.get(0));
             } else {
-                existingIssue = Optional.absent();
+                existingIssue = Optional.empty();
             }
         }
         return existingIssue;
@@ -229,7 +233,7 @@ public abstract class DataCollectionEvent implements IssueEvent {
     }
 
     @Override
-    public DataCollectionEvent clone(){
+    public DataCollectionEvent clone() {
         DataCollectionEvent clone = injector.getInstance(eventDescription.getEventClass());
         clone.eventDescription = eventDescription;
         clone.koreDevice = koreDevice;

@@ -6,10 +6,11 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.google.common.base.Optional;
 
+import java.util.Optional;
 
 public interface IssueDataCollectionService {
+
     public static final String COMPONENT_NAME = "IDC";
     public static final String ISSUE_TYPE_UUID = "datacollection";
 
@@ -20,4 +21,5 @@ public interface IssueDataCollectionService {
     OpenIssueDataCollection createIssue(Issue baseIssue);
 
     <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
+
 }

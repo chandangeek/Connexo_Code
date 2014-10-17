@@ -10,10 +10,11 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.ThresholdParameter;
-import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.EventAggregationRuleTemplate",
         property = {"uuid=" + EventAggregationRuleTemplate.TEMPLATE_UUID},
@@ -71,7 +72,7 @@ public class EventAggregationRuleTemplate extends AbstractTemplate {
 
     @Override
     public Optional<? extends Issue> createIssue(Issue issue, IssueEvent event) {
-        return null;
+        return Optional.empty();
     }
 
 }

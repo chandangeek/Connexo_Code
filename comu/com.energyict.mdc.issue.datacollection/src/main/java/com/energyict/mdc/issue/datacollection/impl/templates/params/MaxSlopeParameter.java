@@ -10,11 +10,11 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.google.common.base.Optional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class MaxSlopeParameter extends TranslatedParameter {
     private static List<String> PRIMARY_LIST = Collections.singletonList(ReadingTypeParameter.READING_TYPE_PARAMETER_KEY);
@@ -87,4 +87,5 @@ public class MaxSlopeParameter extends TranslatedParameter {
     private void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
+
 }

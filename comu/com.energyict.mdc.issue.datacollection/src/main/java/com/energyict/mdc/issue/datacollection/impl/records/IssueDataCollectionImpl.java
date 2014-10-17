@@ -9,16 +9,17 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+
+import java.time.Instant;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -95,7 +96,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     }
 
     @Override
-    public UtcInstant getDueDate() {
+    public Instant getDueDate() {
         return getBaseIssue().getDueDate();
     }
 
@@ -125,7 +126,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     }
 
     @Override
-    public void setDueDate(UtcInstant dueDate) {
+    public void setDueDate(Instant dueDate) {
         getBaseIssue().setDueDate(dueDate);
     }
 

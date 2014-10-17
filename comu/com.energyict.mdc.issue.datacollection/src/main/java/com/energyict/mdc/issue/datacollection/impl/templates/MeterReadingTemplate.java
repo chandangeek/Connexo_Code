@@ -13,12 +13,12 @@ import com.energyict.mdc.issue.datacollection.impl.templates.params.MaxSlopePara
 import com.energyict.mdc.issue.datacollection.impl.templates.params.ReadingTypeParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.TrendPeriodParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.TrendPeriodUnitParameter;
-import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.SlopeDetectionRuleTemplate",
         property = {"uuid=" + MeterReadingTemplate.SLOPE_DETECTION_ID},
@@ -29,7 +29,8 @@ public class MeterReadingTemplate extends AbstractTemplate {
     private volatile MeteringService meteringService;
 
     @Activate
-    public void activate(){
+    @SuppressWarnings("unused")
+    public void activate() {
         addParameterDefinition(new ReadingTypeParameter(getThesaurus()));
         addParameterDefinition(new TrendPeriodParameter(getThesaurus()));
         addParameterDefinition(new MaxSlopeParameter(getThesaurus(), meteringService));
