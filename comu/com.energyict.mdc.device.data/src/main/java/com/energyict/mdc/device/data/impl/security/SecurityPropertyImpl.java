@@ -22,14 +22,16 @@ public class SecurityPropertyImpl implements SecurityProperty {
     private PropertySpec specification;
     private Object value;
     private Interval activePeriod;
+    private Boolean isComplete;
 
-    public SecurityPropertyImpl (Device device, SecurityPropertySet securityPropertySet, PropertySpec specification, Object value, Interval activePeriod) {
+    public SecurityPropertyImpl (Device device, SecurityPropertySet securityPropertySet, PropertySpec specification, Object value, Interval activePeriod, Boolean isComplete) {
         super();
         this.device = device;
         this.securityPropertySet = securityPropertySet;
         this.specification = specification;
         this.value = value;
         this.activePeriod = activePeriod;
+        this.isComplete = isComplete;
     }
 
     public BaseDevice getDevice () {
@@ -63,6 +65,10 @@ public class SecurityPropertyImpl implements SecurityProperty {
     @Override
     public Interval getActivePeriod () {
         return this.activePeriod;
+    }
+
+    public Boolean isComplete () {
+        return this.isComplete;
     }
 
 }

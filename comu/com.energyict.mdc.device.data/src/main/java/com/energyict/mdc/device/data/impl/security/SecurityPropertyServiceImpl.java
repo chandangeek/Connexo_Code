@@ -97,8 +97,9 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         List<SecurityProperty> properties = new ArrayList<>(propertySpecs.size());  // The maximum number of properties is defined by the number of specs
         for (PropertySpec propertySpec : propertySpecs) {
             Object propertyValue = relation.get(propertySpec.getName());
+            Boolean status = (Boolean)relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME);
             if (propertyValue != null) {
-                properties.add(new SecurityPropertyImpl(device, securityPropertySet, propertySpec, propertyValue, relation.getPeriod()));
+                properties.add(new SecurityPropertyImpl(device, securityPropertySet, propertySpec, propertyValue, relation.getPeriod(), status));
             }
         }
         return properties;

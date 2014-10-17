@@ -111,7 +111,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -146,6 +145,7 @@ import org.joda.time.Period;
 import static com.elster.jupiter.util.Checks.is;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
 import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
@@ -162,6 +162,7 @@ public class DeviceImpl implements Device, CanLock {
     private final ServerCommunicationTaskService communicationTaskService;
     private final DeviceService deviceService;
     private final SecurityPropertyService securityPropertyService;
+    private final ProtocolPluggableService protocolPluggableService;
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
@@ -206,7 +207,6 @@ public class DeviceImpl implements Device, CanLock {
     private final Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
-    private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
     public DeviceImpl(
@@ -1002,10 +1002,21 @@ public class DeviceImpl implements Device, CanLock {
             transaction.setTo(null);
             transaction.set(DEVICE_ATTRIBUTE_NAME, this);
             transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);
-            typedProperties.propertyNames().stream().forEach(p->transaction.set(p,typedProperties.getPropertyValue(p)));
+            typedProperties.propertyNames().stream().forEach(p -> transaction.set(p, typedProperties.getPropertyValue(p)));
+            transaction.set(STATUS_ATTRIBUTE_NAME, isPropertyComplete(securityPropertySet,typedProperties));
             transaction.execute();
         } catch (BusinessException | SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    private boolean isPropertyComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties){
+        // TODO JP-6225 all properties are required
+        //if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getPropertyValue(p.getName()) == null)) {
+        if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> typedProperties.getPropertyValue(p.getName()) == null)) {
+            return false;
+        } else {
+            return true;
         }
     }
 
