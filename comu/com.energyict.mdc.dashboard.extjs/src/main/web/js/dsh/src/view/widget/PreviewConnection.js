@@ -119,12 +119,13 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
                     name: 'taskCount',
                     renderer: function (val) {
-
-                        return '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + val.numberOfSuccessfulTasks + '</span><br></tpl>' +
-                            '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + val.numberOfFailedTasks + '</span><br></tpl>' +
-                            '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + val.numberOfIncompleteTasks + '</span></tpl>'
+                        var failed = val.numberOfFailedTasks ? val.numberOfFailedTasks: '',
+                            success = val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '',
+                            notCompleted = val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '';
+                        return '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + success + '</span><br></tpl>' +
+                            '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + failed  + '</span><br></tpl>' +
+                            '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + notCompleted + '</span></tpl>'
                             ;
-
                     }
                 },
                 {
