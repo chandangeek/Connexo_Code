@@ -20,8 +20,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -29,6 +31,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -37,6 +40,7 @@ import static org.mockito.Mockito.when;
 public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest {
     private final DateTime start = new DateTime(2014, 10,10,13,10,10);
     private final DateTime end = new DateTime(2014, 10,10,13,10,20);
+    private ComSession comSession1;
 
     @Test
     public void testGetComTaskExecutions() throws Exception {
@@ -165,6 +169,20 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(4);
     }
 
+    @Test
+    public void testConnectionTaskJournalEntriesByLogLevel() throws Exception {
+        setupJournalMocking();
+        String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
+                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("connections")).create())
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request().get(String.class);
+
+        ArgumentCaptor<Set> captor = ArgumentCaptor.forClass(Set.class);
+        verify(comSession1).getJournalEntries(captor.capture());
+        assertThat(captor.getAllValues().get(0)).containsExactly(ComServer.LogLevel.INFO,ComServer.LogLevel.DEBUG);
+    }
+
     private void setupJournalMocking() {
         Device device = mock(Device.class);
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
@@ -181,7 +199,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
-        ComSession comSession1 = mockComSession(connectionTask, 888L, 1);
+        comSession1 = mockComSession(connectionTask, 888L, 1);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
 
         ComTaskExecutionJournalEntry journalEntry1 = mockComTaskExecutionMessageJournalEntry(start.toDate(), ComServer.LogLevel.INFO, "Starting connection", "i/o error");
