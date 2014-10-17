@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;

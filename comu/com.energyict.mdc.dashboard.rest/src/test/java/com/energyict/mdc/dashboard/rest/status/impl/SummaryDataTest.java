@@ -24,10 +24,9 @@ public class SummaryDataTest {
         SummaryData data = new SummaryData(createConnectionStatusOverview(), 99L);
         assertThat(data.getFailed()).isEqualTo(56);
         assertThat(data.getPending()).isEqualTo(472);
-        assertThat(data.getSuccess()).isEqualTo(113);
+        assertThat(data.getSuccess()).isEqualTo(14);
         assertThat(data.getTotal()).isEqualTo(411+19+15+113+42+41);
-        assertThat(data.getAtLeastOneTaskFailed()).isEqualTo(99);
-        assertThat(data.getAllTasksSuccessful()).isEqualTo(14);
+        assertThat(data.getSuccessWithFailedTasks()).isEqualTo(99);
     }
 
     @Test
@@ -37,8 +36,7 @@ public class SummaryDataTest {
         assertThat(data.getPending()).isEqualTo(472);
         assertThat(data.getSuccess()).isEqualTo(113);
         assertThat(data.getTotal()).isEqualTo(411+19+15+113+42+41);
-        assertThat(data.getAtLeastOneTaskFailed()).isNull();
-        assertThat(data.getAllTasksSuccessful()).isNull();
+        assertThat(data.getSuccessWithFailedTasks()).isNull();
     }
 
     private TaskStatusOverview createConnectionStatusOverview() {

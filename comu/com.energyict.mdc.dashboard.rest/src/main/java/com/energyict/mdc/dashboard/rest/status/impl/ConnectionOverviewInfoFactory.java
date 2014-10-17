@@ -8,6 +8,7 @@ import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
+import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
@@ -56,7 +57,7 @@ public class ConnectionOverviewInfoFactory {
         SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
         ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData);
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup);
-        if (dataCollectionKpiOptional.isPresent()) {
+        if (dataCollectionKpiOptional.isPresent() && dataCollectionKpiOptional.get().calculatesConnectionSetupKpi()) {
             info.kpi = kpiScoreFactory.getKpiAsInfo(dataCollectionKpiOptional.get());
         }
         info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
@@ -96,7 +97,7 @@ public class ConnectionOverviewInfoFactory {
     private void addAtLeastOntTaskFailedCounter(ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, TaskSummaryInfo perLatestResultOverview) {
         TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
         taskCounterInfo.id = null; // Not filterable
-        taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.SOME_TASKS_FAILED.getKey(), MessageSeeds.SOME_TASKS_FAILED.getDefaultFormat());
+        taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getDefaultFormat());
         taskCounterInfo.count = comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount();
         perLatestResultOverview.total += taskCounterInfo.count;
         perLatestResultOverview.counters.add(taskCounterInfo);

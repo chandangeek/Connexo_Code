@@ -158,7 +158,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
         assertThat(captor.getValue().lastSessionStart.getEnd()).isNull();
         assertThat(captor.getValue().lastSessionEnd).isNull();
     }
@@ -170,7 +170,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
         assertThat(captor.getValue().lastSessionStart.getStart()).isNull();
         assertThat(captor.getValue().lastSessionEnd).isNull();
     }
@@ -186,10 +186,10 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(new Date(1407916436000L));
-        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(new Date(1407916784000L));
-        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
-        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916784000L));
+        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
+        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916784000L));
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916784000L));
     }
 
     @Test
@@ -198,7 +198,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
         assertThat(captor.getValue().lastSessionEnd.getEnd()).isNull();
         assertThat(captor.getValue().lastSessionStart).isNull();
     }
@@ -210,7 +210,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
         assertThat(captor.getValue().lastSessionEnd.getStart()).isNull();
         assertThat(captor.getValue().lastSessionStart).isNull();
     }
@@ -222,8 +222,8 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
-        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
-        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916784000L));
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(Instant.ofEpochMilli(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(Instant.ofEpochMilli(1407916784000L));
         assertThat(captor.getValue().lastSessionStart).isNull();
     }
 

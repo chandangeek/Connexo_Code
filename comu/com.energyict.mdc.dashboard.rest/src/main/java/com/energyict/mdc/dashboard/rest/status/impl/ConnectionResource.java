@@ -10,6 +10,7 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
