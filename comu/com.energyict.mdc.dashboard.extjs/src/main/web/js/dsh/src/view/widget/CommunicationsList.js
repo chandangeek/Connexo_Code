@@ -55,7 +55,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 text: Uni.I18n.translate('communication.widget.details.nextCommunication', 'DSH', 'Next communication'),
                 dataIndex: 'nextCommunication',
                 xtype: 'datecolumn',
-                format: 'm/d/Y h:i:s',
+                format: 'd/m/Y h:i:s',
                 flex: 2
             },
             {
@@ -63,7 +63,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 text: Uni.I18n.translate('communication.widget.details.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startTime',
                 xtype: 'datecolumn',
-                format: 'm/d/Y h:i:s',
+                format: 'd/m/Y h:i:s',
                 flex: 2
             },
             {
@@ -71,7 +71,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 text: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successfully on'),
                 dataIndex: 'successfulFinishTime',
                 xtype: 'datecolumn',
-                format: 'm/d/Y h:i:s',
+                format: 'd/m/Y h:i:s',
                 flex: 2
             },
             {
