@@ -11,7 +11,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -148,7 +148,7 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public PagedInfoList getActions(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
-        Optional<String> categoryParameter = Optional.fromNullable(uriInfo.getQueryParameters().getFirst("category"));
+        Optional<String> categoryParameter = Optional.ofNullable(uriInfo.getQueryParameters().getFirst("category"));
         if (categoryParameter.isPresent()) {
             List<ActionInfo> actionInfos = ActionInfo.from(ListPager.of(
                     Categories.valueOf(categoryParameter.get().toUpperCase()).getActions()).from(queryParameters).find());
