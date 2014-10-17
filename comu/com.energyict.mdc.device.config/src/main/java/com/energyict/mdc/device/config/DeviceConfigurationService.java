@@ -37,7 +37,7 @@ public interface DeviceConfigurationService {
      * @param deviceTypeId the ID of the DeviceType
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
-    public DeviceType findDeviceType(long deviceTypeId);
+    public Optional<DeviceType> findDeviceType(long deviceTypeId);
 
     /**
      * Find the {@link DeviceType} with the specified name.

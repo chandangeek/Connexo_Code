@@ -523,7 +523,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType.newConfiguration("first").description("at least one").add();
 
-        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        deviceType = this.reloadCreatedDeviceType(deviceType.getId());
         // Business method
         deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
         deviceType.save();
@@ -545,7 +545,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType.newConfiguration("first").description("at least one").add();
 
-        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        deviceType = this.reloadCreatedDeviceType(deviceType.getId());
         // Business method
         deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass2);
         deviceType.save();
@@ -567,7 +567,8 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType.newConfiguration("first").description("at least one").add();
 
-        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        deviceType = this.reloadCreatedDeviceType(deviceType.getId());
+
         // Business method
         deviceType.setDeviceProtocolPluggableClass((DeviceProtocolPluggableClass) null);
         deviceType.save();
@@ -814,7 +815,8 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.delete();
 
         // Asserts
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceTypeId)).isNull();
+        Optional<DeviceType> reloaded = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceTypeId);
+        assertThat(reloaded.isPresent()).isFalse();
     }
 
     @Test(expected = CannotDeleteBecauseStillInUseException.class)
@@ -887,9 +889,13 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testAddDeviceConfiguration() throws Exception {
         deviceType.newConfiguration("first").description("this is it!").add();
 
-        DeviceType refreshed = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        DeviceType refreshed = this.reloadCreatedDeviceType(deviceType.getId());
         assertThat(refreshed.getConfigurations()).hasSize(1);
         assertThat(refreshed.getConfigurations().get(0).getName()).isEqualTo("first");
+    }
+
+    private DeviceType reloadCreatedDeviceType(long id) {
+        return inMemoryPersistence.getDeviceConfigurationService().findDeviceType(id).orElseThrow(() -> new RuntimeException("DeviceType that was just created was not found"));
     }
 
     @Test
