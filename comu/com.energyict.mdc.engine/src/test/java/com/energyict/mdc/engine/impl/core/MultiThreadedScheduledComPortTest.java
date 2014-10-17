@@ -193,8 +193,6 @@ public class MultiThreadedScheduledComPortTest {
     @Mock
     private User user;
     @Mock
-    private Clock clock;
-    @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private ConnectionTaskService connectionTaskService;
@@ -219,6 +217,7 @@ public class MultiThreadedScheduledComPortTest {
     @Mock
     private ScheduledComPortOperationalStatistics operationalStatistics;
 
+    private Clock clock = Clock.systemUTC();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.hexService);
     private CounterVerifierFactory counterVerifierFactory;

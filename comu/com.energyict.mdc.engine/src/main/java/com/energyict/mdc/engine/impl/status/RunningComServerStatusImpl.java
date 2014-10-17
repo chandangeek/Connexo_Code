@@ -9,10 +9,8 @@ import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
 import java.time.Clock;
-import org.joda.time.Duration;
+import java.time.Duration;
 import java.time.Instant;
-import org.joda.time.Interval;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -88,7 +86,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     private boolean isBlocked(ScheduledComPortMonitor comPortMonitor) {
         ScheduledComPortOperationalStatistics operationalStatistics = comPortMonitor.getOperationalStatistics();
-        return this.isBlocked(this.lastActivity(operationalStatistics), new Duration(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
+        return this.isBlocked(this.lastActivity(operationalStatistics), Duration.ofMillis(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
     }
 
     private Date lastActivity(ScheduledComPortOperationalStatistics operationalStatistics) {
@@ -109,7 +107,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     private boolean isBlocked(ComServerMonitor comServerMonitor) {
         ComServerOperationalStatistics operationalStatistics = comServerMonitor.getOperationalStatistics();
-        return this.isBlocked(this.lastActivity(operationalStatistics), new Duration(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
+        return this.isBlocked(this.lastActivity(operationalStatistics), Duration.ofMillis(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
     }
 
     private Date lastActivity(ComServerOperationalStatistics operationalStatistics) {
@@ -127,7 +125,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     private boolean isBlocked(Date lastActivity, Duration lenientDuration) {
         Instant now = this.clock.instant();
-        Instant latestExpectedActivity = now.minusMillis(lenientDuration.getMillis());
+        Instant latestExpectedActivity = now.minusMillis(lenientDuration.toMillis());
         Instant lastActualActivity = Instant.ofEpochMilli(lastActivity.getTime());
         return lastActualActivity.isBefore(latestExpectedActivity);
     }
@@ -147,17 +145,16 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     private Duration getBlockTime(ScheduledComPortMonitor comPortMonitor) {
         ScheduledComPortOperationalStatistics operationalStatistics = comPortMonitor.getOperationalStatistics();
-        return this.getBlockTime(this.lastActivity(operationalStatistics), new Duration(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
+        return this.getBlockTime(this.lastActivity(operationalStatistics), Duration.ofMillis(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
     }
 
     private Duration getBlockTime(ComServerMonitor comServerMonitor) {
         ComServerOperationalStatistics operationalStatistics = comServerMonitor.getOperationalStatistics();
-        return this.getBlockTime(this.lastActivity(operationalStatistics), new Duration(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
+        return this.getBlockTime(this.lastActivity(operationalStatistics), Duration.ofMillis(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
     }
 
     private Duration getBlockTime(Date lastActivity, Duration lenientDuration) {
-        org.joda.time.Instant now = new org.joda.time.Instant(clock.millis());
-        return new Interval(new org.joda.time.Instant(lastActivity.getTime()).plus(lenientDuration), now).toDuration();
+        return Duration.between(Instant.ofEpochMilli(lastActivity.getTime()).plusMillis(lenientDuration.toMillis()), this.clock.instant());
     }
 
 }

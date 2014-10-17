@@ -114,7 +114,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         // Asserts
         assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=Thu Dec 13 01:53:05 NZDT 2012, end=Thu Dec 13 01:53:05 NZDT 2012}; channels: 2}");
+                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=2012-12-12T12:53:05Z, end=2012-12-12T12:53:05Z}; channels: 2}");
     }
 
     @Test
@@ -142,7 +142,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         // Asserts
         assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName()
-                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=Thu Dec 13 01:45:00 NZDT 2012, end=Thu Dec 13 02:30:00 NZDT 2012}; channels: 2}");
+                + " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=2012-12-12T12:45:00Z, end=2012-12-12T13:30:00Z}; channels: 2}");
     }
 
     @Test
@@ -175,7 +175,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         // Asserts
         assertThat(journalMessage).isEqualTo(CollectedLoadProfileDeviceCommand.class.getSimpleName() +
-                " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=Thu Dec 13 01:45:00 NZDT 2012, end=Thu Dec 13 02:00:00 NZDT 2012}; channels: 2, 3}");
+                " {load profile: 1.33.1.8.0.255; interval data period: Interval{start=2012-12-12T12:45:00Z, end=2012-12-12T13:00:00Z}; channels: 2, 3}");
     }
 
 

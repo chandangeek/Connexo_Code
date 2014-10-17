@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.status;
 
+import java.time.Duration;
 import java.util.Date;
-import org.joda.time.Duration;
 
 /**
  * Models status information of a {@link com.energyict.mdc.engine.model.ComServer}

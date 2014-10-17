@@ -86,12 +86,11 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     @Mock
     private IssueService issueService;
     @Mock
-    private Clock clock;
-    @Mock
     private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConnectionTaskService connectionTaskService;
 
+    private Clock clock = Clock.systemUTC();
     private Clock frozenClock;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 

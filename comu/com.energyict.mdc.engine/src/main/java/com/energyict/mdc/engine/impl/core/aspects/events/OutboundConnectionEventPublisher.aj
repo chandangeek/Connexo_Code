@@ -13,7 +13,7 @@ import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
-import com.elster.jupiter.util.time.Clock;
+import java.time.Clock;
 
 /**
  * Defines pointcuts and advice that will publish events
