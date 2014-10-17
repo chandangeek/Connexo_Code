@@ -7,5 +7,6 @@ public enum KpiId {
     Success,
     Ongoing,
     Failed,
-    Target
+    Target,
+    SuccessWithFailedTasks
 }

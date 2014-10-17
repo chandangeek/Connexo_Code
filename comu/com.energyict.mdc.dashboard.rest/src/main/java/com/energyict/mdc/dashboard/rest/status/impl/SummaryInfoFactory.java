@@ -45,6 +45,7 @@ public class SummaryInfoFactory {
             connectionsWithFailingTasks.count = atLeastOneTaskFailed;
             connectionsWithFailingTasks.id = null; // not navigable
             connectionsWithFailingTasks.displayName = thesaurus.getString(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), "Success with failed tasks");
+            connectionsWithFailingTasks.name = KpiId.SuccessWithFailedTasks.name();
             info.counters.add(connectionsWithFailingTasks);
         }
 
