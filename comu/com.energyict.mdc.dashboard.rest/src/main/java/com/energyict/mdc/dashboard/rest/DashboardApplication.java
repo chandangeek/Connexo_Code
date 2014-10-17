@@ -47,6 +47,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -83,6 +84,7 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile TransactionService transactionService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private Clock clock = Clock.systemDefaultZone();
 
     @Reference
     public void setStatusService(StatusService statusService) {
@@ -153,6 +155,11 @@ public class DashboardApplication extends Application implements InstallService 
     @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
+    }
+
+    // Only for testing purposes
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Override
@@ -226,6 +233,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(KpiScoreFactory.class).to(KpiScoreFactory.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
+            bind(clock).to(Clock.class);
         }
     }
 

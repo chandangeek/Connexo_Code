@@ -110,11 +110,11 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         assertThat(jsonModel.<Integer>get("$.deviceGroup.id")).isEqualTo(321);
         assertThat(jsonModel.<String>get("$.deviceGroup.name")).isEqualTo("Northern region");
         assertThat(jsonModel.<String>get("$.deviceGroup.alias")).isEqualTo("deviceGroups");
-        assertThat(jsonModel.<List>get("$.kpi")).isNotNull();
-        assertThat(jsonModel.<String>get("$.kpi[0].name")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.kpi[1].name")).isEqualTo("Ongoing");
-        assertThat(jsonModel.<String>get(("$.kpi[2].name"))).isEqualTo("Failed");
-        assertThat(jsonModel.<String>get(("$.kpi[3].name"))).isEqualTo("Target");
+        assertThat(jsonModel.<Object>get("$.kpi")).isNotNull();
+        assertThat(jsonModel.<String>get("$.kpi.series[0].name")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.kpi.series[1].name")).isEqualTo("Ongoing");
+        assertThat(jsonModel.<String>get(("$.kpi.series[2].name"))).isEqualTo("Failed");
+        assertThat(jsonModel.<String>get(("$.kpi.series[3].name"))).isEqualTo("Target");
     }
 
     private DataCollectionKpi mockDataCollectionKpi() {
