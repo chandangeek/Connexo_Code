@@ -48,7 +48,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
         3: '#a9a9a9'  // target
     },
 
-    bindStore: function (store) {
+    setRecord: function (record) {
         var me = this;
         var filter = me.router.filter;
 
@@ -59,7 +59,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
             var container = me.down('#chart');
             var empty = me.down('#empty');
 
-            if (store.count()) {
+            if (record.get('time')) {
                 container.show();
                 empty.hide();
                 me.renderChart(container);
@@ -67,11 +67,11 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 me.chart.series.map(function (obj) {
                     obj.remove()
                 });
-
-                store.each(function (kpi, idx) {
-                    var data = kpi.getData();
-                    data.color = me.colorMap[idx];
-                    me.chart.addSeries(data);
+                record.series().each(function (kpi, idx) {
+                    var series = kpi.getData();
+                    series.color = me.colorMap[idx];
+                    series.data = _.zip(record.get('time'), series.data);
+                    me.chart.addSeries(series);
                 });
             } else {
                 container.hide();
@@ -143,7 +143,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     },
                     lineWidth: 2,
                     tickWidth: 1,
-                    gridLineWidth: 0,
+//                    gridLineWidth: 0,
                     floor: 0,
                     ceiling: 100,
                     tickInterval: 10

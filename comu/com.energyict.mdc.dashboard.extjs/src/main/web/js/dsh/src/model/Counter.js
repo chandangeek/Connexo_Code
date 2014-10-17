@@ -4,6 +4,9 @@ Ext.define('Dsh.model.Counter', {
         { name: 'count', type: 'int' },
         { name: 'alias', type: 'string' },
         { name: 'displayName', type: 'string' },
+        { name: 'name', type: 'string', mapping: function (data) {
+           return Ext.isString(data.name) ? data.name.toLowerCase() : ''}
+        },
         { name: 'total', type: 'int' }
     ],
 

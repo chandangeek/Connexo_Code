@@ -11,7 +11,8 @@ Ext.define('Dsh.controller.Main', {
         'Uni.store.MenuItems',
         'Dsh.util.FilterStoreHydrator',
         'Dsh.model.Filterable',
-        'Dsh.model.Kpi'
+        'Dsh.model.Kpi',
+        'Dsh.model.Series'
     ],
 
     controllers: [

@@ -26,12 +26,12 @@ Ext.define('Dsh.view.widget.Summary', {
                     '<td class="label">' +
                     '<a href="#{alias}">{displayName}</a>' +
                     '</td>' +
-                    '<td width="100%" id="bar-{[parentIndex]}" class="bar-{[parentIndex]}"></td>' +
+                    '<td width="100%" id="bar-{[parentIndex]}" class="bar-{[parentIndex]} bar-{name}"></td>' +
                     '</tr>' +
                     '<tpl for="counters">' +
                     '<tr class="child">' +
                     '<td class="label">{displayName}</td>' +
-                    '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{[parentIndex]}"></td>' +
+                    '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{[parentIndex]} bar-{name}"></td>' +
                     '</tr>' +
                     '</tpl>' +
                     '</tbody>' +
