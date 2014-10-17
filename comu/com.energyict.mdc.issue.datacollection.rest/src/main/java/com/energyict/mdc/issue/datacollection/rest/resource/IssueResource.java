@@ -23,7 +23,6 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.google.common.base.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
@@ -33,6 +32,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_DOES_NOT_EXIST;
@@ -89,10 +89,9 @@ public class IssueResource extends BaseResource {
     @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getIssueById(@PathParam(ID) long id) {
         Optional<IssueDataCollection> issue = getIssueDataCollectionService().findIssue(id);
-        if (!issue.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return entity(new IssueInfo<DeviceInfo, IssueDataCollection>(issue.get(), DeviceInfo.class)).build();
+        return issue
+                .map(i -> entity(new IssueInfo<>(i, DeviceInfo.class)).build())
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
@@ -157,18 +156,18 @@ public class IssueResource extends BaseResource {
     public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext){
         /* TODO this method should be removed when FE implements dynamic actions */
         ActionInfo response = new ActionInfo();
-        try(TransactionContext context = getTransactionService().getContext()) {
-            IssueStatus status = getIssueService().findStatus(request.getStatus()).orNull();
-            if (request.getIssues() != null && status != null && status.isHistorical()) {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            Optional<IssueStatus> status = getIssueService().findStatus(request.getStatus());
+            if (request.getIssues() != null && status.isPresent() && status.get().isHistorical()) {
                 for (EntityReference issueRef : request.getIssues()) {
-                    OpenIssue issue = getIssueDataCollectionService().findOpenIssue(issueRef.getId()).orNull();
-                    if (issue == null) {
+                    Optional<OpenIssueDataCollection> issue = getIssueDataCollectionService().findOpenIssue(issueRef.getId());
+                    if (!issue.isPresent()) {
                         response.addFail(getString(ISSUE_DOES_NOT_EXIST, getThesaurus()), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
-                    } else if (issueRef.getVersion() != issue.getVersion()) {
-                        response.addFail(getString(ISSUE_WAS_ALREADY_CHANGED, getThesaurus()), issueRef.getId(), issue.getTitle());
+                    } else if (issueRef.getVersion() != issue.get().getVersion()) {
+                        response.addFail(getString(ISSUE_WAS_ALREADY_CHANGED, getThesaurus()), issueRef.getId(), issue.get().getTitle());
                     } else {
-                        issue.addComment(request.getComment(), (User) securityContext.getUserPrincipal());
-                        issue.close(status);
+                        issue.get().addComment(request.getComment(), (User) securityContext.getUserPrincipal());
+                        issue.get().close(status.get());
                         response.addSuccess(issueRef.getId());
                     }
                 }
@@ -261,9 +260,10 @@ public class IssueResource extends BaseResource {
             conditionReason = conditionReason.or(where("baseIssue.reason.key").isEqualTo(reason));
         }
         conditionReason = conditionReason == Condition.FALSE ? Condition.TRUE : conditionReason;
-        IssueType issueType = getIssueService().findIssueType(IssueDataCollectionService.ISSUE_TYPE_UUID).orNull();
-        conditionReason = conditionReason.and(where("baseIssue.reason.issueType").isEqualTo(issueType));
-        return conditionReason;
+        final Condition finalConditionReason = conditionReason;
+        return getIssueService()
+                    .findIssueType(IssueDataCollectionService.ISSUE_TYPE_UUID)
+                    .map(it -> finalConditionReason.and(where("baseIssue.reason.issueType").isEqualTo(it)));
     }
 
     private Condition addStatusQueryCondition(StandardParametersBean params) {
