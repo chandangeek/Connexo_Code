@@ -10,13 +10,13 @@ import com.energyict.mdc.device.configuration.rest.ReadingTypeInfo;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import com.google.common.base.Optional;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Optional;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -69,8 +69,9 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
         this.unitOfMeasure = registerSpec.getUnit();
 
         Optional<RE> lastReading = register.getLastReading();
-        if(lastReading.isPresent()) {
+        if (lastReading.isPresent()) {
             this.lastReading = ReadingInfoFactory.asInfo(lastReading.get(), registerSpec);
         }
     }
+
 }

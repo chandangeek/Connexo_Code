@@ -164,7 +164,7 @@ public class DeviceValidationResource {
 
     private void collectLoadProfileData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
         ZonedDateTime loadProfileStart = end.minusMonths(1);
-        Interval loadProfileInterval = new Interval(Date.from(loadProfileStart.toInstant()), Date.from(end.toInstant()));
+        Range<Instant> loadProfileInterval = Range.openClosed(loadProfileStart.toInstant(), end.toInstant());
 
         List<DataValidationStatus> statuses = device.getLoadProfiles().stream()
                 .flatMap(l -> l.getChannels().stream())
@@ -186,10 +186,10 @@ public class DeviceValidationResource {
 
     private void collectRegisterData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
         ZonedDateTime registerStart = end.minusYears(1);
-        Interval registerInterval = new Interval(Date.from(registerStart.toInstant()), Date.from(end.toInstant()));
+        Range<Instant> registerRange = Range.openClosed(registerStart.toInstant(), end.toInstant());
 
         List<DataValidationStatus> statuses = device.getRegisters().stream()
-                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), registerInterval).stream())
+                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), registerRange).stream())
                 .collect(Collectors.toList());
 
         deviceValidationStatusInfo.registerSuspectCount = statuses.stream()

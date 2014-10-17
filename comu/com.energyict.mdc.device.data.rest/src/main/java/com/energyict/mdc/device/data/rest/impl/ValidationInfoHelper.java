@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -9,6 +8,7 @@ import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -31,7 +31,9 @@ public class ValidationInfoHelper {
     }
 
     private Date lastChecked(Register<?> register) {
-        return register.getDevice().forValidation().getLastChecked(register).orNull();
+        return register.getDevice().forValidation().getLastChecked(register)
+                .map(Date::from)
+                .orElse(null);
     }
 
     private List<DataValidationStatus> statuses(Register<?> register) {
@@ -41,7 +43,7 @@ public class ValidationInfoHelper {
     }
 
     private boolean validationActive(Register<?> register, DeviceValidation deviceValidation) {
-        return deviceValidation.isValidationActive(register, clock.now());
+        return deviceValidation.isValidationActive(register, clock.instant());
     }
 
     private List<? extends Reading> getReadingsForOneYear(Register<?> register) {
@@ -49,7 +51,7 @@ public class ValidationInfoHelper {
     }
 
     private Interval lastYear() {
-        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.of("UTC")).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime end = clock.instant().atZone(ZoneId.of("UTC")).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusYears(1);
         return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
     }

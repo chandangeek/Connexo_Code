@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -10,10 +9,11 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-import com.google.common.base.Optional;
-import java.util.Date;
-import java.util.List;
+
+import com.elster.jupiter.nls.Thesaurus;
+
 import javax.inject.Inject;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -63,19 +63,4 @@ public class ComTaskExecutionSessionInfoFactory {
 
         return info;
     }
-}
-
-class ComTaskExecutionSessionInfo {
-    public String name;
-    public List<IdWithNameInfo> comTasks;
-    public IdWithNameInfo device;
-    public IdWithNameInfo deviceConfiguration;
-    public IdWithNameInfo deviceType;
-    public String comScheduleName;
-    public TemporalExpressionInfo comScheduleFrequency;
-    public int urgency;
-    public String result;
-    public Date startTime;
-    public Date finishTime;
-    public boolean alwaysExecuteOnInbound;
 }
