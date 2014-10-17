@@ -54,7 +54,6 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         String response = target("/communicationoverview").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].counters")).isEmpty();
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
@@ -94,7 +93,6 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         String response = target("/communicationoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<List>get("$.communicationSummary.counters[0].counters")).isEmpty();
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);

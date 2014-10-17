@@ -32,7 +32,7 @@ public class SummaryInfoFactory {
 
         info.total = summaryData.getTotal();
 
-        successfulConnections=new SubTaskCounterInfo();
+        successfulConnections=new TaskSummaryCounterInfo();
         successfulConnections.count= summaryData.getSuccess();
         successfulConnections.id= asJsonStringList(EnumSet.of(TaskStatus.Waiting));
         successfulConnections.displayName=thesaurus.getString(MessageSeeds.SUCCESS.getKey(),"Success");
@@ -67,10 +67,6 @@ public class SummaryInfoFactory {
 
     private List<String> asJsonStringList(Set<TaskStatus> taskStatuses) {
         return taskStatuses.stream().map(TASK_STATUS_ADAPTER::marshal).collect(Collectors.<String>toList());
-    }
-
-    class SubTaskCounterInfo extends TaskSummaryCounterInfo {
-        public List<TaskSummaryCounterInfo> counters = new ArrayList<>();
     }
 
 }
