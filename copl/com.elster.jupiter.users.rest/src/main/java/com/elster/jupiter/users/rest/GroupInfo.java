@@ -2,14 +2,14 @@ package com.elster.jupiter.users.rest;
 
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -31,8 +31,8 @@ public class GroupInfo {
         name = group.getName();
         version = group.getVersion();
         description = group.getDescription();
-        createdOn= DateFormat.getDateTimeInstance().format(group.getCreationDate());
-        modifiedOn=DateFormat.getDateTimeInstance().format(group.getModifiedDate());
+        createdOn= DateFormat.getDateTimeInstance().format(Date.from(group.getCreationDate()));
+        modifiedOn=DateFormat.getDateTimeInstance().format(Date.from(group.getModifiedDate()));
         for (Privilege privilege : group.getPrivileges()) {
             privileges.add(new PrivilegeInfo(privilege));
         }
