@@ -11,7 +11,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LogBookTypeInfo;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

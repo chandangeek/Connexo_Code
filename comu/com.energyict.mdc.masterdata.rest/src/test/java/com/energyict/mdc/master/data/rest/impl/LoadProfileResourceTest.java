@@ -21,7 +21,7 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +70,7 @@ public class LoadProfileResourceTest extends MasterDataApplicationJerseyTest {
 
     @Test
     public void testGetUnexistingLoadProfileType() throws Exception {
-        when(masterDataService.findLoadProfileType(9999)).thenReturn(Optional.<LoadProfileType>absent());
+        when(masterDataService.findLoadProfileType(9999)).thenReturn(Optional.empty());
 
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);

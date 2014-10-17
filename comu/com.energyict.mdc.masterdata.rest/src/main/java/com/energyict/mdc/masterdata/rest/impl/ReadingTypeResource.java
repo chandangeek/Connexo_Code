@@ -14,7 +14,7 @@ import com.energyict.mdc.common.rest.ReadingTypeComparator;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.masterdata.rest.ReadingTypeInfo;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
