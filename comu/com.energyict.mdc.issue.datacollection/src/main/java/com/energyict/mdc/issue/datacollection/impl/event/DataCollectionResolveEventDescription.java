@@ -88,8 +88,12 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
     }
 
     protected boolean isEmptyString(Map<?, ?> map, String key) {
-        String stringForCheck = String.class.cast(map.get(key));
-        return Checks.is(stringForCheck).emptyOrOnlyWhiteSpace();
+        Object requestedObj = map.get(key);
+        if (requestedObj instanceof String) {
+            String stringForCheck = String.class.cast(map.get(key));
+            return Checks.is(stringForCheck).emptyOrOnlyWhiteSpace();
+        }
+        return requestedObj == null;
     }
 
     protected List<Map<?, ?>> splitEventsByKey(Map<?, ?> map, String key) {

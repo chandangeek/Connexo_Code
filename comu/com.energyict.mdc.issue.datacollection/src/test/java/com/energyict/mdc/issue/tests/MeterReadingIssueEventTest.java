@@ -12,14 +12,15 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.issue.datacollection.event.MeterReadingEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.TrendPeriodUnit;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static com.elster.jupiter.cbo.Accumulation.DELTADELTA;
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
@@ -72,8 +73,9 @@ public class MeterReadingIssueEventTest extends BaseTest {
     public void testOnlyOneReading() {
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
 
+        Instant dateTime = LocalDateTime.now(clock).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC);
         IntervalBlockImpl block = IntervalBlockImpl.of(readingTypeCode);
-        block.addIntervalReading(IntervalReadingImpl.of(clock.instant(), BigDecimal.valueOf(0)));
+        block.addIntervalReading(IntervalReadingImpl.of(dateTime, BigDecimal.valueOf(0)));
 
         meterReading.addIntervalBlock(block);
         meter.store(meterReading);
@@ -86,7 +88,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
     @Test
     public void testComputeMaxSlope() {
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        Instant dateTime = clock.instant().minus(2, ChronoUnit.HOURS);
+        Instant dateTime = LocalDateTime.now(clock).minusHours(2).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC);
 
         IntervalBlockImpl block = IntervalBlockImpl.of(readingTypeCode);
 
@@ -113,10 +115,10 @@ public class MeterReadingIssueEventTest extends BaseTest {
     public void testComputeMaxSlopeForLimitedPeriod() {
 
         MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
-        Instant twoHoursAgo = clock.instant().minus(2, ChronoUnit.HOURS);// readings 2 hours ago
+        Instant twoHoursAgo =  LocalDateTime.now(clock).minusHours(2).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC);
         IntervalBlockImpl block1 = IntervalBlockImpl.of(readingTypeCode);
         block1.addIntervalReading(IntervalReadingImpl.of(twoHoursAgo.plus(0, ChronoUnit.MINUTES), BigDecimal.valueOf(-100500)));
-        block1.addIntervalReading(IntervalReadingImpl.of(twoHoursAgo.plus(1, ChronoUnit.MINUTES), BigDecimal.valueOf(100500)));
+        block1.addIntervalReading(IntervalReadingImpl.of(twoHoursAgo.plus(15, ChronoUnit.MINUTES), BigDecimal.valueOf(100500)));
         meterReading1.addIntervalBlock(block1);
         meter.store(meterReading1);
 

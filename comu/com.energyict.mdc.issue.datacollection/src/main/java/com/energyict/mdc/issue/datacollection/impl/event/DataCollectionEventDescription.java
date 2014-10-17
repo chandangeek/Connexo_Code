@@ -5,18 +5,16 @@ import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
-import com.energyict.mdc.issue.datacollection.event.MeterEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import org.osgi.service.event.EventConstants;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.osgi.service.event.EventConstants;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -69,13 +67,7 @@ public enum DataCollectionEventDescription implements EventDescription {
             "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE",
             null,
             UnknownDeviceEvent.class,
-            MessageSeeds.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE),
-
-    METER_EVENT(
-            "com/elster/jupiter/metering/enddeviceevent/CREATED",
-            null,
-            MeterEvent.class,
-            MessageSeeds.EVENT_TITLE_DEVICE_EVENT);
+            MessageSeeds.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE);
 
     private String topic;
     private CommunicationErrorType errorType;
@@ -124,10 +116,14 @@ public enum DataCollectionEventDescription implements EventDescription {
     }
 
     protected boolean isEmptyString(Map<?, ?> map, String key) {
-        String stringForCheck = String.class.cast(map.get(key));
-        return Checks.is(stringForCheck).emptyOrOnlyWhiteSpace();
+        Object requestedObj = map.get(key);
+        if (requestedObj instanceof String) {
+            String stringForCheck = String.class.cast(map.get(key));
+            return Checks.is(stringForCheck).emptyOrOnlyWhiteSpace();
+        }
+        return requestedObj == null;
     }
-
+    
     protected List<Map<?, ?>> splitEventsByKey(Map<?, ?> map, String key) {
         String[] failedTasks = String.class.cast(map.get(key)).split(",");
         List<Map<?, ?>> eventDataList = new ArrayList<>(failedTasks.length);
