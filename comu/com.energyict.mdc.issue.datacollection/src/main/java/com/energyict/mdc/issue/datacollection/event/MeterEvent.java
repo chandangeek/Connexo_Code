@@ -17,7 +17,6 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.inject.Injector;
@@ -25,7 +24,6 @@ import com.google.inject.Injector;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +37,7 @@ public class MeterEvent extends DataCollectionEvent {
         super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);
     }
 
-    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription){
+    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription) {
         setEventDescription(eventDescription);
         setDefaultIssueStatus();
         wrapInternal(rawEvent, eventDescription);
@@ -89,7 +87,7 @@ public class MeterEvent extends DataCollectionEvent {
 
     @Override
     public void apply(Issue issue) {
-        if (issue instanceof OpenIssueDataCollection){
+        if (issue instanceof OpenIssueDataCollection) {
             // TODO which fields are specific for this event?
         }
     }

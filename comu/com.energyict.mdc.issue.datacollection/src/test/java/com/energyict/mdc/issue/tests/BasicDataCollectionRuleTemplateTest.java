@@ -21,7 +21,6 @@ import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollecti
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDatacollectionRuleTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.AutoResolutionParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
-import com.google.common.base.Optional;
 import com.google.inject.Injector;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -38,8 +38,8 @@ import static org.mockito.Mockito.*;
 public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
     @Test
-    public void testCanCreateIssue(){
-        try (TransactionContext context = getContext()){
+    public void testCanCreateIssue() {
+        try (TransactionContext context = getContext()) {
             CreationRule rule = getCreationRule(ModuleConstants.REASON_CONNECTION_FAILED);
             Meter meter = createMeter("1", "mrid");
             Issue baseIssue = getBaseIssue(rule, meter);
@@ -52,8 +52,8 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     }
 
     @Test
-    public void testCanCreateIssueOnAnotherDevice(){
-        try (TransactionContext context = getContext()){
+    public void testCanCreateIssueOnAnotherDevice() {
+        try (TransactionContext context = getContext()) {
             CreationRule rule = getCreationRule(ModuleConstants.REASON_CONNECTION_FAILED);
             Meter meter = createMeter("1", "mrid");
             Issue baseIssue = getBaseIssue(rule, meter);
@@ -74,8 +74,8 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     }
 
     @Test
-    public void testCanNotCreateIssue(){
-        try (TransactionContext context = getContext()){
+    public void testCanNotCreateIssue() {
+        try (TransactionContext context = getContext()) {
             CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Meter meter = createMeter("1", "mrid");
             Issue baseIssue = getBaseIssue(rule, meter);
@@ -94,8 +94,8 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
 
     @Test
-    public void testInProgressToOpenTransfer(){
-        try (TransactionContext context = getContext()){
+    public void testInProgressToOpenTransfer() {
+        try (TransactionContext context = getContext()) {
             CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Meter meter = createMeter("1", "mrid");
             Issue baseIssue = getBaseIssue(rule, meter);
@@ -117,7 +117,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     }
 
     @Test
-    public void testResolveIssue(){
+    public void testResolveIssue() {
         try (TransactionContext context = getContext()) {
             // Create base issue
             CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);

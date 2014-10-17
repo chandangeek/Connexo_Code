@@ -1,7 +1,5 @@
 package com.energyict.mdc.issue.datacollection.event;
 
-import com.energyict.mdc.issue.datacollection.impl.TrendPeriodUnit;
-
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -10,6 +8,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.issue.datacollection.impl.TrendPeriodUnit;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
@@ -17,7 +16,7 @@ import org.joda.time.DateTimeConstants;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -79,7 +78,7 @@ public class MeterReadingEvent implements IssueEvent {
         List<? extends BaseReadingRecord> readings =
                 meter.getReadings(
                         Range.range(
-                                new Date(unit.getStartMillisForTrendPeriod(trendPeriod)).toInstant(), BoundType.CLOSED,
+                                Instant.ofEpochMilli(unit.getStartMillisForTrendPeriod(trendPeriod)), BoundType.CLOSED,
                                 this.clock.instant(), BoundType.CLOSED),
                         readingType);
         if (!isValidReadings(readings, trendPeriodInMillis)) {
