@@ -32,6 +32,10 @@ public class DefaultActionResult implements IssueActionResult {
         nextAction();
     }
 
+    public List<Action> getActions() {
+        return actions;
+    }
+
     public void nextAction(String title){
         current = new Action();
         current.title = title;
