@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public interface Finder<T> {
     public Finder<T> paged(Integer start, Integer pageSize);
 
-    public Finder<T> sorted(String sortColumn, boolean sortOrder);
+    public Finder<T> sorted(String sortColumn, boolean ascending);
 
     public Finder<T> defaultSortColumn(String sortColumn);
 

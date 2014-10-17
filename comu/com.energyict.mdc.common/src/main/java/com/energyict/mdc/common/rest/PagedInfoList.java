@@ -21,7 +21,7 @@ public class PagedInfoList {
     private List<?> infos = new ArrayList<>();
     private QueryParameters queryParameters;
 
-    int getTotal() {
+    public int getTotal() {
         int total = infos.size();
         if (queryParameters.getStart()!=null) {
             total+=queryParameters.getStart();
@@ -32,7 +32,7 @@ public class PagedInfoList {
         return total;
     }
 
-    List<?> getInfos() {
+    public List<?> getInfos() {
         return ImmutableList.copyOf(infos);
     }
 
