@@ -156,8 +156,8 @@ public class DeviceValidationImplTest {
         when(koreChannel2.getMeterActivation()).thenReturn(meterActivation1);
         when(koreChannel3.getMeterActivation()).thenReturn(meterActivation2);
         when(koreChannel4.getMeterActivation()).thenReturn(meterActivation2);
-        when(meterActivation1.getRange()).thenReturn(Range.atMost(SWITCH.toInstant()));
-        when(meterActivation2.getRange()).thenReturn(Range.atMost(SWITCH.toInstant()));
+        when(meterActivation1.getRange()).thenReturn(Range.closedOpen(Instant.EPOCH, SWITCH.toInstant()));
+        when(meterActivation2.getRange()).thenReturn(Range.atLeast(SWITCH.toInstant()));
 
         deviceValidation.validateChannel(channel, null, NOW.toInstant());
 
