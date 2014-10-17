@@ -15,7 +15,8 @@ Ext.define('Uni.property.view.property.DateTime', {
             itemId: me.key + 'timefield',
             format: me.timeFormat,
             width: me.width,
-            required: me.required
+            required: me.required,
+            readOnly: me.isReadOnly
         };
 
         return result;

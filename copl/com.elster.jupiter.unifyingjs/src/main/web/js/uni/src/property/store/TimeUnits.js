@@ -4,7 +4,7 @@ Ext.define('Uni.property.store.TimeUnits', {
         'Uni.property.model.field.TimeUnit'
     ],
     model: 'Uni.property.model.field.TimeUnit',
-    autoLoad: true,
+  //  autoLoad: true,
 
     proxy: {
         type: 'rest',

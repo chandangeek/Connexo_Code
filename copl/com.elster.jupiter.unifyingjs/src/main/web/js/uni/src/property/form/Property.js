@@ -38,6 +38,7 @@ Ext.define('Uni.property.form.Property', {
     },
     initialised: false,
     isEdit: true,
+    isReadOnly: false,
     inheritedValues: false,
 
     /**
@@ -86,7 +87,8 @@ Ext.define('Uni.property.form.Property', {
             if (fieldType) {
                 var field = Ext.create(fieldType, Ext.apply(me.defaults, {
                     property: property,
-                    isEdit: me.isEdit
+                    isEdit: me.isEdit,
+                    isReadOnly: me.isReadOnly
                 }));
 
                 me.add(field);

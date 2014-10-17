@@ -13,7 +13,8 @@ Ext.define('Uni.property.view.property.Period', {
                 itemId: me.key + 'numberfield',
                 name: this.getName() + '.numberfield',
                 width: me.width,
-                required: me.required
+                required: me.required,
+                readOnly: me.isReadOnly
             },
             {
                 xtype: 'combobox',
@@ -21,12 +22,13 @@ Ext.define('Uni.property.view.property.Period', {
                 itemId: me.key + 'combobox',
                 name: this.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
-                queryMode: 'local',
+              //  queryMode: 'local',
                 displayField: 'timeUnit',
                 valueField: 'timeUnit',
                 width: me.width,
                 forceSelection: false,
-                required: me.required
+                required: me.required,
+                readOnly: me.isReadOnly
             }
         ];
     },
