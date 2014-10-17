@@ -168,7 +168,8 @@ public class ComSessionImpl implements ComSession {
                          where("class").isEqualTo("1")
                     .and(where("logLevel").in(new ArrayList<>(levels)))
                     .and(where("comTaskExecutionSession.comSession").isEqualTo(this)),
-                this.dataModel).
+                this.dataModel,
+                ComTaskExecutionSession.class).
                 defaultSortColumn("timestamp desc");
     }
 
