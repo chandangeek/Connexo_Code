@@ -66,7 +66,6 @@ import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -86,13 +85,11 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceGroupTest {
@@ -277,10 +274,10 @@ public class DeviceGroupTest {
         }
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("dynamic");
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(QueryEndDeviceGroup.class);
         QueryEndDeviceGroup group = (QueryEndDeviceGroup) found.get();
-        List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate());
+        List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate().toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
     }
@@ -302,7 +299,7 @@ public class DeviceGroupTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("enumerated");
             enumeratedEndDeviceGroup.setMRID("enumerated");
-            enumeratedEndDeviceGroup.add(endDevice, Interval.sinceEpoch());
+            enumeratedEndDeviceGroup.add(endDevice, Interval.sinceEpoch().toClosedRange());
             enumeratedEndDeviceGroup.save();
             ctx.commit();
         }
@@ -325,10 +322,10 @@ public class DeviceGroupTest {
         Assertions.assertThat(allDevicesGroups).hasSize(2);
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("enumerated");
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(EnumeratedEndDeviceGroup.class);
         EnumeratedEndDeviceGroup group = (EnumeratedEndDeviceGroup) found.get();
-        List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate());
+        List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate().toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
     }

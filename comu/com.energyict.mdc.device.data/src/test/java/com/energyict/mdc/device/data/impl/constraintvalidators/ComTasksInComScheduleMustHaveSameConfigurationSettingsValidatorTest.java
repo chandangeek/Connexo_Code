@@ -8,17 +8,15 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.util.Optional;
-
-import javax.validation.ConstraintValidatorContext;
-
-import java.util.Arrays;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.validation.ConstraintValidatorContext;
+import java.util.Arrays;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -78,7 +76,7 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidatorTest
     @Test
     public void testComTaskThatIsNotEnabledIsValidToo() {
         ComTask comTask = mock(ComTask.class);
-        when(this.configuration.getComTaskEnablementFor(comTask)).thenReturn(Optional.<ComTaskEnablement>absent());
+        when(this.configuration.getComTaskEnablementFor(comTask)).thenReturn(Optional.<ComTaskEnablement>empty());
         when(this.scheduledComTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
 
         // Business method

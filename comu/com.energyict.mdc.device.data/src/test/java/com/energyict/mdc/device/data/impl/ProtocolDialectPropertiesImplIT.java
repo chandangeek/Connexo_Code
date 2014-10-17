@@ -8,7 +8,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.transaction.VoidTransaction;
-import java.time.Clock;import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -60,6 +60,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -475,7 +476,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         Relation mockedRelation = mock(Relation.class);
         when(mockedRelation.getRelationType()).thenReturn(relationType);
         Date from = new Date();
-        when(mockedRelation.getPeriod()).thenReturn(Interval.startAt(from));
+        when(mockedRelation.getPeriod()).thenReturn(Interval.startAt(from.toInstant()));
         when(mockedRelation.getFrom()).thenReturn(from);
         when(mockedRelation.getTo()).thenReturn(null);
         when(mockedRelation.includes(any(Date.class))).thenReturn(true);
