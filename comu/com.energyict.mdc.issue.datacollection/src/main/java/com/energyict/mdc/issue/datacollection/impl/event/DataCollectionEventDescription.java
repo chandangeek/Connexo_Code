@@ -108,11 +108,15 @@ public enum DataCollectionEventDescription implements EventDescription{
         return this.name();
     }
 
-    protected boolean isEmptyString(Map<?, ?> map, String key){
-        String stringForCheck = String.class.cast(map.get(key));
-        return Checks.is(stringForCheck).emptyOrOnlyWhiteSpace();
+    protected boolean isEmptyString(Map<?, ?> map, String key) {
+        Object requestedObj = map.get(key);
+        if (requestedObj instanceof String) {
+            String stringForCheck = String.class.cast(map.get(key));
+            return Checks.is(stringForCheck).emptyOrOnlyWhiteSpace();
+        }
+        return requestedObj == null;
     }
-
+    
     protected List<Map<?, ?>> splitEventsByKey(Map<?, ?> map, String key) {
         String[] failedTasks = String.class.cast(map.get(key)).split(",");
         List<Map<?, ?>> eventDataList = new ArrayList<>(failedTasks.length);
