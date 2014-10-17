@@ -43,7 +43,9 @@ public class BillingReadingInfo extends ReadingInfo {
 
     public BillingReadingInfo(BillingReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive, DataValidationStatus dataValidationStatus) {
         super(reading);
-        this.value = reading.getQuantity().getValue();
+        if(reading.getQuantity() != null) {
+            this.value = reading.getQuantity().getValue();
+        }
         this.unitOfMeasure = registerSpec.getUnit();
         if (reading.getInterval().isPresent()) {
             this.interval = IntervalInfo.from(reading.getInterval().get());
