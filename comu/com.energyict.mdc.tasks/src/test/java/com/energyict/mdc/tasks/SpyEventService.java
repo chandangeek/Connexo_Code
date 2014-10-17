@@ -11,13 +11,13 @@ import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 
 public class SpyEventService implements EventService {
     final private EventService eventService;

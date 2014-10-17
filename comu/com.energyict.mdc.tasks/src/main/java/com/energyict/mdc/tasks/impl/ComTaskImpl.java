@@ -1,7 +1,12 @@
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -19,12 +24,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.google.inject.Provider;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -32,10 +31,10 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -45,7 +44,7 @@ import java.util.List;
  * @author gna
  * @since 2/05/12 - 16:10
  */
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.DUPLICATE_COMTASK_NAME +"}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_NAME + "}")
 public class ComTaskImpl implements ComTask, HasId {
 
     private final DataModel dataModel;
@@ -78,23 +77,23 @@ public class ComTaskImpl implements ComTask, HasId {
     }
 
     private long id;
-    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG +"}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY +"}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private String name;
     private boolean storeData; // Indication whether to store the data which is read
-    private Date modificationDate;
+    private Instant modificationDate;
 
     /**
      * Holds a list of all {@link ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
      */
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK +"}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK + "}")
     @Valid
     private final List<ProtocolTaskImpl> protocolTasks = new ArrayList<>();
 
     /**
      * Keeps track of the maximum number of tries a ComTask may execute before failing
      */
-    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message="{"+ MessageSeeds.Keys.VALUE_TOO_SMALL +"}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.VALUE_TOO_SMALL + "}")
     private int maxNrOfTries = 3;
 
     @Inject
@@ -168,7 +167,7 @@ public class ComTaskImpl implements ComTask, HasId {
 
     @Override
     public void save() {
-        this.modificationDate=new Date();
+        this.modificationDate = Instant.now();
         Save.action(getId()).save(this.dataModel, this);
     }
 
@@ -203,7 +202,7 @@ public class ComTaskImpl implements ComTask, HasId {
     }
 
     @Override
-    public StatusInformationTask createStatusInformationTask()  {
+    public StatusInformationTask createStatusInformationTask() {
         StatusInformationTaskImpl statusInformationTask = statusInformationTaskProvider.get();
         statusInformationTask.ownedBy(this);
         addProtocolTask(statusInformationTask);
@@ -224,7 +223,7 @@ public class ComTaskImpl implements ComTask, HasId {
         Iterator<ProtocolTaskImpl> iterator = this.protocolTasks.iterator();
         while (iterator.hasNext()) {
             ProtocolTaskImpl protocolTask = iterator.next();
-            if (protocolTask.getId()==protocolTaskToDelete.getId()) {
+            if (protocolTask.getId() == protocolTaskToDelete.getId()) {
                 iterator.remove();
             }
         }
@@ -236,11 +235,11 @@ public class ComTaskImpl implements ComTask, HasId {
     }
 
     @Override
-    public String getType () {
+    public String getType() {
         return ComTask.class.getName();
     }
 
-    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass (Class<T> protocolTaskClass) {
+    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass(Class<T> protocolTaskClass) {
         for (ProtocolTask protocolTask : this.getProtocolTasks()) {
             if (protocolTaskClass.isAssignableFrom(protocolTask.getClass())) {
                 return true;
