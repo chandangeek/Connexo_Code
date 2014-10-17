@@ -6,13 +6,22 @@ Ext.define('Dsh.model.communication.Overview', {
         'Dsh.model.Breakdown',
         'Dsh.model.Kpi'
     ],
-    hasOne: {
-        model: 'Dsh.model.Summary',
-        associationKey: 'communicationSummary',
-        name: 'summary',
-        getterName: 'getSummary',
-        setterName: 'setSummary'
-    },
+    hasOne: [
+        {
+            model: 'Dsh.model.Summary',
+            associationKey: 'communicationSummary',
+            name: 'summary',
+            getterName: 'getSummary',
+            setterName: 'setSummary'
+        },
+        {
+            model: 'Dsh.model.Kpi',
+            associationKey: 'kpi',
+            name: 'kpi',
+            getterName: 'getKpi',
+            setterName: 'setKpi'
+        }
+    ],
     hasMany: [
         {
             model: 'Dsh.model.Counter',
@@ -21,10 +30,6 @@ Ext.define('Dsh.model.communication.Overview', {
         {
             model: 'Dsh.model.Breakdown',
             name: 'breakdowns'
-        },
-        {
-            model: 'Dsh.model.Kpi',
-            name: 'kpi'
         }
     ],
     proxy: {
