@@ -1,5 +1,11 @@
 package com.elster.jupiter.gogo;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.Reading;
+import com.energyict.mdc.device.data.Register;
+
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -9,12 +15,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
-import com.google.common.base.Optional;
 import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -22,9 +22,10 @@ import org.osgi.service.component.annotations.Reference;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -37,6 +38,7 @@ import java.util.TimeZone;
 @Component(name = "com.elster.jupiter.gogo.RegisterReadings", service = RegisterReadings.class,
         property = {"osgi.command.scope=mdc.metering", "osgi.command.function=printReadings", "osgi.command.function=addReading"},
         immediate = true)
+@SuppressWarnings("unused")
 public class RegisterReadings {
 
     private volatile DeviceService deviceService;
@@ -57,31 +59,36 @@ public class RegisterReadings {
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setDeviceService(DeviceService deviceDataService) {
         this.deviceService = deviceDataService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
+    @SuppressWarnings("unused")
     public void addReading(String deviceMRID, String readingTypeMRID, String... formattedDates) {
         Device device = this.deviceService.findByUniqueMrid(deviceMRID);
         if (device != null) {
             Optional<Register<Reading>> register = this.findRegister(device, readingTypeMRID);
             if (register.isPresent()) {
-                List<Date> readingTimestamps = this.toTimestamps(formattedDates);
+                List<Instant> readingTimestamps = this.toTimestamps(formattedDates);
                 try {
                     this.addReadings(device, readingTypeMRID, readingTimestamps);
                 } catch (Exception ex) {
@@ -101,15 +108,15 @@ public class RegisterReadings {
                 return Optional.of(register);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
-    private void addReadings(final Device device, final String readingTypeMRID, final List<Date> readingTimestamps) {
+    private void addReadings(final Device device, final String readingTypeMRID, final List<Instant> readingTimestamps) {
         this.executeAsBatchExecutor(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                MeterReadingImpl meterReading = new MeterReadingImpl();
-                for (Date readingTimestamp : readingTimestamps) {
+                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                for (Instant readingTimestamp : readingTimestamps) {
                     meterReading.addReading(newReading(readingTypeMRID, readingTimestamp));
                 }
                 device.store(meterReading);
@@ -127,19 +134,19 @@ public class RegisterReadings {
         }
     }
 
-    private ReadingImpl newReading(String readingTypeMRID, Date readingTimestamp) {
+    private ReadingImpl newReading(String readingTypeMRID, Instant readingTimestamp) {
         BigDecimal readingValue = new BigDecimal(this.random.nextDouble()).multiply(BigDecimal.TEN).multiply(BigDecimal.TEN);
-        Date eventEnd = new Date(readingTimestamp.getTime() + DateTimeConstants.MILLIS_PER_DAY);
-        ReadingImpl reading = new ReadingImpl(readingTypeMRID, readingValue, eventEnd);
+        Instant eventEnd = readingTimestamp.plusMillis(DateTimeConstants.MILLIS_PER_DAY);
+        ReadingImpl reading = ReadingImpl.of(readingTypeMRID, readingValue, eventEnd);
         reading.setTimePeriod(readingTimestamp, eventEnd);
         return reading;
     }
 
-    private List<Date> toTimestamps(String... formattedDates) {
-        List<Date> parsed = new ArrayList<>(formattedDates.length);
+    private List<Instant> toTimestamps(String... formattedDates) {
+        List<Instant> parsed = new ArrayList<>(formattedDates.length);
         for (String formattedDate : formattedDates) {
             try {
-                parsed.add(this.parseDateFormat.parse(formattedDate));
+                parsed.add(this.parseDateFormat.parse(formattedDate).toInstant());
             } catch (ParseException e) {
                 e.printStackTrace(System.err);
             }
@@ -147,6 +154,7 @@ public class RegisterReadings {
         return parsed;
     }
 
+    @SuppressWarnings("unused")
     public void printReadings(String deviceMRID) {
         Device device = this.deviceService.findByUniqueMrid(deviceMRID);
         if (device != null) {

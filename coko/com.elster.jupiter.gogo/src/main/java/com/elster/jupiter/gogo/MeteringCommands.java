@@ -17,7 +17,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -26,6 +25,7 @@ import java.security.Principal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -33,6 +33,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -91,7 +92,7 @@ public class MeteringCommands {
         final Optional<Meter> endDevice = meteringService.findMeter(id);
         if (endDevice.isPresent()) {
             try {
-                final Date activationDate = dateFormat.parse(date);
+                final Instant activationDate = dateFormat.parse(date).toInstant();
                 MeterActivation activation = executeTransaction(new Transaction<MeterActivation>() {
                     @Override
                     public MeterActivation perform() {
@@ -129,9 +130,9 @@ public class MeteringCommands {
                 Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
                 if (readingTypeOptional.isPresent()) {
                     if (!readingTypeOptional.get().getMeasuringPeriod().isApplicable()) {
-                        final MeterReadingImpl meterReading = new MeterReadingImpl();
+                        final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                         for (int i = 0; i < numberOfInterval; i++) {
-                            meterReading.addReading(new ReadingImpl(readingType, BigDecimal.valueOf(randomBetween(minValue, maxValue)), startDate.getTime()));
+                            meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(randomBetween(minValue, maxValue)), startDate.getTime().toInstant()));
                             startDate.add(Calendar.SECOND, intervalInSeconds);
                         }
                         executeTransaction(new VoidTransaction() {
@@ -167,10 +168,10 @@ public class MeteringCommands {
                 if (readingTypeOptional.isPresent()) {
                     int intervalInSeconds = getIntervalInSeconds(readingTypeOptional.get());
                     if (intervalInSeconds > 0) {
-                        final MeterReadingImpl meterReading = new MeterReadingImpl();
-                        IntervalBlockImpl intervalBlock = new IntervalBlockImpl(readingType);
+                        final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(readingType);
                         for (int i = 0; i < numberOfInterval; i++) {
-                            intervalBlock.addIntervalReading(new IntervalReadingImpl(startDate.getTime(), BigDecimal.valueOf(randomBetween(minValue, maxValue))));
+                            intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.getTime().toInstant(), BigDecimal.valueOf(randomBetween(minValue, maxValue))));
                             startDate.add(Calendar.SECOND, intervalInSeconds);
                         }
                         meterReading.addIntervalBlock(intervalBlock);
@@ -267,7 +268,7 @@ public class MeteringCommands {
                     protected void doPerform() {
                         EndDeviceEventRecord endDeviceEventRecord = null;
                         try {
-                            endDeviceEventRecord = meter.addEventRecord(type.get(), dateTimeFormat.parse(dateTime));
+                            endDeviceEventRecord = meter.addEventRecord(type.get(), dateTimeFormat.parse(dateTime).toInstant());
                             endDeviceEventRecord.save();
                         } catch (ParseException e) {
                             e.printStackTrace();
