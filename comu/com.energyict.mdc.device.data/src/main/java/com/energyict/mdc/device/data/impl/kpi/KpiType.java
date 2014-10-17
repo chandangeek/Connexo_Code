@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 
 import com.elster.jupiter.tasks.TaskOccurrence;
 
+import java.sql.Date;
 import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -29,7 +30,7 @@ public enum KpiType {
 
         @Override
         protected DataCollectionKpiCalculator newCalculator(DataCollectionKpiImpl dataCollectionKpi, TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {
-            return new ConnectionSetupKpiCalculator(dataCollectionKpi, taskOccurrence.getTriggerTime(), serviceProvider.connectionTaskService(), LOGGER);
+            return new ConnectionSetupKpiCalculator(dataCollectionKpi, Date.from(taskOccurrence.getTriggerTime()), serviceProvider.connectionTaskService(), LOGGER);
         }
     },
 
@@ -41,7 +42,7 @@ public enum KpiType {
 
         @Override
         protected DataCollectionKpiCalculator newCalculator(DataCollectionKpiImpl dataCollectionKpi, TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {
-            return new CommunicationTaskExecutionKpiCalculator(dataCollectionKpi, taskOccurrence.getTriggerTime(), serviceProvider.communicationTaskService(), LOGGER);
+            return new CommunicationTaskExecutionKpiCalculator(dataCollectionKpi, Date.from(taskOccurrence.getTriggerTime()), serviceProvider.communicationTaskService(), LOGGER);
         }
     };
 

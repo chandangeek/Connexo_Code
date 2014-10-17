@@ -4,8 +4,7 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
-import com.elster.jupiter.util.time.Clock;
-
+import java.time.Clock;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -80,7 +79,7 @@ public class ClauseAwareSqlBuilder {
     }
 
     public void addUtcInstant(Clock clock) {
-        this.addUtcInstant(clock.now());
+        this.addUtcInstant(Date.from(clock.instant()));
     }
 
     public void addUtcInstant(Date date) {

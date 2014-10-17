@@ -7,11 +7,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ComWindow;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -39,10 +39,11 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.elster.jupiter.time.TemporalExpression;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
@@ -65,8 +66,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED_KEY + "}")
     private ConnectionStrategy connectionStrategy;
-    private Date nextExecutionTimestamp;
-    private Date plannedNextExecutionTimestamp;
+    private Instant nextExecutionTimestamp;
+    private Instant plannedNextExecutionTimestamp;
     private int priority;
     private boolean allowSimultaneousConnections;
     private Reference<ConnectionInitiationTask> initiationTask = ValueReference.absent();
@@ -294,8 +295,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private Date doUpdateNextExecutionTimestamp(PostingMode postingMode) {
         Calendar calendar = Calendar.getInstance(getClocksTimeZone());
         calendar.setTime(this.now());
-        this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar));
-        return this.schedule(this.plannedNextExecutionTimestamp, postingMode);
+        this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar)).toInstant();
+        return this.schedule(Date.from(this.plannedNextExecutionTimestamp), postingMode);
     }
 
     @Override
@@ -485,16 +486,16 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public Date getNextExecutionTimestamp() {
-        return this.nextExecutionTimestamp;
+        return nextExecutionTimestamp == null ? null : Date.from(nextExecutionTimestamp);
     }
 
     protected void setNextExecutionTimestamp(Date nextExecutionTimestamp) {
-        this.nextExecutionTimestamp = nextExecutionTimestamp;
+        this.nextExecutionTimestamp = nextExecutionTimestamp == null ? null : nextExecutionTimestamp.toInstant();
     }
 
     @Override
     public Date getPlannedNextExecutionTimestamp() {
-        return this.plannedNextExecutionTimestamp;
+        return plannedNextExecutionTimestamp ==null ? null : Date.from(plannedNextExecutionTimestamp);
     }
 
     @Override

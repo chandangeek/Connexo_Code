@@ -4,16 +4,14 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
 import org.joda.time.DateMidnight;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.when;
 
@@ -47,18 +45,18 @@ public class DataCollectionKpiScoreImplEqualityTest extends EqualsContractTest {
 
     public void setupA() {
         Date timestamp = new DateMidnight(2014, 5, 2).toDate();
-        when(this.targetEntry.getTimestamp()).thenReturn(timestamp);
+        when(this.targetEntry.getTimestamp()).thenReturn(timestamp.toInstant());
         BigDecimal target = new BigDecimal("80");
-        when(this.targetMember.getTarget(timestamp)).thenReturn(target);
+        when(this.targetMember.getTarget(timestamp.toInstant())).thenReturn(target);
         when(this.targetMember.targetIsMinimum()).thenReturn(true);
         when(this.targetMember.targetIsMaximum()).thenReturn(false);
         when(this.targetEntry.getTarget()).thenReturn(target);
         when(this.targetEntry.getScore()).thenReturn(new BigDecimal("97"));
-        when(this.successEntry.getTimestamp()).thenReturn(timestamp);
+        when(this.successEntry.getTimestamp()).thenReturn(timestamp.toInstant());
         when(this.successEntry.getScore()).thenReturn(new BigDecimal("53"));
-        when(this.ongoingEntry.getTimestamp()).thenReturn(timestamp);
+        when(this.ongoingEntry.getTimestamp()).thenReturn(timestamp.toInstant());
         when(this.ongoingEntry.getScore()).thenReturn(new BigDecimal("31"));
-        when(this.failedEntry.getTimestamp()).thenReturn(timestamp);
+        when(this.failedEntry.getTimestamp()).thenReturn(timestamp.toInstant());
         when(this.failedEntry.getScore()).thenReturn(new BigDecimal("13"));
         List<KpiEntry> kpiEntries = Arrays.asList(this.targetEntry, this.successEntry, this.ongoingEntry, this.failedEntry);
         this.score =
@@ -80,18 +78,18 @@ public class DataCollectionKpiScoreImplEqualityTest extends EqualsContractTest {
     @Override
     protected Object getInstanceEqualToA() {
         Date timestamp = new DateMidnight(2014, 5, 2).toDate();
-        when(this.targetEntry.getTimestamp()).thenReturn(timestamp);
+        when(this.targetEntry.getTimestamp()).thenReturn(timestamp.toInstant());
         BigDecimal target = new BigDecimal("50");
-        when(this.targetMember.getTarget(timestamp)).thenReturn(target);
+        when(this.targetMember.getTarget(timestamp.toInstant())).thenReturn(target);
         when(this.targetMember.targetIsMinimum()).thenReturn(false);
         when(this.targetMember.targetIsMaximum()).thenReturn(true);
         when(this.targetEntry.getTarget()).thenReturn(target);
         when(this.targetEntry.getScore()).thenReturn(new BigDecimal("13"));
-        when(this.successEntry.getTimestamp()).thenReturn(timestamp);
+        when(this.successEntry.getTimestamp()).thenReturn(timestamp.toInstant());
         when(this.successEntry.getScore()).thenReturn(new BigDecimal("31"));
-        when(this.ongoingEntry.getTimestamp()).thenReturn(timestamp);
+        when(this.ongoingEntry.getTimestamp()).thenReturn(timestamp.toInstant());
         when(this.ongoingEntry.getScore()).thenReturn(new BigDecimal("53"));
-        when(this.failedEntry.getTimestamp()).thenReturn(timestamp);
+        when(this.failedEntry.getTimestamp()).thenReturn(timestamp.toInstant());
         when(this.failedEntry.getScore()).thenReturn(new BigDecimal("97"));
         List<KpiEntry> kpiEntries = Arrays.asList(this.targetEntry, this.successEntry, this.ongoingEntry, this.failedEntry);
         return new DataCollectionKpiScoreImpl(
@@ -105,18 +103,18 @@ public class DataCollectionKpiScoreImplEqualityTest extends EqualsContractTest {
     protected Iterable<?> getInstancesNotEqualToA() {
         Date timestamp1 = new DateMidnight(2013, 5, 2).toDate();
         Date timestamp2 = new DateMidnight(2014, 10, 2).toDate();
-        when(this.targetEntry.getTimestamp()).thenReturn(timestamp1);
+        when(this.targetEntry.getTimestamp()).thenReturn(timestamp1.toInstant());
         BigDecimal target = new BigDecimal("50");
-        when(this.targetMember.getTarget(timestamp1)).thenReturn(target);
+        when(this.targetMember.getTarget(timestamp1.toInstant())).thenReturn(target);
         when(this.targetMember.targetIsMinimum()).thenReturn(false);
         when(this.targetMember.targetIsMaximum()).thenReturn(true);
         when(this.targetEntry.getTarget()).thenReturn(target);
         when(this.targetEntry.getScore()).thenReturn(new BigDecimal("13"));
-        when(this.successEntry.getTimestamp()).thenReturn(timestamp1);
+        when(this.successEntry.getTimestamp()).thenReturn(timestamp1.toInstant());
         when(this.successEntry.getScore()).thenReturn(new BigDecimal("31"));
-        when(this.ongoingEntry.getTimestamp()).thenReturn(timestamp1);
+        when(this.ongoingEntry.getTimestamp()).thenReturn(timestamp1.toInstant());
         when(this.ongoingEntry.getScore()).thenReturn(new BigDecimal("53"));
-        when(this.failedEntry.getTimestamp()).thenReturn(timestamp1);
+        when(this.failedEntry.getTimestamp()).thenReturn(timestamp1.toInstant());
         when(this.failedEntry.getScore()).thenReturn(new BigDecimal("97"));
         List<KpiEntry> kpiEntries = Arrays.asList(this.targetEntry, this.successEntry, this.ongoingEntry, this.failedEntry);
         DataCollectionKpiScoreImpl score1 = new DataCollectionKpiScoreImpl(

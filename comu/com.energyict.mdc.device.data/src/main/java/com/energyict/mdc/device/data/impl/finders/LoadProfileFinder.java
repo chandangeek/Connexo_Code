@@ -4,7 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Serves as a <i>Finder</i> factory for {@link com.energyict.mdc.device.data.LoadProfile}s.

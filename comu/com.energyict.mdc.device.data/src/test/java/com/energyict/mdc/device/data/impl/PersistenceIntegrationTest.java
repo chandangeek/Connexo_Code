@@ -4,7 +4,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -15,13 +14,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -33,6 +26,13 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+
+import java.sql.SQLException;
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -127,8 +127,8 @@ public abstract class PersistenceIntegrationTest {
     }
 
     private static void initializeClock() {
-        when(clock.getTimeZone()).thenReturn(utcTimeZone);
-        when(clock.now()).thenAnswer(new Answer<Date>() {
+        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(Date.from(clock.instant())).thenAnswer(new Answer<Date>() {
             @Override
             public Date answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return new Date();
@@ -152,8 +152,8 @@ public abstract class PersistenceIntegrationTest {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.set(year, month, day, hour, minute, second);
         calendar.set(Calendar.MILLISECOND, millisecond);
-        when(clock.getTimeZone()).thenReturn(timeZone);
-        when(clock.now()).thenReturn(calendar.getTime());
+        when(clock.getZone()).thenReturn(timeZone.toZoneId());
+        when(Date.from(clock.instant())).thenReturn(calendar.getTime());
         return calendar.getTime();
     }
 

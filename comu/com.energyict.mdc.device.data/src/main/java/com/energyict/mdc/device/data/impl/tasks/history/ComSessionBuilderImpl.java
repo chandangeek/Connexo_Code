@@ -1,5 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Counter;
+import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.LongCounter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -11,13 +16,6 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilde
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
-
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Counter;
-import com.elster.jupiter.util.Counters;
-import com.elster.jupiter.util.LongCounter;
-import com.google.common.base.Optional;
 import net.jcip.annotations.NotThreadSafe;
 import org.joda.time.Duration;
 
@@ -29,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -194,7 +193,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
                     return Optional.<ComTaskExecutionSessionBuilder>of(taskExecution);
                 }
             }
-            return Optional.absent();
+            return Optional.empty();
         }
 
         private UnderConstruction(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {

@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Provides services that relate to {@link LoadProfile}s.

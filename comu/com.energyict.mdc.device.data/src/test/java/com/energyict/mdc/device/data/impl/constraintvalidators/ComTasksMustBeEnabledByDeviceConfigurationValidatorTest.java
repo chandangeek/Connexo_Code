@@ -6,7 +6,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;

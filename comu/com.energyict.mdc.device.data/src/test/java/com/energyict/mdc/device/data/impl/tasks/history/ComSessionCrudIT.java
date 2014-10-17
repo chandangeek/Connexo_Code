@@ -84,7 +84,6 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -107,9 +106,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -356,7 +355,7 @@ public class ComSessionCrudIT {
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         ComSession foundSession = found.get();
 
@@ -394,7 +393,7 @@ public class ComSessionCrudIT {
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         ComSession foundSession = found.get();
 
@@ -430,7 +429,7 @@ public class ComSessionCrudIT {
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         ComSession foundSession = found.get();
 
@@ -471,7 +470,7 @@ public class ComSessionCrudIT {
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         ComSession foundSession = found.get();
 
@@ -520,7 +519,7 @@ public class ComSessionCrudIT {
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         ComSession foundSession = found.get();
 
@@ -559,7 +558,7 @@ public class ComSessionCrudIT {
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         ComSession foundSession = found.get();
 
@@ -603,7 +602,7 @@ public class ComSessionCrudIT {
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         ComSession foundSession = found.get();
 
@@ -648,7 +647,7 @@ public class ComSessionCrudIT {
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         ComSession foundSession = found.get();
 

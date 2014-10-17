@@ -134,7 +134,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     Optional<RecurrentTask> connectionKpiTask() {
-        return Optional.ofNullable(this.connectionKpiTask.getOptional().orNull());
+        return connectionKpiTask.getOptional();
     }
 
     @Override
@@ -176,7 +176,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     Optional<RecurrentTask> communicationKpiTask() {
-        return Optional.ofNullable(this.communicationKpiTask.getOptional().orNull());
+        return communicationKpiTask.getOptional();
     }
 
     @Override

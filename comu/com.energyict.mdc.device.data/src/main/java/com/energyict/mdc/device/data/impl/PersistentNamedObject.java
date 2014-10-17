@@ -7,8 +7,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
-import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.Size;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -53,7 +54,7 @@ public abstract class PersistentNamedObject<D> extends PersistentIdObject<D> {
     protected abstract DuplicateNameException duplicateNameException(Thesaurus thesaurus, String name);
 
     private D findOtherByName(String name) {
-        return this.getDataMapper().getUnique("name", name).orNull();
+        return this.getDataMapper().getUnique("name", name).orElse(null);
     }
 
 }

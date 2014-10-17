@@ -161,7 +161,7 @@ public class DataCollectionKpiImplTest {
         when(cronExpression.nextOccurrence(any())).thenReturn(ZonedDateTime.now());
         taskService = mock(TaskService.class);
         licenseService = mock(LicenseService.class);
-        when(licenseService.getLicenseForApplication("MDC")).thenReturn(com.google.common.base.Optional.absent());
+        when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.empty());
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("DataCollectionKpiImplTest");
         inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -311,7 +311,7 @@ public class DataCollectionKpiImplTest {
         // Asserts
         Optional<RecurrentTask> kpiTask = kpi.connectionKpiTask();
         assertThat(kpiTask.isPresent()).isTrue();
-        com.google.common.base.Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(kpiTask.get().getId());
+        Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(kpiTask.get().getId());
         assertThat(recurrentTask.isPresent()).isTrue();
     }
 
@@ -327,7 +327,7 @@ public class DataCollectionKpiImplTest {
         // Asserts
         Optional<RecurrentTask> kpiTask = kpi.communicationKpiTask();
         assertThat(kpiTask.isPresent()).isTrue();
-        com.google.common.base.Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(kpiTask.get().getId());
+        Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(kpiTask.get().getId());
         assertThat(recurrentTask.isPresent()).isTrue();
     }
 
