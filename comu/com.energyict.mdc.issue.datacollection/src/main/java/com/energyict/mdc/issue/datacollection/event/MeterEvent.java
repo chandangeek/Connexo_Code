@@ -96,7 +96,7 @@ public class MeterEvent extends DataCollectionEvent {
 
     @Override
     protected int getNumberOfDevicesWithEvents(Device concentrator) {
-        Date start = getLastSuccessfulCommunicationEnd(concentrator);
+        Instant start = getLastSuccessfulCommunicationEnd(concentrator);
         return concentrator.countNumberOfEndDeviceEvents(Arrays.asList(eventRecord.getEventType()), Interval.startAt(start));
     }
 
@@ -107,4 +107,5 @@ public class MeterEvent extends DataCollectionEvent {
         clone.endDeviceEventType = endDeviceEventType;
         return clone;
     }
+
 }
