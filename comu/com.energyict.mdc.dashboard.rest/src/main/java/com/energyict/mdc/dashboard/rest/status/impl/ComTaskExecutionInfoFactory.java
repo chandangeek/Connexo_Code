@@ -37,7 +37,7 @@ public class ComTaskExecutionInfoFactory {
         this.connectionTaskInfoFactory = connectionTaskInfoFactoryProvider;
     }
 
-    public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, java.util.Optional<ComTaskExecutionSession> comTaskExecutionSession) throws Exception {
+    public ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) throws Exception {
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
         info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
         for (ComTask comTask : comTaskExecution.getComTasks()) {
@@ -65,7 +65,7 @@ public class ComTaskExecutionInfoFactory {
         }
         info.urgency = comTaskExecution.getExecutionPriority();
         info.currentState = new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
-        info.latestResult = comTaskExecutionSession.map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus));
+        info.latestResult = comTaskExecutionSession.map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus)).orElse(null);
         info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
         info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
