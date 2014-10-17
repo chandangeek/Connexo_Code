@@ -36,6 +36,7 @@ Ext.define('Dsh.model.ConnectionTask', {
         { name: 'connectionMethod', type: 'auto' },
         { name: 'window', type: 'auto' },
         { name: 'connectionStrategy', type: 'auto' },
-        { name: 'nextExecution', type: 'date', dateFormat: 'time'}
+        { name: 'nextExecution', type: 'date', dateFormat: 'time'},
+        { name: 'comPort', type: 'auto'}
     ]
 });
