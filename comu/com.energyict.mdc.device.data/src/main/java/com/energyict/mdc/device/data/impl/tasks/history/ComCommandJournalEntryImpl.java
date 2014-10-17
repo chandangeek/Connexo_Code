@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import com.energyict.mdc.engine.model.ComServer;
 import javax.inject.Inject;
 import java.util.Date;
 
@@ -52,6 +53,11 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
     @Override
     public void accept(JournalEntryVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public ComServer.LogLevel getLogLevel() {
+        return ComServer.LogLevel.INFO;
     }
 
     public static ComCommandJournalEntryImpl from(DataModel dataModel, ComTaskExecutionSession comTaskExecutionSession, Date timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
