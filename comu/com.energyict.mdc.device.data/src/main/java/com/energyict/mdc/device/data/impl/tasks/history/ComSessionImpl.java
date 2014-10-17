@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.joda.time.Duration;
 
@@ -150,8 +149,7 @@ public class ComSessionImpl implements ComSession {
     public Finder<ComSessionJournalEntry> getJournalEntries(Set<ComServer.LogLevel> levels) {
         return DefaultFinder.of(
                 ComSessionJournalEntry.class,
-                where("logLevel").
-                   in(new ArrayList<>(levels)),
+                where("logLevel").in(new ArrayList<>(levels)).and(where("comSession").isEqualTo(this)),
                 this.dataModel).
                 defaultSortColumn("timestamp desc");
     }
