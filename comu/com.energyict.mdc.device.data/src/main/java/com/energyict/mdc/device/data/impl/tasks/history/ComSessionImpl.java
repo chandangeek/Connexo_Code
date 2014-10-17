@@ -31,8 +31,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.joda.time.Duration;
 
@@ -165,40 +167,28 @@ public class ComSessionImpl implements ComSession {
          */
         return DefaultFinder.of(
                 ComTaskExecutionJournalEntry.class,
-                // Todo: need this condition only when the journal entry is of type ComTaskExecutionMessageJournalEntry
-                where("discriminator").isEqualTo("1").and(where("logLevel").in(new ArrayList<>(levels))).
-                  and(where("comTaskExecutionSession.comSession").
-                          isEqualTo(this)),
+                         where("class").isEqualTo("1")
+                    .and(where("logLevel").in(new ArrayList<>(levels)))
+                    .and(where("comTaskExecutionSession.comSession").isEqualTo(this)),
                 this.dataModel).
                 defaultSortColumn("timestamp desc");
     }
 
     @Override
     public List<CombinedLogEntry> getAllLogs(Set<ComServer.LogLevel> levels, int start, int pageSize) {
-        /* Use a SQLBuilder for
-          select
-         */
-        SqlBuilder sqlBuilder = new SqlBuilder("select -1, timestamp, loglevel, message, '', stacktrace, '' from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select '-1', timestamp, loglevel, message, '', 0, to_char(stacktrace) from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSIONJOURNALENTRY.name());
         sqlBuilder.append(" where loglevel in (");
-        levels.stream().
-            forEach(l -> {
-                sqlBuilder.addInt(l.ordinal());
-                sqlBuilder.append(",");
-            });
-        sqlBuilder.append(") union select discriminator, timestamp, loglevel, COMMANDDESCRIPTION, MESSAGE, COMPLETIONCODE, ERRORDESCRIPTION from ");
+        this.appendLogLevels(levels, sqlBuilder);
+        sqlBuilder.append(") union select discriminator, timestamp, loglevel, to_char(COMMANDDESCRIPTION), to_char(MESSAGE), COMPLETIONCODE, to_char(ERRORDESCRIPTION) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECJOURNALENTRY.name());
         sqlBuilder.append(" where discriminator = '0' or (discriminator = '1' and loglevel in (");
-        levels.stream().
-                forEach(l -> {
-                    sqlBuilder.addInt(l.ordinal());
-                    sqlBuilder.append(",");
-                });
-        sqlBuilder.append(") sorted by timestamp DESC");
+        this.appendLogLevels(levels, sqlBuilder);
+        sqlBuilder.append(")) order by timestamp desc");
         sqlBuilder.asPageBuilder(start, start + pageSize - 1);
         List<CombinedLogEntry> logEntries = new ArrayList<>();
         try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
-            try (ResultSet resultSet = statement.getResultSet()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     int discriminator = resultSet.getInt(1);
                     switch (discriminator) {
@@ -222,6 +212,17 @@ public class ComSessionImpl implements ComSession {
             throw new UnderlyingSQLFailedException(e);
         }
         return logEntries;
+    }
+
+    private void appendLogLevels(Set<ComServer.LogLevel> levels, SqlBuilder sqlBuilder) {
+        Iterator<ComServer.LogLevel> levelIterator = levels.iterator();
+        while (levelIterator.hasNext()) {
+            ComServer.LogLevel logLevel = levelIterator.next();
+            sqlBuilder.addInt(logLevel.ordinal());
+            if (levelIterator.hasNext()) {
+                sqlBuilder.append(",");
+            }
+        }
     }
 
     @Override
@@ -302,10 +303,6 @@ public class ComSessionImpl implements ComSession {
         this.storeMillis = duration.getMillis();
     }
 
-    void setSuccessful(boolean successful) {
-        this.status = successful;
-    }
-
     void setStopTime(Date stopTime) {
         this.setStopTime(new UtcInstant(stopTime));
     }
@@ -351,6 +348,7 @@ public class ComSessionImpl implements ComSession {
     @Override
     public void save() {
         this.calculateTotalMillis();
+        this.calculateStatus();
         if (this.id == 0) {
             this.dataModel.mapper(ComSession.class).persist(this);
             HasLastComSession connectionTaskAsHasLastComSession = (HasLastComSession) this.connectionTask.get();
@@ -365,6 +363,16 @@ public class ComSessionImpl implements ComSession {
         if (this.startDate != null && this.stopDate != null) {
             this.totalMillis = (this.stopDate.getTime() - this.startDate.getTime());
         }
+    }
+
+    private void calculateStatus() {
+        this.status =  this.getSuccessIndicator().equals(SuccessIndicator.Success)
+                    && this.isZero(this.getNumberOfFailedTasks())
+                    && this.isZero(this.getNumberOfPlannedButNotExecutedTasks());
+    }
+
+    private boolean isZero (int aCounter) {
+        return aCounter == 0;
     }
 
     public static ComSessionImpl from(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
@@ -390,7 +398,7 @@ public class ComSessionImpl implements ComSession {
                 resultSet.getTimestamp(2),
                 ComServer.LogLevel.values()[resultSet.getInt(3)],
                 resultSet.getString(4),
-                resultSet.getString(6));
+                resultSet.getString(7));
         }
 
         private ComSessionJournalEntryAsCombinedLogEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String stacktrace) {

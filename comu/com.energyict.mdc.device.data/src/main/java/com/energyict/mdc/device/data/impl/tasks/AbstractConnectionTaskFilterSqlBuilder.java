@@ -66,7 +66,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
 
     protected void appendJoinedTables() {
         if (this.requiresLastComSessionClause()) {
-            this.appendLastComSessionJoinClause(this.connectionTaskAliasName());
+            this.appendLastComSessionJoinClause();
         }
     }
 
@@ -94,12 +94,16 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
         this.appendDeviceInGroupSql(this.deviceGroups, this.queryExecutor, "ct");
     }
 
-    private boolean requiresLastComSessionClause() {
+    protected boolean requiresLastComSessionClause() {
         return this.appendLastComSessionJoinClause;
     }
 
     protected void requiresLastComSessionClause(boolean flag) {
         this.appendLastComSessionJoinClause = flag;
+    }
+
+    protected void appendLastComSessionJoinClause() {
+        this.appendLastComSessionJoinClause(this.connectionTaskAliasName());
     }
 
     private void appendLastComSessionJoinClause(String connectionTaskTableName) {

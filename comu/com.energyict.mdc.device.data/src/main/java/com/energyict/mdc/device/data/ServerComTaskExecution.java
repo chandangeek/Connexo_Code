@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 
 /**

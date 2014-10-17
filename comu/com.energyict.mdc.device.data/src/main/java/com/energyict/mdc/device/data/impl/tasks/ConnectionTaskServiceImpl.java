@@ -567,7 +567,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         } else {
             sqlBuilder.append(" and ct.nextexecutiontimestamp is not null");
         }
-        sqlBuilder.append(" and ");
+        sqlBuilder.append(" and cs.successIndicator = 0");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(true, sqlBuilder);
         try (PreparedStatement stmnt = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
             try (ResultSet resultSet = stmnt.executeQuery()) {
@@ -589,9 +589,9 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     private void appendConnectionTypeHeatMapComTaskExecutionSessionConditions(boolean atLeastOneFailingComTask, SqlBuilder sqlBuilder) {
         if (atLeastOneFailingComTask) {
-            sqlBuilder.append("cs.successindicator = 0 and");
+            sqlBuilder.append(" and");
         } else {
-            sqlBuilder.append(" not");
+            sqlBuilder.append(" and not");
         }
         sqlBuilder.append(" exists (select * from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
@@ -691,9 +691,15 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
            SELECT ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*)
              FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastcomession = cs.id
             WHERE ct.status = 0
+              AND cs.successIndicator = 0
               AND NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte
                                WHERE cte.COMSESSION = cs.id
                                  AND cte.SUCCESSINDICATOR > 0)
+            GROUP BY ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator;
+ UNION ALL SELECT ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*)
+             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastcomession = cs.id
+            WHERE ct.status = 0
+              AND cs.successIndicator > 0
             GROUP BY ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator;
 
            when atLeastOneFailingComTask = false:
@@ -710,8 +716,16 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
         this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
-        sqlBuilder.append(" where ct.status = 0 and ");
+        sqlBuilder.append(" where ct.status = 0 and cs.successIndicator = 0");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
+        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator");
+        sqlBuilder.append(" UNION ALL ");
+        sqlBuilder.append("select ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*) from ");
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        sqlBuilder.append(" ct");
+        this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
+        sqlBuilder.append(" where ct.status = 0 and cs.successIndicator > 0");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
@@ -797,9 +811,17 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
              JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
              JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
             WHERE ct.status = 0
+              AND cs.successIndicator = 0
               AND NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
                                WHERE ctes.COMSESSION = cs.id
                                  AND ctes.SUCCESSINDICATOR > 0)
+            GROUP BY dev.DEVICETYPE, cs.successIndicator
+ UNION ALL SELECT dev.DEVICETYPE, cs.successIndicator, count(*)
+             FROM DDC_CONNECTIONTASK ct
+             JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
+             JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
+            WHERE ct.status = 0
+              AND cs.successIndicator > 0
             GROUP BY dev.DEVICETYPE, cs.successIndicator
 
             when atLeastOneFailingComTask = true
@@ -820,8 +842,18 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
         sqlBuilder.append(" join ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" dev on ct.device = dev.id where ct.status = 0 and ");
+        sqlBuilder.append(" dev on ct.device = dev.id where ct.status = 0 and cs.successIndicator = 0");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
+        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        sqlBuilder.append(" group by dev.devicetype, cs.successIndicator");
+        sqlBuilder.append(" UNION ALL ");
+        sqlBuilder.append("select dev.DEVICETYPE, cs.successIndicator, count(*) from ");
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        sqlBuilder.append(" ct");
+        this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
+        sqlBuilder.append(" join ");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append(" dev on ct.device = dev.id where ct.status = 0 and cs.successIndicator > 0 ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         sqlBuilder.append(" group by dev.devicetype, cs.successIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
@@ -866,14 +898,20 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
            SELECT ct.COMPORTPOOL, cs.successIndicator, COUNT(*)
              FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
             WHERE ct.status = 0
+              AND cs.successIndicator = 0
               AND NOT EXISTS (
                       SELECT *
                         FROM DDC_COMTASKEXECSESSION ctes
                        WHERE ctes.COMSESSION = cs.id
                          AND ctes.SUCCESSINDICATOR > 0)
             GROUP BY ct.COMPORTPOOL, cs.successIndicator
+      UNION SELECT ct.COMPORTPOOL, cs.successIndicator, COUNT(*)
+             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
+            WHERE ct.status = 0
+              AND cs.successIndicator > 0
+            GROUP BY ct.COMPORTPOOL, cs.successIndicator
 
-           when attemptLockComTaskExecution == true
+           when atLeastOneFailingComTask == true
            SELECT ct.COMPORTPOOL, cs.successIndicator, COUNT(*)
              FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
             WHERE ct.status = 0
@@ -889,8 +927,16 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
         this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
-        sqlBuilder.append(" where ct.status = 0 and ");
+        sqlBuilder.append(" where ct.status = 0 and cs.successIndicator = 0");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
+        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        sqlBuilder.append(" group by ct.comportpool, cs.successIndicator");
+        sqlBuilder.append(" UNION ALL ");
+        sqlBuilder.append("select ct.COMPORTPOOL, cs.successIndicator, count(*) from ");
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        sqlBuilder.append(" ct");
+        this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
+        sqlBuilder.append(" where ct.status = 0 and cs.successIndicator > 0");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         sqlBuilder.append(" group by ct.comportpool, cs.successIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
