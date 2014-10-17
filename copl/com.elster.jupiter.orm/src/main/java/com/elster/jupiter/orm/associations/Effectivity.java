@@ -1,15 +1,15 @@
 package com.elster.jupiter.orm.associations;
 
-import java.time.Instant;
-import java.util.Objects;
-import java.util.Optional;
-
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 
-import static com.google.common.base.Preconditions.*;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public interface Effectivity {
 	/*
@@ -30,7 +30,7 @@ public interface Effectivity {
 	}
 	
 	default boolean overlaps(Range<Instant> otherRange) {
-		return ImmutableRangeSet.of(getRange()).subRangeSet(otherRange).isEmpty();
+		return !ImmutableRangeSet.of(getRange()).subRangeSet(otherRange).isEmpty();
 	}
 	
 	default Optional<Range<Instant>> intersection(Range<Instant> otherRange) {
