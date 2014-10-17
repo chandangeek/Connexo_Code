@@ -26,6 +26,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.Ranges.copy;
@@ -139,18 +140,19 @@ public class MeterActivationValidationImplTest {
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule1).getReadingTypes();
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule2).getReadingTypes();
         when(rule1.validateChannel(channel1, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE4);
-        when(rule1.validateChannel(channel2, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE2);
+        when(rule1.validateChannel(channel2, copy(INTERVAL).withClosedLowerBound(DATE1))).thenReturn(DATE2);
         when(rule2.validateChannel(channel1, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE2);
-        when(rule2.validateChannel(channel2, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE4);
+        when(rule2.validateChannel(channel2, copy(INTERVAL).withClosedLowerBound(DATE1))).thenReturn(DATE4);
         when(channel1.getLastDateTime()).thenReturn(DATE4);
         when(channel2.getLastDateTime()).thenReturn(DATE4);
 
         meterActivationValidation.validate(INTERVAL);
 
         assertThat(meterActivationValidation.getChannelValidations()).hasSize(2);
-        ChannelValidation channelValidation = meterActivationValidation.getChannelValidations().iterator().next();
+        Iterator<ChannelValidation> iterator = meterActivationValidation.getChannelValidations().iterator();
+        ChannelValidation channelValidation = iterator.next();
         assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
-        channelValidation = meterActivationValidation.getChannelValidations().iterator().next();
+        channelValidation = iterator.next();
         assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
     }
 
