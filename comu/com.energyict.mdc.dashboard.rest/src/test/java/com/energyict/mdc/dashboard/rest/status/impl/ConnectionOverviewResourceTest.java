@@ -137,10 +137,11 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.kpi).isNotNull();
-        assertThat(connectionOverviewInfo.kpi.get(0).name).isEqualTo("Success");
-        assertThat(connectionOverviewInfo.kpi.get(1).name).isEqualTo("Ongoing");
-        assertThat(connectionOverviewInfo.kpi.get(2).name).isEqualTo("Failed");
-        assertThat(connectionOverviewInfo.kpi.get(3).name).isEqualTo("Target");
+        assertThat(connectionOverviewInfo.kpi.time).hasSize(1440); // all day
+        assertThat(connectionOverviewInfo.kpi.series.get(0).name).isEqualTo("Success");
+        assertThat(connectionOverviewInfo.kpi.series.get(1).name).isEqualTo("Ongoing");
+        assertThat(connectionOverviewInfo.kpi.series.get(2).name).isEqualTo("Failed");
+        assertThat(connectionOverviewInfo.kpi.series.get(3).name).isEqualTo("Target");
         assertThat(connectionOverviewInfo.deviceGroup.id).isEqualTo(123);
         assertThat(connectionOverviewInfo.deviceGroup.name).isEqualTo("South region");
         assertThat(connectionOverviewInfo.deviceGroup.alias).isEqualTo("deviceGroups");
