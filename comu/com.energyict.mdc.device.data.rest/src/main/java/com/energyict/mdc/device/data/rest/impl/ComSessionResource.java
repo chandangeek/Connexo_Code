@@ -110,7 +110,7 @@ public class ComSessionResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
-        int start=1;
+        int start=0;
         int limit=Integer.MAX_VALUE;
         if (queryParameters.getStart()!=null && queryParameters.getLimit()!=0) {
             start=queryParameters.getStart()+1;
@@ -121,6 +121,8 @@ public class ComSessionResource {
         EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
         if (jsonQueryFilter.getProperty(LOG_LEVELS_FILTER_PROPERTY) != null) {
             jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter()).stream().forEach(logLevels::add);
+        } else {
+            logLevels=EnumSet.allOf(ComServer.LogLevel.class);
         }
         if (jsonQueryFilter.getProperty(LOG_TYPES_FILTER_PROPERTY) != null) {
             List<String> logTypes = jsonQueryFilter.getPropertyList(LOG_TYPES_FILTER_PROPERTY);
