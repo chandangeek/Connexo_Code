@@ -65,6 +65,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -296,9 +297,12 @@ public class SmartMeterProtocolAdapterTest {
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3"));
         when(smartMeterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
-        //when(propertySpecService.basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class))).thenReturn(new BasicPropertySpec<>("o1", false, new StringFactory()));
-        //when(propertySpecService.basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class))).thenReturn(new BasicPropertySpec<>("o2", false, new StringFactory()));
-        //when(propertySpecService.basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class))).thenReturn(new BasicPropertySpec<>("o3", false, new StringFactory()));
+        doReturn(new BasicPropertySpec<>("o1", false, new StringFactory()))
+            .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any());
+        doReturn(new BasicPropertySpec<>("o2", false, new StringFactory()))
+            .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any());
+        doReturn(new BasicPropertySpec<>("o3", false, new StringFactory()))
+            .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides an Adapter implementation fo the DeviceProtocolDialect.
@@ -88,12 +89,11 @@ public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
 
     @Override
     public List<PropertySpec> getPropertySpecs () {
-        List<PropertySpec> propertySpecs = new ArrayList<>();
-        for (PropertySpec propertySpec : this.withDynamicProperties.getPropertySpecs()) {
-            if (!this.removablePropertyNames.contains(propertySpec.getName())) {
-                propertySpecs.add(propertySpec);
-            }
-        }
+        List<PropertySpec> propertySpecs =
+            this.withDynamicProperties.getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> !this.removablePropertyNames.contains(propertySpec.getName()))
+                .collect(Collectors.toList());
         return removeDuplicates(propertySpecs);
     }
 
