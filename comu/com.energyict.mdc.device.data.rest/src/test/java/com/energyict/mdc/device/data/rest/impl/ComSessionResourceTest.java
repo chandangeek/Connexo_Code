@@ -241,6 +241,16 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(5);
     }
 
+    @Test
+    public void testGetAllWithoutFilterOrPaging() throws Exception {
+        setupJournalMocking();
+        String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
+                .request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(5);
+    }
+
     private ComSession.CombinedLogEntry mockCombinedLogEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDetail) {
         ComSession.CombinedLogEntry mock = mock(ComSession.CombinedLogEntry.class);
         when(mock.getTimestamp()).thenReturn(timestamp);

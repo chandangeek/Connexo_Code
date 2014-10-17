@@ -110,6 +110,12 @@ public class ComSessionResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
+        int start=1;
+        int limit=Integer.MAX_VALUE;
+        if (queryParameters.getStart()!=null && queryParameters.getLimit()!=0) {
+            start=queryParameters.getStart()+1;
+            limit=queryParameters.getLimit();
+        }
 
         List<JournalEntryInfo> infos = new ArrayList<>();
         EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
@@ -120,7 +126,7 @@ public class ComSessionResource {
             List<String> logTypes = jsonQueryFilter.getPropertyList(LOG_TYPES_FILTER_PROPERTY);
             if (logTypes.contains(CONNECTIONS_FILTER_ITEM)) {
                 if (logTypes.contains(COMMUNICATIONS_FILTER_ITEM)) {
-                    comSession.getAllLogs(logLevels, queryParameters.getStart() + 1, queryParameters.getLimit()).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
+                    comSession.getAllLogs(logLevels, start, limit).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
                 } else {
                     comSession.getJournalEntries(logLevels).from(queryParameters).sorted("timestamp", false).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
                 }
@@ -131,6 +137,8 @@ public class ComSessionResource {
                     // User didn't select anything and is getting just that...
                 }
             }
+        } else {
+            comSession.getAllLogs(logLevels, start, limit).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
         }
         return PagedInfoList.asJson("journals", infos, queryParameters);
     }
