@@ -78,7 +78,7 @@ Ext.define('Dsh.view.widget.Summary', {
     summaryTitleUpdate: function (total) {
         var me = this,
             title = me.down('#connection-summary-title-panel');
-        title.update('<h3>' + me.wTitle + ' (' + total + ' ' + Uni.I18n.translate('overview.widget.' + me.parent, 'Dsh', me.parent) + ')' + '</h3>')
+        title.update('<h3>' + me.wTitle + ' (' + total + ' ' + Uni.I18n.translate('overview.widget.summary.active' + me.parent, 'Dsh', me.parent) + ')' + '</h3>')
     },
 
     setRecord: function (record) {
