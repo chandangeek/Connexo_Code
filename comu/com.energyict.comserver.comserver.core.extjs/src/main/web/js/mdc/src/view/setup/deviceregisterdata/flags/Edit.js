@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Edit', {
                 itemId: 'registerDataEditForm',
                 defaults: {
                     labelWidth: 200,
-                    labelAlign: 'left'
+                    labelAlign: 'right'
                 },
                 items: [
                     {

@@ -240,7 +240,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         widget.setValues(register);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        widget.down('#stepsMenu').setTitle(Uni.I18n.translate('device.registerData.addData', 'MDC', 'Add register data'));
+                        widget.down('#stepsMenu').setTitle(Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'));
                     },
 
                     callback: function () {
