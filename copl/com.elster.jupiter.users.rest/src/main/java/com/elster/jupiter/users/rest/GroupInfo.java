@@ -2,11 +2,10 @@ package com.elster.jupiter.users.rest;
 
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
-import java.text.DateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -31,8 +30,8 @@ public class GroupInfo {
         name = group.getName();
         version = group.getVersion();
         description = group.getDescription();
-        createdOn= DateFormat.getDateTimeInstance().format(Date.from(group.getCreationDate()));
-        modifiedOn=DateFormat.getDateTimeInstance().format(Date.from(group.getModifiedDate()));
+        createdOn= DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(group.getCreationDate());
+        modifiedOn=DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(group.getModifiedDate());
         for (Privilege privilege : group.getPrivileges()) {
             privileges.add(new PrivilegeInfo(privilege));
         }
