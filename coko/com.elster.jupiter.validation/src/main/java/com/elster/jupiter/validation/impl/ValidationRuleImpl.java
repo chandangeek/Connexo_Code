@@ -433,6 +433,6 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     @Override
     public ReadingQualityType getReadingQualityType() {
-        return createNewValidator().getReadingQualityTypeCode().or(ReadingQualityType.defaultCodeForRuleId(getId()));
+        return createNewValidator().getReadingQualityTypeCode().orElse(ReadingQualityType.defaultCodeForRuleId(getId()));
     }
 }

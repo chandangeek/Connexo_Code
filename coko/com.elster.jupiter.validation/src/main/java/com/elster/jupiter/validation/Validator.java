@@ -6,7 +6,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
