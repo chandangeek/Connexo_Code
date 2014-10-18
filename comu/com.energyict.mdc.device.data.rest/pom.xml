@@ -22,47 +22,47 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data</artifactId>
-            <version>${comserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.masterdata</artifactId>
-            <version>${comserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.masterdata.rest</artifactId>
-            <version>${comserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable.rest</artifactId>
-            <version>${comserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data.imp</artifactId>
-            <version>${comserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config.rest</artifactId>
-            <version>${comserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling.rest</artifactId>
-            <version>${comserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>comserver.core.rest</artifactId>
-            <version>${comserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling</artifactId>
-            <version>${comserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
