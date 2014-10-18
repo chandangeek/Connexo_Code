@@ -24,6 +24,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import com.google.common.collect.Range;
@@ -31,7 +33,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,7 +131,7 @@ public class EnumeratedEndDeviceGroupImplIT {
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(EnumeratedEndDeviceGroup.class);
         EnumeratedEndDeviceGroup group = (EnumeratedEndDeviceGroup) found.get();
-        List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate().toInstant());
+        List<EndDevice> members = group.getMembers(ZonedDateTime.of(2014, 1, 23, 14, 54, 0, 0, ZoneId.systemDefault()).toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
     }

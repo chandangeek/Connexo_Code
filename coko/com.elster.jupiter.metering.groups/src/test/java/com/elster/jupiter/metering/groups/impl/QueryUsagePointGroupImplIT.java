@@ -24,11 +24,15 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Operator;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateTime;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,7 +130,7 @@ public class QueryUsagePointGroupImplIT {
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(QueryUsagePointGroup.class);
         QueryUsagePointGroup group = (QueryUsagePointGroup) found.get();
-        List<UsagePoint> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate().toInstant());
+        List<UsagePoint> members = group.getMembers(ZonedDateTime.of(2014, 1, 23, 14, 54, 0, 0, ZoneId.systemDefault()).toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(usagePoint.getId());
     }
