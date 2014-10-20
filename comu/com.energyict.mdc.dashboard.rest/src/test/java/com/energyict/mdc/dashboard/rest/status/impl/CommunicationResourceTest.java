@@ -269,8 +269,8 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
         when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
-        when(comTaskExecutionSession.getStartDate()).thenReturn(new Date());
-        when(comTaskExecutionSession.getStopDate()).thenReturn(new Date());
+        when(comTaskExecutionSession.getStartDate()).thenReturn(Instant.now());
+        when(comTaskExecutionSession.getStopDate()).thenReturn(Instant.now());
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("comPortPool");
         when(comPortPool.getId()).thenReturn(1111L);
