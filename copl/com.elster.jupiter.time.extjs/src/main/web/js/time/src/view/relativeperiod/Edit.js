@@ -3,16 +3,17 @@ Ext.define('Tme.view.relativeperiod.Edit', {
     xtype: 'tme-relativeperiod-edit',
 
     requires: [
+        'Uni.form.RelativePeriod'
     ],
 
     title: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
     ui: 'large',
 
+    margin: '0px 16px 16px 16px',
     edit: false,
 
     layout: {
-        type: 'vbox',
-        align: 'stretch'
+        type: 'vbox'
     },
 
     isEdit: function () {
@@ -71,20 +72,25 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                         msgTarget: 'under',
                         width: 600
                     },
-                    // TODO define the start of the relative period
                     {
-                        xtype: 'displayfield',
-                        name: 'preview',
-                        fieldLabel: Uni.I18n.translate('relativeperiod.preview', 'TME', 'Preview')
-                    },
-                    // TODO define the end of the relative period
-                    {
-                        xtype: 'displayfield',
-                        name: 'preview',
-                        fieldLabel: Uni.I18n.translate('relativeperiod.preview', 'TME', 'Preview')
+                        xtype: 'label',
+                        text: Uni.I18n.translate('relativeperiod.form.startdate', 'DXP', 'Define the start of the relative period')
                     },
                     {
-                        //TODO preview
+                        xtype: 'uni-form-relativeperiod',
+                        startPeriodCfg: {
+                            showOptionNow: false
+                        }
+                    },
+                    {
+                        xtype: 'label',
+                        text: Uni.I18n.translate('relativeperiod.form.enddate', 'DXP', 'Define the end of the relative period')
+                    },
+                    {
+                        xtype: 'uni-form-relativeperiod',
+                        startPeriodCfg: {
+                            showOptionDate: false
+                        }
                     }
                 ]
             }
