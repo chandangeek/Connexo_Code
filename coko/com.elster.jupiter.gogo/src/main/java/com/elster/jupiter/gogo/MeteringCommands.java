@@ -130,8 +130,10 @@ public class MeteringCommands {
                 if (readingTypeOptional.isPresent()) {
                     if (!readingTypeOptional.get().getMeasuringPeriod().isApplicable()) {
                         final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                        BigDecimal cumulativeValue = BigDecimal.valueOf(0);
                         for (int i = 0; i < numberOfInterval; i++) {
-                            meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(randomBetween(minValue, maxValue)), startDate.getTime().toInstant()));
+                            cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
+                            meterReading.addReading(ReadingImpl.of(readingType, cumulativeValue, startDate.getTime().toInstant()));
                             startDate.add(Calendar.SECOND, intervalInSeconds);
                         }
                         executeTransaction(new VoidTransaction() {
