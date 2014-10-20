@@ -69,7 +69,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
         for (LoadProfileReader reader : loadProfilesToRead) {
-            DeviceLoadProfileConfiguration config = (DeviceLoadProfileConfiguration) MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(LOAD_PROFILE_OBIS, reader.getMeterSerialNumber());
+            DeviceLoadProfileConfiguration config = (DeviceLoadProfileConfiguration) MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(reader.getProfileObisCode(), reader.getMeterSerialNumber());
             if (reader.getProfileObisCode().equals(LOAD_PROFILE_OBIS)) {
                 fetchLoadProfileConfiguration(reader, config);
             } else {
