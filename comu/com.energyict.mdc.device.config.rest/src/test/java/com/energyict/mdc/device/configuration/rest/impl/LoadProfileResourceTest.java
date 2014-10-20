@@ -4,7 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
@@ -23,7 +23,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         DeviceType deviceType = mockDeviceType("device", 1);
         List<LoadProfileType> loadProfiles = getLoadProfileTypes(3);
         when(deviceType.getLoadProfileTypes()).thenReturn(loadProfiles);
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
 
         Map<String, Object> map = target("/devicetypes/1/loadprofiletypes").queryParam("available", false).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(3);
@@ -42,7 +42,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
 
         when(masterDataService.findAllLoadProfileTypes()).thenReturn(allLoadProfiles);
         when(deviceType.getLoadProfileTypes()).thenReturn(assignedToDeviceType);
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
 
         Map<String, Object> map = target("/devicetypes/1/loadprofiletypes").queryParam("available", true).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(12);
@@ -57,9 +57,9 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         DeviceType deviceType = mockDeviceType("device", 2);
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(2, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(null);
-        when(deviceConfigurationService.findDeviceType(2)).thenReturn(deviceType);
-        when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.<LoadProfileType>absent());
+        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findDeviceType(2)).thenReturn(Optional.of(deviceType));
+        when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.empty());
         when(masterDataService.findLoadProfileType(2)).thenReturn(Optional.of(loadProfileType));
 
         Response response = target("/devicetypes/1/loadprofiletypes/1").request().delete();
@@ -79,9 +79,9 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(1, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
 
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.of(loadProfileType));
-        when(masterDataService.findLoadProfileType(9999)).thenReturn(Optional.<LoadProfileType>absent());
+        when(masterDataService.findLoadProfileType(9999)).thenReturn(Optional.empty());
 
         Response response = target("/devicetypes/1/loadprofiletypes").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());

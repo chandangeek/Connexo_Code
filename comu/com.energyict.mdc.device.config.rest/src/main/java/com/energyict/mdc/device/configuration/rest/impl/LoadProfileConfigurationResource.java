@@ -11,7 +11,7 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -306,7 +306,7 @@ public class LoadProfileConfigurationResource {
     }
 
     private Phenomenon findPhenomenonByIdOrThrowException(long phenomenonId) {
-        Phenomenon phenomenon = masterDataService.findPhenomenon(phenomenonId).orNull();
+        Phenomenon phenomenon = masterDataService.findPhenomenon(phenomenonId).orElse(null);
         if (phenomenon == null){
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_PHENOMENON_FOUND, phenomenonId);
         }

@@ -25,7 +25,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

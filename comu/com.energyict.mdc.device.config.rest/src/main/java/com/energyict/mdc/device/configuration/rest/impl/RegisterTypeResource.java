@@ -15,7 +15,7 @@ import com.energyict.mdc.masterdata.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 
 import com.energyict.mdc.device.config.security.Privileges;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -125,7 +125,7 @@ public class RegisterTypeResource {
     }
 
     private ReadingType findReadingType(RegisterTypeInfo registerTypeInfo) {
-        return meteringService.getReadingType(registerTypeInfo.readingType.mrid).orNull();
+        return meteringService.getReadingType(registerTypeInfo.readingType.mrid).orElse(null);
     }
 
 }

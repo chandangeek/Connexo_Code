@@ -37,8 +37,8 @@ public class ComTaskEnablementInfo {
         comTaskEnablementInfo.id = comTaskEnablement.getId();
         comTaskEnablementInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
         comTaskEnablementInfo.securityPropertySet = SecurityPropertySetInfo.from(comTaskEnablement.getSecurityPropertySet());
-        comTaskEnablementInfo.partialConnectionTask = PartialConnectionTaskInfo.from(comTaskEnablement.getPartialConnectionTask().orNull(), thesaurus);
-        comTaskEnablementInfo.protocolDialectConfigurationProperties = ProtocolDialectConfigurationPropertiesInfo.from(comTaskEnablement.getProtocolDialectConfigurationProperties().orNull(), thesaurus);
+        comTaskEnablementInfo.partialConnectionTask = PartialConnectionTaskInfo.from(comTaskEnablement.getPartialConnectionTask().orElse(null), thesaurus);
+        comTaskEnablementInfo.protocolDialectConfigurationProperties = ProtocolDialectConfigurationPropertiesInfo.from(comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null), thesaurus);
         comTaskEnablementInfo.priority = comTaskEnablement.getPriority();
         comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended();
         comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();

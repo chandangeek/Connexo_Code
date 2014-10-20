@@ -19,7 +19,7 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;

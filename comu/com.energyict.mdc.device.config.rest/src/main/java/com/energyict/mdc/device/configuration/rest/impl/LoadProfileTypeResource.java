@@ -11,7 +11,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Iterables;
 
 import javax.annotation.security.RolesAllowed;
@@ -123,7 +123,7 @@ public class LoadProfileTypeResource {
             @PathParam("loadProfileTypeId") long loadProfileTypeId,
             @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        LoadProfileType loadPtofileType = masterDataService.findLoadProfileType(loadProfileTypeId).orNull();
+        LoadProfileType loadPtofileType = masterDataService.findLoadProfileType(loadProfileTypeId).orElse(null);
         if (loadPtofileType == null){
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfileTypeId);
         }

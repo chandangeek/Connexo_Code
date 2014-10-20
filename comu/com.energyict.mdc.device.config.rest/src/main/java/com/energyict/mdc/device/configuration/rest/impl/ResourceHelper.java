@@ -10,11 +10,11 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.google.common.base.Optional;
+
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.function.Function;
 
 public class ResourceHelper {
 
@@ -29,37 +29,29 @@ public class ResourceHelper {
     }
 
     public RegisterGroup findRegisterGroupByIdOrThrowException(long id) {
-        Optional<RegisterGroup> registerGroup = masterDataService.findRegisterGroup(id);
-        if (!registerGroup.isPresent()) {
-            throw new WebApplicationException("No register group with id " + id, Response.Status.NOT_FOUND);
-        }
-        return registerGroup.get();
+        return masterDataService
+                .findRegisterGroup(id)
+                .orElseThrow(() -> new WebApplicationException("No register group with id " + id, Response.Status.NOT_FOUND));
     }
 
     public com.energyict.mdc.masterdata.RegisterType findRegisterTypeByIdOrThrowException(long id) {
-        Optional<RegisterType> registerType = masterDataService.findRegisterType(id);
-        if (!registerType.isPresent()) {
-            throw new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND);
-        }
-        return registerType.get();
+        return masterDataService
+                .findRegisterType(id)
+                .orElseThrow(() -> new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND));
      }
 
     public ChannelType findChannelTypeByIdOrThrowException(long id) {
-        Optional<ChannelType> channelType = masterDataService.findChannelTypeById(id);
-        if (!channelType.isPresent()) {
-            throw new WebApplicationException("No channel type with id " + id, Response.Status.NOT_FOUND);
-        }
-        return channelType.get();
+        return masterDataService
+                .findChannelTypeById(id)
+                .orElseThrow(() -> new WebApplicationException("No channel type with id " + id, Response.Status.NOT_FOUND));
      }
 
 
 
     public DeviceType findDeviceTypeByIdOrThrowException(long id) {
-        DeviceType deviceType = deviceConfigurationService.findDeviceType(id);
-        if (deviceType == null) {
-            throw new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND);
-        }
-        return deviceType;
+        return deviceConfigurationService
+                .findDeviceType(id)
+                .orElseThrow(() -> new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND));
      }
 
     public DeviceConfiguration findDeviceConfigurationForDeviceTypeOrThrowException(DeviceType deviceType, long deviceConfigurationId) {
@@ -96,11 +88,13 @@ public class ResourceHelper {
     }
 
     public SecurityPropertySet findSecurityPropertySetByIdOrThrowException(DeviceConfiguration deviceConfiguration, long securityPropertySetId) {
-        java.util.Optional<SecurityPropertySet> optional = deviceConfiguration.getSecurityPropertySets().stream().filter(sps -> sps.getId() == securityPropertySetId).findAny();
-        if (optional.isPresent()) {
-            return optional.get();
-        }
-        throw new WebApplicationException("No such security property set for the device configuration", Response.status(Response.Status.NOT_FOUND).entity("No such security property set for the device configuration").build());
+        return deviceConfiguration
+                .getSecurityPropertySets().stream().filter(sps -> sps.getId() == securityPropertySetId)
+                .findAny()
+                    .map(Function.identity())
+                    .orElseThrow(() -> new WebApplicationException("No such security property set for the device configuration", Response.status(Response.Status.NOT_FOUND)
+                            .entity("No such security property set for the device configuration")
+                            .build()));
     }
 
 }
