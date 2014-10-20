@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.UtcInstant;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.google.common.collect.ImmutableMap;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
     Reference<ComTaskExecutionSession> comTaskExecutionSession = ValueReference.absent();
 
     String errorDescription;
-    UtcInstant timestamp;
+    Instant timestamp;
     private Date modDate;
 
     ComTaskExecutionJournalEntryImpl(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -44,7 +43,7 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
 
     @Override
     public Date getTimestamp () {
-        return timestamp.toDate();
+        return Date.from(timestamp);
     }
 
     @Override

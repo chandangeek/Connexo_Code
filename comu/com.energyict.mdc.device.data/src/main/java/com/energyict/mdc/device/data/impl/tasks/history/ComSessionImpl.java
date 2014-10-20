@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
@@ -24,6 +23,9 @@ import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
+import org.joda.time.Duration;
+
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,9 +36,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-import org.joda.time.Duration;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -90,8 +89,8 @@ public class ComSessionImpl implements ComSession {
 
     private Reference<ComStatistics> statistics = ValueReference.absent();
 
-    private UtcInstant startDate;
-    private UtcInstant stopDate;
+    private Instant startDate;
+    private Instant stopDate;
     private long totalMillis;
     private long connectMillis;
     private long talkMillis;
@@ -150,14 +149,14 @@ public class ComSessionImpl implements ComSession {
     public Finder<ComSessionJournalEntry> getJournalEntries(Set<ComServer.LogLevel> levels) {
         return DefaultFinder.of(
                 ComSessionJournalEntry.class,
-                where("logLevel").
-                   in(new ArrayList<>(levels)),
+                where("logLevel").in(new ArrayList<>(levels)).and(where("comSession").isEqualTo(this)),
                 this.dataModel).
                 defaultSortColumn("timestamp desc");
     }
 
     @Override
-    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries(Set<ComServer.LogLevel> levels, int start, int pageSize) {
+    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries(Set<ComServer.LogLevel> levels) {
+        // Todo: Ask Karel how to specify a condition to match a subclass
         /* select * from DDC_COMTASKEXECJOURNALENTRY cteje
              join DDC_COMTASKEXECSESSION ctes on cteje.COMTASKEXECSESSION = ctes.id
             where (    discriminator = '1'
@@ -169,7 +168,8 @@ public class ComSessionImpl implements ComSession {
                          where("class").isEqualTo("1")
                     .and(where("logLevel").in(new ArrayList<>(levels)))
                     .and(where("comTaskExecutionSession.comSession").isEqualTo(this)),
-                this.dataModel).
+                this.dataModel,
+                ComTaskExecutionSession.class).
                 defaultSortColumn("timestamp desc");
     }
 
@@ -231,12 +231,12 @@ public class ComSessionImpl implements ComSession {
 
     @Override
     public Instant getStartDate() {
-        return startDate.toInstant();
+        return startDate;
     }
 
     @Override
     public Instant getStopDate() {
-        return stopDate.toInstant();
+        return stopDate;
     }
 
     @Override
@@ -303,10 +303,10 @@ public class ComSessionImpl implements ComSession {
     }
 
     void setStopTime(Date stopTime) {
-        this.setStopTime(new UtcInstant(stopTime));
+        this.setStopTime(stopTime.toInstant());
     }
 
-    private void setStopTime(UtcInstant stopTime) {
+    private void setStopTime(Instant stopTime) {
         this.stopDate = stopTime;
     }
 
@@ -360,7 +360,7 @@ public class ComSessionImpl implements ComSession {
 
     private void calculateTotalMillis() {
         if (this.startDate != null && this.stopDate != null) {
-            this.totalMillis = (this.stopDate.getTime() - this.startDate.getTime());
+            this.totalMillis = (this.stopDate.toEpochMilli() - this.startDate.toEpochMilli());
         }
     }
 
@@ -375,10 +375,10 @@ public class ComSessionImpl implements ComSession {
     }
 
     public static ComSessionImpl from(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
-        return dataModel.getInstance(ComSessionImpl.class).init(connectionTask, comPortPool, comPort, new UtcInstant(startTime));
+        return dataModel.getInstance(ComSessionImpl.class).init(connectionTask, comPortPool, comPort, startTime.toInstant());
     }
 
-    private ComSessionImpl init(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, UtcInstant startTime) {
+    private ComSessionImpl init(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
         this.connectionTask.set(connectionTask);
         this.comPortPool.set(comPortPool);
         this.comPort.set(comPort);

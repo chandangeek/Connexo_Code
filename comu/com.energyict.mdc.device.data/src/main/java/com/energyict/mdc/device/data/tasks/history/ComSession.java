@@ -66,11 +66,9 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      * that are of the specified {@link ComServer.LogLevel}.
      *
      * @param levels The LogLevels of interes
-     * @param start The first ComTaskExecutionJournalEntry
-     * @param pageSize The number of ComTaskExecutionJournalEntries
      * @return The filtered List of ComTaskExecutionJournalEntry
      */
-    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries (Set<ComServer.LogLevel> levels, int start, int pageSize);
+    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries (Set<ComServer.LogLevel> levels);
 
     public List<CombinedLogEntry> getAllLogs (Set<ComServer.LogLevel> levels, int start, int pageSize);
 

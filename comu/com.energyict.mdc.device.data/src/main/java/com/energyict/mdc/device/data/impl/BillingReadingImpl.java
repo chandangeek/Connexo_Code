@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.BillingReading;
 
-import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
-
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link BillingReading} interface.
@@ -27,7 +26,7 @@ public class BillingReadingImpl extends NumericalReadingImpl implements BillingR
 
     @Override
     public Optional<Interval> getInterval() {
-        return Optional.fromNullable(this.getActualReading().getTimePeriod());
+        return this.getActualReading().getTimePeriod().map(Interval::of);
     }
 
 }

@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.Device;
+
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,15 +69,15 @@ public class CommunicationTopologyEntryMerger {
         }
 
         public Interval fromStartToStart(Interval first, Interval second) {
-            return new Interval(first.getStart(), second.getStart());
+            return new Interval(Date.from(first.getStart()), Date.from(second.getStart()));
         }
 
         public Interval fromStartToEnd(Interval first, Interval second) {
-            return new Interval(first.getStart(), second.getEnd());
+            return new Interval(Date.from(first.getStart()), Date.from(second.getEnd()));
         }
 
         public Interval fromEndToEnd(Interval first, Interval second) {
-            return new Interval(first.getEnd(), second.getEnd());
+            return new Interval(Date.from(first.getEnd()), Date.from(second.getEnd()));
         }
 
         public List<Device> concat(List<Device> devices, List<Device> moreDevices) {

@@ -17,7 +17,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.Collection;
 import java.util.List;
@@ -200,7 +200,7 @@ public interface CommunicationTaskService {
 
     public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 
-    public Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
+    public java.util.Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
 
     public List<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution);
 

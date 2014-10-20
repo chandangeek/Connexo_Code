@@ -11,12 +11,6 @@ import com.energyict.mdc.engine.model.ComServer;
  */
 public interface ComTaskExecutionMessageJournalEntry extends ComTaskExecutionJournalEntry {
 
-    /**
-     * Gets the level at which this message journal entry was logged.
-     *
-     * @return The LogLevel
-     */
-    public ComServer.LogLevel getLogLevel();
 
     /**
      * Gets the message that was logged.

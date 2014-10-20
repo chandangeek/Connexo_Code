@@ -1,27 +1,5 @@
 package com.energyict.mdc.device.data.impl.security;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.security.Principal;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
@@ -45,14 +23,11 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -82,10 +57,31 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.security.Principal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link SecurityPropertyServiceImpl} component.
@@ -133,7 +129,7 @@ public class SecurityPropertyServiceImplTest {
 
     @Before
     public void initializeMocks () {
-        when(this.clock.now()).thenReturn(new Date());
+        when(clock.instant()).thenReturn(Instant.now());
         when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
@@ -304,7 +300,7 @@ public class SecurityPropertyServiceImplTest {
             this.principal = mock(Principal.class);
             when(this.principal.getName()).thenReturn("SecurityPropertyServiceImplTest");
             this.licenseService = mock(LicenseService.class);
-            when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
+            when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
             when(deviceProtocolService.loadProtocolClass(TestProtocolWithOnlySecurityProperties.class.getName())).thenReturn(TestProtocolWithOnlySecurityProperties.class);
         }
 

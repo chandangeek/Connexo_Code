@@ -3,9 +3,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
@@ -15,6 +13,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
+import java.time.Clock;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;

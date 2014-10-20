@@ -21,7 +21,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
-import java.text.MessageFormat;
 import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.List;
@@ -35,9 +34,6 @@ import java.util.Optional;
  */
 @MustHaveEitherConnectionSetupOrComTaskExecution(groups = {Save.Create.class, Save.Update.class})
 public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAware {
-
-    private static final String CONNECTION_KPI_CALCULATOR_TASK_NAME_PATTERN = "ConnectionKpiCalculator({0})";
-    private static final String COMMUNICATION_KPI_CALCULATOR_TASK_NAME_PATTERN = "CommunicationKpiCalculator({0})";
 
     public enum Fields {
         CONNECTION_KPI("connectionKpi"),
@@ -86,25 +82,21 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     public void save() {
+        if (this.getId() == 0) {
+            // Save myself first (without validation) so that the payload of the recurrent task can contain my ID
+            this.dataModel.persist(this);
+        }
+        // Now save the KPIs and the recurrent task
         this.kpiSaveStrategy.save();
         this.recurrentTaskSaveStrategy.save();
-        Save.action(this.getId()).save(this.dataModel, this);
+        // Update myself (with validation this time) to set the KPIs and the recurrent task
+        Save.UPDATE.save(this.dataModel, this);
     }
 
     @Override
     public void postLoad() {
         this.kpiSaveStrategy = new KpiSaveStrategyForUpdate();
         this.recurrentTaskSaveStrategy = new UpdateAllSchedules();
-    }
-
-    /**
-     * Returns the payload that should be passed to the
-     * {@link DataCollectionKpiCalculator} to calculate this DataCollectionKpi.
-     *
-     * @return The payload
-     */
-    private String scheduledExcutionPayload () {
-        return DataCollectionKpiCalculator.expectedPayloadFor(this);
     }
 
     @Override
@@ -142,7 +134,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     Optional<RecurrentTask> connectionKpiTask() {
-        return Optional.ofNullable(this.connectionKpiTask.getOptional().orNull());
+        return connectionKpiTask.getOptional();
     }
 
     @Override
@@ -184,7 +176,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     Optional<RecurrentTask> communicationKpiTask() {
-        return Optional.ofNullable(this.communicationKpiTask.getOptional().orNull());
+        return communicationKpiTask.getOptional();
     }
 
     @Override
@@ -312,8 +304,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     private class CreateAllSchedules implements RecurrentTaskSaveStrategy {
-        private final RecurrentTaskSaveStrategy connectionKpi = new CreateOneRecurrentTask(DataCollectionKpiImpl.this.connectionKpi, DataCollectionKpiImpl.this.connectionKpiTask, CONNECTION_KPI_CALCULATOR_TASK_NAME_PATTERN);
-        private final RecurrentTaskSaveStrategy communicationKpi = new CreateOneRecurrentTask(DataCollectionKpiImpl.this.communicationKpi, DataCollectionKpiImpl.this.communicationKpiTask, COMMUNICATION_KPI_CALCULATOR_TASK_NAME_PATTERN);
+        private final RecurrentTaskSaveStrategy connectionKpi = new CreateOneRecurrentTask(DataCollectionKpiImpl.this.connectionKpi, DataCollectionKpiImpl.this.connectionKpiTask, KpiType.CONNECTION);
+        private final RecurrentTaskSaveStrategy communicationKpi = new CreateOneRecurrentTask(DataCollectionKpiImpl.this.communicationKpi, DataCollectionKpiImpl.this.communicationKpiTask, KpiType.COMMUNICATION);
 
         @Override
         public void save() {
@@ -323,8 +315,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     private class UpdateAllSchedules implements RecurrentTaskSaveStrategy {
-        private final RecurrentTaskSaveStrategy connectionKpi = new UpdateOneRecurrentTask(DataCollectionKpiImpl.this.connectionKpi, DataCollectionKpiImpl.this.connectionKpiTask, CONNECTION_KPI_CALCULATOR_TASK_NAME_PATTERN);
-        private final RecurrentTaskSaveStrategy communicationKpi = new UpdateOneRecurrentTask(DataCollectionKpiImpl.this.communicationKpi, DataCollectionKpiImpl.this.communicationKpiTask, COMMUNICATION_KPI_CALCULATOR_TASK_NAME_PATTERN);
+        private final RecurrentTaskSaveStrategy connectionKpi = new UpdateOneRecurrentTask(DataCollectionKpiImpl.this.connectionKpi, DataCollectionKpiImpl.this.connectionKpiTask, KpiType.CONNECTION);
+        private final RecurrentTaskSaveStrategy communicationKpi = new UpdateOneRecurrentTask(DataCollectionKpiImpl.this.communicationKpi, DataCollectionKpiImpl.this.communicationKpiTask, KpiType.COMMUNICATION);
 
         @Override
         public void save() {
@@ -336,13 +328,13 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private class CreateOneRecurrentTask implements RecurrentTaskSaveStrategy {
         private final Reference<Kpi> kpi;
         private final Reference<RecurrentTask> recurrentTask;
-        private final String namePattern;
+        private final KpiType kpiType;
 
-        protected CreateOneRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, String namePattern) {
+        protected CreateOneRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
             super();
             this.kpi = kpi;
             this.recurrentTask = recurrentTask;
-            this.namePattern = namePattern;
+            this.kpiType = kpiType;
         }
 
         @Override
@@ -374,15 +366,19 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             return "0 0 0/1 * * ? *";
         }
 
+        private String scheduledExcutionPayload() {
+            return this.kpiType.recurrentPayload(DataCollectionKpiImpl.this);
+        }
+
         private String taskName() {
-            return MessageFormat.format(this.namePattern, endDeviceGroup.get().getName());
+            return this.kpiType.recurrentTaskName(DataCollectionKpiImpl.this);
         }
 
     }
 
     private class UpdateOneRecurrentTask extends CreateOneRecurrentTask {
-        protected UpdateOneRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, String namePattern) {
-            super(kpi, recurrentTask, namePattern);
+        protected UpdateOneRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
+            super(kpi, recurrentTask, kpiType);
         }
 
         @Override

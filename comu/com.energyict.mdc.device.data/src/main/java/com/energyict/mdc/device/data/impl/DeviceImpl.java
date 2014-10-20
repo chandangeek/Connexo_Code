@@ -27,8 +27,8 @@ import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -102,9 +102,7 @@ import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
@@ -114,6 +112,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -126,6 +126,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -169,8 +170,8 @@ public class DeviceImpl implements Device {
     private String serialNumber;
     private String timeZoneId;
     private TimeZone timeZone;
-    private Date modificationDate;
-    private Date yearOfCertification;
+    private Instant modificationDate;
+    private Instant yearOfCertification;
 
     @Valid
     private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
@@ -266,7 +267,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public void save() {
-        this.modificationDate = this.clock.now();
+        this.modificationDate = clock.instant();
         if (this.id > 0) {
             Save.UPDATE.save(dataModel, this);
             this.saveNewAndDirtyDialectProperties();
@@ -473,16 +474,16 @@ public class DeviceImpl implements Device {
 
     @Override
     public void setYearOfCertification(Date yearOfCertification) {
-        this.yearOfCertification = yearOfCertification;
+        this.yearOfCertification = yearOfCertification == null ? null : yearOfCertification.toInstant();
     }
 
     @Override
     public Date getYearOfCertification() {
-        return yearOfCertification;
+        return asDate(yearOfCertification);
     }
 
     public Date getModDate() {
-        return this.modificationDate;
+        return modificationDate == null ? null : asDate(this.modificationDate);
     }
 
     @Override
@@ -539,16 +540,14 @@ public class DeviceImpl implements Device {
 
     @Override
     public Device getPhysicalGateway() {
-        return this.getPhysicalGateway(this.clock.now());
+        return this.getPhysicalGateway(asDate(clock.instant()));
     }
 
     @Override
     public Device getPhysicalGateway(Date timestamp) {
-        Optional<PhysicalGatewayReference> physicalGatewayReferenceOptional = this.physicalGatewayReferenceDevice.effective(timestamp);
-        if (physicalGatewayReferenceOptional.isPresent()) {
-            return physicalGatewayReferenceOptional.get().getPhysicalGateway();
-        }
-        return null;
+        return this.physicalGatewayReferenceDevice.effective(timestamp.toInstant())
+                .map(PhysicalGatewayReference::getPhysicalGateway)
+                .orElse(null);
     }
 
     private void topologyChanged() {
@@ -592,9 +591,9 @@ public class DeviceImpl implements Device {
     @Override
     public void setPhysicalGateway(BaseDevice gateway) {
         if (gateway != null) {
-            Date currentTime = clock.now();
+            Date currentTime = Date.from(clock.instant());
             terminateTemporal(currentTime, this.physicalGatewayReferenceDevice);
-            PhysicalGatewayReferenceImpl physicalGatewayReference = this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime), (Device) gateway, this);
+            PhysicalGatewayReferenceImpl physicalGatewayReference = this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime.toInstant()), (Device) gateway, this);
             savePhysicalGateway(physicalGatewayReference);
             topologyChanged();
         }
@@ -607,12 +606,12 @@ public class DeviceImpl implements Device {
 
     @Override
     public void clearPhysicalGateway() {
-        terminateTemporal(clock.now(), this.physicalGatewayReferenceDevice);
+        terminateTemporal(Date.from(clock.instant()), this.physicalGatewayReferenceDevice);
         topologyChanged();
     }
 
     private void terminateTemporal(Date currentTime, TemporalReference<? extends GatewayReference> temporalReference) {
-        Optional<? extends GatewayReference> currentGateway = temporalReference.effective(currentTime);
+        Optional<? extends GatewayReference> currentGateway = temporalReference.effective(currentTime.toInstant());
         if (currentGateway.isPresent()) {
             GatewayReference gateway = currentGateway.get();
             gateway.terminate(currentTime);
@@ -623,9 +622,9 @@ public class DeviceImpl implements Device {
     @Override
     public void setCommunicationGateway(Device gateway) {
         if (gateway != null) {
-            Date currentTime = clock.now();
+            Date currentTime = Date.from(clock.instant());
             terminateTemporal(currentTime, this.communicationGatewayReferenceDevice);
-            CommunicationGatewayReferenceImpl communicationGatewayReference = this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime), gateway, this);
+            CommunicationGatewayReferenceImpl communicationGatewayReference = this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime.toInstant()), gateway, this);
             saveCommunicationGateway(communicationGatewayReference);
             topologyChanged();
         }
@@ -638,7 +637,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public void clearCommunicationGateway() {
-        terminateTemporal(clock.now(), this.communicationGatewayReferenceDevice);
+        terminateTemporal(Date.from(clock.instant()), this.communicationGatewayReferenceDevice);
         topologyChanged();
     }
 
@@ -654,7 +653,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public List<Device> getAllCommunicationReferencingDevices() {
-        return this.getAllCommunicationReferencingDevices(this.clock.now());
+        return this.getAllCommunicationReferencingDevices(Date.from(clock.instant()));
     }
 
     @Override
@@ -717,7 +716,7 @@ public class DeviceImpl implements Device {
     private Collection<? extends Date> startDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
         Collection<Date> startDates = new ArrayList<>(topologyEntries.size());
         for (CommunicationTopologyEntry topologyEntry : topologyEntries) {
-            startDates.add(topologyEntry.getInterval().getStart());
+            startDates.add(asDate(topologyEntry.getInterval().getStart()));
         }
         return startDates;
     }
@@ -733,9 +732,13 @@ public class DeviceImpl implements Device {
     private Collection<? extends Date> endDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
         Collection<Date> endDates = new ArrayList<>(topologyEntries.size());
         for (CommunicationTopologyEntry topologyEntry : topologyEntries) {
-            endDates.add(topologyEntry.getInterval().getEnd());
+            endDates.add(asDate(topologyEntry.getInterval().getEnd()));
         }
         return endDates;
+    }
+
+    private Date asDate(Instant instant) {
+        return instant == null ? null : Date.from(instant);
     }
 
     private List<CommunicationTopologyEntry> toSortedCommunicationTopologyEntries(CommunicationTopology communicationTopology) {
@@ -768,12 +771,12 @@ public class DeviceImpl implements Device {
 
     @Override
     public Device getCommunicationGateway() {
-        return this.getCommunicationGateway(this.clock.now());
+        return this.getCommunicationGateway(Date.from(clock.instant()));
     }
 
     @Override
     public Device getCommunicationGateway(Date timestamp) {
-        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp);
+        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp.toInstant());
         if (communicationGatewayReferenceOptional.isPresent()) {
             return communicationGatewayReferenceOptional.get().getCommunicationGateway();
         }
@@ -1045,7 +1048,7 @@ public class DeviceImpl implements Device {
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                List<? extends BaseReadingRecord> readings = meter.get().getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
+                List<? extends BaseReadingRecord> readings = meter.get().getReadings(interval.toOpenClosedRange(), register.getRegisterSpec().getRegisterType().getReadingType());
                 List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
                 for (BaseReadingRecord reading : readings) {
                     readingRecords.add((ReadingRecord) reading);
@@ -1063,8 +1066,8 @@ public class DeviceImpl implements Device {
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval, meter.get());
-                Interval capped = interval.withEnd(lastReadingCapped(loadProfile, interval).toDate());
+                Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval, meter.get());
+                Interval capped = interval.withEnd(lastReadingCapped(loadProfile, interval).toDate().toInstant());
                 for (Channel channel : loadProfile.getChannels()) {
                     meterHasData |= this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
                 }
@@ -1084,8 +1087,8 @@ public class DeviceImpl implements Device {
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval, meter.get());
-                Interval capped = interval.withEnd(lastReadingCapped(channel.getLoadProfile(), interval).toDate());
+                Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval, meter.get());
+                Interval capped = interval.withEnd(lastReadingCapped(channel.getLoadProfile(), interval).toDate().toInstant());
                 meterHasData = this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
@@ -1116,21 +1119,21 @@ public class DeviceImpl implements Device {
      * @param sortedLoadProfileReadingMap The map to add the readings too in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
-    private boolean addChannelDataToMap(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
+    private boolean addChannelDataToMap(Interval interval, Meter meter, Channel mdcChannel, Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
         boolean meterHasData = false;
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, interval);
         for (MeterActivation meterActivation : meterActivations) {
             Interval meterActivationInterval = meterActivation.getInterval().intersection(interval);
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
-            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
+            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval.toOpenClosedRange(), readingType);
             if (!meterReadings.isEmpty()) {
                 meterHasData = true;
             }
             java.util.Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
-                List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval);
+                List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval.toClosedRange());
                 validationStatus.stream()
-                        .filter(s -> s.getReadingTimestamp().after(meterActivationInterval.getStart()))
+                        .filter(s -> s.getReadingTimestamp().isAfter(meterActivationInterval.getStart()))
                         .forEach(s -> {
                             LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(s.getReadingTimestamp());
                             if (loadProfileReading != null) {
@@ -1142,7 +1145,7 @@ public class DeviceImpl implements Device {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading);
                 loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
-                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+                loadProfileReading.setReadingTime(Date.from(meterReading.getReportedDateTime()));
             }
         }
         return meterHasData;
@@ -1167,19 +1170,19 @@ public class DeviceImpl implements Device {
      * @param meter           The Meter
      * @return
      */
-    private Map<Date, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval requestInterval, Meter meter) {
-        IntermittentInterval meterActivationIntervals = new IntermittentInterval(meter.getMeterActivations().stream().map(m -> new Interval(m.getStart(), m.getEnd())).collect(toList()));
+    private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval requestInterval, Meter meter) {
+        IntermittentInterval meterActivationIntervals = new IntermittentInterval(meter.getMeterActivations().stream().map(m -> new Interval(asDate(m.getStart()), asDate(m.getEnd()))).collect(toList()));
 
-        Map<Date, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
+        Map<Instant, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         Period period = Period.seconds(loadProfile.getInterval().getSeconds());
-        DateTime timeIndex = new DateTime(requestInterval.getStart().getTime() - (requestInterval.getStart().getTime() % period.toStandardDuration().getMillis())); // round start time to interval boundary
+        DateTime timeIndex = new DateTime(requestInterval.getStart().toEpochMilli() - (requestInterval.getStart().toEpochMilli() % period.toStandardDuration().getMillis())); // round start time to interval boundary
         DateTime endTime = lastReadingCapped(loadProfile, requestInterval);
         while (timeIndex.compareTo(endTime) < 0) {
             DateTime intervalEnd = timeIndex.plus(period);
-            if (meterActivationIntervals.contains(timeIndex.toDate())) {
+            if (meterActivationIntervals.contains(timeIndex.toDate().toInstant())) {
                 LoadProfileReadingImpl value = new LoadProfileReadingImpl();
                 value.setInterval(new Interval(timeIndex.toDate(), intervalEnd.toDate()));
-                loadProfileReadingMap.put(intervalEnd.toDate(), value);
+                loadProfileReadingMap.put(intervalEnd.toDate().toInstant(), value);
             }
             timeIndex = intervalEnd;
         }
@@ -1188,10 +1191,10 @@ public class DeviceImpl implements Device {
 
     private DateTime lastReadingCapped(LoadProfile loadProfile, Interval requestInterval) {
         DateTime endTime;
-        if (loadProfile.getLastReading() != null && requestInterval.getEnd().after(loadProfile.getLastReading())) {
+        if (loadProfile.getLastReading() != null && requestInterval.getEnd().isAfter(loadProfile.getLastReading().toInstant())) {
             endTime = new DateTime(loadProfile.getLastReading().getTime());
         } else {
-            endTime = new DateTime(requestInterval.getEnd().getTime());
+            endTime = new DateTime(requestInterval.getEnd().toEpochMilli());
         }
         return endTime;
     }
@@ -1203,10 +1206,10 @@ public class DeviceImpl implements Device {
             if (meter.isPresent()) {
                 return this.getLastReadingsFor(register, meter.get());
             } else {
-                return Optional.absent();
+                return Optional.empty();
             }
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -1215,13 +1218,13 @@ public class DeviceImpl implements Device {
         for (MeterActivation meterActivation : this.getSortedMeterActivations(meter)) {
             java.util.Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
             if (channel.isPresent()) {
-                Date lastReadingDate = channel.get().getLastDateTime();
+                Date lastReadingDate = asDate(channel.get().getLastDateTime());
                 if (lastReadingDate != null) {
-                    return this.getLast(channel.get().getRegisterReadings(new Interval(lastReadingDate, lastReadingDate)));
+                    return this.getLast(channel.get().getRegisterReadings(new Interval(lastReadingDate, lastReadingDate).toClosedRange()));
                 }
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     /**
@@ -1237,23 +1240,23 @@ public class DeviceImpl implements Device {
         return meterActivations;
     }
 
-    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Date when) {
+    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Instant when) {
         return findKoreChannel(channel::getReadingType, when);
     }
 
-    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Date when) {
+    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Register<?> register, Instant when) {
         return findKoreChannel(() -> register.getReadingType(), when);
     }
 
-    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Supplier<ReadingType> readingTypeSupplier, Date when) {
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Supplier<ReadingType> readingTypeSupplier, Instant when) {
         Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
         if (found.isPresent()) {
-            Optional<MeterActivation> meterActivation = found.get().getMeterActivation(when);
+            Optional<? extends MeterActivation> meterActivation = found.get().getMeterActivation(when);
             if (meterActivation.isPresent()) {
-                return Optional.fromNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
+                return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Channel channel) {
@@ -1297,7 +1300,7 @@ public class DeviceImpl implements Device {
         List<? extends MeterActivation> allActivations = meter.getMeterActivations();
         List<MeterActivation> overlapping = new ArrayList<>(allActivations.size());
         for (MeterActivation activation : allActivations) {
-            if (activation.overlaps(interval)) {
+            if (activation.overlaps(interval.toClosedRange())) {
                 overlapping.add(activation);
             }
         }
@@ -1307,7 +1310,7 @@ public class DeviceImpl implements Device {
 
     private Optional<ReadingRecord> getLast(List<ReadingRecord> readings) {
         if (readings.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         } else {
             return Optional.of(readings.get(readings.size() - 1));
         }
@@ -1525,7 +1528,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet) {
-        return this.getSecurityProperties(this.clock.now(), securityPropertySet);
+        return this.getSecurityProperties(Date.from(clock.instant()), securityPropertySet);
     }
 
     @Override
@@ -1539,7 +1542,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
-        return this.hasSecurityProperties(this.clock.now(), securityPropertySet);
+        return this.hasSecurityProperties(Date.from(clock.instant()), securityPropertySet);
     }
 
     @Override
@@ -1556,7 +1559,7 @@ public class DeviceImpl implements Device {
 
     private int countUniqueEndDeviceEvents(Meter slaveMeter, List<EndDeviceEventType> eventTypes, Interval interval) {
         Set<String> deviceEventTypes = new HashSet<>();
-        for (EndDeviceEventRecord endDeviceEvent : slaveMeter.getDeviceEvents(interval, eventTypes)) {
+        for (EndDeviceEventRecord endDeviceEvent : slaveMeter.getDeviceEvents(interval.toClosedRange(), eventTypes)) {
             deviceEventTypes.add(endDeviceEvent.getMRID());
         }
         return deviceEventTypes.size();

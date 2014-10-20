@@ -5,8 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
+import java.time.Clock;import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
@@ -102,7 +101,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     @Override
     public Relation getDefaultRelation() {
-        return this.getDefaultRelation(this.clock.now());
+        return this.getDefaultRelation(Date.from(clock.instant()));
     }
 
     @Override
@@ -143,7 +142,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     protected TypedProperties getTypedProperties() {
         TypedProperties typedProperties = TypedProperties.inheritingFrom(this.getPluggableProperties());
-        for (PT property : this.getAllLocalProperties(this.clock.now())) {
+        for (PT property : this.getAllLocalProperties(Date.from(clock.instant()))) {
             if (property.getValue() != null) {
                 typedProperties.setProperty(property.getName(), property.getValue());
             }
@@ -162,7 +161,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
     }
 
     public List<PT> getAllProperties() {
-        return this.getAllProperties(this.clock.now());
+        return this.getAllProperties(Date.from(clock.instant()));
     }
 
     public List<PT> getAllProperties(Date date) {
@@ -220,13 +219,13 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
     }
 
     protected void setProperty(String propertyName, Object value) {
-        Date now = this.clock.now();
+        Date now = Date.from(clock.instant());
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
         this.cache.put(now, propertyName, value);
     }
 
     protected void removeProperty(String propertyName) {
-        Date now = this.clock.now();
+        Date now = Date.from(clock.instant());
         this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
         this.cache.remove(now, propertyName);
     }
@@ -247,7 +246,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     @Override
     public Object get(String attributeName) {
-        return this.get(attributeName, this.clock.now());
+        return this.get(attributeName, Date.from(clock.instant()));
     }
 
     @Override
@@ -257,7 +256,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
 
     @Override
     public Object get(RelationAttributeType attributeType) {
-        return this.get(attributeType, this.clock.now());
+        return this.get(attributeType, Date.from(clock.instant()));
     }
 
     @Override
@@ -295,7 +294,7 @@ public abstract class NamedPluggableClassUsageImpl<D, T extends HasDynamicProper
                         this.getAllProperties(),
                         new SimpleRelationTransactionExecutor<T>(
                                 this,
-                                this.clock.now(),
+                                Date.from(clock.instant()),
                                 this.findRelationType(),
                                 this.getThesaurus()));
             }

@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Models a {@link NumericalReading} that relates billing and is relevant in the context of the billing period.

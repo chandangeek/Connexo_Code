@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -17,12 +18,10 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.google.common.base.Optional;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**

@@ -39,8 +39,6 @@ import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
@@ -74,7 +72,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -97,7 +94,9 @@ import org.osgi.service.log.LogService;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -229,7 +228,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private ProtocolPluggableService protocolPluggableService;
         private MdcReadingTypeUtilService readingTypeUtilService;
         private DeviceDataModelService deviceDataModelService;
-        private Clock clock = new DefaultClock();
+        private Clock clock = Clock.systemDefaultZone();
         private RelationService relationService;
         private EngineModelService engineModelService;
         private Environment environment;
@@ -312,7 +311,7 @@ public class DeviceImplDoSomethingWithEventsTest {
             when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
             when(this.applicationContext.getTranslator()).thenReturn(translator);
             this.licenseService = mock(LicenseService.class);
-            when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
+            when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         }
 
         public void cleanUpDataBase() throws SQLException {

@@ -8,8 +8,8 @@ import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.UtcInstant;
 
+import com.energyict.mdc.engine.model.ComServer;
 import javax.inject.Inject;
 import java.util.Date;
 
@@ -54,6 +54,11 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
         visitor.visit(this);
     }
 
+    @Override
+    public ComServer.LogLevel getLogLevel() {
+        return ComServer.LogLevel.INFO;
+    }
+
     public static ComCommandJournalEntryImpl from(DataModel dataModel, ComTaskExecutionSession comTaskExecutionSession, Date timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
         ComCommandJournalEntryImpl instance = dataModel.getInstance(ComCommandJournalEntryImpl.class);
         return instance.init(comTaskExecutionSession, timestamp, completionCode, errorDescription, commandDescription);
@@ -63,7 +68,7 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
         this.comTaskExecutionSession.set(comTaskExecutionSession);
         this.completionCode = completionCode;
         this.errorDescription = errorDescription;
-        this.timestamp = new UtcInstant(timestamp);
+        this.timestamp = timestamp == null ? null : timestamp.toInstant();
         this.commandDescription = commandDescription;
         return this;
     }

@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.Clock;
 import org.joda.time.DateTimeConstants;
 
+import java.time.Clock;
 import java.util.Date;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -32,7 +31,8 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
-            return !task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE) || task.getNextExecutionTimestamp() == null;
+            return !task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                || task.getNextExecutionTimestamp() == null;
         }
 
         @Override
@@ -116,7 +116,7 @@ public enum ServerConnectionTaskStatus {
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
             Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && now.getTime() >= nextExecutionTimestamp.getTime());
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() <= now.getTime());
         }
 
         @Override
@@ -131,14 +131,11 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".comserver is null) ");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".lastExecutionFailed = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".status = 0 ");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp <=");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
         }
 
     },
@@ -154,7 +151,9 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
                 && (task.getLastSuccessfulCommunicationEnd() == null && task.getCurrentRetryCount() == 0);
         }
 
@@ -178,7 +177,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".lastsuccessfulcommunicationend is null");
@@ -197,7 +196,9 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
                 && (this.strictlyBetween(task.getCurrentRetryCount(), 0, task.getMaxNumberOfTries()));
         }
 
@@ -221,7 +222,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
         }
 
     },
@@ -237,9 +238,12 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
+            Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
                 && task.lastExecutionFailed()
-                && task.getCurrentRetryCount() == 0;
+                && task.getCurrentRetryCount() == 0
+                && task.getLastSuccessfulCommunicationEnd() != null;
         }
 
         @Override
@@ -265,7 +269,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".lastsuccessfulcommunicationend is not null");
@@ -286,7 +290,10 @@ public enum ServerConnectionTaskStatus {
         public boolean appliesTo(ScheduledConnectionTask task, Date now) {
             Date nextExecutionTimestamp = task.getNextExecutionTimestamp();
             return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() >= now.getTime());
+                && task.getCurrentRetryCount() == 0
+                && !task.lastExecutionFailed()
+                && (nextExecutionTimestamp != null && nextExecutionTimestamp.getTime() > now.getTime())
+                && task.getLastSuccessfulCommunicationEnd() != null;
         }
 
         @Override
@@ -312,7 +319,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.addLong(this.asSeconds(Date.from(clock.instant())));
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".lastsuccessfulcommunicationend is not null");

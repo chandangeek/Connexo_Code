@@ -4,13 +4,14 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.Date;
 import java.util.List;
@@ -231,6 +232,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     public ConnectionTask<?, ?> getConnectionTask();
 
     public boolean usesSameConnectionTaskAs(ComTaskExecution anotherTask);
+
+    public java.util.Optional<ComTaskExecutionSession> getLastSession();
 
     /**
      * Gets the timestamp of the last execution of this ComTaskExecution.

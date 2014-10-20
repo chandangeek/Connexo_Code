@@ -1,18 +1,17 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
-
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.util.sql.SqlFragment;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import org.joda.time.DateTimeConstants;
 
+import java.time.Clock;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -172,7 +171,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(".");
             this.append(columnName);
             this.append(" >=");
-            this.addLong(intervalBindStrategy.toLong(interval.getStart()));
+            this.addLong(intervalBindStrategy.toLong(Date.from(interval.getStart())));
             if (interval.getEnd() != null) {
                 this.append(" and ");
             }
@@ -185,7 +184,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(".");
             this.append(columnName);
             this.append(" <");
-            this.addLong(intervalBindStrategy.toLong(interval.getEnd()));
+            this.addLong(intervalBindStrategy.toLong(Date.from(interval.getEnd())));
             this.append(") ");
         }
         else {

@@ -5,7 +5,7 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.impl.finders.LoadProfileFinder;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;
