@@ -7,6 +7,9 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogGrid', {
         'Uni.view.toolbar.PagingBottom'
     ],
     store: 'DeviceConnectionLog',
+//    plugins: {
+//        ptype: 'bufferedrenderer'
+//    },
     columns: {
         defaults: {
             sortable: false,
@@ -14,12 +17,12 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogGrid', {
         },
         items: [
             {
-                itemId: 'timeStamp',
+                itemId: 'timestamp',
                 text: Uni.I18n.translate('deviceconnectionhistory.timeStamp', 'MDC', 'Timestamp'),
-                dataIndex: 'timeStamp',
+                dataIndex: 'timestamp',
                 flex: 1,
                 renderer: function (value, metadata) {
-                    if (value !== null) {
+                    if (value) {
                         return new Date(value).toLocaleString();
                     }
                 }
@@ -40,15 +43,15 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogGrid', {
     },
     initComponent: function () {
         var me = this;
-//        me.dockedItems = [
-//            {
-//                xtype: 'pagingtoolbartop',
-//                store: me.store,
-//                dock: 'top',
-//                displayMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} connections'),
-//                displayMoreMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} connections'),
-//                emptyMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.emptyMsg', 'MDC', 'There are no connections to display')
-//            },
+        me.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                store: me.store,
+                dock: 'top',
+//                displayMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.log.displayMsg', 'MDC', '{0} - {1} of {2} log lines'),
+                displayMoreMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.log.displayMoreMsg', 'MDC', '{0} - {1} of {2} log lines')
+//                emptyMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.log.emptyMsg', 'MDC', 'There are no log lines')
+            },
 //            {
 //                xtype: 'pagingtoolbarbottom',
 //                store: me.store,
@@ -58,7 +61,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogGrid', {
 //                itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connections per page'),
 //                dock: 'bottom'
 //            }
-//        ];
+        ];
         me.callParent();
     }
 

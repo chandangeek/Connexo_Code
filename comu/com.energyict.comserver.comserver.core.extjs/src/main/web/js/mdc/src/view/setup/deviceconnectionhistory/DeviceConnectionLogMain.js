@@ -21,6 +21,9 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                         itemId: 'stepsMenu',
                         mRID: this.mrid,
                         toggle: 4
+                    },
+                    {
+                        xtype: 'deviceconnectionhistorySideFilter'
                     }
                 ]
             }
@@ -35,6 +38,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                     {
                         xtype: 'form',
                         border: true,
+                        itemId: 'deviceConnectionLogOverviewForm',
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
@@ -62,18 +66,23 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                                 xtype: 'displayfield',
                                                 name: 'startedOn',
                                                 fieldLabel: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
-                                                itemId: 'startedOn'
-//                                                renderer: function (value) {
-//                                                    if (value !== null) {
-//                                                        return new Date(value).toLocaleString();
-//                                                    }
-//                                                }
+                                                itemId: 'startedOn',
+                                                renderer: function (value) {
+                                                    if (value !== null) {
+                                                        return new Date(value).toLocaleString();
+                                                    }
+                                                }
                                             },
                                             {
                                                 xtype: 'displayfield',
-                                                name: 'duration',
+                                                name: 'durationInSeconds',
                                                 fieldLabel: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
-                                                itemId: 'duration'
+                                                itemId: 'duration',
+                                                renderer: function (value) {
+                                                    if (value !== null) {
+                                                        return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
+                                                    }
+                                                }
                                             },
                                             {
                                                 xtype: 'displayfield',
@@ -98,7 +107,12 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                                 xtype: 'displayfield',
                                                 name: 'result',
                                                 fieldLabel: Uni.I18n.translate('deviceconnectionhistory.result', 'MDC', 'Result'),
-                                                itemId: 'result'
+                                                itemId: 'result',
+                                                renderer: function (value) {
+                                                    if (value !== null) {
+                                                        return value.displayValue;
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

@@ -26,9 +26,9 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
             items: [
                 {
                     xtype: 'displayfield',
-                    name: 'timeStamp',
-                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.timeStamp', 'MDC', 'TimeStamp'),
-                    itemId: 'timeStamp',
+                    name: 'timestamp',
+                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.timeStamp', 'MDC', 'Timestamp'),
+                    itemId: 'timestamp',
                     renderer: function (value) {
                         if (value) {
                             return new Date(value).toLocaleString();
@@ -39,7 +39,15 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                     xtype: 'displayfield',
                     name: 'details',
                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.details', 'MDC', 'Details'),
-                    itemId: 'details'
+                    itemId: 'details',
+                    renderer: function(value,field){
+                        if(!value){
+                            field.hide();
+                        } else {
+                            field.show();
+                            return value;
+                        }
+                    }
                 },
                 {
                     xtype: 'displayfield',

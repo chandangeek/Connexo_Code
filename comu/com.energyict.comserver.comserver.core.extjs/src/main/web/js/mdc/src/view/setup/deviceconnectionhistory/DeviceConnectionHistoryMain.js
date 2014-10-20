@@ -64,7 +64,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                                     },
                                     ui: 'medium',
                                     padding: '16 0 0 0',
-                                    title: 'xxxxxx',
                                     items: [
                                         {
                                             xtype: 'preview-container',
