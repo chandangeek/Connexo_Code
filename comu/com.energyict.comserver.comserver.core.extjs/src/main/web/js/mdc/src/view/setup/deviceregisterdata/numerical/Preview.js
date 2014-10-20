@@ -21,7 +21,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                 layout: 'vbox',
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 200
+                    labelWidth: 200,
+                    width: 1000
                 },
                 items: [
                     {
@@ -45,15 +46,32 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         }
                     },
                     {
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
-                        name: 'value',
-                        renderer: function (value) {
-                            var form = this.up('form'),
-                                record = form.getRecord();
-                            if (record) {
-                                return value + ' ' + record.get('unitOfMeasure');
+                        layout: {
+                            type: 'hbox'
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                margin: '0 10 0 0',
+                                name: 'value',
+                                renderer: function (value) {
+                                    var form = this.up('form'),
+                                        record = form.getRecord();
+                                    if (record && value) {
+                                        return value + ' ' + record.get('unitOfMeasure');
+                                    } else {
+                                        return null
+                                    }
+
+                                }
+                            },
+                            {
+                                xtype: 'edited-displayfield',
+                                name: 'editedDateTime'
                             }
-                        }
+                        ]
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.multiplier', 'MDC', 'Multiplier'),

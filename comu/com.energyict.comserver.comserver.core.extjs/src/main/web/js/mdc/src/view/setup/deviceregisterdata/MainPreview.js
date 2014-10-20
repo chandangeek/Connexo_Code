@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
     extend: 'Ext.panel.Panel',
 
     requires: [
-        'Mdc.view.setup.deviceregisterdata.ActionMenu'
+        'Mdc.view.setup.deviceregisterdata.ActionMenu',
+        'Uni.form.field.EditedDisplay'
     ],
 
     frame: true,
