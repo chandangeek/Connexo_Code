@@ -25,7 +25,8 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.transportTypeAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.messageTypeAttributeName)
-    );
+    ),
+    RESET_ALL_ERROR_BITS(3);
 
     private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.ALARM_CONFIGURATION;
 

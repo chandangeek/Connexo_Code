@@ -18,3 +18,4 @@
 -- insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('your key', 'english translation', 'L', 'Y', 'N', 'MDW', sysdate);
 
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('noUserCredentialsAvailable', 'Cannot login, no user information is available. Make sure this application has access to the websocket of the online comserver first.', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AlarmConfigurationMessage.RESET_ALL_ERROR_BITS', 'Reset all error bits', 'L', 'Y', 'N', 'MDW', sysdate);

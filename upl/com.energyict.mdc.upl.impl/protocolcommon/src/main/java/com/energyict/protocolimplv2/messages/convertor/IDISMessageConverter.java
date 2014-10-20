@@ -56,6 +56,7 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new SpecialDaysMessageEntry(specialDaysCodeTableAttributeName));
 
         registry.put(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS, new SimpleTagMessageEntry("ResetAllAlarmBits"));
+        registry.put(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS, new SimpleTagMessageEntry("ResetAllErrorBits"));
         registry.put(AlarmConfigurationMessage.WRITE_ALARM_FILTER, new MultipleAttributeMessageEntry("WriteAlarmFilter", "Alarm filter (decimal value)"));
         registry.put(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION, new ConfigWithUserFileMessageEntry(configUserFileAttributeName, "Configuration download"));
 

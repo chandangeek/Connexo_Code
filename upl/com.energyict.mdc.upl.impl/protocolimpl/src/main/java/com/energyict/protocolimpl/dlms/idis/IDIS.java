@@ -62,6 +62,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     public static final String VALIDATE_INVOKE_ID = "ValidateInvokeId";
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
     private static final String TIMEOUT = "timeout";
+    private static final String CONFIRM_UNKNOWN_METER = "CONFIRM_UNKNOWN_METER";
 
     private ProfileDataReader profileDataReader = null;
     private IDISMessageHandler messageHandler = null;
@@ -129,8 +130,11 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
             }
 
             if ((exception.getMessage() != null) && exception.getMessage().toLowerCase().contains(TIMEOUT)) {
-                getLogger().severe("Meter didn't reply to the association request! Stopping session.");
+                getLogger().severe("Could not reach meter, it didn't reply to the association request! Stopping session.");
                 throw exception;    //Don't retry the AARQ if it's a real timeout!
+            } else if (exception.getMessage() != null && exception.getMessage().contains(CONFIRM_UNKNOWN_METER)) {
+                getLogger().severe("Received error 'CONFIRM_UNKNOWN_METER' while trying to create an association, aborting session.");
+                throw exception;    //Meter needs to be discovered again, stop session
             } else {
                 if (++tries > retries) {
                     getLogger().severe("Unable to establish association after [" + tries + "/" + (retries + 1) + "] tries.");
