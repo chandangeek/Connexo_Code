@@ -107,15 +107,18 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 return item;
             });
             var keys = _.pluck(groups, 'name');
-            var items = ['running', 'blocked', 'stopped'];
+            var order = ['blocked', 'stopped', 'running'];
 
-            _.difference(items, keys).map(function(item) {
+            _.difference(order, keys).map(function(item) {
                 groups.push({
                     name: item,
                     title: Uni.I18n.translate('overview.widget.communicationServers.empty.' + item, 'DSH', item),
                     expand: false
                 })
             });
+
+            // sort on defined order
+            groups = _.sortBy(groups, function(item){return _.indexOf(order, item.name)});
 
             elm.bindStore(Ext.create('Ext.data.Store', {
                 fields: ['children', 'name', 'title', 'tooltip', 'expand'],
