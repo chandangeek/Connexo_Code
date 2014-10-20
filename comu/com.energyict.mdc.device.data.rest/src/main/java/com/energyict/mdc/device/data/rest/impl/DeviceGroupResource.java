@@ -17,6 +17,7 @@ import com.energyict.mdc.device.config.DeviceType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -87,28 +88,37 @@ public class DeviceGroupResource {
             condition = condition.and(where("serialNumber").isEqualTo(serialNumber));
         }
 
-        List<Integer> deviceTypes = (List) filter.get("deviceTypes");
-        if ((deviceTypes != null) && (!deviceTypes.isEmpty())) {
-            Condition orCondition = Condition.FALSE;
-            for (int deviceTypeId : deviceTypes) {
-                DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
-                if (deviceType != null) {
-                    orCondition = orCondition.or(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType.getName()));
+
+        Object deviceTypesObject = filter.get("deviceTypes");
+        if ((deviceTypesObject != null) && (deviceTypesObject instanceof List)) {
+            List<Integer> deviceTypes = (List) deviceTypesObject;
+            if ((deviceTypes != null) && (!deviceTypes.isEmpty())) {
+                Condition orCondition = Condition.FALSE;
+                for (int deviceTypeId : deviceTypes) {
+                    Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceType(deviceTypeId);
+                    if (deviceTypeOptional.isPresent()) {
+                        DeviceType deviceType = deviceTypeOptional.get();
+                        orCondition = orCondition.or(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType.getName()));
+                    }
                 }
+                condition = condition.and(orCondition);
             }
-            condition = condition.and(orCondition);
         }
 
-        List<Integer> deviceConfigurations = (List) filter.get("deviceConfigurations");
-        if ((deviceConfigurations != null) && (!deviceConfigurations.isEmpty())) {
-            Condition orCondition = Condition.FALSE;
-            for (int deviceConfigurationId : deviceConfigurations) {
-                DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
-                if (deviceConfiguration != null) {
-                    orCondition = orCondition.or(where("deviceConfiguration.name").isEqualTo(deviceConfiguration.getName()));
+        Object deviceConfigurationsObject = filter.get("deviceConfigurations");
+        if ((deviceConfigurationsObject != null) && (deviceConfigurationsObject instanceof List)) {
+            List<Integer> deviceConfigurations = (List) deviceConfigurationsObject;
+            if ((deviceConfigurations != null) && (!deviceConfigurations.isEmpty())) {
+                Condition orCondition = Condition.FALSE;
+                for (int deviceConfigurationId : deviceConfigurations) {
+                    Optional<DeviceConfiguration> deviceConfigurationOptional = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
+                    if (deviceConfigurationOptional.isPresent()) {
+                        DeviceConfiguration deviceConfiguration = deviceConfigurationOptional.get();
+                        orCondition = orCondition.or(where("deviceConfiguration.name").isEqualTo(deviceConfiguration.getName()));
+                    }
                 }
+                condition = condition.and(orCondition);
             }
-            condition = condition.and(orCondition);
         }
 
         EndDeviceGroup endDeviceGroup;
