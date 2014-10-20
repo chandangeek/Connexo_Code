@@ -45,7 +45,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     ],
 
     loadProfileModel: null,
-    viewOnlySuspects: null,
 
     init: function () {
         this.control({
@@ -104,7 +103,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         loadProfileModel.load(loadProfileId, {
             success: function (record) {
                 var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
-                    durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+                    durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
+                    viewOnlySuspects;
                 durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
                 widget = Ext.widget('deviceLoadProfilesData', {
                     router: me.getController('Uni.controller.history.Router'),
@@ -112,7 +112,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 });
                 me.loadProfileModel = record;
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record, isTable);
+                if (isTable) {
+                    widget.down('#deviceLoadProfilesSubMenuPanel #loadProfileOfDeviceDataLink').hide();
+                    widget.down('#deviceLoadProfilesSubMenuPanel #loadProfileOfDeviceDataTableLink').show();
+                } else {
+                    widget.down('#deviceLoadProfilesSubMenuPanel #loadProfileOfDeviceDataTableLink').hide();
+                    widget.down('#deviceLoadProfilesSubMenuPanel #loadProfileOfDeviceDataLink').show();
+                }
+                widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 viewport.setLoading(false);
                 widget.setLoading();
@@ -132,17 +139,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     }
                 }, me);
                 if (Ext.isEmpty(router.filter.data.intervalStart)) {
-                    me.viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
-                    me.setDefaults(dataIntervalAndZoomLevels, me.viewOnlySuspects);
+                    viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
+                    me.setDefaults(dataIntervalAndZoomLevels, viewOnlySuspects);
                     delete router.queryParams.onlySuspect;
                 }
                 dataStore.setFilterModel(router.filter);
-                me.viewOnlySuspects = router.filter.get('onlySuspect');
                 me.getSideFilterForm().loadRecord(router.filter);
                 me.setFilterView();
-                if (router.queryParams.onlySuspect !== undefined) {
-                    delete router.queryParams.onlySuspect;
-                }
                 dataStore.load();
             }
         });
@@ -260,15 +263,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     },
 
     toggleView: function (button) {
-        var me = this,
-            router = this.getController('Uni.controller.history.Router'),
-            showTable = button.action === 'showTableView',
-            filterParams = {};
-        filterParams.onlySuspect = me.viewOnlySuspects;
+        var router = this.getController('Uni.controller.history.Router'),
+            showTable = button.action === 'showTableView';
+
         if (showTable) {
-            router.getRoute('devices/device/loadprofiles/loadprofile/tableData').forward(router.arguments, filterParams);
+            router.getRoute('devices/device/loadprofiles/loadprofile/tableData').forward();
         } else {
-            router.getRoute('devices/device/loadprofiles/loadprofile/data').forward(router.arguments, filterParams);
+            router.getRoute('devices/device/loadprofiles/loadprofile/data').forward();
         }
     },
 

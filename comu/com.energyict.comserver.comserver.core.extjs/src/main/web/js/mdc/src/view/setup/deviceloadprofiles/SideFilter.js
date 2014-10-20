@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SideFilter', {
             {
                 xtype: 'fieldcontainer',
                 itemId: 'dateContainer',
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
+                fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
                 labelAlign: 'top',
                 defaults: {
                     width: '100%'
