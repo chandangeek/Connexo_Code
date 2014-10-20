@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -20,6 +19,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 
 /**
  * Created by bvn on 9/19/14.

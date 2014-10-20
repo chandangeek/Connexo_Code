@@ -1,35 +1,53 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.google.common.base.Optional;
+
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -75,7 +93,7 @@ public class ChannelResource {
                 channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());
         channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, lastChecked(channel));
         if (states.isEmpty()) {
-            channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.now());
+            channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
         }
     }
 
@@ -91,18 +109,18 @@ public class ChannelResource {
     }
 
     private boolean isValidationActive(Channel channel) {
-        return channel.getDevice().forValidation().isValidationActive(channel, clock.now());
+        return channel.getDevice().forValidation().isValidationActive(channel, clock.instant());
     }
 
     private Date lastChecked(Channel channel) {
-        Optional<Date> optional = channel.getDevice().forValidation().getLastChecked(channel);
-        return (optional.isPresent()) ? optional.get() : null;
+        Optional<Instant> optional = channel.getDevice().forValidation().getLastChecked(channel);
+        return optional.map(Date::from).orElse(null);
     }
 
-    private Interval lastMonth() {
-        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+    private Range<Instant> lastMonth() {
+        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
-        return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
+        return Range.openClosed(start.toInstant(), end.toInstant());
     }
 
     @GET
@@ -112,7 +130,7 @@ public class ChannelResource {
     public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
-        boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.now());
+        boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
         if (intervalStart != null && intervalEnd != null) {
             List<LoadProfileReading> channelData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<ChannelDataInfo> infos = ChannelDataInfo.from(channelData, isValidationActive, thesaurus, deviceValidation);
@@ -134,14 +152,18 @@ public class ChannelResource {
         Meter meter = resourceHelper.getMeterFor(device);
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         Optional<com.elster.jupiter.metering.Channel> koreChannel = resourceHelper.getLoadProfileChannel(channel, meter);
-        if(!koreChannel.isPresent()) {
+        if (!koreChannel.isPresent()) {
             exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfileId, channelId);
         }
         List<BaseReading> editedReadings = new LinkedList<>();
         List<BaseReadingRecord> removedReadings = new LinkedList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
             if(channelDataInfo.value == null) {
-                List<BaseReadingRecord> readings = koreChannel.get().getReadings(new Interval(new Date(channelDataInfo.interval.start), new Date(channelDataInfo.interval.end)));
+                List<BaseReadingRecord> readings =
+                        koreChannel.get().getReadings(
+                                Range.openClosed(
+                                        Instant.ofEpochMilli(channelDataInfo.interval.start),
+                                        Instant.ofEpochMilli(channelDataInfo.interval.end)));
                 removedReadings.addAll(readings);
             } else {
                 editedReadings.add(channelDataInfo.createNew());
@@ -217,15 +239,15 @@ public class ChannelResource {
     @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
     public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
 
-        Date start = validationInfo.lastChecked == null ? null : new Date(validationInfo.lastChecked);
+        Instant start = validationInfo.lastChecked == null ? null : Instant.ofEpochMilli(validationInfo.lastChecked);
         validateChannel(doGetChannel(mrid, loadProfileId, channelId), start);
 
         return Response.status(Response.Status.OK).build();
     }
 
-    private void validateChannel(Channel channel, Date start) {
-        if (channel.getLastReading() != null && (start == null || channel.getLastReading().after(start))) {
-            channel.getDevice().forValidation().validateChannel(channel, start, channel.getLastReading());
+    private void validateChannel(Channel channel, Instant start) {
+        if (channel.getLastReading() != null && (start == null || channel.getLastReading().after(Date.from(start)))) {
+            channel.getDevice().forValidation().validateChannel(channel, start, channel.getLastReading().toInstant());
         } else if (start != null) {
             channel.getDevice().forValidation().setLastChecked(channel, start);
         }

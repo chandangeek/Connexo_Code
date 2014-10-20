@@ -9,15 +9,17 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 
@@ -87,8 +89,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         doReturn(Arrays.asList(readingType)).when(meteringChannel).getReadingTypes();
         when(list.contains(readingType)).thenReturn(true);
         when(device.forValidation()).thenReturn(deviceValidation);
-        when(deviceValidation.isValidationActive(any(Register.class), any(Date.class))).thenReturn(false);
-        when(deviceValidation.getValidationStatus(any(Register.class), anyListOf(ReadingRecord.class), any(Interval.class))).thenReturn(new ArrayList<>());
+        when(deviceValidation.isValidationActive(any(Register.class), any(Instant.class))).thenReturn(false);
+        when(deviceValidation.getValidationStatus(any(Register.class), anyListOf(ReadingRecord.class), any(Range.class))).thenReturn(new ArrayList<>());
     }
 
     @Test

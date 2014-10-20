@@ -17,6 +17,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -63,7 +64,7 @@ public class ChannelDataInfo {
             for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
                 valueOwnerChannel = entry.getKey();
                 channelIntervalInfo.value=entry.getValue().getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
-                channelIntervalInfo.editedTime = entry.getValue().edited() ? entry.getValue().getReportedDateTime() : null;
+                channelIntervalInfo.editedTime = entry.getValue().edited() ? Date.from(entry.getValue().getReportedDateTime()) : null;
             }
             if (channelIntervalInfo.value != null && valueOwnerChannel != null){
                 channelIntervalInfo.value= channelIntervalInfo.value.setScale(valueOwnerChannel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP);
@@ -81,8 +82,7 @@ public class ChannelDataInfo {
     }
 
     public BaseReading createNew() {
-        IntervalReadingImpl reading = new IntervalReadingImpl(new Date(this.interval.end), this.value);
-        return reading;
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);
     }
-}
 
+}

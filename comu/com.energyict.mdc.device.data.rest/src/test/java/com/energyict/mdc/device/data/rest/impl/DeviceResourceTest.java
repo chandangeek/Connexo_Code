@@ -39,7 +39,6 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.google.common.base.Optional;
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -50,6 +49,7 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,6 +58,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -70,7 +71,7 @@ import static org.mockito.Mockito.*;
  */
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    public static final Date NOW = new Date(1409738114);
+    public static final Instant NOW = Instant.ofEpochMilli(1409738114);
 
     @Test
     public void testGetConnectionMethodsJsonBindings() throws Exception {
@@ -412,7 +413,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device1);
         when(channel2.getDevice()).thenReturn(device1);
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
@@ -710,8 +711,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testGetLogBookData() {
-        Date start = new Date();
-        Date end = new Date();
+        Instant start = Instant.now();
+        Instant end = Instant.now();
         String message = "Message";
         int eventLogId = 13;
         String deviceCode = "DeviceEventType";
@@ -763,10 +764,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         List<?> infos = (List<?>) response.get("data");
         assertThat(infos).hasSize(1);
         assertThat((Map<?, ?>) infos.get(0))
-                .contains(MapEntry.entry("eventDate", start.getTime()))
+                .contains(MapEntry.entry("eventDate", start.toEpochMilli()))
                 .contains(MapEntry.entry("deviceCode", deviceCode))
                 .contains(MapEntry.entry("eventLogId", eventLogId))
-                .contains(MapEntry.entry("readingDate", start.getTime()))
+                .contains(MapEntry.entry("readingDate", start.toEpochMilli()))
                 .contains(MapEntry.entry("message", message));
 
         Map<?, ?> eventType = (Map<?, ?>) ((Map<?, ?>) infos.get(0)).get("eventType");

@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -38,7 +39,7 @@ import static org.mockito.Mockito.*;
 public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     public static final String BATTERY_LOW = "BATTERY_LOW";
-    public static final Date NOW = new Date(1410786205000L);
+    public static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
     public static final Date LAST_READING = new Date(1410786196000L);
     public static final Date LAST_CHECKED = new Date(1409570229000L);
     public static final long CHANNEL_ID1 = 151521354L;
@@ -83,7 +84,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
         when(thesaurus.getString(BATTERY_LOW, BATTERY_LOW)).thenReturn(BATTERY_LOW);
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, readingRecord1, channel2, readingRecord2));
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(250, 0));
         when(channel1.getDevice()).thenReturn(device);
@@ -95,7 +96,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(channel1, NOW)).thenReturn(true);
         when(deviceValidation.isValidationActive(channel2, NOW)).thenReturn(true);
-        DataValidationStatusImpl state1 = new DataValidationStatusImpl(new Date(intervalEnd), true);
+        DataValidationStatusImpl state1 = new DataValidationStatusImpl(Instant.ofEpochMilli(intervalEnd), true);
         state1.addReadingQuality(quality1, asList(rule1));
         when(rule1.getRuleSet()).thenReturn(ruleSet);
         when(ruleSet.getName()).thenReturn("ruleSetName");
@@ -183,7 +184,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
                 .put(Entity.json(new TriggerValidationInfo()));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateLoadProfile(loadProfile, null, LAST_READING);
+        verify(deviceValidation).validateLoadProfile(loadProfile, null, LAST_READING.toInstant());
     }
 
     @Test
@@ -199,7 +200,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
                 .put(Entity.json(triggerValidationInfo));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateLoadProfile(loadProfile, LAST_CHECKED, LAST_READING);
+        verify(deviceValidation).validateLoadProfile(loadProfile, LAST_CHECKED.toInstant(), LAST_READING.toInstant());
     }
 
 }
