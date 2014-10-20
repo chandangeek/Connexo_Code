@@ -217,11 +217,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                                         me.getDeviceConnectionLogFilterPanel().setFilter(prop.toString(), prop.toString(), filter.data[prop]);
                                     }
                                 }
-                                store.load({
-                                    callback: function(){
-                                        debugger;
-                                    }
-                                });
+                                store.load();
                             }
                         });
                     }
