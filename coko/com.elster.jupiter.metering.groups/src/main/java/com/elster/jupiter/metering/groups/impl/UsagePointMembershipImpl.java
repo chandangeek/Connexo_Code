@@ -1,22 +1,26 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import java.time.Instant;
+
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
-import com.elster.jupiter.util.time.IntermittentInterval;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 public class UsagePointMembershipImpl implements UsagePointMembership {
     private final UsagePoint usagePoint;
-    private IntermittentInterval intervals;
+    private RangeSet<Instant> ranges;
 
-    UsagePointMembershipImpl(UsagePoint usagePoint, IntermittentInterval intervals) {
+    UsagePointMembershipImpl(UsagePoint usagePoint, RangeSet<Instant> ranges) {
         this.usagePoint = usagePoint;
-        this.intervals = intervals;
+        this.ranges = TreeRangeSet.create(ranges);
     }
 
     @Override
-    public IntermittentInterval getIntervals() {
-        return intervals;
+    public RangeSet<Instant> getRanges() {
+        return ImmutableRangeSet.copyOf(ranges);
     }
 
     @Override
@@ -24,19 +28,19 @@ public class UsagePointMembershipImpl implements UsagePointMembership {
         return usagePoint;
     }
 
-    public void addInterval(Interval interval) {
-        intervals = intervals.addInterval(interval);
+    public void addRange(Range<Instant> range) {
+        ranges.add(range);
     }
 
-    public void removeInterval(Interval interval) {
-        intervals = intervals.remove(interval);
+    public void removeRange(Range<Instant> range) {
+        ranges.remove(range);
     }
 
-    Interval resultingInterval(Interval interval) {
-        return getIntervals().intervalAt(interval.getStart());
+    Range<Instant> resultingRange(Range<Instant> range) {
+        return ranges.rangeContaining(range.hasLowerBound() ? range.lowerEndpoint() : Instant.MIN);
     }
 
-    public UsagePointMembershipImpl withIntervals(IntermittentInterval newIntervals) {
-        return new UsagePointMembershipImpl(usagePoint, newIntervals);
+    public UsagePointMembershipImpl withRanges(RangeSet<Instant> newRanges) {
+        return new UsagePointMembershipImpl(usagePoint, newRanges);
     }
 }

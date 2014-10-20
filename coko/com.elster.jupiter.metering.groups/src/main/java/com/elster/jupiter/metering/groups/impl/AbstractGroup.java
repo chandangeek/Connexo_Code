@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import com.elster.jupiter.util.time.UtcInstant;
+import java.time.Instant;
 
 public class AbstractGroup {
 
@@ -11,8 +11,8 @@ public class AbstractGroup {
     private String aliasName;
     private String type;
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     private String userName;
 
     public String getAliasName() {

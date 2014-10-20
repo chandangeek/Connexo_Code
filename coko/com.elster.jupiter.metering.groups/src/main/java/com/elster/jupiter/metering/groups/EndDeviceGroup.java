@@ -1,9 +1,9 @@
 package com.elster.jupiter.metering.groups;
 
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 public interface EndDeviceGroup {
@@ -12,11 +12,11 @@ public interface EndDeviceGroup {
 
     String getType();
 
-    List<EndDevice> getMembers(Date date);
+    List<EndDevice> getMembers(Instant instant);
 
-    List<EndDeviceMembership> getMembers(Interval interval);
+    List<EndDeviceMembership> getMembers(Range<Instant> range);
 
-    boolean isMember(EndDevice endDevice, Date date);
+    boolean isMember(EndDevice endDevice, Instant instant);
 
     void setName(String name);
 
@@ -37,7 +37,6 @@ public interface EndDeviceGroup {
     void setQueryProviderName(String queryProviderName);
 
     boolean isDynamic();
-
 
     void save();
 

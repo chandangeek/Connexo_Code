@@ -1,23 +1,22 @@
 package com.elster.jupiter.metering.groups;
 
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.util.time.Interval;
+import java.time.Instant;
 
-import java.util.Date;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.associations.Effectivity;
+import com.google.common.collect.Range;
 
 public interface EnumeratedUsagePointGroup extends UsagePointGroup {
 
     String TYPE_IDENTIFIER = "EEG";
 
-    void endMembership(UsagePoint usagePoint, Date now);
+    void endMembership(UsagePoint usagePoint, Instant when);
 
-    interface Entry {
+    interface Entry extends Effectivity {
         UsagePoint getUsagePoint();
-
-        Interval getInterval();
     }
 
-    Entry add(UsagePoint usagePoint, Interval interval);
+    Entry add(UsagePoint usagePoint, Range<Instant> range);
 
     void remove(Entry entry);
 

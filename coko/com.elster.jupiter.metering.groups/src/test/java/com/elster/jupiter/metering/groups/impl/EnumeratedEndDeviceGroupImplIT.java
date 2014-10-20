@@ -22,12 +22,17 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateTime;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +46,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnumeratedEndDeviceGroupImplIT {
@@ -118,16 +122,16 @@ public class EnumeratedEndDeviceGroupImplIT {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("Mine");
             enumeratedEndDeviceGroup.setMRID("mine");
-            enumeratedEndDeviceGroup.add(endDevice, Interval.sinceEpoch());
+            enumeratedEndDeviceGroup.add(endDevice, Range.atLeast(Instant.EPOCH));
             enumeratedEndDeviceGroup.save();
             ctx.commit();
         }
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("mine");
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(EnumeratedEndDeviceGroup.class);
         EnumeratedEndDeviceGroup group = (EnumeratedEndDeviceGroup) found.get();
-        List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate());
+        List<EndDevice> members = group.getMembers(ZonedDateTime.of(2014, 1, 23, 14, 54, 0, 0, ZoneId.systemDefault()).toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
     }

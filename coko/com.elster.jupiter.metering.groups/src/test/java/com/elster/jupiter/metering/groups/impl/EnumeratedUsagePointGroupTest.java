@@ -5,8 +5,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Interval;
-import org.joda.time.DateTime;
+import com.google.common.collect.Range;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,8 +17,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,11 +31,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class EnumeratedUsagePointGroupTest {
 
-    private static final Date BEFORE = new DateTime(2012, 10, 19, 16, 5, 0).toDate();
-    private static final Date START = new DateTime(2012, 10, 22, 16, 5, 0).toDate();
-    private static final Date MIDDLE = new DateTime(2012, 10, 25, 16, 5, 0).toDate();
-    private static final Date END = new DateTime(2012, 10, 28, 16, 5, 0).toDate();
-    private static final Date AFTER = new DateTime(2012, 10, 29, 16, 5, 0).toDate();
+    private static final Instant BEFORE = ZonedDateTime.of(2012, 10, 19, 16, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant START = ZonedDateTime.of(2012, 10, 22, 16, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant MIDDLE = ZonedDateTime.of(2012, 10, 25, 16, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant END = ZonedDateTime.of(2012, 10, 28, 16, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant AFTER = ZonedDateTime.of(2012, 10, 29, 16, 5, 0, 0, ZoneId.systemDefault()).toInstant();
     private static final long ID = 2001L;
     private EnumeratedUsagePointGroupImpl usagePointGroup;
 
@@ -113,9 +115,9 @@ public class EnumeratedUsagePointGroupTest {
 
     @Test
     public void testGetMembers() {
-        usagePointGroup.add(usagePoint1, Interval.startAt(START).withEnd(END));
-        usagePointGroup.add(usagePoint2, Interval.startAt(START).withEnd(END));
-        usagePointGroup.add(usagePoint3, new Interval(null, BEFORE));
+        usagePointGroup.add(usagePoint1, Range.closedOpen(START,END));
+        usagePointGroup.add(usagePoint2, Range.closedOpen(START,END));
+        usagePointGroup.add(usagePoint3, Range.lessThan(BEFORE));
 
         assertThat(usagePointGroup.getMembers(MIDDLE)).doesNotContain(usagePoint3)
                 .contains(usagePoint1, usagePoint2)
@@ -124,36 +126,36 @@ public class EnumeratedUsagePointGroupTest {
 
     @Test
     public void testAddMerges() {
-        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Interval.startAt(MIDDLE).withEnd(AFTER));
+        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Range.closedOpen(MIDDLE,AFTER));
 
-        assertThat(entry.getInterval()).isEqualTo(Interval.startAt(MIDDLE).withEnd(AFTER));
+        assertThat(entry.getRange()).isEqualTo(Range.closedOpen(MIDDLE,AFTER));
 
-        entry = usagePointGroup.add(usagePoint1, Interval.startAt(START).withEnd(END));
+        entry = usagePointGroup.add(usagePoint1, Range.closedOpen(START,END));
 
-        assertThat(entry.getInterval()).isEqualTo(Interval.startAt(START).withEnd(AFTER));
+        assertThat(entry.getRange()).isEqualTo(Range.closedOpen(START,AFTER));
     }
 
     @Test
     public void testAddWithNegativeInfinity() {
-        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Interval.startAt(MIDDLE).withEnd(AFTER));
+        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Range.closedOpen(MIDDLE, AFTER));
 
-        entry = usagePointGroup.add(usagePoint1, Interval.startAt(null).withEnd(END));
+        entry = usagePointGroup.add(usagePoint1, Range.lessThan(END));
 
-        assertThat(entry.getInterval()).isEqualTo(Interval.startAt(null).withEnd(AFTER));
+        assertThat(entry.getRange()).isEqualTo(Range.lessThan(AFTER));
     }
 
     @Test
     public void testAddWithPositiveInfinity() {
-        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Interval.startAt(MIDDLE).withEnd(AFTER));
+        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Range.closedOpen(MIDDLE, AFTER));
 
-        entry = usagePointGroup.add(usagePoint1, Interval.startAt(START).withEnd(null));
+        entry = usagePointGroup.add(usagePoint1, Range.atLeast(START));
 
-        assertThat(entry.getInterval()).isEqualTo(Interval.startAt(START).withEnd(null));
+        assertThat(entry.getRange()).isEqualTo(Range.atLeast(START));
     }
 
     @Test
     public void testIsMember() {
-        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Interval.startAt(BEFORE).withEnd(AFTER));
+        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Range.closedOpen(BEFORE, AFTER));
 
         assertThat(usagePointGroup.isMember(usagePoint1, MIDDLE)).isTrue();
 
@@ -161,7 +163,7 @@ public class EnumeratedUsagePointGroupTest {
 
     @Test
     public void testRemove() {
-        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Interval.startAt(BEFORE).withEnd(AFTER));
+        EnumeratedUsagePointGroup.Entry entry = usagePointGroup.add(usagePoint1, Range.closedOpen(BEFORE, AFTER));
 
         usagePointGroup.remove(entry);
 
@@ -178,7 +180,7 @@ public class EnumeratedUsagePointGroupTest {
 
     @Test
     public void testSaveNewWithEntries() {
-        usagePointGroup.add(usagePoint1, Interval.startAt(START));
+        usagePointGroup.add(usagePoint1, Range.atLeast(START));
 
         usagePointGroup.save();
 
@@ -190,7 +192,7 @@ public class EnumeratedUsagePointGroupTest {
         assertThat(list).hasSize(1);
         EnumeratedUsagePointGroup.Entry entry = (EnumeratedUsagePointGroup.Entry) list.get(0);
         assertThat(entry.getUsagePoint()).isEqualTo(usagePoint1);
-        assertThat(entry.getInterval()).isEqualTo(Interval.startAt(START));
+        assertThat(entry.getRange()).isEqualTo(Range.atLeast(START));
     }
 
     @Test
@@ -207,13 +209,13 @@ public class EnumeratedUsagePointGroupTest {
     public void testSaveUpdateWithEntries() {
         simulateSaved();
 
-        EnumeratedUsagePointGroup.Entry entry1 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint1, Interval.startAt(START));
-        EnumeratedUsagePointGroup.Entry entry2 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint2, Interval.startAt(START));
+        EnumeratedUsagePointGroup.Entry entry1 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint1, Range.atLeast(START));
+        EnumeratedUsagePointGroup.Entry entry2 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint2, Range.atLeast(START));
 
         when(entryFactory.find("usagePointGroup", usagePointGroup)).thenReturn(Arrays.asList(entry1, entry2));
 
         usagePointGroup.endMembership(usagePoint1, END);
-        usagePointGroup.add(usagePoint3, Interval.startAt(END));
+        usagePointGroup.add(usagePoint3, Range.atLeast(END));
 
         usagePointGroup.save();
 

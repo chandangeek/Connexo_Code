@@ -1,23 +1,23 @@
 package com.elster.jupiter.metering.groups;
 
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.util.time.Interval;
+import java.time.Instant;
 
-import java.util.Date;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.orm.associations.Effectivity;
+import com.google.common.collect.Range;
+
 
 public interface EnumeratedEndDeviceGroup extends EndDeviceGroup {
 
     String TYPE_IDENTIFIER = "EEG";
 
-    void endMembership(EndDevice endDevice, Date now);
+    void endMembership(EndDevice endDevice, Instant when);
 
-    interface Entry {
+    interface Entry extends Effectivity {
         EndDevice getEndDevice();
-
-        Interval getInterval();
     }
 
-    Entry add(EndDevice endDevice, Interval interval);
+    Entry add(EndDevice endDevice, Range<Instant> range);
 
     void remove(Entry entry);
 
