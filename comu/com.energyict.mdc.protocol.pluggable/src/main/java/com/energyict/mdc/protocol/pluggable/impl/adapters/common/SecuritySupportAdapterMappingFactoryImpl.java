@@ -32,7 +32,7 @@ public class SecuritySupportAdapterMappingFactoryImpl implements SecuritySupport
 
     @Override
     public String getSecuritySupportJavaClassNameForDeviceProtocol(String deviceProtocolJavaClassName) {
-        SecuritySupportAdapterMapping mapping = this.mapper.getUnique("deviceProtocolJavaClassName", deviceProtocolJavaClassName).orNull();
+        SecuritySupportAdapterMapping mapping = this.mapper.getUnique("deviceProtocolJavaClassName", deviceProtocolJavaClassName).orElse(null);
         if (mapping == null) {
             return null;
         }

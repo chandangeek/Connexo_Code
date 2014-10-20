@@ -56,8 +56,8 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
+import java.time.Clock;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -297,7 +297,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass.get());
             return Optional.of(deviceProtocolPluggableClass);
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

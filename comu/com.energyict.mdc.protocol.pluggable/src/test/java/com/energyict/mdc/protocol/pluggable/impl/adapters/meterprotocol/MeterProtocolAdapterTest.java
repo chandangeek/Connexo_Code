@@ -71,6 +71,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -126,28 +127,28 @@ public class MeterProtocolAdapterTest {
         when(nodeIdPropertySpec.getName()).thenReturn(MeterProtocol.NODEID);
         when(nodeIdPropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(MeterProtocol.NODEID), eq(false), any(ValueFactory.class))).
+                basicPropertySpec(eq(MeterProtocol.NODEID), eq(false), any())).
                 thenReturn(nodeIdPropertySpec);
         PropertySpec addressPropertySpec = mock(PropertySpec.class);
         when(addressPropertySpec.isRequired()).thenReturn(false);
         when(addressPropertySpec.getName()).thenReturn(MeterProtocol.ADDRESS);
         when(addressPropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(MeterProtocol.ADDRESS), eq(false), any(ValueFactory.class))).
+                basicPropertySpec(eq(MeterProtocol.ADDRESS), eq(false), any())).
                 thenReturn(addressPropertySpec);
         PropertySpec callHomeIdPropertySpec = mock(PropertySpec.class);
         when(callHomeIdPropertySpec.isRequired()).thenReturn(false);
         when(callHomeIdPropertySpec.getName()).thenReturn("callHomeId");
         when(callHomeIdPropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq("callHomeId"), eq(false), any(ValueFactory.class))).
+                basicPropertySpec(eq("callHomeId"), eq(false), any())).
                 thenReturn(callHomeIdPropertySpec);
         PropertySpec deviceTimeZonePropertySpec = mock(PropertySpec.class);
         when(deviceTimeZonePropertySpec.isRequired()).thenReturn(false);
         when(deviceTimeZonePropertySpec.getName()).thenReturn("deviceTimeZone");
         when(deviceTimeZonePropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq("deviceTimeZone"), eq(false), any(ValueFactory.class))).
+                basicPropertySpec(eq("deviceTimeZone"), eq(false), any())).
                 thenReturn(deviceTimeZonePropertySpec);
     }
 
@@ -297,9 +298,12 @@ public class MeterProtocolAdapterTest {
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3"));
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
-        when(propertySpecService.basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class))).thenReturn(new BasicPropertySpec<>("o1", false, new StringFactory()));
-        when(propertySpecService.basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class))).thenReturn(new BasicPropertySpec<>("o2", false, new StringFactory()));
-        when(propertySpecService.basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class))).thenReturn(new BasicPropertySpec<>("o3", false, new StringFactory()));
+        doReturn(new BasicPropertySpec<>("o1", false, new StringFactory()))
+            .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any());
+        doReturn(new BasicPropertySpec<>("o2", false, new StringFactory()))
+            .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any());
+        doReturn(new BasicPropertySpec<>("o3", false, new StringFactory()))
+            .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
