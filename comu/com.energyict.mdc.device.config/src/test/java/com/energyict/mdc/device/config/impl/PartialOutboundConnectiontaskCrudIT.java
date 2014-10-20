@@ -77,7 +77,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -237,7 +237,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(applicationContext.getTranslator()).thenReturn(translator);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         initializeDatabase(false);
 
         propertySpecService.addFactoryProvider(new ReferencePropertySpecFinderProvider() {
@@ -303,7 +303,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
@@ -352,8 +352,8 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.getPartialConnectionTask(notTheDefault.getId());
         Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.getPartialConnectionTask(theDefault.getId());
-        assertThat(foundTheNotDefault).isPresent();
-        assertThat(foundTheDefault).isPresent();
+        assertThat(foundTheNotDefault.isPresent()).isTrue();
+        assertThat(foundTheDefault.isPresent()).isTrue();
         assertThat(foundTheNotDefault.get().isDefault()).isFalse();
         assertThat(foundTheDefault.get().isDefault()).isTrue();
     }
@@ -385,8 +385,8 @@ public class PartialOutboundConnectiontaskCrudIT {
 
         Optional<PartialConnectionTask> foundTheNotDefault = deviceConfigurationService.getPartialConnectionTask(notTheDefault.getId());
         Optional<PartialConnectionTask> foundTheDefault = deviceConfigurationService.getPartialConnectionTask(theDefault.getId());
-        assertThat(foundTheNotDefault).isPresent();
-        assertThat(foundTheDefault).isPresent();
+        assertThat(foundTheNotDefault.isPresent()).isTrue();
+        assertThat(foundTheDefault.isPresent()).isTrue();
         assertThat(foundTheNotDefault.get().isDefault()).isFalse();
         assertThat(foundTheDefault.get().isDefault()).isTrue();
     }
@@ -429,7 +429,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
@@ -486,7 +486,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
         PartialScheduledConnectionTask partialConnectionTask1 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName1);
         assertThat(partialConnectionTask1.isDefault()).isFalse();
         PartialScheduledConnectionTask partialConnectionTask2 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName2);
@@ -532,7 +532,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        DeviceConfiguration reloadedDeviceConfig = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
         PartialScheduledConnectionTask partialConnectionTask1 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName1);
         assertThat(partialConnectionTask1.isDefault()).isFalse();
         PartialScheduledConnectionTask partialConnectionTask2 = getConnectionTaskWithName(reloadedDeviceConfig, connectionTaskName2);
@@ -570,7 +570,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
 
         PartialScheduledConnectionTask task;
         try (TransactionContext context = transactionService.getContext()) {
@@ -585,7 +585,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
@@ -641,7 +641,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
 
-        deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId());
+        deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
 
         PartialScheduledConnectionTask task;
         try (TransactionContext context = transactionService.getContext()) {
@@ -655,7 +655,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
@@ -697,7 +697,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
-        assertThat(found).isAbsent();
+        assertThat(found.isPresent()).isFalse();
 
         verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED.topic(), partialOutboundConnectionTask);
 
@@ -740,7 +740,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 
@@ -936,7 +936,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             context.commit();
         }
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
-        assertThat(found).isPresent();
+        assertThat(found.isPresent()).isTrue();
 
         PartialConnectionTask partialConnectionTask = found.get();
 

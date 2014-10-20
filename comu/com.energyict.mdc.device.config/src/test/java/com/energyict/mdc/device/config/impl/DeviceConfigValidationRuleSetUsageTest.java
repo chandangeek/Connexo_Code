@@ -66,6 +66,7 @@ import org.osgi.service.event.EventAdmin;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -222,9 +223,9 @@ public class DeviceConfigValidationRuleSetUsageTest {
 
             deviceConfiguration.addValidationRuleSet(validationRuleSet1);
 
-            DeviceConfiguration foundDeviceConfiguration =
+            Optional<DeviceConfiguration> foundDeviceConfiguration =
                     injector.getInstance(DeviceConfigurationService.class).findDeviceConfiguration(deviceConfId);
-            List<DeviceConfValidationRuleSetUsage> usages = foundDeviceConfiguration.getDeviceConfValidationRuleSetUsages();
+            List<DeviceConfValidationRuleSetUsage> usages = foundDeviceConfiguration.get().getDeviceConfValidationRuleSetUsages();
 
             assertThat(usages.size() == 1).isTrue();
 
@@ -244,14 +245,14 @@ public class DeviceConfigValidationRuleSetUsageTest {
             deviceConfiguration.addValidationRuleSet(validationRuleSet2);
             foundDeviceConfiguration =
                     injector.getInstance(DeviceConfigurationService.class).findDeviceConfiguration(deviceConfId);
-            usages = foundDeviceConfiguration.getDeviceConfValidationRuleSetUsages();
+            usages = foundDeviceConfiguration.get().getDeviceConfValidationRuleSetUsages();
             assertThat(usages.size() == 2).isTrue();
 
             //remove a ruleset from a device config
-            foundDeviceConfiguration.removeValidationRuleSet(validationRuleSet2);
+            foundDeviceConfiguration.get().removeValidationRuleSet(validationRuleSet2);
             foundDeviceConfiguration =
                     injector.getInstance(DeviceConfigurationService.class).findDeviceConfiguration(deviceConfId);
-            usages = foundDeviceConfiguration.getDeviceConfValidationRuleSetUsages();
+            usages = foundDeviceConfiguration.get().getDeviceConfValidationRuleSetUsages();
             assertThat(usages.size() == 1).isTrue();
             ruleSets = deviceConfiguration.getValidationRuleSets();
             assertThat(ruleSets.size() == 1);

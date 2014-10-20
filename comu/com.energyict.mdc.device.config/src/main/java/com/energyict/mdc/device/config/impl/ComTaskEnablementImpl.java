@@ -18,7 +18,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.hibernate.validator.constraints.Range;
 
 import javax.inject.Inject;
@@ -392,7 +392,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
             this.useDefaultNow = useDefault;
             this.usedDefaultPreviously = ComTaskEnablementImpl.this.usesDefaultConnectionTask();
             this.previousPartialConnectionTask = ComTaskEnablementImpl.this.partialConnectionTask.getOptional();
-            this.newPartialConnectionTask = Optional.absent();
+            this.newPartialConnectionTask = Optional.empty();
         }
 
         private ChangeConnectionStrategy(PartialConnectionTask partialConnectionTask, SaveStrategy remainder) {
@@ -401,7 +401,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
             this.useDefaultNow = false;
             this.usedDefaultPreviously = ComTaskEnablementImpl.this.usesDefaultConnectionTask();
             this.previousPartialConnectionTask = ComTaskEnablementImpl.this.partialConnectionTask.getOptional();
-            this.newPartialConnectionTask = Optional.fromNullable(partialConnectionTask);
+            this.newPartialConnectionTask = Optional.ofNullable(partialConnectionTask);
         }
 
         @Override
@@ -426,7 +426,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         @Override
         public void prepare() {
             ComTaskEnablementImpl.this.setUsesDefaultConnectionTask(this.useDefaultNow);
-            ComTaskEnablementImpl.this.doSetPartialConnectionTask(this.newPartialConnectionTask.orNull());
+            ComTaskEnablementImpl.this.doSetPartialConnectionTask(this.newPartialConnectionTask.orElse(null));
             this.remainder.prepare();
         }
 

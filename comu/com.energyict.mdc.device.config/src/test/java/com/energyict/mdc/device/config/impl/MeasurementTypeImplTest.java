@@ -29,7 +29,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.rules.*;

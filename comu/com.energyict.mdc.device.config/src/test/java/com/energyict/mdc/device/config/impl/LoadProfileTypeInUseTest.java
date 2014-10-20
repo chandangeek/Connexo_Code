@@ -18,7 +18,7 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;

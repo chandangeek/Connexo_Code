@@ -9,7 +9,10 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.time.Clock;
+
+import java.time.Clock;
+import java.time.Instant;
+
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -21,14 +24,18 @@ import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -52,7 +59,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private String protocolDialectName;
     private List<ProtocolDialectConfigurationProperty> propertyList = new ArrayList<>();
 
-    private Date modDate;
+    private Instant modDate;
 
     // transient
     private transient TypedProperties typedProperties;
@@ -214,7 +221,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     @Override
     public void save() {
-        modDate = clock.now();
+        modDate = clock.instant();
         super.save();
     }
 

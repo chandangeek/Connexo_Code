@@ -2,7 +2,7 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.UserAction;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Defines the {@link UserAction}s that relate to device security properties.
@@ -93,6 +93,6 @@ public enum DeviceSecurityUserAction {
                 return Optional.of(userAction);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 }

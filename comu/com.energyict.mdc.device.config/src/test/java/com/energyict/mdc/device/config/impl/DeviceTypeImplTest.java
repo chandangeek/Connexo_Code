@@ -1,12 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -29,20 +22,27 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import com.google.common.base.Optional;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -141,10 +141,10 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.save();
 
         // Business method
-        DeviceType deviceType2 = inMemoryPersistence.getDeviceConfigurationService().findDeviceTypeByName(deviceTypeName);
+        Optional<DeviceType> deviceType2 = inMemoryPersistence.getDeviceConfigurationService().findDeviceTypeByName(deviceTypeName);
 
         // Asserts
-        assertThat(deviceType2).isNotNull();
+        assertThat(deviceType2.isPresent()).isTrue();
     }
 
     @Test
@@ -523,7 +523,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType.newConfiguration("first").description("at least one").add();
 
-        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        deviceType = this.reloadCreatedDeviceType(deviceType.getId());
         // Business method
         deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
         deviceType.save();
@@ -545,7 +545,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType.newConfiguration("first").description("at least one").add();
 
-        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        deviceType = this.reloadCreatedDeviceType(deviceType.getId());
         // Business method
         deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass2);
         deviceType.save();
@@ -567,7 +567,8 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType.newConfiguration("first").description("at least one").add();
 
-        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        deviceType = this.reloadCreatedDeviceType(deviceType.getId());
+
         // Business method
         deviceType.setDeviceProtocolPluggableClass((DeviceProtocolPluggableClass) null);
         deviceType.save();
@@ -814,7 +815,8 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.delete();
 
         // Asserts
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceTypeId)).isNull();
+        Optional<DeviceType> reloaded = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceTypeId);
+        assertThat(reloaded.isPresent()).isFalse();
     }
 
     @Test(expected = CannotDeleteBecauseStillInUseException.class)
@@ -856,8 +858,10 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType.delete();
 
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(firstId)).isNull();
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(secondId)).isNull();
+        Optional<DeviceConfiguration> deviceConfiguration1 = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(firstId);
+        assertThat(deviceConfiguration1.isPresent()).isFalse();
+        Optional<DeviceConfiguration> deviceConfiguration2 = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(secondId);
+        assertThat(deviceConfiguration2.isPresent()).isFalse();
     }
 
     @Test
@@ -887,9 +891,13 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testAddDeviceConfiguration() throws Exception {
         deviceType.newConfiguration("first").description("this is it!").add();
 
-        DeviceType refreshed = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId());
+        DeviceType refreshed = this.reloadCreatedDeviceType(deviceType.getId());
         assertThat(refreshed.getConfigurations()).hasSize(1);
         assertThat(refreshed.getConfigurations().get(0).getName()).isEqualTo("first");
+    }
+
+    private DeviceType reloadCreatedDeviceType(long id) {
+        return inMemoryPersistence.getDeviceConfigurationService().findDeviceType(id).orElseThrow(() -> new RuntimeException("DeviceType that was just created was not found"));
     }
 
     @Test
@@ -941,7 +949,8 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
 
         deviceType.removeConfiguration(deviceConfiguration);
-        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId())).isNull();
+        Optional<DeviceConfiguration> reloaded = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
+        assertThat(reloaded.isPresent()).isFalse();
     }
 
     @Test(expected = DeviceConfigurationIsActiveException.class)

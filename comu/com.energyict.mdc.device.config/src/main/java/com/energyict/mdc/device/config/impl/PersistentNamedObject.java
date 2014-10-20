@@ -6,7 +6,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Provides code reuse opportunities for entities in this bundle

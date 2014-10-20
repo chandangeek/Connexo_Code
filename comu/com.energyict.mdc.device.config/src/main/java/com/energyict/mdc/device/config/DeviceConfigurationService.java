@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.List;
 
 /**
@@ -37,7 +37,7 @@ public interface DeviceConfigurationService {
      * @param deviceTypeId the ID of the DeviceType
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
-    public DeviceType findDeviceType(long deviceTypeId);
+    public Optional<DeviceType> findDeviceType(long deviceTypeId);
 
     /**
      * Find the {@link DeviceType} with the specified name.
@@ -45,15 +45,15 @@ public interface DeviceConfigurationService {
      * @param name The name
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
-    public DeviceType findDeviceTypeByName(String name);
+    public Optional<DeviceType> findDeviceTypeByName(String name);
 
     /**
      * Finds a {@link DeviceConfiguration} which is uniquely identified by the given ID
      *
-     * @param deviceConfigId the id of the DeviceConfiguration
+     * @param id the id of the DeviceConfiguration
      * @return the DeviceConfiguration or <code>null</code> if there is no such DeviceConfiguration
      */
-    public DeviceConfiguration findDeviceConfiguration(long deviceConfigId);
+    public Optional<DeviceConfiguration> findDeviceConfiguration(long id);
 
     /**
      * Finds a {@link ChannelSpec} which is uniquely identified by the given ID

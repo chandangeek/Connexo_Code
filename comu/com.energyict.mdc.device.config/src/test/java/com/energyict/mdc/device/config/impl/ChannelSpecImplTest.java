@@ -25,7 +25,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -113,7 +113,9 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private DeviceConfiguration getReloadedDeviceConfiguration(){
-        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(this.deviceConfiguration.getId());
+        return inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceConfiguration(this.deviceConfiguration.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + this.deviceConfiguration.getId()));
     }
 
     @Test

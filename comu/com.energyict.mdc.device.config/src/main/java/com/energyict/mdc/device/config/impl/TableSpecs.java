@@ -137,7 +137,7 @@ public enum TableSpecs {
             table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
-            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
@@ -313,7 +313,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add(); // TODO remove map when enabling foreign key constraint
             table.column("DEVICEPROTOCOLDIALECT").varChar().notNull().map("protocolDialectName").add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modDate").add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modDate").add();
             table.column("NAME").varChar().notNull().map("name").add();
             table.foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG").
                     on(deviceConfiguration).

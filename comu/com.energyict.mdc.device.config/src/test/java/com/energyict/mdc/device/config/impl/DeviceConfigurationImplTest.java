@@ -33,7 +33,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -700,6 +700,8 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     }
 
     private DeviceConfiguration reloadDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId());
+        return inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceConfiguration(deviceConfiguration.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + deviceConfiguration.getId()));
     }
 }

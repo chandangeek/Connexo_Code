@@ -23,7 +23,7 @@ import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFract
 import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -129,7 +129,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
 
     private DeviceConfiguration getReloadedDeviceConfiguration(){
-        return inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(this.deviceConfiguration.getId());
+        return inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceConfiguration(this.deviceConfiguration.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + this.deviceConfiguration.getId()));
     }
 
     @Test

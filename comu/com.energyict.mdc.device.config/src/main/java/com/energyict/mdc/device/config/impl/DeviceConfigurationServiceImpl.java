@@ -54,7 +54,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
@@ -144,28 +144,28 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public DeviceType findDeviceType(long deviceTypeId) {
-        return this.getDataModel().mapper((DeviceType.class)).getUnique("id", deviceTypeId).orNull();
+    public Optional<DeviceType> findDeviceType(long deviceTypeId) {
+        return this.getDataModel().mapper((DeviceType.class)).getUnique("id", deviceTypeId);
     }
 
     @Override
-    public DeviceType findDeviceTypeByName(String name) {
-        return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name).orNull();
+    public Optional<DeviceType> findDeviceTypeByName(String name) {
+        return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name);
     }
 
     @Override
-    public DeviceConfiguration findDeviceConfiguration(long deviceConfigId) {
-        return this.getDataModel().mapper((DeviceConfiguration.class)).getUnique("id", deviceConfigId).orNull();
+    public Optional<DeviceConfiguration> findDeviceConfiguration(long id) {
+        return this.getDataModel().mapper((DeviceConfiguration.class)).getUnique("id", id);
     }
 
     @Override
     public ChannelSpec findChannelSpec(long channelSpecId) {
-        return this.getDataModel().mapper((ChannelSpec.class)).getUnique("id", channelSpecId).orNull();
+        return this.getDataModel().mapper((ChannelSpec.class)).getUnique("id", channelSpecId).orElse(null);
     }
 
     @Override
     public RegisterSpec findRegisterSpec(long id) {
-        return this.getDataModel().mapper((RegisterSpec.class)).getUnique("id", id).orNull();
+        return this.getDataModel().mapper((RegisterSpec.class)).getUnique("id", id).orElse(null);
     }
 
     @Override
@@ -201,12 +201,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public LoadProfileSpec findLoadProfileSpec(long loadProfileSpecId) {
-        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("id", loadProfileSpecId).orNull();
+        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("id", loadProfileSpecId).orElse(null);
     }
 
     @Override
     public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
-        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType).orNull();
+        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType).orElse(null);
     }
 
     @Override
@@ -216,17 +216,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public LogBookSpec findLogBookSpec(long logBookSpecId) {
-        return this.getDataModel().mapper(LogBookSpec.class).getUnique("id", logBookSpecId).orNull();
+        return this.getDataModel().mapper(LogBookSpec.class).getUnique("id", logBookSpecId).orElse(null);
     }
 
     @Override
     public ChannelSpec findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType) {
-        return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "channelType", channelType).orNull();
+        return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "channelType", channelType).orElse(null);
     }
 
     @Override
     public ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfiguration, String name) {
-        return this.getDataModel().mapper(ChannelSpec.class).getUnique("deviceConfiguration", deviceConfiguration, "name", name).orNull();
+        return this.getDataModel().mapper(ChannelSpec.class).getUnique("deviceConfiguration", deviceConfiguration, "name", name).orElse(null);
     }
 
     @Override
@@ -309,7 +309,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceCommunicationConfiguration findDeviceCommunicationConfiguration(long id) {
-        return dataModel.mapper(DeviceCommunicationConfiguration.class).getOptional(id).orNull();
+        return dataModel.mapper(DeviceCommunicationConfiguration.class).getOptional(id).orElse(null);
     }
 
     @Override
@@ -420,7 +420,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         if(privilegeOptional.isPresent()) {
             return Optional.of(privilegeOptional.get());
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Module getModule() {
@@ -554,7 +554,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             preparedStatement.setLong(1, comSchedule.getId());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    deviceConfigurations.add(this.findDeviceConfiguration(resultSet.getLong(1)));
+                    deviceConfigurations.add(this.findDeviceConfiguration(resultSet.getLong(1)).get());
                 }
             }
         }
