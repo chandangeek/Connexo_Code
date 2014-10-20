@@ -22,7 +22,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -256,7 +256,7 @@ public class DeviceMessageServiceImplTest {
 
         @Override
         public Optional<LoadProfile> findByPrimaryKey(long id) {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -280,7 +280,7 @@ public class DeviceMessageServiceImplTest {
 
         @Override
         public Optional<LogBook> findByPrimaryKey(long id) {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
