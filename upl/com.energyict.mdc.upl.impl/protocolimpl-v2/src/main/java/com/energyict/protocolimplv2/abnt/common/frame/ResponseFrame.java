@@ -17,6 +17,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.InstrumentationPageResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.LoadProfileReadoutResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.PowerFailLogResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.ReadInstallationCodeResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.RegisterReadResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.TimeModificationResponse;
@@ -147,6 +148,9 @@ public class ResponseFrame implements Frame<ResponseFrame> {
                 break;
             case CONFIGURE_DST:
                 data = new ConfigureDstResponse(getTimeZone()).parse(data.getBytes(), 0);
+                break;
+            case READ_INSTALLATION_CODE:
+                data = new ReadInstallationCodeResponse(getTimeZone()).parse(data.getBytes(), 0);
                 break;
             case ENQ:
             case ACK:

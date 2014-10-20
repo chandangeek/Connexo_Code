@@ -17,9 +17,12 @@ import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.field.FloatField;
 import com.energyict.protocolimplv2.abnt.common.structure.ChannelGroup;
+import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.HolidayRecords;
 import com.energyict.protocolimplv2.abnt.common.structure.InstrumentationPageFields;
 import com.energyict.protocolimplv2.abnt.common.structure.InstrumentationPageResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.PowerFailLogResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.ReadInstallationCodeResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.RegisterReadFields;
@@ -48,15 +51,23 @@ import java.util.Map;
 public class RegisterFactory implements DeviceRegisterSupport {
 
     private static final ObisCode PARAMETER_READ_BASE_OBIS = ObisCode.fromString("0.0.96.0.0.255");
-    private static final ObisCode REGISTER_READ__GROUP_1_BASE_OBIS = ObisCode.fromString("1.0.1.8.0.255");
-    private static final ObisCode REGISTER_READ__GROUP_2_BASE_OBIS = ObisCode.fromString("1.0.2.8.0.255");
+    private static final ObisCode REGISTER_READ_NO_GROUP_BASE_OBIS = ObisCode.fromString("1.0.0.8.0.255");
+    private static final ObisCode REGISTER_READ_GROUP_1_BASE_OBIS = ObisCode.fromString("1.0.1.8.0.255");
+    private static final ObisCode REGISTER_READ_GROUP_2_BASE_OBIS = ObisCode.fromString("1.0.2.8.0.255");
     private static final ObisCode INSTRUMENTATION_PAGE_BASE_OBIS = ObisCode.fromString("1.0.4.8.0.255");
     private static final ObisCode SERIAL_NUMBER_OBIS = ObisCode.fromString("0.0.96.1.0.255");
+    private static final ObisCode INSTALLATION_CODE_OBIS = ObisCode.fromString("0.0.96.2.0.255");
+    private static final ObisCode INSTALLATION_CODE_HEX_OBIS = ObisCode.fromString("0.1.96.2.0.255");
+    private static final ObisCode HISTORY_LOG_OBIS = ObisCode.fromString("0.0.99.98.0.255");
+    private static final ObisCode POWER_FAILURE_LOG_OBIS = ObisCode.fromString("1.0.99.97.0.255");
 
     private Map<Integer, ReadParametersResponse> actualParametersMap;
     private Map<Integer, ReadParametersResponse> previousParametersMap;
     private Map<Integer, RegisterReadResponse> actualRegistersMap;
     private Map<Integer, RegisterReadResponse> billingRegistersMap;
+    private HistoryLogResponse historyLog;
+    private PowerFailLogResponse powerFailLog;
+    private ReadInstallationCodeResponse installationCodeResponse;
     private InstrumentationPageResponse instrumentationPage;
 
     private final AbstractAbntProtocol meterProtocol;
@@ -83,13 +94,15 @@ public class RegisterFactory implements DeviceRegisterSupport {
         try {
             if (registerIsOfType(register, PARAMETER_READ_BASE_OBIS)) { //A. Registers of Parameter read
                 readParameterReadRegisters(register, collectedRegister);
-            } else if (registerIsOfType(register, REGISTER_READ__GROUP_1_BASE_OBIS)) { // B. Registers of Register read (channel group 1)
+            } else if (registerIsOfType(register, REGISTER_READ_GROUP_1_BASE_OBIS)) { // B. Registers of Register read (channel group 1)
                 readRegisterReadRegisters(register, collectedRegister);
-            } else if (registerIsOfType(register, REGISTER_READ__GROUP_2_BASE_OBIS)) { // B. Registers of Register read (channel group 2)
+            } else if (registerIsOfType(register, REGISTER_READ_GROUP_2_BASE_OBIS)) { // B. Registers of Register read (channel group 2)
                 readRegisterReadRegisters(register, collectedRegister);
-            } else if (registerIsOfType(register, INSTRUMENTATION_PAGE_BASE_OBIS)) { // C. Registers of Instrumentation page
+            } else if (registerIsOfType(register, REGISTER_READ_NO_GROUP_BASE_OBIS)) { // C. Registers of Register read (no channel group)
+                readRegisterReadRegisters(register, collectedRegister);
+            } else if (registerIsOfType(register, INSTRUMENTATION_PAGE_BASE_OBIS)) {    // D. Registers of Instrumentation page
                 readInstrumentationPageRegister(register, collectedRegister);
-            } else {    // D. Other special registers
+            } else {    // E. Other special registers
                 readSpecialRegister(register, collectedRegister);
             }
 
@@ -109,9 +122,14 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void readParameterReadRegisters(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
-        ReadParameterFields field = ReadParameterFields.fromCode(register.getObisCode().getE());
-        boolean billingRegisters = register.getObisCode().getF() != 255;
         int channelGroup = register.getObisCode().getB();
+        boolean billingRegisters = register.getObisCode().getF() != 255;
+        if (register.getObisCode().getE() == 0) {
+            setCollectedData(collectedRegister, getParameters(channelGroup, billingRegisters).getBytes());
+            return;
+        }
+
+        ReadParameterFields field = ReadParameterFields.fromCode(register.getObisCode().getE());
         if (field != null) {
             setCollectedData(register, collectedRegister, getParameters(channelGroup, billingRegisters).getField(field));
         } else {
@@ -122,6 +140,11 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private void readRegisterReadRegisters(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
         int channelGroup = register.getObisCode().getC();
         boolean billingRegisters = register.getObisCode().getF() != 255;
+        if (register.getObisCode().getE() == 0) {
+            getParameters(channelGroup, billingRegisters);
+            setCollectedData(collectedRegister, getRegisters(channelGroup, billingRegisters).getBytes());
+            return;
+        }
 
         ReadParametersResponse parameters = getParameters(channelGroup, billingRegisters);
         RegisterReadResponse registers = getRegisters(channelGroup, billingRegisters);
@@ -192,6 +215,11 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void readInstrumentationPageRegister(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
+        if (register.getObisCode().getE() == 0) {
+            setCollectedData(collectedRegister, getInstrumentationPage().getBytes());
+            return;
+        }
+
         InstrumentationPageFields field = InstrumentationPageFields.fromCode(register.getObisCode().getE());
         if (field != null) {
             setCollectedData(register, collectedRegister, getInstrumentationPage().getField(field));
@@ -200,9 +228,25 @@ public class RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private void readSpecialRegister(OfflineRegister register, CollectedRegister collectedRegister) {
+    private void readPowerFailureLog(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
+        setCollectedData(collectedRegister, getPowerFailLog().getBytes());
+    }
+
+    private void readHistoryLog(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
+        setCollectedData(collectedRegister, getHistoryLog().getBytes());
+    }
+
+    private void readSpecialRegister(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
         if (register.getObisCode().equals(SERIAL_NUMBER_OBIS)) {
             setCollectedText(collectedRegister, getMeterProtocol().getSerialNumber());
+        } else if (register.getObisCode().equals(INSTALLATION_CODE_OBIS)) {
+            setCollectedText(collectedRegister, getInstallationCode().getInstallationCode());
+        } else if (register.getObisCode().equals(INSTALLATION_CODE_HEX_OBIS)) {
+            setCollectedText(collectedRegister, getInstallationCode().getInstallationCodeAsHex());
+        } else if (register.getObisCode().equals(POWER_FAILURE_LOG_OBIS)) {
+            readPowerFailureLog(register, collectedRegister);
+        } else if (register.getObisCode().equals(HISTORY_LOG_OBIS)) {
+            readHistoryLog(register, collectedRegister);
         }
     }
 
@@ -285,6 +329,12 @@ public class RegisterFactory implements DeviceRegisterSupport {
         collectedRegister.setCollectedData(
                 new Quantity(new BigDecimal(value), Unit.getUndefined()),
                 message
+        );
+    }
+
+    private void setCollectedData(CollectedRegister collectedRegister, byte[] bytes) {
+        collectedRegister.setCollectedData(
+                ProtocolTools.getHexStringFromBytes(bytes, "")
         );
     }
 
@@ -382,6 +432,27 @@ public class RegisterFactory implements DeviceRegisterSupport {
             this.instrumentationPage = getRequestFactory().readInstrumentationPage();
         }
         return this.instrumentationPage;
+    }
+
+    public PowerFailLogResponse getPowerFailLog() throws ParsingException {
+        if (this.powerFailLog == null) {
+            this.powerFailLog = getRequestFactory().readPowerFailLog();
+        }
+        return this.powerFailLog;
+    }
+
+    public HistoryLogResponse getHistoryLog() throws ParsingException {
+        if (this.historyLog == null) {
+            this.historyLog = getRequestFactory().readHistoryLog();
+        }
+        return this.historyLog;
+    }
+
+    public ReadInstallationCodeResponse getInstallationCode() throws ParsingException {
+        if (this.installationCodeResponse == null) {
+            this.installationCodeResponse = getRequestFactory().readInstallationCode();
+        }
+        return this.installationCodeResponse;
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

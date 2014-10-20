@@ -27,6 +27,8 @@ import com.energyict.protocolimplv2.abnt.common.structure.LoadProfileReadoutRequ
 import com.energyict.protocolimplv2.abnt.common.structure.LoadProfileReadoutResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.PowerFailLogRequest;
 import com.energyict.protocolimplv2.abnt.common.structure.PowerFailLogResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.ReadInstallationCodeRequest;
+import com.energyict.protocolimplv2.abnt.common.structure.ReadInstallationCodeResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersRequest;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersResponse;
@@ -257,6 +259,18 @@ public class RequestFactory {
 
         RequestFrame request = getBasicRequestFrame(Function.FunctionCode.CONFIGURE_AUTOMATIC_DEMAND_RESET);
         request.setData(configureAutomaticDemandResetRequest);
+        return request;
+    }
+
+    public ReadInstallationCodeResponse readInstallationCode() throws ParsingException {
+        ResponseFrame response = sendFrameGetResponse(getReadInstallationCodeRequest());
+        return (ReadInstallationCodeResponse) response.getData();
+    }
+
+    private RequestFrame getReadInstallationCodeRequest() {
+        ReadInstallationCodeRequest readInstallationCodeRequest = new ReadInstallationCodeRequest(getTimeZone());
+        RequestFrame request = getBasicRequestFrame(Function.FunctionCode.READ_INSTALLATION_CODE);
+        request.setData(readInstallationCodeRequest);
         return request;
     }
 

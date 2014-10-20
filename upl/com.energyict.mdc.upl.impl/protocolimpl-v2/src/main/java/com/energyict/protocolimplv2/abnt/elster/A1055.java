@@ -68,6 +68,9 @@ public class A1055 extends AbstractAbntProtocol {
         return "Elster A1055 ABNT";
     }
 
+    /**
+     * The protocol version
+     */
     @Override
     public String getVersion() {
         return "$Date$";
