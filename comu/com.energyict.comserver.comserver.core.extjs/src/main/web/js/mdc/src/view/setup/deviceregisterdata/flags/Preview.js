@@ -14,7 +14,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Preview', {
             {
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 200
+                    labelWidth: 200,
+                    width: 1000
                 },
                 items: [
                     {
@@ -38,8 +39,22 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Preview', {
                         }
                     },
                     {
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
-                        name: 'value'
+                        layout: {
+                            type: 'hbox'
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                margin: '0 10 0 0',
+                                name: 'value'
+                            },
+                            {
+                                xtype: 'edited-displayfield',
+                                name: 'editedDateTime'
+                            }
+                        ]
                     }
                 ]
             }

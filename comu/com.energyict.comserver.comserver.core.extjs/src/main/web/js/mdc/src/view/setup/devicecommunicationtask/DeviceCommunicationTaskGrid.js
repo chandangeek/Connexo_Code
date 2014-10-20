@@ -17,7 +17,16 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
 
     initComponent: function () {
         var me = this;
-
+        me.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                store: me.store,
+                dock: 'top',
+                displayMsg: Uni.I18n.translate('deviceCommunicationTask.pagingtoolbartop.displayMsg', 'MDC', '{2} communication tasks'),
+                displayMoreMsg: Uni.I18n.translate('deviceCommunicationTask.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communication tasks'),
+                emptyMsg: Uni.I18n.translate('deviceCommunicationTask.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communication tasks to display')
+            }
+        ];
         me.columns = [
             {
                 header: Uni.I18n.translate('deviceCommunicationTask.communicationTask', 'MDC', 'Communication task'),
