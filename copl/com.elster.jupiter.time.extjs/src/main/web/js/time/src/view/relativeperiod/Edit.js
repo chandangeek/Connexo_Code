@@ -80,6 +80,9 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                         xtype: 'uni-form-relativeperiod',
                         startPeriodCfg: {
                             showOptionNow: false
+                        },
+                        defaults: {
+                            labelWidth: 160
                         }
                     },
                     {
@@ -90,6 +93,9 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                         xtype: 'uni-form-relativeperiod',
                         startPeriodCfg: {
                             showOptionDate: false
+                        },
+                        defaults: {
+                            labelWidth: 160
                         }
                     }
                 ]
