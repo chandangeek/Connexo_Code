@@ -40,12 +40,12 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
-import org.joda.time.Duration;
 
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -105,7 +105,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.comPort = comPort;
         this.connectionTask = connectionTask;
         this.serviceProvider = serviceProvider;
-        this.sessionBuilder = serviceProvider.connectionTaskService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, Date.from(serviceProvider.clock().instant()));
+        this.sessionBuilder = serviceProvider.connectionTaskService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, serviceProvider.clock().instant());
         if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addConnectionPropertiesAsJournalEntries();
         }
@@ -126,7 +126,7 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     private void addStatisticalInformationToComSession() {
         ComSessionBuilder comSessionBuilder = this.getComSessionBuilder();
-        comSessionBuilder.connectDuration(Duration.millis(this.connecting.getElapsed() / NANOS_IN_MILLI));
+        comSessionBuilder.connectDuration(Duration.ofMillis(this.connecting.getElapsed() / NANOS_IN_MILLI));
         comSessionBuilder.talkDuration(this.comPortRelatedComChannel.talkTime());
         Counters sessionCounters = this.comPortRelatedComChannel.getSessionCounters();
         comSessionBuilder.addSentBytes(sessionCounters.getBytesSent());
@@ -460,8 +460,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    private Date now() {
-        return Date.from(serviceProvider.clock().instant());
+    private Instant now() {
+        return serviceProvider.clock().instant();
     }
 
     private void setComPortRelatedComChannel(ComPortRelatedComChannel comPortRelatedComChannel) {

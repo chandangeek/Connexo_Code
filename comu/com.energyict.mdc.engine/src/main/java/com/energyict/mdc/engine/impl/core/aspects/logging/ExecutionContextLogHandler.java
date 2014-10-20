@@ -6,9 +6,8 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilde
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 
-import java.time.Clock;
 import java.text.MessageFormat;
-import java.util.Date;
+import java.time.Clock;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Handler;
@@ -54,7 +53,7 @@ public class ExecutionContextLogHandler extends Handler {
             errorDesciption = StackTracePrinter.print(record.getThrown());
         }
         taskExecutionSession.addComTaskExecutionMessageJournalEntry(
-                Date.from(this.clock.instant()),
+                this.clock.instant(),
                 LogLevelMapper.forComServerLogLevel().fromJavaUtilLogLevel(record.getLevel()),
                 extractInfo(record),
                 errorDesciption);
@@ -62,7 +61,7 @@ public class ExecutionContextLogHandler extends Handler {
 
     private void publishComSessionJournalEntry (ComSessionBuilder builder, LogRecord record) {
         builder.addJournalEntry(
-                Date.from(this.clock.instant()),
+                this.clock.instant(),
                 LogLevelMapper.forComServerLogLevel().fromJavaUtilLogLevel(record.getLevel()),
                 extractInfo(record),
                 record.getThrown());

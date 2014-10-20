@@ -1,20 +1,19 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.InboundComPort;
 
 import java.time.Clock;
-import java.util.Date;
+import java.time.Instant;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -126,7 +125,7 @@ public class CreateInboundComSessionTest {
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = mock(ComSessionBuilder.EndedComSessionBuilder.class);
-        when(comSessionBuilder.endSession(any(Date.class), any(ComSession.SuccessIndicator.class))).thenReturn(endedComSessionBuilder);
+        when(comSessionBuilder.endSession(any(Instant.class), any(ComSession.SuccessIndicator.class))).thenReturn(endedComSessionBuilder);
         ComSession comSession = mock(ComSession.class);
         when(endedComSessionBuilder.create()).thenReturn(comSession);
         when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);

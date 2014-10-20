@@ -43,14 +43,14 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.util.Optional;
 
-import org.joda.time.Duration;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -278,19 +278,19 @@ public class InboundCommunicationHandler {
     private void appendStatisticalInformationToComSession() {
         ComSessionBuilder comSessionBuilder = this.context.getComSessionBuilder();
         if (comSessionBuilder != null) {
-            comSessionBuilder.connectDuration(new Duration(0));
+            comSessionBuilder.connectDuration(Duration.ofMillis(0));
             if (this.inWebContext()) {
                 StatisticsMonitoringHttpServletRequest request = this.getMonitoringRequest();
                 StatisticsMonitoringHttpServletResponse response = this.getMonitoringResponse();
                 long discoverMillis = this.discovering.getElapsed() / NANOS_IN_MILLI;
                 long talkMillis = discoverMillis + request.getTalkTime() + response.getTalkTime();
-                comSessionBuilder.talkDuration(Duration.millis(talkMillis));
+                comSessionBuilder.talkDuration(Duration.ofMillis(talkMillis));
                 comSessionBuilder.addReceivedBytes(request.getBytesRead()).addSentBytes(response.getBytesSent());
                 comSessionBuilder.addReceivedPackets(1).addSentPackets(1);
             } else {
                 ComPortRelatedComChannel comChannel = this.getComChannel();
                 long discoverMillis = this.discovering.getElapsed() / NANOS_IN_MILLI;
-                comSessionBuilder.talkDuration(Duration.millis(discoverMillis).withDurationAdded(comChannel.talkTime(), 1));
+                comSessionBuilder.talkDuration(Duration.ofMillis(discoverMillis).plus(comChannel.talkTime()));
                 Counters sessionCounters = comChannel.getSessionCounters();
                 Counters taskSessionCounters = comChannel.getTaskSessionCounters();
                 comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead() + taskSessionCounters.getBytesRead());
@@ -400,7 +400,8 @@ public class InboundCommunicationHandler {
         }
     }
 
-    private Date now() {
-    	return Date.from(serviceProvider.clock().instant());
+    private Instant now() {
+    	return serviceProvider.clock().instant();
     }
+
 }

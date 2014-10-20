@@ -61,8 +61,8 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder, never()).addComCommandJournalEntry(any(Date.class), any(CompletionCode.class), anyString(), anyString());
-        verify(comTaskExecutionSessionBuilder, never()).addComTaskExecutionMessageJournalEntry(any(Date.class), any(ComServer.LogLevel.class), anyString(), anyString());
+        verify(comTaskExecutionSessionBuilder, never()).addComCommandJournalEntry(any(Instant.class), any(CompletionCode.class), anyString(), anyString());
+        verify(comTaskExecutionSessionBuilder, never()).addComTaskExecutionMessageJournalEntry(any(Instant.class), any(ComServer.LogLevel.class), anyString(), anyString());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.INFO);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(Date.from(clock.instant()), expectedCompletionCode, "", expectedCommandDescription);
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.instant(), expectedCompletionCode, "", expectedCommandDescription);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.DEBUG);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(Date.from(clock.instant()), expectedCompletionCode, "", expectedCommandDescription);
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.instant(), expectedCompletionCode, "", expectedCommandDescription);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class ComCommandJournalistTest {
         this.journalist.executionCompleted(comCommand, LogLevel.ERROR);
 
         // Asserts
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(Date.from(clock.instant()), expectedCompletionCode, "", expectedCommandDescription);
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(clock.instant(), expectedCompletionCode, "", expectedCommandDescription);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class ComCommandJournalistTest {
 
         // Asserts
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(Date.from(clock.instant())), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(clock.instant()), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
         String errorDescription = stringCaptor.getValue();
         assertThat(errorDescription).startsWith("Execution completed with 2 warning(s) and 0 problem(s)");
         assertThat(errorDescription).contains("01. First warning");
@@ -161,7 +161,7 @@ public class ComCommandJournalistTest {
 
         // Asserts
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(Date.from(clock.instant())), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(clock.instant()), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
         String errorDescription = stringCaptor.getValue();
         assertThat(errorDescription).startsWith("Execution completed with 0 warning(s) and 2 problem(s)");
         assertThat(errorDescription).contains("01. First problem");
@@ -187,7 +187,7 @@ public class ComCommandJournalistTest {
 
         // Asserts
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(Date.from(clock.instant())), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(eq(clock.instant()), eq(expectedCompletionCode), stringCaptor.capture(), eq(expectedCommandDescription));
         String errorDescription = stringCaptor.getValue();
         assertThat(errorDescription).startsWith("Execution completed with 1 warning(s) and 1 problem(s)");
         assertThat(errorDescription).contains("01. Problem");

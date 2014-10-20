@@ -11,10 +11,10 @@ import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.elster.jupiter.util.time.StopWatch;
-import org.joda.time.Duration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Duration;
 
 /**
  * Provides an implementation for the {@link ComPortRelatedComChannel} interface.
@@ -278,7 +278,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     @Override
     public Duration talkTime() {
-        return Duration.millis(this.talking.getElapsed() / NANOS_IN_MILLI);
+        return Duration.ofMillis(this.talking.getElapsed() / NANOS_IN_MILLI);
     }
 
     @Override

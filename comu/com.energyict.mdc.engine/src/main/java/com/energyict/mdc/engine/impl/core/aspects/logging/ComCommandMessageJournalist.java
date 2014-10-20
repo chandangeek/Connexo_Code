@@ -33,7 +33,7 @@ public class ComCommandMessageJournalist extends Handler {
     @Override
     public void publish (LogRecord record) {
         this.comTaskExecutionSessionBuilder.addComTaskExecutionMessageJournalEntry(
-        		Date.from(clock.instant()),
+        		this.clock.instant(),
                 LogLevelMapper.forJavaUtilLogging().toComServerLogLevel(record.getLevel()),
                 extractInfo(record), "");
     }

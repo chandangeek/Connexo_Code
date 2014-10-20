@@ -27,27 +27,28 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 
+import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.Date;
+import java.time.Instant;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the statistical monitoring aspects of the {@link InboundCommunicationHandler} component.
@@ -89,7 +90,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         this.serviceProvider.setHexService(new HexServiceImpl());
         this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
         this.serviceProvider.setTransactionService(new FakeTransactionService());
-        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
+        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).thenReturn(comSessionBuilder);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 

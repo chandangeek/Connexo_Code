@@ -1,18 +1,16 @@
 package com.energyict.mdc.engine.impl.core.aspects.journaling;
 
-import java.time.Clock;
-
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Date;
+import java.time.Clock;
 import java.util.List;
 
 /**
@@ -55,7 +53,7 @@ public class ComCommandJournalist {
     private void addJournalEntries(ComCommand comCommand, LogLevel serverLogLevel) {
         String errorDescription = buildErrorDescription(comCommand);
         String commandDescription = comCommand.toJournalMessageDescription(serverLogLevel);
-        comTaskExecutionSessionBuilder.addComCommandJournalEntry(Date.from(clock.instant()), comCommand.getCompletionCode(), errorDescription, commandDescription);
+        comTaskExecutionSessionBuilder.addComCommandJournalEntry(clock.instant(), comCommand.getCompletionCode(), errorDescription, commandDescription);
     }
 
     private String buildErrorDescription(ComCommand comCommand) {

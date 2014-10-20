@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 
-import org.joda.time.Duration;
+import java.time.Duration;
 
 /**
  * Wraps {@link ComChannel} to add that the ComChannel

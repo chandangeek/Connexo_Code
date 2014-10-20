@@ -1,11 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.nls.NlsService;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -22,27 +16,32 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.elster.jupiter.nls.NlsService;
+import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the statistics defined on {@link ComChannelBasedComPortListenerImpl}.
@@ -98,7 +97,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         serviceProvider.setHexService(this.hexService);
         serviceProvider.setConnectionTaskService(this.connectionTaskService);
         serviceProvider.setDeviceService(this.deviceService);
-        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
+        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).thenReturn(comSessionBuilder);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 
@@ -356,11 +355,11 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     }
 
     private void assertComSessionJournalMessage(String expectedMessage) {
-        verify(comSessionBuilder).addJournalEntry(eq(Date.from(clock.instant())), any(ComServer.LogLevel.class), eq(expectedMessage), isNull(Throwable.class));
+        verify(comSessionBuilder).addJournalEntry(eq(clock.instant()), any(ComServer.LogLevel.class), eq(expectedMessage), isNull(Throwable.class));
     }
 
     private void assertNoComSessionJournalMessage() {
-        verify(comSessionBuilder, never()).addJournalEntry(any(Date.class), any(ComServer.LogLevel.class), anyString(), any(Throwable.class));
+        verify(comSessionBuilder, never()).addJournalEntry(any(Instant.class), any(ComServer.LogLevel.class), anyString(), any(Throwable.class));
     }
 
     private void readFrom(ComPortRelatedComChannel comChannel) {

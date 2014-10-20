@@ -18,8 +18,8 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -90,7 +90,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         return sessionBuilder;
     }
 
-    public ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
+    public ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
         sessionBuilder = this.connectionTaskService.buildComSession(connectionTask, comPortPool, comPort, startTime);
         this.journalEntryBacklog.createWith(sessionBuilder);
         return sessionBuilder;
@@ -145,7 +145,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         return this.getInboundDAO().getDeviceProtocolProperties(deviceIdentifier);
     }
 
-    public void addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {
+    public void addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {
         if (this.sessionBuilder != null) {
             this.sessionBuilder.addJournalEntry(timestamp, logLevel, description, t);
         } else {
@@ -156,7 +156,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private class JournalEntryBacklog {
         private List<JournalEntryBacklogEntry> entries = new ArrayList<>();
 
-        private void addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {
+        private void addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {
             this.entries.add(new JournalEntryBacklogEntry(timestamp, logLevel, description, t));
         }
 
@@ -169,12 +169,12 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     private class JournalEntryBacklogEntry {
-        private Date timestamp;
+        private Instant timestamp;
         private ComServer.LogLevel logLevel;
         private String description;
         private Throwable thrown;
 
-        private JournalEntryBacklogEntry(Date timestamp, ComServer.LogLevel logLevel, String description, Throwable thrown) {
+        private JournalEntryBacklogEntry(Instant timestamp, ComServer.LogLevel logLevel, String description, Throwable thrown) {
             super();
             this.timestamp = timestamp;
             this.logLevel = logLevel;

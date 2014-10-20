@@ -10,8 +10,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.Issue;
 
 import java.time.Clock;
-import java.util.Date;
-
 import java.util.Optional;
 
 /**
@@ -37,7 +35,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     public void executed (DeviceCommand deviceCommand) {
         if (this.isLogLevelEnabled(deviceCommand)) {
             getComSessionBuilder().addJournalEntry(
-                    Date.from(this.clock.instant()),
+                    this.clock.instant(),
                     this.logLevel,
                     deviceCommand.toJournalMessageDescription(this.logLevel),
                     null);
@@ -69,7 +67,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     }
 
     private void logFailure (Throwable t, ComTaskExecutionSessionBuilder builder) {
-        builder.addComCommandJournalEntry(Date.from(clock.instant()), CompletionCode.UnexpectedError, StackTracePrinter.print(t), "General");
+        builder.addComCommandJournalEntry(clock.instant(), CompletionCode.UnexpectedError, StackTracePrinter.print(t), "General");
     }
 
     @Override
@@ -78,7 +76,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     }
 
     private void logIssue(CompletionCode completionCode, Issue issue, ComTaskExecutionSessionBuilder builder) {
-        builder.addComCommandJournalEntry(issue.getTimestamp(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
+        builder.addComCommandJournalEntry(issue.getTimestamp().toInstant(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
     }
 
 }

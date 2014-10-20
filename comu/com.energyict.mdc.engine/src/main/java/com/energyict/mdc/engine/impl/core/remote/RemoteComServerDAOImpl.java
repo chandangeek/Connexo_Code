@@ -2,13 +2,14 @@ package com.energyict.mdc.engine.impl.core.remote;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.HasId;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComJob;
@@ -34,12 +35,10 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
-import java.time.Clock;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
@@ -50,6 +49,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -289,12 +289,8 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
-        return builder.endSession(Date.from(serviceProvider.clock().instant()), successIndicator).create();
+        return builder.endSession(serviceProvider.clock().instant(), successIndicator).create();
     }
-
-    //    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {
-//        return null;
-//    }
 
     @Override
     public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
@@ -320,11 +316,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
         return null;
     }
-
-    //    @Override
-//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-//        return null;
-//    }
 
     @Override
     public void updateIpAddress (String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {

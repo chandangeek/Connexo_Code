@@ -1,32 +1,32 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import java.time.Clock;
-import java.time.Instant;
-
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.tasks.ComTask;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Date;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ExecutionLoggerImpl} component.
@@ -80,7 +80,7 @@ public class FailureLoggerImplTest {
         failureLogger.logUnexpected(new Exception("For testing purposes only"), this.comTaskExecution);
 
         // Asserts
-        verify(taskExecutionSessionBuilder).addComCommandJournalEntry(any(Date.class), eq(CompletionCode.UnexpectedError), anyString(), anyString());
+        verify(taskExecutionSessionBuilder).addComCommandJournalEntry(any(Instant.class), eq(CompletionCode.UnexpectedError), anyString(), anyString());
     }
 
 }

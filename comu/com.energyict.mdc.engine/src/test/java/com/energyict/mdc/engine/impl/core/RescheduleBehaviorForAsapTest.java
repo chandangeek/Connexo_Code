@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import java.time.Clock;
-import java.time.ZoneId;
-
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -30,21 +27,30 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.logging.Logger;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.logging.Logger;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.RescheduleBehaviorForAsap} component
@@ -94,7 +100,7 @@ public class RescheduleBehaviorForAsapTest {
         serviceProvider.setConnectionTaskService(this.connectionTaskService);
         serviceProvider.setIssueService(this.issueService);
         serviceProvider.setClock(clock);
-        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
+        when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).thenReturn(comSessionBuilder);
     }
 
     @Test
@@ -164,14 +170,14 @@ public class RescheduleBehaviorForAsapTest {
         when(commandRoot.getComTaskRoot(notExecutedComTaskExecution)).thenReturn(mock(ComTaskExecutionComCommand.class));
         executionContext.setCommandRoot(commandRoot);
         ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
-        when(this.comSessionBuilder.addComTaskExecutionSession(eq(notExecutedComTaskExecution), eq(device), any(Date.class))).thenReturn(comTaskExecutionSessionBuilder);
+        when(this.comSessionBuilder.addComTaskExecutionSession(eq(notExecutedComTaskExecution), eq(device), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
         rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.CONNECTION_SETUP);
 
         // asserts
         verify(comServerDAO, never()).executionCompleted(any(ComTaskExecution.class));
         verify(comServerDAO, times(1)).executionFailed(any(ComTaskExecution.class)); // we want the comTask to be rescheduled in ASAP
         verify(comServerDAO, times(1)).executionFailed(connectionTask);
-        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(any(Date.class), eq(CompletionCode.ConnectionError), anyString(), anyString());
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(any(Instant.class), eq(CompletionCode.ConnectionError), anyString(), anyString());
     }
 
     @Test

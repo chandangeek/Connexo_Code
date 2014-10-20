@@ -102,10 +102,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         public TransactionService transactionService();
 
         public EventService eventService();
-        
-        default public Date now() {
-        	return Date.from(clock().instant());
-        }
 
     }
 
@@ -452,7 +448,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, final ComSession.SuccessIndicator successIndicator) {
         /* We should already be in a transaction so don't wrap it again */
-        return builder.endSession(serviceProvider.now(), successIndicator).create();
+        return builder.endSession(serviceProvider.clock().instant(), successIndicator).create();
     }
 
     @Override
