@@ -22,10 +22,3 @@ class ComSessionInfo {
     public ComTaskCountInfo comTaskCount;
     public boolean isDefault;
 }
-
-class ComTaskCountInfo {
-    public long numberOfSuccessfulTasks;
-    public long numberOfFailedTasks;
-    public long numberOfIncompleteTasks;
-}
-

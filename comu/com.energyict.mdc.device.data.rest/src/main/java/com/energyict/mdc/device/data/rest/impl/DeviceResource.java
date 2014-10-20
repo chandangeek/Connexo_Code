@@ -27,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 @Path("/devices")
 public class DeviceResource {
@@ -98,13 +99,13 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public DeviceInfo addDevice(DeviceInfo info) {
-        DeviceConfiguration deviceConfiguration = null;
+        Optional<DeviceConfiguration> deviceConfiguration = Optional.empty();
         if (info.deviceConfigurationId != null) {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
 
         Calendar calendar = Calendar.getInstance();
-        Device newDevice = deviceService.newDevice(deviceConfiguration, info.mRID, info.mRID);
+        Device newDevice = deviceService.newDevice(deviceConfiguration.get(), info.mRID, info.mRID);
         newDevice.setSerialNumber(info.serialNumber);
         calendar.set(Integer.parseInt(info.yearOfCertification), 1, 1);
         newDevice.setYearOfCertification(calendar.getTime());

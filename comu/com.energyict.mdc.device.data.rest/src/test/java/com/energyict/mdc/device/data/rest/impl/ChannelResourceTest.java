@@ -16,7 +16,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
@@ -26,10 +25,12 @@ import org.mockito.Mock;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.*;
 public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     public static final String BATTERY_LOW = "BATTERY_LOW";
-    public static final Date NOW = new Date(1410786205000L);
+    public static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
     public static final Date LAST_CHECKED = new Date(1409570229000L);
     public static final Date LAST_READING = new Date(1410786196000L);
     public static final long CHANNEL_ID1 = 151521354L;
@@ -87,7 +88,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, readingRecord1, channel2, readingRecord2));
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(250, 0));
-        when(clock.now()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device);
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
         when(channel1.getChannelSpec()).thenReturn(channelSpec);
@@ -98,7 +99,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(channel1, NOW)).thenReturn(true);
         when(deviceValidation.isValidationActive(channel2, NOW)).thenReturn(true);
-        DataValidationStatusImpl state1 = new DataValidationStatusImpl(new Date(intervalEnd), true);
+        DataValidationStatusImpl state1 = new DataValidationStatusImpl(Instant.ofEpochMilli(intervalEnd), true);
         state1.addReadingQuality(quality1, asList(rule1));
         when(rule1.getRuleSet()).thenReturn(ruleSet);
         when(ruleSet.getName()).thenReturn("ruleSetName");
@@ -214,7 +215,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .put(Entity.json(new TriggerValidationInfo()));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateChannel(channel1, null, LAST_READING);
+        verify(deviceValidation).validateChannel(channel1, null, LAST_READING.toInstant());
     }
 
     @Test
@@ -230,7 +231,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .put(Entity.json(triggerValidationInfo));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateChannel(channel1, LAST_CHECKED, LAST_READING);
+        verify(deviceValidation).validateChannel(channel1, LAST_CHECKED.toInstant(), LAST_READING.toInstant());
     }
 
 }

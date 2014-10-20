@@ -153,17 +153,5 @@ public class ComSessionResource {
         }
         return comSessionOptional.get();
     }
-}
 
-class ComSessionsInfo {
-    public String connectionMethod;
-    public int total;
-    public List<?> comSessions;
 }
-
-class ComTaskExecutionSessionsInfo {
-    public String device;
-    public int total;
-    public List<?> comTaskExecutionSessions;
-}
-

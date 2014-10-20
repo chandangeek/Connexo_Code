@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -16,17 +15,21 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.google.common.base.Optional;
+
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -53,14 +56,15 @@ public class RegisterDataResource {
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Meter meter = resourceHelper.getMeterFor(device);
         Interval interval = Interval.sinceEpoch();
+        Range<Instant> range = interval.toOpenClosedRange();
         List<? extends Reading> readings = register.getReadings(interval);
         List<ReadingRecord> readingRecords = readings.stream().map(Reading::getActualReading).collect(Collectors.toList());
         Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
         List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
         Boolean validationStatusForRegister = false;
         if(channelRef.isPresent()) {
-            validationStatusForRegister = device.forValidation().isValidationActive(register, clock.now());
-            dataValidationStatuses = device.forValidation().getValidationStatus(register, readingRecords, interval);
+            validationStatusForRegister = device.forValidation().isValidationActive(register, clock.instant());
+            dataValidationStatuses = device.forValidation().getValidationStatus(register, readingRecords, range);
         }
         List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register.getRegisterSpec(),
                 validationStatusForRegister, dataValidationStatuses);
@@ -83,17 +87,26 @@ public class RegisterDataResource {
         if(!reading.isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp);
         }
-        ReadingRecord readingRecord = reading.get().getActualReading();
         List<ReadingRecord> readingRecords = new ArrayList<>(Arrays.asList(reading.get().getActualReading()));
         Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
         List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
         Boolean validationStatusForRegister = false;
         if(channelRef.isPresent()) {
-            validationStatusForRegister = device.forValidation().isValidationActive(register, clock.now());
-            dataValidationStatuses = device.forValidation().getValidationStatus(register, readingRecords, new Interval(new Date(timeStamp), new Date(timeStamp)));
+            validationStatusForRegister = device.forValidation().isValidationActive(register, clock.instant());
+            dataValidationStatuses =
+                    device.forValidation().getValidationStatus(
+                            register,
+                            readingRecords,
+                            Range.closedOpen(
+                                    Instant.ofEpochMilli(timeStamp),
+                                    Instant.ofEpochMilli(timeStamp)));
         }
 
-        return ReadingInfoFactory.asInfo(reading.get(), register.getRegisterSpec(), validationStatusForRegister, dataValidationStatuses.size() > 0 ? dataValidationStatuses.get(0) : null);
+        return ReadingInfoFactory.asInfo(
+                reading.get(),
+                register.getRegisterSpec(),
+                validationStatusForRegister,
+                !dataValidationStatuses.isEmpty() ? dataValidationStatuses.get(0) : null);
     }
 
     @PUT
@@ -134,13 +147,13 @@ public class RegisterDataResource {
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Meter meter = resourceHelper.getMeterFor(device);
         Optional<Channel> channel =  resourceHelper.getRegisterChannel(register, meter);
-        if(!channel.isPresent()) {
-            exceptionFactory.newException(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId);
+        if (!channel.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId);
         }
 
-        List<BaseReadingRecord> readings = channel.get().getReadings(new Interval(new Date(timeStamp), new Date(timeStamp)));
-        if(readings.isEmpty()) {
-            exceptionFactory.newException(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp);
+        List<BaseReadingRecord> readings = channel.get().getReadings(Range.openClosed(Instant.ofEpochMilli(timeStamp), Instant.ofEpochMilli(timeStamp)));
+        if (readings.isEmpty()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp);
         }
         channel.get().removeReadings(readings);
 
@@ -149,7 +162,7 @@ public class RegisterDataResource {
 
     private boolean hasSuspects(ReadingInfo info) {
         boolean result = true;
-        if(info instanceof BillingReadingInfo) {
+        if (info instanceof BillingReadingInfo) {
             BillingReadingInfo billingReadingInfo = (BillingReadingInfo)info;
             result = ValidationStatus.SUSPECT.equals(billingReadingInfo.validationResult);
         } else if (info instanceof NumericalReadingInfo) {

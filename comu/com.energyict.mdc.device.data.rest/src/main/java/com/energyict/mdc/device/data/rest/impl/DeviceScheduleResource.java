@@ -60,7 +60,7 @@ public class DeviceScheduleResource {
                         }
                     }
                     if(!comTaskExecutionExists) {
-                        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orNull(), schedulingInfo.schedule.asTemporalExpression());
+                        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null), schedulingInfo.schedule.asTemporalExpression());
                         if(comTaskEnablement.hasPartialConnectionTask()){
                             for (ConnectionTask<?, ?> connectionTask : device.getConnectionTasks()) {
                                 if(connectionTask.getPartialConnectionTask().getId()==comTaskEnablement.getPartialConnectionTask().get().getId()){
@@ -80,7 +80,7 @@ public class DeviceScheduleResource {
                         }
                     }
                     if(!comTaskExecutionExists){
-                        ManuallyScheduledComTaskExecution comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orNull()).add();
+                        ManuallyScheduledComTaskExecution comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null)).add();
                         device.save();
                         comTaskExecution.scheduleNow();
                     }

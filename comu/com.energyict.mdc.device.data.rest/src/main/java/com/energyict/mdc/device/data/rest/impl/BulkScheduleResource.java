@@ -9,7 +9,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.google.common.base.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -23,6 +22,7 @@ import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class BulkScheduleResource {
     private static final String LOAD_ALL_DEVICES = "all";
@@ -45,12 +45,7 @@ public class BulkScheduleResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.SCHEDULE_DEVICE)
     public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters) {
-        BulkAction action = new BulkAction() {
-            @Override
-            public void doAction(Device device, ComSchedule schedule) {
-                device.newScheduledComTaskExecution(schedule).add();
-            }
-        };
+        BulkAction action = (device, schedule) -> device.newScheduledComTaskExecution(schedule).add();
         ComSchedulesBulkInfo response = processBulkAction(request, action, queryParameters);
         return Response.ok(response.build()).build();
     }
@@ -131,7 +126,7 @@ public class BulkScheduleResource {
     }
 
     private String getMessageForConstraintViolation(ConstraintViolationException ex, Device device, ComSchedule schedule) {
-        if (ex.getConstraintViolations() != null && ex.getConstraintViolations().size() > 0) {
+        if (ex.getConstraintViolations() != null && !ex.getConstraintViolations().isEmpty()) {
             return ex.getConstraintViolations().iterator().next().getMessage();
         }
         return MessageSeeds.DEVICE_VALIDATION_BULK_MSG.format(thesaurus, schedule.getName(), device.getName());

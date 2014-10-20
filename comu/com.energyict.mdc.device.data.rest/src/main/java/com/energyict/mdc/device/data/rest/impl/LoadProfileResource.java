@@ -1,10 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -14,8 +9,13 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.google.common.base.Optional;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -32,6 +32,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -106,7 +108,7 @@ public class LoadProfileResource {
         loadProfileInfo.validationInfo = new DetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
         if (states.isEmpty()) {
             loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
-                    .allMatch(c -> c.getDevice().forValidation().allDataValidated(c, clock.now()));
+                    .allMatch(c -> c.getDevice().forValidation().allDataValidated(c, clock.instant()));
         }
     }
 
@@ -120,15 +122,15 @@ public class LoadProfileResource {
                 .filter(isValidationActive()).collect(Collectors.toList());
         List<Date> collect = channels.stream()
                 .map(c -> c.getDevice().forValidation().getLastChecked(c))
-                .map(Optional::orNull)
+                .map(o -> o.map(Date::from).orElse(null))
                 .collect(Collectors.toList());
         return collect.stream().anyMatch(isNull()) ? null : collect.stream().reduce(this::min).orElse(null);
     }
 
-    private Interval lastMonth() {
-        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+    private Range<Instant> lastMonth() {
+        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
-        return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
+        return Range.openClosed(start.toInstant(), end.toInstant());
     }
 
     private Date min(Date d1, Date d2) {
@@ -137,7 +139,7 @@ public class LoadProfileResource {
     }
 
     private Predicate<Channel> isValidationActive() {
-        return c -> c.getDevice().forValidation().isValidationActive(c, clock.now());
+        return c -> c.getDevice().forValidation().isValidationActive(c, clock.instant());
     }
 
     @GET
@@ -164,15 +166,15 @@ public class LoadProfileResource {
     @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
     public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
 
-        Date start = validationInfo.lastChecked == null ? null : new Date(validationInfo.lastChecked);
+        Instant start = validationInfo.lastChecked == null ? null : Instant.ofEpochMilli(validationInfo.lastChecked);
         validateLoadProfile(doGetLoadProfile(mrid, loadProfileId), start);
 
         return Response.status(Response.Status.OK).build();
     }
 
-    private void validateLoadProfile(LoadProfile loadProfile, Date start) {
-        if (loadProfile.getLastReading() != null && (start == null || loadProfile.getLastReading().after(start))) {
-            loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile, start, loadProfile.getLastReading());
+    private void validateLoadProfile(LoadProfile loadProfile, Instant start) {
+        if (loadProfile.getLastReading() != null && (start == null || loadProfile.getLastReading().after(Date.from(start)))) {
+            loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile, start, loadProfile.getLastReading().toInstant());
         } else if (start != null) {
             loadProfile.getChannels().stream()
                     .forEach(c -> loadProfile.getDevice().forValidation().setLastChecked(c, start));

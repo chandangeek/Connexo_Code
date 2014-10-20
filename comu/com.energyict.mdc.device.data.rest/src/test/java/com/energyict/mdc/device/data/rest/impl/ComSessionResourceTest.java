@@ -33,6 +33,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by bvn on 10/3/14.
@@ -58,7 +59,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
-        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();
         ComSession comSession1 = mockComSession(connectionTask, 61L, 0);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
         String response = target("/devices/XAW1/connectionmethods/3/comsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
@@ -103,7 +104,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
-        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();
         ComSession comSession1 = mockComSession(connectionTask, 777L, 0);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/777").request().get(String.class);
@@ -145,7 +146,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
-        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();
         ComSession comSession1 = mockComSession(connectionTask, 61L, 1);
         ComSession comSession2 = mockComSession(connectionTask, 62L, 3);
         ComSession comSession3 = mockComSession(connectionTask, 63L, 2);
@@ -198,7 +199,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
-        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();        
         comSession1 = mockComSession(connectionTask, 888L, 1);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
 
