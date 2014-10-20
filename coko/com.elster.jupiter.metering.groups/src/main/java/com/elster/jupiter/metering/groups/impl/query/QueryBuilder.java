@@ -48,9 +48,13 @@ public class QueryBuilder {
         @Override
         public void visitOr(Or or) {
             add(OpenBracketOperation.atPosition(nextPosition()));
-            or.getConditions().get(0).visit(this);
-            add(OrOperation.atPosition(nextPosition()));
-            or.getConditions().get(1).visit(this);
+            int numberOfConditions = or.getConditions().size();
+            for (int i = 0; i < numberOfConditions; i++) {
+                or.getConditions().get(i).visit(this);
+                if (i != (numberOfConditions - 1)) {
+                    add(OrOperation.atPosition(nextPosition()));
+                }
+            }
             add(CloseBracketOperation.atPosition(nextPosition()));
         }
 
@@ -61,9 +65,13 @@ public class QueryBuilder {
         @Override
         public void visitAnd(And and) {
             add(OpenBracketOperation.atPosition(nextPosition()));
-            and.getConditions().get(0).visit(this);
-            add(AndOperation.atPosition(nextPosition()));
-            and.getConditions().get(1).visit(this);
+            int numberOfConditions = and.getConditions().size();
+            for (int i = 0; i < numberOfConditions; i++) {
+                and.getConditions().get(i).visit(this);
+                if (i != (numberOfConditions - 1)) {
+                    add(AndOperation.atPosition(nextPosition()));
+                }
+            }
             add(CloseBracketOperation.atPosition(nextPosition()));
         }
 
@@ -84,7 +92,8 @@ public class QueryBuilder {
 
         @Override
         public void visitTrue(Constant trueCondition) {
-            throw new UnsupportedOperationException("True constant not supported.");
+            //adding no conditions
+            //throw new UnsupportedOperationException("True constant not supported.");
         }
 
         @Override
