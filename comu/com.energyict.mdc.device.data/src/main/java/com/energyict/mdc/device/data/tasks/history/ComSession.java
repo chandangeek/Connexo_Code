@@ -10,9 +10,10 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 
 import com.elster.jupiter.util.time.Interval;
-import org.joda.time.Duration;
+import com.google.common.collect.Range;
 
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -74,9 +75,9 @@ public interface ComSession extends HasId, TaskExecutionSummary {
 
     public List<ComTaskExecutionSession> getComTaskExecutionSessions ();
 
-    public java.time.Instant getStartDate();
+    public Instant getStartDate();
 
-    public java.time.Instant getStopDate();
+    public Instant getStopDate();
 
     public boolean endsAfter (ComSession other);
 
@@ -85,7 +86,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      *
      * @return The total number of milli seconds
      */
-    public java.time.Duration getTotalDuration();
+    public Duration getTotalDuration();
 
     /**
      * Gets the number of milli seconds take were necessary to setup the connection.
@@ -129,9 +130,9 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      */
     public boolean wasSuccessful ();
 
-    public ComTaskExecutionSession createComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Interval interval, ComTaskExecutionSession.SuccessIndicator successIndicator);
+    public ComTaskExecutionSession createComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Range<Instant> interval, ComTaskExecutionSession.SuccessIndicator successIndicator);
 
-    public ComSessionJournalEntry createJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
+    public ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
 
     /**
      * Models the combined view on {@link ComSessionJournalEntry} and {@link ComTaskExecutionJournalEntry}.
@@ -145,7 +146,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
          * @see ComSessionJournalEntry#getTimestamp()
          * @see ComTaskExecutionJournalEntry#getTimestamp()
          */
-        public Date getTimestamp ();
+        public Instant getTimestamp ();
 
         /**
          * Gets the level at which this {@link ComSessionJournalEntry} or {@link ComTaskExecutionMessageJournalEntry} was logged

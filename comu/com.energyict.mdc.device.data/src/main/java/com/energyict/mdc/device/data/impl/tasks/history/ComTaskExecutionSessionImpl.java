@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
@@ -20,11 +14,17 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
 import com.energyict.mdc.engine.model.ComServer;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -74,14 +74,14 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     private CompletionCode highestPriorityCompletionCode;
     private String highestPriorityErrorDescription;
-    private Date modDate;
+    private Instant modDate;
 
     @Inject
     ComTaskExecutionSessionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
     }
 
-    static ComTaskExecutionSessionImpl from(DataModel dataModel, ComSession comSession, ComTaskExecution comTaskExecution, Device device, Interval interval, SuccessIndicator successIndicator) {
+    static ComTaskExecutionSessionImpl from(DataModel dataModel, ComSession comSession, ComTaskExecution comTaskExecution, Device device, Range<Instant> interval, SuccessIndicator successIndicator) {
         return dataModel.getInstance(ComTaskExecutionSessionImpl.class).init(comSession, comTaskExecution, device, interval, successIndicator);
     }
 
@@ -126,18 +126,18 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     @Override
-    public Date getStartDate() {
-        return Date.from(startDate);
+    public Instant getStartDate() {
+        return this.startDate;
     }
 
     @Override
-    public Date getStopDate() {
-        return Date.from(stopDate);
+    public Instant getStopDate() {
+        return this.stopDate;
     }
 
     @Override
     public boolean endsAfter(ComTaskExecutionSession other) {
-        return this.getStopDate().after(other.getStopDate());
+        return this.getStopDate().isAfter(other.getStopDate());
     }
 
     @Override
@@ -146,14 +146,14 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     @Override
-    public ComCommandJournalEntry createComCommandJournalEntry(Date timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
+    public ComCommandJournalEntry createComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
         ComCommandJournalEntryImpl journalEntry = ComCommandJournalEntryImpl.from(dataModel, this, timestamp, completionCode, errorDescription, commandDescription);
         comTaskExecutionJournalEntries.add(journalEntry);
         return journalEntry;
     }
 
     @Override
-    public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
+    public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
         ComTaskExecutionMessageJournalEntryImpl journalEntry = ComTaskExecutionMessageJournalEntryImpl.from(this.dataModel, this, timestamp, message, errorDescription, logLevel);
         comTaskExecutionJournalEntries.add(journalEntry);
         return journalEntry;
@@ -184,12 +184,12 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
         statistics.set(stats);
     }
 
-    private ComTaskExecutionSessionImpl init(ComSession comSession, ComTaskExecution comTaskExecution, Device device, Interval interval, SuccessIndicator successIndicator) {
+    private ComTaskExecutionSessionImpl init(ComSession comSession, ComTaskExecution comTaskExecution, Device device, Range<Instant> interval, SuccessIndicator successIndicator) {
         this.comSession.set(comSession);
         this.comTaskExecution.set(comTaskExecution);
         this.device.set(device);
-        this.startDate = interval.getStart();
-        this.stopDate = interval.getEnd();
+        this.startDate = interval.lowerEndpoint();
+        this.stopDate = interval.upperEndpoint();
         this.successIndicator = successIndicator;
         return this;
     }

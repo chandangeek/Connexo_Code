@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -38,6 +30,15 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
 
@@ -48,7 +49,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -519,7 +519,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
-    public ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
+    public ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
         return new ComSessionBuilderImpl(this.deviceDataModelService.dataModel(), connectionTask, comPortPool, comPort, startTime);
     }
 

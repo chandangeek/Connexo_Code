@@ -1,10 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Counter;
-import com.elster.jupiter.util.Counters;
-import com.elster.jupiter.util.LongCounter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -16,14 +11,18 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilde
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
-import net.jcip.annotations.NotThreadSafe;
-import org.joda.time.Duration;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Counter;
+import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.LongCounter;
+import net.jcip.annotations.NotThreadSafe;
+
 import java.lang.reflect.Proxy;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         private final List<ComTaskExecutionSessionBuilderImpl> comTaskExecutions = new ArrayList<>();
 
         @Override
-        public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Date startDate) {
+        public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Instant startDate) {
             ComTaskExecutionSessionBuilderImpl builder = new ComTaskExecutionSessionBuilderImpl(parentBuilder(), comTaskExecution, device, startDate);
             comTaskExecutions.add(builder);
             return builder;
@@ -90,7 +89,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
-        public EndedComSessionBuilder endSession(Date stopTime, ComSession.SuccessIndicator successIndicator) {
+        public EndedComSessionBuilder endSession(Instant stopTime, ComSession.SuccessIndicator successIndicator) {
             state = COMPLETE;
             comSession.setSuccessfulTasks(successfulTasks.getValue());
             comSession.setFailedTasks(failedTasks.getValue());
@@ -115,20 +114,17 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
                 statisticsMap.put(comTaskExecutionSession, stats);
             }
 
-            return new EndedComSessionBuilder() {
-                @Override
-                public ComSession create() {
-                    DataMapper<ComStatistics> statisticsDataMapper = dataModel.mapper(ComStatistics.class);
-                    for (Map.Entry<ComTaskExecutionSession, ComStatistics> entry : statisticsMap.entrySet()) {
-                        ComStatistics stats = entry.getValue();
-                        statisticsDataMapper.persist(stats);
-                        entry.getKey().setStatistics(stats);
-                    }
-                    statisticsDataMapper.persist(comStatistics);
-                    completeComSession.setStatistics(comStatistics);
-                    completeComSession.save();
-                    return completeComSession;
+            return () -> {
+                DataMapper<ComStatistics> statisticsDataMapper = dataModel.mapper(ComStatistics.class);
+                for (Map.Entry<ComTaskExecutionSession, ComStatistics> entry : statisticsMap.entrySet()) {
+                    ComStatistics stats = entry.getValue();
+                    statisticsDataMapper.persist(stats);
+                    entry.getKey().setStatistics(stats);
                 }
+                statisticsDataMapper.persist(comStatistics);
+                completeComSession.setStatistics(comStatistics);
+                completeComSession.save();
+                return completeComSession;
             };
         }
 
@@ -157,7 +153,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
-        public ComSessionBuilder addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
+        public ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
             comSession.createJournalEntry(timestamp, logLevel, message, cause);
             return parentBuilder();
         }
@@ -196,27 +192,24 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             return Optional.empty();
         }
 
-        private UnderConstruction(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
+        private UnderConstruction(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
             this.dataModel = dataModel;
             comSession = ComSessionImpl.from(dataModel, connectionTask, comPortPool, comPort, startTime);
         }
     }
 
-    private static final ComSessionBuilder COMPLETE = (ComSessionBuilder) Proxy.newProxyInstance(ComSessionBuilderImpl.class.getClassLoader(), new Class<?>[] {ComSessionBuilder.class}, new InvocationHandler() {
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            throw new IllegalStateException("endSession() has already been called on this builder.");
-        }
+    private static final ComSessionBuilder COMPLETE = (ComSessionBuilder) Proxy.newProxyInstance(ComSessionBuilderImpl.class.getClassLoader(), new Class<?>[] {ComSessionBuilder.class}, (proxy, method, args) -> {
+        throw new IllegalStateException("endSession() has already been called on this builder.");
     });
 
     private ComSessionBuilder state;
 
-    public ComSessionBuilderImpl(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
+    public ComSessionBuilderImpl(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
         state = new UnderConstruction(dataModel, connectionTask, comPortPool, comPort, startTime);
     }
 
     @Override
-    public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Date startDate) {
+    public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Instant startDate) {
         return state.addComTaskExecutionSession(comTaskExecution, device, startDate);
     }
 
@@ -246,7 +239,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
-    public EndedComSessionBuilder endSession(Date stopTime, ComSession.SuccessIndicator successIndicator) {
+    public EndedComSessionBuilder endSession(Instant stopTime, ComSession.SuccessIndicator successIndicator) {
         return state.endSession(stopTime, successIndicator);
     }
 
@@ -291,7 +284,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
-    public ComSessionBuilder addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
+    public ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
         return state.addJournalEntry(timestamp, logLevel, message, cause);
     }
 

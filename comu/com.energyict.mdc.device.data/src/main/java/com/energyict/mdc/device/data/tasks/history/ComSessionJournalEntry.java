@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.engine.model.ComServer;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models an entry in the journal of a {@link ComSession}.
@@ -28,7 +28,7 @@ public interface ComSessionJournalEntry {
      *
      * @return The Date
      */
-    public Date getTimestamp ();
+    public Instant getTimestamp ();
 
     /**
      * Gets the level at which this message journal entry was logged.

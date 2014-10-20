@@ -1,20 +1,20 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
+import com.energyict.mdc.engine.model.ComServer;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.engine.model.ComServer;
 
 import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * Provides an implementation for the {@link ComSessionJournalEntry} interface.
@@ -29,7 +29,7 @@ public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJou
     private ComServer.LogLevel logLevel;
     private String message;
     private String stackTrace;
-    private Date modDate;
+    private Instant modDate;
 
     @Inject
     ComSessionJournalEntryImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -42,8 +42,8 @@ public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJou
     }
 
     @Override
-    public Date getTimestamp () {
-        return Date.from(timestamp);
+    public Instant getTimestamp () {
+        return this.timestamp;
     }
 
     @Override
@@ -71,14 +71,14 @@ public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJou
         // Nothing to validate
     }
 
-    public static ComSessionJournalEntryImpl from(DataModel dataModel, ComSessionImpl comSession, Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
+    public static ComSessionJournalEntryImpl from(DataModel dataModel, ComSessionImpl comSession, Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
         ComSessionJournalEntryImpl entry = dataModel.getInstance(ComSessionJournalEntryImpl.class);
         return entry.init(comSession, timestamp, logLevel, message, cause);
     }
 
-    private ComSessionJournalEntryImpl init(ComSessionImpl comSession, Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
+    private ComSessionJournalEntryImpl init(ComSessionImpl comSession, Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause) {
         this.comSession.set(comSession);
-        this.timestamp = timestamp == null ? null : timestamp.toInstant();
+        this.timestamp = timestamp;
         this.logLevel = logLevel;
         this.message = message;
         this.stackTrace = StackTracePrinter.print(cause);
