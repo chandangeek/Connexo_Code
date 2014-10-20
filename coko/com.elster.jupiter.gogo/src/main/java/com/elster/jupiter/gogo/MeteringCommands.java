@@ -47,6 +47,7 @@ import java.util.Set;
                 "osgi.command.function=listReadingTypes",
                 "osgi.command.function=storeRegisterData",
                 "osgi.command.function=storeIntervalData",
+                "osgi.command.function=storeCumulativeIntervalData",
                 "osgi.command.function=listEndDeviceEventTypes",
                 "osgi.command.function=addDeviceEvent",
         }, immediate = true)
@@ -130,10 +131,8 @@ public class MeteringCommands {
                 if (readingTypeOptional.isPresent()) {
                     if (!readingTypeOptional.get().getMeasuringPeriod().isApplicable()) {
                         final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                        BigDecimal cumulativeValue = BigDecimal.valueOf(0);
                         for (int i = 0; i < numberOfInterval; i++) {
-                            cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
-                            meterReading.addReading(ReadingImpl.of(readingType, cumulativeValue, startDate.getTime().toInstant()));
+                            meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(randomBetween(minValue, maxValue)), startDate.getTime().toInstant()));
                             startDate.add(Calendar.SECOND, intervalInSeconds);
                         }
                         executeTransaction(new VoidTransaction() {
@@ -173,6 +172,48 @@ public class MeteringCommands {
                         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(readingType);
                         for (int i = 0; i < numberOfInterval; i++) {
                             intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.getTime().toInstant(), BigDecimal.valueOf(randomBetween(minValue, maxValue))));
+                            startDate.add(Calendar.SECOND, intervalInSeconds);
+                        }
+                        meterReading.addIntervalBlock(intervalBlock);
+
+                        executeTransaction(new VoidTransaction() {
+                            @Override
+                            protected void doPerform() {
+                                endDevice.get().store(meterReading);
+                            }
+                        });
+                    } else {
+                        System.out.println("Reading type is not valid for interval data");
+                    }
+
+                } else {
+                    System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No meter found with id " + meterId);
+        }
+    }
+
+    public void storeCumulativeIntervalData(long meterId, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue) {
+        final Optional<Meter> endDevice = meteringService.findMeter(meterId);
+        if (endDevice.isPresent()) {
+            try {
+                Calendar startDate = Calendar.getInstance();
+                startDate.setTime(dateTimeFormat.parse(startDateTime));
+                Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
+                if (readingTypeOptional.isPresent()) {
+                    int intervalInSeconds = getIntervalInSeconds(readingTypeOptional.get());
+                    if (intervalInSeconds > 0) {
+                        final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(readingType);
+                        BigDecimal cumulativeValue = BigDecimal.valueOf(startValue);
+                        for (int i = 0; i < numberOfInterval; i++) {
+                            cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
+                            intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.getTime().toInstant(), cumulativeValue));
                             startDate.add(Calendar.SECOND, intervalInSeconds);
                         }
                         meterReading.addIntervalBlock(intervalBlock);
