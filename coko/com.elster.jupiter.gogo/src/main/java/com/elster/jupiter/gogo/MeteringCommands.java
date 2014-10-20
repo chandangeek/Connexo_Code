@@ -212,7 +212,7 @@ public class MeteringCommands {
                         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(readingType);
                         BigDecimal cumulativeValue = BigDecimal.valueOf(startValue);
                         for (int i = 0; i < numberOfInterval; i++) {
-                            cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
+                            cumulativeValue = cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
                             intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.getTime().toInstant(), cumulativeValue));
                             startDate.add(Calendar.SECOND, intervalInSeconds);
                         }
