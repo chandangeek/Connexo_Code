@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.energyict.mdc.protocol.api.ConnectionType;
 import java.text.MessageFormat;
 import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
@@ -28,7 +29,6 @@ public enum MessageSeeds implements MessageSeed {
     UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED(27,"updateDialectPropertiesNotAllowed" ,"Protocol dialect update not allowed"),
     UPDATE_CONNECTION_METHOD_NOT_ALLOWED(28,"updateConnectionMethodNotAllowed" ,"Connection method update not allowed"),
     RUN_COMTASK__NOT_ALLOWED(29,"runComTaskNotAllowed" ,"Running of this communication task is not allowed"),
-
     POWERDOWN(31, ProfileStatus.Flag.POWERDOWN.name(), "Power down"),
     POWERUP(32, ProfileStatus.Flag.POWERUP.name(), "Power up"),
     SHORTLONG(33, ProfileStatus.Flag.SHORTLONG.name(), "Short long"),
@@ -59,8 +59,25 @@ public enum MessageSeeds implements MessageSeed {
     NEVER_COMPLETED(68, "NeverCompleted", "Never completed"),
     WAITING(69, "Waiting", "Waiting"),
     DEFAULT(70, "Default", "Default"),
-    DEFAULT_NOT_DEFINED(71, "DefaultNotDefined", "Default (not defined yet)");
-
+    DEFAULT_NOT_DEFINED(71, "DefaultNotDefined", "Default (not defined yet)"),
+    SUCCESS(74, "Success", "Success"),
+    BROKEN(75, "Broken", "Broken"),
+    SETUP_ERROR(76, "SetupError", "Setup error"),
+    FAILURE(77, "Failure", "Failure"),
+    CONNECTION_ERROR(78, "ConnectionError", "Connection error"),
+    CONFIGURATION_ERROR(79, "ConfigurationError", "Configuration error"),
+    CONFIGURATION_WARNING(80, "ConfigurationWarning", "Configuration warning"),
+    IO_ERROR(81, "IoError", "I/O error"),
+    PROTOCOL_ERROR(82, "ProtocolError", "Protocol error"),
+    OK(83, "OK", "Ok"),
+    RESCHEDULED(84, "Rescheduled", "Rescheduled"),
+    TIME_ERROR(85, "TimeError", "Time error"),
+    UNEXPECTED_ERROR(86, "UnexpectedError", "Unexpected error"),
+    INDIVIDUAL(87, "Individual", "Individual"),
+    NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD(88,"noSuchComSession" ,"No such communication session exists for this connection method"),
+    INBOUND(89, ConnectionType.Direction.INBOUND.name(), "Inbound"),
+    OUTBOUND(90, ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
+    ;
 
     private final int number;
     private final String key;

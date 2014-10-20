@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -15,6 +9,12 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
+
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -28,6 +28,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -89,13 +91,13 @@ public class RegisterResource {
         if (lastChecked != null && newDate.after(lastChecked)) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", lastChecked);
         }
-        validateRegister(register, newDate);
+        validateRegister(register, newDate.toInstant());
         return Response.status(Response.Status.OK).build();
     }
 
-    private void validateRegister(Register<?> register, Date start) {
-        if (register.getLastReadingDate().isPresent() && register.getLastReadingDate().get().after(start)) {
-            register.getDevice().forValidation().validateRegister(register, start, register.getLastReadingDate().get());
+    private void validateRegister(Register<?> register, Instant start) {
+        if (register.getLastReadingDate().isPresent() && register.getLastReadingDate().get().after(Date.from(start))) {
+            register.getDevice().forValidation().validateRegister(register, start, register.getLastReadingDate().get().toInstant());
         } else if (start != null) {
             register.getDevice().forValidation().setLastChecked(register, start);
         }
@@ -126,7 +128,7 @@ public class RegisterResource {
     }
 
     private boolean isValidationActive(Register<?> register) {
-        return register.getDevice().forValidation().isValidationActive(register, clock.now());
+        return register.getDevice().forValidation().isValidationActive(register, clock.instant());
     }
 
     private boolean hasData(Register<?> channel) {
@@ -140,7 +142,9 @@ public class RegisterResource {
     }
 
     private Date lastChecked(Register<?> register) {
-        return register.getDevice().forValidation().getLastChecked(register).orNull();
+        return register.getDevice().forValidation().getLastChecked(register)
+                .map(Date::from)
+                .orElse(null);
     }
 
     private List<DataValidationStatus> statuses(Register<?> register) {
@@ -150,7 +154,7 @@ public class RegisterResource {
     }
 
     private boolean validationActive(Register<?> register, DeviceValidation deviceValidation) {
-        return deviceValidation.isValidationActive(register, clock.now());
+        return deviceValidation.isValidationActive(register, clock.instant());
     }
 
     private List<? extends Reading> getReadingsForOneYear(Register<?> register) {
@@ -158,7 +162,7 @@ public class RegisterResource {
     }
 
     private Interval lastYear() {
-        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusYears(1);
         return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
     }
