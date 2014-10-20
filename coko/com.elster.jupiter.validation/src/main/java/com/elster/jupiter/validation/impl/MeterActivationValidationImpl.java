@@ -215,8 +215,12 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         Range<Instant> clipped = maxScope.intersection(interval);
         Instant lastChecked = getLatestDate(channelValidation.getLastChecked(), firstReadingTime(channelValidation));
         Instant start = getEarliestDate(lastChecked, adjusted(channelValidation, clipped.lowerEndpoint()));
-        Instant end = getLatestDate(channelValidation.getChannel().getLastDateTime(), clipped.upperEndpoint());
-        return Ranges.closed(start, end);
+        if (clipped.hasUpperBound()) {
+            Instant end = getLatestDate(channelValidation.getChannel().getLastDateTime(), clipped.upperEndpoint());
+            return Ranges.closed(start, end);
+        } else {
+            return Range.atLeast(start);
+        }
     }
 
     private Instant adjusted(ChannelValidationImpl channelValidation, Instant date) {

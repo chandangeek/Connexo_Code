@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.validation.ValidationService;
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -64,9 +65,13 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
     private Range<Instant> adjust(Channel channel, Range<Instant> interval) {
         int minutes = channel.getMainReadingType().getMeasuringPeriod().getMinutes();
-        if (minutes == 0) {
+        if (minutes == 0 || !interval.hasLowerBound()) {
             return interval;
         }
-        return Range.greaterThan(interval.lowerEndpoint().minus(minutes, ChronoUnit.MINUTES));
+        Instant adjustedlLowerBound = interval.lowerEndpoint().minus(minutes, ChronoUnit.MINUTES);
+        if (interval.hasUpperBound()) {
+            return Range.range(adjustedlLowerBound, BoundType.OPEN, interval.upperEndpoint(), interval.upperBoundType());
+        }
+        return Range.greaterThan(adjustedlLowerBound);
     }
 }
