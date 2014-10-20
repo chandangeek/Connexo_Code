@@ -9,6 +9,8 @@ Ext.define('Uni.form.field.StartPeriod', {
     columns: 1,
     vertical: true,
 
+    baseRadioName: undefined,
+
     /**
      * @cfg showOptionNow
      *
@@ -32,8 +34,9 @@ Ext.define('Uni.form.field.StartPeriod', {
     },
 
     buildItems: function () {
-        var me = this,
-            baseRadioName = me.getId() + 'startperiod';
+        var me = this;
+
+        me.baseRadioName = me.getId() + 'startperiod';
 
         me.items = [];
 
@@ -41,8 +44,8 @@ Ext.define('Uni.form.field.StartPeriod', {
             me.items.push({
                 boxLabel: 'Now',
                 itemId: 'option-now',
-                name: baseRadioName,
-                inputValue: '1',
+                name: me.baseRadioName,
+                inputValue: 'now',
                 margin: '0 0 6 0',
                 value: true
             });
@@ -58,8 +61,8 @@ Ext.define('Uni.form.field.StartPeriod', {
             items: [
                 {
                     xtype: 'radio',
-                    name: baseRadioName,
-                    inputValue: '2',
+                    name: me.baseRadioName,
+                    inputValue: 'ago',
                     value: !me.showOptionNow
                 },
                 {
@@ -79,18 +82,18 @@ Ext.define('Uni.form.field.StartPeriod', {
                     valueField: 'value',
                     queryMode: 'local',
                     hideLabel: true,
-                    value: 1,
+                    value: 'month',
                     width: 200,
                     margin: '0 6 0 0',
                     store: new Ext.data.Store({
                         fields: ['name', 'value'],
                         data: (function () {
                             return [
-                                {name: 'Month(s)', value: 1},
-                                {name: 'Week(s)', value: 2},
-                                {name: 'Day(s)', value: 3},
-                                {name: 'Hour(s)', value: 4},
-                                {name: 'Minute(s)', value: 5}
+                                {name: 'Month(s)', value: 'month'},
+                                {name: 'Week(s)', value: 'week'},
+                                {name: 'Day(s)', value: 'day'},
+                                {name: 'Hour(s)', value: 'hour'},
+                                {name: 'Minute(s)', value: 'minute'}
                             ];
                         })()
                     }),
@@ -114,8 +117,8 @@ Ext.define('Uni.form.field.StartPeriod', {
                 items: [
                     {
                         xtype: 'radio',
-                        name: baseRadioName,
-                        inputValue: '3'
+                        name: me.baseRadioName,
+                        inputValue: 'date'
                     },
                     {
                         xtype: 'datefield',
@@ -134,24 +137,48 @@ Ext.define('Uni.form.field.StartPeriod', {
     initListeners: function () {
         var me = this;
 
-        me.getOptionAgoContainer().down('numberfield').on('change', me.selectOptionAgo, me);
-        me.getOptionAgoContainer().down('combobox').on('change', me.selectOptionAgo, me);
+        if (me.showOptionNow) {
+            me.getOptionNowRadio().on('change', function () {
+                me.fireEvent('periodchange', me.getValue());
+            }, me);
+        }
+
+        me.getOptionAgoContainer().down('numberfield').on('change', function () {
+            me.selectOptionAgo();
+        }, me);
+        me.getOptionAgoContainer().down('combobox').on('change', function () {
+            me.selectOptionAgo();
+        }, me);
 
         if (me.showOptionDate) {
-            me.getOptionDateContainer().down('datefield').on('change', me.selectOptionDate, me);
+            me.getOptionDateContainer().down('datefield').on('change', function () {
+                me.selectOptionDate();
+            }, me);
         }
     },
 
-    selectOptionNow: function () {
+    selectOptionNow: function (suspendEvent) {
         this.getOptionNowRadio().setValue(true);
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getValue());
+        }
     },
 
-    selectOptionAgo: function () {
+    selectOptionAgo: function (suspendEvent) {
         this.getOptionAgoRadio().setValue(true);
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getValue());
+        }
     },
 
-    selectOptionDate: function () {
+    selectOptionDate: function (suspendEvent) {
         this.getOptionDateRadio().setValue(true);
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getValue());
+        }
     },
 
     getOptionNowRadio: function () {
@@ -175,7 +202,34 @@ Ext.define('Uni.form.field.StartPeriod', {
     },
 
     getValue: function () {
-        // TODO Return the value as the selected type and a date.
-        return new Date();
+        var me = this,
+            selectedRadio = me.callParent(arguments),
+            selectedValue = selectedRadio[me.baseRadioName],
+            amountAgoValue = me.getOptionAgoContainer().down('numberfield').getValue(),
+            freqAgoValue = me.getOptionAgoContainer().down('combobox').getValue();
+
+        var result = {
+            selection: selectedValue,
+            now: new Date(),
+            amountAgo: amountAgoValue,
+            freqAgo: freqAgoValue,
+            date: undefined
+        };
+
+        if (me.showOptionDate) {
+            var dateValue = me.getOptionDateContainer().down('datefield').getValue();
+
+            // Using midnight.
+            dateValue.setHours(0);
+            dateValue.setMinutes(0);
+            dateValue.setSeconds(0);
+            dateValue.setMilliseconds(0);
+
+            Ext.apply(result, {
+                date: dateValue
+            });
+        }
+
+        return result;
     }
 });

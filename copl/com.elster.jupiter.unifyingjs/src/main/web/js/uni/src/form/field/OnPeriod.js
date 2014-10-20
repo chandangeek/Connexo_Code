@@ -9,6 +9,8 @@ Ext.define('Uni.form.field.OnPeriod', {
     columns: 1,
     vertical: true,
 
+    baseRadioName: undefined,
+
     initComponent: function () {
         var me = this;
 
@@ -18,19 +20,16 @@ Ext.define('Uni.form.field.OnPeriod', {
     },
 
     buildItems: function () {
-        var me = this,
-            baseRadioName = me.getId() + 'onperiod';
+        var me = this;
 
-        me.defaults = {
-            margin: '6 0 6 0'
-        };
+        me.baseRadioName = me.getId() + 'onperiod';
 
         me.items = [
             {
                 boxLabel: 'Current day of the month',
                 itemId: 'option-current',
-                name: baseRadioName,
-                inputValue: '1',
+                name: me.baseRadioName,
+                inputValue: 'currentday',
                 margin: '0 0 6 0',
                 value: true
             },
@@ -44,8 +43,8 @@ Ext.define('Uni.form.field.OnPeriod', {
                 items: [
                     {
                         xtype: 'radio',
-                        name: baseRadioName,
-                        inputValue: '2',
+                        name: me.baseRadioName,
+                        inputValue: 'dayofmonth',
                         margin: '0 6 0 0'
                     },
                     {
@@ -99,8 +98,8 @@ Ext.define('Uni.form.field.OnPeriod', {
                 items: [
                     {
                         xtype: 'radio',
-                        name: baseRadioName,
-                        inputValue: '3'
+                        name: me.baseRadioName,
+                        inputValue: 'dayofweek'
                     },
                     {
                         xtype: 'combobox',
@@ -138,20 +137,41 @@ Ext.define('Uni.form.field.OnPeriod', {
     initListeners: function () {
         var me = this;
 
-        me.getOptionDayOfMonthContainer().down('combobox').on('change', me.selectOptionDayOfMonth, me);
-        me.getOptionDayOfWeekContainer().down('combobox').on('change', me.selectOptionDayOfWeek, me);
+        me.getOptionCurrentRadio().on('change', function () {
+            me.fireEvent('periodchange', me.getValue());
+        }, me);
+
+        me.getOptionDayOfMonthContainer().down('combobox').on('change', function () {
+            me.selectOptionDayOfMonth();
+        }, me);
+
+        me.getOptionDayOfWeekContainer().down('combobox').on('change', function () {
+            me.selectOptionDayOfWeek();
+        }, me);
     },
 
-    selectOptionCurrent: function () {
+    selectOptionCurrent: function (suspendEvent) {
         this.getOptionCurrentRadio().setValue(true);
+
+        if (!suspendEvent) {
+            this.fireEvent('change', this.getValue());
+        }
     },
 
-    selectOptionDayOfMonth: function () {
+    selectOptionDayOfMonth: function (suspendEvent) {
         this.getOptionDayOfMonthRadio().setValue(true);
+
+        if (!suspendEvent) {
+            this.fireEvent('change', this.getValue());
+        }
     },
 
-    selectOptionDayOfWeek: function () {
+    selectOptionDayOfWeek: function (suspendEvent) {
         this.getOptionDayOfWeekRadio().setValue(true);
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getValue());
+        }
     },
 
     getOptionCurrentRadio: function () {
@@ -175,7 +195,21 @@ Ext.define('Uni.form.field.OnPeriod', {
     },
 
     getValue: function () {
-        // TODO Return the value as the selected type and a date.
-        return new Date();
+        var me = this,
+            selectedRadio = me.callParent(arguments),
+            selectedValue = selectedRadio[me.baseRadioName],
+            currentDayValue = new Date().getUTCDate(),
+            dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').getValue(),
+            dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').getValue();
+
+        // Current day cannot be greater than 28 cause of leap years.
+        currentDayValue = currentDayValue > 28 ? 28 : currentDayValue;
+
+        return {
+            selection: selectedValue,
+            currentDay: currentDayValue,
+            dayOfMonth: dayOfMonthValue,
+            dayOfWeek: dayOfWeekValue
+        };
     }
 });

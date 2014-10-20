@@ -16,6 +16,7 @@ Ext.define('Uni.form.field.AtPeriod', {
 
         me.buildItems();
         me.callParent(arguments);
+        me.initListeners();
     },
 
     buildItems: function () {
@@ -47,6 +48,18 @@ Ext.define('Uni.form.field.AtPeriod', {
         ];
     },
 
+    initListeners: function () {
+        var me = this;
+
+        me.getHourField().on('change', function () {
+            me.fireEvent('periodchange', me.getValue());
+        }, me);
+
+        me.getMinuteField().on('change', function () {
+            me.fireEvent('periodchange', me.getValue());
+        }, me);
+    },
+
     getHourField: function () {
         return this.down('#hour-field');
     },
@@ -56,7 +69,13 @@ Ext.define('Uni.form.field.AtPeriod', {
     },
 
     getValue: function () {
-        // TODO Return the value as the selected type and a date.
-        return new Date();
+        var me = this,
+            hourValue = me.getHourField().getValue(),
+            minuteValue = me.getMinuteField().getValue();
+
+        return {
+            hour: hourValue,
+            minuter: minuteValue
+        };
     }
 });
