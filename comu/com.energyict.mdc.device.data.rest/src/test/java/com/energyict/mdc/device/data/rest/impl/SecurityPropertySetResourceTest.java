@@ -10,11 +10,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.google.common.base.Optional;
 import com.jayway.jsonpath.JsonModel;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
@@ -139,7 +139,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
 
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(device);
-        when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.absent());
+        when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.empty());
 
         Response response = target("/devices/"+devicemRID+"/securityproperties/"+sps1Id).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
