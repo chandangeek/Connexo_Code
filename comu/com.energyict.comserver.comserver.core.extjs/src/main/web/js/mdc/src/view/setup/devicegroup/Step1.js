@@ -15,18 +15,38 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
 
     items: [
         {
-            xtype: 'panel',
+            xtype: 'form',
             border: false,
             margin: '20 0 0 0',
 
             items: [
                 {
+                    itemId: 'step1-adddevicegroup-errors',
+                    xtype: 'uni-form-error-message',
+                    hidden: true,
+                    text: Uni.I18n.translate('devicegroup.misingname', 'MDC', 'Please enter a name for the device group.')
+                },
+                /*{
+                    xtype: 'container',
+                    itemId: 'stepSelectionError',
+                    //margin: '-20 0 0 0',
+                    //hidden: true,
+                    html: '<span style="color: #eb5642">' + Uni.I18n.translate('devicegroup.misingname', 'MDC', 'Please enter a name for the device group.') + '</span>'
+                },*/
+                {
                     xtype: 'textfield',
                     fieldLabel: 'Name',
                     itemId: 'deviceGroupNameTextField',
                     required: true,
+                    allowBlank : false,
                     width: 400
                 },
+                /*{
+                    itemId: 'step1-adddevicegroup-errors',
+                    xtype: 'uni-form-error-message',
+                    //hidden: true,
+                    text: Uni.I18n.translate('searchItems.bulk.devicesError', 'MDC', 'It is required to select one or more devices to go to the next step.')
+                },*/
                 {
                     itemId: 'staticDynamicRadioButton',
                     xtype: 'radiogroup',

@@ -56,6 +56,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         {
             ref: 'filterForm',
             selector: '#addDeviceGroupSideFilter form'
+        },
+        {
+            ref: 'step1Form',
+            selector: 'devicegroup-wizard-step1 form'
+        },
+        {
+            ref: 'step1FormErrorMessage',
+            selector: 'devicegroup-wizard-step1 uni-form-error-message'
         }
     ],
 
@@ -90,8 +98,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     nextClick: function () {
         var layout = this.getAddDeviceGroupWizard().getLayout();
-        this.getNavigationMenu().moveNextStep();
-        this.changeContent(layout.getNext(), layout.getActiveItem());
+        if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
+            (this.getNameTextField().getValue() == '')) {
+                this.getStep1FormErrorMessage().setVisible(true);
+        } else {
+            this.getStep1FormErrorMessage().setVisible(false);
+            this.getNavigationMenu().moveNextStep();
+            this.changeContent(layout.getNext(), layout.getActiveItem());
+        }
     },
 
     confirmClick: function () {
