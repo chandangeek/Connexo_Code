@@ -151,4 +151,9 @@ public class DummyDLMSConnection implements DLMSConnection {
     public int getMaxRetries() {
         return 0;
     }
+
+    @Override
+    public int getMaxTries() {
+        return 0;
+    }
 }
