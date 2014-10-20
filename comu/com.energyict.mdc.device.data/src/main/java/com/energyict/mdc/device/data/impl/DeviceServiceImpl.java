@@ -72,12 +72,12 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Device findDeviceById(long id) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id).orNull();
+        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id).orElse(null);
     }
 
     @Override
     public Device findByUniqueMrid(String mrId) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId).orNull();
+        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId).orElse(null);
     }
 
     @Override
@@ -121,13 +121,13 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public List<Device> findCommunicationReferencingDevicesFor(Device device, Date timestamp) {
-        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective(timestamp));
+        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective(timestamp.toInstant()));
         return this.findCommunicationReferencingDevicesFor(condition);
     }
 
     @Override
     public List<CommunicationTopologyEntry> findCommunicationReferencingDevicesFor(Device device, Interval interval) {
-        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective(interval));
+        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective(interval.toClosedRange()));
         List<CommunicationGatewayReference> communicationGatewayReferences = this.deviceDataModelService.dataModel().mapper(CommunicationGatewayReference.class).select(condition);
         if (!communicationGatewayReferences.isEmpty()) {
             List<CommunicationTopologyEntry> entries = new ArrayList<>(communicationGatewayReferences.size());
@@ -170,12 +170,12 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public InfoType findInfoType(String name) {
-        return this.deviceDataModelService.dataModel().mapper(InfoType.class).getUnique("name", name).orNull();
+        return this.deviceDataModelService.dataModel().mapper(InfoType.class).getUnique("name", name).orElse(null);
     }
 
     @Override
     public InfoType findInfoTypeById(long infoTypeId) {
-        return this.deviceDataModelService.dataModel().mapper(InfoType.class).getUnique("id", infoTypeId).orNull();
+        return this.deviceDataModelService.dataModel().mapper(InfoType.class).getUnique("id", infoTypeId).orElse(null);
     }
 
     @Override

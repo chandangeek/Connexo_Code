@@ -1248,7 +1248,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" set obsolete_date = ? where id = ?");
-        sqlBuilder.bindDate(clock.now());
+        sqlBuilder.bindDate(Date.from(clock.instant()));
         sqlBuilder.bindLong(id);
         return sqlBuilder;
     }
@@ -1261,7 +1261,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testMakeObsoleteWithActiveComTasks() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteWithActiveComTasks");
         connectionTask.save();
-        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, clock.now());
+        ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, Date.from(clock.instant()));
         assertThat(comTaskExecution.getConnectionTask()).isNotNull();
         // Business method
         connectionTask.makeObsolete();
@@ -1368,7 +1368,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testApplyComWindowWhenTaskDoesNotHaveAComWindow() throws SQLException, BusinessException {
-        Date nextExecutionTimestamp = clock.now();
+        Date nextExecutionTimestamp = Date.from(clock.instant());
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithoutNextExecutionSpecs", null);
         connectionTask.save();
 

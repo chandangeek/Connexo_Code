@@ -7,7 +7,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;

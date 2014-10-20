@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.tasks.history;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
 import com.energyict.mdc.engine.model.ComServer;
@@ -60,7 +59,7 @@ public class ComTaskExecutionMessageJournalEntryImpl
 
     private ComTaskExecutionMessageJournalEntryImpl init(Date timestamp, ComTaskExecutionSessionImpl comTaskExecutionSession, ComServer.LogLevel logLevel, String message, String errorDescription) {
         this.comTaskExecutionSession.set(comTaskExecutionSession);
-        this.timestamp = new UtcInstant(timestamp);
+        this.timestamp = timestamp == null ? null : timestamp.toInstant();
         this.errorDescription = errorDescription;
         this.logLevel = logLevel;
         this.message = message;

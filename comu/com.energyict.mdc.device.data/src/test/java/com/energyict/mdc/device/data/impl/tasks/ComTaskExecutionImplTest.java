@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -23,7 +24,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import org.assertj.core.api.Condition;
 import org.junit.Test;
@@ -32,9 +32,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
-import org.assertj.core.api.Condition;
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -738,7 +735,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        long future = inMemoryPersistence.getClock().now().getTime() + 1000000000000L;  // let's just hope it won't take that long until this test is finished
+        long future = inMemoryPersistence.getClock().instant().toEpochMilli() + 1_000_000_000_000L;  // let's just hope it won't take that long until this test is finished
         inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + future + " where id = " + comTaskExecution.getId());
         inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);

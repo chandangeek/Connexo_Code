@@ -5,10 +5,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.google.common.base.Optional;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 

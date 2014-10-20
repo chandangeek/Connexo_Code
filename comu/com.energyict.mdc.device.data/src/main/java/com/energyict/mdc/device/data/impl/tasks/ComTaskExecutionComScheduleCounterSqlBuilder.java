@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.util.time.Clock;
-
+import java.time.Clock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;

@@ -44,7 +44,7 @@ public class CommunicationGatewayReferenceImpl implements CommunicationGatewayRe
 
     @Override
     public boolean existsFor(Date existenceDate) {
-        return interval.isEffective(existenceDate);
+        return isEffectiveAt(existenceDate.toInstant());
     }
 
     @Override
@@ -54,10 +54,10 @@ public class CommunicationGatewayReferenceImpl implements CommunicationGatewayRe
 
     @Override
     public void terminate(Date closingDate) {
-        if (!interval.isEffective(closingDate)) {
+        if (!isEffectiveAt(closingDate.toInstant())) {
             throw new IllegalArgumentException();
         }
-        interval = interval.withEnd(closingDate);
+        interval = interval.withEnd(closingDate.toInstant());
     }
 
     @Override

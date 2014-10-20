@@ -7,7 +7,6 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +17,7 @@ import org.osgi.service.event.EventConstants;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -81,7 +81,7 @@ public class ComScheduleBackgroundObsoleteHandlerTest {
     @Test
     public void testWithoutComTaskExecutions() {
         this.createStartMessage();
-        when(this.communicationTaskService.getScheduledComTaskExecutionIdRange(anyLong())).thenReturn(Optional.<ScheduledComTaskExecutionIdRange>absent());
+        when(this.communicationTaskService.getScheduledComTaskExecutionIdRange(anyLong())).thenReturn(Optional.<ScheduledComTaskExecutionIdRange>empty());
 
         // Business method
         this.eventHandler.process(this.message);

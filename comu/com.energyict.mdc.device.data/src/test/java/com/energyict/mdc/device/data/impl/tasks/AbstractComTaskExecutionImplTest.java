@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.ComWindow;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -20,20 +22,16 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+import org.junit.Before;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.UtcInstant;
-
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Fail.fail;
 
@@ -194,7 +192,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected ComSchedule createComSchedule(String name, ComTask comTask, TemporalExpression temporalExpression) {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(name, temporalExpression, new UtcInstant(new Date())).build();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(name, temporalExpression, Instant.now()).build();
         comSchedule.addComTask(comTask);
         comSchedule.save();
         return comSchedule;

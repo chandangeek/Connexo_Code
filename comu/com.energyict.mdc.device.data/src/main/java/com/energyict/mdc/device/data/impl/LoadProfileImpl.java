@@ -5,11 +5,10 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -22,6 +21,7 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,7 +42,7 @@ public class LoadProfileImpl implements LoadProfile {
     private long id;
     private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
-    private UtcInstant lastReading;
+    private Instant lastReading;
 
     @Inject
     public LoadProfileImpl(DataModel dataModel, DeviceConfigurationService deviceConfigurationService, ValidationService validationService) {
@@ -60,7 +60,7 @@ public class LoadProfileImpl implements LoadProfile {
     @Override
     public Date getLastReading() {
         if(lastReading != null){
-            return lastReading.toDate();
+            return Date.from(lastReading);
         } else {
             return null;
         }
@@ -151,16 +151,16 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public LoadProfile.LoadProfileUpdater setLastReadingIfLater(Date lastReading) {
-            UtcInstant loadProfileLastReading = this.loadProfile.lastReading;
-            if (lastReading != null && (loadProfileLastReading == null || lastReading.after(loadProfileLastReading.toDate()))) {
-                this.loadProfile.lastReading = new UtcInstant(lastReading);
+            Instant loadProfileLastReading = this.loadProfile.lastReading;
+            if (lastReading != null && (loadProfileLastReading == null || lastReading.toInstant().isAfter(loadProfileLastReading))) {
+                this.loadProfile.lastReading = lastReading.toInstant();
             }
             return this;
         }
 
         @Override
         public LoadProfile.LoadProfileUpdater setLastReading(Date lastReading) {
-            this.loadProfile.lastReading = new UtcInstant(lastReading);
+            this.loadProfile.lastReading = lastReading == null ? null : lastReading.toInstant();
             return this;
         }
 

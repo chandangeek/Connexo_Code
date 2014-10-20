@@ -1,11 +1,9 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,11 +43,11 @@ class KpiMembers {
         KpiMember targetMember = this.targetMember();
         List<List<? extends KpiEntry>> entries =
                 Stream.of(MonitoredTaskStatus.values()).
-                    map(s -> this.kpiMembers.get(s).getScores(interval)).
+                    map(s -> this.kpiMembers.get(s).getScores(interval.toClosedRange())).
                     collect(Collectors.toList());
         List<DataCollectionKpiScore> scores = new ArrayList<>();
         for (int i = 0; i < entries.get(0).size(); i++) {
-            Date timestamp = entries.get(0).get(i).getTimestamp();
+            Date timestamp = Date.from(entries.get(0).get(i).getTimestamp());
             List<KpiEntry> kpiEntries = new ArrayList<>(MonitoredTaskStatus.values().length);
             for (int s = 0; s < MonitoredTaskStatus.values().length; s++) {
                 kpiEntries.add(entries.get(s).get(i));

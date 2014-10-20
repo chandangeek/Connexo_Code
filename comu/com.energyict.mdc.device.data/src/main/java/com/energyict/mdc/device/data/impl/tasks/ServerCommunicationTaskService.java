@@ -9,7 +9,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Adds behavior to {@link CommunicationTaskService} that is specific
