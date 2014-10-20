@@ -12,7 +12,6 @@
 
   <artifactId>mdc.pluggable.rest</artifactId>
   <packaging>bundle</packaging>
-  <version>${comserver.version}</version>
   <name>[MDC] mdc.pluggable.rest [init PLR]</name>
   <description>
     Provides REST support for pluggable service.
@@ -22,7 +21,7 @@
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.pluggable</artifactId>
-      <version>${comserver.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
