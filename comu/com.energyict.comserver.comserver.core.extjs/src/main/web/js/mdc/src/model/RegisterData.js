@@ -1,6 +1,7 @@
 Ext.define('Mdc.model.RegisterData', {
     extend: 'Ext.data.Model',
     fields: [
+        {name: 'id', type:'number', useNull: true, persist: false},
         {name: 'timeStamp', type:'number', useNull: true},
         {name: 'reportedDateTime', type:'date', dateFormat: 'time'},
         {name: 'editedDateTime', type:'date', dateFormat: 'time'},
@@ -11,7 +12,6 @@ Ext.define('Mdc.model.RegisterData', {
         {name: 'suspectReason', type:'auto', persist: false},
         {name: 'validationResult', type:'auto', persist: false}
     ],
-    idProperty: 'timeStamp',
     proxy: {
         type: 'rest',
         url: '/api/ddr/devices/{mRID}/registers/{registerId}/data'

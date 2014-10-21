@@ -29,6 +29,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceConfigurationLogbooks',
         'Mdc.controller.setup.DeviceConfigurations',
         'Mdc.controller.setup.DeviceConnectionMethods',
+        'Mdc.controller.setup.DeviceConnectionHistory',
         'Mdc.controller.setup.DeviceDataValidation',
         'Mdc.controller.setup.DeviceGroups',
         'Mdc.controller.setup.DeviceLoadProfileChannelData',
@@ -83,7 +84,7 @@ Ext.define('Mdc.controller.Main', {
         var me = this,
             historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device'])) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
                 href: '#/devices',
@@ -111,104 +112,87 @@ Ext.define('Mdc.controller.Main', {
                 portalItem
             );
         }
+        var menuItem = Ext.create('Uni.model.MenuItem', {
+            text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+            href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
+            portal: 'administration',
+            glyph: 'settings',
+            index: 10
+        });
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration',
-                        'privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'])) {
-            var menuItem = Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-                href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
-                portal: 'administration',
-                glyph: 'settings',
-                index: 10
-            });
+        Uni.store.MenuItems.add(menuItem);
 
-            Uni.store.MenuItems.add(menuItem);
+        var deviceManagementItem = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.deviceManagement', 'MDC', 'Device management'),
+            portal: 'administration',
+            route: 'devicemanagement',
+            items: [
+                {
+                    text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
+                    href: '#/administration/devicetypes',
+                    route: 'devicetypes'
+                },
+                {
+                    text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
+                    href: '#/administration/registertypes',
+                    route: 'registertypes'
+                },
+                {
+                    text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
+                    href: '#/administration/registergroups',
+                    route: 'registergroups'
+                },
+                {
+                    text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
+                    href: '#/administration/logbooktypes',
+                    route: 'logbooktypes'
+                },
+                {
+                    text: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
+                    href: '#/administration/loadprofiletypes',
+                    route: 'loadprofiletypes'
+                }
+            ]
+        });
 
-            var deviceManagementItem = null,
-                deviceCommunicationItem = null;
+        var deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
+            portal: 'administration',
+            route: 'devicecommunication',
+            items: [
+                {
+                    text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
+                    href: '#/administration/comservers',
+                    route: 'comservers'
+                },
+                {
+                    text: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
+                    href: '#/administration/comportpools',
+                    route: 'comportpools'
+                },
+                {
+                    text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Communication protocols'),
+                    href: '#/administration/devicecommunicationprotocols',
+                    route: 'devicecommunicationprotocols'
+                },
+                {
+                    text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
+                    href: '#/administration/communicationschedules',
+                    route: 'communicationschedules'
+                },
+                {
+                    text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
+                    href: '#/administration/communicationtasks',
+                    route: 'communicationtasks'
+                }
+            ]
+        });
 
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'])) {
-                deviceManagementItem = Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.deviceManagement', 'MDC', 'Device management'),
-                    portal: 'administration',
-                    route: 'devicemanagement',
-                    items: [
-                        {
-                            text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
-                            href: '#/administration/devicetypes',
-                            route: 'devicetypes'
-                        },
-                        {
-                            text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
-                            href: '#/administration/registertypes',
-                            route: 'registertypes'
-                        },
-                        {
-                            text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
-                            href: '#/administration/registergroups',
-                            route: 'registergroups'
-                        },
-                        {
-                            text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
-                            href: '#/administration/logbooktypes',
-                            route: 'logbooktypes'
-                        },
-                        {
-                            text: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
-                            href: '#/administration/loadprofiletypes',
-                            route: 'loadprofiletypes'
-                        }
-                    ]
-                });
+        Uni.store.PortalItems.add(
+            deviceManagementItem,
+            deviceCommunicationItem
+        );
 
-            }
-
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'])) {
-                var deviceCommItems = [
-                    {
-                        text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
-                        href: '#/administration/comservers',
-                        route: 'comservers'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
-                        href: '#/administration/comportpools',
-                        route: 'comportpools'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Communication protocols'),
-                        href: '#/administration/devicecommunicationprotocols',
-                        route: 'devicecommunicationprotocols'
-                    },
-                    {
-                        text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
-                        href: '#/administration/communicationtasks',
-                        route: 'communicationtasks'
-                    }
-                ];
-                if(Uni.Auth.hasAnyPrivilege(['privilege.administrate.schedule','privilege.view.schedule'])) {
-                    deviceCommItems.push(
-                        {
-                            text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
-                            href: '#/administration/communicationschedules',
-                            route: 'communicationschedules'
-                        }
-                    )
-                };
-                deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
-                    portal: 'administration',
-                    route: 'devicecommunication',
-                    items: deviceCommItems
-                });
-            }
-            if (deviceManagementItem != null) {
-                Uni.store.PortalItems.add(deviceManagementItem);
-            }
-            if (deviceCommunicationItem != null) {
-               Uni.store.PortalItems.add(deviceCommunicationItem);
-            }
-        }
         this.getApplication().fireEvent('cfginitialized');
     }
 });
