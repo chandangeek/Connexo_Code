@@ -194,11 +194,11 @@ public class ConnectionResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public PagedInfoList getCommunications(@PathParam("connectionId") long connectionId, @BeanParam QueryParameters queryParameters) {
-        Optional<ConnectionTask> connectionTaskOptional = connectionTaskService.findConnectionTask(connectionId);
-        if (!connectionTaskOptional.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_TASK, connectionId);
-        }
-        Optional<ComSession> lastComSessionOptional = connectionTaskOptional.get().getLastComSession();
+        ConnectionTask connectionTask =
+                connectionTaskService
+                    .findConnectionTask(connectionId)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK, connectionId));
+        Optional<ComSession> lastComSessionOptional = connectionTask.getLastComSession();
         List<ComTaskExecutionSession> comTaskExecutionSessions = new ArrayList<>();
         if (lastComSessionOptional.isPresent()) {
             comTaskExecutionSessions.addAll(lastComSessionOptional.get().getComTaskExecutionSessions());
