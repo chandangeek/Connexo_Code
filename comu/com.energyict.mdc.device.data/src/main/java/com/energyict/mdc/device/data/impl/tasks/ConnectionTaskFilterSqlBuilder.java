@@ -110,14 +110,6 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     }
 
     @Override
-    protected void appendWhereClause(ServerConnectionTaskStatus taskStatus) {
-        super.appendWhereClause(taskStatus);
-        this.appendLastSessionClause();
-        this.appendNonStatusWhereClauses();
-        this.appendDeviceInGroupSql();
-    }
-
-    @Override
     protected void appendNonStatusWhereClauses() {
         super.appendNonStatusWhereClauses();
         this.appendLastSessionClause();
