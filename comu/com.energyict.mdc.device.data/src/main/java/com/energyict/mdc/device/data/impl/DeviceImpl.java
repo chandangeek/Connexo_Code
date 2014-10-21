@@ -104,6 +104,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -1043,12 +1044,12 @@ public class DeviceImpl implements Device {
         return this.meteringService.findAmrSystem(1);
     }
 
-    List<ReadingRecord> getReadingsFor(Register<?> register, Interval interval) {
+    List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                List<? extends BaseReadingRecord> readings = meter.get().getReadings(interval.toOpenClosedRange(), register.getRegisterSpec().getRegisterType().getReadingType());
+                List<? extends BaseReadingRecord> readings = meter.get().getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
                 List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
                 for (BaseReadingRecord reading : readings) {
                     readingRecords.add((ReadingRecord) reading);
