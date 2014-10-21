@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -15,8 +16,11 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.ImmutableMap;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -170,6 +174,101 @@ public class ResourceHelper {
                 .filter(ct -> ct.getId() == connectionMethodId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getmRID(), connectionMethodId));
+    }
+
+    public Condition getQueryConditionForDevice(MultivaluedMap<String, String> uriParams) {
+        Condition condition = Condition.TRUE;
+        if (uriParams.containsKey("filter")) {
+            condition = condition.and(addDeviceQueryCondition(uriParams));
+        }
+        return condition;
+    }
+
+    private Condition addDeviceQueryCondition(MultivaluedMap<String, String> uriParams) {
+        try {
+            Condition conditionDevice = Condition.TRUE;
+            JsonQueryFilter filter = new JsonQueryFilter(new JSONArray(uriParams.getFirst("filter")));
+            String mRID = filter.getProperty("mRID");
+            if (mRID != null) {
+                mRID = replaceRegularExpression(mRID);
+                conditionDevice = !isRegularExpression(mRID)
+                        ? conditionDevice.and(where("mRID").isEqualTo(mRID))
+                        : conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
+            }
+            String serialNumber = filter.getProperty("serialNumber");
+            if (serialNumber != null) {
+                serialNumber = replaceRegularExpression(serialNumber);
+                conditionDevice = !isRegularExpression(serialNumber)
+                        ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
+                        : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
+            }
+            JSONArray deviceTypesJSONArray =  (JSONArray)filter.getProperty("deviceTypes");
+            if (deviceTypesJSONArray != null) {
+                List<String> deviceTypes = getValues(deviceTypesJSONArray);
+                if (!deviceTypes.isEmpty()) {
+                    conditionDevice = conditionDevice.and(createMultipleConditions(deviceTypes, "deviceConfiguration.deviceType.id"));
+                }
+            }
+            JSONArray deviceConfigurationsJSONArray =  (JSONArray)filter.getProperty("deviceConfigurations");
+            if (deviceConfigurationsJSONArray != null) {
+                List<String> deviceConfigurations = getValues(deviceConfigurationsJSONArray);
+                if (!deviceConfigurations.isEmpty()) {
+                    conditionDevice = conditionDevice.and(createMultipleConditions(deviceConfigurations, "deviceConfiguration.id"));
+                }
+            }
+            return conditionDevice;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private Condition createMultipleConditions(List<String> params, String conditionField) {
+        Condition condition = Condition.FALSE;
+        for (String value : params) {
+            condition = condition.or(where(conditionField).isEqualTo(value.trim()));
+        }
+        return condition;
+    }
+
+
+    private List<String> getValues(JSONArray jsonArray) throws JSONException {
+        int numberOfValues = jsonArray.length();
+        List<String> values = new ArrayList<String>();
+        for (int i = 0; i < numberOfValues; i++) {
+            String type = jsonArray.getString(i);
+            type = type.trim();
+            if (!type.equals("")) {
+                values.add(type);
+            }
+        }
+        return values;
+    }
+
+    private boolean isRegularExpression(String value) {
+        if (value.contains("*")) {
+            return true;
+        }
+        if (value.contains("?")) {
+            return true;
+        }
+        if (value.contains("%")) {
+            return true;
+        }
+        return false;
+    }
+
+    private String replaceRegularExpression(String value) {
+        if (value.contains("*")) {
+            value = value.replaceAll("\\*","%");
+            return value;
+        }
+        if (value.contains("?")) {
+            value = value.replaceAll("\\?","_");
+            return value;
+        }
+        if (value.contains("%")) {
+            return value;
+        }
+        return value;
     }
 
 }
