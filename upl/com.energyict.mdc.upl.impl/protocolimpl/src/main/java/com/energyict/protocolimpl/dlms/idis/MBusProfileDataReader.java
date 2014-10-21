@@ -4,6 +4,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
@@ -69,7 +70,7 @@ public class MBusProfileDataReader extends ProfileDataReader {
         return channelInfo;
     }
 
-    private List<MeterEvent> getMBusControlLog(Calendar fromCal, Calendar toCal) {
+    private List<MeterEvent> getMBusControlLog(Calendar fromCal, Calendar toCal) throws IOException {
         try {
             DataContainer mBusControlLogDC = idis.getCosemObjectFactory().getProfileGeneric(getMBusControlLogObisCode()).getBuffer(fromCal, toCal);
             AbstractEvent mBusControlLog;
@@ -90,18 +91,18 @@ public class MBusProfileDataReader extends ProfileDataReader {
                     return new ArrayList<MeterEvent>();
             }
             return mBusControlLog.getMeterEvents();
-        } catch (IOException e) {
+        } catch (DataAccessResultException e) {
             idis.getLogger().log(Level.WARNING, "MBus control log is not supported by the device:" + e.getMessage());
             return new ArrayList<MeterEvent>();
         }
     }
 
-    private List<MeterEvent> getMBusEventLog(Calendar fromCal, Calendar toCal) {
+    private List<MeterEvent> getMBusEventLog(Calendar fromCal, Calendar toCal) throws IOException {
         try {
             DataContainer mBusEventLogDC = idis.getCosemObjectFactory().getProfileGeneric(MBUS_EVENT_LOG).getBuffer(fromCal, toCal);
             MBusEventLog mBusEventLog = new MBusEventLog(idis.getTimeZone(), mBusEventLogDC);
             return mBusEventLog.getMeterEvents();
-        } catch (IOException e) {
+        } catch (DataAccessResultException e) {
             idis.getLogger().log(Level.WARNING, "MBus event log is not supported by the device:" + e.getMessage());
             return new ArrayList<MeterEvent>();
         }

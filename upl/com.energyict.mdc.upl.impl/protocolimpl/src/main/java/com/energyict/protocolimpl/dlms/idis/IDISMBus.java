@@ -5,10 +5,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -51,14 +48,15 @@ public class IDISMBus extends IDIS {
                 obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
                 long serialNumberValue = getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
                 if (serialNumberValue != 0) {
-                    serial = ProtocolTools.getHexStringFromInt((int) serialNumberValue, 4, "");
+                    serial = String.valueOf(serialNumberValue);
                     receivedSerialNumbers.add(serial);
                     if (serial.equals(expectedSerialNumber)) {
-                    setGasSlotId(i);
-                        break;
+                        getLogger().info("Found connected MBus device with serial number '" + serial + "' on channel '" + i + "'. This will be used as B-field for MBus related obiscodes.");
+                        setGasSlotId(i);
+                        return;
+                    }
                 }
-                }
-            } catch (IOException e) {
+            } catch (DataAccessResultException e) {
                 // fetch next
             }
         }
@@ -73,8 +71,8 @@ public class IDISMBus extends IDIS {
                     sb.append(" or ");
                 } else {
                     sb.append(", ");
-        }
-    }
+                }
+            }
             if (receivedSerialNumbers.isEmpty()) {
                 throw new IOException("No MBus device found with serialNumber '" + expectedSerialNumber + "' on the E-meter. No MBus devices are connected.");
             }

@@ -164,56 +164,56 @@ public class ProfileDataReader {
         return status;
     }
 
-    private List<MeterEvent> getPowerQualityEventLog(Calendar fromCal, Calendar toCal) {
+    private List<MeterEvent> getPowerQualityEventLog(Calendar fromCal, Calendar toCal) throws IOException {
         try {
             DataContainer powerQualityLogDC = idis.getCosemObjectFactory().getProfileGeneric(POWER_QUALITY_LOG).getBuffer(fromCal, toCal);
             PowerQualityEventLog powerQualityLog = new PowerQualityEventLog(idis.getTimeZone(), powerQualityLogDC);
             return powerQualityLog.getMeterEvents();
-        } catch (IOException e) {
+        } catch (DataAccessResultException e) {
             idis.getLogger().log(Level.WARNING, "Power quality event log is not supported by the device:" + e.getMessage());
             return new ArrayList<MeterEvent>();
         }
     }
 
-    private List<MeterEvent> getPowerFailureEventLog(Calendar fromCal, Calendar toCal) {
+    private List<MeterEvent> getPowerFailureEventLog(Calendar fromCal, Calendar toCal) throws IOException {
         try {
             DataContainer powerFailureEventLogDC = idis.getCosemObjectFactory().getProfileGeneric(POWER_FAILURE_EVENT_LOG).getBuffer(fromCal, toCal);
             PowerFailureEventLog powerFailureEventLog = new PowerFailureEventLog(idis.getTimeZone(), powerFailureEventLogDC);
             return powerFailureEventLog.getMeterEvents();
-        } catch (Exception e) {
+        } catch (DataAccessResultException e) {
             idis.getLogger().log(Level.WARNING, "Power failure event log is not supported by the device:" + e.getMessage());
             return new ArrayList<MeterEvent>();
         }
     }
 
-    private List<MeterEvent> getDisconnectorControlLog(Calendar fromCal, Calendar toCal) {
+    private List<MeterEvent> getDisconnectorControlLog(Calendar fromCal, Calendar toCal) throws IOException {
         try {
             DataContainer disconnectorControlLogDC = idis.getCosemObjectFactory().getProfileGeneric(DISCONNECTOR_CONTROL_LOG).getBuffer(fromCal, toCal);
             DisconnectorControlLog disconnectorControlLog = new DisconnectorControlLog(idis.getTimeZone(), disconnectorControlLogDC);
             return disconnectorControlLog.getMeterEvents();
-        } catch (IOException e) {
+        } catch (DataAccessResultException e) {
             idis.getLogger().log(Level.WARNING, "Disconnector control log is not supported by the device:" + e.getMessage());
             return new ArrayList<MeterEvent>();
         }
     }
 
-    private List<MeterEvent> getFraudDetectionLog(Calendar fromCal, Calendar toCal) {
+    private List<MeterEvent> getFraudDetectionLog(Calendar fromCal, Calendar toCal) throws IOException {
         try {
             DataContainer fraudDetectionLogDC = idis.getCosemObjectFactory().getProfileGeneric(FRAUD_DETECTION_LOG).getBuffer(fromCal, toCal);
             FraudDetectionLog fraudDetectionLog = new FraudDetectionLog(idis.getTimeZone(), fraudDetectionLogDC);
             return fraudDetectionLog.getMeterEvents();
-        } catch (IOException e) {
+        } catch (DataAccessResultException e) {
             idis.getLogger().log(Level.WARNING, "Fraud detection log is not supported by the device:" + e.getMessage());
             return new ArrayList<MeterEvent>();
         }
     }
 
-    private List<MeterEvent> getStandardEventLog(Calendar fromCal, Calendar toCal) {
+    private List<MeterEvent> getStandardEventLog(Calendar fromCal, Calendar toCal) throws IOException {
         try {
             DataContainer standardEventLogDC = idis.getCosemObjectFactory().getProfileGeneric(STANDARD_EVENT_LOG).getBuffer(fromCal, toCal);
             StandardEventLog standardEventLog = new StandardEventLog(idis.getTimeZone(), standardEventLogDC);
             return standardEventLog.getMeterEvents();
-        } catch (IOException e) {
+        } catch (DataAccessResultException e) {
             idis.getLogger().log(Level.WARNING, "Standard event log is not supported by the device:" + e.getMessage());
             return new ArrayList<MeterEvent>();
         }
