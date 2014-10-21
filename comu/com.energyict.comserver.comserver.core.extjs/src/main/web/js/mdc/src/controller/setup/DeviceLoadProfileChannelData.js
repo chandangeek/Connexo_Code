@@ -217,6 +217,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             dataStore.each(function (record) {
                 if (record.get('value')) {
                     seriesObject['data'].unshift([record.get('interval').end, parseFloat(record.get('value'))]);
+                } else {
+                    seriesObject['data'].unshift([record.get('interval').end, null]);
                 }
             });
             series.push(seriesObject);
