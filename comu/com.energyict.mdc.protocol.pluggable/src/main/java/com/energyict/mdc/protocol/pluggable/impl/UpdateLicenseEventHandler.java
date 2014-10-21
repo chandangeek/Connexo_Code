@@ -67,19 +67,19 @@ public class UpdateLicenseEventHandler implements TopicHandler {
                 registerAll(Collections.unmodifiableList(this.inboundDeviceProtocolServices));
     }
 
-    @Reference
+    @Reference(name = "AProtocolPluggableService")
     @SuppressWarnings("unused")
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
     }
 
-    @Reference
+    @Reference(name = "ATransactionService")
     @SuppressWarnings("unused")
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = new FakeTransactionService(transactionService);
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(name = "ZInboundDeviceProtocolService", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolServices.add(inboundDeviceProtocolService);
         this.registerInboundDeviceProtocolPluggableClasses();
@@ -90,7 +90,7 @@ public class UpdateLicenseEventHandler implements TopicHandler {
         this.inboundDeviceProtocolServices.remove(inboundDeviceProtocolService);
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(name = "ZConnectionTypeService", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
         this.connectionTypeServices.add(connectionTypeService);
         this.registerConnectionTypePluggableClasses();
