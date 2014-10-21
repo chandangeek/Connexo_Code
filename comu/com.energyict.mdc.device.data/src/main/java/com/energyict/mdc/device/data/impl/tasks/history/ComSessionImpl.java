@@ -197,11 +197,11 @@ public class ComSessionImpl implements ComSession {
                         }
                         case 0: {
                             logEntries.add(new ComCommandJournalEntryAsCombinedLogEntry(resultSet));
+                            break;
                         }
                         case 1: {
                             logEntries.add(new ComTaskExecutionMessageJournalEntryAsCombinedLogEntry(resultSet));
-                        }
-                        default: {
+                            break;
                         }
                     }
                 }
