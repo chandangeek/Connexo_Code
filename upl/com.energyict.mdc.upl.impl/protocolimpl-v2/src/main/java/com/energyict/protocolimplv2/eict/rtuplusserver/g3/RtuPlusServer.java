@@ -18,7 +18,6 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -214,10 +213,10 @@ public class RtuPlusServer implements DeviceProtocol {
             DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName());
             deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
             deviceTopology.addAdditionalCollectedDeviceInfo(
-                    new DeviceProtocolProperty(
+                    MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                             slaveDeviceIdentifier,
                             nodeAddressPropertySpec(),
-                            String.valueOf(sapAssignmentItem.getSap())
+                            sapAssignmentItem.getSap()
                     )
             );
         }
