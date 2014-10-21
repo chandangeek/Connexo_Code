@@ -120,7 +120,7 @@ public class RegisterDataResource {
         Meter meter = resourceHelper.getMeterFor(device);
         Optional<Channel> channel =  resourceHelper.getRegisterChannel(register, meter);
         if(!channel.isPresent()) {
-            exceptionFactory.newException(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId);
+            throw exceptionFactory.newException(MessageSeeds.NO_CHANNELS_ON_REGISTER, register.getRegisterSpec().getRegisterType().getName());
         }
 
         List<BaseReading> readings = new ArrayList<>();
