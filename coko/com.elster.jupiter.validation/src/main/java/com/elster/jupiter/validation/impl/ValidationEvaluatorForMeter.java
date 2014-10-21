@@ -77,13 +77,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
 
     @Override
     public ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities) {
-        if (qualities.isEmpty()) {
-            return ValidationResult.NOT_VALIDATED;
-        }
-        if (qualities.size() == 1 && qualities.iterator().next().getTypeCode().equals(ReadingQualityType.MDM_VALIDATED_OK_CODE)) {
-            return ValidationResult.VALID;
-        }
-        return ValidationResult.SUSPECT;
+       return ValidationResult.getValidationResult(qualities);
     }
 
     @Override
