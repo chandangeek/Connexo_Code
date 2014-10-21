@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -14,11 +12,16 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
+
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import org.junit.Test;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -28,8 +31,8 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 10/3/14.
  */
 public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicationJerseyTest {
-    private final Date start = new Date(1412341200000L);
-    private final Date end = new Date(1412341300000L);
+    private final Instant start = Instant.ofEpochMilli(1412341200000L);
+    private final Instant end = Instant.ofEpochMilli(1412341300000L);
 
     @Test
     public void testGetComTaskExecutionsWithScheduleComTask() throws Exception {
@@ -86,8 +89,8 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
     private ComSession mockComSession(ConnectionTask<?, ?> connectionTask, Long id, Device device) {
         ComSession comSession = mock(ComSession.class);
         when(comSession.getId()).thenReturn(id);
-        when(comSession.getStartDate()).thenReturn(start.toInstant());
-        when(comSession.getStopDate()).thenReturn(end.toInstant());
+        when(comSession.getStartDate()).thenReturn(start);
+        when(comSession.getStopDate()).thenReturn(end);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getName()).thenReturn("comPort 199812981212");
         when(comPort.getId()).thenReturn(199812981212L);
