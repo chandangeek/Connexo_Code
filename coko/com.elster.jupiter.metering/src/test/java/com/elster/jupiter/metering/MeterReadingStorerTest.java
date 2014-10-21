@@ -215,10 +215,10 @@ public class MeterReadingStorerTest {
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1100));
             assertThat(((IntervalReadingRecord) readings.get(1)).getProfileStatus()).isEqualTo(status);
             Range<Instant> range = Range.closed(instant.minusSeconds(15 * 60L), instant.plusSeconds(30 * 60L));
-            assertThat(channel.findReadingQuality(range));
+            assertThat(channel.findReadingQuality(range)).hasSize(2);
             channel.removeReadings(readings);
             assertThat(channel.getReadings(range)).hasSize(1);
-            assertThat(channel.findReadingQuality(range)).hasSize(1);
+            assertThat(channel.findReadingQuality(range)).hasSize(3);
             ctx.commit();
         }
     }

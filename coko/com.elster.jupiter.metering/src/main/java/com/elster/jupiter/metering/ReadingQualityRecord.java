@@ -32,6 +32,8 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
     boolean isSuspect();
 
     boolean isMissing();
+    
+    boolean isError();
 
     void makePast();
 

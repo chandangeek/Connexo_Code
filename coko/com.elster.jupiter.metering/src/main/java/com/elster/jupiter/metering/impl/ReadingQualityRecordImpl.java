@@ -171,6 +171,11 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     	return hasQualityIndex(QualityCodeIndex.KNOWNMISSINGREAD);
     }
     
+    @Override
+    public boolean isError() {
+    	return hasQualityIndex(QualityCodeIndex.ERRORCODE);
+    }
+    
     private boolean hasQualityCodeCategory(QualityCodeCategory cat) {
     	return getType().category().filter(category -> category.equals(cat)).isPresent();
     }

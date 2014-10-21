@@ -445,5 +445,7 @@ public final class ChannelImpl implements ChannelContract {
         qualityRecords.stream()
         	.filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
             .forEach(qualityRecord -> qualityRecord.delete());
+        ReadingQualityType errorQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ERRORCODE);
+        readingTimes.forEach(readingTime -> createReadingQuality(errorQualityType, readingTime).save());
     }
 }
