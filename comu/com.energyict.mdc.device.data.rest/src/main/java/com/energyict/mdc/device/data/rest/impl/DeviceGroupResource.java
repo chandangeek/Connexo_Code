@@ -49,6 +49,7 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public PagedInfoList getDeviceGroups(@BeanParam QueryParameters queryParameters, @QueryParam("type") String typeName) {
+
         com.elster.jupiter.rest.util.QueryParameters koreQueryParameters =
                 com.elster.jupiter.rest.util.QueryParameters.wrap(queryParameters.getQueryParameters());
         Query<EndDeviceGroup> query;
@@ -129,6 +130,8 @@ public class DeviceGroupResource {
         } else {
             endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(name);
         }
+        endDeviceGroup.setLabel("MDC");
+        endDeviceGroup.setMRID("MDC:" + endDeviceGroup.getName());
         endDeviceGroup.save();
 
 
