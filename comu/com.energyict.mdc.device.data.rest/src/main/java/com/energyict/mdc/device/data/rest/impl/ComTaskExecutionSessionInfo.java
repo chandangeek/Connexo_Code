@@ -25,4 +25,5 @@ class ComTaskExecutionSessionInfo {
     public Date startTime;
     public Date finishTime;
     public boolean alwaysExecuteOnInbound;
+    public ComSessionInfo comSession;
 }

@@ -3,20 +3,18 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import java.util.Date;
 import java.time.Duration;
 import java.time.temporal.ChronoField;
+import java.util.Date;
 import javax.inject.Inject;
 
 /**
  * Created by bvn on 10/3/14.
  */
 public class ComSessionInfoFactory {
-    private final ComSessionSuccessIndicatorAdapter comSessionSuccessIndicatorAdapter = new ComSessionSuccessIndicatorAdapter();
     private final Thesaurus thesaurus;
 
     @Inject

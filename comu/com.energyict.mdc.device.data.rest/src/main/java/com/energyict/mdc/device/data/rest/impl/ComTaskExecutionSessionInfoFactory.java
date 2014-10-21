@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -22,6 +23,7 @@ import static java.util.stream.Collectors.toList;
  */
 public class ComTaskExecutionSessionInfoFactory {
 
+    private final CompletionCodeAdapter completionCodeAdapter = new CompletionCodeAdapter();
     private final Thesaurus thesaurus;
 
     @Inject
@@ -54,9 +56,7 @@ public class ComTaskExecutionSessionInfoFactory {
             }
         }
         info.urgency = comTaskExecution.getExecutionPriority();
-        MessageSeeds successIndicatorSeed = comTaskExecutionSession.getSuccessIndicator().equals(ComTaskExecutionSession.SuccessIndicator.Success) ?
-                MessageSeeds.SUCCESS : MessageSeeds.FAILURE;
-        info.result=thesaurus.getString(successIndicatorSeed.getKey(), successIndicatorSeed.getDefaultFormat());
+        info.result=thesaurus.getString(completionCodeAdapter.marshal(comTaskExecutionSession.getHighestPriorityCompletionCode()), completionCodeAdapter.marshal(comTaskExecutionSession.getHighestPriorityCompletionCode()));
         info.startTime=comTaskExecutionSession.getStartDate();
         info.finishTime =comTaskExecutionSession.getStopDate();
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();

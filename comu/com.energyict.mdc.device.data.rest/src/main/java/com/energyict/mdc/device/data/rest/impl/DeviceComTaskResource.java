@@ -7,17 +7,20 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -29,16 +32,26 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static java.util.stream.Collectors.toList;
+
 public class DeviceComTaskResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final DeviceComTaskInfoFactory deviceComTaskInfoFactory;
+    private final TaskService taskService;
+    private final CommunicationTaskService communicationTaskService;
+    private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionFactory;
+    private final ComSessionInfoFactory comSessionInfoFactory;
 
     @Inject
-    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory) {
+    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory, TaskService taskService, CommunicationTaskService communicationTaskService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionFactory, ComSessionInfoFactory comSessionInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceComTaskInfoFactory = deviceComTaskInfoFactory;
+        this.taskService = taskService;
+        this.communicationTaskService = communicationTaskService;
+        this.comTaskExecutionSessionFactory = comTaskExecutionSessionFactory;
+        this.comSessionInfoFactory = comSessionInfoFactory;
     }
 
     @GET
@@ -58,7 +71,7 @@ public class DeviceComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateComTaskExecution(@PathParam("mRID") String mrid,@PathParam("comTaskId") Long comTaskId, ComTaskUrgencyInfo comTaskUrgencyInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
             comTaskExecutions.forEach(updateUrgency(comTaskUrgencyInfo, device));
         } else {
@@ -73,7 +86,7 @@ public class DeviceComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateProtocolDialect(@PathParam("mRID") String mrid,@PathParam("comTaskId") Long comTaskId, ComTaskProtocolDialectInfo comTaskProtocolDialectInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
             comTaskExecutions.forEach(updateProtocolDialect(comTaskProtocolDialectInfo, device));
         } else {
@@ -88,7 +101,7 @@ public class DeviceComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateConnectionMethod(@PathParam("mRID") String mrid,@PathParam("comTaskId") Long comTaskId, ComTaskFrequencyInfo comTaskFrequencyInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
             comTaskExecutions.forEach(updateComTaskExecutionFrequency(comTaskFrequencyInfo, device));
         } else {
@@ -104,7 +117,7 @@ public class DeviceComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateFrequency(@PathParam("mRID") String mrid,@PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo comTaskConnectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
             comTaskExecutions.forEach(updateComTaskConnectionMethod(comTaskConnectionMethodInfo, device));
         } else {
@@ -120,7 +133,7 @@ public class DeviceComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response run(@PathParam("mRID") String mrid,@PathParam("comTaskId") Long comTaskId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
             comTaskExecutions.forEach(runComTaskFromExecution(device));
         } else if(comTaskExecutions.size()==0){
@@ -136,7 +149,7 @@ public class DeviceComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response runnow(@PathParam("mRID") String mrid,@PathParam("comTaskId") Long comTaskId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if(comTaskExecutions.size()>0){
             comTaskExecutions.forEach(runComTaskFromExecutionNow(device));
         } else if(comTaskExecutions.size()==0){
@@ -145,6 +158,31 @@ public class DeviceComTaskResource {
         }
         return Response.ok().build();
     }
+
+    @GET
+    @Path("{comTaskId}/comtaskexecutionsessions")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PagedInfoList getComTaskExecutionSessions(@PathParam("mRID") String mrid,
+                                                     @PathParam("comTaskId") long comTaskId, @BeanParam QueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ComTask comTask = taskService.findComTask(comTaskId);
+        if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
+        }
+        Optional<ComTaskExecution> comTaskExecutionOptional = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
+        List<ComTaskExecutionSessionInfo> infos = new ArrayList<>();
+        if (comTaskExecutionOptional.isPresent()) {
+            List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findByComTaskExecution(comTaskExecutionOptional.get()).find();
+            for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
+                ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionFactory.from(comTaskExecutionSession);
+                comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession());
+                infos.add(comTaskExecutionSessionInfo);
+            }
+        }
+        return PagedInfoList.asJson("comTaskExecutionSessions", infos, queryParameters);
+
+    }
+
 
     private Consumer<? super ComTaskEnablement> runComTaskFromEnablement(Device device) {
         return comTaskEnablement -> {
@@ -183,18 +221,26 @@ public class DeviceComTaskResource {
     }
 
 
-    private List<ComTaskExecution> getComTaskExecutionForDeviceAndComTask(Long comTaskId, Device device) {
+    private List<ComTaskExecution> getComTaskExecutionsForDeviceAndComTask(Long comTaskId, Device device) {
         return device.getComTaskExecutions().stream()
                     .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
                             .mapToLong(ComTask::getId)
                             .anyMatch(comTaskId::equals))
-                   .collect(Collectors.toList());
+                   .collect(toList());
+    }
+
+    private Optional<ComTaskExecution> getComTaskExecutionForDeviceAndComTask(Long comTaskId, Device device) {
+        return device.getComTaskExecutions().stream()
+                    .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
+                            .mapToLong(ComTask::getId)
+                            .anyMatch(comTaskId::equals))
+                   .findFirst();
     }
 
     private List<ComTaskEnablement> getComTaskEnablementsForDeviceAndComtask(Long comTaskId, Device device){
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId()== comTaskId)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private Consumer<ComTaskExecution> updateUrgency(ComTaskUrgencyInfo comTaskUrgencyInfo, Device device) {

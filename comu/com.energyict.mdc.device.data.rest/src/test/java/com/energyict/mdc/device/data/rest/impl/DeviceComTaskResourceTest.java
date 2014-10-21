@@ -1,7 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -13,19 +16,36 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
+import com.jayway.jsonpath.JsonModel;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -487,5 +507,100 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         verify(scheduledComTaskExecutionUpdater, times(1)).update();
     }
 
+    @Test
+    public void testGetDeviceComTaskHistory() throws Exception {
+        Device device = mock(Device.class);
+        when(device.getName()).thenReturn("device name");
+        when(device.getmRID()).thenReturn("X9");
+        when(deviceService.findByUniqueMrid("X9")).thenReturn(device);
+
+        ComTask comTask = mock(ComTask.class);
+        when(comTask.getId()).thenReturn(19L);
+        when(comTask.getName()).thenReturn("Read all");
+        when(taskService.findComTask(19)).thenReturn(comTask);
+
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getId()).thenReturn(10L);
+        when(deviceConfiguration.getName()).thenReturn("device config");
+        when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
+
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(11L);
+        when(deviceType.getName()).thenReturn("device type");
+        when(device.getDeviceType()).thenReturn(deviceType);
+
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(comSchedule.getName()).thenReturn("com schedule");
+
+        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
+        when(comTaskExecution1.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
+
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
+
+        ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
+        when(pluggeableClass.getName()).thenReturn("GPRS");
+
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
+        when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
+
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(13L);
+        when(connectionTask.getName()).thenReturn("connection task");
+        when(connectionTask.isDefault()).thenReturn(true);
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+
+        ComServer comServer = mock(ComServer.class);
+        when(comServer.getId()).thenReturn(15L);
+        when(comServer.getName()).thenReturn("com server");
+
+        ComPort comPort = mock(ComPort.class);
+        when(comPort.getName()).thenReturn("com port");
+        when(comPort.getComServer()).thenReturn(comServer);
+        ComSession comSession = mock(ComSession.class);
+        when(comSession.getConnectionTask()).thenReturn(connectionTask);
+        when(comSession.getId()).thenReturn(14L);
+        when(comSession.getStartDate()).thenReturn(LocalDateTime.of(2014,10,20,14,6,2).toInstant(ZoneOffset.UTC));
+        when(comSession.getStopDate()).thenReturn(LocalDateTime.of(2014,10,20,14,6,32).toInstant(ZoneOffset.UTC));
+        when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
+        when(comSession.getNumberOfFailedTasks()).thenReturn(1001);
+        when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(1002);
+        when(comSession.getNumberOfSuccessFulTasks()).thenReturn(1003);
+        when(comSession.getComPort()).thenReturn(comPort);
+
+        ComTaskExecutionSession comTaskExecutionSession1 = mock(ComTaskExecutionSession.class);
+        when(comTaskExecutionSession1.getComTaskExecution()).thenReturn(comTaskExecution1);
+        when(comTaskExecutionSession1.getDevice()).thenReturn(device);
+        when(comTaskExecutionSession1.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.ConnectionError);
+        when(comTaskExecutionSession1.getComSession()).thenReturn(comSession);
+        when(comTaskExecutionSession1.getStartDate()).thenReturn(Date.from(LocalDateTime.of(2014, 10, 20, 14, 6, 4).toInstant(ZoneOffset.UTC)));
+        when(comTaskExecutionSession1.getStopDate()).thenReturn(Date.from(LocalDateTime.of(2014, 10, 20, 14, 6, 30).toInstant(ZoneOffset.UTC)));
+        Finder<ComTaskExecutionSession> finder = mockFinder(Arrays.asList(comTaskExecutionSession1));
+        when(communicationTaskService.findByComTaskExecution(comTaskExecution1)).thenReturn(finder);
+
+        String response = target("/devices/X9/comtasks/19/comtaskexecutionsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.comTaskExecutionSessions")).hasSize(1);
+        assertThat(jsonModel.<List>get("$.comTaskExecutionSessions")).hasSize(1);
+    }
+
+    private <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        when(finder.stream()).thenReturn(list.stream());
+        return finder;
+    }
 
 }
