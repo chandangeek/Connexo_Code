@@ -1,14 +1,15 @@
 package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmServer;
+
 import org.osgi.framework.BundleContext;
-import org.ow2.util.base64.Base64;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Base64;
 
 public class BpmServerImpl implements BpmServer {
 
@@ -36,7 +37,7 @@ public class BpmServerImpl implements BpmServer {
         if (password == null) {
             password = DEFAULT_BPM_PASSWORD;
         }
-        this.authString = "Basic " + new String(Base64.encode((user + ":" + password).getBytes()));
+        this.authString = "Basic " + new String(Base64.getEncoder().encode((user + ":" + password).getBytes()));
     }
 
     public String getUrl() {
