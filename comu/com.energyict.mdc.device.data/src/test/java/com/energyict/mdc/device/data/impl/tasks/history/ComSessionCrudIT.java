@@ -1,34 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -83,34 +54,65 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.kpi.impl.KpiModule;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.assertj.core.api.Assertions;
-import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.api.Assertions;
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComSessionCrudIT {
@@ -342,8 +344,8 @@ public class ComSessionCrudIT {
     @Test
     public void testCreationOfComSession() {
         long id;
-        Date startTime = new DateTime(2011, 5, 14, 0, 0).toDate();
-        Date stopTime = new DateTime(2011, 5, 14, 7, 0).toDate();
+        Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
@@ -359,8 +361,8 @@ public class ComSessionCrudIT {
 
         ComSession foundSession = found.get();
 
-        assertThat(Date.from(foundSession.getStartDate())).isEqualTo(startTime);
-        assertThat(Date.from(foundSession.getStopDate())).isEqualTo(stopTime);
+        assertThat(foundSession.getStartDate()).isEqualTo(startTime);
+        assertThat(foundSession.getStopDate()).isEqualTo(stopTime);
         assertThat(foundSession.getSuccessIndicator()).isEqualTo(ComSession.SuccessIndicator.Success);
         Assertions.assertThat(EqualById.byId(foundSession.getConnectionTask())).isEqualTo(EqualById.byId(connectionTask));
         Assertions.assertThat(EqualById.byId(foundSession.getComPortPool())).isEqualTo(EqualById.byId(outboundTcpipComPortPool));
@@ -371,8 +373,8 @@ public class ComSessionCrudIT {
     @Test
     public void testCreationOfComSessionWithStatistics() {
         long id;
-        Date startTime = new DateTime(2011, 5, 14, 0, 0).toDate();
-        Date stopTime = new DateTime(2011, 5, 14, 7, 0).toDate();
+        Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSession comSession = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
@@ -411,10 +413,10 @@ public class ComSessionCrudIT {
     @Test
     public void testCreationOfComSessionWithJournalEntries() {
         long id;
-        Date startTime = new DateTime(2011, 5, 14, 0, 0).toDate();
-        Date entryTime1 = new DateTime(2011, 5, 14, 4, 15).toDate();
-        Date entryTime2 = new DateTime(2011, 5, 14, 5, 15).toDate();
-        Date stopTime = new DateTime(2011, 5, 14, 7, 0).toDate();
+        Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant entryTime1 = ZonedDateTime.of(2011, 5, 14, 4, 15, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant entryTime2 = ZonedDateTime.of(2011, 5, 14, 5, 15, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Throwable cause = new RuntimeException();
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
@@ -428,13 +430,9 @@ public class ComSessionCrudIT {
         }
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
-
         assertThat(found.isPresent()).isTrue();
-
         ComSession foundSession = found.get();
-
         assertThat(foundSession.getJournalEntries()).hasSize(2);
-
         ComSessionJournalEntry entry1 = foundSession.getJournalEntries().get(0);
         assertThat(entry1.getTimestamp()).isEqualTo(entryTime1);
         assertThat(entry1.getComSession()).isEqualTo(foundSession);
@@ -451,10 +449,10 @@ public class ComSessionCrudIT {
     @Test
     public void testCreationOfComSessionWithComTaskExecutionJournals() {
         long id;
-        Date startTime = new DateTime(2011, 5, 14, 0, 0).toDate();
-        Date taskStartTime = new DateTime(2011, 5, 14, 0, 5).toDate();
-        Date taskStopTime = new DateTime(2011, 5, 14, 0, 10).toDate();
-        Date stopTime = new DateTime(2011, 5, 14, 7, 0).toDate();
+        Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStartTime = ZonedDateTime.of(2011, 5, 14, 0, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
@@ -498,10 +496,10 @@ public class ComSessionCrudIT {
     @Test
     public void testCreationOfComSessionWithComTaskExecutionJournalWithStats() {
         long id;
-        Date startTime = new DateTime(2011, 5, 14, 0, 0).toDate();
-        Date taskStartTime = new DateTime(2011, 5, 14, 0, 5).toDate();
-        Date taskStopTime = new DateTime(2011, 5, 14, 0, 10).toDate();
-        Date stopTime = new DateTime(2011, 5, 14, 7, 0).toDate();
+        Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStartTime = ZonedDateTime.of(2011, 5, 14, 0, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
@@ -539,11 +537,11 @@ public class ComSessionCrudIT {
     @Test
     public void testCreationOfComSessionWithComTaskExecutionJournalWithComCommandJournalEntry() {
         long id;
-        Date startTime = new DateTime(2011, 5, 14, 0, 0).toDate();
-        Date taskStartTime = new DateTime(2011, 5, 14, 0, 5).toDate();
-        Date journalEntryTime = new DateTime(2011, 5, 14, 0, 6).toDate();
-        Date taskStopTime = new DateTime(2011, 5, 14, 0, 10).toDate();
-        Date stopTime = new DateTime(2011, 5, 14, 7, 0).toDate();
+        Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStartTime = ZonedDateTime.of(2011, 5, 14, 0, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant journalEntryTime = ZonedDateTime.of(2011, 5, 14, 0, 6, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
@@ -583,11 +581,11 @@ public class ComSessionCrudIT {
     @Test
     public void testCreationOfComSessionWithComTaskExecutionJournalWithComTaskExecutionMessageJournalEntry() {
         long id;
-        Date startTime = new DateTime(2011, 5, 14, 0, 0).toDate();
-        Date taskStartTime = new DateTime(2011, 5, 14, 0, 5).toDate();
-        Date journalEntryTime = new DateTime(2011, 5, 14, 0, 6).toDate();
-        Date taskStopTime = new DateTime(2011, 5, 14, 0, 10).toDate();
-        Date stopTime = new DateTime(2011, 5, 14, 7, 0).toDate();
+        Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStartTime = ZonedDateTime.of(2011, 5, 14, 0, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant journalEntryTime = ZonedDateTime.of(2011, 5, 14, 0, 6, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
@@ -626,11 +624,11 @@ public class ComSessionCrudIT {
     @Test
     public void testCreationOfComSessionWithComTaskExecutionJournalWithMoreThanOneJournalEntry() {
         long id;
-        Date startTime = new DateTime(2011, 5, 14, 0, 0).toDate();
-        Date taskStartTime = new DateTime(2011, 5, 14, 0, 5).toDate();
-        Date journalEntryTime = new DateTime(2011, 5, 14, 0, 6).toDate();
-        Date taskStopTime = new DateTime(2011, 5, 14, 0, 10).toDate();
-        Date stopTime = new DateTime(2011, 5, 14, 7, 0).toDate();
+        Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStartTime = ZonedDateTime.of(2011, 5, 14, 0, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant journalEntryTime = ZonedDateTime.of(2011, 5, 14, 0, 6, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)

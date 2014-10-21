@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.common.HasId;
-
 import com.energyict.mdc.engine.model.ComServer;
-import java.util.Date;
+
+import java.time.Instant;
 
 /**
  * Models an entry in the journal of a {@link ComTaskExecutionSession}.
@@ -19,7 +19,7 @@ public interface ComTaskExecutionJournalEntry extends HasId {
 
     public ComTaskExecutionSession getComTaskExecutionSession ();
 
-    public Date getTimestamp ();
+    public Instant getTimestamp ();
 
     public String getErrorDescription ();
 

@@ -11,10 +11,10 @@ import com.energyict.mdc.engine.model.ComServer;
 
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.LongCounter;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,13 +29,13 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     private final LongCounter receivedPackets = Counters.newStrictLongCounter();
     private final ComTaskExecution comTaskExecution;
     private final Device device;
-    private final Date startDate;
-    private Date stopDate;
+    private final Instant startDate;
+    private Instant stopDate;
     private ComTaskExecutionSession.SuccessIndicator successIndicator;
     private final ComSessionBuilder parentBuilder;
     private List<JournalEntryBuilder> journalEntryBuilders = new ArrayList<>();
 
-    ComTaskExecutionSessionBuilderImpl(ComSessionBuilder parentBuilder, ComTaskExecution comTaskExecution, Device device, Date startDate) {
+    ComTaskExecutionSessionBuilderImpl(ComSessionBuilder parentBuilder, ComTaskExecution comTaskExecution, Device device, Instant startDate) {
         this.parentBuilder = parentBuilder;
         this.comTaskExecution = comTaskExecution;
         this.device = device;
@@ -43,7 +43,7 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     }
 
     @Override
-    public ComSessionBuilder add(Date stopDate, ComTaskExecutionSession.SuccessIndicator successIndicator) {
+    public ComSessionBuilder add(Instant stopDate, ComTaskExecutionSession.SuccessIndicator successIndicator) {
         this.stopDate = stopDate;
         this.successIndicator = successIndicator;
         return parentBuilder;
@@ -74,7 +74,7 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     }
 
     ComTaskExecutionSession addTo(ComSessionImpl comSession) {
-        ComTaskExecutionSessionImpl comTaskExecutionSession = comSession.createComTaskExecutionSession(comTaskExecution, device, new Interval(startDate, stopDate), successIndicator);
+        ComTaskExecutionSessionImpl comTaskExecutionSession = comSession.createComTaskExecutionSession(comTaskExecution, device, Range.closed(startDate, stopDate), successIndicator);
         for (JournalEntryBuilder journalEntryBuilder : journalEntryBuilders) {
             journalEntryBuilder.build(comTaskExecutionSession);
         }
@@ -83,13 +83,13 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     }
 
     @Override
-    public ComTaskExecutionSessionBuilder addComCommandJournalEntry(Date timestamp, CompletionCode completionCode, String errorDesciption, String commandDescription) {
+    public ComTaskExecutionSessionBuilder addComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDesciption, String commandDescription) {
         journalEntryBuilders.add(new ComCommandJournalEntryBuilder(timestamp, completionCode, errorDesciption, commandDescription));
         return this;
     }
 
     @Override
-    public ComTaskExecutionSessionBuilder addComTaskExecutionMessageJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDesciption) {
+    public ComTaskExecutionSessionBuilder addComTaskExecutionMessageJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDesciption) {
         journalEntryBuilders.add(new ComTaskExecutionMessageJournalEntryBuilder(timestamp, logLevel, message, errorDesciption));
         return this;
     }
@@ -120,12 +120,12 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
 
     private class ComCommandJournalEntryBuilder implements JournalEntryBuilder {
 
-        private final Date timestamp;
+        private final Instant timestamp;
         private final CompletionCode completionCode;
         private final String errorDescription;
         private final String commandDescription;
 
-        private ComCommandJournalEntryBuilder(Date timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
+        private ComCommandJournalEntryBuilder(Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
             this.timestamp = timestamp;
             this.completionCode = completionCode;
             this.errorDescription = errorDescription;
@@ -140,12 +140,12 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
 
     private class ComTaskExecutionMessageJournalEntryBuilder implements JournalEntryBuilder {
 
-        private final Date timestamp;
+        private final Instant timestamp;
         private final ComServer.LogLevel logLevel;
         private final String message;
         private final String errorDescription;
 
-        private ComTaskExecutionMessageJournalEntryBuilder(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
+        private ComTaskExecutionMessageJournalEntryBuilder(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
             this.timestamp = timestamp;
             this.logLevel = logLevel;
             this.message = message;

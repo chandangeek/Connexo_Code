@@ -30,7 +30,7 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
 
     String errorDescription;
     Instant timestamp;
-    private Date modDate;
+    private Instant modDate;
 
     ComTaskExecutionJournalEntryImpl(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(domainClass, dataModel, eventService, thesaurus);
@@ -42,8 +42,8 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
     }
 
     @Override
-    public Date getTimestamp () {
-        return Date.from(timestamp);
+    public Instant getTimestamp () {
+        return this.timestamp;
     }
 
     @Override

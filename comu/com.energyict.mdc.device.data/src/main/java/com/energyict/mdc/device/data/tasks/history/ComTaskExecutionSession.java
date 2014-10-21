@@ -5,7 +5,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.model.ComServer;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -39,9 +39,9 @@ public interface ComTaskExecutionSession extends HasId {
 
     public List<ComTaskExecutionJournalEntry> getComTaskExecutionJournalEntries ();
 
-    public Date getStartDate ();
+    public Instant getStartDate ();
 
-    public Date getStopDate ();
+    public Instant getStopDate ();
 
     public boolean endsAfter (ComTaskExecutionSession other);
 
@@ -57,7 +57,7 @@ public interface ComTaskExecutionSession extends HasId {
      * @param commandDescription The ComCommand description
      * @return The ComCommandJournalEntryBuilder
      */
-    public ComCommandJournalEntry createComCommandJournalEntry(Date timestamp, CompletionCode completionCode, String errorDescription, String commandDescription);
+    public ComCommandJournalEntry createComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription);
 
     /**
      * Returns a {@link ComCommandJournalEntryBuilder} that adds a new
@@ -69,7 +69,7 @@ public interface ComTaskExecutionSession extends HasId {
      * @param errorDescription The error description
      * @return The ComTaskExecutionMessageJournalEntryBuilder
      */
-    public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDescription);
+    public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription);
 
     /**
      * Gets the completion code with the highest priority
@@ -94,7 +94,7 @@ public interface ComTaskExecutionSession extends HasId {
          *
          * @param when The entry's timestamp
          */
-        public void timestamp (Date when);
+        public void timestamp (Instant when);
 
         public void errorDescription (String errorDescription);
 

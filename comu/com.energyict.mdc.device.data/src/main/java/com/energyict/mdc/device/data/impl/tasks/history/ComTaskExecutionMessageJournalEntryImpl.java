@@ -1,14 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
 import com.energyict.mdc.engine.model.ComServer;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+
 import javax.inject.Inject;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link ComTaskExecutionMessageJournalEntry} interface.
@@ -53,13 +54,13 @@ public class ComTaskExecutionMessageJournalEntryImpl
         visitor.visit(this);
     }
 
-    public static ComTaskExecutionMessageJournalEntryImpl from(DataModel dataModel, ComTaskExecutionSessionImpl comTaskExecutionSession, Date timestamp, String message, String errorDescription, ComServer.LogLevel logLevel) {
+    public static ComTaskExecutionMessageJournalEntryImpl from(DataModel dataModel, ComTaskExecutionSessionImpl comTaskExecutionSession, Instant timestamp, String message, String errorDescription, ComServer.LogLevel logLevel) {
         return dataModel.getInstance(ComTaskExecutionMessageJournalEntryImpl.class).init(timestamp, comTaskExecutionSession, logLevel, message, errorDescription);
     }
 
-    private ComTaskExecutionMessageJournalEntryImpl init(Date timestamp, ComTaskExecutionSessionImpl comTaskExecutionSession, ComServer.LogLevel logLevel, String message, String errorDescription) {
+    private ComTaskExecutionMessageJournalEntryImpl init(Instant timestamp, ComTaskExecutionSessionImpl comTaskExecutionSession, ComServer.LogLevel logLevel, String message, String errorDescription) {
         this.comTaskExecutionSession.set(comTaskExecutionSession);
-        this.timestamp = timestamp == null ? null : timestamp.toInstant();
+        this.timestamp = timestamp;
         this.errorDescription = errorDescription;
         this.logLevel = logLevel;
         this.message = message;

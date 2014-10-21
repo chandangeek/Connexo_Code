@@ -345,7 +345,8 @@ public enum ServerConnectionTaskStatus {
 
     public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
         sqlBuilder.appendWhereOrAnd();
-        sqlBuilder.append("obsolete_date is null ");
+        sqlBuilder.append(connectionTaskTableName);
+        sqlBuilder.append(".obsolete_date is null ");
     }
 
     /**
