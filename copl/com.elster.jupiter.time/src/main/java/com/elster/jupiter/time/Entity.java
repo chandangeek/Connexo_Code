@@ -1,15 +1,15 @@
 package com.elster.jupiter.time;
 
-import com.elster.jupiter.util.time.UtcInstant;
+import java.time.Instant;
 
 public interface Entity {
     long getId();
 
     long getVersion();
 
-    UtcInstant getCreateTime();
+    Instant getCreateTime();
 
-    UtcInstant getModTime();
+    Instant getModTime();
 
     String getUserName();
 

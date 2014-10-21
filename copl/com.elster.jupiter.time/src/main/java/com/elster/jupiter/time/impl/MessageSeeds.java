@@ -11,7 +11,10 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     FIELD_CAN_NOT_BE_EMPTY (0001, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_80(0002, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE);
+    FIELD_SIZE_BETWEEN_1_AND_80(0002, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
+
+    NAME_MUST_BE_UNIQUE(0007, Keys.NAME_MUST_BE_UNIQUE, "Category name is not unique", Level.SEVERE),
+    RELATIVE_PERIOD_IN_USE(0010, Keys.RELATIVE_PERIOD_IN_USE, "{0} category(s) can't be deleted, relative period is in use.", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -78,6 +81,8 @@ public enum MessageSeeds implements MessageSeed {
 
         public static final String FIELD_CAN_NOT_BE_EMPTY       = KEY_PREFIX + "FieldCanNotBeEmpty";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80  = KEY_PREFIX + "FieldSizeBetween1and80";
+        public static final String NAME_MUST_BE_UNIQUE = KEY_PREFIX + "NameMustBeUnique";
+        public static final String RELATIVE_PERIOD_IN_USE = KEY_PREFIX + "RelativePeriodInUse";
     }
 
 }

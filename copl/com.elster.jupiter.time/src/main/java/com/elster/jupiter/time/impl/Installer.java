@@ -1,7 +1,9 @@
 package com.elster.jupiter.time.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.Privileges;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
@@ -18,12 +20,14 @@ public class Installer {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final UserService userService;
+    private final EventService eventService;
 
-    public Installer(DataModel dataModel, Thesaurus thesaurus, UserService userService) {
+    public Installer(DataModel dataModel, Thesaurus thesaurus, UserService userService, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     public void install(boolean executeDdl) {
@@ -32,9 +36,10 @@ public class Installer {
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        createTranslations();
+/*        createTranslations();
         createPrivileges(userService);
         assignPrivilegesToDefaultRoles();
+        createEventTypes();*/
     }
 
     private void createPrivileges(UserService userService) {
@@ -62,6 +67,16 @@ public class Installer {
 
     private Translation toTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {
         return new SimpleTranslation(nlsKey, locale, translation);
+    }
+
+    private void createEventTypes() {
+        for (EventType eventType : EventType.values()) {
+            try {
+                eventType.createIfNotExists(this.eventService);
+            } catch (Exception e) {
+                this.logger.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
     }
 
     private static class SimpleTranslation implements Translation {

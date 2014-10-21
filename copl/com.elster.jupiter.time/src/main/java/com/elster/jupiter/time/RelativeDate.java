@@ -4,22 +4,22 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by borunova on 01.10.2014.
- */
 public class RelativeDate {
     private static String SEPARATOR = ";";
     private String relativeDate;
     private List<RelativeOperation> operations = new ArrayList<>();;
 
-    public RelativeDate() {};
+    public RelativeDate() {
+        this.relativeDate = "";
+    };
 
     public RelativeDate(String pattern) {
         relativeDate = pattern;
-        String[] operationStrings = relativeDate.split(SEPARATOR);
+        setOperations();
+/*        String[] operationStrings = relativeDate.split(SEPARATOR);
         for(String operationString : operationStrings) {
             operations.add(getOperation(operationString));
-        }
+        }*/
     }
 
     public RelativeDate(List<RelativeOperation> operations) {
@@ -45,7 +45,17 @@ public class RelativeDate {
     }
 
     public List<RelativeOperation> getOperations() {
+        if(this.operations.isEmpty() && !this.relativeDate.isEmpty()) {
+            setOperations();
+        }
         return this.operations;
+    }
+
+    private void setOperations() {
+        String[] operationStrings = relativeDate.split(SEPARATOR);
+        for(String operationString : operationStrings) {
+            operations.add(getOperation(operationString));
+        }
     }
 
     private RelativeOperation getOperation(String operationString) {

@@ -21,7 +21,7 @@ public enum RelativeField {
     MONTH_IN_YEAR(10, ChronoField.MONTH_OF_YEAR),   // Used to set fixed month of year
     HOUR_OF_DAY(11, ChronoField.HOUR_OF_AMPM),       // Used to set fixed hour of day
     MINUTES_OF_HOUR(12, ChronoField.MINUTE_OF_HOUR),// Used to set fixed minute of hour
-    STRING_DAY_OF_WEEK(13, ChronoField.DAY_OF_WEEK),// Indicates that day of week should be represented as sting
+    //STRING_DAY_OF_WEEK(13, ChronoField.DAY_OF_WEEK),// Indicates that day of week should be represented as sting
     CURRENT_DAY_OF_MONTH(14),                       // Indicates that day of month should be calculated when invoked
     AMPM_OF_DAY(15, ChronoField.AMPM_OF_DAY);
 

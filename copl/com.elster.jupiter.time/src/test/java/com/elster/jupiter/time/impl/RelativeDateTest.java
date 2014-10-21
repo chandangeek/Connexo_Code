@@ -29,15 +29,15 @@ public class RelativeDateTest {
         List<RelativeOperation> operations = new ArrayList<>();
 
         operations.add(new RelativeOperation(RelativeField.WEEK, RelativeOperator.MINUS, 2));
-        operations.add(new RelativeOperation(RelativeField.STRING_DAY_OF_WEEK, RelativeOperator.EQUAL, DayOfWeek.MONDAY.getLong(ChronoField.DAY_OF_WEEK)));
+        operations.add(new RelativeOperation(RelativeField.DAY_IN_WEEK, RelativeOperator.EQUAL, DayOfWeek.MONDAY.getLong(ChronoField.DAY_OF_WEEK)));
 
         RelativeDate relativeDate = new RelativeDate(operations);
-        assertThat(relativeDate.getRelativeDate()).isEqualTo("3:-:2;13:=:1;");
+        assertThat(relativeDate.getRelativeDate()).isEqualTo("3:-:2;8:=:1;");
      }
 
     @Test
     public void testDeserialisation() {
-        String pattern = "3:-:2;13:=:1;";
+        String pattern = "3:-:2;8:=:1;";
         RelativeDate relativeDate = new RelativeDate(pattern);
         ZonedDateTime date = relativeDate.getRelativeDate(referenceTime);
         assertThat(date).isEqualTo(referenceTime.minusWeeks(2).minusDays(2));
