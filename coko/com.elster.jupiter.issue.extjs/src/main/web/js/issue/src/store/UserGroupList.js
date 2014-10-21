@@ -1,7 +1,7 @@
 Ext.define('Isu.store.UserGroupList', {
     extend: 'Ext.data.Store',
     model: 'Isu.model.UserGroupList',
-    autoLoad: true,
+    autoLoad: false,
 
     proxy: {
         type: 'rest',

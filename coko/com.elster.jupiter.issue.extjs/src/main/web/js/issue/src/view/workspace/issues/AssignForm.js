@@ -259,6 +259,9 @@ Ext.define('Isu.view.workspace.issues.AssignForm', {
         var title = 'Assign issue "' + record.get('title') + '"'
 
         this.setTitle(title);
-        this.callParent(arguments)
+        this.callParent(arguments);
+        this.down('#Ucombo').getStore().load();
+        this.down('#Rcombo').getStore().load();
+        this.down('#Gcombo').getStore().load();
     }
 });
