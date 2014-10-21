@@ -3,7 +3,9 @@ package com.energyict.mdc.common.rest;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import javax.inject.Inject;
+import java.util.function.Supplier;
 
 /**
  * Created by bvn on 6/23/14.
@@ -23,6 +25,10 @@ public class ExceptionFactory {
 
     public LocalizedException newException(MessageSeed messageSeed, Object... args) {
         return new RestException(thesaurus, messageSeed, args);
+    }
+
+    public Supplier<LocalizedException> newExceptionSupplier(MessageSeed messageSeed, Object... args) {
+        return () -> new RestException(thesaurus, messageSeed, args);
     }
 
     class RestException extends LocalizedException {
