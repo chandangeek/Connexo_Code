@@ -133,13 +133,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             record.set('dynamic', this.getDynamicRadioButton().checked);
             record.set('filter', this.getController('Uni.controller.history.Router').filter.data);
             record.save({
-                /*Ext.Ajax.request({
-                 url: '../../api/ddr/devicegroups',
-                 method: 'POST',
-                 jsonData: {
-                 mRID: this.getNameTextField().getValue(),
-                 dynamic: this.getDynamicRadioButton().checked
-                 },*/
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('devices/devicegroups').forward();
                     me.getApplication().fireEvent('acknowledge', 'Device group added');
