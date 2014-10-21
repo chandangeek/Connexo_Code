@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -18,7 +17,9 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
-import java.util.Date;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -267,7 +268,7 @@ public interface ConnectionTaskService {
 
     List<ComSession> findAllSessionsFor(ConnectionTask<?, ?> connectionTask);
 
-    ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime);
+    ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime);
 
     Optional<ComSession> findComSession(long id);
 

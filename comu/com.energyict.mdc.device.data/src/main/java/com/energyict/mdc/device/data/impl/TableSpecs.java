@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
@@ -36,9 +30,24 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -360,7 +369,7 @@ public enum TableSpecs {
             table.column("TALKMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TALK_MILLIS.fieldName()).add();
             table.column("STOREMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.STORE_MILLIS.fieldName()).add();
             Column successIndicator = table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").map(ComSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             table.column("TASKSUCCESSCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_SUCCESS_COUNT.fieldName()).add();
             table.column("TASKFAILURECOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_FAILURE_COUNT.fieldName()).add();
             table.column("TASKNOTEXECUTEDCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_NOT_EXECUTED_COUNT.fieldName()).add();
@@ -415,7 +424,7 @@ public enum TableSpecs {
             table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
             table.column("STOPDATE").number().notNull().conversion(NUMBER2INSTANT).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
             Column successIndicator = table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComTaskExecutionSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
-            table.column("MOD_DATE").type("DATE").map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
             table.column("HIGHESTPRIOCOMPLETIONCODE").number().conversion(NUMBER2ENUM).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_COMPLETION_CODE.fieldName()).add();
             table.column("HIGHESTPRIOERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_ERROR_DESCRIPTION.fieldName()).add();
@@ -472,7 +481,7 @@ public enum TableSpecs {
             table.column("ERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("errorDescription").add();
             table.column("COMMANDDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("commandDescription").add();
             table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
-            table.column("MOD_DATE").type("DATE").map("modDate").add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modDate").add();
             table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
             table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
             table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").
@@ -496,7 +505,7 @@ public enum TableSpecs {
             table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
             table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).notNull().map("message").add();
             table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
-            table.column("MOD_DATE").type("DATE").map("modDate").add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modDate").add();
             table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
             table.foreignKey("FK_DDC_COMSESSIONJENTR_SESSION").
                     on(comsession).
