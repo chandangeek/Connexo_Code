@@ -5,7 +5,9 @@ Ext.define('Mdc.model.DeviceGroup', {
     ],
     fields: [
         {name: 'name', type: 'string', useNull: true},
-        {name: 'dynamic', type: 'boolean', useNull: true}
+        {name: 'mRID', type: 'string', useNull: true},
+        {name: 'dynamic', type: 'boolean', useNull: true},
+        {name: 'filter', type: 'auto', useNull: true}
     ],
 
     associations: [
