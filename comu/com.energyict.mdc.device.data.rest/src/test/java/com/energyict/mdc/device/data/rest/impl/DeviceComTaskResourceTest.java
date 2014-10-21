@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -27,10 +28,10 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.jayway.jsonpath.JsonModel;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -539,6 +540,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
         when(comTaskExecution1.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution1.getExecutionPriority()).thenReturn(-20);
 
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
@@ -550,11 +552,12 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
 
-        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(13L);
         when(connectionTask.getName()).thenReturn("connection task");
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        when(connectionTask.getCurrentTryCount()).thenReturn(7);
 
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(15L);
@@ -566,9 +569,11 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComSession comSession = mock(ComSession.class);
         when(comSession.getConnectionTask()).thenReturn(connectionTask);
         when(comSession.getId()).thenReturn(14L);
-        when(comSession.getStartDate()).thenReturn(LocalDateTime.of(2014,10,20,14,6,2).toInstant(ZoneOffset.UTC));
-        when(comSession.getStopDate()).thenReturn(LocalDateTime.of(2014,10,20,14,6,32).toInstant(ZoneOffset.UTC));
-        when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
+        Instant sessionStartTime = LocalDateTime.of(2014, 10, 20, 14, 6, 2).toInstant(ZoneOffset.UTC);
+        when(comSession.getStartDate()).thenReturn(sessionStartTime);
+        Instant sessionFinishTime = LocalDateTime.of(2014, 10, 20, 14, 6, 32).toInstant(ZoneOffset.UTC);
+        when(comSession.getStopDate()).thenReturn(sessionFinishTime);
+        when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Broken);
         when(comSession.getNumberOfFailedTasks()).thenReturn(1001);
         when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(1002);
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(1003);
@@ -579,8 +584,10 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecutionSession1.getDevice()).thenReturn(device);
         when(comTaskExecutionSession1.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.ConnectionError);
         when(comTaskExecutionSession1.getComSession()).thenReturn(comSession);
-        when(comTaskExecutionSession1.getStartDate()).thenReturn(Date.from(LocalDateTime.of(2014, 10, 20, 14, 6, 4).toInstant(ZoneOffset.UTC)));
-        when(comTaskExecutionSession1.getStopDate()).thenReturn(Date.from(LocalDateTime.of(2014, 10, 20, 14, 6, 30).toInstant(ZoneOffset.UTC)));
+        Instant execSessionStartTime = LocalDateTime.of(2014, 10, 20, 14, 6, 4).toInstant(ZoneOffset.UTC);
+        when(comTaskExecutionSession1.getStartDate()).thenReturn(execSessionStartTime);
+        Instant execSessionStopTime = LocalDateTime.of(2014, 10, 20, 14, 6, 30).toInstant(ZoneOffset.UTC);
+        when(comTaskExecutionSession1.getStopDate()).thenReturn(execSessionStopTime);
         Finder<ComTaskExecutionSession> finder = mockFinder(Arrays.asList(comTaskExecutionSession1));
         when(communicationTaskService.findByComTaskExecution(comTaskExecution1)).thenReturn(finder);
 
@@ -588,7 +595,36 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.comTaskExecutionSessions")).hasSize(1);
-        assertThat(jsonModel.<List>get("$.comTaskExecutionSessions")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].name")).isEqualTo("Read all");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.id")).isEqualTo("X9");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.name")).isEqualTo("device name");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceConfiguration.id")).isEqualTo(10);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].deviceConfiguration.name")).isEqualTo("device config");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceType.id")).isEqualTo(11);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].deviceType.name")).isEqualTo("device type");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comScheduleName")).isEqualTo("com schedule");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].urgency")).isEqualTo(-20);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].result")).isEqualTo("Connection error");
+        assertThat(jsonModel.<Long>get("$.comTaskExecutionSessions[0].startTime")).isEqualTo(execSessionStartTime.toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.comTaskExecutionSessions[0].finishTime")).isEqualTo(execSessionStopTime.toEpochMilli());
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.id")).isEqualTo(14);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.connectionMethod")).isEqualTo("connection task");
+        assertThat(jsonModel.<Long>get("$.comTaskExecutionSessions[0].comSession.startedOn")).isEqualTo(sessionStartTime.toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.comTaskExecutionSessions[0].comSession.finishedOn")).isEqualTo(sessionFinishTime.toEpochMilli());
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.durationInSeconds")).isEqualTo(30);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.direction")).isEqualTo("Outbound");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.connectionType")).isEqualTo("GPRS");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.comServer.id")).isEqualTo(15);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.comServer.name")).isEqualTo("com server");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.comPort")).isEqualTo("com port");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.status")).isEqualTo("Failure");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.result.id")).isEqualTo("Broken");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.result.displayValue")).isEqualTo("Broken");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.result.retries")).isEqualTo(7);
+        assertThat(jsonModel.<Boolean>get("$.comTaskExecutionSessions[0].comSession.isDefault")).isEqualTo(true);
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.comTaskCount.numberOfSuccessfulTasks")).isEqualTo(1003);
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.comTaskCount.numberOfFailedTasks")).isEqualTo(1001);
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.comTaskCount.numberOfIncompleteTasks")).isEqualTo(1002);
     }
 
     private <T> Finder<T> mockFinder(List<T> list) {

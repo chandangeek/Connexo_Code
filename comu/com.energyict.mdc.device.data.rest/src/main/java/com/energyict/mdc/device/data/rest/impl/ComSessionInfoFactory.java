@@ -43,7 +43,7 @@ public class ComSessionInfoFactory {
                 thesaurus.getString(MessageSeeds.SUCCESS.getKey(), "Success"):
                 thesaurus.getString(MessageSeeds.FAILURE.getKey(), "Failure");
 
-        info.result = new SuccessIndicatorInfo(comSession.getSuccessIndicator(), thesaurus);
+        info.result = new SuccessIndicatorInfo(comSession.getSuccessIndicator(), connectionTask, thesaurus);
         info.comTaskCount = new ComTaskCountInfo();
         info.comTaskCount.numberOfSuccessfulTasks = comSession.getNumberOfSuccessFulTasks();
         info.comTaskCount.numberOfFailedTasks = comSession.getNumberOfFailedTasks();
