@@ -8,6 +8,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
@@ -995,12 +996,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public List<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution) {
-        return this.deviceDataModelService.dataModel().
-                mapper(ComTaskExecutionSession.class).
-                find(
-                        ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName(), comTaskExecution,
-                        Order.descending(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()));
+    public Finder<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution) {
+        return DefaultFinder.of(ComTaskExecutionSession.class,
+                Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution),
+                this.deviceDataModelService.dataModel()).sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false);
     }
 
     @Override
