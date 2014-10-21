@@ -103,6 +103,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -1686,13 +1687,32 @@ public class DeviceImpl implements Device {
     public class ScheduledComTaskExecutionBuilderForDevice
             extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
 
+        private Set<ComTaskExecution> executionsToDelete = new HashSet<>();
+
         private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComSchedule comSchedule) {
             super(comTaskExecutionProvider.get());
+            this.initExecutionsToDelete(device, comSchedule);
             this.getComTaskExecution().initialize(device, comSchedule);
+        }
+
+        private void initExecutionsToDelete(Device device, ComSchedule comSchedule) {
+            for(ComTaskExecution comTaskExecution:device.getComTaskExecutions()){
+                if(!comTaskExecution.usesSharedSchedule()){
+                    for(ComTask comTask : comSchedule.getComTasks()){
+                        if(comTaskExecution.getComTasks().get(0).getId()==comTask.getId()){
+                            this.executionsToDelete.add(comTaskExecution);
+                        }
+                    }
+                }
+            }
+            comSchedule.getComTasks();
         }
 
         @Override
         public ScheduledComTaskExecution add() {
+            for(ComTaskExecution comTaskExecutionToDelete:executionsToDelete){
+                DeviceImpl.this.removeComTaskExecution(comTaskExecutionToDelete);
+            }
             ScheduledComTaskExecution comTaskExecution = super.add();
             DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
