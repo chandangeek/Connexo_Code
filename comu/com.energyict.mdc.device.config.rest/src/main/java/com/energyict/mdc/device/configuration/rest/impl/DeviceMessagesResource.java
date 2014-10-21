@@ -51,7 +51,7 @@ public class DeviceMessagesResource {
         this.deviceMessageService = deviceMessageService;
         this.exceptionFactory = exceptionFactory;
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
@@ -59,18 +59,18 @@ public class DeviceMessagesResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam QueryParameters queryParameters) {
-        
+
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        
+
         Set<DeviceMessageId> supportedMessages = deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
         if (supportedMessages.isEmpty()) {
             return PagedInfoList.asJson("categories", Collections.emptyList(), queryParameters);
         }
-        
+
         List<DeviceMessageEnablement> deviceMessageEnablements = deviceConfiguration.getDeviceMessageEnablements();
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
-        
+
         for (DeviceMessageCategory category : deviceMessageService.allCategories()) {
             List<DeviceMessageSpec> messages = category.getMessageSpecifications().stream()
                     .filter(m -> supportedMessages.contains(m.getId()))
@@ -84,7 +84,7 @@ public class DeviceMessagesResource {
         Collections.sort(infos, (c1, c2) -> c1.name.compareTo(c2.name));
         return PagedInfoList.asJson("categories", infos, queryParameters);
     }
-    
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -93,26 +93,23 @@ public class DeviceMessagesResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam QueryParameters queryParameters,
             DeviceMessageEnablementInfo enablementInfo) {
-        
+
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        Set<DeviceMessageId> existingEnablements = deviceConfiguration.getDeviceMessageEnablements().stream().map(e -> e.getDeviceMessageId()).collect(Collectors.toSet());
-        
+        Set<DeviceMessageId> existingEnablements = deviceConfiguration.getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toSet());
+
         for (Long messageId : enablementInfo.messageIds) {
-            Optional<DeviceMessageSpec> messageSpec = deviceMessageService.findMessageSpecById(messageId);
-            if (!messageSpec.isPresent()) {
-                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, messageId);
-            }
-            if (!existingEnablements.contains(messageSpec.get().getId())) {
-                DeviceMessageEnablementBuilder enablementBuilder = deviceConfiguration.createDeviceMessageEnablement(messageSpec.get().getId());
-                enablementInfo.privileges.stream().map(p -> p.privilege).forEach( p -> enablementBuilder.addUserAction(p));
+            DeviceMessageSpec messageSpec = deviceMessageService.findMessageSpecById(messageId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, messageId));
+            if (!existingEnablements.contains(messageSpec.getId())) {
+                DeviceMessageEnablementBuilder enablementBuilder = deviceConfiguration.createDeviceMessageEnablement(messageSpec.getId());
+                enablementInfo.privileges.stream().map(p -> p.privilege).forEach(enablementBuilder::addUserAction);
                 enablementBuilder.build();
             }
         }
-        
+
         return Response.ok().build();
     }
-    
+
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -121,21 +118,18 @@ public class DeviceMessagesResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @QueryParam("messageId") List<Long> messageIds,
             @BeanParam QueryParameters queryParameters) {
-        
+
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        
+
         for (Long messageId: messageIds) {
-            Optional<DeviceMessageSpec> messageSpec = deviceMessageService.findMessageSpecById(messageId);
-            if (!messageSpec.isPresent()) {
-                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, messageId);
-            }
-            deviceConfiguration.removeDeviceMessageEnablement(messageSpec.get().getId());
+            DeviceMessageSpec messageSpec = deviceMessageService.findMessageSpecById(messageId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, messageId));
+            deviceConfiguration.removeDeviceMessageEnablement(messageSpec.getId());
         }
-        
+
         return Response.ok().build();
     }
-    
+
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -144,18 +138,18 @@ public class DeviceMessagesResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam QueryParameters queryParameters,
             DeviceMessageEnablementInfo enablementInfo) {
-     
+
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<DeviceMessageEnablement> deviceMessageEnablements = deviceConfiguration.getDeviceMessageEnablements();
-        
+
         for (DeviceMessageEnablement deviceMessageEnablement : deviceMessageEnablements) {
             if (enablementInfo.messageIds.contains(deviceMessageEnablement.getDeviceMessageId().dbValue())) {
-                Arrays.asList(DeviceMessageUserAction.values()).stream().forEach(p -> deviceMessageEnablement.removeDeviceMessageUserAction(p));
-                enablementInfo.privileges.stream().map(p -> p.privilege).forEach(p -> deviceMessageEnablement.addDeviceMessageUserAction(p));
+                Arrays.asList(DeviceMessageUserAction.values()).stream().forEach(deviceMessageEnablement::removeDeviceMessageUserAction);
+                enablementInfo.privileges.stream().map(p -> p.privilege).forEach(deviceMessageEnablement::addDeviceMessageUserAction);
             }
         }
-        
+
         return Response.ok().build();
     }
 }

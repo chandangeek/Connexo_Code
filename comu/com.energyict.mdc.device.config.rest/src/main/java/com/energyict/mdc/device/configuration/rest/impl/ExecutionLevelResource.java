@@ -83,11 +83,8 @@ public class ExecutionLevelResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
-        Optional<DeviceSecurityUserAction> optional = DeviceSecurityUserAction.forPrivilege(privilegeId);
-        if (!optional.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_PRIVILEGE_ID, privilegeId);
-        }
-        securityPropertySet.removeUserAction(optional.get());
+        DeviceSecurityUserAction userAction = DeviceSecurityUserAction.forPrivilege(privilegeId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNKNOWN_PRIVILEGE_ID, privilegeId));
+        securityPropertySet.removeUserAction(userAction);
         return Response.noContent().build();
     }
 }
