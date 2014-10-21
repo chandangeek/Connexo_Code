@@ -84,6 +84,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         this.deviceMrId = deviceMrId;
         this.connectionMethodId = connectionMethodId;
         var deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
+        this.getDeviceCommunicationTaskExecutionsStore().removeAll(true);
         deviceModel.load(deviceMrId, {
             success: function (device) {
                 me.device = device;
@@ -91,18 +92,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                 connectionMethodModel.getProxy().setExtraParam('mrid', deviceMrId);
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
-                        var deviceConnectionHistoryStore = me.getDeviceConnectionHistoryStore();
-                        deviceConnectionHistoryStore.getProxy().setExtraParam('mRID', deviceMrId);
-                        deviceConnectionHistoryStore.getProxy().setExtraParam('connectionId', connectionMethodId);
-                        deviceConnectionHistoryStore.load({
-                                callback: function () {
-                                    var widget = Ext.widget('deviceConnectionHistoryMain', {mrid: deviceMrId, connectionMethodId: connectionMethodId, connectionMethodName: connectionMethod.get('name')});
-                                    me.getApplication().fireEvent('changecontentevent', widget);
-                                    me.getApplication().fireEvent('loadDevice', device);
-                                    me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
-                                }
-                            }
-                        );
+                        var widget = Ext.widget('deviceConnectionHistoryMain', {mrid: deviceMrId, connectionMethodId: connectionMethodId, connectionMethodName: connectionMethod.get('name')});
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getApplication().fireEvent('loadDevice', device);
+                        me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
                     }
                 });
             }
@@ -237,7 +230,15 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                 values[prop] = [values[prop]];
             }
         }
+
+        debugger;
         this.getDeviceconnectionhistorySideFilterForm().getRecord().set(values);
+        if (!values.hasOwnProperty('logLevels')) {
+            delete this.getDeviceconnectionhistorySideFilterForm().getRecord().data.logLevels;
+        }
+        if (!values.hasOwnProperty('logTypes')) {
+            delete this.getDeviceconnectionhistorySideFilterForm().getRecord().data.logTypes;
+        }
         this.getDeviceconnectionhistorySideFilterForm().getRecord().save();
     },
 

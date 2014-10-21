@@ -66,11 +66,16 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comTasks', 'MDC', 'Communication task(s)'),
                                     itemId: 'comTasks',
                                     renderer: function(value){
-                                        var result = '';
-                                        Ext.each(value, function(item){
-                                            result = result + '<li>'+ item.name+'</li>'
-                                        });
-                                        return result;
+                                        if(value!==''){
+                                            var result = '';
+                                            Ext.each(value, function(item){
+                                                result = result + '<li>'+ item.name+'</li>'
+                                            });
+                                            return result;
+                                        } else {
+                                            return '';
+                                        }
+
                                     }
                                 },
                                 {
@@ -79,7 +84,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.device', 'MDC', 'Device'),
                                     itemId: 'device',
                                     renderer: function(device){
-                                        return '<a href="#/devices/'+device.id+'">' + device.name + '</a>';
+                                            return device!==''?'<a href="#/devices/'+device.id+'">' + device.name + '</a>':'';
                                     }
                                 },
                                 {
@@ -88,7 +93,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.deviceType', 'MDC', 'Device type'),
                                     itemId: 'deviceType',
                                     renderer: function(deviceType){
-                                        return '<a href="#/administration/devicetypes/'+deviceType.id+'">' + deviceType.name + '</a>';
+                                        return deviceType!==''?'<a href="#/administration/devicetypes/'+deviceType.id+'">' + deviceType.name + '</a>':'';
                                     }
                                 },
                                 {
@@ -97,7 +102,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.deviceConfiguration', 'MDC', 'Device configuration'),
                                     itemId: 'deviceConfiguration',
                                     renderer: function(deviceConfiguration){
-                                        return '<a href="#/administration/devicetypes/'+deviceConfiguration.deviceTypeId+'/deviceconfigurations/' + deviceConfiguration.id+'">' + deviceConfiguration.name + '</a>';
+                                        return deviceConfiguration!=''?'<a href="#/administration/devicetypes/'+deviceConfiguration.deviceTypeId+'/deviceconfigurations/' + deviceConfiguration.id+'">' + deviceConfiguration.name + '</a>':'';
                                     }
                                 },
                                 {
@@ -109,7 +114,11 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                 {
                                     xtype: 'displayfield',
                                     name: 'comScheduleFrequency',
-                                    itemId: 'comScheduleFrequency'
+                                    itemId: 'comScheduleFrequency',
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.frequency', 'MDC', 'Frequency'),
+                                    renderer: function(value){
+                                        return value!=''?Mdc.util.ScheduleToStringConverter.convert(value) || Uni.I18n.translate('general.undefined', 'MDC', 'Undefined'):'';
+                                    }
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -151,8 +160,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                                     itemId: 'startedOn',
                                     renderer: function (value,metadata) {
-                                        if (value !== null) {
+                                        if (value !== '') {
                                             return new Date(value).toLocaleString();
+                                        } else {
+                                            return '';
                                         }
                                     }
                                 },
@@ -162,8 +173,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.finishedOn', 'MDC', 'Finished on'),
                                     itemId: 'finishedOn',
                                     renderer: function (value,metadata) {
-                                        if (value !== null) {
+                                        if (value !== '') {
                                             return new Date(value).toLocaleString();
+                                        } else {
+                                            return '';
                                         }
                                     }
                                 },

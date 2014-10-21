@@ -85,13 +85,15 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-//            params: [
-//                {mrid: me.mrid}
-//            ],
+                params: [
+                    {mRID: me.mRID},
+                    {connectionId:me.connectionId}
+                ],
                 itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connections per page'),
                 dock: 'bottom'
             }
         ];
+        debugger;
         me.callParent();
     }
 

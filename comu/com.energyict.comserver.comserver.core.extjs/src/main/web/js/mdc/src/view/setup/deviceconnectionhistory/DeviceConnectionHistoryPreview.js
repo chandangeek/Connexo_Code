@@ -58,8 +58,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                                     itemId: 'startedOn',
                                     renderer: function (value) {
-                                        if (value !== null) {
+                                        if (value !== '') {
                                             return new Date(value).toLocaleString();
+                                        } else {
+                                            return '';
                                         }
                                     }
 
@@ -70,8 +72,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.finishedOn', 'MDC', 'Finished on'),
                                     itemId: 'finishedOn',
                                     renderer: function (value) {
-                                        if (value !== null) {
+                                        if (value !== '') {
                                             return new Date(value).toLocaleString();
+                                        } else {
+                                            return '';
                                         }
                                     }
 
@@ -82,8 +86,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
                                     itemId: 'durationInSeconds',
                                     renderer: function (value) {
-                                        if (value !== null) {
+                                        if (value !== '') {
                                             return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
+                                        } else {
+                                            return '';
                                         }
                                     }
 
