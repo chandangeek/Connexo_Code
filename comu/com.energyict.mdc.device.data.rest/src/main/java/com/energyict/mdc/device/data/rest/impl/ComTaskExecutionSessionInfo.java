@@ -29,6 +29,7 @@ class ComTaskExecutionSessionInfo {
     public Instant startTime;
     @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant finishTime;
+    public Long durationInSeconds;
     public boolean alwaysExecuteOnInbound;
     public ComSessionInfo comSession;
 }
