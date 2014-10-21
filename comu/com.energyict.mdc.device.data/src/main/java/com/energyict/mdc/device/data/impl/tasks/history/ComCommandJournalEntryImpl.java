@@ -4,14 +4,14 @@ import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
+import com.energyict.mdc.engine.model.ComServer;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
-import com.energyict.mdc.engine.model.ComServer;
 import javax.inject.Inject;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link ComCommandJournalEntry} interface.
@@ -59,16 +59,16 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
         return ComServer.LogLevel.INFO;
     }
 
-    public static ComCommandJournalEntryImpl from(DataModel dataModel, ComTaskExecutionSession comTaskExecutionSession, Date timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
+    public static ComCommandJournalEntryImpl from(DataModel dataModel, ComTaskExecutionSession comTaskExecutionSession, Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
         ComCommandJournalEntryImpl instance = dataModel.getInstance(ComCommandJournalEntryImpl.class);
         return instance.init(comTaskExecutionSession, timestamp, completionCode, errorDescription, commandDescription);
     }
 
-    private ComCommandJournalEntryImpl init(ComTaskExecutionSession comTaskExecutionSession, Date timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
+    private ComCommandJournalEntryImpl init(ComTaskExecutionSession comTaskExecutionSession, Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
         this.comTaskExecutionSession.set(comTaskExecutionSession);
         this.completionCode = completionCode;
         this.errorDescription = errorDescription;
-        this.timestamp = timestamp == null ? null : timestamp.toInstant();
+        this.timestamp = timestamp;
         this.commandDescription = commandDescription;
         return this;
     }

@@ -4,10 +4,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.model.ComServer;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
-import org.joda.time.Duration;
-
-import java.util.Date;
 
 /**
  * Copyrights EnergyICT
@@ -34,13 +33,13 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ComSessionBuilder incrementNotExecutedTasks(int numberOfPlannedButNotExecutedTasks);
 
-    ComSessionBuilder addJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
+    ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
 
-    ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Date startDate);
+    ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Instant startDate);
 
     Optional<ComTaskExecutionSessionBuilder> findFor(ComTaskExecution comTaskExecution);
 
-    EndedComSessionBuilder endSession(Date stopTime, ComSession.SuccessIndicator successIndicator);
+    EndedComSessionBuilder endSession(Instant stopTime, ComSession.SuccessIndicator successIndicator);
 
     public interface EndedComSessionBuilder {
 
