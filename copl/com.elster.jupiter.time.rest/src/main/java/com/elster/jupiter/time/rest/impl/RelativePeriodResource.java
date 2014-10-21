@@ -41,7 +41,7 @@ public class RelativePeriodResource {
         return PagedInfoList.asJson("data", relativePeriodInfos, queryParameters);
     }
 
-    @Path("/id")
+    @Path("/{id}")
     @GET
     @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
     @Produces(MediaType.APPLICATION_JSON)
@@ -54,8 +54,8 @@ public class RelativePeriodResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
-        RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.getRelativeOperations());
-        RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.getRelativeOperations());
+        RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.convertToRelativeOperations());
+        RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.convertToRelativeOperations());
         verifyDateRangeOrThrowException(relativeDateFrom, relativeDateTo);
         RelativePeriod period = timeService.createRelativePeriod(relativePeriodInfo.name, relativeDateFrom, relativeDateTo);
         return Response.status(Response.Status.CREATED).entity(new RelativePeriodInfo(period)).build();
@@ -67,14 +67,14 @@ public class RelativePeriodResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodInfo setRelativePeriod(@PathParam("id") long id, RelativePeriodInfo relativePeriodInfo) {
         RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
-        RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.getRelativeOperations());
-        RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.getRelativeOperations());
+        RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.convertToRelativeOperations());
+        RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.convertToRelativeOperations());
         verifyDateRangeOrThrowException(relativeDateFrom, relativeDateTo);
         RelativePeriod period = timeService.updateRelativePeriod(relativePeriod.getId(), relativePeriodInfo.name, relativeDateFrom, relativeDateTo);
         return new RelativePeriodInfo(period);
     }
 
-    @Path("/id")
+    @Path("/{id}")
     @DELETE
     @RolesAllowed(Privileges.DELETE_RELATIVE_PERIOD)
     @Produces(MediaType.APPLICATION_JSON)
@@ -103,7 +103,7 @@ public class RelativePeriodResource {
         ZoneId zoneId = ZoneId.ofOffset("", ZoneOffset.ofHoursMinutes(relativeDatePreviewInfo.getOffsetHours(), relativeDatePreviewInfo.getOffsetMinutes()));
         ZonedDateTime time = ZonedDateTime.ofInstant(instant, zoneId);
         if (relativeDatePreviewInfo.relativeDateInfo != null) {
-            operations = relativeDatePreviewInfo.relativeDateInfo.getRelativeOperations();
+            operations = relativeDatePreviewInfo.relativeDateInfo.convertToRelativeOperations();
         }
         RelativeDate relativeDate = new RelativeDate(operations);
         ZonedDateTime target = relativeDate.getRelativeDate(time);

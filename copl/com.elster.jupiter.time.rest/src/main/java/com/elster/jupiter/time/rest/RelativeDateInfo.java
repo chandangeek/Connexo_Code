@@ -4,23 +4,38 @@ import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativeOperator;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RelativeDateInfo {
-    Long startAmountAgo;
-    String startPeriodAgo;
-    Long startFixedDay;
-    Long startFixedMonth;
-    Long startFixedYear;
-    Boolean startNow;
-    Boolean onCurrentDay;
-    Long onDayOfMonth;
-    Long onDayOfWeek;
-    Long atHour;
-    Long atMinute;
-    Long ampm;
+    @JsonProperty("startAmountAgo")
+    public Long startAmountAgo;
+    @JsonProperty("startPeriodAgo")
+    public String startPeriodAgo;
+    @JsonProperty("startFixedDay")
+    public Long startFixedDay;
+    @JsonProperty("startFixedMonth")
+    public Long startFixedMonth;
+    @JsonProperty("startFixedYear")
+    public Long startFixedYear;
+    @JsonProperty("startNow")
+    public Boolean startNow;
+    @JsonProperty("onCurrentDay")
+    public Boolean onCurrentDay;
+    @JsonProperty("onDayOfMonth")
+    public Long onDayOfMonth;
+    @JsonProperty("onDayOfWeek")
+    public Long onDayOfWeek;
+    @JsonProperty("atHour")
+    public Long atHour;
+    @JsonProperty("atMinute")
+    public Long atMinute;
+    @JsonProperty("ampm")
+    public Long ampm;
 
     public RelativeDateInfo() {}
 
@@ -69,7 +84,7 @@ public class RelativeDateInfo {
 
     }
 
-    public List<RelativeOperation> getRelativeOperations() {
+    public List<RelativeOperation> convertToRelativeOperations() {
         List<RelativeOperation> operations = new ArrayList<>();
         if(startPeriodAgo != null && startAmountAgo != null) {
             switch (startPeriodAgo) {
@@ -101,7 +116,7 @@ public class RelativeDateInfo {
             operations.add(new RelativeOperation(RelativeField.CURRENT_DAY_OF_MONTH, RelativeOperator.EQUAL, 1));
         }
         if(onDayOfWeek != null) {
-            operations.add(new RelativeOperation(RelativeField.STRING_DAY_OF_WEEK, RelativeOperator.EQUAL, onDayOfWeek));
+            operations.add(new RelativeOperation(RelativeField.DAY_IN_WEEK, RelativeOperator.EQUAL, onDayOfWeek));
         }
         if(atHour != null && ampm != null) {
             operations.add(new RelativeOperation(RelativeField.HOUR_OF_DAY, RelativeOperator.EQUAL, atHour));
