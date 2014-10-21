@@ -16,7 +16,8 @@ Ext.define('Uni.form.field.OnPeriod', {
 
         me.buildItems();
         me.callParent(arguments);
-        me.initListeners();
+
+        me.on('afterrender', me.initListeners, me);
     },
 
     buildItems: function () {
@@ -49,7 +50,8 @@ Ext.define('Uni.form.field.OnPeriod', {
                     },
                     {
                         xtype: 'label',
-                        text: 'Day'
+                        text: 'Day',
+                        cls: Ext.baseCSSPrefix + 'form-cb-label'
                     },
                     {
                         xtype: 'combobox',
@@ -86,7 +88,8 @@ Ext.define('Uni.form.field.OnPeriod', {
                     },
                     {
                         xtype: 'label',
-                        text: 'of the month'
+                        text: 'of the month',
+                        cls: Ext.baseCSSPrefix + 'form-cb-label'
                     }
                 ]
             },
@@ -141,8 +144,20 @@ Ext.define('Uni.form.field.OnPeriod', {
             me.fireEvent('periodchange', me.getValue());
         }, me);
 
+        me.getOptionDayOfMonthContainer().down('label:first').getEl().on('click', function () {
+            if (!me.getOptionDayOfMonthRadio().isDisabled()) {
+                me.selectOptionDayOfMonth();
+            }
+        }, me);
+
         me.getOptionDayOfMonthContainer().down('combobox').on('change', function () {
             me.selectOptionDayOfMonth();
+        }, me);
+
+        me.getOptionDayOfMonthContainer().down('label:last').getEl().on('click', function () {
+            if (!me.getOptionDayOfMonthRadio().isDisabled()) {
+                me.selectOptionDayOfMonth();
+            }
         }, me);
 
         me.getOptionDayOfWeekContainer().down('combobox').on('change', function () {
@@ -192,6 +207,61 @@ Ext.define('Uni.form.field.OnPeriod', {
 
     getOptionDayOfWeekContainer: function () {
         return this.down('#option-dow');
+    },
+
+    setOptionCurrentDisabled: function (disabled) {
+        var me = this;
+
+        me.getOptionCurrentRadio().setDisabled(disabled);
+
+        me.selectAvailableOption();
+    },
+
+    setOptionDayOfMonthDisabled: function (disabled) {
+        var me = this,
+            radio = me.getOptionDayOfMonthRadio(),
+            combo = me.getOptionDayOfMonthContainer().down('combobox');
+
+        radio.setDisabled(disabled);
+        combo.setDisabled(disabled);
+
+        if (disabled) {
+            me.getOptionDayOfMonthContainer().addCls(Ext.baseCSSPrefix + 'item-disabled');
+        } else {
+            me.getOptionDayOfMonthContainer().removeCls(Ext.baseCSSPrefix + 'item-disabled');
+        }
+
+        me.selectAvailableOption();
+    },
+
+    setOptionDayOfWeekDisabled: function (disabled) {
+        var me = this,
+            radio = me.getOptionDayOfWeekRadio(),
+            combo = me.getOptionDayOfWeekContainer().down('combobox');
+
+        radio.setDisabled(disabled);
+        combo.setDisabled(disabled);
+
+        me.selectAvailableOption();
+    },
+
+    selectAvailableOption: function () {
+        var me = this,
+            dayRadio = me.getOptionCurrentRadio(),
+            monthRadio = me.getOptionDayOfMonthRadio(),
+            weekRadio = me.getOptionDayOfWeekRadio();
+
+        if (dayRadio.getValue() && dayRadio.isDisabled()) {
+            monthRadio.setValue(true);
+        }
+
+        if (monthRadio.getValue() && monthRadio.isDisabled()) {
+            weekRadio.setValue(true);
+        }
+
+        if (weekRadio.getValue() && weekRadio.isDisabled()) {
+            dayRadio.setValue(true);
+        }
     },
 
     getValue: function () {

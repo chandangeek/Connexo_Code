@@ -5,7 +5,7 @@ Ext.define('Uni.form.field.StartPeriod', {
     extend: 'Ext.form.RadioGroup',
     xtype: 'uni-form-field-startperiod',
 
-    fieldLabel: 'Start',
+    fieldLabel: 'From',
     columns: 1,
     vertical: true,
 
@@ -25,12 +25,17 @@ Ext.define('Uni.form.field.StartPeriod', {
      */
     showOptionDate: true,
 
+    inputValueNow: 'now',
+    inputValueAgo: 'ago',
+    inputValueDate: 'date',
+
     initComponent: function () {
         var me = this;
 
         me.buildItems();
         me.callParent(arguments);
-        me.initListeners();
+
+        me.on('afterrender', me.initListeners, me);
     },
 
     buildItems: function () {
@@ -45,7 +50,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                 boxLabel: 'Now',
                 itemId: 'option-now',
                 name: me.baseRadioName,
-                inputValue: 'now',
+                inputValue: me.inputValueNow,
                 margin: '0 0 6 0',
                 value: true
             });
@@ -62,7 +67,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                 {
                     xtype: 'radio',
                     name: me.baseRadioName,
-                    inputValue: 'ago',
+                    inputValue: me.inputValueAgo,
                     value: !me.showOptionNow
                 },
                 {
@@ -102,7 +107,8 @@ Ext.define('Uni.form.field.StartPeriod', {
                 },
                 {
                     xtype: 'label',
-                    text: 'ago'
+                    text: 'ago',
+                    cls: Ext.baseCSSPrefix + 'form-cb-label'
                 }
             ]
         });
@@ -118,7 +124,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                     {
                         xtype: 'radio',
                         name: me.baseRadioName,
-                        inputValue: 'date'
+                        inputValue: me.inputValueDate
                     },
                     {
                         xtype: 'datefield',
@@ -146,7 +152,12 @@ Ext.define('Uni.form.field.StartPeriod', {
         me.getOptionAgoContainer().down('numberfield').on('change', function () {
             me.selectOptionAgo();
         }, me);
+
         me.getOptionAgoContainer().down('combobox').on('change', function () {
+            me.selectOptionAgo();
+        }, me);
+
+        me.getOptionAgoContainer().down('label').getEl().on('click', function () {
             me.selectOptionAgo();
         }, me);
 

@@ -18,12 +18,30 @@ Ext.define('Uni.form.RelativePeriod', {
      */
     startPeriodCfg: {},
 
+    formatPreviewTextFn: function (dateString) {
+        return Uni.I18n.translate(
+            'form.relativeperiod.previewText',
+            'UNI',
+            'The datetime of the relative period is {0}.',
+            [dateString]
+        );
+    },
+
     initComponent: function () {
         var me = this;
 
         me.buildItems();
         me.callParent(arguments);
         me.initListeners();
+
+        me.on('afterrender', me.onAfterRender, me);
+    },
+
+    onAfterRender: function () {
+        var me = this;
+
+        me.updatePeriodFields(me.getValue().freqAgo);
+        me.updatePreview();
     },
 
     buildItems: function () {
@@ -45,7 +63,15 @@ Ext.define('Uni.form.RelativePeriod', {
             },
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: 'Preview'
+                fieldLabel: 'Preview',
+                items: [
+                    {
+                        xtype: 'label',
+                        itemId: 'preview-label',
+                        text: '',
+                        cls: Ext.baseCSSPrefix + 'form-cb-label'
+                    }
+                ]
             }
         ];
     },
@@ -54,20 +80,44 @@ Ext.define('Uni.form.RelativePeriod', {
         var me = this;
 
         me.getStartPeriodField().on('periodchange', me.onStartPeriodChange, me);
-        me.getOnPeriodField().on('periodchange', me.onOnPeriodChange, me);
-        me.getAtPeriodField().on('periodchange', me.onAtPeriodChange, me);
+        me.getOnPeriodField().on('periodchange', me.updatePreview, me);
+        me.getAtPeriodField().on('periodchange', me.updatePreview, me);
     },
 
     onStartPeriodChange: function (value) {
-        // TODO
+        var me = this;
+
+        me.updatePeriodFields(value.freqAgo);
+        me.updatePreview();
     },
 
-    onOnPeriodChange: function (value) {
-        // TODO
+    updatePeriodFields: function (frequency) {
+        var me = this,
+            onField = me.getOnPeriodField(),
+            atField = me.getAtPeriodField(),
+            atHourField = atField.getHourField(),
+            atMinuteField = atField.getMinuteField();
+
+        onField.setOptionCurrentDisabled(frequency !== 'month');
+        onField.setOptionDayOfMonthDisabled(frequency !== 'month');
+        onField.setOptionDayOfWeekDisabled(frequency !== 'week');
+
+        atHourField.setDisabled(frequency === 'hour' || frequency === 'minute');
+        atMinuteField.setDisabled(frequency === 'minute');
     },
 
-    onAtPeriodChange: function (value) {
-        // TODO
+    updatePreview: function () {
+        var me = this,
+            label = me.down('#preview-label'),
+            value = me.getValue(),
+            date = new Date(),
+            dateString = '';
+
+        // TODO Calculate the correct preview date and time.
+
+        dateString = Uni.I18n.formatDate('datetime.longdate', date, 'UNI', 'l F j, Y \\a\\t H:i a');
+
+        label.setText(me.formatPreviewTextFn(dateString));
     },
 
     getStartPeriodField: function () {
@@ -80,5 +130,18 @@ Ext.define('Uni.form.RelativePeriod', {
 
     getAtPeriodField: function () {
         return this.down('uni-form-field-atperiod');
+    },
+
+    getValue: function () {
+        var me = this,
+            startValue = me.getStartPeriodField().getValue(),
+            onValue = me.getOnPeriodField().getValue(),
+            atValue = me.getAtPeriodField().getValue();
+
+        return {
+            start: startValue,
+            on: onValue,
+            at: atValue
+        };
     }
 });

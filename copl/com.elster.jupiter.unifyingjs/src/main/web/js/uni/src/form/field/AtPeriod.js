@@ -16,7 +16,8 @@ Ext.define('Uni.form.field.AtPeriod', {
 
         me.buildItems();
         me.callParent(arguments);
-        me.initListeners();
+
+        me.on('afterrender', me.initListeners, me);
     },
 
     buildItems: function () {
@@ -32,7 +33,12 @@ Ext.define('Uni.form.field.AtPeriod', {
                 maxValue: 23,
                 allowBlank: false,
                 width: 64,
-                margin: '0 6 0 25'
+                margin: '0 6 0 0'
+            },
+            {
+                xtype: 'label',
+                text: ':',
+                cls: Ext.baseCSSPrefix + 'form-cb-label'
             },
             {
                 xtype: 'numberfield',
@@ -43,7 +49,7 @@ Ext.define('Uni.form.field.AtPeriod', {
                 maxValue: 59,
                 allowBlank: false,
                 width: 64,
-                margin: '0 6 0 0'
+                margin: '0 6 0 6'
             }
         ];
     },
@@ -57,6 +63,14 @@ Ext.define('Uni.form.field.AtPeriod', {
 
         me.getMinuteField().on('change', function () {
             me.fireEvent('periodchange', me.getValue());
+        }, me);
+
+        me.down('label').getEl().on('click', function () {
+            if (!me.getHourField().isDisabled()) {
+                me.getHourField().focus();
+            } else {
+                me.getMinuteField().focus();
+            }
         }, me);
     },
 
