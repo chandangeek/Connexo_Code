@@ -4,9 +4,12 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -17,13 +20,14 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -52,7 +56,6 @@ import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.PropertySpecServiceDependency;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -64,14 +67,18 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -96,6 +103,9 @@ public class DemoTest {
             when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
             bind(LicenseService.class).toInstance(licenseService);
             bind(SerialComponentService.class).to(SerialComponentServiceImpl.class).in(Scopes.SINGLETON);
+
+            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(LogService.class).toInstance(mock(LogService.class));
         }
 
         private License mockLicense() {
@@ -107,7 +117,7 @@ public class DemoTest {
             when(license.getStatus()).thenReturn(License.Status.ACTIVE);
             when(license.getType()).thenReturn(License.Type.EVALUATION);
             when(license.getGracePeriodInDays()).thenReturn(5);
-            when(license.getExpiration()).thenReturn(new UtcInstant(new DateMidnight(9999, 12, 31, DateTimeZone.UTC).toDate()));
+            when(license.getExpiration()).thenReturn(Instant.ofEpochMilli(new DateMidnight(9999, 12, 31, DateTimeZone.UTC).getMillis()));
             when(license.getLicensedValues()).thenReturn(properties);
             return license;
         }
@@ -131,6 +141,9 @@ public class DemoTest {
                 new TransactionModule(),
                 new NlsModule(),
                 new UserModule(),
+                new MeteringGroupsModule(),
+                new KpiModule(),
+                new TaskModule(),
 
                 new MdcCommonModule(),
                 new MdcReadingTypeUtilServiceModule(),
@@ -203,6 +216,7 @@ public class DemoTest {
     private void fixMissedDynamicReference() {
         // Register device factory provider
         injector.getInstance(PropertySpecServiceDependency.class);
+        injector.getInstance(MeteringGroupsService.class);
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         propertySpecService.addFactoryProvider((DeviceServiceImpl)injector.getInstance(DeviceService.class));
         propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl)injector.getInstance(ConnectionTaskService.class));
