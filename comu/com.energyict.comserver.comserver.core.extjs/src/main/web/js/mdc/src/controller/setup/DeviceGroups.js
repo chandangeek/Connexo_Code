@@ -25,7 +25,8 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         {ref: 'deviceGroupsGrid', selector: '#deviceGroupsGrid'},
         {ref: 'deviceGroupPreviewForm', selector: '#deviceGroupPreviewForm'},
         {ref: 'deviceGroupPreview', selector: '#deviceGroupPreview'},
-        {ref: 'searchCriteriaContainer', selector: '#searchCriteriaContainer'}
+        {ref: 'searchCriteriaContainer', selector: '#searchCriteriaContainer'},
+        {ref: 'createDeviceGroupButton', selector: '#createDeviceGroupButton'}
 
     ],
 
@@ -33,7 +34,14 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         this.control({
             '#deviceGroupsGrid': {
                 selectionchange: this.previewDeviceGroup
-            }/*,
+            },
+            '#createDeviceGroupButton': {
+                click: this.showAddDeviceGroupWizard
+            },
+            '#createDeviceGroupButtonFromEmptyGrid': {
+                click: this.showAddDeviceGroupWizard
+            }
+            /*,
              '#deviceGroupsGrid actioncolumn': {
              deleteDeviceGroup: this.deleteDeviceGroup
              },
@@ -41,6 +49,12 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
              click: this.deleteDeviceGroupFromPreview
              }    */
         });
+    },
+
+    showAddDeviceGroupWizard: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        router.getRoute('devices/devicegroups/add').forward();
     },
 
     /*deleteDeviceGroup: function (deviceGroupToDelete) {

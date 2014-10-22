@@ -29,6 +29,13 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupSetup', {
                             title: Uni.I18n.translate('deviceGroup.empty.title', 'MDC', 'No device groups found'),
                             reasons: [
                                 Uni.I18n.translate('deviceGroup.empty.list.item1', 'MDC', 'No device groups have been defined yet.')
+                            ],
+                            stepItems: [
+                                {
+                                    text: Uni.I18n.translate('deviceGroup.addDeviceGroup', 'MDC', 'Add device group'),
+                                    action: 'createDeviceGroupButtonFromEmptyGrid',
+                                    itemId: 'createDeviceGroupButtonFromEmptyGrid'
+                                }
                             ]
                         },
                         previewComponent: {

@@ -4,8 +4,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.ValidationOverview', {
     itemId: 'deviceloadprofilechannelsoverviewvalidation',
     router: null,
     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation', 'MDC', 'Validation'),
+
     labelAlign: 'top',
     layout: 'vbox',
+
     defaults: {
         xtype: 'displayfield',
         labelWidth: 200
