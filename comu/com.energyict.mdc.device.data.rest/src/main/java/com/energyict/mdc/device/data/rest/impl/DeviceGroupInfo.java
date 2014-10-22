@@ -13,7 +13,8 @@ public class DeviceGroupInfo {
     public String mRID;
     public String name;
     public boolean dynamic;
-    public List<SearchCriteriaInfo> criteria = new ArrayList<>();
+    public List<SearchCriteriaInfo> criteria = new ArrayList<>(); //backend => frontend
+    public Object filter;  // frontend => backend
 
     public DeviceGroupInfo() {
     }
