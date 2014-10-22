@@ -153,7 +153,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     protected Instant getLastSuccessfulCommunicationEnd(Device concentrator) {
         Instant lastSuccessfulCommTask = Instant.EPOCH;
         for (ConnectionTask<?, ?> task : concentrator.getConnectionTasks()) {
-            Instant taskEnd = task.getLastSuccessfulCommunicationEnd().toInstant();
+            Instant taskEnd = task.getLastSuccessfulCommunicationEnd();
             if (taskEnd != null && lastSuccessfulCommTask.isBefore(taskEnd)) {
                 lastSuccessfulCommTask = taskEnd;
             }
