@@ -25,7 +25,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         super(partialConnectionTask, uriInfo, mdcPropertyUtils);
         this.connectionStrategy=partialConnectionTask.getConnectionStrategy();
         this.allowSimultaneousConnections=partialConnectionTask.isSimultaneousConnectionsAllowed();
-        this.rescheduleRetryDelay = partialConnectionTask.getRescheduleDelay()!=null?new TimeDurationInfo(partialConnectionTask.getRescheduleDelay()):null;
+        this.rescheduleRetryDelay = TimeDurationInfo.of(partialConnectionTask.getRescheduleDelay());
         if (partialConnectionTask.getCommunicationWindow()!=null) {
             this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
             this.comWindowEnd=partialConnectionTask.getCommunicationWindow().getEnd().getMillis()/1000;
@@ -33,7 +33,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
             this.comWindowStart=0;
             this.comWindowEnd=0;
         }
-        this.temporalExpression =partialConnectionTask.getNextExecutionSpecs()!=null?
+        this.temporalExpression = partialConnectionTask.getNextExecutionSpecs()!=null?
                 TemporalExpressionInfo.from(partialConnectionTask.getNextExecutionSpecs().getTemporalExpression()):null;
     }
 
