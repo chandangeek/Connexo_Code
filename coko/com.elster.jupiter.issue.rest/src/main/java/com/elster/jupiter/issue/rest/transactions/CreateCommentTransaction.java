@@ -5,7 +5,7 @@ import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -29,7 +29,7 @@ public class CreateCommentTransaction implements Transaction<IssueComment> {
         IssueComment issueComment = null;
         if (issueRef.isPresent()){
             Issue issue = issueRef.get();
-            issueComment = issue.addComment(comment, author).orNull();
+            issueComment = issue.addComment(comment, author).orElse(null);
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }

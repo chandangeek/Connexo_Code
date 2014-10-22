@@ -14,7 +14,7 @@ public class IssueCommentInfo {
         if (issueComment != null) {
             this.id = issueComment.getId();
             this.comment = issueComment.getComment();
-            this.creationDate = issueComment.getCreateTime().getTime();
+            this.creationDate = issueComment.getCreateTime().toEpochMilli();
             this.version = issueComment.getVersion();
             this.author = new UserInfo(issueComment.getUser());
         }

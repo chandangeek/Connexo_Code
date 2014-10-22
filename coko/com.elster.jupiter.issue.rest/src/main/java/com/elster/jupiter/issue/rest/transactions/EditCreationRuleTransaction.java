@@ -8,7 +8,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.transaction.Transaction;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -77,7 +77,7 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
     }
 
     protected CreationRule getCreaionRule() {
-        CreationRule rule = issueCreationService.findCreationRule(request.getId()).orNull();
+        CreationRule rule = issueCreationService.findCreationRule(request.getId()).orElse(null);
         if (rule == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -140,7 +140,7 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
     }
 
     private CreationRuleTemplate getCreationRuleTemplate() {
-        CreationRuleTemplate template = issueCreationService.findCreationRuleTemplate(request.getTemplate().getUid()).orNull();
+        CreationRuleTemplate template = issueCreationService.findCreationRuleTemplate(request.getTemplate().getUid()).orElse(null);
         if (template == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
@@ -148,7 +148,7 @@ public class EditCreationRuleTransaction implements Transaction<CreationRule> {
     }
 
     private IssueReason getIssueReason() {
-        IssueReason issueReason = issueService.findReason(request.getReason().id).orNull();
+        IssueReason issueReason = issueService.findReason(request.getReason().id).orElse(null);
         if (issueReason == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }

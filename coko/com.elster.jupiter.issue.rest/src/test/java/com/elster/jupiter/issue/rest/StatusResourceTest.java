@@ -3,7 +3,7 @@ package com.elster.jupiter.issue.rest;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
@@ -48,7 +48,7 @@ public class StatusResourceTest extends Mocks{
 
     @Test
     public void testGetUnexistingStatus(){
-        when(issueService.findStatus("not-exsist")).thenReturn(Optional.<IssueStatus>absent());
+        when(issueService.findStatus("not-exsist")).thenReturn(Optional.empty());
 
         Response response = target("/statuses/not-exsist").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());

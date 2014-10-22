@@ -1,7 +1,7 @@
 package com.elster.jupiter.issue.rest.response.device;
 
 import com.elster.jupiter.metering.*;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class DeviceInfo {
     private long id;
@@ -25,9 +25,9 @@ public class DeviceInfo {
     protected void fetchDetails(EndDevice endDevice){
         if (endDevice != null && Meter.class.isInstance(endDevice)) {
             Meter meter = Meter.class.cast(endDevice);
-            Optional<MeterActivation> meterActivation = meter.getCurrentMeterActivation();
+            Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
             if (meterActivation.isPresent()) {
-                setUsagePoint(meterActivation.get().getUsagePoint().orNull());
+                setUsagePoint(meterActivation.get().getUsagePoint().orElse(null));
             }
         }
     }

@@ -54,8 +54,8 @@ public class CreationRuleInfo {
             }
         }
         this.template = new CreationRuleTemplateInfo(rule.getTemplate());
-        this.modificationDate = rule.getModTime().getTime();
-        this.creationDate = rule.getCreateTime().getTime();
+        this.modificationDate = rule.getModTime().toEpochMilli();
+        this.creationDate = rule.getCreateTime().toEpochMilli();
         this.version = rule.getVersion();
 
     }

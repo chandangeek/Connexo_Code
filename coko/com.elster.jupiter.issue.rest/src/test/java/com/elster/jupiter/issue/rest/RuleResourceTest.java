@@ -6,7 +6,7 @@ import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -88,7 +88,7 @@ public class RuleResourceTest extends Mocks {
 
     @Test
     public void testGetUnexistingTemplate(){
-        when(issueCreationService.findCreationRuleTemplate("9999-0")).thenReturn(Optional.<CreationRuleTemplate>absent());
+        when(issueCreationService.findCreationRuleTemplate("9999-0")).thenReturn(Optional.empty());
 
         Response response = target("/rules/templates/9999-0").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -110,7 +110,7 @@ public class RuleResourceTest extends Mocks {
         params.put("param2", "value2");
         Entity<Map<String, String>> json = Entity.json(params);
 
-        when(issueCreationService.findCreationRuleTemplate("9999-0")).thenReturn(Optional.<CreationRuleTemplate>absent());
+        when(issueCreationService.findCreationRuleTemplate("9999-0")).thenReturn(Optional.empty());
 
         Response response = target("/rules/templates/9999-0/parameters").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
