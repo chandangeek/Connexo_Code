@@ -71,9 +71,6 @@ public class AssignIssueAction extends AbstractIssueAction {
     private void initParameterDefinitions() {
         AssigneeParameter closeStatus = new AssigneeParameter(issueService, userService, thesaurus);
         parameterDefinitions.put(closeStatus.getKey(), closeStatus);
-
-        IssueCommentParameter comment = new IssueCommentParameter(thesaurus);
-        parameterDefinitions.put(comment.getKey(), comment);
     }
 
     @Override
@@ -88,7 +85,6 @@ public class AssignIssueAction extends AbstractIssueAction {
         } else {
             errors.add(new ParameterViolation(Parameter.ASSIGNEE.getKey(), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(thesaurus)));
         }
-        errors.addAll(getParameterDefinitions().get(Parameter.COMMENT.getKey()).validate(actionParameters.get(Parameter.COMMENT.getKey()), ParameterDefinitionContext.ACTION));
         return errors;
     }
 

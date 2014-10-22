@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.issue.impl.actions.parameters.CloseStatusParameter;
+import com.elster.jupiter.issue.impl.actions.parameters.IssueCommentParameter;
 import com.elster.jupiter.issue.impl.actions.parameters.Parameter;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.AbstractIssueAction;
@@ -70,5 +71,8 @@ public class CloseIssueAction extends AbstractIssueAction {
     private void initParameterDefinitions() {
         CloseStatusParameter closeStatus = new CloseStatusParameter(issueService, thesaurus);
         parameterDefinitions.put(closeStatus.getKey(), closeStatus);
+
+        IssueCommentParameter comment = new IssueCommentParameter(thesaurus);
+        parameterDefinitions.put(comment.getKey(), comment);
     }
 }

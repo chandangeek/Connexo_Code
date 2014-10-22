@@ -88,7 +88,7 @@ public class AssignIssueActionTest {
         params.put(Parameter.ASSIGNEE_USER.getKey(), "1");
         params.put(Parameter.COMMENT.getKey(), "Assigned!");
         assertThat(action.validate(params)).hasSize(0);
-        assertThat(action.getParameterDefinitions()).hasSize(2);
+        assertThat(action.getParameterDefinitions()).hasSize(1);
     }
 
     @Test

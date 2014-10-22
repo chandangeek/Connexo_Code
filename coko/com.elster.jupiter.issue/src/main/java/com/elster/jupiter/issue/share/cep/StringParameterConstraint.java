@@ -50,7 +50,7 @@ public class StringParameterConstraint implements ParameterConstraint {
         List<ParameterViolation> errors = new ArrayList<>();
 
         boolean empty = is(value).emptyOrOnlyWhiteSpace();
-        boolean outsideLimits = value.length() < minLength || value.length() > maxLength;
+        boolean outsideLimits = empty || value.length() < minLength || value.length() > maxLength;
 
         if(optional) {
             if (!empty && outsideLimits) {
