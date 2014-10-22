@@ -44,6 +44,13 @@ Ext.define('Uni.controller.AppController', {
      */
     searchEnabled: true,
 
+    /**
+     * @cfg {String[]} privileges
+     * The privileges that allow user to access application.
+     * Empty by default.
+     */
+    privileges: [],
+
     // <debug>
     /**
      * @cfg {Object[]} packages
@@ -55,18 +62,20 @@ Ext.define('Uni.controller.AppController', {
     // </debug>
 
     init: function () {
+
         var me = this;
+        if (Uni.Auth.hasAnyPrivilege(me.privileges)){
+            me.initCrossroads();
 
-        me.initCrossroads();
+            me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
+            me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
+            me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
+            me.getApplication().on('changecontentevent', me.showContent, me);
+            me.getApplication().on('sessionexpired', me.redirectToLogin, me);
 
-        me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
-        me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
-        me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
-        me.getApplication().on('changecontentevent', me.showContent, me);
-        me.getApplication().on('sessionexpired', me.redirectToLogin, me);
-
-        me.loadControllers();
-        me.callParent(arguments);
+            me.loadControllers();
+            me.callParent(arguments);
+        }
     },
 
     /**
