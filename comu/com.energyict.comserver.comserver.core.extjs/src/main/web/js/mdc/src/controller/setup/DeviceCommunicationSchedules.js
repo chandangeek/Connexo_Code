@@ -157,7 +157,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
     addSharedCommunicationSchedule: function (mrid) {
         var me = this;
         this.mrid = mrid;
-        var widget = Ext.widget('addSharedCommunicationSchedule');
+        var widget = Ext.widget('addSharedCommunicationSchedule',{mRID:this.mrid});
 
         var availableScheduleStore = this.getAvailableCommunicationSchedulesForDeviceStore();
         widget.down('#addSharedCommunicationScheduleGrid').reconfigure(availableScheduleStore);
