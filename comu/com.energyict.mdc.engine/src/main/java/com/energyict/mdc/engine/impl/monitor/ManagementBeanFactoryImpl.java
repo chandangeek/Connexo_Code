@@ -196,7 +196,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
      * @return The base name
      */
     private String comServerBaseName(ComServer comServer) {
-        return "Connexo:type=ComServer,name=" + comServer.getName();
+        return "Jupiter:type=ComServer,name=" + comServer.getName();
     }
 
     private ObjectName nameFor(ScheduledComPort comPort) {
