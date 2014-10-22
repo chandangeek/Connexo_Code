@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -11,6 +12,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
@@ -18,6 +20,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -28,9 +31,14 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
@@ -220,5 +228,12 @@ public class DemoTest {
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         propertySpecService.addFactoryProvider((DeviceServiceImpl)injector.getInstance(DeviceService.class));
         propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl)injector.getInstance(ConnectionTaskService.class));
+
+        DefaultValidatorFactory defaultValidatorFactory = new DefaultValidatorFactory();
+        defaultValidatorFactory.setPropertySpecService(propertySpecService);
+        defaultValidatorFactory.setNlsService(injector.getInstance(NlsService.class));
+        ((ValidationServiceImpl)injector.getInstance(ValidationService.class)).addResource(defaultValidatorFactory);
+
+        ((DeviceConfigurationServiceImpl)injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
     }
 }

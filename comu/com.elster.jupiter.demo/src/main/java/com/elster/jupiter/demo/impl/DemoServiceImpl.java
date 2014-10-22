@@ -10,6 +10,10 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -47,7 +51,7 @@ import java.time.Instant;
 import java.util.*;
 
 
-@Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {"osgi.command.scope=demo", "osgi.command.function=createDemoData", "osgi.command.function=createDemoUsers"}, immediate = true)
+@Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {"osgi.command.scope=demo", "osgi.command.function=createDemoData", "osgi.command.function=createDemoUsers", "osgi.command.function=createValidationRules"}, immediate = true)
 public class DemoServiceImpl implements DemoService {
     public static final String ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH = "Active Energy Import Tariff 1 (kWh)";
     public static final String ACTIVE_ENERGY_IMPORT_TARIFF_1_WH = "Active Energy Import Tariff 1 (Wh)";
@@ -96,10 +100,12 @@ public class DemoServiceImpl implements DemoService {
     public static final String USER_NAME_SAM = "Sam";
     public static final String USER_NAME_MELISSA = "Melissa";
     public static final String USER_NAME_SYSTEM = "System";
+    public static final String VALIDATION_DETECT_MISSING_VALUES = "Detect missing values";
 
     private final Boolean rethrowExceptions;
     private volatile EngineModelService engineModelService;
     private volatile UserService userService;
+    private volatile ValidationService validationService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -119,6 +125,7 @@ public class DemoServiceImpl implements DemoService {
     public DemoServiceImpl(
             EngineModelService engineModelService,
             UserService userService,
+            ValidationService validationService,
             TransactionService transactionService,
             ThreadPrincipalService threadPrincipalService,
             ProtocolPluggableService protocolPluggableService,
@@ -131,6 +138,7 @@ public class DemoServiceImpl implements DemoService {
             SchedulingService schedulingService) {
         this.engineModelService = engineModelService;
         this.userService = userService;
+        this.validationService = validationService;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
         this.protocolPluggableService = protocolPluggableService;
@@ -171,7 +179,8 @@ public class DemoServiceImpl implements DemoService {
                 createCommunicationTasks(store);
                 createCommunicationSchedules(store);
                 createDeviceTypes(store);
-                createDemoUsers();
+                createDemoUsersImpl();
+                createValidationRulesImpl();
             }
         });
     }
@@ -613,6 +622,15 @@ public class DemoServiceImpl implements DemoService {
 
     @Override
     public void createDemoUsers(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createDemoUsersImpl();
+            }
+        });
+    }
+
+    public void createDemoUsersImpl(){
         System.out.println("==> Creating demo users...");
         createUserAndJoinAllGroups(USER_NAME_SAM);
         createUserAndJoinAllGroups(USER_NAME_MELISSA);
@@ -636,6 +654,48 @@ public class DemoServiceImpl implements DemoService {
         user.save();
     }
 
+    @Override
+    public void createValidationRules(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createValidationRulesImpl();
+            }
+        });
+    }
+
+    public void createValidationRulesImpl(){
+        System.out.println("==> Creating validation rules");
+        if (validationService.getValidationRuleSet(VALIDATION_DETECT_MISSING_VALUES).isPresent()){
+            System.out.println("==> Validation rule set " + VALIDATION_DETECT_MISSING_VALUES + " already exists, skip step.");
+        }
+        ValidationRuleSet ruleSet = validationService.createValidationRuleSet(VALIDATION_DETECT_MISSING_VALUES);
+        ValidationRule rule = ruleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.MissingValuesValidator", VALIDATION_DETECT_MISSING_VALUES);
+        // 15min Electricity
+        rule.addReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        rule.addReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        // Daily Electricity
+        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        // Monthly Electricity
+        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.activate();
+
+        ruleSet.save();
+
+        List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(ruleSet);
+        for (DeviceConfiguration configuration : configurations) {
+            System.out.println("==> Validation rule set added to: " + configuration.getName() + " (id = " + configuration.getId() + ")");
+            configuration.addValidationRuleSet(ruleSet);
+            configuration.save();
+        }
+    }
+
     @Reference
     public void setEngineModelService(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
@@ -644,6 +704,11 @@ public class DemoServiceImpl implements DemoService {
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Reference
