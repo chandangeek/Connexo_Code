@@ -58,6 +58,9 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     }
 
     protected void appendNonStatusWhereClauses() {
+        this.appendWhereOrAnd();
+        this.append(this.connectionTaskAliasName());
+        this.append(".obsolete_date is null");
         this.appendConnectionTypeSql();
         this.appendComPortPoolSql();
         this.appendDeviceTypeSql();

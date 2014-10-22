@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
@@ -165,9 +166,10 @@ public class ComSessionImpl implements ComSession {
          */
         return DefaultFinder.of(
                 ComTaskExecutionJournalEntry.class,
-                         where("class").isEqualTo("1")
-                    .and(where("logLevel").in(new ArrayList<>(levels)))
-                    .and(where("comTaskExecutionSession.comSession").isEqualTo(this)),
+                where("comTaskExecutionSession.comSession").isEqualTo(this)
+                        .and(where("class").isEqualTo(0)
+                            .or(where("class").isEqualTo(1)
+                                .and(where("logLevel").in(new ArrayList<>(levels))))),
                 this.dataModel,
                 ComTaskExecutionSession.class).
                 defaultSortColumn("timestamp desc");
@@ -203,11 +205,11 @@ public class ComSessionImpl implements ComSession {
                         }
                         case 0: {
                             logEntries.add(new ComCommandJournalEntryAsCombinedLogEntry(resultSet));
+                            break;
                         }
                         case 1: {
                             logEntries.add(new ComTaskExecutionMessageJournalEntryAsCombinedLogEntry(resultSet));
-                        }
-                        default: {
+                            break;
                         }
                     }
                 }
