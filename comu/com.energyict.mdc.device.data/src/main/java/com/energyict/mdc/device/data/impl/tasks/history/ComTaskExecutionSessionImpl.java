@@ -1,6 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -13,19 +21,15 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
 import com.energyict.mdc.engine.model.ComServer;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.Range;
-
-import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import javax.inject.Inject;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Copyrights EnergyICT
@@ -123,6 +127,17 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
             journalEntries.add(journalEntry);
         }
         return journalEntries;
+    }
+
+    @Override
+    public Finder<ComTaskExecutionJournalEntry> findComTaskExecutionJournalEntries(Set<ComServer.LogLevel> levels) {
+        return DefaultFinder.of(ComTaskExecutionJournalEntry.class,
+                Where.where(ComTaskExecutionJournalEntryImpl.Fields.ComTaskExecutionSession.fieldName()).isEqualTo(this)
+                        .and(where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComCommandJournalEntryImplDiscriminator)
+                            .or(where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComTaskExecutionMessageJournalEntryImplDiscriminator)
+                                        .and(where(ComTaskExecutionJournalEntryImpl.Fields.LogLevel.fieldName()).in(new ArrayList<>(levels))))),
+                this.dataModel)
+                .sorted(ComTaskExecutionJournalEntryImpl.Fields.timestamp.fieldName(), false);
     }
 
     @Override

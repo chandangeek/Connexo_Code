@@ -8,9 +8,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.google.common.collect.ImmutableMap;
-
 import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -24,7 +22,28 @@ import java.util.Map;
  */
 public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutionJournalEntry> extends PersistentIdObject<T> implements ComTaskExecutionJournalEntry {
 
-    public static final Map<String, Class<? extends ComTaskExecutionJournalEntry>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends ComTaskExecutionJournalEntry>>of("0", ComCommandJournalEntryImpl.class, "1", ComTaskExecutionMessageJournalEntryImpl.class);
+    public static long ComCommandJournalEntryImplDiscriminator = 0;
+    public static long ComTaskExecutionMessageJournalEntryImplDiscriminator = 1;
+
+    public static final Map<String, Class<? extends ComTaskExecutionJournalEntry>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends ComTaskExecutionJournalEntry>>of(
+                    String.valueOf(ComCommandJournalEntryImplDiscriminator), ComCommandJournalEntryImpl.class,
+                    String.valueOf(ComTaskExecutionMessageJournalEntryImplDiscriminator), ComTaskExecutionMessageJournalEntryImpl.class);
+
+    enum Fields {
+        ComTaskExecutionSession("comTaskExecutionSession"),
+        LogLevel("logLevel"),
+        timestamp("timestamp");
+        private final String fieldName;
+
+        Fields(String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        public String fieldName() {
+            return fieldName;
+        }
+    }
 
     Reference<ComTaskExecutionSession> comTaskExecutionSession = ValueReference.absent();
 

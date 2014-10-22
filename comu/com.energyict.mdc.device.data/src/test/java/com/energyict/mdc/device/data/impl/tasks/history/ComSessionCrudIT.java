@@ -88,6 +88,7 @@ import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.util.EnumSet;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -565,6 +566,7 @@ public class ComSessionCrudIT {
         ComTaskExecutionSession comTaskExecutionSession = foundSession.getComTaskExecutionSessions().get(0);
 
         assertThat(comTaskExecutionSession.getComTaskExecutionJournalEntries()).hasSize(1);
+        assertThat(comTaskExecutionSession.findComTaskExecutionJournalEntries(EnumSet.noneOf(ComServer.LogLevel.class)).find()).hasSize(1);
 
         ComTaskExecutionJournalEntry journalEntry = comTaskExecutionSession.getComTaskExecutionJournalEntries().get(0);
 
@@ -608,6 +610,8 @@ public class ComSessionCrudIT {
 
         ComTaskExecutionSession comTaskExecutionSession = foundSession.getComTaskExecutionSessions().get(0);
 
+        assertThat(comTaskExecutionSession.findComTaskExecutionJournalEntries(EnumSet.noneOf(ComServer.LogLevel.class)).find()).isEmpty();
+        assertThat(comTaskExecutionSession.findComTaskExecutionJournalEntries(EnumSet.of(ComServer.LogLevel.INFO)).find()).hasSize(1);
         assertThat(comTaskExecutionSession.getComTaskExecutionJournalEntries()).hasSize(1);
 
         ComTaskExecutionJournalEntry journalEntry = comTaskExecutionSession.getComTaskExecutionJournalEntries().get(0);
