@@ -39,6 +39,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.Interval;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -199,21 +200,21 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setSerialNumber(String serialNumber);
 
-    void setYearOfCertification(Date yearOfCertification);
+    void setYearOfCertification(Instant yearOfCertification);
 
     /**
      * Returns the year of certification of a device
      *
      * @return a certification date
      */
-    Date getYearOfCertification();
+    Instant getYearOfCertification();
 
     /**
      * Returns the receiver's last modification date
      *
      * @return the last modification timestamp.
      */
-    Date getModDate();
+    Instant getModDate();
 
     @Override
     List<LogBook> getLogBooks();
