@@ -49,6 +49,16 @@ Ext.define('Dsh.controller.Main', {
             router = me.getController('Uni.controller.history.Router'),
             historian = me.getController('Dsh.controller.history.Workspace'); // Forces route registration.
 
+        var route = router.getRoute('dashboard');
+        Uni.store.MenuItems.add(
+            Ext.create('Uni.model.MenuItem', {
+                text: route.title,
+                glyph: 'dashboard',
+                portal: 'dashboard',
+                index: 0
+            })
+        );
+
         if (Uni.Auth.hasAnyPrivilege(['privilege.view.communicationInfrastructure'])) {
             Uni.store.MenuItems.add(
                 Ext.create('Uni.model.MenuItem', {
