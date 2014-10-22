@@ -136,7 +136,7 @@ public class ComSessionResource {
                 if (logTypes.contains(COMMUNICATIONS_FILTER_ITEM)) {
                     comSession.getCommunicationTaskJournalEntries(logLevels).from(queryParameters).sorted("timestamp", false).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
                 } else {
-                    // User didn't select anything and is getting just that...
+                    comSession.getAllLogs(logLevels, start, limit).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
                 }
             }
         } else {

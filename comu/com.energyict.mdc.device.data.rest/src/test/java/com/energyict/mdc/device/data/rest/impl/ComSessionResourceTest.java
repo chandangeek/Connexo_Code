@@ -16,6 +16,11 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -39,8 +44,8 @@ import static org.mockito.Mockito.doReturn;
  * Created by bvn on 10/3/14.
  */
 public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest {
-    private final DateTime start = new DateTime(2014, 10,10,13,10,10);
-    private final DateTime end = new DateTime(2014, 10,10,13,10,20);
+    private final Instant start = ZonedDateTime.of(2014, 10, 10, 13, 10, 10, 0, ZoneId.systemDefault()).toInstant();
+    private final Instant end = ZonedDateTime.of(2014, 10,10,13,10,20, 0, ZoneId.systemDefault()).toInstant();
     private ComSession comSession1;
 
     @Test
@@ -69,8 +74,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.comSessions")).hasSize(1);
         assertThat(jsonModel.<String>get("$.comSessions[0].connectionMethod")).isEqualTo("GPRS");
-        assertThat(jsonModel.<Long>get("$.comSessions[0].startedOn")).isEqualTo(start.getMillis());
-        assertThat(jsonModel.<Long>get("$.comSessions[0].finishedOn")).isEqualTo(end.getMillis());
+        assertThat(jsonModel.<Long>get("$.comSessions[0].startedOn")).isEqualTo(start.toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.comSessions[0].finishedOn")).isEqualTo(end.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.comSessions[0].durationInSeconds")).isEqualTo(10);
         assertThat(jsonModel.<String>get("$.comSessions[0].direction")).isEqualTo("Inbound");
         assertThat(jsonModel.<String>get("$.comSessions[0].connectionType")).isEqualTo("IPDIALER");
@@ -111,8 +116,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<String>get("$.connectionMethod")).isEqualTo("GPRS");
-        assertThat(jsonModel.<Long>get("$.startedOn")).isEqualTo(start.getMillis());
-        assertThat(jsonModel.<Long>get("$.finishedOn")).isEqualTo(end.getMillis());
+        assertThat(jsonModel.<Long>get("$.startedOn")).isEqualTo(start.toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.finishedOn")).isEqualTo(end.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.durationInSeconds")).isEqualTo(10);
         assertThat(jsonModel.<String>get("$.direction")).isEqualTo("Inbound");
         assertThat(jsonModel.<String>get("$.connectionType")).isEqualTo("IPDIALER");
@@ -199,26 +204,26 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("IPDIALER");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
-        doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();        
+        doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();
         comSession1 = mockComSession(connectionTask, 888L, 1);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
 
-        ComTaskExecutionJournalEntry journalEntry1 = mockComTaskExecutionMessageJournalEntry(start.toDate(), ComServer.LogLevel.INFO, "Starting connection", "i/o error");
-        ComTaskExecutionJournalEntry journalEntry1bis = mockComTaskExecutionCommandJournalEntry(start.plusSeconds(1).toDate(), ComServer.LogLevel.TRACE, "ATDT", "");
-        ComTaskExecutionJournalEntry journalEntry2 = mockComTaskExecutionMessageJournalEntry(start.plusSeconds(10).toDate(), ComServer.LogLevel.INFO, "Ending connection", "finished");
+        ComTaskExecutionJournalEntry journalEntry1 = mockComTaskExecutionMessageJournalEntry(start, ComServer.LogLevel.INFO, "Starting connection", "i/o error");
+        ComTaskExecutionJournalEntry journalEntry1bis = mockComTaskExecutionCommandJournalEntry(start.plusSeconds(1), ComServer.LogLevel.TRACE, "ATDT", "");
+        ComTaskExecutionJournalEntry journalEntry2 = mockComTaskExecutionMessageJournalEntry(start.plusSeconds(10), ComServer.LogLevel.INFO, "Ending connection", "finished");
         Finder<ComTaskExecutionJournalEntry> finder = mockFinder(Arrays.asList(journalEntry1, journalEntry1bis, journalEntry2));
         when(comSession1.getCommunicationTaskJournalEntries(anyObject())).thenReturn(finder);
-        ComSessionJournalEntry journalEntry3 = mockComSessionJournalEntry(start.plusSeconds(1).toDate(), ComServer.LogLevel.DEBUG, "Set clock");
-        ComSessionJournalEntry journalEntry4 = mockComSessionJournalEntry(start.plusSeconds(2).toDate(), ComServer.LogLevel.DEBUG, "Check clock");
-        ComSessionJournalEntry journalEntry5 = mockComSessionJournalEntry(start.plusSeconds(3).toDate(), ComServer.LogLevel.DEBUG, "Reset clock");
-        ComSessionJournalEntry journalEntry6 = mockComSessionJournalEntry(start.plusSeconds(4).toDate(), ComServer.LogLevel.DEBUG, "Fix clock");
+        ComSessionJournalEntry journalEntry3 = mockComSessionJournalEntry(start.plusSeconds(1), ComServer.LogLevel.DEBUG, "Set clock");
+        ComSessionJournalEntry journalEntry4 = mockComSessionJournalEntry(start.plusSeconds(2), ComServer.LogLevel.DEBUG, "Check clock");
+        ComSessionJournalEntry journalEntry5 = mockComSessionJournalEntry(start.plusSeconds(3), ComServer.LogLevel.DEBUG, "Reset clock");
+        ComSessionJournalEntry journalEntry6 = mockComSessionJournalEntry(start.plusSeconds(4), ComServer.LogLevel.DEBUG, "Fix clock");
         Finder<ComSessionJournalEntry> comSessionJournalEntryFinder = mockFinder(Arrays.asList(journalEntry3,journalEntry4,journalEntry5, journalEntry6));
         when(comSession1.getJournalEntries(anyObject())).thenReturn(comSessionJournalEntryFinder);
-        ComSession.CombinedLogEntry combinedLogEntry1 = mockCombinedLogEntry(start.toDate(), ComServer.LogLevel.INFO, "Starting connection", null);
-        ComSession.CombinedLogEntry combinedLogEntry2 = mockCombinedLogEntry(start.plusSeconds(1).toDate(), ComServer.LogLevel.DEBUG, "Set clock", "stack.trace.1");
-        ComSession.CombinedLogEntry combinedLogEntry3 = mockCombinedLogEntry(start.plusSeconds(2).toDate(), ComServer.LogLevel.DEBUG, "Set clock", "stack.trace.2");
-        ComSession.CombinedLogEntry combinedLogEntry4 = mockCombinedLogEntry(start.plusSeconds(3).toDate(), ComServer.LogLevel.DEBUG, "Set clock", "stack.trace.3");
-        ComSession.CombinedLogEntry combinedLogEntry5 = mockCombinedLogEntry(start.plusSeconds(10).toDate(), ComServer.LogLevel.INFO, "Finished connection", null);
+        ComSession.CombinedLogEntry combinedLogEntry1 = mockCombinedLogEntry(start, ComServer.LogLevel.INFO, "Starting connection", null);
+        ComSession.CombinedLogEntry combinedLogEntry2 = mockCombinedLogEntry(start.plusSeconds(1), ComServer.LogLevel.DEBUG, "Set clock", "stack.trace.1");
+        ComSession.CombinedLogEntry combinedLogEntry3 = mockCombinedLogEntry(start.plusSeconds(2), ComServer.LogLevel.DEBUG, "Set clock", "stack.trace.2");
+        ComSession.CombinedLogEntry combinedLogEntry4 = mockCombinedLogEntry(start.plusSeconds(3), ComServer.LogLevel.DEBUG, "Set clock", "stack.trace.3");
+        ComSession.CombinedLogEntry combinedLogEntry5 = mockCombinedLogEntry(start.plusSeconds(10), ComServer.LogLevel.INFO, "Finished connection", null);
         when(comSession1.getAllLogs(anyObject(), anyInt(), anyInt())).thenReturn(Arrays.asList(combinedLogEntry1, combinedLogEntry2, combinedLogEntry3, combinedLogEntry4, combinedLogEntry5));
     }
 
@@ -270,7 +275,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(5);
     }
 
-    private ComSession.CombinedLogEntry mockCombinedLogEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDetail) {
+    private ComSession.CombinedLogEntry mockCombinedLogEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDetail) {
         ComSession.CombinedLogEntry mock = mock(ComSession.CombinedLogEntry.class);
         when(mock.getTimestamp()).thenReturn(timestamp);
         when(mock.getLogLevel()).thenReturn(logLevel);
@@ -279,7 +284,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         return mock;
     }
 
-    private ComSessionJournalEntry mockComSessionJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message) {
+    private ComSessionJournalEntry mockComSessionJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message) {
         ComSessionJournalEntry mock = mock(ComSessionJournalEntry.class);
         when(mock.getTimestamp()).thenReturn(timestamp);
         when(mock.getLogLevel()).thenReturn(logLevel);
@@ -287,7 +292,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         return mock;
     }
 
-    private ComTaskExecutionMessageJournalEntry mockComTaskExecutionMessageJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
+    private ComTaskExecutionMessageJournalEntry mockComTaskExecutionMessageJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
         ComTaskExecutionMessageJournalEntry mock = mock(ComTaskExecutionMessageJournalEntry.class);
         when(mock.getMessage()).thenReturn(message);
         when(mock.getErrorDescription()).thenReturn(errorDescription);
@@ -296,7 +301,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         return mock;
     }
 
-    private ComCommandJournalEntry mockComTaskExecutionCommandJournalEntry(Date timestamp, ComServer.LogLevel logLevel, String commandDescription, String errorDescription) {
+    private ComCommandJournalEntry mockComTaskExecutionCommandJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String commandDescription, String errorDescription) {
         ComCommandJournalEntry mock = mock(ComCommandJournalEntry.class);
         when(mock.getCommandDescription()).thenReturn(commandDescription);
         when(mock.getErrorDescription()).thenReturn(errorDescription);
@@ -308,8 +313,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     private ComSession mockComSession(ConnectionTask<?, ?> connectionTask, Long id, int startDelay) {
         ComSession comSession = mock(ComSession.class);
         when(comSession.getId()).thenReturn(id);
-        when(comSession.getStartDate()).thenReturn(start.plusHours(startDelay).toDate().toInstant());
-        when(comSession.getStopDate()).thenReturn(end.plusHours(startDelay).toDate().toInstant());
+        when(comSession.getStartDate()).thenReturn(start.plus(Duration.ofHours(startDelay)));
+        when(comSession.getStopDate()).thenReturn(end.plus(Duration.ofHours(startDelay)));
         ComPort comPort = mock(ComPort.class);
         when(comPort.getName()).thenReturn("comPort 199812981212");
         when(comPort.getId()).thenReturn(199812981212L);

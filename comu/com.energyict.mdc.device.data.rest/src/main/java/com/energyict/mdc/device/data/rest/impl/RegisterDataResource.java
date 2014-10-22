@@ -83,11 +83,8 @@ public class RegisterDataResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Meter meter = resourceHelper.getMeterFor(device);
-        Optional<? extends Reading> reading = register.getReading(new Date(timeStamp));
-        if(!reading.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp);
-        }
-        List<ReadingRecord> readingRecords = new ArrayList<>(Arrays.asList(reading.get().getActualReading()));
+        Reading reading = register.getReading(new Date(timeStamp)).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp));
+        List<ReadingRecord> readingRecords = new ArrayList<>(Arrays.asList(reading.getActualReading()));
         Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
         List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
         Boolean validationStatusForRegister = false;
@@ -103,7 +100,7 @@ public class RegisterDataResource {
         }
 
         return ReadingInfoFactory.asInfo(
-                reading.get(),
+                reading,
                 register.getRegisterSpec(),
                 validationStatusForRegister,
                 !dataValidationStatuses.isEmpty() ? dataValidationStatuses.get(0) : null);
@@ -118,14 +115,11 @@ public class RegisterDataResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Meter meter = resourceHelper.getMeterFor(device);
-        Optional<Channel> channel =  resourceHelper.getRegisterChannel(register, meter);
-        if(!channel.isPresent()) {
-            exceptionFactory.newException(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId);
-        }
+        Channel channel = resourceHelper.getRegisterChannel(register, meter).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, register.getRegisterSpec().getRegisterType().getName()));
 
         List<BaseReading> readings = new ArrayList<>();
         readings.add(readingInfo.createNew(register));
-        channel.get().editReadings(readings);
+        channel.editReadings(readings);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -146,16 +140,13 @@ public class RegisterDataResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Meter meter = resourceHelper.getMeterFor(device);
-        Optional<Channel> channel =  resourceHelper.getRegisterChannel(register, meter);
-        if (!channel.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId);
-        }
+        Channel channel = resourceHelper.getRegisterChannel(register, meter).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId));
 
-        List<BaseReadingRecord> readings = channel.get().getReadings(Range.openClosed(Instant.ofEpochMilli(timeStamp), Instant.ofEpochMilli(timeStamp)));
-        if (readings.isEmpty()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp);
-        }
-        channel.get().removeReadings(readings);
+        BaseReadingRecord reading =
+                channel
+                    .getReading(Instant.ofEpochMilli(timeStamp))
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp));
+        channel.removeReadings(Arrays.asList(reading));
 
         return Response.status(Response.Status.OK).build();
     }
