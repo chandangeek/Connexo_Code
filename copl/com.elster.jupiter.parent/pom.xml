@@ -634,8 +634,8 @@
                                     <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <target unless="skipSencha">
-                                        <echo>Sencha build</echo>
+                                    <target unless="skipSencha" if="js.dir">
+                                    <echo>Sencha build</echo>
                                         <echo>Using Sencha CMD in ${sencha.cmd.dir}</echo>
                                         <echo>Using Ext lib in ${sencha.ext.dir}</echo>
                                         <property name="build.dir" value="${project.build.directory}/web"/>
