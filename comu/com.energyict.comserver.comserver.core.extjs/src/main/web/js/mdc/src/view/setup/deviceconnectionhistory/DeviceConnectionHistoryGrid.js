@@ -93,7 +93,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 dock: 'bottom'
             }
         ];
-        debugger;
         me.callParent();
     }
 

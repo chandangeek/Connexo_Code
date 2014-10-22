@@ -231,7 +231,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             }
         }
 
-        debugger;
         this.getDeviceconnectionhistorySideFilterForm().getRecord().set(values);
         if (!values.hasOwnProperty('logLevels')) {
             delete this.getDeviceconnectionhistorySideFilterForm().getRecord().data.logLevels;
