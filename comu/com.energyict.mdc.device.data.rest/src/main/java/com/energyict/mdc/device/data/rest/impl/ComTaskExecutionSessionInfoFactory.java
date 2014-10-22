@@ -55,7 +55,9 @@ public class ComTaskExecutionSessionInfoFactory {
             }
         }
         info.urgency = comTaskExecution.getExecutionPriority();
-        info.result=thesaurus.getString(completionCodeAdapter.marshal(comTaskExecutionSession.getHighestPriorityCompletionCode()), completionCodeAdapter.marshal(comTaskExecutionSession.getHighestPriorityCompletionCode()));
+        if (comTaskExecutionSession.getHighestPriorityCompletionCode()!=null) {
+            info.result = thesaurus.getString(completionCodeAdapter.marshal(comTaskExecutionSession.getHighestPriorityCompletionCode()), completionCodeAdapter.marshal(comTaskExecutionSession.getHighestPriorityCompletionCode()));
+        }
         info.startTime=comTaskExecutionSession.getStartDate();
         info.finishTime =comTaskExecutionSession.getStopDate();
         info.durationInSeconds = info.startTime.until(info.finishTime, ChronoUnit.SECONDS);
