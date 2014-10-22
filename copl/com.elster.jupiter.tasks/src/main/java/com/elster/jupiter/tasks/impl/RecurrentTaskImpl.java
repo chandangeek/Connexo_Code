@@ -5,13 +5,15 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import java.time.Clock;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 class RecurrentTaskImpl implements RecurrentTask {
 
@@ -22,6 +24,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private Instant nextExecution;
     private String payload;
     private String destination;
+    private Instant lastRun;
     private transient DestinationSpec destinationSpec;
 
     private final Clock clock;
@@ -133,6 +136,16 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public void suspend() {
         this.nextExecution = null;
+        save();
+    }
+
+    @Override
+    public Optional<Instant> getLastRun() {
+        return Optional.ofNullable(lastRun);
+    }
+
+    void updateLastRun(Instant triggerTime) {
+        lastRun = triggerTime;
         save();
     }
 }

@@ -65,4 +65,8 @@ class TaskOccurrenceImpl implements TaskOccurrence {
             dataModel.mapper(TaskOccurrence.class).update(this);
         }
     }
+
+    public void hasRun() {
+        ((RecurrentTaskImpl) recurrentTask).updateLastRun(getTriggerTime());
+    }
 }

@@ -1,9 +1,10 @@
 package com.elster.jupiter.tasks;
 
-import java.time.Instant;
-
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.util.HasName;
+
+import java.time.Instant;
+import java.util.Optional;
 
 
 /**
@@ -22,6 +23,8 @@ public interface RecurrentTask extends HasName {
     Instant getNextExecution();
 
     TaskOccurrence createTaskOccurrence();
+
+    Optional<Instant> getLastRun();
 
     void save();
 

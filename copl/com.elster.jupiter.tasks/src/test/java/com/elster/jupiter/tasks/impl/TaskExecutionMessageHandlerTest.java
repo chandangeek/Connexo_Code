@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.json.JsonService;
-import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,7 +36,7 @@ public class TaskExecutionMessageHandlerTest {
     @Mock
     private Message message;
     @Mock
-    private TaskOccurrence taskOccurrence;
+    private TaskOccurrenceImpl taskOccurrence;
     @Mock
     private DataMapper<TaskOccurrence> taskOccurrenceFactory;
     @Mock

@@ -9,15 +9,15 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskExecutor;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.TaskServiceAlreadyLaunched;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
-import java.util.Optional;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -26,9 +26,14 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
 import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENTNAME, immediate = true)
 public class TaskServiceImpl implements TaskService, InstallService {
@@ -99,6 +104,15 @@ public class TaskServiceImpl implements TaskService, InstallService {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    @Override
+    public List<TaskOccurrence> getOccurrences(RecurrentTask recurrentTask, Range<Instant> period) {
+        return dataModel.query(TaskOccurrence.class)
+                .select(
+                        where("recurrentTaskId").isEqualTo(recurrentTask.getId())
+                                .and(where("triggerTime").in(period))
+                );
     }
 
     @Override

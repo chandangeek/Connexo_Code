@@ -23,6 +23,7 @@ enum TableSpecs {
             table.column("NEXTEXECUTION").type("number").conversion(NUMBER2INSTANT).map("nextExecution").add();
             table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             table.column("DESTINATION").type("varchar2(30)").notNull().map("destination").add();
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
         }
     },
