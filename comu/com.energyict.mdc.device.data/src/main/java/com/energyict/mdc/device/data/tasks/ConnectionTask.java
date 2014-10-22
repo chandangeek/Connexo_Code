@@ -12,6 +12,7 @@ import com.energyict.mdc.pluggable.PluggableClassUsage;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -273,14 +274,14 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * @return the date of the last connection start.
      */
 
-    public Date getLastCommunicationStart();
+    public Instant getLastCommunicationStart();
 
     /**
      * Keeps track of the last time a SUCCESSFUL connection was ended, independent whether or not the ConnectionTask has failed.
      *
      * @return the date of the last SUCCESSFUL connection end.
      */
-    public Date getLastSuccessfulCommunicationEnd();
+    public Instant getLastSuccessfulCommunicationEnd();
 
     /**
      * Gets this ConnectionTask's last {@link ComSession} or <code>absent</code>
