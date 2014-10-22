@@ -245,11 +245,15 @@ public class IssueResource extends BaseResource {
 
     private Condition addAssigneeQueryCondition(StandardParametersBean params) {
         Condition conditionAssignee = Condition.TRUE;
-        String assigneeType = params.getFirst(ASSIGNEE_TYPE);
-        if (getIssueService().checkIssueAssigneeType(assigneeType)) {
+        if (!params.get(ASSIGNEE_ID).isEmpty()) {
             Long assigneeId = params.getFirstLong(ASSIGNEE_ID);
             if (assigneeId > 0) {
-                conditionAssignee = where("baseIssue." + params.getFirst(ASSIGNEE_TYPE).toLowerCase() + ".id").isEqualTo(assigneeId);
+                String assigneeType = params.getFirst(ASSIGNEE_TYPE);
+                if (getIssueService().checkIssueAssigneeType(assigneeType)) {
+                    conditionAssignee = where("baseIssue." + params.getFirst(ASSIGNEE_TYPE).toLowerCase() + ".id").isEqualTo(assigneeId);
+                }
+            } else { // Filter by unassigned
+                conditionAssignee = where("baseIssue.assigneeType").isNull();
             }
         }
         return conditionAssignee;
