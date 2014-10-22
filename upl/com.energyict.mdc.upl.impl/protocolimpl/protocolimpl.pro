@@ -342,7 +342,9 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice
 
--keepnames class com.energyict.protocolimpl.dlms.idis.IDIS
+-keepnames class com.energyict.protocolimpl.dlms.idis.IDIS {
+    public *;   # For usage in protocolimpl-v2
+}
 
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDISMBus
 
