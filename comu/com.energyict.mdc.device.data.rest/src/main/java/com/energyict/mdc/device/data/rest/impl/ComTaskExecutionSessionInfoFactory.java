@@ -36,6 +36,7 @@ public class ComTaskExecutionSessionInfoFactory {
         ComTaskExecution comTaskExecution = comTaskExecutionSession.getComTaskExecution();
         info.comTasks = comTaskExecution.getComTasks().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).map(IdWithNameInfo::new).collect(toList());
         info.name = String.join(" + ", info.comTasks.stream().map(i -> i.name).collect(toList()));
+        info.id = comTaskExecutionSession.getId();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
         info.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());

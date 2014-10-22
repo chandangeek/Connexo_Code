@@ -78,6 +78,8 @@ public enum MessageSeeds implements MessageSeed {
     INBOUND(89, ConnectionType.Direction.INBOUND.name(), "Inbound"),
     OUTBOUND(90, ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
     NO_SUCH_COM_TASK(91, "NoSucComTaskOnDevice", "No such communication task exists for device ''{0}''"),
+    COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(92, "NoEnablementForDevice", "Communication task ''{0}'' is not enabled for device ''{1}''"),
+    NO_SUCH_COM_TASK_EXEC_SESSION(93, "NoSuchComTaskExecSession", "The communication task logging could not be found"),
     ;
 
     private final int number;

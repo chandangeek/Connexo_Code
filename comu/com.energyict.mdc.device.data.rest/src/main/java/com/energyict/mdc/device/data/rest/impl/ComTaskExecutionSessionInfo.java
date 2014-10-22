@@ -16,6 +16,7 @@ import java.util.List;
  * @since 2014-10-17 (16:34)
  */
 class ComTaskExecutionSessionInfo {
+    public long id;
     public String name;
     public List<IdWithNameInfo> comTasks;
     public IdWithNameInfo device;

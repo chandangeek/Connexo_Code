@@ -61,6 +61,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         assertThat(jsonModel.<String>get("$.device")).isEqualTo("AX1");
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.comTaskExecutionSessions")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].id")).isEqualTo(222);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].name")).isEqualTo("Read all + Basic check + Set clock");
         assertThat(jsonModel.<List>get("$.comTaskExecutionSessions[0].comTasks")).hasSize(2);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comTasks[0].name")).isEqualTo("Read all + Basic check");
@@ -113,6 +114,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getComSession()).thenReturn(comSession);
         when(comTaskExecutionSession.getDevice()).thenReturn(device);
+        when(comTaskExecutionSession.getId()).thenReturn(222L);
         ScheduledComTaskExecution comTaskExecution = mock(ScheduledComTaskExecution.class);
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("15 minutes"), new TimeDuration("10 seconds")));

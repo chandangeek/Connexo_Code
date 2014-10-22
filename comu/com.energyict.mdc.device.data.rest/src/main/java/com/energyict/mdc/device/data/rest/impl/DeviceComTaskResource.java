@@ -9,15 +9,18 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.LogLevelAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -35,6 +38,9 @@ import javax.ws.rs.core.Response;
 import static java.util.stream.Collectors.toList;
 
 public class DeviceComTaskResource {
+
+    private static final String LOG_LEVELS_FILTER_PROPERTY = "logLevels";
+
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final DeviceComTaskInfoFactory deviceComTaskInfoFactory;
@@ -42,9 +48,11 @@ public class DeviceComTaskResource {
     private final CommunicationTaskService communicationTaskService;
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionFactory;
     private final ComSessionInfoFactory comSessionInfoFactory;
+    private final JournalEntryInfoFactory journalEntryInfoFactory;
+
 
     @Inject
-    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory, TaskService taskService, CommunicationTaskService communicationTaskService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionFactory, ComSessionInfoFactory comSessionInfoFactory) {
+    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory, TaskService taskService, CommunicationTaskService communicationTaskService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionFactory, ComSessionInfoFactory comSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceComTaskInfoFactory = deviceComTaskInfoFactory;
@@ -52,6 +60,7 @@ public class DeviceComTaskResource {
         this.communicationTaskService = communicationTaskService;
         this.comTaskExecutionSessionFactory = comTaskExecutionSessionFactory;
         this.comSessionInfoFactory = comSessionInfoFactory;
+        this.journalEntryInfoFactory = journalEntryInfoFactory;
     }
 
     @GET
@@ -169,18 +178,47 @@ public class DeviceComTaskResource {
         if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
-        Optional<ComTaskExecution> comTaskExecutionOptional = getComTaskExecutionForDeviceAndComTask(comTaskId, device);
+        ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
         List<ComTaskExecutionSessionInfo> infos = new ArrayList<>();
-        if (comTaskExecutionOptional.isPresent()) {
-            List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findByComTaskExecution(comTaskExecutionOptional.get()).find();
-            for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
-                ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionFactory.from(comTaskExecutionSession);
-                comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession());
-                infos.add(comTaskExecutionSessionInfo);
-            }
+        List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findByComTaskExecution(comTaskExecution).find();
+        for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
+            ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionFactory.from(comTaskExecutionSession);
+            comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession());
+            infos.add(comTaskExecutionSessionInfo);
         }
         return PagedInfoList.asJson("comTaskExecutionSessions", infos, queryParameters);
 
+    }
+
+    @GET
+    @Path("{comTaskId}/comtaskexecutionsessions/{sessionId}/journals")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PagedInfoList getComTaskExecutionSessionJournals(@PathParam("mRID") String mrid,
+                                                     @PathParam("comTaskId") long comTaskId,
+                                                     @PathParam("sessionId") long sessionId,
+                                                     @BeanParam JsonQueryFilter jsonQueryFilter,
+                                                     @BeanParam QueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ComTask comTask = taskService.findComTask(comTaskId);
+        if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
+        }
+        ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
+        ComTaskExecutionSession comTaskExecutionSession = findComTaskExecutionSessionOrThrowException(sessionId, comTaskExecution);
+        EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
+        if (jsonQueryFilter.getProperty(LOG_LEVELS_FILTER_PROPERTY) != null) {
+            jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter()).stream().forEach(logLevels::add);
+        } else {
+            logLevels=EnumSet.allOf(ComServer.LogLevel.class);
+        }
+        List<JournalEntryInfo> infos = comTaskExecutionSession.findComTaskExecutionJournalEntries(logLevels).from(queryParameters).stream().map(journalEntryInfoFactory::asInfo).collect(toList());
+
+        return PagedInfoList.asJson("comTaskExecutionSessions", infos, queryParameters);
+
+    }
+
+    private ComTaskExecutionSession findComTaskExecutionSessionOrThrowException(long sessionId, ComTaskExecution comTaskExecution) {
+        return communicationTaskService.findByComTaskExecution(comTaskExecution).stream().filter(c->c.getId()==sessionId).findAny().orElseThrow(()->exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK_EXEC_SESSION));
     }
 
 
@@ -229,12 +267,12 @@ public class DeviceComTaskResource {
                    .collect(toList());
     }
 
-    private Optional<ComTaskExecution> getComTaskExecutionForDeviceAndComTask(Long comTaskId, Device device) {
+    private ComTaskExecution getComTaskExecutionForDeviceAndComTaskOrThrowException(Long comTaskId, Device device) {
         return device.getComTaskExecutions().stream()
                     .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
                             .mapToLong(ComTask::getId)
                             .anyMatch(comTaskId::equals))
-                   .findFirst();
+                   .findFirst().orElseThrow(()->exceptionFactory.newException(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId, device.getmRID()));
     }
 
     private List<ComTaskEnablement> getComTaskEnablementsForDeviceAndComtask(Long comTaskId, Device device){
