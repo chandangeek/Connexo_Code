@@ -55,7 +55,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
         context = getTransactionService().getContext();
         meter.save();
 
-        clock = Clock.systemDefaultZone();
+        clock = Clock.systemUTC();
     }
 
     @After
