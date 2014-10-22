@@ -53,6 +53,14 @@ Ext.define('Dsh.controller.history.Workspace', {
                     }
                 }
             }
+        },
+        dashboard: {
+            title: 'Operator dashboard',
+            route: 'dashboard',
+            controller: 'Dsh.controller.OperatorDashboard',
+//            privileges: ['privilege.view.communicationInfrastructure'],
+            action: 'showOverview',
+            filter: 'Dsh.model.OverviewFilter'
         }
     }
 });
