@@ -132,7 +132,11 @@ public final class Interval {
 					Range.greaterThan(Instant.ofEpochMilli(start)) :
 					Range.open(Instant.ofEpochMilli(start), Instant.ofEpochMilli(this.end)));
 	}
-	
+
+    public Range<Instant> toRange(EndpointBehavior endpointBehavior) {
+        return endpointBehavior.toRange(this);
+    }
+
     private boolean contains(long when,EndpointBehavior behavior) {
     	return behavior.contains(this,when);
     }
@@ -357,24 +361,47 @@ public final class Interval {
     		boolean contains(Interval interval , long when) {
     			return when >= interval.start && when < interval.end;
     		}
-    	},
+
+            @Override
+            public Range<Instant> toRange(Interval interval) {
+                return interval.toClosedOpenRange();
+            }
+        },
     	OPEN_CLOSED {
     		boolean contains(Interval interval , long when) {
     			return when > interval.start && when <= interval.end;
     		}
+
+            @Override
+            public Range<Instant> toRange(Interval interval) {
+                return interval.toOpenClosedRange();
+            }
 		},
     	CLOSED_CLOSED {
     		boolean contains(Interval interval , long when) {
     			return when >= interval.start && when <= interval.end;
     		}
+
+
+            @Override
+            public Range<Instant> toRange(Interval interval) {
+                return interval.toClosedRange();
+            }
 		},
     	OPEN_OPEN {
     		boolean contains(Interval interval , long when) {
     			return when > interval.start && when < interval.end;
     		}
+
+            @Override
+            public Range<Instant> toRange(Interval interval) {
+                return interval.toOpenRange();
+            }
 		};
     	
     	abstract boolean contains(Interval interval , long when);
+
+        public abstract Range<Instant> toRange(Interval interval);
     }
  
  }
