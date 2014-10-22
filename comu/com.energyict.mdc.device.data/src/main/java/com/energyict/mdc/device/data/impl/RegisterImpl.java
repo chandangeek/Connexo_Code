@@ -7,11 +7,15 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
+
+import java.time.Instant;
 import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +60,11 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
 
     @Override
     public Optional<R> getReading(Date timestamp) {
-        List<R> atMostOne = this.getReadings(new Interval(timestamp, timestamp));
+        return this.getReading(timestamp.toInstant());
+    }
+
+    private Optional<R> getReading(Instant timestamp) {
+        List<R> atMostOne = this.getReadings(Range.singleton(timestamp));
         if (atMostOne.isEmpty()) {
             return Optional.empty();
         }
@@ -67,6 +75,10 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
 
     @Override
     public List<R> getReadings(Interval interval) {
+        return this.getReadings(interval.toOpenClosedRange());
+    }
+
+    private List<R> getReadings(Range<Instant> interval) {
         List<ReadingRecord> koreReadings = this.device.getReadingsFor(this, interval);
         List<List<ReadingQuality>> readingQualities = this.getReadingQualities(koreReadings);
         return this.toReadings(koreReadings, readingQualities);

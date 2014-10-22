@@ -48,6 +48,18 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Interval;
 import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
 
@@ -58,7 +70,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -770,7 +781,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
         List<OutboundComPortPool> comPortPools = this.deviceDataModelService.engineModelService().findContainingComPortPoolsForComPort((OutboundComPort) comPort);
         if (!comPortPools.isEmpty()) {
-            long nowInSeconds = this.deviceDataModelService.clock().instant().toEpochMilli() / DateTimeConstants.MILLIS_PER_SECOND;
+            long nowInSeconds = this.toSeconds(this.deviceDataModelService.clock().instant());
             DataMapper<ComTaskExecution> mapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
             com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = mapper.builder("cte", "LEADING(cte) USE_NL(ct)");
             sqlBuilder.append(", ");
@@ -806,7 +817,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device) {
         if (comPort.isActive()) {
             InboundComPortPool inboundComPortPool = comPort.getComPortPool();
-            Date now = Date.from(this.deviceDataModelService.clock().instant());
+            Instant now = this.deviceDataModelService.clock().instant();
             Condition condition = where("connectionTask.paused").isEqualTo(false)
                     .and(where("connectionTask.comServer").isNull())
                     .and(where("connectionTask.obsoleteDate").isNull())
@@ -828,7 +839,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds) {
-        Date now = Date.from(this.deviceDataModelService.clock().instant());
+        Instant now = this.deviceDataModelService.clock().instant();
         Condition condition = where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
                 .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)))
                 .and(where("connectionTask.comServer").isNull());
@@ -836,7 +847,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public java.util.Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution) {
+    public Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution) {
         return comTaskExecution.getLastSession();
     }
 

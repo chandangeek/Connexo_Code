@@ -103,7 +103,9 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -1043,12 +1045,12 @@ public class DeviceImpl implements Device {
         return this.meteringService.findAmrSystem(1);
     }
 
-    List<ReadingRecord> getReadingsFor(Register<?> register, Interval interval) {
+    List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                List<? extends BaseReadingRecord> readings = meter.get().getReadings(interval.toOpenClosedRange(), register.getRegisterSpec().getRegisterType().getReadingType());
+                List<? extends BaseReadingRecord> readings = meter.get().getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
                 List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
                 for (BaseReadingRecord reading : readings) {
                     readingRecords.add((ReadingRecord) reading);
@@ -1685,13 +1687,32 @@ public class DeviceImpl implements Device {
     public class ScheduledComTaskExecutionBuilderForDevice
             extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
 
+        private Set<ComTaskExecution> executionsToDelete = new HashSet<>();
+
         private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComSchedule comSchedule) {
             super(comTaskExecutionProvider.get());
+            this.initExecutionsToDelete(device, comSchedule);
             this.getComTaskExecution().initialize(device, comSchedule);
+        }
+
+        private void initExecutionsToDelete(Device device, ComSchedule comSchedule) {
+            for(ComTaskExecution comTaskExecution:device.getComTaskExecutions()){
+                if(!comTaskExecution.usesSharedSchedule()){
+                    for(ComTask comTask : comSchedule.getComTasks()){
+                        if(comTaskExecution.getComTasks().get(0).getId()==comTask.getId()){
+                            this.executionsToDelete.add(comTaskExecution);
+                        }
+                    }
+                }
+            }
+            comSchedule.getComTasks();
         }
 
         @Override
         public ScheduledComTaskExecution add() {
+            for(ComTaskExecution comTaskExecutionToDelete:executionsToDelete){
+                DeviceImpl.this.removeComTaskExecution(comTaskExecutionToDelete);
+            }
             ScheduledComTaskExecution comTaskExecution = super.add();
             DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
