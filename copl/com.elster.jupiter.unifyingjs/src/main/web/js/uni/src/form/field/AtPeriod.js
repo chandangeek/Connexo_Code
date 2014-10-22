@@ -89,7 +89,7 @@ Ext.define('Uni.form.field.AtPeriod', {
 
         return {
             hour: hourValue,
-            minuter: minuteValue
+            minute: minuteValue
         };
     }
 });
