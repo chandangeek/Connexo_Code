@@ -35,4 +35,5 @@ public class ConnectionResolvedEvent extends ConnectionEvent {
     public void apply(Issue issue) {
         // do nothing, this event shouldn't produce any issues
     }
+
 }

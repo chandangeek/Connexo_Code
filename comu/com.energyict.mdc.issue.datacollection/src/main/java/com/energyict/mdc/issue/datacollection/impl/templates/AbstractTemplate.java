@@ -7,9 +7,9 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.google.common.base.Optional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractTemplate implements CreationRuleTemplate {
     private final Map<String, ParameterDefinition> parameterDefinitions;
@@ -62,20 +62,20 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
             ParameterDefinition definition = parameterDefinitionsCopy.remove(parameter.getKey());
             errors.addAll(definition.validate(parameter.getValue(), ParameterDefinitionContext.RULE));
         }
-        for (ParameterDefinition definition : parameterDefinitionsCopy.values()) {
-            if (!definition.getConstraint().isOptional()) {
-                errors.add(new ParameterViolation(ParameterDefinitionContext.RULE.wrapKey(definition.getKey()), MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), IssueDataCollectionService.COMPONENT_NAME));
-            }
-        }
+        errors.addAll(parameterDefinitionsCopy.values().stream()
+                .filter(definition -> !definition.getConstraint().isOptional())
+                .map(definition -> new ParameterViolation(ParameterDefinitionContext.RULE.wrapKey(definition.getKey()), MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), IssueDataCollectionService.COMPONENT_NAME))
+                .collect(Collectors.toList()));
         return errors;
     }
 
     @Override
     public Optional<? extends Issue> resolveIssue(CreationRule rule, IssueEvent event) {
-        return Optional.absent();
+        return Optional.empty();
     }
 
     protected Map<String, ParameterDefinition> getParameterDefinitionsForValidation() {
         return new HashMap<>(parameterDefinitions);
     }
+
 }

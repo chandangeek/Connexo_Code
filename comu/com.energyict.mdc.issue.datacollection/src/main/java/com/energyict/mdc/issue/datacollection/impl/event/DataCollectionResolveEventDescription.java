@@ -8,16 +8,20 @@ import com.energyict.mdc.issue.datacollection.event.UnknownDeviceResolvedEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import org.osgi.service.event.EventConstants;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.elster.jupiter.util.Checks.is;
 
 public enum DataCollectionResolveEventDescription implements EventDescription {
     CONNECTION_LOST_AUTO_RESOLVE(
             "com/energyict/mdc/connectiontask/COMPLETION",
-            ConnectionResolvedEvent.class){
-        public boolean validateEvent(Map<?, ?> map){
-            if (super.validateEvent(map)){
+            ConnectionResolvedEvent.class) {
+        public boolean validateEvent(Map<?, ?> map) {
+            if (super.validateEvent(map)) {
                 return isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS)
                         && !isEmptyString(map, ModuleConstants.CONNECTION_TASK_ID);
             }
@@ -27,9 +31,9 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
 
     DEVICE_COMMUNICATION_FAILURE_AUTO_RESOLVE(
             "com/energyict/mdc/connectiontask/COMPLETION",
-            DeviceCommunicationFailureResolvedEvent.class){
-        public boolean validateEvent(Map<?, ?> map){
-            if (super.validateEvent(map)){
+            DeviceCommunicationFailureResolvedEvent.class) {
+        public boolean validateEvent(Map<?, ?> map) {
+            if (super.validateEvent(map)) {
                 return !isEmptyString(map, ModuleConstants.SUCCESS_TASK_IDS);
             }
             return false;
@@ -63,18 +67,18 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
     }
 
     @Override
-    public Class<? extends DataCollectionEvent> getEventClass(){
+    public Class<? extends DataCollectionEvent> getEventClass() {
         return this.eventClass;
     }
 
     @Override
-    public boolean validateEvent(Map<?, ?> map){
+    public boolean validateEvent(Map<?, ?> map) {
         String topic = String.class.cast(map.get(EventConstants.EVENT_TOPIC));
         return this.topic.equalsIgnoreCase(topic);
     }
 
     @Override
-    public List<Map<?, ?>> splitEvents(Map<?, ?> map){
+    public List<Map<?, ?>> splitEvents(Map<?, ?> map) {
         return Collections.singletonList(map);
     }
 

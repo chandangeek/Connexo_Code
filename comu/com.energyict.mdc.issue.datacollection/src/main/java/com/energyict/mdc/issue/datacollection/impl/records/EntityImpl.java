@@ -2,15 +2,16 @@ package com.energyict.mdc.issue.datacollection.impl.records;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.UtcInstant;
+
+import java.time.Instant;
 
 public abstract class EntityImpl {
     private long id;
 
     // Audit fields
     private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
+    private Instant createTime;
+    private Instant modTime;
     private String userName;
 
     private DataModel dataModel;
@@ -39,19 +40,19 @@ public abstract class EntityImpl {
         this.version = version;
     }
 
-    public UtcInstant getCreateTime() {
+    public Instant getCreateTime() {
         return createTime;
     }
 
-    void setCreateTime(UtcInstant createTime) {
+    void setCreateTime(Instant createTime) {
         this.createTime = createTime;
     }
 
-    public UtcInstant getModTime() {
+    public Instant getModTime() {
         return modTime;
     }
 
-    void setModTime(UtcInstant modTime) {
+    void setModTime(Instant modTime) {
         this.modTime = modTime;
     }
 

@@ -2,23 +2,30 @@ package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-import com.energyict.mdc.issue.datacollection.event.*;
+import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
+import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
+import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
+import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
+import com.energyict.mdc.issue.datacollection.event.UnknownDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.osgi.service.event.EventConstants;
-
-import java.util.*;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public enum DataCollectionEventDescription implements EventDescription{
+public enum DataCollectionEventDescription implements EventDescription {
     CONNECTION_LOST(
             "com/energyict/mdc/connectiontask/COMPLETION",
             CommunicationErrorType.CONNECTION_FAILURE,
             ConnectionLostEvent.class,
-            MessageSeeds.EVENT_TITLE_CONNECTION_LOST){
-        public boolean validateEvent(Map<?, ?> map){
-            if (super.validateEvent(map)){
+            MessageSeeds.EVENT_TITLE_CONNECTION_LOST) {
+        public boolean validateEvent(Map<?, ?> map) {
+            if (super.validateEvent(map)) {
                 return !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
             }
             return false;
@@ -29,9 +36,9 @@ public enum DataCollectionEventDescription implements EventDescription{
             "com/energyict/mdc/connectiontask/COMPLETION",
             CommunicationErrorType.COMMUNICATION_FAILURE,
             DeviceCommunicationFailureEvent.class,
-            MessageSeeds.EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE){
-        public boolean validateEvent(Map<?, ?> map){
-            if (super.validateEvent(map)){
+            MessageSeeds.EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE) {
+        public boolean validateEvent(Map<?, ?> map) {
+            if (super.validateEvent(map)) {
                 return !isEmptyString(map, ModuleConstants.FAILED_TASK_IDS);
             }
             return false;
@@ -53,7 +60,7 @@ public enum DataCollectionEventDescription implements EventDescription{
             "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE",
             null,
             UnknownDeviceEvent.class,
-            MessageSeeds.EVENT_TITLE_UNKNOWN_INBOUND_DEVICE){
+            MessageSeeds.EVENT_TITLE_UNKNOWN_INBOUND_DEVICE) {
     },
 
     UNKNOWN_OUTBOUND_DEVICE(
@@ -83,18 +90,18 @@ public enum DataCollectionEventDescription implements EventDescription{
     }
 
     @Override
-    public Class<? extends DataCollectionEvent> getEventClass(){
+    public Class<? extends DataCollectionEvent> getEventClass() {
         return this.eventClass;
     }
 
     @Override
-    public boolean validateEvent(Map<?, ?> map){
+    public boolean validateEvent(Map<?, ?> map) {
         String topic = String.class.cast(map.get(EventConstants.EVENT_TOPIC));
         return this.topic.equalsIgnoreCase(topic);
     }
 
     @Override
-    public List<Map<?, ?>> splitEvents(Map<?, ?> map){
+    public List<Map<?, ?>> splitEvents(Map<?, ?> map) {
         return Collections.singletonList(map);
     }
 

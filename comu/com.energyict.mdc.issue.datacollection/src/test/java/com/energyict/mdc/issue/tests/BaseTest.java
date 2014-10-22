@@ -111,7 +111,7 @@ public abstract class BaseTest {
     }
 
     @BeforeClass
-    public static void setEnvironment(){
+    public static void setEnvironment() {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -163,53 +163,66 @@ public abstract class BaseTest {
     }
 
     @AfterClass
-    public static void deactivateEnvironment(){
+    public static void deactivateEnvironment() {
         inMemoryBootstrapModule.deactivate();
     }
 
     protected TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-    protected TransactionContext getContext(){
+
+    protected TransactionContext getContext() {
         return getTransactionService().getContext();
     }
 
     protected IssueService getIssueService() {
         return injector.getInstance(IssueService.class);
     }
-    protected IssueMappingService getIssueMappingService(){
+
+    protected IssueMappingService getIssueMappingService() {
         return injector.getInstance(IssueMappingService.class);
     }
-    protected IssueCreationService getIssueCreationService(){
+
+    protected IssueCreationService getIssueCreationService() {
         return injector.getInstance(IssueCreationService.class);
     }
-    protected IssueActionService getIssueActionService(){
+
+    protected IssueActionService getIssueActionService() {
         return injector.getInstance(IssueActionService.class);
     }
+
     protected JsonService getJsonService() {
         return injector.getInstance(JsonService.class);
     }
+
     protected MeteringService getMeteringService() {
         return injector.getInstance(MeteringService.class);
     }
-    protected DeviceService getDeviceService(){
+
+    protected DeviceService getDeviceService() {
         return injector.getInstance(DeviceService.class);
     }
-    protected CommunicationTaskService getCommunicationTaskService(){
+
+    protected CommunicationTaskService getCommunicationTaskService() {
         return injector.getInstance(CommunicationTaskService.class);
     }
-    protected ConnectionTaskService getConnectionTaskService(){
+
+    protected ConnectionTaskService getConnectionTaskService() {
         return injector.getInstance(ConnectionTaskService.class);
     }
-    protected OrmService getOrmService(){
+
+    protected OrmService getOrmService() {
         return injector.getInstance(OrmService.class);
     }
-    protected Thesaurus getThesaurus(){
+
+    protected Thesaurus getThesaurus() {
         return injector.getInstance(Thesaurus.class);
     }
-    protected IssueDataCollectionService getIssueDataCollectionService(){
+
+    protected IssueDataCollectionService getIssueDataCollectionService() {
         return injector.getInstance(IssueDataCollectionService.class);
     }
+
     protected Injector getInjector() {
         return injector;
     }
@@ -230,7 +243,7 @@ public abstract class BaseTest {
         rule.setName("Simple Rule");
         rule.setComment("Comment for rule");
         rule.setContent("Empty content");
-        rule.setReason(getIssueService().findReason(reasonKey).orNull());
+        rule.setReason(getIssueService().findReason(reasonKey).orElse(null));
         rule.setDueInValue(15L);
         rule.setDueInType(DueInType.DAY);
         rule.setTemplateUuid("Parent template uuid");
@@ -248,12 +261,12 @@ public abstract class BaseTest {
 
     protected class MockIssueCreationService extends IssueCreationServiceImpl {
         @Override
-        public void dispatchCreationEvent(List<IssueEvent> events){
+        public void dispatchCreationEvent(List<IssueEvent> events) {
             throw new DispatchCreationEventException("processed!");
         }
     }
 
-    protected static class DispatchCreationEventException extends RuntimeException{
+    protected static class DispatchCreationEventException extends RuntimeException {
         public DispatchCreationEventException(String message) {
             super(message);
         }

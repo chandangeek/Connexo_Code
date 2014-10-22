@@ -8,16 +8,19 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.issue.datacollection.impl.TrendPeriodUnit;
-import com.google.common.base.Optional;
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Date;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MeterReadingEvent implements IssueEvent {
@@ -26,13 +29,15 @@ public class MeterReadingEvent implements IssueEvent {
     private final Meter meter;
     private final ReadingType readingType;
     private final IssueService issueService;
+    private final Clock clock;
     private IssueStatus status;
 
-    public MeterReadingEvent(Meter meter, ReadingType readingType, IssueStatus status, IssueService issueService) {
+    public MeterReadingEvent(Meter meter, ReadingType readingType, IssueStatus status, IssueService issueService, Clock clock) {
         this.meter = meter;
         this.readingType = readingType;
         this.issueService = issueService;
         this.status = status;
+        this.clock = clock;
     }
 
     @Override
@@ -52,14 +57,12 @@ public class MeterReadingEvent implements IssueEvent {
 
     @Override
     public Optional<? extends Issue> findExistingIssue() {
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
     public void apply(Issue issue) {
-
     }
-
 
     public ReadingType getReadingType() {
         return readingType;
@@ -72,11 +75,15 @@ public class MeterReadingEvent implements IssueEvent {
             return 0d;
         }
         long trendPeriodInMillis = unit.getTrendPeriodInMillis(trendPeriod);
-        List<? extends BaseReadingRecord> readings = meter.getReadings(
-                new Interval(new Date(unit.getStartMillisForTrendPeriod(trendPeriod)), new Date()), readingType);
+        List<? extends BaseReadingRecord> readings =
+                meter.getReadings(
+                        Range.range(
+                                Instant.ofEpochMilli(unit.getStartMillisForTrendPeriod(trendPeriod)), BoundType.CLOSED,
+                                this.clock.instant(), BoundType.CLOSED),
+                        readingType);
         if (!isValidReadings(readings, trendPeriodInMillis)) {
             //Nothing to do because at least two measurement points needed
-            LOG.info("Device '" + getKoreDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
+            LOG.log(Level.INFO, () -> "Device '" + getKoreDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
             return 0d;
         }
 
@@ -88,17 +95,17 @@ public class MeterReadingEvent implements IssueEvent {
         StringBuilder sb = new StringBuilder();
         for (BaseReadingRecord reading : readings) {
             s0d++;
-            BigDecimal time = new BigDecimal(reading.getTimeStamp().getTime()).divide(new BigDecimal(DateTimeConstants.MILLIS_PER_HOUR), 10, RoundingMode.HALF_UP);
+            BigDecimal time = new BigDecimal(reading.getTimeStamp().toEpochMilli()).divide(new BigDecimal(DateTimeConstants.MILLIS_PER_HOUR), 10, RoundingMode.HALF_UP);
             sb.append("\n\treading with time = ").append(time.doubleValue()).append(" and value = ").append(reading.getValue());
             s1 = s1.add(time);
             s2 = s2.add(time.multiply(time));
             t0 = t0.add(reading.getValue());
             t1 = t1.add(time.multiply(reading.getValue()));
         }
-        LOG.info("Processed readings:" + sb.toString());
+        LOG.log(Level.INFO, () -> "Processed readings:" + sb.toString());
         BigDecimal s0 = new BigDecimal(s0d);
         double result = Math.abs(s0.multiply(t1).subtract(s1.multiply(t0)).divide(s0.multiply(s2).subtract(s1.multiply(s1)), RoundingMode.HALF_UP).doubleValue());
-        LOG.info("Slope for device '" + getKoreDevice().getMRID() + "' with " + readings.size() + " readings is: " + result);
+        LOG.log(Level.INFO, () -> "Slope for device '" + getKoreDevice().getMRID() + "' with " + readings.size() + " readings is: " + result);
         return result;
     }
 
@@ -113,9 +120,10 @@ public class MeterReadingEvent implements IssueEvent {
             }
             long readingInterval = ((long) readingType.getMeasuringPeriod().getMinutes()) * DateTimeConstants.MILLIS_PER_MINUTE;
             long expectedReadingsCount = (trendPeriodInMillis / readingInterval) / 4; // At least quarter of all expected readings
-            LOG.info("Expected readings count: " + expectedReadingsCount);
+            LOG.log(Level.INFO, () -> "Expected readings count: " + expectedReadingsCount);
             return readings.size() >= 2 && readings.size() >= expectedReadingsCount;
         }
         return false;
     }
+
 }

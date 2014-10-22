@@ -1,7 +1,13 @@
 package com.energyict.mdc.issue.datacollection.impl.records;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
@@ -9,16 +15,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -49,7 +55,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     public HistoricalIssueDataCollection close(IssueStatus status) {
         this.delete(); // Remove reference to the baseIssue
         Issue issue = getBaseIssue();
-        if (issue instanceof OpenIssue){ // i.e. it is open issue
+        if (issue instanceof OpenIssue) { // i.e. it is open issue
             setIssue(((OpenIssue) issue).close(status));
         } else {
             throw new IllegalStateException("You are trying to close issue which was already closed");
@@ -60,7 +66,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
         return history;
     }
 
-    public void init(Issue baseIssue){
+    public void init(Issue baseIssue) {
         setIssue(baseIssue);
     }
 
@@ -95,7 +101,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     }
 
     @Override
-    public UtcInstant getDueDate() {
+    public Instant getDueDate() {
         return getBaseIssue().getDueDate();
     }
 
@@ -125,7 +131,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     }
 
     @Override
-    public void setDueDate(UtcInstant dueDate) {
+    public void setDueDate(Instant dueDate) {
         getBaseIssue().setDueDate(dueDate);
     }
 
@@ -181,9 +187,9 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
 
     @Override
     public String getDeviceSerialNumber() {
-        if (!is(deviceSerialNumber).emptyOrOnlyWhiteSpace()){
+        if (!is(deviceSerialNumber).emptyOrOnlyWhiteSpace()) {
             return deviceSerialNumber;
-        } else if (getBaseIssue() != null && getBaseIssue().getDevice() != null){
+        } else if (getBaseIssue() != null && getBaseIssue().getDevice() != null) {
             return getBaseIssue().getDevice().getSerialNumber();
         }
         return "";
@@ -203,7 +209,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
         super.save();
     }
 
-    IssueDataCollectionImpl copy(IssueDataCollectionImpl source){
+    IssueDataCollectionImpl copy(IssueDataCollectionImpl source) {
         if (source != null) {
             this.setId(source.getId());
             setIssue(source.baseIssue.orNull());

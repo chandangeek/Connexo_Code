@@ -11,14 +11,23 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.issue.datacollection.event.*;
+import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
+import com.energyict.mdc.issue.datacollection.event.ConnectionResolvedEvent;
+import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
+import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
+import com.energyict.mdc.issue.datacollection.event.UnknownDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -45,7 +54,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testUnmappedEvent(){
+    public void testUnmappedEvent() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/unknown/EVENT");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
@@ -60,7 +69,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testEventMappingConnectionLost(){
+    public void testEventMappingConnectionLost() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1");
@@ -73,7 +82,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testEventSplittingConnectionLost(){
+    public void testEventSplittingConnectionLost() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1, 10, 47");
@@ -86,7 +95,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testEventMappingDeviceCommunicationFailed(){
+    public void testEventMappingDeviceCommunicationFailed() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1");
@@ -99,7 +108,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testEventSplittingDeviceCommunicationFailed(){
+    public void testEventSplittingDeviceCommunicationFailed() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1, 17, 56, 57");
@@ -112,7 +121,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testEventSplittingSeveralEvents(){
+    public void testEventSplittingSeveralEvents() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "2,41,");
@@ -126,7 +135,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testEventMappingUnableToConnect(){
+    public void testEventMappingUnableToConnect() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/FAILURE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
@@ -137,7 +146,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testEventMappingUnknownInboundDevice(){
+    public void testEventMappingUnknownInboundDevice() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
@@ -148,7 +157,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testEventMappingUnknownOutboundDevice(){
+    public void testEventMappingUnknownOutboundDevice() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
@@ -189,16 +198,17 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         private List<Class<? extends IssueEvent>> expectedClasses;
         private int size = 0;
 
-        public CheckEventTypeServiceMock(Class<? extends IssueEvent>... expectedClasses){
+        public CheckEventTypeServiceMock(Class<? extends IssueEvent>... expectedClasses) {
             this.expectedClasses = new ArrayList<>(Arrays.asList(expectedClasses));
         }
 
         @Override
-        public void dispatchCreationEvent(List<IssueEvent> events){
+        public void dispatchCreationEvent(List<IssueEvent> events) {
             for (IssueEvent event : events) {
-                if (!expectedClasses.contains(event.getClass())){
+                if (!expectedClasses.contains(event.getClass())) {
                     size++;
-                };
+                }
+                ;
             }
         }
 
@@ -211,7 +221,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         private int counter = 0;
 
         @Override
-        public void dispatchCreationEvent(List<IssueEvent> events){
+        public void dispatchCreationEvent(List<IssueEvent> events) {
             counter = events.size();
         }
 

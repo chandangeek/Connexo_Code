@@ -12,8 +12,9 @@ import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
-import com.google.common.base.Optional;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,7 +22,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
 
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "baseIssue", strict = true)
-    public void testIDCCreationWithoutBaseIssue(){
+    public void testIDCCreationWithoutBaseIssue() {
         try (TransactionContext context = getContext()) {
             OpenIssueDataCollectionImpl dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             dcIssue.init(null);
@@ -30,7 +31,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
     }
 
     @Test
-    public void testIDCSuccessfullCreation(){
+    public void testIDCSuccessfullCreation() {
         try (TransactionContext context = getContext()) {
             CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
             Issue baseIssue = getBaseIssue(rule);
@@ -41,7 +42,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
     }
 
     @Test
-    public void testIDCCloseOperation(){
+    public void testIDCCloseOperation() {
         OpenIssueDataCollectionImpl dcIssue = null;
         try (TransactionContext context = getContext()) {
             CreationRule rule = getCreationRule(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
@@ -56,8 +57,8 @@ public class IssueDataCollectionImplTest extends BaseTest {
             HistoricalIssueDataCollection closed = dcIssue.close(getIssueService().findStatus(IssueStatus.RESOLVED).get());
             assertThat(closed.getId()).isEqualTo(dcIssue.getId());
             assertThat(closed.getDeviceSerialNumber()).isEqualTo(dcIssue.getDeviceSerialNumber());
-            assertThat(closed.getCommunicationTask().orNull()).isEqualTo(dcIssue.getCommunicationTask().orNull());
-            assertThat(closed.getConnectionTask().orNull()).isEqualTo(dcIssue.getConnectionTask().orNull());
+            assertThat(closed.getCommunicationTask().orElse(null)).isEqualTo(dcIssue.getCommunicationTask().orElse(null));
+            assertThat(closed.getConnectionTask().orElse(null)).isEqualTo(dcIssue.getConnectionTask().orElse(null));
             assertThat(closed.getReason().getKey()).isEqualTo(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
 
             Optional<OpenIssueDataCollection> openIssueRef = getIssueDataCollectionService().findOpenIssue(dcIssue.getId());

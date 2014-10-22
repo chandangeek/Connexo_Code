@@ -12,13 +12,13 @@ import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.AutoResolutionParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
-import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate",
            property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID},
@@ -99,7 +99,7 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
 
     @Override
     public Optional<? extends Issue> createIssue(Issue baseIssue, IssueEvent event) {
-        if(!event.findExistingIssue().isPresent()){
+        if (!event.findExistingIssue().isPresent()) {
             OpenIssueDataCollection issue = issueDataCollectionService.createIssue(baseIssue);
             event.apply(issue);
             issue.save();
@@ -111,7 +111,7 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
                 dcIssue.save();
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
