@@ -64,6 +64,7 @@ public class RelativeDateTest {
         ZonedDateTime res = ZonedDateTime.ofInstant(instant, referenceTime.getZone());
         operations = new ArrayList<>();
         operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 5));
+        operations.add(RelativeField.DAY.equalTo(res.getDayOfMonth()));
         relativeDate = new RelativeDate(operations);
         date = relativeDate.getRelativeDate(referenceTime);
         assertThat(date).isEqualTo(referenceTime.minusMonths(5).withDayOfMonth(res.getDayOfMonth()));
