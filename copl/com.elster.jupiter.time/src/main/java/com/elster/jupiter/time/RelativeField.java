@@ -2,46 +2,33 @@ package com.elster.jupiter.time;
 
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 /**
  * Created by borunova on 01.10.2014.
  */
 public enum RelativeField {
-    YEAR(1, ChronoField.YEAR),                      // Used to add or subtract years
-    MONTH(2, ChronoUnit.MONTHS),                    // Used to add or subtract months
-    WEEK(3, ChronoUnit.WEEKS),                      // Used to add or subtract weeks
-    DAY(4, ChronoUnit.DAYS),                        // Used to add or subtract days
-    HOUR(5, ChronoUnit.HOURS),                      // Used to add or subtract hours
-    MINUTES(6, ChronoUnit.MINUTES),                 // Used to add or subtract minutes
-    START_NOW(7),                                   // Marker field, indicates that date should be calculated when invoked
-    DAY_IN_WEEK(8, ChronoField.DAY_OF_WEEK),        // Used to set fixed day of week
-    DAY_IN_MONTH(9, ChronoField.DAY_OF_MONTH),      // Used to set fixed day of month
-    MONTH_IN_YEAR(10, ChronoField.MONTH_OF_YEAR),   // Used to set fixed month of year
-    HOUR_OF_DAY(11, ChronoField.HOUR_OF_AMPM),       // Used to set fixed hour of day
-    MINUTES_OF_HOUR(12, ChronoField.MINUTE_OF_HOUR),// Used to set fixed minute of hour
-    //STRING_DAY_OF_WEEK(13, ChronoField.DAY_OF_WEEK),// Indicates that day of week should be represented as sting
-    CURRENT_DAY_OF_MONTH(14),                       // Indicates that day of month should be calculated when invoked
-    AMPM_OF_DAY(15, ChronoField.AMPM_OF_DAY);
+    YEAR(1, ChronoUnit.YEARS, ChronoField.YEAR),
+    MONTH(2, ChronoUnit.MONTHS, ChronoField.MONTH_OF_YEAR),
+    WEEK(3, ChronoUnit.WEEKS),
+    DAY(4, ChronoUnit.DAYS, ChronoField.DAY_OF_MONTH),
+    HOUR(5, ChronoUnit.HOURS, ChronoField.HOUR_OF_DAY),
+    MINUTES(6, ChronoUnit.MINUTES, ChronoField.MINUTE_OF_HOUR),
+    SECONDS(7, ChronoUnit.SECONDS, ChronoField.SECOND_OF_MINUTE),
+    MILLIS(8, ChronoUnit.MILLIS, ChronoField.MILLI_OF_SECOND),
+    DAY_OF_WEEK(9, ChronoUnit.DAYS, ChronoField.DAY_OF_WEEK);
 
-
-    private ChronoUnit chronoUnit;
-    private ChronoField chronoField;
     int id;
-    private static Map<Integer, RelativeField> ID_MAP = new HashMap<Integer, RelativeField>();
-
-    private RelativeField(int id) {
-        this.id = id;
-    }
+    private final ChronoUnit chronoUnit;
+    private final ChronoField chronoField;
 
     private RelativeField(int id, ChronoUnit chronoUnit) {
-        this(id);
-        this.chronoUnit = chronoUnit;
+        this(id, chronoUnit, null);
     }
 
-    private RelativeField(int id, ChronoField chronoField) {
-        this(id);
+    private RelativeField(int id, ChronoUnit chronoUnit, ChronoField chronoField) {
+        this.id = id;
+        this.chronoUnit = chronoUnit;
         this.chronoField = chronoField;
     }
 
@@ -70,15 +57,21 @@ public enum RelativeField {
     }
 
     public static RelativeField from(int id) {
-        if(ID_MAP.isEmpty()) {
-            initialiseIdMap();
-        }
-        return ID_MAP.get(id);
+        return Arrays.stream(values())
+                .filter(f -> f.id == id)
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
     }
 
-    private static void initialiseIdMap() {
-        for (RelativeField relativeField : RelativeField.values()) {
-            ID_MAP.put(relativeField.getId(), relativeField);
-        }
+    public RelativeOperation plus(long value) {
+        return new RelativeOperation(this, RelativeOperator.PLUS, value);
+    }
+
+    public RelativeOperation minus(long value) {
+        return new RelativeOperation(this, RelativeOperator.MINUS, value);
+    }
+
+    public RelativeOperation equalTo(long value) {
+        return new RelativeOperation(this, RelativeOperator.EQUAL, value);
     }
 }

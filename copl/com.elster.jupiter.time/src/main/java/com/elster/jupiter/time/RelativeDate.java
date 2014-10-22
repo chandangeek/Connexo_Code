@@ -1,17 +1,22 @@
 package com.elster.jupiter.time;
 
+import com.elster.jupiter.util.UpdatableHolder;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class RelativeDate {
     private static String SEPARATOR = ";";
     private String relativeDate;
-    private List<RelativeOperation> operations = new ArrayList<>();;
+    private List<RelativeOperation> operations = new ArrayList<>();
 
     public RelativeDate() {
         this.relativeDate = "";
-    };
+    }
 
     public RelativeDate(String pattern) {
         relativeDate = pattern;
@@ -31,13 +36,27 @@ public class RelativeDate {
         this.operations = operations;
     }
 
-    public ZonedDateTime getRelativeDate(ZonedDateTime referenceDate) {
-        ZonedDateTime relativeDate = referenceDate;
+    public RelativeDate(RelativeOperation... operations) {
+        this(Arrays.asList(operations));
+    }
 
-        for(RelativeOperation operation : getOperations()) {
-            relativeDate = operation.performOperation(relativeDate);
+    public ZonedDateTime getRelativeDate(ZonedDateTime referenceDate) {
+        UpdatableHolder<ZonedDateTime> result = new UpdatableHolder<>(referenceDate);
+
+        operationsToApply().forEach(op -> result.update(op::performOperation));
+
+        return result.get();
+    }
+
+    private Stream<RelativeOperation> operationsToApply() {
+        boolean autoMillisToZero = getOperations().stream().noneMatch(op -> RelativeField.MILLIS.equals(op.getField()));
+
+        Stream<RelativeOperation> operationStream = getOperations().stream();
+
+        if (autoMillisToZero) {
+            operationStream = Stream.concat(operationStream, Collections.singleton(RelativeField.MILLIS.equalTo(0L)).stream());
         }
-        return relativeDate;
+        return operationStream;
     }
 
     public String getRelativeDate() {

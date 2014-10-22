@@ -8,11 +8,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.*;
+import java.time.DateTimeException;
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UnknownFormatConversionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,15 +32,15 @@ public class RelativeDateTest {
         List<RelativeOperation> operations = new ArrayList<>();
 
         operations.add(new RelativeOperation(RelativeField.WEEK, RelativeOperator.MINUS, 2));
-        operations.add(new RelativeOperation(RelativeField.DAY_IN_WEEK, RelativeOperator.EQUAL, DayOfWeek.MONDAY.getLong(ChronoField.DAY_OF_WEEK)));
+        operations.add(new RelativeOperation(RelativeField.DAY_OF_WEEK, RelativeOperator.EQUAL, DayOfWeek.MONDAY.getLong(ChronoField.DAY_OF_WEEK)));
 
         RelativeDate relativeDate = new RelativeDate(operations);
-        assertThat(relativeDate.getRelativeDate()).isEqualTo("3:-:2;8:=:1;");
+        assertThat(relativeDate.getRelativeDate()).isEqualTo("3:-:2;9:=:1;");
      }
 
     @Test
     public void testDeserialisation() {
-        String pattern = "3:-:2;8:=:1;";
+        String pattern = "3:-:2;9:=:1;";
         RelativeDate relativeDate = new RelativeDate(pattern);
         ZonedDateTime date = relativeDate.getRelativeDate(referenceTime);
         assertThat(date).isEqualTo(referenceTime.minusWeeks(2).minusDays(2));
@@ -48,9 +51,9 @@ public class RelativeDateTest {
         // 3 months ago on 17 day of month 9:05
         List<RelativeOperation> operations = new ArrayList<>();
         operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 3));
-        operations.add(new RelativeOperation(RelativeField.DAY_IN_MONTH, RelativeOperator.EQUAL, 17));
-        operations.add(new RelativeOperation(RelativeField.HOUR_OF_DAY, RelativeOperator.EQUAL, 9));
-        operations.add(new RelativeOperation(RelativeField.MINUTES_OF_HOUR, RelativeOperator.EQUAL, 5));
+        operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, 17));
+        operations.add(new RelativeOperation(RelativeField.HOUR, RelativeOperator.EQUAL, 9));
+        operations.add(new RelativeOperation(RelativeField.MINUTES, RelativeOperator.EQUAL, 5));
         RelativeDate relativeDate = new RelativeDate(operations);
 
         ZonedDateTime date = relativeDate.getRelativeDate(referenceTime);
@@ -61,7 +64,6 @@ public class RelativeDateTest {
         ZonedDateTime res = ZonedDateTime.ofInstant(instant, referenceTime.getZone());
         operations = new ArrayList<>();
         operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 5));
-        operations.add(new RelativeOperation(RelativeField.CURRENT_DAY_OF_MONTH, RelativeOperator.EQUAL, 1));
         relativeDate = new RelativeDate(operations);
         date = relativeDate.getRelativeDate(referenceTime);
         assertThat(date).isEqualTo(referenceTime.minusMonths(5).withDayOfMonth(res.getDayOfMonth()));
@@ -74,7 +76,7 @@ public class RelativeDateTest {
         ZonedDateTime res = ZonedDateTime.ofInstant(instant, referenceTime.getZone());
         List<RelativeOperation> operations = new ArrayList<>();
         operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 11));
-        operations.add(new RelativeOperation(RelativeField.DAY_IN_MONTH, RelativeOperator.EQUAL, 30));
+        operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, 30));
         RelativeDate relativeDate = new RelativeDate(operations);
         ZonedDateTime date = relativeDate.getRelativeDate(referenceTime);
         //assertThat(date).isEqualTo(referenceTime.minusMonths(11).withDayOfMonth(30));
