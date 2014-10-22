@@ -4,8 +4,24 @@ import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptio
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.issue.share.service.*;
+import com.elster.jupiter.issue.share.entity.AssigneeRole;
+import com.elster.jupiter.issue.share.entity.AssigneeTeam;
+import com.elster.jupiter.issue.share.entity.AssignmentRule;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueHelpService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -18,9 +34,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
-import com.google.common.base.Optional;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -39,9 +53,10 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -134,7 +149,7 @@ public class Mocks extends JerseyTest {
         super.configureClient(config);
     }
 
-    protected IssueStatus mockStatus(String key, String name, boolean isFinal){
+    protected IssueStatus mockStatus(String key, String name, boolean isFinal) {
         IssueStatus status = mock(IssueStatus.class);
         when(status.isHistorical()).thenReturn(isFinal);
         when(status.getName()).thenReturn(name);
@@ -142,22 +157,22 @@ public class Mocks extends JerseyTest {
         return status;
     }
 
-    protected IssueStatus getDefaultStatus(){
+    protected IssueStatus getDefaultStatus() {
         return mockStatus("1", "open", false);
     }
 
-    protected IssueType mockIssueType(String uuid, String name){
+    protected IssueType mockIssueType(String uuid, String name) {
         IssueType issueType = mock(IssueType.class);
         when(issueType.getUUID()).thenReturn(uuid);
         when(issueType.getName()).thenReturn(name);
         return issueType;
     }
 
-    protected IssueType getDefaultIssueType(){
+    protected IssueType getDefaultIssueType() {
         return mockIssueType("datacollection", "Data Collection");
     }
 
-    protected IssueReason mockReason(String key, String name, IssueType issueType){
+    protected IssueReason mockReason(String key, String name, IssueType issueType) {
         IssueReason reason = mock(IssueReason.class);
         when(reason.getKey()).thenReturn(key);
         when(reason.getName()).thenReturn(name);
@@ -165,25 +180,24 @@ public class Mocks extends JerseyTest {
         return reason;
     }
 
-    protected IssueReason getDefaultReason(){
+    protected IssueReason getDefaultReason() {
         return mockReason("1", "Reason", getDefaultIssueType());
     }
 
-    protected Meter mockMeter(long id, String mrid){
+    protected Meter mockMeter(long id, String mrid) {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(id);
         when(meter.getMRID()).thenReturn(mrid);
-        Optional<MeterActivation> optionalMA = mock(Optional.class);
-        when(optionalMA.isPresent()).thenReturn(false);
-        when(meter.getCurrentMeterActivation()).thenReturn(optionalMA);
+        Optional<? extends MeterActivation> optionalMA = Optional.empty();
+        doReturn(optionalMA).when(meter.getCurrentMeterActivation());
         return meter;
     }
 
-    protected Meter getDefaultMeter(){
+    protected Meter getDefaultMeter() {
         return mockMeter(1, "0.0.0.0.0.0.0.0");
     }
 
-    protected IssueAssignee mockAssignee(long id, String name, String type){
+    protected IssueAssignee mockAssignee(long id, String name, String type) {
         IssueAssignee assignee = mock(IssueAssignee.class);
         when(assignee.getId()).thenReturn(id);
         when(assignee.getName()).thenReturn(name);
@@ -191,11 +205,11 @@ public class Mocks extends JerseyTest {
         return assignee;
     }
 
-    protected IssueAssignee getDefaultAssignee(){
-        return mockAssignee(1, "Admin",IssueAssignee.Types.USER);
+    protected IssueAssignee getDefaultAssignee() {
+        return mockAssignee(1, "Admin", IssueAssignee.Types.USER);
     }
 
-    protected AssignmentRule mockAssignmentRule(long id, String title, String description, long version, IssueAssignee assignee){
+    protected AssignmentRule mockAssignmentRule(long id, String title, String description, long version, IssueAssignee assignee) {
         AssignmentRule rule = mock(AssignmentRule.class);
         when(rule.getId()).thenReturn(id);
         when(rule.getTitle()).thenReturn(title);
@@ -205,12 +219,12 @@ public class Mocks extends JerseyTest {
         return rule;
     }
 
-    protected AssignmentRule getDefaultAssignmentRule(){
+    protected AssignmentRule getDefaultAssignmentRule() {
         IssueAssignee assignee = getDefaultAssignee();
         return mockAssignmentRule(1, "Assignment Rule", "Description", 1, assignee);
     }
 
-    protected CreationRuleTemplate mockCreationRuleTemplate(String uuid, String name, String description, IssueType issueType, Map<String, ParameterDefinition> parameters){
+    protected CreationRuleTemplate mockCreationRuleTemplate(String uuid, String name, String description, IssueType issueType, Map<String, ParameterDefinition> parameters) {
         CreationRuleTemplate template = mock(CreationRuleTemplate.class);
         when(template.getUUID()).thenReturn(uuid);
         when(template.getName()).thenReturn(name);
@@ -223,7 +237,7 @@ public class Mocks extends JerseyTest {
         return template;
     }
 
-    protected CreationRuleTemplate getDefaultCreationRuleTemplate(){
+    protected CreationRuleTemplate getDefaultCreationRuleTemplate() {
         IssueType issueType = getDefaultIssueType();
         return mockCreationRuleTemplate("0-1-2", "Template 1", "Description", issueType, null);
     }
@@ -251,22 +265,22 @@ public class Mocks extends JerseyTest {
         return user;
     }
 
-    protected User getDefaultUser(){
+    protected User getDefaultUser() {
         return mockUser(1, "Admin");
     }
 
-    protected IssueAction mockIssueAction(String name){
+    protected IssueAction mockIssueAction(String name) {
         IssueAction action = mock(IssueAction.class);
         when(action.getLocalizedName()).thenReturn(name);
         when(action.getParameterDefinitions()).thenReturn(Collections.<String, ParameterDefinition>emptyMap());
         return action;
     }
 
-    protected IssueAction getDefaultIssueAction(){
+    protected IssueAction getDefaultIssueAction() {
         return mockIssueAction("Send To Inspect");
     }
 
-    protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType){
+    protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType) {
         IssueActionType type = mock(IssueActionType.class);
         IssueAction action = mockIssueAction(name);
         when(type.getId()).thenReturn(id);
@@ -275,25 +289,17 @@ public class Mocks extends JerseyTest {
         return type;
     }
 
-    protected IssueActionType getDefaultIssueActionType(){
+    protected IssueActionType getDefaultIssueActionType() {
         IssueType issueType = getDefaultIssueType();
         return mockIssueActionType(1, "send", issueType);
     }
-    
-    protected <T> Optional<T> mockOptional(T type) {
-        Optional<T> optional = mock(Optional.class);
-        when(optional.get()).thenReturn(type);
-        when(optional.isPresent()).thenReturn(true);
-        when(optional.orNull()).thenReturn(type);
-        return optional;
-    }
-    
+
     protected Issue getDefaultIssue() {
         return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultMeter());
     }
-    
-     protected CreationRule mockCreationRule(long id, String name){
-        UtcInstant utcInstant = new UtcInstant(new Date());
+
+    protected CreationRule mockCreationRule(long id, String name) {
+        Instant now = Instant.now();
         IssueReason reason = getDefaultReason();
         CreationRuleTemplate template = getDefaultCreationRuleTemplate();
         CreationRule rule = mock(CreationRule.class);
@@ -306,13 +312,13 @@ public class Mocks extends JerseyTest {
         when(rule.getActions()).thenReturn(Collections.<CreationRuleAction>emptyList());
         when(rule.getParameters()).thenReturn(null);
         when(rule.getTemplate()).thenReturn(template);
-        when(rule.getModTime()).thenReturn(utcInstant);
-        when(rule.getCreateTime()).thenReturn(utcInstant);
+        when(rule.getModTime()).thenReturn(now);
+        when(rule.getCreateTime()).thenReturn(now);
         when(rule.getVersion()).thenReturn(2L);
         return rule;
     }
 
-    protected CreationRule getDefaultCreationRule(){
+    protected CreationRule getDefaultCreationRule() {
         return mockCreationRule(1, "Rule 1");
     }
 
@@ -324,16 +330,16 @@ public class Mocks extends JerseyTest {
         when(issue.getDueDate()).thenReturn(null);
         when(issue.getAssignee()).thenReturn(assingee);
         when(issue.getDevice()).thenReturn(meter);
-        when(issue.getCreateTime()).thenReturn(new UtcInstant(0));
+        when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
         return issue;
     }
-    
+
     protected IssueComment mockComment(long id, String text, User user) {
         IssueComment comment = mock(IssueComment.class);
         when(comment.getId()).thenReturn(id);
         when(comment.getComment()).thenReturn(text);
-        when(comment.getCreateTime()).thenReturn(new UtcInstant(0));
+        when(comment.getCreateTime()).thenReturn(Instant.EPOCH);
         when(comment.getVersion()).thenReturn(1L);
         when(comment.getUser()).thenReturn(user);
         return comment;
