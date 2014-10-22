@@ -8,7 +8,7 @@ import com.elster.jupiter.issue.share.entity.AssigneeRole;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.UserService;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class RoleType extends AssigneeTypeImpl {
     @Override

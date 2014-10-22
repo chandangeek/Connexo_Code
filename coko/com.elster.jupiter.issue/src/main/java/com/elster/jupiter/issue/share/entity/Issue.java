@@ -1,10 +1,11 @@
 package com.elster.jupiter.issue.share.entity;
 
+import java.time.Instant;
+
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public interface Issue extends Entity {
 
@@ -14,14 +15,14 @@ public interface Issue extends Entity {
     IssueAssignee getAssignee();
     EndDevice getDevice();
     Optional<UsagePoint> getUsagePoint();
-    UtcInstant getDueDate();
+    Instant getDueDate();
     boolean isOverdue();
     CreationRule getRule();
 
     void setReason(IssueReason reason);
     void setStatus(IssueStatus status);
     void setDevice(EndDevice device);
-    void setDueDate(UtcInstant dueDate);
+    void setDueDate(Instant dueDate);
     void setOverdue(boolean overdue);
     void setRule(CreationRule rule);
 

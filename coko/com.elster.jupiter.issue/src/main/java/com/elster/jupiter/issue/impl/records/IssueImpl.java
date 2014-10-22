@@ -18,16 +18,17 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import javax.inject.Inject;
+
+import java.time.Instant;
 import java.util.Collections;
 
 import static com.elster.jupiter.util.Checks.is;
 
 public class IssueImpl extends EntityImpl implements Issue {
-    private UtcInstant dueDate;
+    private Instant dueDate;
     private Reference<IssueReason> reason = ValueReference.absent();
     private Reference<IssueStatus> status = ValueReference.absent();
 
@@ -90,12 +91,12 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public UtcInstant getDueDate() {
+    public Instant getDueDate() {
         return dueDate;
     }
 
     @Override
-    public void setDueDate(UtcInstant dueDate) {
+    public void setDueDate(Instant dueDate) {
         this.dueDate = dueDate;
     }
 
@@ -140,7 +141,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     IssueImpl copy(IssueImpl issue) {
         this.setId(issue.getId());
         if (issue.getDueDate() != null) {
-            this.setDueDate(new UtcInstant(issue.getDueDate().getTime()));
+            this.setDueDate(issue.getDueDate());
         }
         this.setReason(issue.getReason());
         this.setStatus(issue.getStatus());
@@ -206,7 +207,7 @@ public class IssueImpl extends EntityImpl implements Issue {
             comment.save();
             return Optional.of(IssueComment.class.cast(comment));
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
@@ -235,11 +236,11 @@ public class IssueImpl extends EntityImpl implements Issue {
         EndDevice endDevice = getDevice();
         if (endDevice != null && Meter.class.isInstance(endDevice)) {
             Meter meter = Meter.class.cast(endDevice);
-            Optional<MeterActivation> meterActivation = meter.getCurrentMeterActivation();
+            Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
             if (meterActivation.isPresent()) {
                 return meterActivation.get().getUsagePoint();
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 }
