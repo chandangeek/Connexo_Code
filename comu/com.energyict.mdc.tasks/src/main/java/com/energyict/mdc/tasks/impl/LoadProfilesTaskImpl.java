@@ -1,6 +1,7 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
@@ -10,6 +11,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.*;
 
@@ -20,7 +22,7 @@ import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.*
  * @since 26/04/12 - 10:26
  */
 @ValidLoadProfileTask
-class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask {
+class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask, PersistenceAware {
 
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags(MASTER_LOAD_PROFILES_FLAG, SLAVE_DEVICES_FLAG, ALL_LOAD_PROFILES_FLAG);
 
@@ -49,9 +51,20 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask 
 
     private List<LoadProfileTypeUsageInProtocolTask> loadProfileTypeUsageInProtocolTasks = new ArrayList<>();
 
+    @Override
+    public void postLoad() {
+        if (this.minClockDiffBeforeBadTime != null && this.minClockDiffBeforeBadTime.getTimeUnitCode() <= 0) {
+            /* The TimeDuration was injected by ORM but then the latter realized to late
+             * that the database values were actually null so it has not injected
+             * a value nor a unit.
+             * Should in fact set minClockDiffBeforeBadTime to null
+             * but will set it to 0 seconds for backwards compatibility reasons. */
+            this.minClockDiffBeforeBadTime = TimeDuration.seconds(0);
+         }
+    }
 
     @Inject
-    public LoadProfilesTaskImpl(DataModel dataModel) {
+    LoadProfilesTaskImpl(DataModel dataModel) {
         super(dataModel);
         setFlags(FLAGS);
     }
@@ -68,11 +81,10 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask 
      */
     @Override
     public List<LoadProfileType> getLoadProfileTypes() {
-        List<LoadProfileType> loadProfileTypes = new ArrayList<>(loadProfileTypeUsageInProtocolTasks.size());
-        for (LoadProfileTypeUsageInProtocolTask loadProfileTypeUsageInProtocolTask : loadProfileTypeUsageInProtocolTasks) {
-            loadProfileTypes.add(loadProfileTypeUsageInProtocolTask.getLoadProfileType());
-        }
-        return loadProfileTypes;
+        return this.loadProfileTypeUsageInProtocolTasks
+                .stream()
+                .map(LoadProfileTypeUsageInProtocolTask::getLoadProfileType)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -81,8 +93,8 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask 
         Iterator<LoadProfileTypeUsageInProtocolTask> iterator = loadProfileTypeUsageInProtocolTasks.iterator();
         while (iterator.hasNext()) {
             LoadProfileTypeUsageInProtocolTask loadProfileTypeUsageInProtocolTask = iterator.next();
-            LoadProfileType stillWantedLoadProfileType =getById(wantedLoadProfileTypes, loadProfileTypeUsageInProtocolTask.getLoadProfileType().getId());
-            if(stillWantedLoadProfileType == null){
+            LoadProfileType stillWantedLoadProfileType = getById(wantedLoadProfileTypes, loadProfileTypeUsageInProtocolTask.getLoadProfileType().getId());
+            if (stillWantedLoadProfileType == null) {
                 iterator.remove();
             } else {
                 wantedLoadProfileTypes.remove(stillWantedLoadProfileType);
