@@ -1,13 +1,15 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.CanGoOffline;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.dynamic.ReadOnlyDynamicAttributeOwner;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a message that is sent to a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
@@ -80,7 +82,7 @@ public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, R
      *
      * @return The release Date
      */
-    public Date getReleaseDate();
+    public Instant getReleaseDate();
 
     /**
      * Gets the Date on which the last modification to
@@ -95,7 +97,7 @@ public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, R
      *
      * @return the creationDate of this DeviceMessage
      */
-    public Date getCreationDate();
+    public Instant getCreationDate();
 
     /**
      * Returns the receiver's tracking id
@@ -104,4 +106,15 @@ public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, R
      */
     public String getTrackingId();
 
+    /**
+     * This is the date & time when a message was actually transmitted to the device. Will be empty if the message was not sent yet.
+     * @return The sent-date or empty if unsent
+     */
+    public Optional<Instant> getSentDate();
+
+    /**
+     * User who created the command
+     * @return User
+     */
+    public User getUser();
 }
