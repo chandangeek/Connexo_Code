@@ -27,10 +27,10 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         super(comPort);
         this.ringCount = comPort.getRingCount();
         this.maximumNumberOfDialErrors = comPort.getMaximumDialErrors();
-        this.connectTimeout = comPort.getConnectTimeout()!=null?new TimeDurationInfo(comPort.getConnectTimeout()):null;
-        this.delayAfterConnect = comPort.getDelayAfterConnect()!=null?new TimeDurationInfo(comPort.getDelayAfterConnect()):null;
-        this.delayBeforeSend = comPort.getDelayBeforeSend()!=null?new TimeDurationInfo(comPort.getDelayBeforeSend()):null;
-        this.atCommandTimeout = comPort.getAtCommandTimeout()!=null?new TimeDurationInfo(comPort.getAtCommandTimeout()):null;
+        this.connectTimeout = TimeDurationInfo.of(comPort.getConnectTimeout());
+        this.delayAfterConnect = TimeDurationInfo.of(comPort.getDelayAfterConnect());
+        this.delayBeforeSend = TimeDurationInfo.of(comPort.getDelayBeforeSend());
+        this.atCommandTimeout = TimeDurationInfo.of(comPort.getAtCommandTimeout());
         this.atCommandTry = comPort.getAtCommandTry();
         this.modemInitStrings = asMap(MAP_KEY, comPort.getModemInitStrings());
         this.addressSelector = comPort.getAddressSelector();
