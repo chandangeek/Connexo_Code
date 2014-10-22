@@ -116,7 +116,7 @@ public enum DataCollectionEventDescription implements EventDescription{
         }
         return requestedObj == null;
     }
-    
+
     protected List<Map<?, ?>> splitEventsByKey(Map<?, ?> map, String key) {
         String[] failedTasks = String.class.cast(map.get(key)).split(",");
         List<Map<?, ?>> eventDataList = new ArrayList<>(failedTasks.length);
