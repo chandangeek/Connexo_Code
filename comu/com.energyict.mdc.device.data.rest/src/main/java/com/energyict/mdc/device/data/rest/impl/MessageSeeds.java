@@ -52,7 +52,7 @@ public enum MessageSeeds implements MessageSeed {
     NULL_DATE(61, "NullDate", "Date must be filled in"),
     DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(62, "DeactivateValidationRuleSetNotPossible", "Deactivate of validation rule set {0} is currently not possible."),
     PENDING(63, "Pending", "Pending"),
-    FAILED(64, "Failed", "Failed"),
+    COMMAND_FAILED(64, "Failed", "Failed"),
     BUSY(65, "Busy", "Busy"),
     ON_HOLD(66, "OnHold", "On hold"),
     RETRYING(67, "Retrying", "Retrying"),
@@ -77,7 +77,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD(88,"noSuchComSession" ,"No such communication session exists for this connection method"),
     INBOUND(89, ConnectionType.Direction.INBOUND.name(), "Inbound"),
     OUTBOUND(90, ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
-    ;
+    COMMAND_CANCELED(100, "Cancelled", "Cancelled"),
+    COMMAND_CONFIRMED(101, "Confirmed", "Confirmed"),
+    COMMAND_IN_DOUBT(102, "InDoubt", "In doubt"),
+    COMMAND_PENDING(103, "Pending", "Pending"),
+    COMMAND_SENT(104, "Sent", "Sent"),
+    COMMAND_WAITING(105, "Waiting", "Waiting");
 
     private final int number;
     private final String key;

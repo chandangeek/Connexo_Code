@@ -48,6 +48,7 @@ public class DeviceResource {
     private final Provider<DeviceScheduleResource> deviceScheduleResourceProvider;
     private final Provider<DeviceComTaskResource> deviceComTaskResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
+    private final Provider<DeviceCommandResource> deviceCommandResourceProvider;
 
     @Inject
     public DeviceResource(
@@ -63,7 +64,9 @@ public class DeviceResource {
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
-            Provider<DeviceComTaskResource> deviceComTaskResourceProvider, Provider<ConnectionMethodResource> connectionMethodResourceProvider) {
+            Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
+            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
+            Provider<DeviceCommandResource> deviceCommandResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -79,6 +82,7 @@ public class DeviceResource {
         this.deviceScheduleResourceProvider = deviceScheduleResourceProvider;
         this.deviceComTaskResourceProvider = deviceComTaskResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
+        this.deviceCommandResourceProvider = deviceCommandResourceProvider;
     }
 
 
@@ -178,5 +182,10 @@ public class DeviceResource {
     @Path("/{mRID}/comtasks")
     public DeviceComTaskResource getComTaskResource() {
         return deviceComTaskResourceProvider.get();
+    }
+
+    @Path("/{mRID}/commands")
+    public DeviceCommandResource getCommandResource() {
+        return deviceCommandResourceProvider.get();
     }
 }
