@@ -3,7 +3,6 @@ package com.elster.jupiter.time;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UnknownFormatConversionException;
 
 /**
  * Created by borunova on 01.10.2014.
@@ -74,23 +73,8 @@ public class RelativeOperation {
     }
 
     private void validateOperationOrThrowException(RelativeField field, RelativeOperator operator, long shift) {
-        if (!field.isValid(shift)) {
+        if (!field.isValid(shift, operator)) {
             throw new IllegalArgumentException("Provided value is incorrect");
-        }
-        if (!field.isChronoFieldBased() && !(operator.equals(RelativeOperator.PLUS) || operator.equals(RelativeOperator.MINUS))) {
-            StringBuilder exception = new StringBuilder();
-            exception.append("Unsupportable operator \"").append(operator.toString())
-                    .append("\" was used for ChronoUnit type of field. Valid operators are \"")
-                    .append(RelativeOperator.PLUS.toString()).append("\" and \"")
-                    .append(RelativeOperator.MINUS.toString()).append("\"");
-            throw new UnknownFormatConversionException(exception.toString());
-        }
-        if (!field.isChronoUnitBased() && !operator.equals(RelativeOperator.EQUAL)) {
-            StringBuilder exception = new StringBuilder();
-            exception.append("Unsupportable operator \"").append(operator.toString())
-                    .append("\" was used for ChronoUnit type of field. Valid operators are \"")
-                    .append(RelativeOperator.EQUAL.toString()).append("\"");
-            throw new UnknownFormatConversionException(exception.toString());
         }
     }
 }

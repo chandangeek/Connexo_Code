@@ -28,6 +28,11 @@ public class RelativeOperationTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testOperationValidationChronoUnit() {
+        new RelativeOperation (RelativeField.MONTH, RelativeOperator.MINUS, -4);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testOperationValidationValueRangeMinutes() {
         new RelativeOperation (RelativeField.MINUTES, RelativeOperator.EQUAL, 65);
     }

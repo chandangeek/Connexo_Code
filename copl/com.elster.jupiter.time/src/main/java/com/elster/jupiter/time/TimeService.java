@@ -13,4 +13,5 @@ public interface TimeService {
     RelativePeriodCategory createRelativePeriodCategory(String key);
     RelativePeriodCategory findRelativePeriodCategory(long relativePeriodCategoryId);
     RelativePeriodCategory findRelativePeriodCategoryByName(String name);
+    List<RelativePeriodCategory> getRelativePeriodCategories();
 }
