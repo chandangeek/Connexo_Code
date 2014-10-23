@@ -4,13 +4,13 @@ import com.elster.jupiter.demo.DemoService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -27,21 +27,20 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
-import com.google.common.base.Optional;
-import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 
@@ -144,6 +143,7 @@ public class DemoServiceImpl implements DemoService {
                 store.getProperties().put("host", host);
 
                 OnlineComServer comServer = createComServer("Deitvs099");
+                //OnlineComServer comServer = createComServer(comServerName);
                 OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP 099", comServer);
                 OutboundComPortPool outboundTcpComPortPool = createOutboundTcpComPortPool("Outbound TCP Pool 099", outboundTCPPort);
                 InboundComPortPool inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool 099");
@@ -173,8 +173,8 @@ public class DemoServiceImpl implements DemoService {
         comServer.setActive(true);
         comServer.setServerLogLevel(ComServer.LogLevel.INFO);
         comServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        comServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.MINUTES));
-        comServer.setSchedulingInterPollDelay(new TimeDuration(60, TimeDuration.SECONDS));
+        comServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
+        comServer.setSchedulingInterPollDelay(new TimeDuration(60, TimeDuration.TimeUnit.SECONDS));
         comServer.setStoreTaskQueueSize(50);
         comServer.setNumberOfStoreTaskThreads(1);
         comServer.setStoreTaskThreadPriority(5);
@@ -197,7 +197,7 @@ public class DemoServiceImpl implements DemoService {
         outboundComPortPool.setActive(true);
         outboundComPortPool.setComPortType(ComPortType.TCP);
         outboundComPortPool.setName(name);
-        outboundComPortPool.setTaskExecutionTimeout(new TimeDuration(0, TimeDuration.SECONDS));
+        outboundComPortPool.setTaskExecutionTimeout(new TimeDuration(0, TimeDuration.TimeUnit.SECONDS));
         if (comPorts != null) {
             for (OutboundComPort comPort : comPorts) {
                 outboundComPortPool.addOutboundComPort(comPort);
@@ -279,7 +279,7 @@ public class DemoServiceImpl implements DemoService {
     private void createLoadProfiles(Store store) {
         System.out.println("==> Creating Load Profiles Types...");
 
-        LoadProfileType dailyElectrisity = createLoadProfile(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY, "1.0.99.2.0.255", new TimeDuration(1, TimeDuration.DAYS));
+        LoadProfileType dailyElectrisity = createLoadProfile(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY, "1.0.99.2.0.255", new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
         dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
         dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
         dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
@@ -287,7 +287,7 @@ public class DemoServiceImpl implements DemoService {
         dailyElectrisity.save();
         store.getLoadProfileTypes().put(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY, dailyElectrisity);
 
-        LoadProfileType monthlyElectricity = createLoadProfile(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY, "0.0.98.1.0.255", new TimeDuration(1, TimeDuration.MONTHS));
+        LoadProfileType monthlyElectricity = createLoadProfile(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY, "0.0.98.1.0.255", new TimeDuration(1, TimeDuration.TimeUnit.MONTHS));
         monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
         monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
         monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
@@ -295,7 +295,7 @@ public class DemoServiceImpl implements DemoService {
         monthlyElectricity.save();
         store.getLoadProfileTypes().put(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY, monthlyElectricity);
 
-        LoadProfileType _15minElectricity = createLoadProfile(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY, "1.0.99.1.0.255", new TimeDuration(15, TimeDuration.MINUTES));
+        LoadProfileType _15minElectricity = createLoadProfile(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY, "1.0.99.1.0.255", new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
         _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
         _15minElectricity.save();
@@ -372,8 +372,8 @@ public class DemoServiceImpl implements DemoService {
 
         ComTask readDaily = taskService.newComTask(COM_TASK_READ_DAILY);
         readDaily.createClockTask(ClockTaskType.SETCLOCK)
-                .minimumClockDifference(new TimeDuration(5, TimeDuration.SECONDS))
-                .maximumClockDifference(new TimeDuration(5, TimeDuration.MINUTES)).add();
+                .minimumClockDifference(new TimeDuration(5, TimeDuration.TimeUnit.SECONDS))
+                .maximumClockDifference(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES)).add();
         LoadProfileType[] loadProfileTypesForReadDayly = {store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY), store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY)};
         readDaily.createLoadProfilesTask().loadProfileTypes(Arrays.asList(loadProfileTypesForReadDayly)).add();
         readDaily.createLogbooksTask().logBookTypes(Collections.singletonList(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK))).add();
@@ -408,8 +408,9 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private void createCommunicationSchedule(Store store, String comScheduleName, String taskName, TimeDuration every) {
-        long timeBefore = System.currentTimeMillis() - every.getMilliSeconds() - DateTimeConstants.MILLIS_PER_DAY;
-        ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleName, new TemporalExpression(every), new UtcInstant(timeBefore)).build();
+        //long timeBefore = System.currentTimeMillis() - every.getMilliSeconds() - DateTimeConstants.MILLIS_PER_DAY;
+        Instant timeBefore = Instant.now().minusMillis(every.getMilliSeconds()).minus(1, ChronoUnit.DAYS);
+        ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleName, new TemporalExpression(every), timeBefore).build();
         comSchedule.addComTask(store.getComTasks().get(taskName));
         comSchedule.save();
         store.getComSchedules().put(comScheduleName, comSchedule);
@@ -550,7 +551,7 @@ public class DemoServiceImpl implements DemoService {
     private void addConnectionMethodToDeviceConfiguration(Store store, DeviceConfiguration configuration) {
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp");
         PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration()
-                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
                 .addProperty("host", store.getProperties().get("host"))
                 .addProperty("portNumber", new BigDecimal(4059))
