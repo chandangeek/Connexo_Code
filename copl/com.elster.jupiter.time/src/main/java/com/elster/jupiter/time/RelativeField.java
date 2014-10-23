@@ -32,14 +32,6 @@ public enum RelativeField {
         this.chronoField = chronoField;
     }
 
-    public boolean isChronoUnitBased() {
-        return this.getChronoUnit() != null;
-    }
-
-    public boolean isChronoFieldBased() {
-        return this.getChronoField() != null;
-    }
-
     public ChronoUnit getChronoUnit() {
         return this.chronoUnit;
     }
@@ -52,8 +44,8 @@ public enum RelativeField {
         return this.id;
     }
 
-    public boolean isValid(long value) {
-        return chronoField != null ? chronoField.range().isValidValue(value) : value >= 0;
+    public boolean isValid(long value, RelativeOperator operator) {
+        return operator.equals(RelativeOperator.EQUAL) ? chronoField.range().isValidValue(value) : value >= 0;
     }
 
     public static RelativeField from(int id) {

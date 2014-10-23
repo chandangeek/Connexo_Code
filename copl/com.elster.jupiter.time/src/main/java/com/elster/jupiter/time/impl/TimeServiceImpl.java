@@ -105,6 +105,11 @@ public class TimeServiceImpl implements TimeService, InstallService {
         return this.getDataModel().mapper((RelativePeriodCategory.class)).getUnique("name", name).orElse(null);
     }
 
+    @Override
+    public List<RelativePeriodCategory> getRelativePeriodCategories() {
+        return this.getDataModel().mapper((RelativePeriodCategory.class)).find();
+    }
+
 
     Module getModule() {
         return new AbstractModule() {

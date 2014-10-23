@@ -21,10 +21,6 @@ public class RelativeDate {
     public RelativeDate(String pattern) {
         relativeDate = pattern;
         setOperations();
-/*        String[] operationStrings = relativeDate.split(SEPARATOR);
-        for(String operationString : operationStrings) {
-            operations.add(getOperation(operationString));
-        }*/
     }
 
     public RelativeDate(List<RelativeOperation> operations) {
