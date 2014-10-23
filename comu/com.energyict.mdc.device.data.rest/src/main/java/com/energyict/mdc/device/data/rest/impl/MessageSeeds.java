@@ -82,7 +82,9 @@ public enum MessageSeeds implements MessageSeed {
     COMMAND_IN_DOUBT(102, "CommandInDoubt", "In doubt"),
     COMMAND_PENDING(103, "CommandPending", "Pending"),
     COMMAND_SENT(104, "CommandSent", "Sent"),
-    COMMAND_WAITING(105, "CommandWaiting", "Waiting");
+    COMMAND_WAITING(105, "CommandWaiting", "Waiting"),
+    NO_SUCH_USER(106, "NoSuchUser", "No such user"),
+    ;
 
     private final int number;
     private final String key;
