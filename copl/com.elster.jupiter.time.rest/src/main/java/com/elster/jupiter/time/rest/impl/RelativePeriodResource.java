@@ -97,7 +97,7 @@ public class RelativePeriodResource {
     @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response previewRelativeDate(RelativeDatePreviewInfo relativeDatePreviewInfo) {
+    public RelativeDatePreviewInfo previewRelativeDate(RelativeDatePreviewInfo relativeDatePreviewInfo) {
         Instant instant = Instant.ofEpochMilli(relativeDatePreviewInfo.referenceDate);
         List<RelativeOperation> operations = new ArrayList<>();
         ZoneId zoneId = ZoneId.ofOffset("", ZoneOffset.ofHoursMinutes(relativeDatePreviewInfo.getOffsetHours(), relativeDatePreviewInfo.getOffsetMinutes()));
@@ -107,8 +107,7 @@ public class RelativePeriodResource {
         }
         RelativeDate relativeDate = new RelativeDate(operations);
         ZonedDateTime target = relativeDate.getRelativeDate(time);
-        return Response.status(Response.Status.OK).entity(target).build();
-
+        return new RelativeDatePreviewInfo(target);
     }
 
 
