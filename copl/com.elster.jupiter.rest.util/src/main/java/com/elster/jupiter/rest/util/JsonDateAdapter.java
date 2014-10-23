@@ -3,6 +3,8 @@ package com.elster.jupiter.rest.util;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Date;
 
+// Deprecated as ObjectMapper is already configured to (de)serialize Dates as ms since epoch 
+@Deprecated 
 public class JsonDateAdapter extends XmlAdapter<Long, Date> {
 
     @Override
