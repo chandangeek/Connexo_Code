@@ -14,6 +14,7 @@ Ext.define('Uni.property.form.PropertyHydrator', {
         return value || null
     },
     hydrate: function(data, record) {
+        debugger;
         var values = data;
         var me = this;
         if (typeof record === 'undefined' || !record.properties()) {

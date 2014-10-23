@@ -37,5 +37,9 @@ Ext.define('Uni.form.field.Password', {
         this.items[1].scope = this;
 
         this.callParent(arguments);
+    },
+
+    setValue: function(value) {
+        this.down('textfield').setValue(value);
     }
 });
