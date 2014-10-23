@@ -4,6 +4,7 @@
 Ext.define('Uni.form.field.Password', {
     extend: 'Ext.form.FieldContainer',
     xtype: 'password-field',
+    readOnly: false,
     fieldLabel: Uni.I18n.translate('form.password', 'UNI', 'Password'),
     layout: {
         type: 'vbox',
@@ -23,7 +24,8 @@ Ext.define('Uni.form.field.Password', {
             required: true,
             allowBlank: false,
             inputType: 'password',
-            name: this.name
+            name: this.name,
+            readOnly: this.readOnly
         },
         {
             xtype: 'checkbox',
