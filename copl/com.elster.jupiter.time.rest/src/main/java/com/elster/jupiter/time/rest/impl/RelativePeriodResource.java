@@ -111,6 +111,18 @@ public class RelativePeriodResource {
 
     }
 
+
+    @Path("/categories")
+    @GET
+    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<RelativePeriodCategoryInfo> getCategories() {
+        List<RelativePeriodCategoryInfo> categoryInfos = new ArrayList<>();
+        categoryInfos.addAll(RelativePeriodCategoryInfo.from(timeService.getRelativePeriodCategories()));
+        return categoryInfos;
+    }
+
+
     private void verifyDateRangeOrThrowException(RelativeDate relativeDateFrom, RelativeDate relativeDateTo) {
         ZonedDateTime time = ZonedDateTime.now();
         if(relativeDateFrom.getRelativeDate(time).isAfter(relativeDateTo.getRelativeDate(time))) {
