@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -32,6 +33,7 @@ import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
+import com.energyict.mdc.dashboard.rest.status.impl.IssuesResource;
 import com.energyict.mdc.dashboard.rest.status.impl.KpiScoreFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
@@ -43,20 +45,22 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.core.Application;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * Insert your comments here.
@@ -84,6 +88,8 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile TransactionService transactionService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile IssueService issueService;
+    private volatile IssueDataCollectionService issueDataCollectionService;
     private Clock clock = Clock.systemDefaultZone();
 
     @Reference
@@ -157,6 +163,16 @@ public class DashboardApplication extends Application implements InstallService 
         this.meteringGroupsService = meteringGroupsService;
     }
 
+    @Reference
+    public void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
+        this.issueDataCollectionService = issueDataCollectionService;
+    }
+
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
     // Only for testing purposes
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -180,7 +196,8 @@ public class DashboardApplication extends Application implements InstallService 
                 CommunicationResource.class,
                 CommunicationOverviewResource.class,
                 CommunicationHeatMapResource.class,
-                DeviceConfigurationService.class // This service is here intentionally: needed for the ComServerStatusResource apparently: this will create an osgi warning: A provider com.energyict.mdc.device.config.DeviceConfigurationService registered in SERVER runtime does not implement any provider interfaces applicable in the SERVER runtime. Due to constraint configuration problems the provider com.energyict.mdc.device.config.DeviceConfigurationService will be ignored.
+                DeviceConfigurationService.class, // This service is here intentionally: needed for the ComServerStatusResource apparently: this will create an osgi warning: A provider com.energyict.mdc.device.config.DeviceConfigurationService registered in SERVER runtime does not implement any provider interfaces applicable in the SERVER runtime. Due to constraint configuration problems the provider com.energyict.mdc.device.config.DeviceConfigurationService will be ignored.
+                IssuesResource.class
         );
     }
 
@@ -221,6 +238,8 @@ public class DashboardApplication extends Application implements InstallService 
             bind(schedulingService).to(SchedulingService.class);
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(taskService).to(TaskService.class);
+            bind(issueDataCollectionService).to(IssueDataCollectionService.class);
+            bind(issueService).to(IssueService.class);
             bind(BreakdownFactory.class).to(BreakdownFactory.class);
             bind(OverviewFactory.class).to(OverviewFactory.class);
             bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);

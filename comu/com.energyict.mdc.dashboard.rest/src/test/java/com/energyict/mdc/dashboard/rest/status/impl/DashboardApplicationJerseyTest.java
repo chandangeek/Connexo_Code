@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dashboard.DashboardService;
@@ -12,15 +13,17 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+import org.mockito.Mock;
+
+import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import javax.ws.rs.core.Application;
-import org.mockito.Mock;
 
 /**
  * Created by bvn on 9/19/14.
@@ -41,6 +44,10 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     DeviceConfigurationService deviceConfigurationService;
     @Mock
     TaskService taskService;
+    @Mock
+    IssueDataCollectionService issueDataCollectionService;
+    @Mock
+    IssueService issueService;
     @Mock
     DashboardService dashboardService;
     @Mock
@@ -71,6 +78,8 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setSchedulingService(schedulingService);
         dashboardApplication.setStatusService(statusService);
         dashboardApplication.setTaskService(taskService);
+        dashboardApplication.setIssueDataCollectionService(issueDataCollectionService);
+        dashboardApplication.setIssueService(issueService);
         dashboardApplication.setTransactionService(transactionService);
         dashboardApplication.setDataCollectionKpiService(dataCollectionKpiService);
         dashboardApplication.setMeteringGroupsService(meteringGroupsService);
