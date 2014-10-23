@@ -18,6 +18,8 @@ public enum ConnectionTaskFields implements ImplField {
     LAST_COMMUNICATION_START("lastCommunicationStart"),
     LAST_SUCCESSFUL_COMMUNICATION_END("lastSuccessfulCommunicationEnd"),
     LAST_SESSION("lastSession"),
+    LAST_SESSION_SUCCESS_INDICATOR("lastSessionSuccessIndicator"),
+    LAST_SESSION_STATUS("lastSessionStatus"),
     COM_SERVER("comServer"),
     COM_PORT_POOL("comPortPool"),
     PARTIAL_CONNECTION_TASK("partialConnectionTask"),

@@ -865,15 +865,13 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, ctes.highestPrioCompletionCode, count(*) from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte join ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes on cte.lastsession = ctes.id join ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" dev on cte.device = dev.id ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
-        sqlBuilder.append(" group by dev.devicetype, ctes.highestPrioCompletionCode");
+        sqlBuilder.append(" group by dev.devicetype, cte.lastsess_highestpriocomplcode");
         Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
         return this.buildDeviceTypeHeatMap(partialCounters);
     }
@@ -942,23 +940,19 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount() {
-        SqlBuilder sqlBuilder = new SqlBuilder("select ctes.highestPrioCompletionCode, count(*) from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" cte join ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes on cte.lastsession = ctes.id where obsolete_date is null group by ctes.highestPrioCompletionCode");
+        sqlBuilder.append(" cte where obsolete_date is null group by cte.lastsess_highestpriocomplcode");
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
     }
 
     @Override
     public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(QueryEndDeviceGroup deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select ctes.highestPrioCompletionCode, count(*) from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" cte join ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes on cte.lastsession = ctes.id where obsolete_date is null ");
+        sqlBuilder.append(" cte where obsolete_date is null ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
-        sqlBuilder.append(" group by ctes.highestPrioCompletionCode");
+        sqlBuilder.append(" group by cte.lastsess_highestpriocomplcode");
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
     }
 
