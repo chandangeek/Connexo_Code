@@ -633,13 +633,14 @@
                                 <configuration>
                                     <target unless="skipSencha" if="js.dir">
                                         <property name="cmd.dir" value="${sencha.cmd.dir}"/>
+                                        <property name="package.name" value="${project.groupId}.${project.artifactId}"/>
                                         <taskdef resource="com/sencha/ant/antlib.xml"
                                                  classpath="${cmd.dir}/sencha.jar"
                                                  loaderref="senchaloader"/>
                                         <x-sencha-command>
                                             package
                                             add
-                                            ${project.basedir}/src/main/web/${js.dir}/build/${project.groupId}.${project.artifactId}/${project.groupId}.${project.artifactId}.pkg
+                                            ${project.basedir}/src/main/web/${js.dir}/build/${package.name}/${package.name}.pkg
                                         </x-sencha-command>
                                     </target>
                                 </configuration>
