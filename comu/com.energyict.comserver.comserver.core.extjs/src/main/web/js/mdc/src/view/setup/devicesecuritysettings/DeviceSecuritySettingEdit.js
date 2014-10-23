@@ -55,12 +55,12 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('securitySetting.name','MDC','Name'),
+                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.name','MDC','Name'),
                                 name: 'name'
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('securitySetting.status','MDC','Status'),
+                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.status','MDC','Status'),
                                 name: 'status',
                                 renderer: function (value) {
                                     return value.name;
@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('securitySetting.authenticationLevel','MDC','Authentication level'),
+                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel','MDC','Authentication level'),
                                 name: 'authenticationLevel',
                                 renderer: function (value) {
                                     return value.name;
@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('securitySetting.encryptionLevel','MDC','Encryption level'),
+                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel','MDC','Encryption level'),
                                 name: 'encryptionLevel',
                                 renderer: function (value) {
                                     return value.name;
@@ -93,7 +93,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: '<h3>' + Uni.I18n.translate('securitySetting.details', 'MDC', 'Attributes') + '</h3>',
+                                fieldLabel: '<h3>' + Uni.I18n.translate('deviceSecuritySetting.details', 'MDC', 'Attributes') + '</h3>',
                                 text: ''
                             }
                         ]

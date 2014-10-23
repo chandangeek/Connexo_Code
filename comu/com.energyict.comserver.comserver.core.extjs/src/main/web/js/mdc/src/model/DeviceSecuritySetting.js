@@ -10,7 +10,8 @@ Ext.define('Mdc.model.DeviceSecuritySetting', {
         {name: 'encryptionLevel', type: 'auto', useNull: true},
         {name: 'status', type: 'auto', useNull: true},
         {name: 'userHasEditPrivilege', type: 'boolean', useNull: true},
-        {name: 'userHasViewPrivilege', type: 'boolean', useNull: true}
+        {name: 'userHasViewPrivilege', type: 'boolean', useNull: true},
+        {name: 'saveAsIncomplete', type: 'boolean', userNull: true}
     ],
 
     associations: [

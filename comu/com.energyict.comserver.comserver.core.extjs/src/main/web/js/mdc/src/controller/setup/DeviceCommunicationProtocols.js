@@ -107,6 +107,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     },
 
     editDeviceCommunicationProtocol: function () {
+        debugger;
         var record = this.getDeviceCommunicationProtocolEditForm().getRecord(),
             values = this.getDeviceCommunicationProtocolEditForm().getValues(),
             propertyForm = this.getDeviceCommunicationProtocolEditView().down('property-form'),
@@ -115,6 +116,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
         if (record) {
             record.set(values);
             propertyForm.updateRecord();
+            debugger;
             record.propertiesStore = propertyForm.getRecord().properties();
 
             record.save({

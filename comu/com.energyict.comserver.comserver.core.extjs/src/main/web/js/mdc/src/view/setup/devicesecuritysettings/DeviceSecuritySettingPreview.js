@@ -66,13 +66,13 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
                             items: [
                                 {
                                     xtype: 'displayfield',
-                                    fieldLabel: Uni.I18n.translate('securitySetting.name','MDC','Name'),
+                                    fieldLabel: Uni.I18n.translate('deviceSecuritySetting.name','MDC','Name'),
                                     labelWidth: 200,
                                     name: 'name'
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    fieldLabel: Uni.I18n.translate('securitySetting.status','MDC','Status'),
+                                    fieldLabel: Uni.I18n.translate('deviceSecuritySetting.status','MDC','Status'),
                                     labelWidth: 200,
                                     name: 'status',
                                     renderer: function (value) {
@@ -86,7 +86,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
                             items: [
                                 {
                                     xtype: 'displayfield',
-                                    fieldLabel: Uni.I18n.translate('securitySetting.authenticationLevel','MDC','Authentication level'),
+                                    fieldLabel: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel','MDC','Authentication level'),
                                     labelWidth: 200,
                                     name: 'authenticationLevel',
                                     renderer: function (value) {
@@ -95,7 +95,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    fieldLabel: Uni.I18n.translate('securitySetting.encryptionLevel','MDC','Encryption level'),
+                                    fieldLabel: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel','MDC','Encryption level'),
                                     labelWidth: 200,
                                     name: 'encryptionLevel',
                                     renderer: function (value) {
@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: '<h3>' + Uni.I18n.translate('securitySetting.details', 'MDC', 'Attributes') + '</h3>',
+                            fieldLabel: '<h3>' + Uni.I18n.translate('deviceSecuritySetting.details', 'MDC', 'Attributes') + '</h3>',
                             text: ''
                         }
                     ]

@@ -43,6 +43,15 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             },
             '#deviceSecuritySettingEdit #addEditButton[action=editDeviceSecuritySetting]': {
                 click: this.editDeviceSecuritySetting
+            },
+            '#deviceSecuritySettingEdit #restoreAllButton[action=restoreAll]': {
+                click: this.restoreAllDefaults
+            },
+            '#deviceSecuritySettingEdit property-form': {
+                dirtychange: this.enableRestoreAllButton
+            },
+            '#deviceSecuritySettingEdit property-form component': {
+                enableRestoreAll: this.enableRestoreAllButton
             }
         });
     },
@@ -50,14 +59,21 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     showDeviceSecuritySettings: function (mrid) {
         var me = this;
         this.mrid = mrid;
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
-            success: function (device) {
-                var widget = Ext.widget('deviceSecuritySettingSetup', {mrid: mrid});
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getApplication().fireEvent('loadDevice', device);
-                me.getDeviceSecuritySettingGrid().getSelectionModel().doSelect(0);
+        var securitySettingsOfDeviceStore = Ext.StoreManager.get('SecuritySettingsOfDevice');
+        securitySettingsOfDeviceStore.getProxy().setExtraParam('mrid', mrid);
+        securitySettingsOfDeviceStore.load({
+            callback: function () {
+                Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+                    success: function (device) {
+                        var widget = Ext.widget('deviceSecuritySettingSetup', {mrid: mrid});
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getApplication().fireEvent('loadDevice', device);
+                        me.getDeviceSecuritySettingGrid().getSelectionModel().doSelect(0);
+                    }
+                });
             }
         });
+
     },
 
 
@@ -96,17 +112,16 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     },
 
     editDeviceSecuritySetting: function () {
-        debugger;
         var record = this.getDeviceSecuritySettingEditForm().getRecord(),
             values = this.getDeviceSecuritySettingEditForm().getValues(),
             propertyForm = this.getDeviceSecuritySettingEditView().down('property-form'),
             me = this;
+        record.set('saveAsIncomplete', false);
         me.saveRecord(record, values, propertyForm);
 
     },
 
     saveRecord: function (record, values, propertyForm) {
-
         var me = this;
         record.getProxy().extraParams = ({mrid: me.mrid});
         if (propertyForm) {
@@ -139,7 +154,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         });
                     } else {
                         me.getDeviceSecuritySettingEditForm().getForm().markInvalid(json.errors);
-//                        me.getPropertiesController().showErrors(json.errors);
+           //             me.getPropertiesController().showErrors(json.errors);
                     }
                 }
             }
@@ -149,7 +164,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     saveAsIncomplete: function (btn, text, opt) {
         if (btn === 'confirm') {
             var record = opt.config.record;
-            record.set('status', 'Incomplete');
+            record.set('saveAsIncomplete', true);
             opt.config.me.saveRecord(record);
         }
     },
@@ -212,6 +227,27 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                 });
             }
         });
+    },
+
+    enableRestoreAllButton: function (form, dirty) {
+        var me = this;
+        if (typeof(me.getRestoreAllButton()) !== 'undefined') {
+            me.getRestoreAllButton().disable();
+            var restoreAllButtons = Ext.ComponentQuery.query('uni-default-button');
+            if (restoreAllButtons != null) {
+                restoreAllButtons.forEach(function (restoreButton) {
+                    if (!restoreButton.isHidden()) {
+                        me.getRestoreAllButton().enable();
+                    }
+                })
+            }
+        }
+    },
+
+    restoreAllDefaults: function () {
+        var me = this;
+        me.getDeviceSecuritySettingEditView().down('property-form').restoreAll();
+        me.getRestoreAllButton().disable();
     }
 
 })
