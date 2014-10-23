@@ -77,12 +77,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD(88,"noSuchComSession" ,"No such communication session exists for this connection method"),
     INBOUND(89, ConnectionType.Direction.INBOUND.name(), "Inbound"),
     OUTBOUND(90, ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
-    COMMAND_CANCELED(100, "Cancelled", "Cancelled"),
-    COMMAND_CONFIRMED(101, "Confirmed", "Confirmed"),
-    COMMAND_IN_DOUBT(102, "InDoubt", "In doubt"),
-    COMMAND_PENDING(103, "Pending", "Pending"),
-    COMMAND_SENT(104, "Sent", "Sent"),
-    COMMAND_WAITING(105, "Waiting", "Waiting");
+    COMMAND_CANCELED(100, "CommandCancelled", "Cancelled"),
+    COMMAND_CONFIRMED(101, "CommandConfirmed", "Confirmed"),
+    COMMAND_IN_DOUBT(102, "CommandInDoubt", "In doubt"),
+    COMMAND_PENDING(103, "CommandPending", "Pending"),
+    COMMAND_SENT(104, "CommandSent", "Sent"),
+    COMMAND_WAITING(105, "CommandWaiting", "Waiting");
 
     private final int number;
     private final String key;
