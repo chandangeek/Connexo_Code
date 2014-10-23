@@ -77,7 +77,7 @@ Ext.define('Uni.form.field.OnPeriod', {
 
                                 data.push({
                                     name: 'Last',
-                                    value: 'last'
+                                    value: 31
                                 });
 
                                 return data;
@@ -119,13 +119,13 @@ Ext.define('Uni.form.field.OnPeriod', {
                             data: (function () {
                                 // TODO Create a days of week store.
                                 return [
-                                    {name: 'Monday', value: 0},
-                                    {name: 'Tuesday', value: 1},
-                                    {name: 'Wednesday', value: 2},
-                                    {name: 'Thursday', value: 3},
-                                    {name: 'Friday', value: 4},
-                                    {name: 'Saturday', value: 5},
-                                    {name: 'Sunday', value: 6}
+                                    {name: 'Monday', value: 1},
+                                    {name: 'Tuesday', value: 2},
+                                    {name: 'Wednesday', value: 3},
+                                    {name: 'Thursday', value: 4},
+                                    {name: 'Friday', value: 5},
+                                    {name: 'Saturday', value: 6},
+                                    {name: 'Sunday', value: 7}
                                 ];
                             })()
                         }),
@@ -268,18 +268,13 @@ Ext.define('Uni.form.field.OnPeriod', {
         var me = this,
             selectedRadio = me.callParent(arguments),
             selectedValue = selectedRadio[me.baseRadioName],
-            currentDayValue = new Date().getUTCDate(),
             dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').getValue(),
             dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').getValue();
 
-        // Current day cannot be greater than 28 cause of leap years.
-        currentDayValue = currentDayValue > 28 ? 28 : currentDayValue;
-
         return {
-            selection: selectedValue,
-            currentDay: currentDayValue,
-            dayOfMonth: dayOfMonthValue,
-            dayOfWeek: dayOfWeekValue
+            onCurrentDay: selectedValue === 'currentday',
+            onDayOfMonth: dayOfMonthValue,
+            onDayOfWeek: dayOfWeekValue
         };
     }
 });

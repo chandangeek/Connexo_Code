@@ -220,24 +220,18 @@ Ext.define('Uni.form.field.StartPeriod', {
             freqAgoValue = me.getOptionAgoContainer().down('combobox').getValue();
 
         var result = {
-            selection: selectedValue,
-            now: new Date(),
-            amountAgo: amountAgoValue,
-            freqAgo: freqAgoValue,
-            date: undefined
+            startAmountAgo: amountAgoValue,
+            startPeriodAgo: freqAgoValue,
+            startNow: selectedValue === 'now'
         };
 
         if (me.showOptionDate) {
             var dateValue = me.getOptionDateContainer().down('datefield').getValue();
 
-            // Using midnight.
-            dateValue.setHours(0);
-            dateValue.setMinutes(0);
-            dateValue.setSeconds(0);
-            dateValue.setMilliseconds(0);
-
             Ext.apply(result, {
-                date: dateValue
+                startFixedDay: dateValue.getDay(),
+                startFixedMonth: dateValue.getMonth(),
+                startFixedYear: dateValue.getFullYear()
             });
         }
 
