@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
@@ -11,6 +12,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -28,7 +30,7 @@ import javax.ws.rs.core.UriInfo;
 
 /**
  * Handles SecurityPropertySets on devices
- *
+ * <p>
  * Created by bvn on 9/30/14.
  */
 public class SecurityPropertySetResource {
@@ -64,7 +66,7 @@ public class SecurityPropertySetResource {
     public Response getSecurityPropertySet(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, @PathParam("securityPropertySetId") long securityPropertySetId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
-        return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo,securityPropertySet)).build();
+        return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet)).build();
     }
 
     @PUT
@@ -75,18 +77,34 @@ public class SecurityPropertySetResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
         TypedProperties typedProperties = TypedProperties.empty();
+        boolean status = true;
         for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
             Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, securityPropertySetInfo.properties);
-            propertySpec.validateValue(newPropertyValue);
-            typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
+            if (newPropertyValue != null) {
+                // propertySpec.validateValue(newPropertyValue);
+                typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
+            } else {
+                status = false;
+                typedProperties.removeProperty(propertySpec.getName());
+            }
         }
-        device.setSecurityProperties(securityPropertySet, typedProperties);
+
+        if (status){
+            device.setSecurityProperties(securityPropertySet, typedProperties);
+        } else {
+            if (securityPropertySetInfo.saveAsIncomplete){
+                device.setSecurityProperties(securityPropertySet, typedProperties);
+            }
+            else {
+                throw new LocalizedFieldValidationException(MessageSeeds.INCOMPLETE, "status");
+            }
+        }
 
         // Reload
         device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
 
-        return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo,securityPropertySet)).build();
+        return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet)).build();
     }
 
     private SecurityPropertySet getSecurityPropertySetOrThrowException(long securityPropertySetId, Device device) {
@@ -94,7 +112,7 @@ public class SecurityPropertySetResource {
         if (!securityPropertySetOptional.isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_SECURITY_PROPERTY_SET, securityPropertySetId);
         }
-        if (securityPropertySetOptional.get().getDeviceConfiguration().getId()!=device.getDeviceConfiguration().getId()) {
+        if (securityPropertySetOptional.get().getDeviceConfiguration().getId() != device.getDeviceConfiguration().getId()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_SECURITY_PROPERTY_SET_ON_DEVICE, securityPropertySetId, device.getmRID());
         }
         return securityPropertySetOptional.get();

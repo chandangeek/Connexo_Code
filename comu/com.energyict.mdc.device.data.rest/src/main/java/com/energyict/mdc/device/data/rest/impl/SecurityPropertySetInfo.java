@@ -20,6 +20,8 @@ public class SecurityPropertySetInfo {
     public boolean userHasViewPrivilege;
     public boolean userHasEditPrivilege;
 
+    public boolean saveAsIncomplete;
+
     public SecurityPropertySetInfo() {
     }
 
