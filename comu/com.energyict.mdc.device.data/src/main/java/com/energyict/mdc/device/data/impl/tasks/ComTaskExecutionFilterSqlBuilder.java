@@ -27,9 +27,6 @@ import java.util.Set;
  */
 public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
 
-    private static final String COM_TASK_EXECUTION_SESSION_ALIAS_NAME = "ctes";
-    private static final String HIGHEST_PRIORITY_COMPLETION_CODE_ALIAS_NAME = "highestPrioCompletionCode";
-
     private Set<ServerComTaskStatus> taskStatuses;
     private Set<CompletionCode> completionCodes;
     public Interval lastSessionStart = null;
@@ -73,7 +70,6 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
         SqlBuilder sqlBuilder = dataMapper.builder(communicationTaskAliasName());
         this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
-        this.appendJoinedTables();
         String sqlStartClause = sqlBuilder.getText();
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         while (statusIterator.hasNext()) {
@@ -81,7 +77,6 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             if (statusIterator.hasNext()) {
                 this.unionAll();
                 this.append(sqlStartClause);
-                this.appendJoinedTables();
             }
         }
         if (this.taskStatuses.isEmpty()) {
@@ -106,31 +101,10 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.appendLastSessionIntervalWhereClause();
     }
 
-    protected void appendJoinedTables() {
-        if (this.requiresCompletionCodeClause()) {
-            this.appendLastSessionJoinClauseForComTaskExecution();
-        }
-    }
-
-    private void appendLastSessionJoinClauseForComTaskExecution() {
-        this.append(" join ");
-        this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        this.append(" ");
-        this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
-        this.append(" on ");
-        this.append(communicationTaskAliasName());
-        this.append(".lastsession = ");
-        this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
-        this.append(".id");
-    }
-
     private void appendCompletionCodeClause() {
         if (this.requiresCompletionCodeClause()) {
             this.appendWhereOrAnd();
-            this.append(COM_TASK_EXECUTION_SESSION_ALIAS_NAME);
-            this.append(".");
-            this.append(HIGHEST_PRIORITY_COMPLETION_CODE_ALIAS_NAME);
-            this.append(" in (");
+            this.append("cte.lastsess_highestpriocomplcode in (");
             boolean notFirst = false;
             for (CompletionCode completionCode : this.completionCodes) {
                 if (notFirst) {

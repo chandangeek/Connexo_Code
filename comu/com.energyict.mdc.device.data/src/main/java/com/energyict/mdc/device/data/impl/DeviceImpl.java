@@ -1,38 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.IntermittentInterval;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -41,8 +8,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
@@ -104,6 +69,40 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.IntermittentInterval;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -253,29 +252,36 @@ public class DeviceImpl implements Device {
 
     private void createLoadProfiles() {
         if (this.getDeviceConfiguration() != null) {
-            for (LoadProfileSpec loadProfileSpec : this.getDeviceConfiguration().getLoadProfileSpecs()) {
-                this.loadProfiles.add(this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this));
-            }
+            this.loadProfiles.addAll(
+                this.getDeviceConfiguration()
+                    .getLoadProfileSpecs()
+                    .stream()
+                    .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
+                    .collect(Collectors.toList()));
         }
     }
 
     private void createLogBooks() {
         if (this.getDeviceConfiguration() != null) {
-            for (LogBookSpec logBookSpec : this.getDeviceConfiguration().getLogBookSpecs()) {
-                this.logBooks.add(this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this));
-            }
+            this.logBooks.addAll(
+                this.getDeviceConfiguration()
+                    .getLogBookSpecs()
+                    .stream()
+                    .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
+                    .collect(Collectors.toList()));
         }
     }
 
     @Override
     public void save() {
-        this.modificationDate = clock.instant();
+        this.modificationDate = this.clock.instant();
         if (this.id > 0) {
             Save.UPDATE.save(dataModel, this);
             this.saveNewAndDirtyDialectProperties();
             this.notifyUpdated();
         } else {
             Save.CREATE.save(dataModel, this);
+            this.createKoreMeter();
             this.saveNewDialectProperties();
             this.notifyCreated();
         }
@@ -321,9 +327,9 @@ public class DeviceImpl implements Device {
     private void saveAllComTaskExecutions() {
         if (this.comTaskExecutions != null) {
             // No need to call the getComTaskExecutionImpls getter because if they have not been loaded before, they cannot be dirty
-            for (ComTaskExecutionImpl comTaskExecution : comTaskExecutions) {
-                comTaskExecution.save();
-            }
+            this.comTaskExecutions
+                    .stream()
+                    .forEach(ComTaskExecutionImpl::save);
         }
     }
 
@@ -475,17 +481,17 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public void setYearOfCertification(Date yearOfCertification) {
-        this.yearOfCertification = yearOfCertification == null ? null : yearOfCertification.toInstant();
+    public void setYearOfCertification(Instant yearOfCertification) {
+        this.yearOfCertification = yearOfCertification;
     }
 
     @Override
-    public Date getYearOfCertification() {
-        return asDate(yearOfCertification);
+    public Instant getYearOfCertification() {
+        return this.yearOfCertification;
     }
 
-    public Date getModDate() {
-        return modificationDate == null ? null : asDate(this.modificationDate);
+    public Instant getModDate() {
+        return this.modificationDate;
     }
 
     @Override
@@ -732,15 +738,19 @@ public class DeviceImpl implements Device {
     }
 
     private Collection<? extends Date> endDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
-        Collection<Date> endDates = new ArrayList<>(topologyEntries.size());
-        for (CommunicationTopologyEntry topologyEntry : topologyEntries) {
-            endDates.add(asDate(topologyEntry.getInterval().getEnd()));
-        }
-        return endDates;
+        return topologyEntries
+                .stream()
+                .map(topologyEntry -> asDate(topologyEntry.getInterval().getEnd()))
+                .collect(Collectors.toList());
     }
 
     private Date asDate(Instant instant) {
-        return instant == null ? null : Date.from(instant);
+        if (instant == null) {
+            return null;
+        }
+        else {
+            return Date.from(instant);
+        }
     }
 
     private List<CommunicationTopologyEntry> toSortedCommunicationTopologyEntries(CommunicationTopology communicationTopology) {
@@ -1023,6 +1033,10 @@ public class DeviceImpl implements Device {
         } else {
             return holder.get();
         }
+    }
+
+    private Meter createKoreMeter() {
+        return this.createKoreMeter(this.getMdcAmrSystem().orElseThrow(() -> new RuntimeException("The MDC AMR system does not exist")));
     }
 
     Meter createKoreMeter(AmrSystem amrSystem) {

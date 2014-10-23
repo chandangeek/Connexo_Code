@@ -32,6 +32,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -99,6 +100,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private int currentRetryCount;
     private boolean lastExecutionFailed;
     private Reference<ComTaskExecutionSession> lastSession = ValueReference.absent();
+    private CompletionCode lastSessionHighestPriorityCompletionCode;
+    private ComTaskExecutionSession.SuccessIndicator lastSessionSuccessIndicator;
     private boolean useDefaultConnectionTask;
     private boolean ignoreNextExecutionSpecsForInbound;
 
@@ -304,13 +307,19 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     public void sessionCreated(ComTaskExecutionSession session) {
         if (this.lastSession.isPresent()) {
             if (session.endsAfter(this.lastSession.get())) {
-                this.lastSession.set(session);
+                this.setLastSession(session);
                 this.post();
             }
         } else {
-            this.lastSession.set(session);
+            this.setLastSession(session);
             this.post();
         }
+    }
+
+    private void setLastSession(ComTaskExecutionSession session) {
+        this.lastSession.set(session);
+        this.lastSessionHighestPriorityCompletionCode = session.getHighestPriorityCompletionCode();
+        this.lastSessionSuccessIndicator = session.getSuccessIndicator();
     }
 
     @Override

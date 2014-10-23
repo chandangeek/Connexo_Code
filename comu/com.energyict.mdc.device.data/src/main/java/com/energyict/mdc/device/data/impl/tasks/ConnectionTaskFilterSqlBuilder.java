@@ -93,7 +93,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     protected void validate(ConnectionTaskFilterSpecification filterSpecification) throws IllegalArgumentException {
         if (   filterSpecification.latestStatuses.contains(ConnectionTask.SuccessIndicator.NOT_APPLICABLE)
             && !this.isNull(filterSpecification.lastSessionEnd)) {
-            throw new IllegalArgumentException("SuccessIndicator.NOT_APPLICABLE and last session end in interval cannot be combined");
+            throw new IllegalArgumentException("SuccessIndicator.NOT_APPLICABLE and last session end within interval cannot be combined");
         }
     }
 
@@ -167,7 +167,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
         }
         if (!this.latestResults.isEmpty()) {
             this.appendWhereOrAnd();
-            this.append(" cs.successIndicator in (");
+            this.append(" ct.lastSessionSuccessIndicator in (");
             this.appendEnumValues(this.latestResults);
             this.append(")");
             result = true;
@@ -181,10 +181,10 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
                 return " ct.lastsession is null";
             }
             case SUCCESS: {
-                return " cs.status = 1";
+                return " ct.lastSessionStatus = " + successIndicator.ordinal();
             }
             case FAILURE: {
-                return " cs.status = 0";
+                return " ct.lastSessionStatus = " + successIndicator.ordinal();
             }
             default: {
                 throw new IllegalArgumentException("Unsupported ConnectionTask.SuccessIndicator: " + successIndicator.name());
