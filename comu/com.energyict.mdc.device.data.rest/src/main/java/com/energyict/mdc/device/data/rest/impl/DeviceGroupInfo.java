@@ -14,7 +14,8 @@ public class DeviceGroupInfo {
     public String name;
     public boolean dynamic;
     public List<SearchCriteriaInfo> criteria = new ArrayList<>(); //backend => frontend
-    public Object filter;  // frontend => backend
+    public Object filter;  // frontend => backend (contains filter criteria for a dynamic group)
+    public Object devices;  // frontend => backend (contains selected deices ids for a static group)
 
     public DeviceGroupInfo() {
     }
