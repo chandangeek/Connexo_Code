@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -27,6 +28,9 @@ public class ComSessionInfoFactory {
         ConnectionTask<?,?> connectionTask = comSession.getConnectionTask();
         PartialConnectionTask partialConnectionTask = connectionTask.getPartialConnectionTask();
         info.id = comSession.getId();
+        info.device = new IdWithNameInfo(comSession.getConnectionTask().getDevice());
+        info.deviceType = new IdWithNameInfo(comSession.getConnectionTask().getDevice().getDeviceType());
+        info.deviceConfiguration = new DeviceConfigurationIdInfo(comSession.getConnectionTask().getDevice().getDeviceConfiguration());
         info.connectionMethod = connectionTask.getName();
         info.isDefault = connectionTask.isDefault();
         info.startedOn = Date.from(comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND,0));

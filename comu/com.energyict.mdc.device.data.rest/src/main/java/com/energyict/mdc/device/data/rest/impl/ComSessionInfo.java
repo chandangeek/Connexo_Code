@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import java.util.Date;
 
@@ -21,4 +22,7 @@ class ComSessionInfo {
     public SuccessIndicatorInfo result;
     public ComTaskCountInfo comTaskCount;
     public boolean isDefault;
+    public IdWithNameInfo device;
+    public IdWithNameInfo deviceType;
+    public DeviceConfigurationIdInfo deviceConfiguration;
 }
