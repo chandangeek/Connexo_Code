@@ -9,7 +9,9 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import static java.util.stream.Collectors.toList;
 
@@ -28,14 +30,11 @@ public class DeviceCommandResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
-
-
-
+    public PagedInfoList getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
                 sorted((c1, c2) -> c2.getReleaseDate().compareTo(c1.getReleaseDate())).
-                map(deviceMessageInfoFactory::asInfo).
+                map(msg->deviceMessageInfoFactory.asInfo(msg, uriInfo)).
                 collect(toList());
 
         return PagedInfoList.asJson("commands", infos, queryParameters);

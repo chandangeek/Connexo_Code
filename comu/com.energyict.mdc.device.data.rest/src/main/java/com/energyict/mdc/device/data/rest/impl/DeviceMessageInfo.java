@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonInstantAdapter;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import java.time.Instant;
+import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -24,4 +26,5 @@ public class DeviceMessageInfo {
     public String errorMessage;
     public Boolean willBePickedUpByComTask;
     public Boolean willBePickedUpByScheduledComTask;
+    public List<PropertyInfo> attributes;
 }

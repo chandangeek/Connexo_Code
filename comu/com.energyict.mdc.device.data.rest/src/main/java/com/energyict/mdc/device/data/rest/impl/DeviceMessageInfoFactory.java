@@ -1,13 +1,20 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.tasks.MessagesTask;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import javax.inject.Inject;
+import javax.ws.rs.core.UriInfo;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 10/22/14.
@@ -16,13 +23,16 @@ public class DeviceMessageInfoFactory {
     private static final MessageStatusAdapter MESSAGE_STATUS_ADAPTER = new MessageStatusAdapter();
 
     private final Thesaurus thesaurus;
+    private final MdcPropertyUtils mdcPropertyUtils;
+
 
     @Inject
-    public DeviceMessageInfoFactory(Thesaurus thesaurus) {
+    public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils) {
         this.thesaurus = thesaurus;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage) {
+    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage, UriInfo uriInfo) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingId = deviceMessage.getTrackingId();
@@ -56,6 +66,17 @@ public class DeviceMessageInfoFactory {
                         anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId());
             }
         }
+
+        info.attributes = new ArrayList<>();
+
+        TypedProperties typedProperties = TypedProperties.empty();
+        deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
+                deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList()),
+                typedProperties,
+                info.attributes
+                );
+
 
         return info;
     }
