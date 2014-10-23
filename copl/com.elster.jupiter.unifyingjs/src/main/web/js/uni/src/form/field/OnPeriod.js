@@ -111,7 +111,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                         valueField: 'value',
                         queryMode: 'local',
                         hideLabel: true,
-                        value: 0,
+                        value: 1,
                         width: 128,
                         margin: '0 6 0 6',
                         store: new Ext.data.Store({

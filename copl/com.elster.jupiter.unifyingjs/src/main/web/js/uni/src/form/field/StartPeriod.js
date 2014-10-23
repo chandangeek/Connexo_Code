@@ -87,7 +87,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                     valueField: 'value',
                     queryMode: 'local',
                     hideLabel: true,
-                    value: 'month',
+                    value: 'months',
                     width: 200,
                     margin: '0 6 0 0',
                     store: new Ext.data.Store({

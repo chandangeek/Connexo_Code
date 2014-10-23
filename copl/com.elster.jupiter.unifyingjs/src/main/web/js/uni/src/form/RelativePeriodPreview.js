@@ -1,40 +1,31 @@
 /**
- * @class Uni.form.RelativePeriod
+ * @class Uni.form.RelativePeriodPreview
  */
-Ext.define('Uni.form.RelativePeriod', {
+Ext.define('Uni.form.RelativePeriodPreview', {
     extend: 'Ext.form.FieldContainer',
-    xtype: 'uni-form-relativeperiod',
+    xtype: 'uni-form-relativeperiodpreview',
 
     requires: [
-        'Uni.form.field.StartPeriod',
-        'Uni.form.field.OnPeriod',
-        'Uni.form.field.AtPeriod'
     ],
-
-    /**
-     * @cfg startPeriodCfg
-     *
-     * Custom config for the start period component.
-     */
-    startPeriodCfg: {},
 
     /**
      * @cfg noPreviewDateErrorMsg
      *
      * Message shown in the preview when no preview date has been defined.
      */
-    noPreviewDateErrorMsg: 'It was not possible to calculate the preview date.',
+    noPreviewDateErrorMsg: 'It was not possible to calculate the preview dates.',
 
     previewUrl: '/api/tmr/relativeperiods/preview',
 
-    formatPreviewTextFn: function (dateString) {
-        return Uni.I18n.translate(
-            'form.relativeperiod.previewText',
-            'UNI',
-            'The datetime of the relative period is {0}.',
-            [dateString]
-        );
-    },
+    /**
+     *
+     */
+    startValue: undefined,
+
+    /**
+     *
+     */
+    endValue: undefined,
 
     initComponent: function () {
         var me = this;
@@ -49,7 +40,6 @@ Ext.define('Uni.form.RelativePeriod', {
     onAfterRender: function () {
         var me = this;
 
-        me.updatePeriodFields(me.getValue().freqAgo);
         me.updatePreview();
     },
 
@@ -88,9 +78,6 @@ Ext.define('Uni.form.RelativePeriod', {
     initListeners: function () {
         var me = this;
 
-        me.getStartPeriodField().on('periodchange', me.onStartPeriodChange, me);
-        me.getOnPeriodField().on('periodchange', me.updatePreview, me);
-        me.getAtPeriodField().on('periodchange', me.updatePreview, me);
     },
 
     onStartPeriodChange: function (value) {
@@ -123,24 +110,7 @@ Ext.define('Uni.form.RelativePeriod', {
         label.setText('');
         label.mask();
 
-        Ext.Ajax.request({
-            url: me.previewUrl,
-            method: 'POST',
-            jsonData: me.formatJsonPreviewRequest(),
-            success: function () {
-                if (typeof me.previewDate !== 'undefined') {
-                    dateString = Uni.I18n.formatDate('datetime.longdate', me.previewDate, 'UNI', 'l F j, Y \\a\\t H:i a');
-                    dateString = me.formatPreviewTextFn(dateString);
-                }
-            },
-            failure: function (response) {
-                // Already caught be the default value of the date string.
-            },
-            callback: function () {
-                label.setText(dateString);
-                label.unmask();
-            }
-        });
+        // TODO
     },
 
     formatJsonPreviewRequest: function () {
