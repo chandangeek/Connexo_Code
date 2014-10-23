@@ -24,7 +24,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.Arrays;
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.time", service = {TimeService.class, InstallService.class}, property = "name=" + TimeService.COMPONENT_NAME)
+@Component(name = "com.elster.jupiter.time", service = {TimeService.class, InstallService.class}, property = "name=" + TimeService.COMPONENT_NAME, immediate = true)
 public class TimeServiceImpl implements TimeService, InstallService {
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
@@ -36,7 +36,7 @@ public class TimeServiceImpl implements TimeService, InstallService {
     public TimeServiceImpl() {}
 
     @Inject
-    public TimeServiceImpl(DataModel dataModel, QueryService queryService, OrmService ormService, NlsService nlsService, UserService userService, EventService eventService) {
+    public TimeServiceImpl(QueryService queryService, OrmService ormService, NlsService nlsService, UserService userService, EventService eventService) {
         this.setQueryService(queryService);
         this.setOrmService(ormService);
         this.setThesaurus(nlsService);
