@@ -23,7 +23,7 @@ public enum ValidationResult {
     }
 
     private static Predicate<ReadingQuality> isSuspect() {
-        return q -> EnumSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD)
+        return q -> EnumSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE)
                 .contains(q.getType().qualityIndex().orElse(null));
     }
 }
