@@ -21,6 +21,7 @@ public enum RelativeField {
     int id;
     private final ChronoUnit chronoUnit;
     private final ChronoField chronoField;
+    public static long LAST_DAY_OF_MONTH = 31;
 
     private RelativeField(int id, ChronoUnit chronoUnit) {
         this(id, chronoUnit, null);

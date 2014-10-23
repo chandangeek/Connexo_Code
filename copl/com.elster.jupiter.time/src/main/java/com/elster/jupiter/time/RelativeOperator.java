@@ -25,7 +25,8 @@ public enum RelativeOperator {
             if (field.getChronoField() == null) {
                 throw new UnknownFormatConversionException("Unsupportable operator was used for ChronoField type of field");
             }
-            return dateTime.with(field.getChronoField(), value);
+            return field.equals(RelativeField.DAY) && value == RelativeField.LAST_DAY_OF_MONTH ? dateTime : dateTime.with(field.getChronoField(), value);
+            //return dateTime.with(field.getChronoField(), value);
         }
     };
 

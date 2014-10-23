@@ -70,16 +70,16 @@ public class RelativeDateTest {
         assertThat(date).isEqualTo(referenceTime.minusMonths(5).withDayOfMonth(res.getDayOfMonth()));
     }
 
-    @Test(expected = DateTimeException.class)
-    public void testOperationValidationChronoUnitEqual() {
-        // 30 february
+    @Test
+    public void testOperationLastDayOfMonth() {
+        // last day of month
         Instant instant = Instant.now();
         ZonedDateTime res = ZonedDateTime.ofInstant(instant, referenceTime.getZone());
         List<RelativeOperation> operations = new ArrayList<>();
         operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, 11));
-        operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, 30));
+        operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, 31));
         RelativeDate relativeDate = new RelativeDate(operations);
         ZonedDateTime date = relativeDate.getRelativeDate(referenceTime);
-        //assertThat(date).isEqualTo(referenceTime.minusMonths(11).withDayOfMonth(30));
+        assertThat(date).isEqualTo(referenceTime.minusMonths(11).withDayOfMonth(28));
     }
 }
