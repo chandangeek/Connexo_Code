@@ -94,11 +94,11 @@ Ext.define('Uni.form.field.StartPeriod', {
                         fields: ['name', 'value'],
                         data: (function () {
                             return [
-                                {name: 'Month(s)', value: 'month'},
-                                {name: 'Week(s)', value: 'week'},
-                                {name: 'Day(s)', value: 'day'},
-                                {name: 'Hour(s)', value: 'hour'},
-                                {name: 'Minute(s)', value: 'minute'}
+                                {name: 'Month(s)', value: 'months'},
+                                {name: 'Week(s)', value: 'weeks'},
+                                {name: 'Day(s)', value: 'days'},
+                                {name: 'Hour(s)', value: 'hours'},
+                                {name: 'Minute(s)', value: 'minutes'}
                             ];
                         })()
                     }),
