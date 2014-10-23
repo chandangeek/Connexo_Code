@@ -68,11 +68,10 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testGetDeviceCommandsWithUnscheduledComTaskForCommand() throws Exception {
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
-        Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<?> command2 = mockCommand(device, 2, "reset clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
+        DeviceMessage<?> command2 = mockCommand(device, 2, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
@@ -81,7 +80,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId+1); // non matching category id
+        ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId+1, false); // non matching category id
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
 
         String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
@@ -97,6 +96,34 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testGetDeviceCommandsWithScheduledComTaskForCommand() throws Exception {
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
+
+        Device device = mock(Device.class);
+        int categoryId = 101;
+        DeviceMessage<?> command2 = mockCommand(device, 2, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
+        when(device.getMessages()).thenReturn(Arrays.asList(command2));
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+
+        ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId, false);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
+
+        String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.commands[0].name")).isEqualTo("reset clock");
+        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isEqualTo(true);
+        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(true);
+    }
+
+    @Test
+    public void testGetSentDeviceCommandsWithScheduledComTaskForCommand() throws Exception {
+        Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
         Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
@@ -110,7 +137,36 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId);
+        ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId, false);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
+
+        String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.commands[0].name")).isEqualTo("reset clock");
+        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isNull();
+        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isNull();
+    }
+
+    @Test
+    public void testGetDeviceCommandsWithHaltedScheduleComTaskForCommand() throws Exception {
+        Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
+        Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
+
+        Device device = mock(Device.class);
+        int categoryId = 101;
+        DeviceMessage<?> command2 = mockCommand(device, 2, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
+        when(device.getMessages()).thenReturn(Arrays.asList(command2));
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+
+        ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId, true);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
 
         String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
@@ -120,13 +176,14 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
         assertThat(model.<String>get("$.commands[0].name")).isEqualTo("reset clock");
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isEqualTo(true);
-        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(true);
+        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(false);
     }
 
-    private ComTaskExecution mockComTaskExecution(int categoryId) {
+    private ComTaskExecution mockComTaskExecution(int categoryId, boolean isOnHold) {
         ComTaskExecution mock = mock(ComTaskExecution.class);
         ComTask comTask = mockComTaskWithProtocolTaskForCategory(categoryId);
         when(mock.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(mock.isOnHold()).thenReturn(isOnHold);
         return mock;
     }
 
