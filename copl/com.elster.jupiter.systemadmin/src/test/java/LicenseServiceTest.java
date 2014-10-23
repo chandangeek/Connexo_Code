@@ -18,7 +18,9 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+
 import java.util.Optional;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -41,6 +43,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -131,7 +134,7 @@ public class LicenseServiceTest {
         assertThat(mtrLicense.get().getStatus()).isEqualTo(License.Status.ACTIVE);
         assertThat(mtrLicense.get().getType()).isEqualTo(License.Type.EVALUATION);
         assertThat(mtrLicense.get().getGracePeriodInDays()).isEqualTo(5);
-        assertThat(mtrLicense.get().getExpiration()).isEqualTo(LocalDate.of(9999, 12, 31).atStartOfDay(ZoneId.of("UTC")).toInstant());
+        assertThat(mtrLicense.get().getExpiration()).isEqualTo(LocalDate.of(9999, 12, 31).atStartOfDay(ZoneOffset.UTC).toInstant());
         assertThat(mtrLicense.get().getLicensedValues()).hasSize(2);
 
         Optional<Properties> mtrLicensedValues = getLicenseService().getLicensedValuesForApplication("MTR");
@@ -147,7 +150,7 @@ public class LicenseServiceTest {
         assertThat(isuLicense.get().getStatus()).isEqualTo(License.Status.ACTIVE);
         assertThat(isuLicense.get().getType()).isEqualTo(License.Type.EVALUATION);
         assertThat(isuLicense.get().getGracePeriodInDays()).isEqualTo(5);
-        assertThat(isuLicense.get().getExpiration()).isEqualTo(LocalDate.of(9999, 12, 31).atStartOfDay(ZoneId.of("UTC")).toInstant());
+        assertThat(isuLicense.get().getExpiration()).isEqualTo(LocalDate.of(9999, 12, 31).atStartOfDay(ZoneOffset.UTC).toInstant());
         assertThat(isuLicense.get().getLicensedValues()).hasSize(0);
 
         Optional<Properties> otherLicensedValues = getLicenseService().getLicensedValuesForApplication("OTH");
