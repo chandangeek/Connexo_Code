@@ -616,6 +616,41 @@
             </build>
         </profile>
         <profile>
+            <id>sencha-deploy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>sencha-deploy</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target unless="skipSencha" if="js.dir">
+                                        <property name="cmd.dir" value="${sencha.cmd.dir}"/>
+                                        <taskdef resource="com/sencha/ant/antlib.xml"
+                                                 classpath="${cmd.dir}/sencha.jar"
+                                                 loaderref="senchaloader"/>
+                                        <x-sencha-command>
+                                            package
+                                            add
+                                            ${project.basedir}/src/main/web/${js.dir}/build/${project.groupId}.${project.artifactId}/${project.groupId}.${project.artifactId}.pkg
+                                        </x-sencha-command>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+        <profile>
             <id>sencha-build</id>
             <properties>
                 <sencha.ext.dir>${project.basedir}/../com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
@@ -727,6 +762,7 @@
                                             <type>${project.packaging}</type>
                                         </artifactItem>
                                     </artifactItems>
+                                    <prependGroupId>true</prependGroupId>
                                     <outputDirectory>${felix.load.folder}</outputDirectory>
                                 </configuration>
                             </execution>
