@@ -24,4 +24,6 @@ public class DeviceMessageInfo {
     public Instant sentDate;
     public String user;
     public String errorMessage;
+    public Boolean willBePickedUpByComTask;
+    public Boolean willBePickedUpByScheduledComTask;
 }
