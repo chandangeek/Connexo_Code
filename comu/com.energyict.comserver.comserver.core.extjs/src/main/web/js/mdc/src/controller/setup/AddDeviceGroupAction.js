@@ -12,6 +12,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         'Mdc.view.setup.devicesearch.DevicesSideFilter'
     ],
 
+    stores: [
+        'Mdc.store.DevicesBuffered'
+    ],
+
     refs: [
         {
             ref: 'backButton',
@@ -64,6 +68,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         {
             ref: 'step1FormErrorMessage',
             selector: 'devicegroup-wizard-step1 uni-form-error-message'
+        },
+        {
+            ref: 'staticGrid',
+            selector: 'mdc-search-results bulk-selection-mdc-search-results-grid'
+        },
+        {
+            ref: 'dynamicGrid',
+            selector: 'mdc-search-results mdc-search-results-grid'
         }
     ],
 
@@ -102,6 +114,16 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             (this.getNameTextField().getValue() == '')) {
                 this.getStep1FormErrorMessage().setVisible(true);
         } else {
+            if (layout.getNext().name == 'deviceGroupWizardStep2') {
+                if (this.getDynamicRadioButton().checked) {
+                    this.getStaticGrid().setVisible(false);
+                    this.getDynamicGrid().setVisible(true);
+                } else {
+                    this.getDynamicGrid().setVisible(false);
+                    this.getStaticGrid().setVisible(true);
+                    this.getStore('Mdc.store.DevicesBuffered').load();
+                }
+            }
             this.getStep1FormErrorMessage().setVisible(false);
             this.getNavigationMenu().moveNextStep();
             this.changeContent(layout.getNext(), layout.getActiveItem());
@@ -130,8 +152,20 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         preloader.show();
         if (record) {
             record.set('name', this.getNameTextField().getValue());
-            record.set('dynamic', this.getDynamicRadioButton().checked);
-            record.set('filter', this.getController('Uni.controller.history.Router').filter.data);
+            var isDynamic = this.getDynamicRadioButton().checked;
+            record.set('dynamic', isDynamic);
+            if (isDynamic) {
+                record.set('filter', this.getController('Uni.controller.history.Router').filter.data);
+            } else {
+                var grid = this.getStaticGrid();
+                var selection = this.getStaticGrid().getSelectionModel().getSelection();
+                var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
+                var devicesList = [];
+                for (i = 0; i < numberOfDevices; i++) {
+                    devicesList.push(this.getStaticGrid().getSelectionModel().getSelection()[i].data.id);
+                }
+                record.set('devices', devicesList);
+            }
             record.save({
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('devices/devicegroups').forward();

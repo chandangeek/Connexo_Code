@@ -3,7 +3,8 @@ Ext.define('Mdc.view.setup.devicesearch.SearchResults', {
     xtype: 'mdc-search-results',
 
     requires: [
-        'Mdc.view.setup.devicesearch.DevicesGrid'
+        'Mdc.view.setup.devicesearch.DevicesGrid',
+        'Mdc.view.setup.devicesearch.BulkSelectionDevicesGrid'
     ],
 
     ui: 'large',
@@ -15,7 +16,12 @@ Ext.define('Mdc.view.setup.devicesearch.SearchResults', {
 
     items: [
         {
-            xtype: 'mdc-search-results-grid'
+            xtype: 'mdc-search-results-grid',
+            visible: false
+        },
+        {
+            xtype: 'bulk-selection-mdc-search-results-grid',
+            visible: false
         }
     ]
 });

@@ -1,6 +1,6 @@
-Ext.define('Mdc.view.setup.devicesearch.DevicesGrid', {
-    extend: 'Ext.grid.Panel',
-    xtype: 'mdc-search-results-grid',
+Ext.define('Mdc.view.setup.devicesearch.BulkSelectionDevicesGrid', {
+    extend: 'Uni.view.grid.BulkSelection',
+    xtype: 'bulk-selection-mdc-search-results-grid',
     overflowY: 'auto',
 
     requires: [
@@ -11,11 +11,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesGrid', {
         'Mdc.store.DevicesBuffered'
     ],
 
-    selModel: {
-        mode: 'SINGLE'
-    },
-
-    store: 'Mdc.store.Devices',
+    store: 'Mdc.store.DevicesBuffered',
 
     bottomToolbarHidden: true,
 
@@ -61,25 +57,6 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesGrid', {
                 flex: 3
             }
         ];
-
-        me.dockedItems = [
-         {
-         xtype: 'pagingtoolbartop',
-         itemId: 'searchItemsToolbarTop',
-         store: me.store,
-         dock: 'top',
-         displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
-         displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
-         emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display')
-         },
-         {
-         xtype: 'pagingtoolbarbottom',
-         itemId: 'searchItemsToolbarBottom',
-         store: me.store,
-         dock: 'bottom',
-         itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page')
-         }
-         ];
 
         me.callParent();
     }
