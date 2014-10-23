@@ -9,7 +9,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ChannelValidation;
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
@@ -19,6 +18,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public enum Fakes {
@@ -227,7 +227,7 @@ public enum Fakes {
                 if (fieldValue instanceof Reference) {
                     fieldValue = ((Reference) fieldValue).get();
                 }
-                return Objects.equal(fieldValue, value);
+                return Objects.equals(fieldValue, value);
             }
 
         }
