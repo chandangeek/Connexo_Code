@@ -23,7 +23,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meter
  */
 public enum ClockDeviceMessage implements DeviceMessageSpec {
 
-    SET_TIME(0, PropertySpecFactory.datePropertySpec(meterTimeAttributeName)),
+    SET_TIME(0, PropertySpecFactory.dateTimePropertySpec(meterTimeAttributeName)),
     SET_TIMEZONE(1, PropertySpecFactory.bigDecimalPropertySpec(TimeZoneOffsetInHoursAttributeName)),     //In hours
 
     EnableOrDisableDST(2, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
