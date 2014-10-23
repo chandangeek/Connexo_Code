@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
@@ -15,7 +16,7 @@ public class ComTaskExecutionInfo {
     public String name;
     public List<String> comTasks;
     public IdWithNameInfo device;
-    public IdWithNameInfo deviceConfiguration;
+    public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
     public String comScheduleName;
     public TemporalExpressionInfo comScheduleFrequency;

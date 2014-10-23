@@ -6,8 +6,6 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -46,9 +44,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -242,7 +238,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         Date plannedNext = now.plusHours(2).toDate();
 
         DeviceType deviceType = mockDeviceType();
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration();
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceType);
         ComSchedule comSchedule = mockComSchedule();
         PartialScheduledConnectionTask partialConnectionTask = mockPartialScheduledConnectionTask();
         ComServer comServer = mockComServer();
@@ -288,6 +284,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].deviceType.id")).isEqualTo(1010);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].deviceType.name")).isEqualTo("device type");
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].deviceConfiguration.id")).isEqualTo(123123);
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].deviceConfiguration.deviceTypeId")).isEqualTo(1010);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].deviceConfiguration.name")).isEqualTo("123123");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.id")).isEqualTo("OnHold");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.displayValue")).isEqualTo("Inactive");
@@ -375,10 +372,11 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         return comTaskExecution1;
     }
 
-    private DeviceConfiguration mockDeviceConfiguration() {
+    private DeviceConfiguration mockDeviceConfiguration(DeviceType deviceType) {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(123123L);
         when(deviceConfiguration.getName()).thenReturn("123123");
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         return deviceConfiguration;
     }
 
@@ -407,7 +405,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
         ComSession comSession = mockComSession(startDate, endDate);
         DeviceType deviceType = mockDeviceType();
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration();
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceType);
         Device device = mockDevice(deviceType, deviceConfiguration);
 
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
@@ -440,6 +438,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.communications[0].deviceType.id")).isEqualTo(1010);
         assertThat(jsonModel.<String>get("$.communications[0].deviceType.name")).isEqualTo("device type");
         assertThat(jsonModel.<Integer>get("$.communications[0].deviceConfiguration.id")).isEqualTo(123123);
+        assertThat(jsonModel.<Integer>get("$.communications[0].deviceConfiguration.deviceTypeId")).isEqualTo(1010);
         assertThat(jsonModel.<String>get("$.communications[0].deviceConfiguration.name")).isEqualTo("123123");
         assertThat(jsonModel.<String>get("$.communications[0].currentState.id")).isEqualTo("NeverCompleted");
         assertThat(jsonModel.<String>get("$.communications[0].currentState.displayValue")).isEqualTo("Never completed");
@@ -485,17 +484,6 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comSchedule.getName()).thenReturn("Weekly billing");
         when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS), new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
         return comSchedule;
-    }
-
-    private <T> Finder<T> mockFinder(List<T> list) {
-        Finder<T> finder = mock(Finder.class);
-
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
-        when(finder.find()).thenReturn(list);
-        return finder;
     }
 
 }

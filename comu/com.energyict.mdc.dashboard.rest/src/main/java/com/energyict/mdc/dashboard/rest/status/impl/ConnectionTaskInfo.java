@@ -4,6 +4,7 @@ import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
+import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import java.util.Date;
@@ -15,7 +16,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class ConnectionTaskInfo {
     public long id;
     public IdWithNameInfo device;
-    public IdWithNameInfo deviceConfiguration;
+    public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
     public TaskStatusInfo currentState;
     public LatestStatusInfo latestStatus;
