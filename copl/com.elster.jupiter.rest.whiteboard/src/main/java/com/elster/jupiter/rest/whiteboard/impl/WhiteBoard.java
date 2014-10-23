@@ -157,8 +157,7 @@ public class WhiteBoard {
     }
     
     private Optional<String> getAlias(Map<String,Object> properties) {
-    	String alias = (String) properties.get("alias");
-    	return alias == null ? Optional.empty() : Optional.of("/api" + alias);
+    	return Optional.ofNullable(properties.get("alias")).map(alias ->  "/api" + alias);
     }
 
     @Activate
