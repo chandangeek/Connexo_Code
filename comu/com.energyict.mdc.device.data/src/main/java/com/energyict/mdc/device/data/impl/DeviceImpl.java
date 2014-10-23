@@ -838,6 +838,35 @@ public class DeviceImpl implements Device, CanLock {
         return new LogBookUpdaterForDevice((LogBookImpl) logBook);
     }
 
+    @Override
+    public void lock() {
+        try {
+            try (PreparedStatement stmnt = getLockSqlBuilder().getStatement(dataModel.getConnection(true))) {
+                try (ResultSet rs = stmnt.executeQuery()) {
+                    if (rs.next()) {
+                        return;
+                    }
+                    else {
+                        throw new ApplicationException("Tuple not found");
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DatabaseException(ex);
+        }
+    }
+
+    private SqlBuilder getLockSqlBuilder() {
+        SqlBuilder sqlBuilder = new SqlBuilder("select *");
+        sqlBuilder.append(" from ");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append(" where id = ?");
+        sqlBuilder.bindLong(this.getId());
+        sqlBuilder.append(" for update");
+        return sqlBuilder;
+    }
+
+
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
 
         protected LogBookUpdaterForDevice(LogBookImpl logBook) {
@@ -987,14 +1016,14 @@ public class DeviceImpl implements Device, CanLock {
             transaction.set(DEVICE_ATTRIBUTE_NAME, this);
             transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);
             typedProperties.propertyNames().stream().forEach(p -> transaction.set(p, typedProperties.getPropertyValue(p)));
-            transaction.set(STATUS_ATTRIBUTE_NAME, isPropertyComplete(securityPropertySet,typedProperties));
+            transaction.set(STATUS_ATTRIBUTE_NAME, isSecurityPropertySetComplete(securityPropertySet,typedProperties));
             transaction.execute();
         } catch (BusinessException | SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private boolean isPropertyComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties){
+    private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties){
         // TODO JP-6225 all properties are required
         //if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getPropertyValue(p.getName()) == null)) {
         if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> typedProperties.getPropertyValue(p.getName()) == null)) {
