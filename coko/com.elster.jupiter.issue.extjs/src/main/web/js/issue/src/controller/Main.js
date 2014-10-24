@@ -95,10 +95,7 @@ Ext.define('Isu.controller.Main', {
                     },
                     {
                         text: 'My open issues',
-                        handler: function () {
-                            router.getRoute('workspace/datacollection/issues').forward();
-                            me.getController('Isu.controller.Issues').fireEvent('showIssuesAssignedOnMe');
-                        }
+                        href: router.getRoute('workspace/datacollection/issues').buildUrl({}, {myopenissues: true})
                     }
                 ]
             });

@@ -5,7 +5,8 @@ Ext.define('Isu.model.ExtraParams', {
         'Isu.model.IssueSort',
         'Isu.model.IssueGrouping',
         'Uni.util.Hydrator',
-        'Uni.util.QueryString'
+        'Uni.util.QueryString',
+        'Isu.store.Assignee'
     ],
     fields: [
         {
@@ -76,6 +77,20 @@ Ext.define('Isu.model.ExtraParams', {
         delete queryString.start;
         if (_.isEmpty(queryString)) {
             queryString = me.getDefaults();
+            window.location.assign(Uni.util.QueryString.buildHrefWithQueryString(queryString));
+            return;
+        } else if (queryString.myopenissues) {
+            Ext.getStore('Isu.store.Assignee').load({ params: {me: true}, callback: function (records) {
+                var currentUserId = records[0].getId();
+
+                queryString = me.getDefaults();
+                queryString.assignee = currentUserId;
+                queryString.assigneeId = currentUserId.split(':')[0];
+                queryString.assigneeType = currentUserId.split(':')[1];
+                queryString.myopenissues = [];
+                window.location.assign(Uni.util.QueryString.buildHrefWithQueryString(queryString));
+            }});
+            return;
         }
 
         filterValues = _.pick(queryString, filterModel.getFields());

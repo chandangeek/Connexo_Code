@@ -63,13 +63,8 @@ Ext.define('Isu.controller.Issues', {
         }
     ],
 
-    assignToMe: false,
-
     init: function () {
         this.control({
-            'issues-setup': {
-                afterrender: this.checkAssignee
-            },
             'issues-setup #issues-grid': {
                 select: this.showPreview
             },
@@ -115,10 +110,6 @@ Ext.define('Isu.controller.Issues', {
                 expand: this.limitNotification
             }
         });
-
-        this.on('showIssuesAssignedOnMe', function () {
-            this.assignToMe = true;
-        }, this);
     },
 
     showDataCollection: function () {
@@ -127,12 +118,6 @@ Ext.define('Isu.controller.Issues', {
 
     showDataValidation: function () {
         this.showOverview('datavalidation');
-    },
-
-    checkAssignee: function () {
-        if (this.assignToMe) {
-            this.assignedToMe();
-        }
     },
 
     showOverview: function (issueType) {
@@ -257,7 +242,7 @@ Ext.define('Isu.controller.Issues', {
     },
 
     refresh: function () {
-        window.location.replace(this.extraParamsModel.getQueryStringFromValues());
+        window.location.assign(this.extraParamsModel.getQueryStringFromValues());
     },
 
     setGrouping: function () {
@@ -437,7 +422,6 @@ Ext.define('Isu.controller.Issues', {
             currentUser = assignStore.getAt(0);
             assignCombo.setValue(currentUser.get('idx'));
             me.applyFilter();
-            me.assignToMe = false;
         }});
     }
 });
