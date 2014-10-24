@@ -79,15 +79,10 @@ public class ComSessionImpl implements ComSession {
     }
 
     private long id;
-
     private DataModel dataModel;
-
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
-
     private Reference<ComPort> comPort = ValueReference.absent();
-
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
-
     private Reference<ComStatistics> statistics = ValueReference.absent();
 
     private Instant startDate;
@@ -356,10 +351,19 @@ public class ComSessionImpl implements ComSession {
             this.dataModel.mapper(ComSession.class).persist(this);
             HasLastComSession connectionTaskAsHasLastComSession = (HasLastComSession) this.connectionTask.get();
             connectionTaskAsHasLastComSession.sessionCreated(this);
+            this.comTaskExecutionSessions.forEach(this::notifyCreated);
         }
         else {
             this.dataModel.mapper(ComSession.class).update(this);
         }
+    }
+
+    private void notifyCreated(ComTaskExecutionSession comTaskExecutionSession) {
+        this.notifyCreated((ComTaskExecutionSessionImpl) comTaskExecutionSession);
+    }
+
+    private void notifyCreated(ComTaskExecutionSessionImpl comTaskExecutionSession) {
+        comTaskExecutionSession.created();
     }
 
     private void calculateTotalMillis() {
