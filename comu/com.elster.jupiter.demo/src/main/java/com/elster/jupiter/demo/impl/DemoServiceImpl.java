@@ -90,7 +90,8 @@ public class DemoServiceImpl implements DemoService {
     public static final String COM_TASK_READ_REGISTER_BILLING_DATA = "Read register billing data";
     public static final String COM_TASK_READ_LOAD_PROFILE_DATA = "Read load profile data";
 
-    public static final String OUTBOUND_TCP_POOL_NAME = "Outbound TCP Pool";
+    public static final String VODAFONE_TCP_POOL_NAME = "Vodafone";
+    public static final String ORANGE_TCP_POOL_NAME = "Orange";
 
     public static final String COM_SCHEDULE_DAILY_READ_ALL = "Daily read all";
     public static final String COM_SCHEDULE_MOUNTHLY_BILLING_DATA = "Monthly billing data";
@@ -161,16 +162,10 @@ public class DemoServiceImpl implements DemoService {
                 store.getProperties().put("host", host);
 
                 OnlineComServer comServer = createComServer("Deitvs099");
-                OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP 099", comServer);
-                OutboundComPortPool outboundTcpComPortPool = createOutboundTcpComPortPool("Outbound TCP Pool 099", outboundTCPPort);
-                InboundComPortPool inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool 099");
-                createInboundServletPort("Inbound Servlet 099", 4444, comServer, inboundServletComPortPool);
-
                 comServer = createComServer(comServerName);
-                outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
-                store.getOutboundComPortPools().put(OUTBOUND_TCP_POOL_NAME,createOutboundTcpComPortPool(OUTBOUND_TCP_POOL_NAME, outboundTCPPort));
-                inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool");
-                createInboundServletPort("Inbound Servlet", 4444, comServer, inboundServletComPortPool);
+                OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
+                store.getOutboundComPortPools().put(VODAFONE_TCP_POOL_NAME, createOutboundTcpComPortPool(VODAFONE_TCP_POOL_NAME, outboundTCPPort));
+                store.getOutboundComPortPools().put(ORANGE_TCP_POOL_NAME, createOutboundTcpComPortPool(ORANGE_TCP_POOL_NAME, outboundTCPPort));
 
                 findRegisterTypes(store);
                 createLoadProfiles(store);
@@ -570,7 +565,7 @@ public class DemoServiceImpl implements DemoService {
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp");
         PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration()
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, TimeDuration.minutes(60), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
+                .comPortPool(store.getOutboundComPortPools().get(VODAFONE_TCP_POOL_NAME))
                 .addProperty("host", store.getProperties().get("host"))
                 .addProperty("portNumber", new BigDecimal(4059))
                 .asDefault(true).build();
@@ -599,7 +594,7 @@ public class DemoServiceImpl implements DemoService {
         Device device = deviceService.newDevice(configuration, mrid, mrid);
         device.setSerialNumber(serialNumber);
         calendar.set(2014, 1, 1);
-        device.setYearOfCertification(calendar.getTime());
+        device.setYearOfCertification(calendar.toInstant());
         device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_DAILY_READ_ALL)).add();
         device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_MOUNTHLY_BILLING_DATA)).add();
         device.save();
@@ -608,8 +603,9 @@ public class DemoServiceImpl implements DemoService {
 
     private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
         PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration().getPartialOutboundConnectionTasks().get(0);
+        System.out.println("==> Device with " + ((device.getId() & 1) == 1L ? VODAFONE_TCP_POOL_NAME : ORANGE_TCP_POOL_NAME));
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
+                .setComPortPool(store.getOutboundComPortPools().get((device.getId() & 1) == 1L ? VODAFONE_TCP_POOL_NAME : ORANGE_TCP_POOL_NAME))
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
