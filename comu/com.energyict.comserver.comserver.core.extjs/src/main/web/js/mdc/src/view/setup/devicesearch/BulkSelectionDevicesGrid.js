@@ -15,6 +15,21 @@ Ext.define('Mdc.view.setup.devicesearch.BulkSelectionDevicesGrid', {
 
     bottomToolbarHidden: true,
 
+    allLabel: Uni.I18n.translate('searchItems.BulkSelection.allLabel', 'MDC', 'All devices'),
+
+    allDescription: Uni.I18n.translate(
+        'searchItems.BulkSelection.allDescription',
+        'MDC',
+        'Select all devices'
+    ),
+    selectedLabel: Uni.I18n.translate('searchItems.BulkSelection.selectedLabel', 'MDC', 'Selected devices'),
+
+    selectedDescription: Uni.I18n.translate(
+        'searchItems.BulkSelection.selectedDescription',
+        'MDC',
+        'Select devices in table'
+    ),
+
     initComponent: function () {
         var me = this;
 

@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
 
     ],
 
-    title: Uni.I18n.translate('devicegroup.wizard.step1title', 'MDC', 'Add a device group - Step 1 of 2: General'),
+    title: Uni.I18n.translate('devicegroup.wizard.step1title', 'MDC', 'Add a device group - Step 1 of 2: Name and type'),
 
 
     items: [

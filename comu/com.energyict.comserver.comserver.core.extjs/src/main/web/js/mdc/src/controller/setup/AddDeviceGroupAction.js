@@ -144,7 +144,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     finishClick: function () {
         if (!(this.getDynamicRadioButton().checked)) {
             var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
-            if (numberOfDevices == 0) {
+            if ((numberOfDevices == 0) && (!(this.getStaticGrid().allChosenByDefault))) {
                 this.getStep2FormErrorMessage().setVisible(true);
             }
             else {
@@ -179,11 +179,18 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 record.set('filter', this.getController('Uni.controller.history.Router').filter.data);
             } else {
                 var grid = this.getStaticGrid();
-                var selection = this.getStaticGrid().getSelectionModel().getSelection();
-                var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
                 var devicesList = [];
-                for (i = 0; i < numberOfDevices; i++) {
-                    devicesList.push(this.getStaticGrid().getSelectionModel().getSelection()[i].data.id);
+                if (grid.allChosenByDefault) {
+                    var numberOfDevices = grid.store.data.getArray()[0].length;
+                    for (i = 0; i < numberOfDevices; i++) {
+                        devicesList.push(grid.store.data.getArray()[0][i].data.id);
+                    }
+                } else {
+                    var selection = this.getStaticGrid().getSelectionModel().getSelection();
+                    var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
+                    for (i = 0; i < numberOfDevices; i++) {
+                        devicesList.push(this.getStaticGrid().getSelectionModel().getSelection()[i].data.id);
+                    }
                 }
                 record.set('devices', devicesList);
             }
