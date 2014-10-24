@@ -127,10 +127,10 @@ public class RelativePeriodResource {
     @GET
     @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
     @Produces(MediaType.APPLICATION_JSON)
-    public List<RelativePeriodCategoryInfo> getCategories() {
+    public Response getCategories(@BeanParam QueryParameters queryParameters) {
         List<RelativePeriodCategoryInfo> categoryInfos = new ArrayList<>();
         categoryInfos.addAll(RelativePeriodCategoryInfo.from(timeService.getRelativePeriodCategories()));
-        return categoryInfos;
+        return Response.ok(PagedInfoList.asJson("data", categoryInfos, queryParameters)).build();
     }
 
     private ZonedDateTime getZonedDateTime(RelativeDatePreviewInfo relativeDatePreviewInfo) {
