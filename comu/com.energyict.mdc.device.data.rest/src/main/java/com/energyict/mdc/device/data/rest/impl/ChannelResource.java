@@ -153,7 +153,7 @@ public class ChannelResource {
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         Optional<com.elster.jupiter.metering.Channel> koreChannel = resourceHelper.getLoadProfileChannel(channel, meter);
         if (!koreChannel.isPresent()) {
-            exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfileId, channelId);
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfileId, channelId);
         }
         List<BaseReading> editedReadings = new LinkedList<>();
         List<BaseReadingRecord> removedReadings = new LinkedList<>();
