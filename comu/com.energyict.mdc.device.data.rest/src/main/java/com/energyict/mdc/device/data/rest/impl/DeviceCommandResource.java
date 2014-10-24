@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,13 +31,15 @@ public class DeviceCommandResource {
     private final DeviceMessageInfoFactory deviceMessageInfoFactory;
     private final DeviceMessageService deviceMessageService;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
+    private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
 
     @Inject
-    public DeviceCommandResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, DeviceMessageService deviceMessageService, DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory) {
+    public DeviceCommandResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, DeviceMessageService deviceMessageService, DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory, DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory1) {
         this.resourceHelper = resourceHelper;
         this.deviceMessageInfoFactory = deviceMessageInfoFactory;
         this.deviceMessageService = deviceMessageService;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
+        this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory1;
     }
 
     @GET
@@ -55,7 +57,7 @@ public class DeviceCommandResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/categories")
-    public List<DeviceMessageCategoryInfo> getAllAvailableDeviceCategories(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
+    public List<DeviceMessageCategoryInfo> getAllAvailableDeviceCategoriesWithMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryFilter jsonQueryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
         Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
@@ -67,14 +69,17 @@ public class DeviceCommandResource {
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
 
         for (DeviceMessageCategory category : deviceMessageService.allCategories()) {
-            List<DeviceMessageSpec> deviceMessageSpecs = category.getMessageSpecifications().stream()
+            List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
                     .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol support
                     .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
-                    // TODO add user filtering
+                    .filter(dms->device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
                     .sorted((dms1, dms2) -> dms1.getName().compareToIgnoreCase(dms2.getName()))
+                    .map(dms->deviceMessageSpecInfoFactory.asInfo(dms, device))
                     .collect(Collectors.toList());
             if (!deviceMessageSpecs.isEmpty()) {
-                infos.add(deviceMessageCategoryInfoFactory.asInfo(category, deviceMessageSpecs));
+                DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
+                info.deviceMessageSpecs = deviceMessageSpecs;
+                infos.add(info);
             }
         }
         return infos;
