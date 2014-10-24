@@ -22,7 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Path("/relativeperiod")
+@Path("/relativeperiods")
 public class RelativePeriodResource {
     private final TimeService timeService;
 
@@ -134,8 +134,8 @@ public class RelativePeriodResource {
     }
 
     private ZonedDateTime getZonedDateTime(RelativeDatePreviewInfo relativeDatePreviewInfo) {
-        Instant instant = Instant.ofEpochMilli(relativeDatePreviewInfo.referenceDate);
-        ZoneId zoneId = ZoneId.ofOffset("", ZoneOffset.ofHoursMinutes(relativeDatePreviewInfo.getOffsetHours(), relativeDatePreviewInfo.getOffsetMinutes()));
+        Instant instant = Instant.ofEpochMilli(relativeDatePreviewInfo.date);
+        ZoneId zoneId = ZoneId.ofOffset("", ZoneOffset.ofHoursMinutes(relativeDatePreviewInfo.parseOffsetHours(), relativeDatePreviewInfo.parseOffsetMinutes()));
         return ZonedDateTime.ofInstant(instant, zoneId);
     }
 
