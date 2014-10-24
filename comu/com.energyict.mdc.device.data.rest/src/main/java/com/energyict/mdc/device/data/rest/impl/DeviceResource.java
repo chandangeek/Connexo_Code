@@ -2,16 +2,28 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
-
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -28,12 +40,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
 
 @Path("/devices")
 public class DeviceResource {
@@ -52,6 +58,9 @@ public class DeviceResource {
     private final Provider<DeviceComTaskResource> deviceComTaskResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<DeviceCommandResource> deviceCommandResourceProvider;
+    private final DeviceMessageService deviceMessageService;
+    private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
+    private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
 
     @Inject
     public DeviceResource(
@@ -69,7 +78,9 @@ public class DeviceResource {
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
             Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
-            Provider<DeviceCommandResource> deviceCommandResourceProvider) {
+            Provider<DeviceCommandResource> deviceCommandResourceProvider,
+            DeviceMessageService deviceMessageService,
+            DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory, DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -86,6 +97,9 @@ public class DeviceResource {
         this.deviceComTaskResourceProvider = deviceComTaskResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.deviceCommandResourceProvider = deviceCommandResourceProvider;
+        this.deviceMessageService = deviceMessageService;
+        this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
+        this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
     }
 
 
@@ -138,6 +152,37 @@ public class DeviceResource {
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         return DeviceInfo.from(device, deviceImportService, issueService);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/messagecategories")
+    public List<DeviceMessageCategoryInfo> getAllAvailableDeviceCategoriesWithMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+
+        Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
+        if (supportedMessagesSpecs.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
+        List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
+
+        for (DeviceMessageCategory category : deviceMessageService.allCategories()) {
+            List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
+                    .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol support
+                    .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
+                    .filter(dms->device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
+                    .sorted((dms1, dms2) -> dms1.getName().compareToIgnoreCase(dms2.getName()))
+                    .map(dms->deviceMessageSpecInfoFactory.asInfo(dms, device))
+                    .collect(Collectors.toList());
+            if (!deviceMessageSpecs.isEmpty()) {
+                DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
+                info.deviceMessageSpecs = deviceMessageSpecs;
+                infos.add(info);
+            }
+        }
+        return infos;
     }
 
     @Path("/{mRID}/connectionmethods")
