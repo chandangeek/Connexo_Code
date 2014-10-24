@@ -210,15 +210,9 @@ public class DataExportTaskResource {
                 .setExportPeriod(getRelativePeriod(info.exportperiod))
                 .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
                 .setValidatedDataOption(info.validatedDataOption)
-                .setEndDeviceGroup(endDeviceGroup(info.endDeviceGroupId));
-
-
-        if (info.exportContinuousData) {
-            builder.exportContinuousData();
-        }
-        if (info.exportUpdate) {
-            builder.exportUpdate();
-        }
+                .setEndDeviceGroup(endDeviceGroup(info.endDeviceGroupId))
+                .exportContinuousData(info.exportContinuousData)
+                .exportUpdate(info.exportUpdate);
 
         List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor);
         PropertyUtils propertyUtils = new PropertyUtils();
