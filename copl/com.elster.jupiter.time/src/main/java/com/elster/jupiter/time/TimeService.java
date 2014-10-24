@@ -1,17 +1,18 @@
 package com.elster.jupiter.time;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TimeService {
     static String COMPONENT_NAME = "TME";
 
     List<RelativePeriod> getRelativePeriods();
-    RelativePeriod findRelativePeriod(long relativePeriodId);
-    RelativePeriod findRelativePeriodByName(String name);
+    Optional<RelativePeriod> findRelativePeriod(long relativePeriodId);
+    Optional<RelativePeriod> findRelativePeriodByName(String name);
     RelativePeriod createRelativePeriod(String name, RelativeDate from, RelativeDate to);
     RelativePeriod updateRelativePeriod(Long id, String name, RelativeDate from, RelativeDate to);
     RelativePeriodCategory createRelativePeriodCategory(String key);
-    RelativePeriodCategory findRelativePeriodCategory(long relativePeriodCategoryId);
-    RelativePeriodCategory findRelativePeriodCategoryByName(String name);
+    Optional<RelativePeriodCategory> findRelativePeriodCategory(long relativePeriodCategoryId);
+    Optional<RelativePeriodCategory> findRelativePeriodCategoryByName(String name);
     List<RelativePeriodCategory> getRelativePeriodCategories();
 }

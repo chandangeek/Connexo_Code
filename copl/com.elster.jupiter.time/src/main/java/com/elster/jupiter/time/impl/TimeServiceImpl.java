@@ -23,6 +23,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.time", service = {TimeService.class, InstallService.class}, property = "name=" + TimeService.COMPONENT_NAME, immediate = true)
 public class TimeServiceImpl implements TimeService, InstallService {
@@ -49,13 +50,13 @@ public class TimeServiceImpl implements TimeService, InstallService {
     }
 
     @Override
-    public RelativePeriod findRelativePeriod(long relativePeriodId) {
-        return this.getDataModel().mapper((RelativePeriod.class)).getUnique("id", relativePeriodId).orElse(null);
+    public Optional<RelativePeriod> findRelativePeriod(long relativePeriodId) {
+        return this.getDataModel().mapper((RelativePeriod.class)).getUnique("id", relativePeriodId);
     }
 
     @Override
-    public RelativePeriod findRelativePeriodByName(String name) {
-        return this.getDataModel().mapper((RelativePeriod.class)).getUnique("name", name).orElse(null);
+    public Optional<RelativePeriod> findRelativePeriodByName(String name) {
+        return this.getDataModel().mapper((RelativePeriod.class)).getUnique("name", name);
     }
 
     @Override
@@ -96,13 +97,13 @@ public class TimeServiceImpl implements TimeService, InstallService {
     }
 
     @Override
-    public RelativePeriodCategory findRelativePeriodCategory(long relativePeriodCategoryId) {
-        return this.getDataModel().mapper((RelativePeriodCategory.class)).getUnique("id", relativePeriodCategoryId).orElse(null);
+    public Optional<RelativePeriodCategory> findRelativePeriodCategory(long relativePeriodCategoryId) {
+        return this.getDataModel().mapper((RelativePeriodCategory.class)).getUnique("id", relativePeriodCategoryId);
     }
 
     @Override
-    public RelativePeriodCategory findRelativePeriodCategoryByName(String name) {
-        return this.getDataModel().mapper((RelativePeriodCategory.class)).getUnique("name", name).orElse(null);
+    public Optional<RelativePeriodCategory> findRelativePeriodCategoryByName(String name) {
+        return this.getDataModel().mapper((RelativePeriodCategory.class)).getUnique("name", name);
     }
 
     @Override
