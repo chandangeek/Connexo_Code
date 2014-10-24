@@ -36,7 +36,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class MessageHandlerLauncherServiceTest {
 
     private static final String SUBSCRIBER = "Subscriber";
