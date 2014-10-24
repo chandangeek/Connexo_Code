@@ -73,7 +73,7 @@ public class AssignIssueActionTest {
         when(thesarus.getString(Matchers.anyString(), Matchers.anyString())).thenReturn("string");
 
         IssueAssignee assignee = mock(IssueAssignee.class);
-        when(issueService.findIssueAssignee(IssueAssignee.Types.USER, 1)).thenReturn(assignee);
+        when(issueService.findIssueAssignee("User", 1)).thenReturn(assignee);
         IssueActionFactory actionFactory = injector.getInstance(IssueDefaultActionsFactory.class);
         action = actionFactory.createIssueAction(AssignIssueAction.class.getName());
     }
@@ -84,11 +84,10 @@ public class AssignIssueActionTest {
         assertThat(action instanceof AssignIssueAction).isTrue();
 
         Map<String, String> params = new HashMap<>();
-        params.put(Parameter.ASSIGNEE.getKey(), IssueAssignee.Types.USER);
+        params.put(Parameter.ASSIGNEE.getKey(), "issueAssigneeUser");
         params.put(Parameter.ASSIGNEE_USER.getKey(), "1");
         params.put(Parameter.COMMENT.getKey(), "Assigned!");
         assertThat(action.validate(params)).hasSize(0);
-        assertThat(action.getParameterDefinitions()).hasSize(1);
     }
 
     @Test

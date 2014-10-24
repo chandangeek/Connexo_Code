@@ -92,7 +92,11 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public Optional<Issue> findIssue(long id) {
-        return find(Issue.class, id);
+        Optional<? extends Issue> issue = findOpenIssue(id);
+        if (!issue.isPresent()){
+            issue = findHistoricalIssue(id);
+        }
+        return (Optional<Issue>) issue;
     }
 
     @Override

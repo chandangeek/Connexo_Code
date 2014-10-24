@@ -103,7 +103,6 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
         try {
             actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
             actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
-            actionProviders.put(CommentIssueAction.class.getName(), injector.getProvider(CommentIssueAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

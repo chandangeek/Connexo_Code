@@ -152,8 +152,8 @@ public class InstallServiceImpl implements InstallService, TranslationKeyProvide
         IssueType type = null;
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), type);
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
-        issueActionService.createActionType(IssueDefaultActionsFactory.ID, CommentIssueAction.class.getName(), type);
     }
+
     @Reference
     public final void setMessageService(MessageService messageService) {
         this.messageService = messageService;

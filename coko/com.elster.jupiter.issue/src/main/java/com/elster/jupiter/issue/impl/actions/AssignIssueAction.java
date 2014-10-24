@@ -69,8 +69,11 @@ public class AssignIssueAction extends AbstractIssueAction {
     }
 
     private void initParameterDefinitions() {
-        AssigneeParameter closeStatus = new AssigneeParameter(issueService, userService, thesaurus);
-        parameterDefinitions.put(closeStatus.getKey(), closeStatus);
+        AssigneeParameter assigneeParameter = new AssigneeParameter(issueService, userService, thesaurus);
+        parameterDefinitions.put(assigneeParameter.getKey(), assigneeParameter);
+
+        IssueCommentParameter comment = new IssueCommentParameter(thesaurus);
+        parameterDefinitions.put(comment.getKey(), comment);
     }
 
     @Override
@@ -85,30 +88,18 @@ public class AssignIssueAction extends AbstractIssueAction {
         } else {
             errors.add(new ParameterViolation(Parameter.ASSIGNEE.getKey(), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(thesaurus)));
         }
+        errors.addAll(getParameterDefinitions().get(Parameter.COMMENT.getKey()).validate(actionParameters.get(Parameter.COMMENT.getKey()), ParameterDefinitionContext.ACTION));
         return errors;
     }
 
     private IssueAssignee getIssueAssignee(String assigneeType, Map<String, String> actionParameters) {
         IssueAssignee issueAssignee = null;
-        String key = getAssigneeParameterKey(assigneeType);
-        String idValue = actionParameters.get(key);
+        String idValue = actionParameters.get(assigneeType);
         long id = 0;
         if (idValue != null){
             id = Long.parseLong(idValue);
-            issueAssignee = issueService.findIssueAssignee(assigneeType, id);
+            issueAssignee = issueService.findIssueAssignee(assigneeType.substring(Parameter.ASSIGNEE.getKey().length()), id);
         }
         return issueAssignee;
-    }
-
-    private String getAssigneeParameterKey(String assigneeType) {
-        switch (assigneeType){
-            case IssueAssignee.Types.USER:
-                return Parameter.ASSIGNEE_USER.getKey();
-            case IssueAssignee.Types.ROLE:
-                return Parameter.ASSIGNEE_ROLE.getKey();
-            case IssueAssignee.Types.GROUP:
-                return Parameter.ASSIGNEE_GROUP.getKey();
-        }
-        return null;
     }
 }
