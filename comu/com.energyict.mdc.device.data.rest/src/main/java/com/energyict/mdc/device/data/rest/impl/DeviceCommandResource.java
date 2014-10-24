@@ -63,13 +63,13 @@ public class DeviceCommandResource {
             return Collections.emptyList();
         }
 
-        List<DeviceMessageEnablement> deviceMessageEnablements = device.getDeviceConfiguration().getDeviceMessageEnablements();
+        List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
 
         for (DeviceMessageCategory category : deviceMessageService.allCategories()) {
             List<DeviceMessageSpec> deviceMessageSpecs = category.getMessageSpecifications().stream()
                     .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol support
-                    .filter(dms -> deviceMessageEnablements.stream().map(DeviceMessageEnablement::getDeviceMessageId).anyMatch(id->id==dms.getId())) // limit to device message specs enabled on the config
+                    .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
                     // TODO add user filtering
                     .sorted((dms1, dms2) -> dms1.getName().compareToIgnoreCase(dms2.getName()))
                     .collect(Collectors.toList());

@@ -12,12 +12,10 @@ import javax.inject.Inject;
  */
 public class DeviceMessageCategoryInfoFactory {
 
-    private final Thesaurus thesaurus;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
 
     @Inject
     public DeviceMessageCategoryInfoFactory(Thesaurus thesaurus, DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory) {
-        this.thesaurus = thesaurus;
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
     }
 
