@@ -2,10 +2,7 @@ package com.elster.jupiter.rest.util;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import com.sun.org.glassfish.gmbal.DescriptorFields;
-
 import java.time.Instant;
-import java.util.Date;
 
 // Deprecated as support for Instant (de)serialization has been added to the Objectmapper in com.elster.jupiter.rest.whiteboard
 @Deprecated
