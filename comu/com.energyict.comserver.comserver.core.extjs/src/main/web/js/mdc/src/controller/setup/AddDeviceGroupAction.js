@@ -70,6 +70,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             selector: 'devicegroup-wizard-step1 uni-form-error-message'
         },
         {
+            ref: 'step2FormErrorMessage',
+            selector: 'devicegroup-wizard-step2 uni-form-error-message'
+        },
+        {
             ref: 'staticGrid',
             selector: 'mdc-search-results bulk-selection-mdc-search-results-grid'
         },
@@ -121,13 +125,16 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 } else {
                     this.getDynamicGrid().setVisible(false);
                     this.getStaticGrid().setVisible(true);
-                    this.getStore('Mdc.store.DevicesBuffered').load();
                 }
             }
             this.getStep1FormErrorMessage().setVisible(false);
             this.getNavigationMenu().moveNextStep();
             this.changeContent(layout.getNext(), layout.getActiveItem());
+            if (layout.getActiveItem().name == 'deviceGroupWizardStep2') {
+                this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').applyFilter();
+            }
         }
+        this.getStep2FormErrorMessage().setVisible(false);
     },
 
     confirmClick: function () {
@@ -135,6 +142,20 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     finishClick: function () {
+        if (!(this.getDynamicRadioButton().checked)) {
+            var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
+            if (numberOfDevices == 0) {
+                this.getStep2FormErrorMessage().setVisible(true);
+            }
+            else {
+                this.addDeviceGroupAndReturnToList();
+            }
+        } else {
+            this.addDeviceGroupAndReturnToList();
+        }
+    },
+
+    addDeviceGroupAndReturnToList: function() {
         this.addDeviceGroupWidget = null;
         this.addDeviceGroup();
         var router = this.getController('Uni.controller.history.Router');
