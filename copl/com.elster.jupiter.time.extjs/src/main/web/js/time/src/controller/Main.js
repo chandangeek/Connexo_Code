@@ -33,7 +33,26 @@ Ext.define('Tme.controller.Main', {
             index: 10
         });
 
-        Uni.store.MenuItems.add(menuItem);
+        //if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license', 'privilege.view.license'])) {
+            var relativePeriodItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.licenses', 'TME', 'Relative Period'),
+                portal: 'administration',
+                route: 'relativeperiods',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.licenses', 'TME', 'Relative Periods'),
+                        href: '#/administration/relativeperiods/add',
+                        route: 'licenses'
+                    }
+                ]
+            });
+
+            Uni.store.PortalItems.add(
+                relativePeriodItem
+            );
+        //}
+
+        //Uni.store.MenuItems.add(menuItem);
     }
 });
 

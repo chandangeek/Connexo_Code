@@ -1,14 +1,17 @@
 Ext.define('Tme.store.RelativePeriodCategories', {
     extend: 'Ext.data.Store',
-    fields: ['id', 'name'],
     storeId: 'relativePeriodCategories',
-    model: 'Tme.model.RelativePeriod',
+    autoLoad: false,
+    model: 'Tme.model.Categories',
     proxy: {
         type: 'rest',
-        url: '../../api/tmr/relativeperiods/categories',
+        url: '/api/tmr/relativeperiods/categories',
         reader: {
             type: 'json',
-            root: 'units'
-        }
+            root: 'data'
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
     }
 });

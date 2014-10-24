@@ -3,7 +3,9 @@ Ext.define('Tme.view.relativeperiod.Edit', {
     xtype: 'tme-relativeperiod-edit',
 
     requires: [
-        'Uni.form.RelativePeriod'
+        'Uni.form.RelativePeriod',
+        'Tme.store.RelativePeriodCategories',
+        'Uni.form.field.DateTime'
     ],
 
     title: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
@@ -51,26 +53,32 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                 },
                 items: [
                     {
-                        xtype: 'displayfield',
+                        xtype: 'textfield',
                         name: 'name',
+                        width: 600,
                         fieldLabel: Uni.I18n.translate('relativeperiod.name', 'TME', 'Name')
                     },
                     {
                         xtype: 'combobox',
+                        itemId: 'categorise-combo-box',
+                        width: 600,
                         name: 'category',
-                        fieldLabel: Uni.I18n.translate('relativeperiod.category', 'TME', 'Category'),
-                        itemId: 'comTaskComboBox',
                         store: me.categoryStore,
+                        editable: false,
+                        multiSelect: true,
+                        required: true,
+                        allowBlank: false,
                         queryMode: 'local',
+                        triggerAction: 'all',
+                        fieldLabel: Uni.I18n.translate('relativeperiod.category', 'TME', 'Category'),
+                        emptyText: Uni.I18n.translate('relativeperiod.form.selectcategory', 'TME', 'Select 1 or more categories'),
                         displayField: 'name',
                         valueField: 'id',
-                        emptyText: Uni.I18n.translate('relativeperiod.form.selectcategory', 'TME', 'Select 1 or more categories'),
-                        allowBlank: false,
-                        forceSelection: true,
-                        required: true,
-                        editable: false,
-                        msgTarget: 'under',
-                        width: 600
+                        listConfig: {
+                            getInnerTpl: function () {
+                                return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {' + this.displayField + '}</div>';
+                            }
+                        }
                     },
                     {
                         xtype: 'label',
@@ -78,6 +86,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                     },
                     {
                         xtype: 'uni-form-relativeperiod',
+                        itemId: 'start-date',
                         startPeriodCfg: {
                             fieldLabel: 'Start',
                             showOptionNow: false
@@ -92,6 +101,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                     },
                     {
                         xtype: 'uni-form-relativeperiod',
+                        itemId: 'end-date',
                         startPeriodCfg: {
                             fieldLabel: 'End',
                             showOptionDate: false
@@ -99,6 +109,71 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                         defaults: {
                             labelWidth: 160
                         }
+                    },
+                    {
+                        xtype: 'label',
+                        text: Uni.I18n.translate('relativeperiod.form.referencedete', 'TME', 'Preview')
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'label',
+                                itemId: 'reference-date-preview-label',
+                                text: '',
+                                margin: '10 10 10 40',
+                                cls: Ext.baseCSSPrefix + 'form-cb-label'
+                            }
+                        ]
+                    },
+
+                    {
+                        xtype: 'fieldcontainer',
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'label',
+                                itemId: 'preview-label-before',
+                                text: Uni.I18n.translate('relativeperiod.form.referencedete.setberore', 'TME', 'This relative period is defined using'),
+                                margin: '10 20 30 40',
+                                cls: Ext.baseCSSPrefix + 'form-cb-label'
+                            },
+                            {
+                                xtype: 'date-time',
+                                itemId: 'start-on',
+                                layout: 'hbox',
+                                name: 'start-on',
+                                dateConfig: {
+                                    allowBlank: true
+                                },
+                                hoursConfig: {
+                                    fieldLabel: Uni.I18n.translate('general.at', 'DXP', 'at'),
+                                    labelWidth: 10,
+                                    margin: '0 0 0 10'
+                                },
+                                minutesConfig: {
+                                    width: 55
+                                }
+                            },
+                            {
+                                xtype: 'label',
+                                itemId: 'preview-label-after',
+                                text: Uni.I18n.translate('relativeperiod.form.referencedete.setafter', 'TME', 'as reference'),
+                                margin: '10 30 20 10',
+                                cls: Ext.baseCSSPrefix + 'form-cb-label'
+                            },
+                            {
+                                xtype: 'button',
+                                tooltip: Uni.I18n.translate('relativeperiod.form.referencedete.tooltip', 'TME', 'You can change the reference to define another relative period'),
+                                iconCls: 'icon-info-small',
+                                ui: 'blank',
+                                itemId: 'latestReadingHelp',
+                                shadow: false,
+                                margin: '6 0 0 10',
+                                width: 16
+                            }
+                        ]
                     }
                 ]
             }
