@@ -283,6 +283,8 @@ public class DeviceApplication extends Application implements InstallService {
             bind(JournalEntryInfoFactory.class).to(JournalEntryInfoFactory.class);
             bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class);
+            bind(DeviceMessageSpecInfoFactory.class).to(DeviceMessageSpecInfoFactory.class);
         }
     }
 

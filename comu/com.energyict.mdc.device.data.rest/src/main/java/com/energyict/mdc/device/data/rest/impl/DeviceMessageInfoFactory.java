@@ -12,7 +12,6 @@ import com.energyict.mdc.tasks.MessagesTask;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import javax.inject.Inject;
-import javax.ws.rs.core.UriInfo;
 
 import static java.util.stream.Collectors.toList;
 
@@ -32,7 +31,7 @@ public class DeviceMessageInfoFactory {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage, UriInfo uriInfo) {
+    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingId = deviceMessage.getTrackingId();
@@ -71,7 +70,7 @@ public class DeviceMessageInfoFactory {
 
         TypedProperties typedProperties = TypedProperties.empty();
         deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(null,
                 deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList()),
                 typedProperties,
                 info.attributes
