@@ -1,0 +1,73 @@
+package com.elster.jupiter.export.impl;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.export.MessageSeeds;
+import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+
+import javax.inject.Inject;
+import java.util.Objects;
+import java.util.Optional;
+
+class ReadingTypeInExportTask {
+
+    private final MeteringService meteringService;
+
+    @ValidReadingType(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NO_SUCH_READINGTYPE + "}")
+    private String readingTypeMRID;
+
+    private transient ReadingType readingType;
+    private Reference<IReadingTypeDataExportTask> readingTypeDataExportTask = ValueReference.absent();
+
+    @Inject
+    ReadingTypeInExportTask(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    ReadingTypeInExportTask init(IReadingTypeDataExportTask task, ReadingType readingType) {
+        this.readingTypeDataExportTask.set(task);
+        this.readingType = readingType;
+        this.readingTypeMRID = readingType.getMRID();
+        return this;
+    }
+
+    static ReadingTypeInExportTask from(DataModel dataModel, IReadingTypeDataExportTask task, ReadingType readingType) {
+        return dataModel.getInstance(ReadingTypeInExportTask.class).init(task, readingType);
+    }
+
+    public ReadingTypeDataExportTask getReadingTypeDataExportTask() {
+        return readingTypeDataExportTask.get();
+    }
+
+    public ReadingType getReadingType() {
+        if (readingType == null) {
+            Optional<ReadingType> optional = meteringService.getReadingType(readingTypeMRID);
+            return (optional.isPresent() ? optional.get() : null);
+        }
+        return readingType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ReadingTypeInExportTask that = (ReadingTypeInExportTask) o;
+
+        return readingTypeDataExportTask.get().getId() == that.readingTypeDataExportTask.get().getId() && readingTypeMRID.equals(that.readingTypeMRID);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(readingTypeDataExportTask.get().getId(), readingTypeMRID);
+    }
+}
