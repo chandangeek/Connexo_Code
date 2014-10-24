@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import com.elster.jupiter.rest.util.JsonInstantAdapter;
@@ -20,7 +21,7 @@ class ComTaskExecutionSessionInfo {
     public String name;
     public List<IdWithNameInfo> comTasks;
     public IdWithNameInfo device;
-    public IdWithNameInfo deviceConfiguration;
+    public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
     public String comScheduleName;
     public TemporalExpressionInfo comScheduleFrequency;

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -38,7 +39,7 @@ public class ComTaskExecutionSessionInfoFactory {
         info.name = String.join(" + ", info.comTasks.stream().map(i -> i.name).collect(toList()));
         info.id = comTaskExecutionSession.getId();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
-        info.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration());
+        info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecution instanceof ScheduledComTaskExecution) {
             ComSchedule comSchedule = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule();
