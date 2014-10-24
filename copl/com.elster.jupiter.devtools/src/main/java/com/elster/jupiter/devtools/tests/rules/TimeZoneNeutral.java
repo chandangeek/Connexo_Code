@@ -5,6 +5,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import java.time.ZoneId;
 import java.util.TimeZone;
 
 /**
@@ -66,6 +67,10 @@ public class TimeZoneNeutral implements TestRule {
                 DateTimeZone.setDefault(jodaToRestore);
             }
         }
+    }
+
+    public static ZoneId getMcMurdo() {
+        return ZoneId.of(DEFAULT_SUBSTITUTE);
     }
 
     public String getSubstitute() {
