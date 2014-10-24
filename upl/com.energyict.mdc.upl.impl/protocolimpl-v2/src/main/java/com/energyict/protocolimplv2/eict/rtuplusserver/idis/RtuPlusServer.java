@@ -198,7 +198,7 @@ public class RtuPlusServer implements DeviceProtocol {
                     MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                             slaveDeviceIdentifier,
                             getConfigurationSupport().nodeAddressPropertySpec(),
-                            sapAssignmentItem.getSap()
+                            Integer.toString(sapAssignmentItem.getSap())
                     )
             );
         }
