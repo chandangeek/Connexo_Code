@@ -117,5 +117,11 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                 }
             ]
         }
-    ]
+    ],
+
+    initComponent: function () {
+        this.callParent(arguments);
+        this.down('filter-checkboxgroup').getStore().load();
+    }
+
 });

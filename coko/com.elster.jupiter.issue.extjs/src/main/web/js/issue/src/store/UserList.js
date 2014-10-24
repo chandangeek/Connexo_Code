@@ -1,7 +1,7 @@
 Ext.define('Isu.store.UserList', {
     extend: 'Ext.data.Store',
     model: 'Isu.model.UserList',
-    autoLoad: true,
+    autoLoad: false,
 
     proxy: {
         type: 'rest',
