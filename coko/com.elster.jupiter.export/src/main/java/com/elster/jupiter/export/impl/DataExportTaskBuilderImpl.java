@@ -46,14 +46,14 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
-    public DataExportTaskBuilder exportUpdate() {
-        this.exportUpdate = true;
+    public DataExportTaskBuilder exportUpdate(boolean value) {
+        this.exportUpdate = value;
         return this;
     }
 
     @Override
-    public DataExportTaskBuilder exportContinuousData() {
-        this.exportContinuousData = true;
+    public DataExportTaskBuilder exportContinuousData(boolean value) {
+        this.exportContinuousData = value;
         return this;
     }
 

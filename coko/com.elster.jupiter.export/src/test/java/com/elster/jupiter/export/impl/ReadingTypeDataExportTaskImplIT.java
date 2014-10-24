@@ -217,8 +217,8 @@ public class ReadingTypeDataExportTaskImplIT {
                     .setUpdatePeriod(oneYearBeforeLastYear)
                     .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                     .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                    .exportUpdate()
-                    .exportContinuousData()
+                    .exportUpdate(true)
+                    .exportContinuousData(true)
                     .build();
 
             exportTask.save();

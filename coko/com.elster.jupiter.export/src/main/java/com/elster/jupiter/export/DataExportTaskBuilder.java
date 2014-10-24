@@ -11,9 +11,9 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder scheduleImmediately();
 
-    DataExportTaskBuilder exportUpdate();
+    DataExportTaskBuilder exportUpdate(boolean exportUpdate);
 
-    DataExportTaskBuilder exportContinuousData();
+    DataExportTaskBuilder exportContinuousData(boolean exportContinuousData);
 
     ReadingTypeDataExportTask build();
 
