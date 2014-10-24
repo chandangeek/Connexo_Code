@@ -532,6 +532,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceType.getId()).thenReturn(11L);
         when(deviceType.getName()).thenReturn("device type");
         when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
 
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getName()).thenReturn("com schedule");
@@ -558,6 +559,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.getCurrentTryCount()).thenReturn(7);
+        when(connectionTask.getDevice()).thenReturn(device);
 
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(15L);
@@ -578,6 +580,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(1002);
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(1003);
         when(comSession.getComPort()).thenReturn(comPort);
+        when(comSession.getConnectionTask()).thenReturn(connectionTask);
 
         ComTaskExecutionSession comTaskExecutionSession1 = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession1.getComTaskExecution()).thenReturn(comTaskExecution1);
@@ -600,6 +603,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.name")).isEqualTo("device name");
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceConfiguration.id")).isEqualTo(10);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].deviceConfiguration.name")).isEqualTo("device config");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceConfiguration.deviceTypeId")).isEqualTo(11);
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceType.id")).isEqualTo(11);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].deviceType.name")).isEqualTo("device type");
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comScheduleName")).isEqualTo("com schedule");
