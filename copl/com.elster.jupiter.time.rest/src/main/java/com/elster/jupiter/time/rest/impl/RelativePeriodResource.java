@@ -85,11 +85,7 @@ public class RelativePeriodResource {
     }
 
     private RelativePeriod getRelativePeriodOrThrowException(long id) {
-        RelativePeriod relativePeriod = timeService.findRelativePeriod(id);
-        if(relativePeriod == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return relativePeriod;
+        return timeService.findRelativePeriod(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @Path("/preview")
