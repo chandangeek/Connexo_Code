@@ -151,16 +151,16 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = resourceHelper.getMeterFor(device);
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
-        Optional<com.elster.jupiter.metering.Channel> koreChannel = resourceHelper.getLoadProfileChannel(channel, meter);
-        if (!koreChannel.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfileId, channelId);
-        }
+        com.elster.jupiter.metering.Channel koreChannel =
+                resourceHelper
+                    .getLoadProfileChannel(channel, meter)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfileId, channelId));
         List<BaseReading> editedReadings = new LinkedList<>();
         List<BaseReadingRecord> removedReadings = new LinkedList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
-            if(channelDataInfo.value == null) {
+            if (channelDataInfo.value == null) {
                 List<BaseReadingRecord> readings =
-                        koreChannel.get().getReadings(
+                        koreChannel.getReadings(
                                 Range.openClosed(
                                         Instant.ofEpochMilli(channelDataInfo.interval.start),
                                         Instant.ofEpochMilli(channelDataInfo.interval.end)));
@@ -169,8 +169,8 @@ public class ChannelResource {
                 editedReadings.add(channelDataInfo.createNew());
             }
         });
-        koreChannel.get().editReadings(editedReadings);
-        koreChannel.get().removeReadings(removedReadings);
+        koreChannel.editReadings(editedReadings);
+        koreChannel.removeReadings(removedReadings);
 
         return Response.status(Response.Status.OK).build();
     }

@@ -1,41 +1,44 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.tasks.ComTask;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public class DeviceComTaskResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
-    private final Thesaurus thesaurus;
     private final DeviceComTaskInfoFactory deviceComTaskInfoFactory;
-    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus, DeviceComTaskInfoFactory deviceComTaskInfoFactory, DeviceConfigurationService deviceConfigurationService) {
+    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
-        this.thesaurus = thesaurus;
         this.deviceComTaskInfoFactory = deviceComTaskInfoFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @GET

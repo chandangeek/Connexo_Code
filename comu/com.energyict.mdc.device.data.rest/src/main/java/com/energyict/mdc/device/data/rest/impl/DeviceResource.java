@@ -23,8 +23,14 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -82,8 +88,9 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
-    public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params) {
-        Condition condition = resourceHelper.getQueryConditionForDevice(params);
+    public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
+        Condition condition = resourceHelper.getQueryConditionForDevice(uriInfo.getQueryParameters());
+        MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
         List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
@@ -100,11 +107,9 @@ public class DeviceResource {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
 
-        Calendar calendar = Calendar.getInstance();
         Device newDevice = deviceService.newDevice(deviceConfiguration.get(), info.mRID, info.mRID);
         newDevice.setSerialNumber(info.serialNumber);
-        calendar.set(Integer.parseInt(info.yearOfCertification), 1, 1);
-        newDevice.setYearOfCertification(calendar.getTime());
+        newDevice.setYearOfCertification(ZonedDateTime.of(Integer.parseInt(info.yearOfCertification), 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant());
         newDevice.save();
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
