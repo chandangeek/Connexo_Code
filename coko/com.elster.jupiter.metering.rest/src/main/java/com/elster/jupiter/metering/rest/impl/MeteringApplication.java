@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.google.common.collect.ImmutableSet;
 
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -15,24 +16,18 @@ import org.osgi.service.component.annotations.Reference;
 import javax.ws.rs.core.Application;
 
 import java.time.Clock;
-import java.util.HashSet;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.metering.rest" , service=Application.class , immediate = true , property = {"alias=/mtr"} )
 public class MeteringApplication extends Application implements BinderProvider {
 	
-	private final Set<Class<?>> classes = new HashSet<>();
 	private volatile MeteringService meteringService;
 	private volatile TransactionService transactionService;
 	private volatile RestQueryService restQueryService;
     private volatile Clock clock;
 
-    public MeteringApplication() {
-		classes.add(UsagePointResource.class);		
-	}
-
-	public Set<Class<?>> getClasses() {
-		return classes;
+   	public Set<Class<?>> getClasses() {
+		return ImmutableSet.of(UsagePointResource.class, ReadingTypeResource.class);
 	}
 
 	@Reference

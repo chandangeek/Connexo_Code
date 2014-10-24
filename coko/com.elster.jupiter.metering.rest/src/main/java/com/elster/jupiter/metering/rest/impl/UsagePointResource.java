@@ -1,28 +1,12 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
-import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.User;
-
 import java.time.Clock;
 import java.time.Instant;
-
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Range;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -41,10 +25,22 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Range;
 
 
 @Path("/usagepoints")
@@ -85,14 +81,10 @@ public class UsagePointResource {
     private List<UsagePoint> queryUsagePoints(boolean maySeeAny, QueryParameters queryParameters) {
         Query<UsagePoint> query = meteringService.getUsagePointQuery();
         query.setLazy("serviceLocation");
-        RestQuery<UsagePoint> restQuery = queryService.wrap(query);
-        List<UsagePoint> list;
-        if (maySeeAny) {
-            list = restQuery.select(queryParameters);
-        } else {
-            list = restQuery.select(queryParameters, meteringService.hasAccountability());
+        if (!maySeeAny) {
+        	query.setRestriction(meteringService.hasAccountability());
         }
-        return list;
+        return queryService.wrap(query).select(queryParameters);
     }
 
     private boolean maySeeAny(SecurityContext securityContext) {
