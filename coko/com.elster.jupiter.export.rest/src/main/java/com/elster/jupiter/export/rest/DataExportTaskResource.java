@@ -2,8 +2,13 @@ package com.elster.jupiter.export.rest;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -13,12 +18,14 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -41,11 +48,17 @@ public class DataExportTaskResource {
 
     private final DataExportService dataExportService;
     private final RestQueryService queryService;
+    private final TimeService timeService;
+    private final MeteringService meteringService;
+    private final MeteringGroupsService meteringGroupsService;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService) {
+    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringService meteringService, MeteringGroupsService meteringGroupsService) {
         this.queryService = queryService;
         this.dataExportService = dataExportService;
+        this.timeService = timeService;
+        this.meteringService = meteringService;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @GET
@@ -185,6 +198,55 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DataExportTaskInfo getValidationRuleSet(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new DataExportTaskInfo(fetchDataExportTask(id, securityContext));
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addReadingTypeDataExportTask(DataExportTaskInfo info) {
+        DataExportTaskBuilder builder = dataExportService.newBuilder()
+                .setName(info.name)
+                .setDataProcessorName(info.dataProcessor)
+                .setScheduleExpression(info.schedule.asTemporalExpression())
+                .setExportPeriod(getRelativePeriod(info.exportperiod))
+                .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
+                .setValidatedDataOption(info.validatedDataOption)
+                .setEndDeviceGroup(endDeviceGroup(info.endDeviceGroupId));
+
+
+        if (info.exportContinuousData) {
+            builder.exportContinuousData();
+        }
+        if (info.exportUpdate) {
+            builder.exportUpdate();
+        }
+
+        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor);
+        PropertyUtils propertyUtils = new PropertyUtils();
+
+        propertiesSpecs.stream()
+                .forEach(spec -> {
+                    Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                    builder.addProperty(spec.getName()).withValue(value);
+                });
+
+        info.readingTypes.stream()
+                .forEach(r -> {
+                    meteringService.getReadingType(r.mRID).ifPresent(builder::addReadingType);
+                });
+
+        ReadingTypeDataExportTask dataExportTask = builder.build();
+        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask)).build();
+    }
+
+    private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
+        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
+        if (relativePeriodInfo == null) {
+            return null;
+        }
+        return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
     }
 
     private ReadingTypeDataExportTask fetchDataExportTask(long id, SecurityContext securityContext) {

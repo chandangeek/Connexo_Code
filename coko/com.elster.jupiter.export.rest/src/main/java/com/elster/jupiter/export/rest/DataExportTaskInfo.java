@@ -18,9 +18,8 @@ public class DataExportTaskInfo {
 
     public long id = 0;
     public boolean active = true;
-    public String dataProcessor = "dataProcessor"; //dataprocessor name
-    public String displayName = "displayName"; // readable name
     public String name = "name";
+    public String dataProcessor = "dataProcessor"; //dataprocessor name
     public TemporalExpressionInfo schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(6)));
     public RelativePeriodInfo exportperiod;
     public RelativePeriodInfo updatePeriod;
@@ -30,13 +29,13 @@ public class DataExportTaskInfo {
     public boolean exportContinuousData;
     public ValidatedDataOption validatedDataOption = ValidatedDataOption.INCLUDE_ALL;
     public long lastRun = Instant.now().toEpochMilli();
+    public long endDeviceGroupId;
 
 
     public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask) {
         id = dataExportTask.getId();
         active = dataExportTask.isActive();
         dataProcessor = dataExportTask.getDataFormatter();
-        displayName = dataExportTask.getDisplayName();
         name = dataExportTask.getName();
         dataExportTask.getExportPeriod();
 

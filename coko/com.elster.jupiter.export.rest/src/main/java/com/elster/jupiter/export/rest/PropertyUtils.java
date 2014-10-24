@@ -18,11 +18,11 @@ public class PropertyUtils {
     
     private PropertyInfoFactory propertyInfoFactory = new PropertyInfoFactory();
     
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(List<PropertySpec> propertySpecs) {
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(List<PropertySpec<?>> propertySpecs) {
         return convertPropertySpecsToPropertyInfos(propertySpecs, null);//no initial values for properties
     }
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(List<PropertySpec> propertySpecs, Map<String, Object> values) {
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(List<PropertySpec<?>> propertySpecs, Map<String, Object> values) {
         List<PropertyInfo> propertyInfos = new ArrayList<>();
         for (PropertySpec<?> propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = createPropertyInfo(propertySpec, values);
