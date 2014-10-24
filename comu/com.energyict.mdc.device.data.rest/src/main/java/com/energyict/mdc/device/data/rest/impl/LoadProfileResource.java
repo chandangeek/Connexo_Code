@@ -151,7 +151,7 @@ public class LoadProfileResource {
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         if (intervalStart != null && intervalEnd != null) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
-            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(device, loadProfileData, thesaurus, clock);
+            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(device, loadProfileData, thesaurus, clock, loadProfile.getChannels());
             infos = filter(infos, uriInfo.getQueryParameters());
             List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", paginatedLoadProfileData, queryParameters);
