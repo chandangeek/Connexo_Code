@@ -73,7 +73,8 @@ public class InboundJobExecutionGroup extends JobExecution {
         InboundScheduledJobExecutor jobExecutor =
             new InboundScheduledJobExecutor(
                 getServiceProvider().transactionService(),
-                this.getComPort().getComServer().getCommunicationLogLevel(), getDeviceCommandExecutor());
+                this.getComPort().getComServer().getCommunicationLogLevel(),
+                getDeviceCommandExecutor());
         jobExecutor.execute(this);
     }
 
@@ -106,9 +107,7 @@ public class InboundJobExecutionGroup extends JobExecution {
             this.setExecutionContext(this.newExecutionContext(this.connectionTask, this.getComPort()));
             List<PreparedComTaskExecution> preparedComTaskExecutions = this.prepareAll(this.comTaskExecutions);
             if (this.getExecutionContext().connect()) {
-                for (PreparedComTaskExecution preparedComTaskExecution : preparedComTaskExecutions) {
-                    performPreparedComTaskExecution(preparedComTaskExecution);
-                }
+                preparedComTaskExecutions.forEach(this::performPreparedComTaskExecution);
             }
         } finally {
             this.closeConnection();
@@ -121,7 +120,12 @@ public class InboundJobExecutionGroup extends JobExecution {
     }
 
     @Override
-    public void rescheduleToNextComWindow () {
+    public void outsideComWindow() {
+        // scheduling is done in the device for inbound communication so I can't fix this here
+    }
+
+    @Override
+    public void rescheduleToNextComWindow (ComServerDAO comServerDAO) {
         // rescheduling is done in the device for inbound communication
     }
 

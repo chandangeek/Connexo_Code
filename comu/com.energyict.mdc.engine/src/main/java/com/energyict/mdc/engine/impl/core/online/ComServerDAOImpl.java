@@ -1,14 +1,6 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.sql.Fetcher;
-import java.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -68,13 +60,20 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import java.util.Optional;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.sql.Fetcher;
 
 import java.text.DateFormat;
-import java.util.Arrays;
+import java.time.Clock;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides a default implementation for the {@link ComServerDAO} interface
@@ -370,18 +369,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionCompleted(final ConnectionTask connectionTask) {
-        this.executeTransaction(() -> {
-            toServerConnectionTask(connectionTask).executionCompleted();
-            return null;
-        });
+        this.toServerConnectionTask(connectionTask).executionCompleted();
     }
 
     @Override
     public void executionFailed(final ConnectionTask connectionTask) {
-        this.executeTransaction(() -> {
-            toServerConnectionTask(connectionTask).executionFailed();
-            return null;
-        });
+        this.toServerConnectionTask(connectionTask).executionFailed();
     }
 
     @Override
@@ -394,38 +387,28 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionCompleted(final ComTaskExecution comTaskExecution) {
-        this.executeTransaction(() -> {
-            toServerComTaskExecution(comTaskExecution).executionCompleted();
-            return null;
-        });
+        this.toServerComTaskExecution(comTaskExecution).executionCompleted();
     }
 
     @Override
     public void executionCompleted(final List<? extends ComTaskExecution> comTaskExecutions) {
-        this.executeTransaction(() -> {
-            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                toServerComTaskExecution(comTaskExecution).executionCompleted();
-            }
-            return null;
-        });
+        comTaskExecutions
+            .stream()
+            .map(this::toServerComTaskExecution)
+            .forEach(ServerComTaskExecution::executionCompleted);
     }
 
     @Override
     public void executionFailed(final ComTaskExecution comTaskExecution) {
-        this.executeTransaction(() -> {
-            toServerComTaskExecution(comTaskExecution).executionFailed();
-            return null;
-        });
+        this.toServerComTaskExecution(comTaskExecution).executionFailed();
     }
 
     @Override
     public void executionFailed(final List<? extends ComTaskExecution> comTaskExecutions) {
-        this.executeTransaction(() -> {
-            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                toServerComTaskExecution(comTaskExecution).executionFailed();
-            }
-            return null;
-        });
+        comTaskExecutions
+            .stream()
+            .map(this::toServerComTaskExecution)
+            .forEach(ServerComTaskExecution::executionFailed);
     }
 
     @Override
@@ -480,23 +463,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public boolean isStillPending(long comTaskExecutionId) {
-        return getCommunicationTaskService().areComTasksStillPending(Arrays.asList(comTaskExecutionId));
+        return getCommunicationTaskService().isComTaskStillPending(comTaskExecutionId);
     }
 
     @Override
     public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
         return getCommunicationTaskService().areComTasksStillPending(comTaskExecutionIds);
-    }
-
-    @Override
-    public void setMaxNumberOfTries(final ScheduledConnectionTask connectionTask, final int maxNumberOfTries) {
-        this.executeTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                connectionTask.setMaxNumberOfTries(maxNumberOfTries);
-                connectionTask.save();
-            }
-        });
     }
 
     @Override

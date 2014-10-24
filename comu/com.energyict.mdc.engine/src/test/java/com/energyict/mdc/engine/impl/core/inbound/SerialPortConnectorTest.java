@@ -90,8 +90,8 @@ public class SerialPortConnectorTest {
             "OK",      // Answer at modem restore profile settings
             "OK",      // Answer at modem init string
             "RING",    // First ring
-            "RING",    // 2th ring
-            "RING",    // 3th ring
+            "RING",    // 2nd ring
+            "RING",    // 3rd ring
             "CONNECT")); // CONNECT
 
         serialComChannel.setResponseTimings(Arrays.asList(
@@ -99,8 +99,8 @@ public class SerialPortConnectorTest {
             0,    // Answer at modem restore profile settings
             0,    // Answer at modem init string
             0,    // First ring
-            0,    // 2th ring
-            0,    // 3th ring
+            0,    // 2nd ring
+            0,    // 3rd ring
             0));    // CONNECT
         int expectedTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
@@ -128,8 +128,8 @@ public class SerialPortConnectorTest {
             "-RUBBISH-OK-RUBBISH-",      // Answer at modem restore profile settings
             "-RUBBISH-OK-RUBBISH-",      // Answer at modem init string
             "-RUBBISH-RING-RUBBISH-",    // First ring
-            "-RUBBISH-RING-RUBBISH-",    // 2th ring
-            "-RUBBISH-RING-RUBBISH-",    // 3th ring
+            "-RUBBISH-RING-RUBBISH-",    // 2nd ring
+            "-RUBBISH-RING-RUBBISH-",    // 3rd ring
             "-RUBBISH--RUBBISH--RUBBISH-CONNECT-RUBBISH-")); // CONNECT
 
         serialComChannel.setResponseTimings(Arrays.asList(
@@ -137,8 +137,8 @@ public class SerialPortConnectorTest {
             0,    // Answer at modem restore profile settings
             0,    // Answer at modem init string
             0,    // First ring
-            0,    // 2th ring
-            0,    // 3th ring
+            0,    // 2nd ring
+            0,    // 3rd ring
             0));  // CONNECT
         int expectedTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
@@ -168,8 +168,8 @@ public class SerialPortConnectorTest {
             "OK",      // Answer at modem restore profile settings
             "OK",      // Answer at modem init string
             "RING",    // First ring
-            "RING",    // 2th ring
-            "RING",    // 3th ring
+            "RING",    // 2nd ring
+            "RING",    // 3rd ring
             "CONNECT")); // CONNECT
 
         serialComChannel.setResponseTimings(Arrays.asList(
@@ -177,8 +177,8 @@ public class SerialPortConnectorTest {
             0,    // Answer at modem restore profile settings
             0,    // Answer at modem init string
             0,    // First ring
-            0,    // 2th ring
-            0,    // 3th ring
+            0,    // 2nd ring
+            0,    // 3rd ring
             0));  // CONNECT
         int expectedTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
@@ -208,8 +208,8 @@ public class SerialPortConnectorTest {
             "OK",      // Answer at modem init string 1
             "OK",      // Answer at modem init string 2
             "RING",    // First ring
-            "RING",    // 2th ring
-            "RING",    // 3th ring
+            "RING",    // 2nd ring
+            "RING",    // 3rd ring
             "CONNECT"));// CONNECT
 
         serialComChannel.setResponseTimings(Arrays.asList(
@@ -218,8 +218,8 @@ public class SerialPortConnectorTest {
             0,    // Answer at modem init string 1
             0,    // Answer at modem init string 2
             0,    // First ring
-            0,    // 2th ring
-            0,    // 3th ring
+            0,    // 2nd ring
+            0,    // 3rd ring
             0));  // CONNECT
         int expectedTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
@@ -247,8 +247,8 @@ public class SerialPortConnectorTest {
             "OK",      // Answer at modem restore profile settings
             "OK",      // Answer at modem init string
             "RING",    // First ring
-            "RING",    // 2th ring
-            "RING",    // 3th ring
+            "RING",    // 2nd ring
+            "RING",    // 3rd ring
             "CONNECT")); // CONNECT
 
         serialComChannel.setResponseTimings(Arrays.asList(
@@ -256,8 +256,8 @@ public class SerialPortConnectorTest {
             0,    // Answer at modem restore profile settings
             0,    // Answer at modem init string
             0,    // First ring
-            0,    // 2th ring
-            0,    // 3th ring
+            0,    // 2nd ring
+            0,    // 3rd ring
             2));  // CONNECT after 2 seconds (which is greater than AtCommandTimeout, but below the ConnectTimeout)
         int expectedRunTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
@@ -285,11 +285,11 @@ public class SerialPortConnectorTest {
             "OK",      // Answer at modem restore profile settings
             "OK",      // Answer at modem init string
             "RING",    // First ring
-            "RING",    // 2th ring
-            // 3Th ring not received within time -> Timeout & discard of all previous rings received -> looking again for a sequence of 3 rings
+            "RING",    // 2nd ring
+            // 3rd ring not received within time -> Timeout & discard of all previous rings received -> looking again for a sequence of 3 rings
             "RING",    // 1th ring of new sequence
-            "RING",    // 2th ring
-            "RING",    // 3th ring
+            "RING",    // 2nd ring
+            "RING",    // 3rd ring
             "CONNECT")); // CONNECT
 
         serialComChannel.setResponseTimings(Arrays.asList(
@@ -297,10 +297,10 @@ public class SerialPortConnectorTest {
             0,    // Answer at modem restore profile settings
             0,    // Answer at modem init string
             0,    // First ring
-            0,    // 2th ring
+            0,    // 2nd ring
             3,    // 1th ring of new sequence
-            0,    // 2th ring
-            0,    // 3th ring
+            0,    // 2nd ring
+            0,    // 3rd ring
             0));  // CONNECT
         int expectedRunTime = calculateExpectedAcceptTime(comPort, serialComChannel.getResponseTimings());
         long timeBeforeConnect = System.currentTimeMillis();
@@ -328,8 +328,8 @@ public class SerialPortConnectorTest {
             "OK",      // Answer at modem restore profile settings
             "OK",      // Answer at modem init string
             "RING",    // First ring
-            "RING",    // 2th ring
-            "RING",    // 3th ring
+            "RING",    // 2nd ring
+            "RING",    // 3rd ring
             "RUBBISH -- RUBISH -- RUBISH",
             "CONNECT AFTER CONNECT_TIMEOUT")); // CONNECT
 
@@ -338,8 +338,8 @@ public class SerialPortConnectorTest {
                 0,    // Answer at modem restore profile settings
                 0,    // Answer at modem init string
                 0,    // First ring
-                0,    // 2th ring
-                0,    // 3th ring
+                0,    // 2nd ring
+                0,    // 3rd ring
                 0,    // Rubbish
                 4));    // CONNECT after 4 seconds (which is greater than AtCommandTimeout & ConnectTimeout)
         int expectedRunTime = 4;    // 1 second delay before modem hang up + 3 seconds before modem connect timeout should occur

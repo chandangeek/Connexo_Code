@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
@@ -30,8 +31,11 @@ public class TCPPortConnector implements InboundComPortConnector {
     private final ServerSocket serverSocket;
     private final SocketService socketService;
     private final HexService hexService;
+    private final InboundComPort comPort;
 
     public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService, HexService hexService) {
+        super();
+        this.comPort = comPort;
         this.hexService = hexService;
         this.socketService = socketService;
         try {
@@ -46,7 +50,7 @@ public class TCPPortConnector implements InboundComPortConnector {
     public ComPortRelatedComChannel accept() {
         try {
             final Socket socket = this.serverSocket.accept();
-            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.hexService);
+            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.comPort, this.hexService);
         }
         catch (IOException e) {
             throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);

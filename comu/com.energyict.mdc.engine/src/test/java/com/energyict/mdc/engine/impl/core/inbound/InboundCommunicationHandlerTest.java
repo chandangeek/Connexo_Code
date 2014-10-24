@@ -26,6 +26,8 @@ import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecution;
+import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
@@ -459,11 +461,15 @@ public class InboundCommunicationHandlerTest {
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
-        assertThat(compositeDeviceCommand.getChildren()).hasSize(1);
-        DeviceCommand childDeviceCommand = compositeDeviceCommand.getChildren().get(0);
-        assertThat(childDeviceCommand).isInstanceOf(CreateInboundComSession.class);
+        assertThat(compositeDeviceCommand.getChildren()).hasSize(3);
+        DeviceCommand createComSessionDeviceCommand = compositeDeviceCommand.getChildren().get(2);
+        assertThat(createComSessionDeviceCommand).isInstanceOf(CreateInboundComSession.class);
         verify(this.comSessionBuilder).endSession(any(Instant.class), any(ComSession.SuccessIndicator.class));
         verify(this.eventService).postEvent(eq(EventType.DEVICE_CONNECTION_COMPLETION.topic()), anyObject());
+        DeviceCommand rescheduleDeviceCommand = compositeDeviceCommand.getChildren().get(0);
+        assertThat(rescheduleDeviceCommand).isInstanceOf(RescheduleSuccessfulExecution.class);
+        DeviceCommand unlockDeviceCommand = compositeDeviceCommand.getChildren().get(1);
+        assertThat(unlockDeviceCommand).isInstanceOf(UnlockScheduledJobDeviceCommand.class);
     }
 
     @Test
@@ -644,20 +650,24 @@ public class InboundCommunicationHandlerTest {
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
-        assertThat(compositeDeviceCommand.getChildren()).hasSize(1);
-        DeviceCommand childDeviceCommand = compositeDeviceCommand.getChildren().get(0);
+        assertThat(compositeDeviceCommand.getChildren()).hasSize(3);
+        DeviceCommand childDeviceCommand = compositeDeviceCommand.getChildren().get(2);
         assertThat(childDeviceCommand).isInstanceOf(CreateInboundComSession.class);
         verify(this.comSessionBuilder).endSession(any(Instant.class), any(ComSession.SuccessIndicator.class));
+        DeviceCommand rescheduleDeviceCommand = compositeDeviceCommand.getChildren().get(0);
+        assertThat(rescheduleDeviceCommand).isInstanceOf(RescheduleSuccessfulExecution.class);
+        DeviceCommand unlockDeviceCommand = compositeDeviceCommand.getChildren().get(1);
+        assertThat(unlockDeviceCommand).isInstanceOf(UnlockScheduledJobDeviceCommand.class);
     }
 
     private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext() {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.hexService), this.connectionTaskService);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.comPort, this.hexService), this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }
 
     private InboundDiscoveryContextImpl newServletInboundDiscoveryContext() {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, mock(HttpServletRequest.class), mock(HttpServletResponse.class), this.connectionTaskService);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, mock(HttpServletRequest.class), mock(HttpServletResponse.class), this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }

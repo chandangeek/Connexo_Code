@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +16,10 @@ import java.util.stream.Collectors;
  */
 public class ConnectionTaskCompletionEventInfo {
     private long comPortId;
+    private String comPortName;
     private long comServerId;
-    private long deviceId;
+    private String comServerName;
+    private long deviceIdentifier;
     private long connectionTaskId;
     private String successTaskIDs;
     private String failedTaskIDs;
@@ -50,13 +53,19 @@ public class ConnectionTaskCompletionEventInfo {
     }
 
     private void setConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        this.setDeviceId(connectionTask.getDevice().getId());
+        this.setDeviceIdentifier(connectionTask.getDevice().getId());
         this.setConnectionTaskId(connectionTask.getId());
     }
 
     private void setComPort(ComPort comPort) {
-        this.setComServerId(comPort.getComServer().getId());
+        this.setComServer(comPort.getComServer());
         this.setComPortId(comPort.getId());
+        this.setComPortName(comPort.getName());
+    }
+
+    private void setComServer(ComServer comServer) {
+        this.setComServerId(comServer.getId());
+        this.setComServerName(comServer.getName());
     }
 
     public long getComPortId() {
@@ -67,6 +76,14 @@ public class ConnectionTaskCompletionEventInfo {
         this.comPortId = comPortId;
     }
 
+    public String getComPortName() {
+        return comPortName;
+    }
+
+    public void setComPortName(String comPortName) {
+        this.comPortName = comPortName;
+    }
+
     public long getComServerId() {
         return comServerId;
     }
@@ -75,12 +92,20 @@ public class ConnectionTaskCompletionEventInfo {
         this.comServerId = comServerId;
     }
 
-    public long getDeviceId() {
-        return deviceId;
+    public String getComServerName() {
+        return comServerName;
     }
 
-    public void setDeviceId(long deviceId) {
-        this.deviceId = deviceId;
+    public void setComServerName(String comServerName) {
+        this.comServerName = comServerName;
+    }
+
+    public long getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+
+    public void setDeviceIdentifier(long deviceIdentifier) {
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     public long getConnectionTaskId() {

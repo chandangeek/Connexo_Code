@@ -1,6 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+
+import java.util.List;
 
 /**
  * Models a job that is scheduled to be executed,
@@ -73,27 +76,49 @@ public interface ScheduledJob {
     public DeviceCommandExecutionToken getToken ();
 
     /**
-     * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s
-     * after the succesful execution of this Job.
+     * Notifies the ScheduledJob that its execution is considered complete.
      */
-    public void reschedule ();
+    public void completed();
 
     /**
      * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s
-     * (including the ones that did not executed...) after a failure
+     * after the succesful execution of this Job.
+     *
+     * @param comServerDAO The ComServerDAO
+     */
+    public void reschedule(ComServerDAO comServerDAO);
+
+    /**
+     * Notifies the ScheduledJob that its execution is outside
+     * the {@link com.energyict.mdc.common.ComWindow}
+     * of the related {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
+     */
+    public void outsideComWindow();
+
+    /**
+     * Notifies the ScheduledJob that its execution is considered a failure.
+     *
+     * @param reason The ExecutionFailureReason
+     */
+    public void failed(Throwable t, ExecutionFailureReason reason);
+
+    /**
+     * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s
+     * (including the ones that did not execute) after a failure
      * while executing this job.
      *
+     * @param comServerDAO The ComServerDAO
      * @param t The failure
      * @param rescheduleReason the reason for rescheduling
      */
-    public void reschedule (Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason);
+    public void reschedule(ComServerDAO comServerDAO, Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason);
 
     /**
      * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s of this Job
      * to the next occurrence of the {@link com.energyict.mdc.common.ComWindow}
      * because the current system timestamp is not or no longer within that window.
      */
-    public void rescheduleToNextComWindow ();
+    public void rescheduleToNextComWindow (ComServerDAO comServerDAO);
 
     /**
      * Adds the token for this ScheduledJob.
@@ -101,5 +126,13 @@ public interface ScheduledJob {
      * @param deviceCommandExecutionToken The token
      */
     public void setToken(DeviceCommandExecutionToken deviceCommandExecutionToken);
+
+    /**
+     * Gets the List of {@link ComTaskExecution}s that will
+     * be executed by this ScheduledJob.
+     *
+     * @return The List of ComTaskExecution
+     */
+    public List<ComTaskExecution> getComTaskExecutions();
 
 }

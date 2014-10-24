@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
+
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.util.List;
 
@@ -45,22 +45,10 @@ public abstract class ScheduledJobExecutor {
     public void acquireTokenAndPerformSingleJob(ScheduledJob scheduledJob) {
         try {
             List<DeviceCommandExecutionToken> deviceCommandExecutionTokens = this.deviceCommandExecutor.acquireTokens(1);
-            updateTokens(scheduledJob, deviceCommandExecutionTokens);
+            scheduledJob.setToken(deviceCommandExecutionTokens.get(0));
             this.execute(scheduledJob);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        }
-    }
-
-    private void updateTokens(ScheduledJob scheduledJob, List<DeviceCommandExecutionToken> deviceCommandExecutionTokens) {
-        for (int i = 0; i < deviceCommandExecutionTokens.size(); i++) {
-            DeviceCommandExecutionToken token = deviceCommandExecutionTokens.get(i);
-            if (i == 0) {
-                scheduledJob.setToken(token);
-            } else {
-                // just to be safe, free the tokens if you have any left ...
-                this.deviceCommandExecutor.free(token);
-            }
         }
     }
 
@@ -78,33 +66,26 @@ public abstract class ScheduledJobExecutor {
          *    the database will lock that object for the duration of the transaction.
          *    External application that want to update the object will block
          *    until the lock is released, i.e. until the job's execution completed.
-         *    Slow connections such as mod-bus with lots of slave can take up to 20mins to complete. */
+         *    Slow connections such as mod-bus with lots of slaves can take up to 20mins to complete. */
         ValidationTransaction validationTransaction = new ValidationTransaction(job);
         switch (this.transactionService.execute(validationTransaction)) {
             case ATTEMPT_LOCK_SUCCESS: {
                 try {
                     job.execute();
-                    job.reschedule();
+                    job.completed();
                 } catch (ConnectionSetupException t) {
                     logIfDebuggingIsEnabled(t);
-                    job.reschedule(t, RescheduleBehavior.RescheduleReason.CONNECTION_SETUP);
+                    job.failed(t, ExecutionFailureReason.CONNECTION_SETUP);
                 } catch (Throwable t) {
                     logIfDebuggingIsEnabled(t);
-                    job.reschedule(t, RescheduleBehavior.RescheduleReason.CONNECTION_BROKEN);
-                } finally {
-                    transactionService.execute(new VoidTransaction() {
-                        @Override
-                        public void doPerform() {
-                            job.unlock();
-                        }
-                    });
+                    job.failed(t, ExecutionFailureReason.CONNECTION_BROKEN);
                 }
+                break;
             }
-            break;
             case JOB_OUTSIDE_COM_WINDOW: {
-                job.rescheduleToNextComWindow();
+                job.outsideComWindow();
+                break;
             }
-            break;
             case ATTEMPT_LOCK_FAILED:   // intentional fall through
             case NOT_PENDING_ANYMORE:   // intentional fall through
             default:
@@ -132,7 +113,12 @@ public abstract class ScheduledJobExecutor {
             if (!this.job.isStillPending()) {
                 return ValidationReturnStatus.NOT_PENDING_ANYMORE;
             } else if (this.job.isWithinComWindow()) {
-                return this.job.attemptLock() ? ValidationReturnStatus.ATTEMPT_LOCK_SUCCESS : ValidationReturnStatus.ATTEMPT_LOCK_FAILED;
+                if (this.job.attemptLock()) {
+                    return ValidationReturnStatus.ATTEMPT_LOCK_SUCCESS;
+                }
+                else {
+                    return ValidationReturnStatus.ATTEMPT_LOCK_FAILED;
+                }
             } else {
                 return ValidationReturnStatus.JOB_OUTSIDE_COM_WINDOW;
             }

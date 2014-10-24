@@ -95,9 +95,7 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
             List<PreparedComTaskExecution> preparedComTaskExecutions = prepare();
             if (this.establishConnectionFor()) {
                 connectionOk = true;
-                for (PreparedComTaskExecution preparedComTaskExecution : preparedComTaskExecutions) {
-                    performPreparedComTaskExecution(preparedComTaskExecution);
-                }
+                preparedComTaskExecutions.forEach(this::performPreparedComTaskExecution);
             }
         } catch (CommunicationException e) {
             connectionOk = false;

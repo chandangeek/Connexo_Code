@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.RescheduleToNextComWindow;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -70,12 +71,17 @@ public abstract class ScheduledJobImpl extends JobExecution {
     }
 
     @Override
-    public void rescheduleToNextComWindow () {
+    public void outsideComWindow () {
         this.createExecutionContext(false);
         this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(this.getComTaskExecutions().size());
         this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + this.getConnectionTask().getCommunicationWindow());
-        this.doReschedule(RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
+        this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this));
         this.completeSuccessfulComSession();
+    }
+
+    @Override
+    public void rescheduleToNextComWindow (ComServerDAO comServerDAO) {
+        this.doReschedule(comServerDAO, RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
     }
 
     /**

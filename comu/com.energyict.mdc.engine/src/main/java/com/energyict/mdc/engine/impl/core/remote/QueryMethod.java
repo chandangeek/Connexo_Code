@@ -1,22 +1,22 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import java.util.Optional;
+
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Elements of the QueryMethod enum correspond to every method that is defined
@@ -164,16 +164,6 @@ public enum QueryMethod {
             return null;
         }
     },
-    SetMaxNrOfTries {
-        @Override
-        protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
-            Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
-            Integer maxNrOfTries = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.MAX_NR_OF_TRIES);
-            ScheduledConnectionTask connectionTask = ServiceProvider.instance.get().connectionTaskService().findScheduledConnectionTask(connectionTaskId).get();
-            this.setMaxNrOfTries(comServerDAO, connectionTask, maxNrOfTries);
-            return null;
-        }
-    },
     ReleaseInterruptedComTasks {
         @Override
         protected Object doExecute(Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
@@ -275,15 +265,6 @@ public enum QueryMethod {
             @Override
             public void doPerform() {
                 comServerDAO.executionFailed(connectionTask);
-            }
-        });
-    }
-
-    protected void setMaxNrOfTries(final ComServerDAOImpl comServerDAO, final ScheduledConnectionTask connectionTask, final int maxNrOfTries) {
-        this.executeTransaction(new VoidTransaction() {
-            @Override
-            public void doPerform() {
-                comServerDAO.setMaxNumberOfTries(connectionTask, maxNrOfTries);
             }
         });
     }

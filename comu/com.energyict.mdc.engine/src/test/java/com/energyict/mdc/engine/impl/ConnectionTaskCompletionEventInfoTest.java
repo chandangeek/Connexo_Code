@@ -145,9 +145,11 @@ public class ConnectionTaskCompletionEventInfoTest {
         Event event = eventArgumentCaptor.getValue();
         assertThat(event.containsProperty("timestamp")).isTrue();
         assertThat(event.getProperty("event.topics")).isEqualTo(EventType.DEVICE_CONNECTION_COMPLETION.topic());
-        assertThat(event.getProperty("deviceId")).isEqualTo(this.device.getId());
+        assertThat(event.getProperty("deviceIdentifier")).isEqualTo(this.device.getId());
         assertThat(event.getProperty("comPortId")).isEqualTo(this.comPort.getId());
+        assertThat(event.getProperty("comPortName")).isEqualTo(this.comPort.getName());
         assertThat(event.getProperty("comServerId")).isEqualTo(this.comServer.getId());
+        assertThat(event.getProperty("comServerName")).isEqualTo(this.comServer.getName());
         assertThat(event.getProperty("connectionTaskId")).isEqualTo(this.connectionTask.getId());
         assertThat(event.getProperty("successTaskIDs")).isEqualTo(String.valueOf(this.comTaskExecution1.getId()) + "," + String.valueOf(this.comTaskExecution2.getId()));
         assertThat(event.getProperty("failedTaskIDs")).isEqualTo(String.valueOf(this.comTaskExecution2.getId()) + "," + String.valueOf(this.comTaskExecution1.getId()));

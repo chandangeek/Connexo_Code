@@ -205,7 +205,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private void scheduleAll(List<ComJob> jobs) {
-        if(jobs.isEmpty()){
+        if (jobs.isEmpty()) {
             reschedule();
         } else {
             this.getJobScheduler().scheduleAll(jobs);
@@ -230,7 +230,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     protected interface JobScheduler {
-        public int scheduleAll(List<ComJob> jobs);
+        public void scheduleAll(List<ComJob> jobs);
     }
 
     protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {

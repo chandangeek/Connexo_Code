@@ -57,7 +57,7 @@ public class SerialPortConnector implements InboundComPortConnector {
         waitForNumberOfRings(comChannel, modemComponent);
         acceptCallAndConnect(comChannel, modemComponent);
 
-        return new ComPortRelatedComChannelImpl(comChannel, this.hexService);
+        return new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.hexService);
     }
 
 

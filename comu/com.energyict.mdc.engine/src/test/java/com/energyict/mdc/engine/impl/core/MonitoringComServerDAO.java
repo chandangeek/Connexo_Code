@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -29,6 +28,7 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 
 import java.text.DateFormat;
@@ -233,11 +233,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries) {
-        this.actual.setMaxNumberOfTries(connectionTask, maxNumberOfTries);
-    }
-
-    @Override
     public <T> T executeTransaction(Transaction<T> transaction) {
         return this.actual.executeTransaction(transaction);
     }
@@ -303,10 +298,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
         public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
             this.verifier.verify(findExecutableComTasks);
             return null;
-        }
-
-        @Override
-        public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries) {
         }
 
         @Override

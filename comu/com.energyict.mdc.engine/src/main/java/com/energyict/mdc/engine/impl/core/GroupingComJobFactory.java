@@ -58,10 +58,10 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
                 this.previous = comTaskExecution;
                 return true;
             } else {
-                    /* Continue fetching as long as we are dealing with the
-                     * same ConnectionTask and if we are switching to another
-                     * ConnectionTask then we only continue fetching
-                     * if we support switching to another ConnectionTask. */
+                /* Continue fetching as long as we are dealing with the
+                 * same ConnectionTask and if we are switching to another
+                 * ConnectionTask then we only continue fetching
+                 * if we support switching to another ConnectionTask. */
                 boolean continueFetching = comTaskExecution.usesSameConnectionTaskAs(this.previous) || this.continueFetchingOnNewConnectionTask();
                 this.previous = comTaskExecution;
                 return continueFetching;

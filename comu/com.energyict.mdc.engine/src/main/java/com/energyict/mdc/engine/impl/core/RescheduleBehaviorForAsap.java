@@ -59,7 +59,7 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
     @Override
     public void performRescheduling(RescheduleReason reason) {
         ScheduledConnectionTask connectionTask = getScheduledConnectionTask();
-        this.getComServerDAO().setMaxNumberOfTries(connectionTask, Integer.MAX_VALUE);
+        connectionTask.setMaxNumberOfTries(Integer.MAX_VALUE);
         switch (reason) {
             case CONNECTION_SETUP: {
                 performRetryForConnectionSetupError();

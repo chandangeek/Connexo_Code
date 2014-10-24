@@ -61,7 +61,7 @@ public class ComServlet extends HttpServlet {
         response.setContentType("text/html");
         PrintWriter responseWriter = response.getWriter();
         responseWriter.println("<HTML><BODY><H1>ComServer servlet based com port connector</H1><TABLE>");
-        responseWriter.println("<TR><TD>EIServer version:</TD><TD>" + this.getMdwVersion() + "</TD></TR>");
+        responseWriter.println("<TR><TD>Jupiter version:</TD><TD>" + this.getJupiterVersion() + "</TD></TR>");
         responseWriter.println("<TR><TD>Servlet version:</TD><TD>" + getWebVersion() + "</TD></TR>");
         this.statistics.printWith(responseWriter);
         responseWriter.println("</TABLE></BODY></HTML>");
@@ -70,7 +70,7 @@ public class ComServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws
+        throws
             IOException,
             ServletException {
         this.statistics.doPost();
@@ -122,7 +122,7 @@ public class ComServlet extends HttpServlet {
         return context;
     }
 
-    private String getMdwVersion() {
+    private String getJupiterVersion() {
         return "1.0.0-SNAPSHOT";
     }
 

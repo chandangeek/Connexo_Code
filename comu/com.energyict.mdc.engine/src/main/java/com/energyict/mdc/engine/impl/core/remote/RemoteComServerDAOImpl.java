@@ -205,13 +205,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries) {
-        Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
-        this.post(QueryMethod.ExecutionFailed, queryParameters);
-    }
-
-    @Override
     public <T> T executeTransaction(Transaction<T> transaction) {
         return transaction.perform();
     }

@@ -36,17 +36,13 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     private final Counters sessionCounters = new Counters();
     private final Counters taskSessionCounters = new Counters();
 
-    public ComPortRelatedComChannelImpl(ComChannel comChannel, HexService hexService) {
+    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, HexService hexService) {
         super();
         this.comChannel = comChannel;
         this.hexService = hexService;
         this.talking = new StopWatch(false);  // No cpu required;
         this.talking.stop();
-    }
-
-    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, HexService hexService) {
-        this(comChannel, hexService);
-        this.setComPort(comPort);
+        this.comPort = comPort;
     }
 
     @Override

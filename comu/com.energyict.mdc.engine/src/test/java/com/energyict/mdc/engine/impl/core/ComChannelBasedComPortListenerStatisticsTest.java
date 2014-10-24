@@ -539,7 +539,11 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         }
 
         @Override
-        public void rescheduleToNextComWindow() {
+        public void outsideComWindow() {
+        }
+
+        @Override
+        public void rescheduleToNextComWindow(ComServerDAO comServerDAO) {
         }
 
         @Override

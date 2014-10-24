@@ -20,7 +20,7 @@ public enum EventType {
             return super.addCustomProperties(eventTypeBuilder).
                     withProperty("comPortId", ValueType.LONG, "comPortId").
                     withProperty("comServerId", ValueType.LONG, "comServerId").
-                    withProperty("deviceId", ValueType.STRING, "deviceId").
+                    withProperty("deviceIdentifier", ValueType.LONG, "deviceIdentifier").
                     withProperty("connectionTaskId", ValueType.LONG, "connectionTaskId");
         }
     },
@@ -30,7 +30,7 @@ public enum EventType {
             return super.addCustomProperties(eventTypeBuilder).
                     withProperty("comPortId", ValueType.LONG, "comPortId").
                     withProperty("comServerId", ValueType.LONG, "comServerId").
-                    withProperty("deviceId", ValueType.LONG, "deviceId").
+                    withProperty("deviceIdentifier", ValueType.LONG, "deviceIdentifier").
                     withProperty("connectionTaskId", ValueType.LONG, "connectionTaskId").
                     withProperty("successTaskIDs", ValueType.STRING, "successTaskIDs").
                     withProperty("failedTaskIDs", ValueType.STRING, "failedTaskIDs").

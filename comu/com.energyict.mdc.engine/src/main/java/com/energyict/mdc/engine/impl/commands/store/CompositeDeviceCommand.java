@@ -17,6 +17,10 @@ public interface CompositeDeviceCommand extends DeviceCommand {
 
     public void add (CreateComSessionDeviceCommand command);
 
+    public void add (RescheduleExecutionDeviceCommand command);
+
+    public void add (UnlockScheduledJobDeviceCommand command);
+
     public void addAll (DeviceCommand... commands);
 
     public void addAll (Collection<DeviceCommand> commands);

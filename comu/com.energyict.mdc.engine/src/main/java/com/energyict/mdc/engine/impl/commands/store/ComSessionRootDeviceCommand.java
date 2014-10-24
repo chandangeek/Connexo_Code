@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComServer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
 
+    private List<DeviceCommand> finalCommands = new ArrayList<>();
     private CreateComSessionDeviceCommand createComSessionDeviceCommand;
 
     public ComSessionRootDeviceCommand () {
@@ -32,8 +33,19 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     }
 
     @Override
+    public void add(RescheduleExecutionDeviceCommand command) {
+        this.finalCommands.add(command);
+    }
+
+    @Override
+    public void add(UnlockScheduledJobDeviceCommand command) {
+        this.finalCommands.add(command);
+    }
+
+    @Override
     public List<DeviceCommand> getChildren () {
         List<DeviceCommand> deviceCommands = super.getChildren();
+        deviceCommands.addAll(this.finalCommands);
         if (this.createComSessionDeviceCommand != null) {
             deviceCommands.add(this.createComSessionDeviceCommand);
         }
@@ -43,12 +55,9 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     @Override
     public void execute (final ComServerDAO comServerDAO) {
         this.broadCastFailureLoggerIfAny();
-        comServerDAO.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                executeAll(comServerDAO);
-                return null;
-            }
+        comServerDAO.executeTransaction(() -> {
+            executeAll(comServerDAO);
+            return null;
         });
     }
 
@@ -63,12 +72,9 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     @Override
     public void executeDuringShutdown (final ComServerDAO comServerDAO) {
         this.broadCastFailureLoggerIfAny();
-        comServerDAO.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform () {
-                executeAllDuringShutdown(comServerDAO);
-                return null;
-            }
+        comServerDAO.executeTransaction(() -> {
+            executeAllDuringShutdown(comServerDAO);
+            return null;
         });
     }
 

@@ -63,7 +63,7 @@ public class RescheduleBehaviorForMinimizeConnections extends AbstractReschedule
 
     @Override
     public void performRescheduling(RescheduleReason reason) {
-        this.getComServerDAO().setMaxNumberOfTries(this.getScheduledConnectionTask(), this.getMaxConnectionTryAttempts());
+        this.getScheduledConnectionTask().setMaxNumberOfTries(this.getMaxConnectionTryAttempts());
         switch (reason) {
             case CONNECTION_SETUP: {
                 performRetryForConnectionSetupError();

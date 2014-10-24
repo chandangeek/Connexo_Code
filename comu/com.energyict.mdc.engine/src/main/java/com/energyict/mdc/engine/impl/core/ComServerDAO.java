@@ -380,8 +380,6 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      */
     public boolean areStillPending (Collection<Long> comTaskExecutionIds);
 
-    public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries);
-
     /**
      * Executes the given Transaction
      *

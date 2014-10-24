@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
 /**
- * The {@link RescheduleBehavior} provides functionality to deal with retries on
- * Communication or Connection level.
+ * The {@link RescheduleBehavior} provides functionality to deal
+ * with retries on Communication or Connection level.
  *
  * Copyrights EnergyICT
  * Date: 22/04/13
@@ -26,19 +26,19 @@ public interface RescheduleBehavior {
         CONNECTION_BROKEN,
         /**
          * Handle the reschedule logic where the connection could be
-         * properly set-up, and the execution of the ComTasks was complete
-         * (failed or success)
+         * properly set-up, and the execution of the ComTasks
+         * was complete (failed or success).
          */
         COMTASKS,
         /**
          * Handle the retry logic for the scenario where the
          * connection was not allowed to be setup because the
-         * time of execution was outside the {@link com.energyict.mdc.tasks.ComWindow}
-         * of the {@link com.energyict.mdc.tasks.ConnectionTask}.
+         * time of execution was outside the {@link com.energyict.mdc.common.ComWindow}
+         * of the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
          */
         OUTSIDE_COM_WINDOW
     }
 
     public void performRescheduling(RescheduleReason reason);
-}
 
+}

@@ -1,17 +1,17 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import java.util.Optional;
+
+import com.elster.jupiter.users.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -19,6 +19,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface
@@ -28,6 +30,8 @@ import java.util.concurrent.TimeUnit;
  * @since 2012-04-03 (10:30)
  */
 public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
+
+    private static final Logger LOGGER = Logger.getLogger(MultiThreadedScheduledComPort.class.getName());
 
     private MultiThreadedJobScheduler jobScheduler;
     /**
@@ -84,8 +88,14 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
     @Override
     protected void doRun () {
-        this.executeTasks();
-        this.checkAndApplyChanges();
+        try {
+            this.executeTasks();
+            this.checkAndApplyChanges();
+        }
+        catch (RuntimeException e) {
+            LOGGER.log(Level.SEVERE, e, () -> MultiThreadedScheduledComPort.class.getName() + " for comport(" + this.getComPort().getId() + ") encountered and ignored an unexpected problem");
+            e.printStackTrace(System.err);
+        }
     }
 
     @Override
@@ -143,11 +153,14 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         private MultiThreadedJobScheduler (int threadPoolSize, ThreadFactory threadFactory) {
             super();
             this.executorService = Executors.newFixedThreadPool(threadPoolSize, threadFactory);
-            ComServer.LogLevel communicationLogLevel = MultiThreadedScheduledComPort.this.getComPort().getComServer().getCommunicationLogLevel();
             for (int i = 0; i < threadPoolSize; i++) {
-                executorService.submit(new MultiThreadedScheduledJobExecutor(getServiceProvider().transactionService(),
-                        communicationLogLevel, jobQueue, getDeviceCommandExecutor(),
-                        getServiceProvider().threadPrincipalService(), getServiceProvider().userService()));
+                executorService.submit(
+                        new MultiThreadedScheduledJobExecutor(
+                                getComPort(),
+                                jobQueue,
+                                getDeviceCommandExecutor(), getServiceProvider().transactionService(),
+                                getServiceProvider().threadPrincipalService(),
+                                getServiceProvider().userService()));
             }
         }
 
@@ -167,7 +180,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         }
 
         @Override
-        public int scheduleAll(List<ComJob> jobs) {
+        public void scheduleAll(List<ComJob> jobs) {
             List<ScheduledComTaskExecutionGroup> groups = new ArrayList<>(jobs.size());   // At most all jobs will be groups
             for (ComJob job : jobs) {
                 if (job.isGroup()) {
@@ -180,7 +193,30 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
                 }
             }
             this.scheduleGroups(groups);
-            return -1;
+            this.giveTheConsumersSomeSpace();
+        }
+
+        /**
+         * After we populate the queue, it is recommended to wait a couple of seconds for the workers to fetch and lock the tasks.
+         * This way the first tasks aren't fetched again and only non busy tasks are put on the queue.
+         * This is necessary even if the queue's put method is blocking because:
+         * <ul>
+         * <li>In the situation where just enough tasks were queried to fill the queue (i.e. the next put call would block),
+         *     the task query will run again and return exactly the same tasks, putting them on the queue but blocking
+         *     until one of the threads has picked up a task.
+         *     In that case, we are putting a task on the queue that is no longer pending.</li>
+         * </ul>
+         * <li>In the situation where tasks are actually grouped because the connection task does not support
+         *     simultaneous connections, there is likely space left on the queue that will be filled by
+         *     subsequent call(s) to the task query but all tasks will be the same.</li>
+         * Both situation above are wasting database resources by executing the task query.
+         */
+        private void giveTheConsumersSomeSpace() {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
 
         /**
@@ -217,9 +253,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
                         Thread.currentThread().isInterrupted();
                     }
                 } catch (RejectedExecutionException e) {
-                    for (ComTaskExecution comTaskExecution : group.getComTaskExecutions()) {
-                        MultiThreadedScheduledComPort.this.cannotSchedule(comTaskExecution);
-                    }
+                    group.getComTaskExecutions().forEach(MultiThreadedScheduledComPort.this::cannotSchedule);
                 }
             }
         }

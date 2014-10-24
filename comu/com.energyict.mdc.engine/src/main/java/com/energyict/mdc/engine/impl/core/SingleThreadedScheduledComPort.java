@@ -67,11 +67,10 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
         }
 
         @Override
-        public int scheduleAll(List<ComJob> jobs) {
+        public void scheduleAll(List<ComJob> jobs) {
             for (ScheduledJob job : this.toScheduledJobs(jobs)) {
                 new SingleThreadedScheduledJobExecutor(getServiceProvider().transactionService(), this.logLevel, getDeviceCommandExecutor()).acquireTokenAndPerformSingleJob(job);
             }
-            return jobs.size();
         }
 
         private List<ScheduledJob> toScheduledJobs (List<ComJob> jobs) {

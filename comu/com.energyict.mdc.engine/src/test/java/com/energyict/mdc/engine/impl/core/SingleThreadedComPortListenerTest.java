@@ -147,9 +147,9 @@ public class SingleThreadedComPortListenerTest {
         ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch progressLatch = new CountDownLatch(1);
-        InboundComPortConnector connector = spy(new LatchDrivenTimeOutInboundComPortConnector(startLatch, progressLatch));
-
         InboundComPort inboundComPort = this.mockComPort("simTimeout");
+        InboundComPortConnector connector = spy(new LatchDrivenTimeOutInboundComPortConnector(inboundComPort, startLatch, progressLatch));
+
         InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
         when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
         SingleThreadedComPortListener singleThreadedComPortListener =
@@ -206,11 +206,13 @@ public class SingleThreadedComPortListenerTest {
 
     private class LatchDrivenTimeOutInboundComPortConnector implements InboundComPortConnector {
 
+        private final InboundComPort comPort;
         private CountDownLatch startLatch;
         private CountDownLatch progressLatch;
 
-        private LatchDrivenTimeOutInboundComPortConnector(CountDownLatch startLatch, CountDownLatch progressLatch) {
+        private LatchDrivenTimeOutInboundComPortConnector(InboundComPort comPort, CountDownLatch startLatch, CountDownLatch progressLatch) {
             super();
+            this.comPort = comPort;
             this.startLatch = startLatch;
             this.progressLatch = progressLatch;
         }
@@ -233,7 +235,7 @@ public class SingleThreadedComPortListenerTest {
         protected ComPortRelatedComChannel doAccept() {
             // Unit testing commands typically don't do anything useful
             System.out.println(this.toString() + " is now executing, creating Mock ComChannel ...");
-            return new ComPortRelatedComChannelImpl(new VoidComChannel(), hexService);
+            return new ComPortRelatedComChannelImpl(new VoidComChannel(), this.comPort, hexService);
         }
     }
 
@@ -261,7 +263,7 @@ public class SingleThreadedComPortListenerTest {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                return new ComPortRelatedComChannelImpl(new VoidComChannel(), hexService);
+                return this.comChannel;
             }
         }
 

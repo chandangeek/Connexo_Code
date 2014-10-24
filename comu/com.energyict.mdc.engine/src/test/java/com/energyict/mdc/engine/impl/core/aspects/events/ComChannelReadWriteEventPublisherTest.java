@@ -274,9 +274,7 @@ public class ComChannelReadWriteEventPublisherTest {
         configurableComChannel.whenRead(singleByte);
         configurableComChannel.whenReadFromBuffer(FIRST_SERIES_OF_BYTES);
         configurableComChannel.whenReadFromBufferWithOffset(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
-        ComPortRelatedComChannelImpl comChannel = new ComPortRelatedComChannelImpl(configurableComChannel, this.hexService);
-        comChannel.setComPort(this.comPort);
-        return comChannel;
+        return new ComPortRelatedComChannelImpl(configurableComChannel, this.comPort, this.hexService);
     }
 
     private void writeTo (ComPortRelatedComChannel comChannel) {
@@ -297,9 +295,7 @@ public class ComChannelReadWriteEventPublisherTest {
 
     private ComPortRelatedComChannel newComChannelForWriting () {
         SystemOutComChannel systemOutComChannel = new SystemOutComChannel();
-        ComPortRelatedComChannelImpl comChannel = new ComPortRelatedComChannelImpl(systemOutComChannel, this.hexService);
-        comChannel.setComPort(this.comPort);
-        return comChannel;
+        return new ComPortRelatedComChannelImpl(systemOutComChannel, this.comPort, this.hexService);
     }
 
 }

@@ -287,14 +287,14 @@ public class ComServerDAOImplTest {
     @Test
     public void testIsStillPendingDelegatesToComTaskExecutionFactory() {
         int id = 97;
-        when(this.communicationTaskService.areComTasksStillPending(anyList())).thenReturn(true);
+        when(this.communicationTaskService.isComTaskStillPending(id)).thenReturn(true);
 
         // Business method
         boolean stillPending = this.comServerDAO.isStillPending(id);
 
         // Asserts
         assertThat(stillPending).isTrue();
-        verify(this.communicationTaskService).areComTasksStillPending(anyList());
+        verify(this.communicationTaskService).isComTaskStillPending(id);
     }
 
     @Test

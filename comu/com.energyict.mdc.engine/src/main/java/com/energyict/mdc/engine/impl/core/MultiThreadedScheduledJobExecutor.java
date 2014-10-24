@@ -1,15 +1,18 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.model.OutboundComPort;
+
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.model.ComServer;
-import java.util.Optional;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * JobExecutor that takes jobs from a blocking queue.
@@ -21,12 +24,16 @@ import java.util.concurrent.BlockingQueue;
  */
 public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements Runnable {
 
+    private static final Logger LOGGER = Logger.getLogger(MultiThreadedScheduledJobExecutor.class.getName());
+
+    private final OutboundComPort comPort;
     private BlockingQueue<ScheduledJob> jobBlockingQueue;
     private final ThreadPrincipalService threadPrincipalService;
     private final UserService userService;
 
-    public MultiThreadedScheduledJobExecutor(TransactionService transactionExecutor, ComServer.LogLevel logLevel, BlockingQueue<ScheduledJob> jobBlockingQueue, DeviceCommandExecutor deviceCommandExecutor, ThreadPrincipalService threadPrincipalService, UserService userService) {
-        super(transactionExecutor, logLevel, deviceCommandExecutor);
+    public MultiThreadedScheduledJobExecutor(OutboundComPort comPort, BlockingQueue<ScheduledJob> jobBlockingQueue, DeviceCommandExecutor deviceCommandExecutor, TransactionService transactionExecutor, ThreadPrincipalService threadPrincipalService, UserService userService) {
+        super(transactionExecutor, comPort.getComServer().getCommunicationLogLevel(), deviceCommandExecutor);
+        this.comPort = comPort;
         this.jobBlockingQueue = jobBlockingQueue;
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
@@ -42,11 +49,15 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
             try {
                 ScheduledJob scheduledJob = jobBlockingQueue.take();
                 acquireTokenAndPerformSingleJob(scheduledJob);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            } catch (Throwable t) {
+            }
+            catch (RuntimeException t) {
+                LOGGER.log(Level.SEVERE, t, () -> MultiThreadedScheduledJobExecutor.class.getName() + " for comport(" + this.comPort.getId() + ") encountered and ignored an unexpected problem");
                 t.printStackTrace(System.err);
             }
         }
     }
+
 }

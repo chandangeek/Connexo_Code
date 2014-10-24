@@ -465,9 +465,11 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void setComPortRelatedComChannel(ComPortRelatedComChannel comPortRelatedComChannel) {
-        comPortRelatedComChannel.setJournalEntryFactory(this);
-        this.comPortRelatedComChannel = comPortRelatedComChannel;
-        this.jobExecution.connected(comPortRelatedComChannel);
+        if (comPortRelatedComChannel != null) { // Is null for inbound communication via servlet technology
+            comPortRelatedComChannel.setJournalEntryFactory(this);
+            this.comPortRelatedComChannel = comPortRelatedComChannel;
+            this.jobExecution.connected(comPortRelatedComChannel);
+        }
     }
 
     private List<DeviceCommand> toDeviceCommands(ComTaskExecutionComCommand commandRoot) {

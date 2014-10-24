@@ -440,12 +440,6 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void setMaxNumberOfTries(ScheduledConnectionTask connectionTask, int maxNumberOfTries) {
-        connectionTask.setMaxNumberOfTries(maxNumberOfTries);
-        connectionTask.save();
-    }
-
-    @Override
     public <T> T executeTransaction(Transaction<T> transaction) {
         return null;
     }

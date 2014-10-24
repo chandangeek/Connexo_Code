@@ -1,9 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import java.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -34,6 +30,9 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.RescheduleFailedExecution;
+import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecution;
+import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.model.ComPort;
@@ -54,13 +53,18 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import java.util.Optional;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import static com.energyict.mdc.device.data.tasks.history.ComSession.SuccessIndicator.Broken;
 import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession.SuccessIndicator.Failure;
@@ -126,13 +130,6 @@ public abstract class JobExecution implements ScheduledJob {
         return comPort;
     }
 
-    /**
-     * Provide a list of {@link ComTaskExecution comTaskExecutions} which will be executed during this session
-     *
-     * @return the list of ComTaskExecutions
-     */
-    public abstract List<ComTaskExecution> getComTaskExecutions();
-
     public abstract ConnectionTask<?, ?> getConnectionTask();
 
     public ExecutionContext getExecutionContext() {
@@ -158,17 +155,25 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     @Override
-    public void reschedule() {
-        this.doReschedule(RescheduleBehavior.RescheduleReason.COMTASKS);
+    public void completed() {
         this.completeSuccessfulComSession();
         this.publishCompletion();
     }
 
     @Override
-    public void reschedule(Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason) {
-        this.doReschedule(rescheduleReason);
-        this.completeFailedComSession(t, this.getFailureIndicatorFor(rescheduleReason));
+    public void reschedule(ComServerDAO comServerDAO) {
+        this.doReschedule(comServerDAO, RescheduleBehavior.RescheduleReason.COMTASKS);
+    }
+
+    @Override
+    public void failed(Throwable t, ExecutionFailureReason reason) {
+        this.completeFailedComSession(t, reason);
         this.publishCompletion();
+    }
+
+    @Override
+    public void reschedule(ComServerDAO comServerDAO, Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason) {
+        this.doReschedule(comServerDAO, rescheduleReason);
     }
 
     private void publishCompletion() {
@@ -188,19 +193,22 @@ public abstract class JobExecution implements ScheduledJob {
         this.token = deviceCommandExecutionToken;
     }
 
-    protected void completeFailedComSession(Throwable t, ComSession.SuccessIndicator reason) {
-        this.getExecutionContext().fail(t, reason);
+    protected void completeFailedComSession(Throwable t, ExecutionFailureReason reason) {
+        this.getExecutionContext().fail(t, this.getFailureIndicatorFor(reason.toRescheduleReason()));
+        this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this, t, reason));
+        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this));
         this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
     }
 
     protected void completeSuccessfulComSession() {
         this.getExecutionContext().complete();
+        this.getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
+        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this));
         this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
     }
 
-    protected final void doReschedule(final RescheduleBehavior.RescheduleReason rescheduleReason) {
-        final RescheduleBehavior retryBehavior = this.getRescheduleBehavior();
-        retryBehavior.performRescheduling(rescheduleReason);
+    protected final void doReschedule(ComServerDAO comServerDAO, RescheduleBehavior.RescheduleReason rescheduleReason) {
+        this.getRescheduleBehavior(comServerDAO).performRescheduling(rescheduleReason);
     }
 
     /**
@@ -433,17 +441,19 @@ public abstract class JobExecution implements ScheduledJob {
         return Optional.empty();
     }
 
-    private RescheduleBehavior getRescheduleBehavior() {
+    private RescheduleBehavior getRescheduleBehavior(ComServerDAO comServerDAO) {
         if (!InboundConnectionTask.class.isAssignableFrom(getConnectionTask().getClass())) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) getConnectionTask();
             if (scheduledConnectionTask.getConnectionStrategy().equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
-                return new RescheduleBehaviorForMinimizeConnections(getComServerDAO(),
+                return new RescheduleBehaviorForMinimizeConnections(
+                        comServerDAO,
                         this.getSuccessfulComTaskExecutions(),
                         this.getFailedComTaskExecutions(),
                         this.getNotExecutedComTaskExecutions(),
                         getConnectionTask());
             } else {
-                return new RescheduleBehaviorForAsap(getComServerDAO(),
+                return new RescheduleBehaviorForAsap(
+                        comServerDAO,
                         this.getSuccessfulComTaskExecutions(),
                         this.getFailedComTaskExecutions(),
                         this.getNotExecutedComTaskExecutions(),
@@ -451,7 +461,8 @@ public abstract class JobExecution implements ScheduledJob {
                         getExecutionContext());
             }
         } else {
-            return new RescheduleBehaviorForInbound(getComServerDAO(),
+            return new RescheduleBehaviorForInbound(
+                    comServerDAO,
                     this.getSuccessfulComTaskExecutions(),
                     this.getFailedComTaskExecutions(),
                     this.getNotExecutedComTaskExecutions(),
