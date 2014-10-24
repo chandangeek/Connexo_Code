@@ -125,7 +125,7 @@ Ext.define('Uni.form.RelativePeriod', {
 
         Ext.Ajax.request({
             url: me.previewUrl,
-            method: 'POST',
+            method: 'PUT',
             jsonData: me.formatJsonPreviewRequest(),
             success: function () {
                 if (typeof me.previewDate !== 'undefined') {
@@ -149,7 +149,7 @@ Ext.define('Uni.form.RelativePeriod', {
             value = me.getValue();
 
         return {
-            date: date,
+            date: date.getTime(),
             zoneOffset: date.getTimezoneOffset(),
             relativeDateInfo: value
         };
