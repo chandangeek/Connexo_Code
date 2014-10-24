@@ -49,8 +49,8 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private boolean exportContinuousData;
     private ValidatedDataOption validatedDataOption;
     private List<ReadingTypeInExportTask> readingTypes = new ArrayList<>();
-    private boolean scheduleImmediately;
 
+    private transient boolean scheduleImmediately;
     private transient ScheduleExpression scheduleExpression;
 
     @Inject
@@ -185,12 +185,18 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public String getDisplayName(String name) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return properties.stream()
+                .filter(p -> p.getName().equals(name))
+                .findAny()
+                .map(DataExportProperty::getDisplayName)
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
     public void addReadingType(ReadingType readingType) {
+        if (getReadingTypes().contains(readingType)) {
+            return;
+        }
         readingTypes.add(ReadingTypeInExportTask.from(dataModel, this, readingType));
 
     }
@@ -226,7 +232,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public void setExportContinuousData(boolean exportContinuousData) {
         this.exportContinuousData = exportContinuousData;
-
     }
 
     @Override
@@ -262,14 +267,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public String getDisplayName() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+    public List<PropertySpec<?>> getPropertySpecs() {
+        return getTemplateDataProcessor(getDataFormatter()).getPropertySpecs();
     }
 }

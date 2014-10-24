@@ -45,8 +45,6 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     String getDataFormatter();
 
-    String getDisplayName();
-
-    List<PropertySpec> getPropertySpecs();
+    List<PropertySpec<?>> getPropertySpecs();
 
 }

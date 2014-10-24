@@ -209,7 +209,7 @@ public class ReadingTypeDataExportTaskImplIT {
             exportTask = dataExportService.newBuilder()
                     .setExportPeriod(lastYear)
                     .scheduleImmediately()
-                    .setDataFormatter(FORMATTER)
+                    .setDataProcessorName(FORMATTER)
                     .setName("NAME")
                     .setEndDeviceGroup(endDeviceGroup)
                     .addReadingType(readingType)

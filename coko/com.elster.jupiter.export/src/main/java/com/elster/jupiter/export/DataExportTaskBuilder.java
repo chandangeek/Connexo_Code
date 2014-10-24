@@ -19,7 +19,7 @@ public interface DataExportTaskBuilder {
 
 	DataExportTaskBuilder setName(String string);
 
-    DataExportTaskBuilder setDataFormatter(String dataProcessor);
+    DataExportTaskBuilder setDataProcessorName(String dataProcessor);
 
     DataExportTaskBuilder setExportPeriod(RelativePeriod relativePeriod);
 

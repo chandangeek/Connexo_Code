@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -17,6 +18,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.google.inject.AbstractModule;
@@ -29,6 +31,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -88,6 +91,14 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public Query<? extends ReadingTypeDataExportTask> getReadingTypeDataExportTaskQuery() {
         return queryService.wrap(dataModel.query(IReadingTypeDataExportTask.class));
+    }
+
+    @Override
+    public List<PropertySpec<?>> getPropertiesSpecsForProcessor(String name) {
+        return getDataProcessorFactory(name)
+                .map(DataProcessorFactory::createTemplateDataFormatter)
+                .map(DataProcessor::getPropertySpecs)
+                .orElse(Collections.emptyList());
     }
 
     @Override

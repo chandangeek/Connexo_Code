@@ -77,7 +77,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
-    public DataExportTaskBuilder setDataFormatter(String dataProcessor) {
+    public DataExportTaskBuilder setDataProcessorName(String dataProcessor) {
         this.dataProcessor = dataProcessor;
         return this;
     }
