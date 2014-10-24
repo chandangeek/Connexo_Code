@@ -17,18 +17,19 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringGroupsService.class, InstallService.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
 public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService {
@@ -163,6 +164,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     @Override
     public Optional<EndDeviceGroup> findEndDeviceGroup(String mRID) {
         return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();       
+    }
+
+    @Override
+    public Optional<EndDeviceGroup> findEndDeviceGroup(long id) {
+        return dataModel.mapper(EndDeviceGroup.class).getOptional(id);
     }
 
     @Reference

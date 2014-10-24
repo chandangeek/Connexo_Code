@@ -19,7 +19,6 @@ public interface MeteringGroupsService {
 
     Optional<UsagePointGroup> findUsagePointGroup(String mRID);
 
-
     QueryEndDeviceGroup createQueryEndDeviceGroup(Condition condition);
 
     EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(String name);
@@ -29,6 +28,8 @@ public interface MeteringGroupsService {
     Optional<EnumeratedEndDeviceGroup> findEnumeratedEndDeviceGroup(long id);
 
     Optional<EndDeviceGroup> findEndDeviceGroup(String mRID);
+
+    Optional<EndDeviceGroup> findEndDeviceGroup(long id);
 
     EndDeviceQueryProvider getEndDeviceQueryProvider(String name);
 
