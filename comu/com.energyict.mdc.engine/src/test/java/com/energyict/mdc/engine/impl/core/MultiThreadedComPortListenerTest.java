@@ -85,7 +85,6 @@ public class MultiThreadedComPortListenerTest {
         EventPublisherImpl.setInstance(null);
     }
 
-    @Ignore
     @Test(timeout = 5000)
     public void testStart() throws BusinessException, InterruptedException {
         MultiThreadedComPortListener multiThreadedComPortListener = null;
@@ -135,7 +134,6 @@ public class MultiThreadedComPortListenerTest {
         }
     }
 
-    @Ignore
     @Test(timeout = 5000)
     public void testAcceptedInboundCall() throws InterruptedException {
         MultiThreadedComPortListener multiThreadedComPortListener = null;
@@ -292,7 +290,6 @@ public class MultiThreadedComPortListenerTest {
         }
     }
 
-    @Ignore
     @Test(timeout = 5000)
     public void testWorkFailed() throws BusinessException, InterruptedException {
         LatchDrivenMultiThreadedComPortListener multiThreadedComPortListener = null;
