@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.time.*;
 import com.elster.jupiter.time.rest.RelativeDatePreviewInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
+import com.elster.jupiter.time.rest.RelativePeriodPreviewInfo;
 import com.elster.jupiter.time.rest.impl.i18n.MessageSeeds;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -92,21 +93,32 @@ public class RelativePeriodResource {
         return relativePeriod;
     }
 
+    @Path("/{id}/preview")
+    @PUT
+    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public RelativePeriodPreviewInfo previewRelativePeriod(@PathParam("id") long id, RelativeDatePreviewInfo relativeDatePreviewInfo) {
+        RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
+        ZonedDateTime referenceDate = getZonedDateTime(relativeDatePreviewInfo);
+        ZonedDateTime start = relativePeriod.getRelativeDateFrom().getRelativeDate(referenceDate);
+        ZonedDateTime end = relativePeriod.getRelativeDateTo().getRelativeDate(referenceDate);
+        return new RelativePeriodPreviewInfo(start, end);
+    }
+
     @Path("/preview")
     @PUT
     @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RelativeDatePreviewInfo previewRelativeDate(RelativeDatePreviewInfo relativeDatePreviewInfo) {
-        Instant instant = Instant.ofEpochMilli(relativeDatePreviewInfo.referenceDate);
         List<RelativeOperation> operations = new ArrayList<>();
-        ZoneId zoneId = ZoneId.ofOffset("", ZoneOffset.ofHoursMinutes(relativeDatePreviewInfo.getOffsetHours(), relativeDatePreviewInfo.getOffsetMinutes()));
-        ZonedDateTime time = ZonedDateTime.ofInstant(instant, zoneId);
+        ZonedDateTime referenceDate = getZonedDateTime(relativeDatePreviewInfo);
         if (relativeDatePreviewInfo.relativeDateInfo != null) {
             operations = relativeDatePreviewInfo.relativeDateInfo.convertToRelativeOperations();
         }
         RelativeDate relativeDate = new RelativeDate(operations);
-        ZonedDateTime target = relativeDate.getRelativeDate(time);
+        ZonedDateTime target = relativeDate.getRelativeDate(referenceDate);
         return new RelativeDatePreviewInfo(target);
     }
 
@@ -121,6 +133,11 @@ public class RelativePeriodResource {
         return categoryInfos;
     }
 
+    private ZonedDateTime getZonedDateTime(RelativeDatePreviewInfo relativeDatePreviewInfo) {
+        Instant instant = Instant.ofEpochMilli(relativeDatePreviewInfo.referenceDate);
+        ZoneId zoneId = ZoneId.ofOffset("", ZoneOffset.ofHoursMinutes(relativeDatePreviewInfo.getOffsetHours(), relativeDatePreviewInfo.getOffsetMinutes()));
+        return ZonedDateTime.ofInstant(instant, zoneId);
+    }
 
     private void verifyDateRangeOrThrowException(RelativeDate relativeDateFrom, RelativeDate relativeDateTo) {
         ZonedDateTime time = ZonedDateTime.now();
