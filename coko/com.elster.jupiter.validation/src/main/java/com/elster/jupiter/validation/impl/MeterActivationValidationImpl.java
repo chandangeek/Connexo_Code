@@ -196,7 +196,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
             }
 
             if (earliestLastChecked != null) {
-                channelValidation.setLastChecked(earliestLastChecked);
+                channelValidation.updateLastChecked(earliestLastChecked);
             }
             channelValidation.setActiveRules(true);
         } else {
@@ -278,7 +278,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     @Override
     public void updateLastChecked(Instant lastChecked) {
         for (ChannelValidation channelValidation : getChannelValidations()) {
-            ((ChannelValidationImpl) channelValidation).setLastChecked(lastChecked);
+            ((ChannelValidationImpl) channelValidation).updateLastChecked(lastChecked);
         }
     }
 

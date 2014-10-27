@@ -1,5 +1,32 @@
 package com.elster.jupiter.validation.impl;
 
+import static com.elster.jupiter.util.Ranges.does;
+import static com.elster.jupiter.util.conditions.Where.where;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsFirst;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -36,37 +63,9 @@ import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.BinaryOperator;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.Ranges.does;
-import static com.elster.jupiter.util.conditions.Where.where;
-import static com.elster.jupiter.util.streams.Predicates.isNull;
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsFirst;
 
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
 public final class ValidationServiceImpl implements ValidationService, InstallService {
-
-    private static final Upcast<IValidationRuleSet, ValidationRuleSet> UPCAST = new Upcast<>();
 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
@@ -248,7 +247,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
                 .filter(ChannelValidation::hasActiveRules)
                 .map(ChannelValidationImpl.class::cast)
                 .forEach(cv -> {
-                    cv.setLastChecked(date);
+                    cv.updateLastChecked(date);
                     cv.getMeterActivationValidation().save();
                 });
     }
@@ -285,23 +284,13 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public Optional<Instant> getLastChecked(Channel channel) {
-        List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(channel.getMeterActivation());
-
-        Instant lastChecked = null;
-        List<Instant> dates = validations.stream()
-                .map(m -> m.getChannelValidation(channel))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(ChannelValidation::getLastChecked)
-                .collect(Collectors.toList());
-        if (dates.stream().anyMatch(isNull())) {
-            return Optional.<Instant>empty();
-        }
-        return Optional.ofNullable(dates.stream().min(naturalOrder()).orElse(null));
-    }
-
-    private <T> BinaryOperator<T> min(final Comparator<? super T> comparator) {
-        return (t1, t2) -> comparator.compare(t1, t2) <= 0 ? t1 : t2;
+    	return getActiveIMeterActivationValidations(channel.getMeterActivation()).stream()
+            .map(m -> m.getChannelValidation(channel))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(ChannelValidation::getLastChecked)
+            .filter(Objects::nonNull)
+            .min(naturalOrder());
     }
 
     @Override
@@ -363,38 +352,8 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         meterActivationValidation.getChannelValidations().stream()
                 .filter(c -> does(interval).startBefore(c.getLastChecked()))
                 .map(IChannelValidation.class::cast)
-                .forEach(c -> c.setLastChecked(interval.lowerEndpoint()));
+                .forEach(c -> c.updateLastChecked(interval.lowerEndpoint()));
         meterActivationValidation.save();
-
-        meterActivationValidation.getChannelValidations().stream()
-                .map(ChannelValidation::getChannel)
-                .flatMap(c -> c.findReadingQuality(interval).stream())
-                .filter(isValidationQuality())
-                .forEach(ReadingQualityRecord::delete);
-    }
-
-    private Predicate<ReadingQualityRecord> isValidationQuality() {
-        return isSuspect().or(isValidationRuleQuality());
-    }
-
-    private Predicate<ReadingQualityRecord> isValidationRuleQuality() {
-        return isOfMDM().and(isOfValidationRule().or(isMissing()));
-    }
-
-    private Predicate<ReadingQualityRecord> isMissing() {
-        return q -> QualityCodeIndex.KNOWNMISSINGREAD.equals(q.getType().qualityIndex().orElse(null));
-    }
-
-    private Predicate<ReadingQualityRecord> isOfValidationRule() {
-        return q -> QualityCodeCategory.VALIDATION.equals(q.getType().category().orElse(null));
-    }
-
-    private Predicate<ReadingQualityRecord> isOfMDM() {
-        return q -> QualityCodeSystem.MDM.equals(q.getType().system().orElse(null));
-    }
-
-    private Predicate<ReadingQualityRecord> isSuspect() {
-        return q -> QualityCodeIndex.SUSPECT.equals(q.getType().qualityIndex().orElse(null));
     }
 
     private boolean isValidationActive(MeterActivation meterActivation) {

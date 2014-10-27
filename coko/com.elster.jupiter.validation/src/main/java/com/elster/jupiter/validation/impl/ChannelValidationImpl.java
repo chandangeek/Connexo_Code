@@ -1,14 +1,23 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ValidationRule;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+
+import org.hamcrest.core.IsSame;
+
 import java.time.Instant;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 final class ChannelValidationImpl implements IChannelValidation {
 
@@ -53,11 +62,6 @@ final class ChannelValidationImpl implements IChannelValidation {
         return lastChecked;
     }
 
-    @Override
-    public void setLastChecked(Instant date) {
-        lastChecked = date;
-    }
-
     public Channel getChannel() {
         return channel.get();
     }
@@ -91,4 +95,20 @@ final class ChannelValidationImpl implements IChannelValidation {
     public int hashCode() {
         return Objects.hash(channel, meterActivationValidation);
     }
+    
+    
+    @Override
+    public void updateLastChecked(Instant instant) {
+    	if (lastChecked != null && lastChecked.isAfter(instant)) {
+    		channel.get().findReadingQuality(Range.greaterThan(instant)).stream()
+    			.filter(this::isRelevant)
+    			.forEach(ReadingQualityRecord::delete);
+    	}
+    	this.lastChecked = instant;
+    }
+    
+    private boolean isRelevant(ReadingQualityRecord readingQuality) {
+    	return readingQuality.hasReasonabilityCategory() || readingQuality.hasValidationCategory(); 
+    }
+    	        
 }

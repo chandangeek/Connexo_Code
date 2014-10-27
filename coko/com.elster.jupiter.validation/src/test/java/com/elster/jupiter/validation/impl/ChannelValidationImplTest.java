@@ -4,16 +4,27 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.orm.DataModel;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
+
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.Instant;
+import java.time.Month;
+import java.time.Year;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
-
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.any;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelValidationImplTest extends EqualsContractTest {
@@ -32,6 +43,8 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     private MeteringService meteringService;
     @Mock
     private MeterActivation meterActivation, meterActivation1;
+    @Mock
+    private ReadingQualityRecord readingQuality;
 
     @Override
     protected Object getInstanceA() {
@@ -78,5 +91,19 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
         return null;
+    }
+    
+    @Test
+    public void lastCheckedTest() {
+    	when(channel.findReadingQuality(any(Range.class))).thenReturn(ImmutableList.of(readingQuality));
+    	when(readingQuality.hasReasonabilityCategory()).thenReturn(true);
+    	ChannelValidationImpl channelValidation = ChannelValidationImpl.from(dataModel, meterActivationValidation, channel);
+    	ZonedDateTime dateTime = Year.of(2014).atMonth(Month.JANUARY).atDay(1).atStartOfDay(ZoneId.systemDefault());
+    	channelValidation.updateLastChecked(dateTime.toInstant());
+    	Instant instant = dateTime.minusMonths(1).toInstant();
+    	channelValidation.updateLastChecked(instant);
+    	verify(channel).findReadingQuality(Range.greaterThan(instant));
+    	verify(readingQuality).delete();
+    	
     }
 }

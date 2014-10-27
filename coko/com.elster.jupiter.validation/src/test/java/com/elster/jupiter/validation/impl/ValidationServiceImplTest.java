@@ -308,11 +308,8 @@ public class ValidationServiceImplTest {
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
         validationService.validateForNewData(meterActivation, Range.atLeast(Instant.EPOCH));
-
-        verify(channelValidation2).setLastChecked(Instant.ofEpochMilli(0L));
+        verify(channelValidation2).updateLastChecked(Instant.ofEpochMilli(0L));
         verify(meterActivationValidation).save();
-        verify(readingQuality1).delete();
-        verify(readingQuality3).delete();
     }
 
     @Test
