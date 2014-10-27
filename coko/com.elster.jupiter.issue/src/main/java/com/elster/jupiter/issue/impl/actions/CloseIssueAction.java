@@ -43,7 +43,7 @@ public class CloseIssueAction extends AbstractIssueAction {
         if (isApplicable(issue)){
             ((OpenIssue)issue).close(closeStatus);
             issue.save();
-            result.success();
+            result.success(MessageSeeds.ACTION_ISSUE_WAS_CLOSED.getTranslated(thesaurus));
         } else {
             result.fail(MessageSeeds.ACTION_ISSUE_ALREADY_CLOSED.getTranslated(thesaurus));
         }

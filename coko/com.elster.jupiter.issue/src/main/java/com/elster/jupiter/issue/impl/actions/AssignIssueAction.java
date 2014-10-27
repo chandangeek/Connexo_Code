@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
+import static com.elster.jupiter.util.Checks.*;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -47,10 +48,12 @@ public class AssignIssueAction extends AbstractIssueAction {
 
         String assigneeType = actionParameters.get(Parameter.ASSIGNEE.getKey());
         if (assigneeType != null){
-            issue.assignTo(getIssueAssignee(assigneeType, actionParameters));
+            IssueAssignee assignee = getIssueAssignee(assigneeType, actionParameters);
+            issue.assignTo(assignee);
+            issue.save();
             User author = (User) threadPrincipalService.getPrincipal();
             issue.addComment(actionParameters.get(Parameter.COMMENT.getKey()), author);
-            result.success();
+            result.success(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED.getTranslated(thesaurus, assignee.getName()));
         }
         return result;
     }
@@ -80,7 +83,7 @@ public class AssignIssueAction extends AbstractIssueAction {
     public List<ParameterViolation> validate(Map<String, String> actionParameters) {
         List<ParameterViolation> errors = new ArrayList<>();
         String assigneeType = actionParameters.get(Parameter.ASSIGNEE.getKey());
-        if (assigneeType != null){
+        if (!is(assigneeType).emptyOrOnlyWhiteSpace()){
             IssueAssignee assignee = getIssueAssignee(assigneeType, actionParameters);
             if (assignee == null){
                 errors.add(new ParameterViolation(Parameter.ASSIGNEE.getKey(), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(thesaurus)));
@@ -96,9 +99,11 @@ public class AssignIssueAction extends AbstractIssueAction {
         IssueAssignee issueAssignee = null;
         String idValue = actionParameters.get(assigneeType);
         long id = 0;
-        if (idValue != null){
-            id = Long.parseLong(idValue);
-            issueAssignee = issueService.findIssueAssignee(assigneeType.substring(Parameter.ASSIGNEE.getKey().length()), id);
+        if (!is(idValue).emptyOrOnlyWhiteSpace()){
+            try {
+                id = Long.parseLong(idValue);
+                issueAssignee = issueService.findIssueAssignee(assigneeType.substring(Parameter.ASSIGNEE.getKey().length()), id);
+            } catch (NumberFormatException ex){}
         }
         return issueAssignee;
     }

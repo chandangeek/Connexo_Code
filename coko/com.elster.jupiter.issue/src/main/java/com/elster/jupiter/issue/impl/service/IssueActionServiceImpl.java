@@ -12,6 +12,9 @@ import com.elster.jupiter.issue.share.service.IssueMappingService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import java.util.Optional;
+
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -26,6 +29,7 @@ import java.util.Map;
 @Component(name = "com.elster.jupiter.issue.action", service = {IssueActionService.class}, immediate = true)
 public class IssueActionServiceImpl implements IssueActionService {
     private volatile QueryService queryService;
+    private volatile TransactionService transactionService;
     private volatile DataModel dataModel;
     private Map<String, IssueActionFactory> registeredFactories = new HashMap<>();
 
@@ -33,9 +37,10 @@ public class IssueActionServiceImpl implements IssueActionService {
     }
 
     @Inject
-    public IssueActionServiceImpl(QueryService queryService, IssueMappingService issueMappingService) {
+    public IssueActionServiceImpl(QueryService queryService, IssueMappingService issueMappingService, TransactionService transactionService) {
         setQueryService(queryService);
         setIssueMappingService(issueMappingService);
+        setTransactionService(transactionService);
     }
 
     @Reference
@@ -51,6 +56,11 @@ public class IssueActionServiceImpl implements IssueActionService {
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public final void addIssueActionFactory(IssueActionFactory issueActionFactory, Map<String, Object> map) {
         registeredFactories.put(issueActionFactory.getId(), issueActionFactory);
+    }
+
+    @Reference
+    public final void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     public final void removeIssueActionFactory(IssueActionFactory issueActionFactory) {
@@ -102,7 +112,12 @@ public class IssueActionServiceImpl implements IssueActionService {
 
     @Override
     public IssueActionResult executeAction(IssueActionType type, Issue issue, Map<String, String> actionParams) {
-        return createIssueAction(type.getFactoryId(), type.getClassName()).execute(issue, actionParams);
+        IssueActionResult result = null;
+        try(TransactionContext context = transactionService.getContext()){
+            result = createIssueAction(type.getFactoryId(), type.getClassName()).execute(issue, actionParams);
+            context.commit();
+        }
+        return result;
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {

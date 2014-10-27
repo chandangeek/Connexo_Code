@@ -41,6 +41,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ACTION_ISSUE_ALREADY_CLOSED(4503, "action.issue.already.closed", "Issue already closed" , Level.INFO),
     ACTION_WRONG_COMMENT(4504, "action.issue.comment", "Please provide a correct comment" , Level.INFO),
     ACTION_WRONG_ASSIGNEE(4505, "action.issue.wrong.assignee", "Wrong assignee" , Level.INFO),
+    ACTION_ISSUE_WAS_ASSIGNED(4506, "action.issue.was.assigned", "Issue was assigned to {0}" , Level.INFO),
+    ACTION_ISSUE_WAS_CLOSED(4507, "action.issue.was.closed", "Issue was closed" , Level.INFO),
 
 // 5001 - 5999 Issue action parameters
     PARAMETER_CLOSE_STATUS(5001, "parameters.close.status", "Close status", Level.INFO),

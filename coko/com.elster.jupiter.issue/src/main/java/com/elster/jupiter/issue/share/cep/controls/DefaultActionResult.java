@@ -19,7 +19,7 @@ public class DefaultActionResult implements IssueActionResult {
             return message;
         }
 
-        public boolean wasSuccessed() {
+        public boolean isSuccess() {
             return success;
         }
     }
