@@ -16,6 +16,6 @@ public class CTRDeviceProtocolMessageAcknowledgement extends DeviceProtocolMessa
 
     @Override
     public DeviceCommand toDeviceCommand() {
-        return new CTRUpdateDeviceMessage(this);
+        return new CTRUpdateDeviceMessage(this, getComTaskExecution());
     }
 }

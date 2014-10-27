@@ -5,6 +5,7 @@ import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.DeviceProtocolMessageAcknowledgement;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
+import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 
 /**
@@ -13,8 +14,8 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
  */
 public class CTRUpdateDeviceMessage extends UpdateDeviceMessage {
 
-    public CTRUpdateDeviceMessage(DeviceProtocolMessageAcknowledgement messageAcknowledgement) {
-        super(messageAcknowledgement);
+    public CTRUpdateDeviceMessage(DeviceProtocolMessageAcknowledgement messageAcknowledgement, ComTaskExecution comTaskExecution) {
+        super(messageAcknowledgement, comTaskExecution);
     }
 
     @Override
