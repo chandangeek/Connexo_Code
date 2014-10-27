@@ -152,7 +152,7 @@ public class DeviceResource {
     }
 
     /**
-     * List all device message categories :
+     * List all device message categories with devices messages:
      * - that are supported by the device protocol defined on the device's device type
      * - that have device messages specs on them (enablement)
      * - that the user has the required privileges for
