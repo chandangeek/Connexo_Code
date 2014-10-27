@@ -154,7 +154,7 @@ public class DeviceResource {
     /**
      * List all device message categories :
      * - that are supported by the device protocol defined on the device's device type
-     * - that have device messages specs on them
+     * - that have device messages specs on them (enablement)
      * - that the user has the required privileges for
      * @param mrid Device's mRID
      * @return List of categories + device message specs, indicating if message spec will be picked up by a comtask or not
