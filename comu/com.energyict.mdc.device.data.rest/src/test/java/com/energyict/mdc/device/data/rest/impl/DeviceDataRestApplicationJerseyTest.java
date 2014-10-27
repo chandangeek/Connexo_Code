@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import org.mockito.Mock;
@@ -55,6 +56,9 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     MeteringService meteringService;
     @Mock
     RestQueryService restQueryService;
+    @Mock
+    DeviceMessageService deviceMessageService;
+
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -81,6 +85,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setSchedulingService(schedulingService);
         application.setValidationService(validationService);
         application.setRestQueryService(restQueryService);
+        application.setDeviceMessageService(deviceMessageService);
         return application;
     }
 }

@@ -12,7 +12,7 @@ public class TaskStatusAdapter extends MapBasedXmlAdapter<TaskStatus> {
 
     public TaskStatusAdapter() {
         register(MessageSeeds.BUSY.getKey(), TaskStatus.Busy);
-        register(MessageSeeds.FAILED.getKey(), TaskStatus.Failed);
+        register(MessageSeeds.COMMAND_FAILED.getKey(), TaskStatus.Failed);
         register(MessageSeeds.NEVER_COMPLETED.getKey(), TaskStatus.NeverCompleted);
         register(MessageSeeds.ON_HOLD.getKey(), TaskStatus.OnHold);
         register(MessageSeeds.PENDING.getKey(), TaskStatus.Pending);

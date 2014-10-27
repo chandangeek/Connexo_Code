@@ -1,18 +1,17 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.common.rest.FieldResource;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.common.rest.FieldResource;
-
 @Path("/field")
 public class DeviceFieldResource extends FieldResource {
-    
+
     @Inject
     public DeviceFieldResource(NlsService nlsService) {
         super(nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST));
@@ -38,4 +37,5 @@ public class DeviceFieldResource extends FieldResource {
     public Object getAllEndDeviceEventOrActions() {
         return asJsonArrayObjectWithTranslation("eventOrActions", "eventOrAction", new EndDeviceEventOrActionAdapter().getClientSideValues());
     }
+
 }

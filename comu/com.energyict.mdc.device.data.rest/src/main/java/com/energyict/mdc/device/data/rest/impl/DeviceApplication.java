@@ -34,14 +34,10 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,6 +48,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.ddr.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/ddr", "name=" + DeviceApplication.COMPONENT_NAME})
 public class DeviceApplication extends Application implements InstallService {
@@ -78,6 +78,7 @@ public class DeviceApplication extends Application implements InstallService {
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
+    private volatile DeviceMessageService deviceMessageService;
     private volatile Clock clock;
 
     @Override
@@ -103,7 +104,8 @@ public class DeviceApplication extends Application implements InstallService {
                 ChannelResource.class,
                 DeviceGroupResource.class,
                 ConnectionMethodResource.class,
-                ComSessionResource.class
+                ComSessionResource.class,
+                DeviceCommandResource.class
         );
     }
 
@@ -201,6 +203,11 @@ public class DeviceApplication extends Application implements InstallService {
         this.clock = clock;
     }
 
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
+    }
+
     @Override
     public void install() {
         Installer installer = new Installer();
@@ -274,6 +281,10 @@ public class DeviceApplication extends Application implements InstallService {
             bind(ComSessionInfoFactory.class).to(ComSessionInfoFactory.class);
             bind(ComTaskExecutionSessionInfoFactory.class).to(ComTaskExecutionSessionInfoFactory.class);
             bind(JournalEntryInfoFactory.class).to(JournalEntryInfoFactory.class);
+            bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class);
+            bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class);
+            bind(DeviceMessageSpecInfoFactory.class).to(DeviceMessageSpecInfoFactory.class);
         }
     }
 
