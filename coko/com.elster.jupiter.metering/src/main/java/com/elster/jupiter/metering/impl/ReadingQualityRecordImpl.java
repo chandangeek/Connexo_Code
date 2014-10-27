@@ -157,6 +157,10 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
     
     @Override
+    public boolean hasReasonabilityCategory() {
+    	return hasQualityCodeCategory(QualityCodeCategory.REASONABILITY);
+    }
+    @Override
     public boolean hasValidationCategory() {
     	return hasQualityCodeCategory(QualityCodeCategory.VALIDATION);
     }

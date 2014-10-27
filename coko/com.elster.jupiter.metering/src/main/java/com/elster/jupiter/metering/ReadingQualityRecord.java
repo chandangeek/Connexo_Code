@@ -38,4 +38,6 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
     void makePast();
 
     void makeActual();
+
+	boolean hasReasonabilityCategory();
 }
