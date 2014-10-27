@@ -173,11 +173,8 @@ public class DeviceResource {
         deviceMessageService.allCategories().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).forEach(category-> {
             List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
                     .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol support
-                    .peek(x -> System.err.println("Protocol supported:"+x.getName()))
                     .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
-                    .peek(x -> System.err.println("Config enabled supported:"+x.getName()))
                     .filter(dms->device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
-                    .peek(x -> System.err.println("User rights:"+x.getName()))
                     .sorted((dms1, dms2) -> dms1.getName().compareToIgnoreCase(dms2.getName()))
                     .map(dms->deviceMessageSpecInfoFactory.asInfo(dms, device))
                     .collect(Collectors.toList());
