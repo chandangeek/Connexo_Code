@@ -99,6 +99,8 @@ public class IdsCrudTest {
         }
         ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
         Range<Instant> interval = Range.openClosed(dateTime.minusMinutes(15).toInstant(), dateTime.plusMinutes(15).toInstant());
+        //reread ts
+        ts = idsService.getTimeSeries(ts.getId()).get();
         List<TimeSeriesEntry> entries = ts.getEntries(interval);
         assertThat(entries).hasSize(2);
         assertThat(entries.get(0).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(10));
@@ -108,12 +110,14 @@ public class IdsCrudTest {
         assertThat(ts.getEntriesOnOrBefore(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, zoneId).toInstant(), 2)).hasSize(1);
         assertThat(ts.getEntriesOnOrBefore(ZonedDateTime.of(2015, 1, 1, 0, 0, 0, 0, zoneId).toInstant(), 2)).hasSize(2);
         assertThat(ts.getEntries(Range.all())).hasSize(2);
+        assertThat(ts.getLastDateTime()).isEqualTo(dateTime.plusMinutes(15).toInstant());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             Range<Instant> range = Range.openClosed(dateTime.toInstant(), dateTime.plusMinutes(15).toInstant());
             ts.removeEntries(range);
             interval = Range.openClosed(dateTime.toInstant(), dateTime.plusMinutes(15).toInstant());
             assertThat(ts.getEntries(interval)).isEmpty();
             assertThat(ts.getEntries(Range.atLeast(Instant.EPOCH))).hasSize(1);
+            assertThat(ts.getLastDateTime()).isEqualTo(dateTime.toInstant());
         }
     }
 
