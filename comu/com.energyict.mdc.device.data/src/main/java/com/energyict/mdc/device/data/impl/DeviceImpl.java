@@ -66,6 +66,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
@@ -1567,6 +1568,11 @@ public class DeviceImpl implements Device {
             deviceValidation = new DeviceValidationImpl(getMdcAmrSystem().get(), validationService, clock, this);
         }
         return deviceValidation;
+    }
+
+    @Override
+    public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
+        return null;
     }
 
     private boolean hasSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {

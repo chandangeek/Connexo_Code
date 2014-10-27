@@ -30,6 +30,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -379,6 +380,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     DeviceValidation forValidation();
 
+    DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask
      */
@@ -442,5 +445,9 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
          * @return the newly created ConnectionInitiationTask
          */
         ConnectionInitiationTask add();
+    }
+
+    interface DeviceMessageBuilder {
+        DeviceMessage<Device> add();
     }
 }
