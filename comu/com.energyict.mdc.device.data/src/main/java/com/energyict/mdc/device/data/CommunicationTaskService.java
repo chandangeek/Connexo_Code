@@ -1,10 +1,9 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
@@ -17,10 +16,18 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Interval;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -178,7 +185,7 @@ public interface CommunicationTaskService {
      * @param connectionTask the given ConnectionTask
      * @return all the ComTaskExecutions (which are not obsolete) for the given ConnectionTask
      */
-    public com.energyict.mdc.common.services.Finder<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask);
+    public Finder<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask);
 
     /**
      * Finds all the ComTaskExecutions which are linked to the given ComSchedule (MasterSchedule)
@@ -193,13 +200,15 @@ public interface CommunicationTaskService {
 
     public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
 
-    public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort);
+    public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort);
 
     public List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device);
 
+    public boolean isComTaskStillPending(long comTaskExecutionId);
+
     public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 
-    public java.util.Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
+    public Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
 
     public Finder<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution);
 

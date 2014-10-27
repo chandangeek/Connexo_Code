@@ -778,8 +778,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(ComPort comPort) {
-        List<OutboundComPortPool> comPortPools = this.deviceDataModelService.engineModelService().findContainingComPortPoolsForComPort((OutboundComPort) comPort);
+    public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort) {
+        List<OutboundComPortPool> comPortPools = this.deviceDataModelService.engineModelService().findContainingComPortPoolsForComPort(comPort);
         if (!comPortPools.isEmpty()) {
             long nowInSeconds = this.toSeconds(this.deviceDataModelService.clock().instant());
             DataMapper<ComTaskExecution> mapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
@@ -835,6 +835,15 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public boolean isComTaskStillPending(long comTaskExecutionId) {
+        Instant now = this.deviceDataModelService.clock().instant();
+        Condition condition = where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
+                .and(where("id").isEqualTo(comTaskExecutionId))
+                .and(where("comPort").isNull());
+        return !this.deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition).isEmpty();
     }
 
     @Override

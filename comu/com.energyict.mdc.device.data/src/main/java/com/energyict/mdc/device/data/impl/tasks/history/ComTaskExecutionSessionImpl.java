@@ -64,11 +64,8 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     private Reference<Device> device = ValueReference.absent();
-
     private Reference<ComSession> comSession = ValueReference.absent();
-
     private Reference<ComStatistics> statistics = ValueReference.absent();
-
     private Reference<ComTaskExecution> comTaskExecution = ValueReference.absent();
 
     private Instant startDate;
@@ -93,9 +90,11 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
          return Collections.unmodifiableList(this.comTaskExecutionJournalEntries);
     }
 
-    @Override
-    protected void postNew() {
-        super.postNew();
+    /**
+     * Receive notification from the owning ComSession
+     * that this ComTaskExecutionSession has been saved.
+     */
+    void created() {
         HasLastComTaskExecutionSession comTaskExecution = (HasLastComTaskExecutionSession) this.comTaskExecution.get();
         comTaskExecution.sessionCreated(this);
     }

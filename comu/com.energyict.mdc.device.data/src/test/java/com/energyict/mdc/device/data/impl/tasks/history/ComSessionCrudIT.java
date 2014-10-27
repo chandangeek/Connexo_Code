@@ -451,16 +451,20 @@ public class ComSessionCrudIT {
     public void testCreationOfComSessionWithComTaskExecutionJournals() {
         long id;
         Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        Instant taskStartTime = ZonedDateTime.of(2011, 5, 14, 0, 5, 0, 0, ZoneId.systemDefault()).toInstant();
-        Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant task1StartTime = ZonedDateTime.of(2011, 5, 14, 0, 5, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant task1StopTime = ZonedDateTime.of(2011, 5, 14, 0, 6, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant task2StartTime = ZonedDateTime.of(2011, 5, 14, 0, 6, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant task2StopTime = ZonedDateTime.of(2011, 5, 14, 0, 7, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
-            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, device, taskStartTime)
-                    .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
-                    .addComTaskExecutionSession(comTaskExecution, device, taskStartTime)
-                    .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Success)
+            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder =
+                connectionTaskService
+                    .buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                    .addComTaskExecutionSession(comTaskExecution, device, task1StartTime)
+                    .add(task1StopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
+                    .addComTaskExecutionSession(comTaskExecution, device, task2StartTime)
+                    .add(task2StopTime, ComTaskExecutionSession.SuccessIndicator.Success)
                     .endSession(stopTime, ComSession.SuccessIndicator.Success);
             ComSession comSession = endedComSessionBuilder.create();
             id = comSession.getId();
@@ -475,23 +479,25 @@ public class ComSessionCrudIT {
 
         assertThat(foundSession.getComTaskExecutionSessions()).hasSize(2);
 
-        ComTaskExecutionSession comTaskExecutionSession = foundSession.getComTaskExecutionSessions().get(0);
+        ComTaskExecutionSession comTaskExecutionSession1 = foundSession.getComTaskExecutionSessions().get(0);
+        assertThat(EqualById.byId(comTaskExecutionSession1.getComSession())).isEqualTo(EqualById.byId(foundSession));
+        assertThat(EqualById.byId(comTaskExecutionSession1.getComTaskExecution())).isEqualTo(EqualById.byId(comTaskExecution));
+        assertThat(EqualById.byId(comTaskExecutionSession1.getDevice())).isEqualTo(EqualById.byId(device));
+        assertThat(comTaskExecutionSession1.getHighestPriorityCompletionCode()).isNull();
+        assertThat(comTaskExecutionSession1.getHighestPriorityErrorDescription()).isNull();
+        assertThat(comTaskExecutionSession1.getSuccessIndicator()).isEqualTo(ComTaskExecutionSession.SuccessIndicator.Failure);
 
-        Assertions.assertThat(EqualById.byId(comTaskExecutionSession.getComSession())).isEqualTo(EqualById.byId(foundSession));
-        Assertions.assertThat(EqualById.byId(comTaskExecutionSession.getComTaskExecution())).isEqualTo(EqualById.byId(comTaskExecution));
-        Assertions.assertThat(EqualById.byId(comTaskExecutionSession.getDevice())).isEqualTo(EqualById.byId(device));
-        assertThat(comTaskExecutionSession.getHighestPriorityCompletionCode()).isNull();
-        assertThat(comTaskExecutionSession.getHighestPriorityErrorDescription()).isNull();
-        assertThat(comTaskExecutionSession.getSuccessIndicator()).isEqualTo(ComTaskExecutionSession.SuccessIndicator.Failure);
+        ComTaskExecutionSession comTaskExecutionSession2 = foundSession.getComTaskExecutionSessions().get(1);
+        assertThat(EqualById.byId(comTaskExecutionSession2.getComSession())).isEqualTo(EqualById.byId(foundSession));
+        assertThat(EqualById.byId(comTaskExecutionSession2.getComTaskExecution())).isEqualTo(EqualById.byId(comTaskExecution));
+        assertThat(EqualById.byId(comTaskExecutionSession2.getDevice())).isEqualTo(EqualById.byId(device));
+        assertThat(comTaskExecutionSession2.getHighestPriorityCompletionCode()).isNull();
+        assertThat(comTaskExecutionSession2.getHighestPriorityErrorDescription()).isNull();
+        assertThat(comTaskExecutionSession2.getSuccessIndicator()).isEqualTo(ComTaskExecutionSession.SuccessIndicator.Success);
 
-        comTaskExecutionSession = foundSession.getComTaskExecutionSessions().get(1);
-
-        Assertions.assertThat(EqualById.byId(comTaskExecutionSession.getComSession())).isEqualTo(EqualById.byId(foundSession));
-        Assertions.assertThat(EqualById.byId(comTaskExecutionSession.getComTaskExecution())).isEqualTo(EqualById.byId(comTaskExecution));
-        Assertions.assertThat(EqualById.byId(comTaskExecutionSession.getDevice())).isEqualTo(EqualById.byId(device));
-        assertThat(comTaskExecutionSession.getHighestPriorityCompletionCode()).isNull();
-        assertThat(comTaskExecutionSession.getHighestPriorityErrorDescription()).isNull();
-        assertThat(comTaskExecutionSession.getSuccessIndicator()).isEqualTo(ComTaskExecutionSession.SuccessIndicator.Success);
+        Optional<ComTaskExecutionSession> lastSession = comTaskExecution.getLastSession();
+        assertThat(lastSession.isPresent()).isTrue();
+        assertThat(lastSession.get().getId()).isEqualTo(comTaskExecutionSession2.getId());
     }
 
     @Test
