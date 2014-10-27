@@ -12,6 +12,8 @@ public class DeviceMessageSpecInfoFactory {
 
     public DeviceMessageSpecInfo asInfo(DeviceMessageSpec deviceMessageSpec, Device device) {
         DeviceMessageSpecInfo info = new DeviceMessageSpecInfo();
+        info.id=deviceMessageSpec.getId().name();
+        info.name=deviceMessageSpec.getName();
         info.willBePickedUpByScheduledComTask = device.getComTaskExecutions().stream().
                 filter(cte -> !cte.isOnHold()).
                 flatMap(cte -> cte.getComTasks().stream()).
@@ -30,6 +32,6 @@ public class DeviceMessageSpecInfoFactory {
                     flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
                     anyMatch(category -> category.getId() == deviceMessageSpec.getCategory().getId());
         }
-        return null;
+        return info;
     }
 }

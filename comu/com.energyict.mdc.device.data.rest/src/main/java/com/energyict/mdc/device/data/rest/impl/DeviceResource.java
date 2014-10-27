@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -13,13 +12,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -154,25 +151,33 @@ public class DeviceResource {
         return DeviceInfo.from(device, deviceImportService, issueService);
     }
 
+    /**
+     * List all device message categories :
+     * - that are supported by the device protocol defined on the device's device type
+     * - that have device messages specs on them
+     * - that the user has the required privileges for
+     * @param mrid Device's mRID
+     * @return List of categories + device message specs, indicating if message spec will be picked up by a comtask or not
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/messagecategories")
-    public List<DeviceMessageCategoryInfo> getAllAvailableDeviceCategoriesWithMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryFilter jsonQueryFilter) {
+    @Path("/{mRID}/messagecategories")
+    public List<DeviceMessageCategoryInfo> getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
         Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
-        if (supportedMessagesSpecs.isEmpty()) {
-            return Collections.emptyList();
-        }
 
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
 
-        for (DeviceMessageCategory category : deviceMessageService.allCategories()) {
+        deviceMessageService.allCategories().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).forEach(category-> {
             List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
                     .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol support
+                    .peek(x -> System.err.println("Protocol supported:"+x.getName()))
                     .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
+                    .peek(x -> System.err.println("Config enabled supported:"+x.getName()))
                     .filter(dms->device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
+                    .peek(x -> System.err.println("User rights:"+x.getName()))
                     .sorted((dms1, dms2) -> dms1.getName().compareToIgnoreCase(dms2.getName()))
                     .map(dms->deviceMessageSpecInfoFactory.asInfo(dms, device))
                     .collect(Collectors.toList());
@@ -181,7 +186,7 @@ public class DeviceResource {
                 info.deviceMessageSpecs = deviceMessageSpecs;
                 infos.add(info);
             }
-        }
+        });
         return infos;
     }
 

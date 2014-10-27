@@ -7,17 +7,24 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty;
 import com.jayway.jsonpath.JsonModel;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -26,12 +33,16 @@ import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceCommandResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +50,9 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 10/22/14.
  */
 public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTest {
+
+    @Mock
+    private PropertySpecService propertySpecService;
 
     @Test
     public void testGetDeviceCommands() throws Exception {
@@ -228,6 +242,60 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(false);
     }
 
+    @Test
+    public void testGetAvailableCategoriesForUserOnDevice() throws Exception {
+        int categoryId = 1011;
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+
+        // there is a total of 34 device messages supported by the protocol
+        when(deviceMessageService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
+
+        ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
+
+        // User has access to 2 device messages
+        EnumSet<DeviceMessageId> userAuthorizedDeviceMessages = EnumSet.of(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_CLOSE);
+
+
+        DeviceMessageEnablement deviceMessageEnablement1 = mock(DeviceMessageEnablement.class);
+        when(deviceMessageEnablement1.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
+        DeviceMessageEnablement deviceMessageEnablement2 = mock(DeviceMessageEnablement.class);
+        when(deviceMessageEnablement2.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE);
+        DeviceMessageEnablement deviceMessageEnablement3 = mock(DeviceMessageEnablement.class);
+        when(deviceMessageEnablement3.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM);
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
+        // 3 device messages are enabled on the device config
+        when(deviceConfiguration.getDeviceMessageEnablements()).thenReturn(Arrays.asList(deviceMessageEnablement1, deviceMessageEnablement2, deviceMessageEnablement3));
+        when(deviceConfiguration.isAuthorized(anyObject())).thenAnswer(invocationOnMock -> userAuthorizedDeviceMessages.contains(invocationOnMock.getArguments()[0]));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId, true);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
+
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(pluggableClass.getDeviceProtocol()).thenReturn(new SDKDeviceProtocolTestWithMandatoryProperty());
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceType()).thenReturn(deviceType);
+
+        // given the above: we expect 2 device messages in the same category
+        String response = target("/devices/ZABF010000080004/messagecategories").request().get(String.class);
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<List>get("$")).hasSize(1); // one category
+        assertThat(jsonModel.<String>get("$[0].name")).isEqualTo("Contactor");
+        assertThat(jsonModel.<Integer>get("$[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$[0].deviceMessageSpecs")).hasSize(2); // 2 device messages
+        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[0].name")).isEqualTo("Contactor close");
+        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[0].id")).isEqualTo("CONTACTOR_CLOSE");
+        assertThat(jsonModel.<Boolean>get("$[0].deviceMessageSpecs[0].willBePickedUpByComTask")).isNotNull();
+        assertThat(jsonModel.<Boolean>get("$[0].deviceMessageSpecs[0].willBePickedUpByScheduledComTask")).isNotNull();
+        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[1].name")).isEqualTo("Contactor open");
+        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[1].id")).isEqualTo("CONTACTOR_OPEN");
+    }
+
     private ComTaskExecution mockComTaskExecution(int categoryId, boolean isOnHold) {
         ComTaskExecution mock = mock(ComTaskExecution.class);
         ComTask comTask = mockComTaskWithProtocolTaskForCategory(categoryId);
@@ -292,4 +360,35 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
             return b;
         }
     }
+
+    private class DeviceMessageCategoryImpl implements DeviceMessageCategory {
+        private final DeviceMessageCategories category;
+
+        private DeviceMessageCategoryImpl(DeviceMessageCategories category) {
+            super();
+            this.category = category;
+        }
+
+        @Override
+        public String getName() {
+            return thesaurus.getString(this.category.getNameResourceKey(), this.category.defaultTranslation());
+        }
+
+        @Override
+        public String getDescription() {
+            return thesaurus.getString(this.category.getDescriptionResourceKey(), this.category.getDescriptionResourceKey());
+        }
+
+        @Override
+        public int getId() {
+            return this.category.ordinal();
+        }
+
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return this.category.getMessageSpecifications(this, propertySpecService, thesaurus);
+        }
+
+    }
+
 }
