@@ -36,10 +36,10 @@ public class Installer {
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
-/*        createTranslations();
+        createTranslations();
         createPrivileges(userService);
         assignPrivilegesToDefaultRoles();
-        createEventTypes();*/
+        createEventTypes();
     }
 
     private void createPrivileges(UserService userService) {
