@@ -25,8 +25,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+
 import java.time.Clock;
+import java.time.ZoneId;
 import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -109,6 +112,10 @@ public final class ChannelImpl implements ChannelContract {
 
     public TimeSeries getTimeSeries() {
         return timeSeries.get();
+    }
+    
+    public ZoneId getZoneId() {
+    	return timeSeries.get().getZoneId();
     }
 
     public Instant getLastDateTime() {

@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.orm.associations.Effectivity;
+
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.List;
 
@@ -17,4 +19,5 @@ public interface MeterActivation extends Effectivity , ReadingContainer {
     long getVersion();
     Instant getStart();
     Instant getEnd();
+    ZoneId getZoneId();
 }

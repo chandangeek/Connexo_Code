@@ -33,6 +33,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -73,6 +75,7 @@ public class MeterReadingStorerTest {
     private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
+    private Clock clock = Clock.system(ZoneId.of("Europe/Athens"));
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -97,7 +100,7 @@ public class MeterReadingStorerTest {
                 new EventsModule(),
                 new DomainUtilModule(),
                 new OrmModule(),
-                new UtilModule(),
+                new UtilModule(clock),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(false),
@@ -142,7 +145,7 @@ public class MeterReadingStorerTest {
             reading.addQuality("1.1.1", "Whatever");
             meterReading.addReading(reading);
             meter.store(meterReading);
-
+            assertThat(meter.getMeterActivations().get(0).getZoneId()).isEqualTo(clock.getZone());
             List<? extends BaseReadingRecord> readings = meter.getMeterActivations().get(0).getReadings(
                     Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                     meteringService.getReadingType(builder.period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code()).get());

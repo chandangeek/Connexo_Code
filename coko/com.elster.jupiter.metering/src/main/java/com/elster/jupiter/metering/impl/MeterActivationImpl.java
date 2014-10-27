@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
@@ -12,6 +13,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import java.time.Clock;
+import java.time.ZoneId;
 
 import com.elster.jupiter.util.time.Interval;
 
@@ -29,6 +31,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MeterActivationImpl implements MeterActivation {
 	//persistent fields
@@ -211,5 +214,17 @@ public class MeterActivationImpl implements MeterActivation {
 	@Override
 	public Instant getEnd() {
 		return interval.getEnd();
+	}
+	
+	@Override
+	public ZoneId getZoneId() {
+		Set<ZoneId> candidates = getChannels().stream()
+			.map(ChannelImpl.class::cast)
+			.map(ChannelImpl::getZoneId)
+			.collect(Collectors.toSet());
+		if (candidates.size() > 1) {
+			throw new RuntimeException("More than one zone id for this meter activation");
+		}
+		return candidates.stream().findFirst().orElse(clock.getZone());
 	}
 }
