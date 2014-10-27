@@ -603,7 +603,6 @@ public class DemoServiceImpl implements DemoService {
 
     private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
         PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration().getPartialOutboundConnectionTasks().get(0);
-        System.out.println("==> Device with " + ((device.getId() & 1) == 1L ? VODAFONE_TCP_POOL_NAME : ORANGE_TCP_POOL_NAME));
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
                 .setComPortPool(store.getOutboundComPortPools().get((device.getId() & 1) == 1L ? VODAFONE_TCP_POOL_NAME : ORANGE_TCP_POOL_NAME))
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)

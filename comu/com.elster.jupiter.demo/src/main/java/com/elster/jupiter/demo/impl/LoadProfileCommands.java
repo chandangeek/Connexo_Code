@@ -7,14 +7,9 @@ import java.security.Principal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Scanner;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 import com.elster.jupiter.metering.EndDevice;
 import org.osgi.service.component.annotations.Component;
@@ -41,24 +36,25 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
+import static com.elster.jupiter.util.Checks.*;
 
 @Component(name = "com.elster.jupiter.demo.loadprofile", service = LoadProfileCommands.class, property = { "osgi.command.scope=loadprofile",
         "osgi.command.function=uploadData",
         "osgi.command.function=createMeasurementType"}, immediate = true)
 public class LoadProfileCommands {
-    public static final int MANDATORY_COLUMN_SIZE = 4;
+    public static final int MANDATORY_COLUMN_SIZE = 3;
 
     public static final int COLUMN_DATE = 0;
     public static final int COLUMN_CODE = 1;
     public static final int COLUMN_FLAGS = 2;
-    public static final int COLUMN_LASTMOD = 3;
 
     public static final String COLUMN_DATE_NAME = "Date";
     public static final String COLUMN_CODE_NAME = "Code";
     public static final String COLUMN_FLAGS_NAME = "Flags";
     public static final String COLUMN_LASTMOD_NAME = "Last Mod.";
 
-    private static DateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    public static final String DATE_PATTERN = "dd.MM.yyyy HH:mm";
+    private static DateFormat dateTimeFormat = new SimpleDateFormat(DATE_PATTERN);
 
     private volatile MasterDataService masterDataService;
     private volatile TransactionService transactionService;
@@ -123,10 +119,18 @@ public class LoadProfileCommands {
         return registerTypes;
     }
 
-    public void uploadData(String mrid, String csvFilePath) {
+    public void uploadData(String mrid, String startTime, String csvFilePath) {
         final Optional<EndDevice> endDevice = meteringService.findEndDevice(mrid);
         if (!endDevice.isPresent()) {
             System.out.println("==> Unable to find meter with mrid = " + mrid);
+            return;
+        }
+
+        Date dateShift = null;
+        try {
+            dateShift = dateTimeFormat.parse(startTime);
+        } catch (ParseException e) {
+            System.out.println("==> Unable to parse start time. Please use the following format: " + DATE_PATTERN);
             return;
         }
 
@@ -136,8 +140,7 @@ public class LoadProfileCommands {
             String header = scanner.nextLine();
 
             List<String> readingTypes = readHeader(header);
-            Calendar startDate = Calendar.getInstance();
-            
+
             final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             Map<String, IntervalBlockImpl> blocks = new HashMap<>();
             for (String readingType : readingTypes) {
@@ -145,28 +148,33 @@ public class LoadProfileCommands {
                 blocks.put(readingType, intervalBlock);
             }
 
-            
+
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 String[] columns = line.split(";");
 
                 String dateTime = columns[COLUMN_DATE];
                 String flags = columns[COLUMN_FLAGS];
-                
+
                 try {
                     List<String> values = Arrays.asList(Arrays.copyOfRange(columns, MANDATORY_COLUMN_SIZE, columns.length));
-                    startDate.setTime(dateTimeFormat.parse(dateTime));
+
+                    Instant time = dateShift.toInstant();
+                    time = time.plus(Integer.valueOf(dateTime.substring(0, 2)), ChronoUnit.DAYS);
+                    time = time.plus(Integer.valueOf(dateTime.substring(3, 5)), ChronoUnit.HOURS);
+                    time = time.plus(Integer.valueOf(dateTime.substring(6, 8)), ChronoUnit.MINUTES);
+
                     Flag[] realFlags = parstIntervalFlags(flags.split(","));
-                    
+
                     for (int i = 0; i < readingTypes.size(); i++) {
-                        double doubleValue = Double.valueOf(values.get(i).replace(",", ".").replace(" ", ""));
-                        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(startDate.toInstant(), BigDecimal.valueOf(doubleValue));
-                        intervalReading.setProfileStatus(ProfileStatus.of(realFlags));
-                        blocks.get(readingTypes.get(i)).addIntervalReading(intervalReading);
+                        String stringValue = values.get(i).replace(",", ".").replace(" ", "");
+                        if (!is(stringValue).emptyOrOnlyWhiteSpace()){
+                            double doubleValue = Double.valueOf(stringValue);
+                            IntervalReadingImpl intervalReading = IntervalReadingImpl.of(time, BigDecimal.valueOf(doubleValue));
+                            intervalReading.setProfileStatus(ProfileStatus.of(realFlags));
+                            blocks.get(readingTypes.get(i)).addIntervalReading(intervalReading);
+                        }
                     }
-                    
-                } catch (ParseException e) {
-                    e.printStackTrace();
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
@@ -216,12 +224,11 @@ public class LoadProfileCommands {
         List<String> channels = new ArrayList<String>();
         String[] columns = header.split(";");
         if (columns.length < MANDATORY_COLUMN_SIZE + 1) {
-            System.out.println("Incorrect file header: should be 'Date, Code, Flags, Last Mod.' + channels(one per column)");
+            System.out.println("Incorrect file header: should be 'Date, Code, Flags' + channels(one per column)");
             return channels;
         }
-        if (!(COLUMN_DATE_NAME.equals(columns[COLUMN_DATE]) && COLUMN_CODE_NAME.equals(columns[COLUMN_CODE]) && COLUMN_FLAGS_NAME.equals(columns[COLUMN_FLAGS]) && COLUMN_LASTMOD_NAME
-                .equals(columns[COLUMN_LASTMOD]))) {
-            System.out.println("Incorrect header: should be 'Date, Code, Flags, Last Mod.' + channels(one per column)");
+        if (!(COLUMN_DATE_NAME.equals(columns[COLUMN_DATE]) && COLUMN_CODE_NAME.equals(columns[COLUMN_CODE]) && COLUMN_FLAGS_NAME.equals(columns[COLUMN_FLAGS]))) {
+            System.out.println("Incorrect header: should be 'Date, Code, Flags' + channels(one per column)");
             return channels;
         }
 
