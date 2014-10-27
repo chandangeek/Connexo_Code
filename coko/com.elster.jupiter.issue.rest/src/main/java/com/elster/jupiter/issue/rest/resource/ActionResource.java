@@ -57,17 +57,6 @@ public class ActionResource extends BaseResource {
         return entity(ruleActionTypes, CreationRuleActionTypeInfo.class).build();
     }
 
-    @GET
-    @Path("/{" + ID + "}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
-    public Response getActionTypeById(@PathParam("id") long id){
-        Optional<IssueActionType> actionTypeRef = getIssueActionService().findActionType(id);
-        if (!actionTypeRef.isPresent()){
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return entity(new CreationRuleActionTypeInfo(actionTypeRef.get())).build();
-    }
     /**
      * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getavailableactionphases">Get available action phases</a><br />
      * <b>Pagination</b>: false<br />

@@ -33,7 +33,10 @@ public class AssignIssueTransaction  implements Transaction<ActionInfo> {
         ActionInfo response = new ActionInfo();
         if (request.getIssues() != null && request.getAssignee() != null) {
             for (EntityReference issueRef : request.getIssues()) {
-                Issue issue = issueService.findIssue(issueRef.getId()).orElse(null);
+                Issue issue = issueService.findOpenIssue(issueRef.getId()).orElse(null);
+                if (issue == null){
+                    issue = issueService.findHistoricalIssue(issueRef.getId()).orElse(null);
+                }
                 if (issue == null) {
                     response.addFail(getString(ISSUE_DOES_NOT_EXIST, thesaurus), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
                 } else if (issueRef.getVersion() != issue.getVersion()){
