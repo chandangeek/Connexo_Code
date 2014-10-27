@@ -105,6 +105,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         Application application = getApplication();
         ResourceConfig resourceConfig = new ResourceConfig(application.getClasses());
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
+        resourceConfig.register(ObjectMapperProvider.class);
         application.getSingletons().stream().filter(s -> s instanceof AbstractBinder).forEach(resourceConfig::register);
         return resourceConfig;
     }
