@@ -160,7 +160,9 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ASSIGN_ISSUE)
+    @Deprecated
     public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext) {
+        /* TODO this method should be removed when FE implements dynamic actions */
         User author = (User) securityContext.getUserPrincipal();
         ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, getIssueService(), author, getThesaurus()));
         return entity(info).build();
@@ -198,8 +200,21 @@ public class IssueResource extends BaseResource {
         return entity(response).build();
     }
 
+    @GET
+    @Path("/{" + ID + "}/actions/{" + KEY + "}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
+    public Response getActionTypeById(@PathParam(KEY) long id){
+        Optional<IssueActionType> actionTypeRef = getIssueActionService().findActionType(id);
+        if (!actionTypeRef.isPresent()){
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        return entity(new CreationRuleActionTypeInfo(actionTypeRef.get())).build();
+    }
+
+
     @PUT
-    @Path("{" + ID + "}/action")
+    @Path("/{" + ID + "}/actions/{" + KEY + "}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ACTION_ISSUE)
     public Response performAction(@PathParam(ID) long id, PerformActionRequest request) {
