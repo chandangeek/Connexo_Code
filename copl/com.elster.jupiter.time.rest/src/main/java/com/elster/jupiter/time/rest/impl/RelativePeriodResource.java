@@ -21,6 +21,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Path("/relativeperiods")
 public class RelativePeriodResource {
@@ -86,11 +87,11 @@ public class RelativePeriodResource {
     }
 
     private RelativePeriod getRelativePeriodOrThrowException(long id) {
-        RelativePeriod relativePeriod = timeService.findRelativePeriod(id);
-        if(relativePeriod == null) {
+        Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriod(id);
+        if(!relativePeriod.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return relativePeriod;
+        return relativePeriod.get();
     }
 
     @Path("/{id}/preview")
