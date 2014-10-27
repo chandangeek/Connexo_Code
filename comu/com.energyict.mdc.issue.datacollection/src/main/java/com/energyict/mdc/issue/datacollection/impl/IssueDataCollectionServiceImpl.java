@@ -135,7 +135,11 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     @Override
     public Optional<IssueDataCollection> findIssue(long id) {
-        return find(IssueDataCollection.class, id, Issue.class);
+        Optional<? extends IssueDataCollection> issue = findOpenIssue(id);
+        if (!issue.isPresent()){
+            issue = findHistoricalIssue(id);
+        }
+        return (Optional<IssueDataCollection>) issue;
     }
 
     @Override
