@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.services.DefaultFinder;
@@ -19,11 +16,15 @@ import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinde
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.time.Interval;
 import com.google.inject.Inject;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -120,8 +121,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public List<Device> findCommunicationReferencingDevicesFor(Device device, Date timestamp) {
-        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective(timestamp.toInstant()));
+    public List<Device> findCommunicationReferencingDevicesFor(Device device, Instant timestamp) {
+        Condition condition = where("gateway").isEqualTo(device).and(where("interval").isEffective(timestamp));
         return this.findCommunicationReferencingDevicesFor(condition);
     }
 

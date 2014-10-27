@@ -40,7 +40,6 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -74,7 +73,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     @Override
     public Device getPhysicalGateway();
 
-    public Device getPhysicalGateway(Date timestamp);
+    public Device getPhysicalGateway(Instant timestamp);
 
     /**
      * Get the Device which is used for <i>communication</i><br>
@@ -90,7 +89,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @return the Device which is used to communicate with the HeadEnd
      */
-    public Device getCommunicationGateway(Date timestamp);
+    public Device getCommunicationGateway(Instant timestamp);
 
     /**
      * Set the device which will be used to communicate with the HeadEnd.<br>
@@ -124,7 +123,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param timestamp The timestamp on which the devices were linked for communication to this Device
      * @return the list of Devices which are currently linked to this Device for communication
      */
-    List<Device> getCommunicationReferencingDevices(Date timestamp);
+    List<Device> getCommunicationReferencingDevices(Instant timestamp);
 
     /**
      * Gets the list of Devices which are, in the end, referencing this Device for Communication.
@@ -151,7 +150,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param timestamp The timestamp on which the devices were linked for communication to this Device
      * @return the list of Devices which are currently linked to this Device for communication
      */
-    List<Device> getAllCommunicationReferencingDevices(Date timestamp);
+    List<Device> getAllCommunicationReferencingDevices(Instant timestamp);
 
     /**
      * Gets the {@link CommunicationTopologyEntry CommunicationTopologies} for this Device
@@ -252,12 +251,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<DeviceMultiplier> getDeviceMultipliers();
 
     /**
-     * Gets the active device multiplier for a certain date.
+     * Gets the active device multiplier for a certain Timestamp.
      *
-     * @param date
+     * @param date The timestamp
      * @return a device multiplier
      */
-    DeviceMultiplier getDeviceMultiplier(Date date);
+    DeviceMultiplier getDeviceMultiplier(Instant date);
 
     /**
      * Gets the active device multiplier at the moment the method is called
