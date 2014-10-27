@@ -1,0 +1,50 @@
+Ext.define('Dxp.view.tasks.AddScheduleGrid', {
+    extend: 'Ext.grid.Panel',
+    requires: [
+        'Dxp.model.SchedulePeriod'
+    ],
+    alias: 'widget.add-schedule-grid',
+    store: Ext.create('Ext.data.Store', {
+        model: 'Dxp.model.SchedulePeriod'
+    }),
+    bodyBorder: true,
+    enableColumnHide: false,
+    enableColumnMove: false,
+    enableColumnResize: false,
+    sortableColumns: false,
+    collapsible: false,
+    selModel: {
+        mode: 'SINGLE'
+    },
+    columns: {
+        items: [
+            {
+                itemId: 'schedule',
+                header: Uni.I18n.translate('general.schedule', 'DXP', 'Schedule'),
+                dataIndex: 'schedule',
+                flex: 1,
+                renderer: function (value) {
+                    return moment(value).format('dddd MMMM D, YYYY HH:mm')
+                }
+            },
+            {
+                itemId: 'startPeriod',
+                header: Uni.I18n.translate('general.startExportPeriod', 'DXP', 'Start export period'),
+                dataIndex: 'start',
+                flex: 1,
+                renderer: function (value) {
+                    return moment(value).format('dddd MMMM D, YYYY HH:mm:ss')
+                }
+            },
+            {
+                itemId: 'endPeriod',
+                header: Uni.I18n.translate('general.endExportPeriod', 'DXP', 'End export period'),
+                dataIndex: 'end',
+                flex: 1,
+                renderer: function (value) {
+                    return moment(value).format('dddd MMMM D, YYYY HH:mm:ss')
+                }
+            }
+        ]
+    }
+});
