@@ -448,6 +448,37 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     }
 
     interface DeviceMessageBuilder {
+
+        /**
+         * Add a key/value-Pair which will result in a DeviceMessageAttribute
+         *
+         * @param key   the key of the attribute
+         * @param value the value of the attribute
+         * @return this builder
+         */
+        DeviceMessageBuilder addProperty(String key, Object value);
+
+        /**
+         * Set the release date of the currently building DeviceMessage
+         *
+         * @param releaseDate the date when this message <i>may</i> be executed
+         * @return this builder
+         */
+        DeviceMessageBuilder setReleaseDate(Instant releaseDate);
+
+        /**
+         * Set a trackingId for the currently building DeviceMessage
+         *
+         * @param trackingId the trackingId
+         * @return this builder
+         */
+        DeviceMessageBuilder setTrackingId(String trackingId);
+
+        /**
+         * Create the actual DeviceMessage based on the info in the builder
+         *
+         * @return the newly created DeviceMessage
+         */
         DeviceMessage<Device> add();
     }
 }
