@@ -51,7 +51,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
     private Device createSimpleDeviceWithProperty(String name, String value) {
         setupStringPropertyWithName(name);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
-        device.setProperty(name, value);
+        device.setProtocolProperty(name, value);
         device.save();
         return device;
     }
@@ -86,7 +86,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         Device device = createSimpleDeviceWithProperty(name, value);
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setProperty(name, updatedValue);
+        reloadedDevice.setProtocolProperty(name, updatedValue);
 
         Device deviceWithUpdatedProperties = getReloadedDevice(reloadedDevice);
 
@@ -103,7 +103,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         Device device = createSimpleDeviceWithProperty(name, value);
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setProperty(name, updatedValue);
+        reloadedDevice.setProtocolProperty(name, updatedValue);
     }
 
     @Test
@@ -119,9 +119,9 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         setupStringPropertyWithName(propertyName2);
         setupStringPropertyWithName(propertyName3);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
-        device.setProperty(propertyName1, value1);
-        device.setProperty(propertyName2, value2);
-        device.setProperty(propertyName3, value3);
+        device.setProtocolProperty(propertyName1, value1);
+        device.setProtocolProperty(propertyName2, value2);
+        device.setProtocolProperty(propertyName3, value3);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -152,7 +152,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         PropertySpec<String> stringPropertySpec = new PropertySpecServiceImpl().basicPropertySpec(name, false, new StringFactory());
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(stringPropertySpec));
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
-        device.setProperty(name, value);
+        device.setProtocolProperty(name, value);
         try {
             device.save();
         } catch (DeviceProtocolPropertyException e) {
@@ -173,7 +173,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         Device device = createSimpleDeviceWithProperty(name, value);
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setProperty(name, updateValue);
+        reloadedDevice.setProtocolProperty(name, updateValue);
         reloadedDevice.save();
 
         Device updatedDevice = getReloadedDevice(reloadedDevice);
@@ -190,7 +190,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setProperty(name, value);
+        reloadedDevice.setProtocolProperty(name, value);
         reloadedDevice.save();
 
         Device updatedDevice = getReloadedDevice(reloadedDevice);
@@ -203,7 +203,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
-        device.setProperty(name, value);
+        device.setProtocolProperty(name, value);
         try {
             device.save();
         } catch (DeviceProtocolPropertyException e) {

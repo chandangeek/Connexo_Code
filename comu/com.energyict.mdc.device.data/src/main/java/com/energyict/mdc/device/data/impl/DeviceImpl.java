@@ -1,9 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.*;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -58,6 +55,9 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpda
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.dynamic.relation.CanLock;
+import com.energyict.mdc.dynamic.relation.RelationTransaction;
+import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -67,6 +67,7 @@ import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -103,8 +104,13 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Lists;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -113,7 +119,7 @@ import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.Period;
+import java.util.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -136,13 +142,23 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
 import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
-public class DeviceImpl implements Device {
+public class DeviceImpl implements Device, CanLock {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -154,6 +170,7 @@ public class DeviceImpl implements Device {
     private final ServerCommunicationTaskService communicationTaskService;
     private final DeviceService deviceService;
     private final SecurityPropertyService securityPropertyService;
+    private final ProtocolPluggableService protocolPluggableService;
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
@@ -215,7 +232,7 @@ public class DeviceImpl implements Device {
             Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
             Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
             Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
-            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
+            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider, ProtocolPluggableService protocolPluggableService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
@@ -231,6 +248,7 @@ public class DeviceImpl implements Device {
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
         this.scheduledComTaskExecutionProvider = scheduledComTaskExecutionProvider;
         this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
@@ -825,6 +843,35 @@ public class DeviceImpl implements Device {
         return new LogBookUpdaterForDevice((LogBookImpl) logBook);
     }
 
+    @Override
+    public void lock() {
+        try {
+            try (PreparedStatement stmnt = getLockSqlBuilder().getStatement(dataModel.getConnection(true))) {
+                try (ResultSet rs = stmnt.executeQuery()) {
+                    if (rs.next()) {
+                        return;
+                    }
+                    else {
+                        throw new ApplicationException("Tuple not found");
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DatabaseException(ex);
+        }
+    }
+
+    private SqlBuilder getLockSqlBuilder() {
+        SqlBuilder sqlBuilder = new SqlBuilder("select *");
+        sqlBuilder.append(" from ");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append(" where id = ?");
+        sqlBuilder.bindLong(this.getId());
+        sqlBuilder.append(" for update");
+        return sqlBuilder;
+    }
+
+
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
 
         protected LogBookUpdaterForDevice(LogBookImpl logBook) {
@@ -951,7 +998,7 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public void setProperty(String name, Object value) {
+    public void setProtocolProperty(String name, Object value) {
         if (propertyExistsOnDeviceProtocol(name)) {
             String propertyValue = getPropertyValue(name, value);
             boolean notUpdated = !updatePropertyIfExists(name, propertyValue);
@@ -960,6 +1007,34 @@ public class DeviceImpl implements Device {
             }
         } else {
             throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(thesaurus, name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this);
+        }
+    }
+
+    @Override
+    public void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
+        try {
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+            RelationType relationType = protocolPluggableService.findSecurityPropertyRelationType(deviceProtocolPluggableClass);
+            RelationTransaction transaction = relationType.newRelationTransaction();
+            transaction.setFrom(Date.from(clock.instant()));
+            transaction.setTo(null);
+            transaction.set(DEVICE_ATTRIBUTE_NAME, this);
+            transaction.set(SECURITY_PROPERTY_SET_ATTRIBUTE_NAME, securityPropertySet);
+            typedProperties.propertyNames().stream().forEach(p -> transaction.set(p, typedProperties.getPropertyValue(p)));
+            transaction.set(STATUS_ATTRIBUTE_NAME, isSecurityPropertySetComplete(securityPropertySet,typedProperties));
+            transaction.execute();
+        } catch (BusinessException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties){
+        // TODO JP-6225 all properties are required
+        //if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getPropertyValue(p.getName()) == null)) {
+        if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> typedProperties.getPropertyValue(p.getName()) == null)) {
+            return false;
+        } else {
+            return true;
         }
     }
 
