@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
@@ -51,7 +52,8 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
         ConnectionTaskPropertyProvider,
         PluggableClassUsage<ConnectionType, ConnectionTypePluggableClass, ConnectionTaskProperty>,
         ConnectionTaskExecutionAspects,
-        HasId {
+        HasId,
+        HasName{
 
     public enum Type {
         /**

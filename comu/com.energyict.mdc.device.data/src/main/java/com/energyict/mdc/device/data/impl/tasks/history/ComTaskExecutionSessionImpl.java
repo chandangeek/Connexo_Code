@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.services.DefaultFinder;
@@ -130,11 +131,15 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     @Override
     public Finder<ComTaskExecutionJournalEntry> findComTaskExecutionJournalEntries(Set<ComServer.LogLevel> levels) {
+        Condition queryComCommands = Condition.FALSE;
+        if (levels.contains(ComServer.LogLevel.INFO) || levels.isEmpty()) {
+            queryComCommands = where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComCommandJournalEntryImplDiscriminator);
+        }
         return DefaultFinder.of(ComTaskExecutionJournalEntry.class,
                 Where.where(ComTaskExecutionJournalEntryImpl.Fields.ComTaskExecutionSession.fieldName()).isEqualTo(this)
-                        .and(where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComCommandJournalEntryImplDiscriminator)
+                        .and(queryComCommands
                             .or(where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComTaskExecutionMessageJournalEntryImplDiscriminator)
-                                        .and(where(ComTaskExecutionJournalEntryImpl.Fields.LogLevel.fieldName()).in(new ArrayList<>(levels))))),
+                                    .and(where(ComTaskExecutionJournalEntryImpl.Fields.LogLevel.fieldName()).in(new ArrayList<>(levels))))),
                 this.dataModel)
                 .sorted(ComTaskExecutionJournalEntryImpl.Fields.timestamp.fieldName(), false);
     }
