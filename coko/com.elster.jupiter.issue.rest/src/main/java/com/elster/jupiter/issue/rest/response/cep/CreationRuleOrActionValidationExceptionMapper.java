@@ -21,7 +21,8 @@ public class CreationRuleOrActionValidationExceptionMapper implements ExceptionM
     @Override
     public Response toResponse(CreationRuleOrActionValidationException exception) {
         ConstraintViolationInfo constraintViolationInfo = infoProvider.get();
-        constraintViolationInfo.message= exception.getLocalizedMessage();
+        // uncomment only if you want the 'Request failed' pop-up for form validation
+        // constraintViolationInfo.message= exception.getLocalizedMessage();
         constraintViolationInfo.error= exception.getMessageSeed().getKey();
         for (Map.Entry<String, String> detail : exception.getErrors().entrySet()) {
             constraintViolationInfo.addFieldError(detail.getKey(), detail.getValue());
