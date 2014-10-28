@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Channel;
@@ -27,9 +26,9 @@ public class ChannelDataInfo {
     @JsonProperty("interval")
     public IntervalInfo interval;
     @JsonProperty("readingTime")
-    public Date readingTime;
+    public Instant readingTime;
     @JsonProperty("editedTime")
-    public Date editedTime;
+    public Instant editedTime;
     @JsonProperty("intervalFlags")
     public List<String> intervalFlags;
     @JsonProperty("value")
@@ -64,7 +63,7 @@ public class ChannelDataInfo {
             for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
                 valueOwnerChannel = entry.getKey();
                 channelIntervalInfo.value=entry.getValue().getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
-                channelIntervalInfo.editedTime = entry.getValue().edited() ? Date.from(entry.getValue().getReportedDateTime()) : null;
+                channelIntervalInfo.editedTime = entry.getValue().edited() ? entry.getValue().getReportedDateTime() : null;
             }
             if (channelIntervalInfo.value != null && valueOwnerChannel != null){
                 channelIntervalInfo.value= channelIntervalInfo.value.setScale(valueOwnerChannel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP);
