@@ -27,7 +27,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
         this.connectionStrategy = scheduledConnectionTask.getConnectionStrategy();
         this.allowSimultaneousConnections = scheduledConnectionTask.isSimultaneousConnectionsAllowed();
-        this.rescheduleRetryDelay = scheduledConnectionTask.getRescheduleDelay() != null ? new TimeDurationInfo(scheduledConnectionTask.getRescheduleDelay()) : null;
+        this.rescheduleRetryDelay = TimeDurationInfo.of(scheduledConnectionTask.getRescheduleDelay());
         if (scheduledConnectionTask.getCommunicationWindow() != null) {
             this.comWindowStart = scheduledConnectionTask.getCommunicationWindow().getStart().getMillis() / 1000;
             this.comWindowEnd = scheduledConnectionTask.getCommunicationWindow().getEnd().getMillis() / 1000;

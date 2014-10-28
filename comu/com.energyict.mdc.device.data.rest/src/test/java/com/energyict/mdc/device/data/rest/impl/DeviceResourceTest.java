@@ -42,8 +42,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
@@ -62,7 +60,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -473,10 +470,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         final long startTime = 1388534400000L;
         long start = startTime;
         for (int i = 0; i < 2880; i++) {
-            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, new Interval(new Date(start), new Date(start + 900))));
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Interval.of(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
             start += 900;
         }
-        when(loadProfile3.getChannelData((com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
+        when(loadProfile3.getChannelData(any(Interval.class))).thenReturn(loadProfileReadings);
 
 
         Map response = target("/devices/mrid2/loadprofiles/3/data")
@@ -519,10 +516,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         final long startTime = 1388534400000L;
         long start = startTime;
         for (int i = 0; i < 2880; i++) {
-            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, new Interval(new Date(start), new Date(start + 900))));
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Interval.of(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
             start += 900;
         }
-        when(channel1.getChannelData((com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
+        when(channel1.getChannelData(any(Interval.class))).thenReturn(loadProfileReadings);
 
 
         Map response = target("/devices/mrid2/loadprofiles/3/channels/7/data")
@@ -616,12 +613,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceEventType.getSubDomain()).thenReturn(EndDeviceSubDomain.VOLTAGE);
         when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventorAction.DECREASED);
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
-        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return (String) invocation.getArguments()[1];
-            }
-        });
+        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> (String) invocation.getArguments()[1]);
 
         LogBookInfo info = target("/devices/mrid/logbooks/1").request().get(LogBookInfo.class);
 
@@ -745,12 +737,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceType.getEventOrAction()).thenReturn(eventorAction);
 
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
-        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return (String) invocation.getArguments()[1];
-            }
-        });
+        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> (String) invocation.getArguments()[1]);
 
         Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
                 .queryParam("filter", "[{'property':'intervalStart','value':1},"
@@ -790,7 +777,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
         when(intervalReadingRecord.getValue()).thenReturn(BigDecimal.TEN);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.CORRUPTED));
-        when(loadProfileReading.getReadingTime()).thenReturn(new Date());
+        when(loadProfileReading.getReadingTime()).thenReturn(Instant.now());
         when(loadProfileReading.getInterval()).thenReturn(interval);
         Map<Channel, IntervalReadingRecord> map = new HashMap<>();
         for (Channel channel : loadProfile.getChannels()) {
@@ -813,6 +800,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Phenomenon phenomenon = mock(Phenomenon.class);
         when(phenomenon.getUnit()).thenReturn(Unit.get("kWh"));
         when(mock.getPhenomenon()).thenReturn(phenomenon);
+        when(mock.getLastReading()).thenReturn(Optional.empty());
         return mock;
     }
 
@@ -826,7 +814,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile1.getId()).thenReturn(id);
         when(loadProfile1.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, (int) id));
         when(loadProfile1.getChannels()).thenReturn(channels == null ? Collections.<Channel>emptyList() : Arrays.asList(channels));
-        when(loadProfile1.getLastReading()).thenReturn(new Date(1406617200000L)); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
+        when(loadProfile1.getLastReading()).thenReturn(Optional.of(Instant.ofEpochMilli(1406617200000L))); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         return loadProfile1;
@@ -843,7 +831,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(logBook.getDeviceObisCode()).thenReturn(ObisCode.fromString(overruledObis));
         when(logBook.getLastLogBook()).thenReturn(lastLogBook);
         when(logBook.getLatestEventAdditionDate()).thenReturn(lastReading);
-
         return logBook;
     }
+
 }

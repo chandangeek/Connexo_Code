@@ -6,8 +6,8 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -20,7 +20,7 @@ public class ChannelInfo {
     public String name;
     public TimeDurationInfo interval;
     public PhenomenonInfo unitOfMeasure;
-    public Date lastReading;
+    public Instant lastReading;
     public String cimReadingType;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
@@ -38,7 +38,7 @@ public class ChannelInfo {
         info.name=channel.getName();
         info.interval=new TimeDurationInfo(channel.getInterval());
         info.unitOfMeasure=PhenomenonInfo.from(channel.getPhenomenon());
-        info.lastReading=channel.getLastReading();
+        info.lastReading=channel.getLastReading().orElse(null);
         info.cimReadingType=channel.getReadingType().getMRID();
         info.multiplier=channel.getMultiplier();
         info.overflowValue=channel.getOverflow();
