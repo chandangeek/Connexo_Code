@@ -42,7 +42,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     public static final String BATTERY_LOW = "BATTERY_LOW";
     public static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
     public static final Date LAST_CHECKED = new Date(1409570229000L);
-    public static final Date LAST_READING = new Date(1410786196000L);
+    public static final Instant LAST_READING = Instant.ofEpochMilli(1410786196000L);
     public static final long CHANNEL_ID1 = 151521354L;
     public static final long CHANNEL_ID2 = 7487921005L;
     private static long intervalStart = 1410774630000L;
@@ -208,21 +208,21 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testValidate() {
         when(loadProfile.getDevice()).thenReturn(device);
         when(device.forValidation()).thenReturn(deviceValidation);
-        when(channel1.getLastReading()).thenReturn(LAST_READING);
+        when(channel1.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
         Response response = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/validate")
                 .request()
                 .put(Entity.json(new TriggerValidationInfo()));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateChannel(channel1, null, LAST_READING.toInstant());
+        verify(deviceValidation).validateChannel(channel1, null, LAST_READING);
     }
 
     @Test
     public void testValidateWithDate() {
         when(loadProfile.getDevice()).thenReturn(device);
         when(device.forValidation()).thenReturn(deviceValidation);
-        when(channel1.getLastReading()).thenReturn(LAST_READING);
+        when(channel1.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
         TriggerValidationInfo triggerValidationInfo = new TriggerValidationInfo();
         triggerValidationInfo.lastChecked = LAST_CHECKED.getTime();
@@ -231,7 +231,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .put(Entity.json(triggerValidationInfo));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateChannel(channel1, LAST_CHECKED.toInstant(), LAST_READING.toInstant());
+        verify(deviceValidation).validateChannel(channel1, LAST_CHECKED.toInstant(), LAST_READING);
     }
 
 }

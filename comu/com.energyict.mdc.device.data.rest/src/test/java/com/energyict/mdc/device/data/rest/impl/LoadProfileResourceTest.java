@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +41,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
 
     public static final String BATTERY_LOW = "BATTERY_LOW";
     public static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
-    public static final Date LAST_READING = new Date(1410786196000L);
+    public static final Instant LAST_READING = Instant.ofEpochMilli(1410786196000L);
     public static final Date LAST_CHECKED = new Date(1409570229000L);
     public static final long CHANNEL_ID1 = 151521354L;
     public static final long CHANNEL_ID2 = 7487921005L;
@@ -177,21 +178,21 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
     public void testValidate() {
         when(loadProfile.getDevice()).thenReturn(device);
         when(device.forValidation()).thenReturn(deviceValidation);
-        when(loadProfile.getLastReading()).thenReturn(LAST_READING);
+        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
         Response response = target("devices/1/loadprofiles/1/validate")
                 .request()
                 .put(Entity.json(new TriggerValidationInfo()));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateLoadProfile(loadProfile, null, LAST_READING.toInstant());
+        verify(deviceValidation).validateLoadProfile(loadProfile, null, LAST_READING);
     }
 
     @Test
     public void testValidateWithDate() {
         when(loadProfile.getDevice()).thenReturn(device);
         when(device.forValidation()).thenReturn(deviceValidation);
-        when(loadProfile.getLastReading()).thenReturn(LAST_READING);
+        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
         TriggerValidationInfo triggerValidationInfo = new TriggerValidationInfo();
         triggerValidationInfo.lastChecked = LAST_CHECKED.getTime();
@@ -200,7 +201,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
                 .put(Entity.json(triggerValidationInfo));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateLoadProfile(loadProfile, LAST_CHECKED.toInstant(), LAST_READING.toInstant());
+        verify(deviceValidation).validateLoadProfile(loadProfile, LAST_CHECKED.toInstant(), LAST_READING);
     }
 
 }
