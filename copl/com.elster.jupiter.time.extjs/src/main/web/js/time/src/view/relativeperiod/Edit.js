@@ -125,6 +125,26 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                             },
                             {
                                 xtype: 'uni-form-relativeperiodpreview'
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                ui: 'actions',
+                                fieldLabel: '&nbsp',
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'create-edit-button',
+                                        text: Uni.I18n.translate('general.add', 'DXP', 'Add'),
+                                        ui: 'action',
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'cancel-link',
+                                        text: Uni.I18n.translate('general.cancel', 'DXP', 'Cancel'),
+                                        ui: 'link'
+                                    }
+                                ]
                             }
                         ]
                     }

@@ -26,7 +26,7 @@ Ext.define('Tme.controller.RelativePeriods', {
 
     init: function () {
         this.control({
-            'tme-relativeperiod-edit #createEditButton': {
+            'tme-relativeperiod-edit #create-edit-button': {
                 click: this.createEditPeriod
             }
 
