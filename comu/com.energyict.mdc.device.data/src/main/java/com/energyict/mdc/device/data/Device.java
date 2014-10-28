@@ -225,7 +225,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     TypedProperties getDeviceProtocolProperties();
 
-    void setProperty(String name, Object value);
+    void setProtocolProperty(String name, Object value);
+    void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
 
     void removeProperty(String name);
 
