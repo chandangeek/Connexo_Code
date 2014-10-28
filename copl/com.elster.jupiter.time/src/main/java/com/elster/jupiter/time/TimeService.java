@@ -9,8 +9,8 @@ public interface TimeService {
     List<RelativePeriod> getRelativePeriods();
     Optional<RelativePeriod> findRelativePeriod(long relativePeriodId);
     Optional<RelativePeriod> findRelativePeriodByName(String name);
-    RelativePeriod createRelativePeriod(String name, RelativeDate from, RelativeDate to);
-    RelativePeriod updateRelativePeriod(Long id, String name, RelativeDate from, RelativeDate to);
+    RelativePeriod createRelativePeriod(String name, RelativeDate from, RelativeDate to, List<RelativePeriodCategory> categories);
+    RelativePeriod updateRelativePeriod(Long id, String name, RelativeDate from, RelativeDate to, List<RelativePeriodCategory> categories);
     RelativePeriodCategory createRelativePeriodCategory(String key);
     Optional<RelativePeriodCategory> findRelativePeriodCategory(long relativePeriodCategoryId);
     Optional<RelativePeriodCategory> findRelativePeriodCategoryByName(String name);

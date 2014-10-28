@@ -3,23 +3,19 @@ package com.elster.jupiter.time.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.time.*;
+import com.elster.jupiter.util.collections.ArrayDiffList;
+import com.elster.jupiter.util.collections.DiffList;
 import com.google.common.collect.Range;
 import com.google.inject.Inject;
 
-import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Unique(fields="name", groups = Save.Create.class)
 public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
@@ -34,12 +30,10 @@ public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     private final EventService eventService;
 
     private List<RelativePeriodCategoryUsage> relativePeriodCategoryUsages = new ArrayList<>();
-    //private final Provider<RelativePeriodCategoryUsageImpl> relativePeriodCategoryUsageFactory;
 
     @Inject
-    public RelativePeriodImpl(DataModel dataModel, /*Provider<RelativePeriodCategoryUsageImpl> relativePeriodCategoryUsageFactory,*/ EventService eventService) {
+    public RelativePeriodImpl(DataModel dataModel, EventService eventService) {
         super(dataModel);
-       // this.relativePeriodCategoryUsageFactory = relativePeriodCategoryUsageFactory;
         this.eventService = eventService;
     }
 
@@ -91,40 +85,20 @@ public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
         this.to = new RelativeDate(to);
     }
 
-    /*@Override
-    public List<RelativePeriodCategory> getRelativePeriodCategories() {
-        List<RelativePeriodCategoryUsage> usages = getUsages();
-        return usages.stream().map(usage -> usage.getRelativePeriodCategory()).collect(Collectors.toList());
-    }
-
-    @Override
-    public RelativePeriodCategoryUsage addRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory) {
-        RelativePeriodCategoryUsage usage =
-                relativePeriodCategoryUsageFactory.get().init(this, relativePeriodCategory);
-        usage.save();
-        return usage;
-    }
-
-    @Override
-    public void removeRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory) throws Exception {
-        List<RelativePeriodCategoryUsage> usages = getUsageQuery().select(where("relativePeriodId").isEqualTo(this.getId())
-                        .and(where("relativePeriodCategoryId").isEqualTo(relativePeriodCategory.getId())));
-        if(!usages.isEmpty()) {
-            RelativePeriodCategoryUsage usage = usages.get(0);
-            eventService.postEvent(EventType.CATEGORY_USAGE_DELETED.topic(), usage);
-            usage.delete();
+    public void setRelativePeriodCategoryUsages(List<RelativePeriodCategory> categories) {
+        DiffList<RelativePeriodCategoryUsage> entryDiff = ArrayDiffList.fromOriginal(relativePeriodCategoryUsages);
+        entryDiff.clear();
+        List<RelativePeriodCategoryUsage> newCategories = new ArrayList<>();
+        categories.stream().forEach(category -> newCategories.add(new RelativePeriodCategoryUsage(this, category)));
+        entryDiff.addAll(newCategories);
+        for (RelativePeriodCategoryUsage usage : entryDiff.getRemovals()) {
+            removeRelativePeriodCategory(usage.getRelativePeriodCategory());
+        }
+        for (RelativePeriodCategoryUsage usage : entryDiff.getAdditions()) {
+            addRelativePeriodCategory(usage.getRelativePeriodCategory());
         }
     }
 
-    private List<RelativePeriodCategoryUsage> getUsages() {
-        return getUsageQuery().select(where("relativePeriodId").isEqualTo(this.getId()));
-    }
-
-    private QueryExecutor<RelativePeriodCategoryUsage> getUsageQuery() {
-        QueryExecutor<RelativePeriodCategoryUsage> usageQuery = dataModel.query(RelativePeriodCategoryUsage.class);
-        return usageQuery;
-    }
-    */
     @Override
     public List<RelativePeriodCategory> getRelativePeriodCategories() {
         List<RelativePeriodCategory> usages = new ArrayList<>(this.relativePeriodCategoryUsages.size());
@@ -139,7 +113,7 @@ public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     }
 
     @Override
-    public void removeRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory) throws Exception  {
+    public void removeRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory) {
         Iterator<RelativePeriodCategoryUsage> relativePeriodCategoryUsageIterator = this.relativePeriodCategoryUsages.iterator();
         while (relativePeriodCategoryUsageIterator.hasNext()) {
             RelativePeriodCategoryUsage relativePeriodCategoryUsage = relativePeriodCategoryUsageIterator.next();

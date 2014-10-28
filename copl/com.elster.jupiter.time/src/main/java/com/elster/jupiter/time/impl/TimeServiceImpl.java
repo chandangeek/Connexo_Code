@@ -21,6 +21,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -65,21 +66,23 @@ public class TimeServiceImpl implements TimeService, InstallService {
     }
 
     @Override
-    public RelativePeriod createRelativePeriod(String name, RelativeDate from, RelativeDate to) {
+    public RelativePeriod createRelativePeriod(String name, RelativeDate from, RelativeDate to, List<RelativePeriodCategory> categories) {
         RelativePeriodImpl relativePeriod = dataModel.getInstance(RelativePeriodImpl.class);
         relativePeriod.setName(name);
         relativePeriod.setRelativeDateFrom(from);
         relativePeriod.setRelativeDateTo(to);
+        categories.stream().forEach(relativePeriod::addRelativePeriodCategory);
         relativePeriod.save();
         return relativePeriod;
     }
 
     @Override
-    public RelativePeriod updateRelativePeriod(Long id, String name, RelativeDate from, RelativeDate to) {
+    public RelativePeriod updateRelativePeriod(Long id, String name, RelativeDate from, RelativeDate to, List<RelativePeriodCategory> categories) {
         RelativePeriodImpl relativePeriod = RelativePeriodImpl.class.cast(findRelativePeriod(id));
         relativePeriod.setName(name);
         relativePeriod.setRelativeDateFrom(from);
         relativePeriod.setRelativeDateTo(to);
+        relativePeriod.setRelativePeriodCategoryUsages(categories);
         relativePeriod.update();
         return relativePeriod;
     }
@@ -120,6 +123,7 @@ public class TimeServiceImpl implements TimeService, InstallService {
                 bind(QueryService.class).toInstance(queryService);
                 bind(OrmService.class).toInstance(ormService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(EventService.class).toInstance(eventService);
             }
