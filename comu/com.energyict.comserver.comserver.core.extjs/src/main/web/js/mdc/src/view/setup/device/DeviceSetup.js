@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     deviceTypeId: null,
     mRID: null,
     itemId: 'deviceSetup',
+    router: null,
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
@@ -70,7 +71,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             {
                 xtype: 'deviceOpenIssuesPanel',
                 deviceId: this.deviceId,
-                mRID: this.mRID
+                mRID: this.mRID,
+                router: this.router
             }
         );
         this.down('#DeviceContainer').add(
