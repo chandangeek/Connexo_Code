@@ -23,7 +23,6 @@ import java.util.Map;
 
 public class RetryCommunicationTaskAction extends AbstractIssueAction {
     private IssueService issueService;
-    private Thesaurus thesaurus;
 
     @Inject
     public RetryCommunicationTaskAction(NlsService nlsService, Thesaurus thesaurus, IssueService issueService) {
@@ -41,7 +40,7 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
             issue.save();
             ComTaskExecution comTaskExecution = ((IssueDataCollection) issue).getCommunicationTask().get();
             comTaskExecution.scheduleNow();
-            result.success(MessageSeeds.ACTION_RETRY_COM_TASK_SUCCESS.getTranslated(thesaurus));
+            result.success(MessageSeeds.ACTION_RETRY_COM_TASK_SUCCESS.getTranslated(getThesaurus()));
         }
         return result;
     }
@@ -62,6 +61,6 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
 
     @Override
     public String getLocalizedName() {
-        return MessageSeeds.ACTION_RETRY.getTranslated(thesaurus);
+        return MessageSeeds.ACTION_RETRY.getTranslated(getThesaurus());
     }
 }
