@@ -1,29 +1,55 @@
 package com.elster.jupiter.issue.share.cep;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.ActionParameter;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.service.IssueService;
-
-import java.util.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.google.inject.Inject;
 
 public abstract class AbstractIssueAction implements IssueAction {
+    
+    private NlsService nlsService;
+    private Thesaurus thesaurus;
     protected Map<String, ParameterDefinition> parameterDefinitions = new LinkedHashMap<>();
-
+    
+    @Inject
+    public AbstractIssueAction(NlsService nlsService, Thesaurus thesaurus) {
+        this.nlsService = nlsService;
+        this.thesaurus = thesaurus;
+    }
+    
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+    
+    public void validateParametersOrThrowException(Map<String, String> actionParameters) {
+        List<ParameterViolation> violations = validate(actionParameters);
+        if (!violations.isEmpty()) {
+            CreationRuleOrActionValidationException exception = new CreationRuleOrActionValidationException(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN), MessageSeeds.ACTION_INCORRECT_PARAMETERS);
+            exception.addErrors(violations);
+            throw exception;
+        }
+    }
+    
     @Override
     public Map<String, ParameterDefinition> getParameterDefinitions() {
         return parameterDefinitions;
     }
 
-    protected Map<String, ParameterDefinition> getParameterDefinitionsForValidation() {
-        return getParameterDefinitions();
-    }
-
     @Override
     public List<ParameterViolation> validate(Map<String, String> actionParameters) {
         List<ParameterViolation> errors = new ArrayList<>();
-        for (ParameterDefinition definition : getParameterDefinitionsForValidation().values()) {
-            errors.addAll(definition.validate(actionParameters.get(definition.getKey()), ParameterDefinitionContext.ACTION));
+        for (ParameterDefinition definition : getParameterDefinitions().values()) {
+            errors.addAll(definition.validate(actionParameters.get(definition.getKey()), ParameterDefinitionContext.NONE));
         }
         return errors;
     }
@@ -40,7 +66,7 @@ public abstract class AbstractIssueAction implements IssueAction {
             throw new IllegalArgumentException("action is missing");
         }
 
-        Map<String, ParameterDefinition> parameterDefinitionsCopy = new HashMap<>(getParameterDefinitionsForValidation());
+        Map<String, ParameterDefinition> parameterDefinitionsCopy = new HashMap<>(getParameterDefinitions());
         for (ActionParameter parameter : action.getParameters()) {
             ParameterDefinition definition = parameterDefinitionsCopy.remove(parameter.getKey());
             if (definition != null) {

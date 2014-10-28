@@ -11,41 +11,40 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
+
 import java.util.Map;
 
 public class CloseIssueAction extends AbstractIssueAction {
     private IssueService issueService;
-    private Thesaurus thesaurus;
 
     @Inject
-    public CloseIssueAction(Thesaurus thesaurus, IssueService issueService) {
+    public CloseIssueAction(NlsService nlsService, Thesaurus thesaurus, IssueService issueService) {
+        super(nlsService, thesaurus);
         this.issueService = issueService;
-        this.thesaurus = thesaurus;
         initParameterDefinitions();
     }
 
     @Override
     public IssueActionResult execute(Issue issue, Map<String, String> actionParameters) {
+        validateParametersOrThrowException(actionParameters);
+        
         DefaultActionResult result = new DefaultActionResult();
-        if(issue == null || !validate(actionParameters).isEmpty()) {
-            result.fail(MessageSeeds.ACTION_INCORRECT_PARAMETERS.getTranslated(thesaurus));
-            return result;
-        }
 
         IssueStatus closeStatus = getStatusFromParameters(actionParameters);
         if (closeStatus == null) {
-            result.fail(MessageSeeds.ACTION_WRONG_STATUS.getTranslated(thesaurus));
+            result.fail(MessageSeeds.ACTION_WRONG_STATUS.getTranslated(getThesaurus()));
             return result;
         }
         if (isApplicable(issue)){
             ((OpenIssue)issue).close(closeStatus);
             issue.save();
-            result.success(MessageSeeds.ACTION_ISSUE_WAS_CLOSED.getTranslated(thesaurus));
+            result.success(MessageSeeds.ACTION_ISSUE_WAS_CLOSED.getTranslated(getThesaurus()));
         } else {
-            result.fail(MessageSeeds.ACTION_ISSUE_ALREADY_CLOSED.getTranslated(thesaurus));
+            result.fail(MessageSeeds.ACTION_ISSUE_ALREADY_CLOSED.getTranslated(getThesaurus()));
         }
         return result;
     }
@@ -65,14 +64,14 @@ public class CloseIssueAction extends AbstractIssueAction {
 
     @Override
     public String getLocalizedName() {
-        return MessageSeeds.ACTION_CLOSE_ISSUE.getTranslated(thesaurus);
+        return MessageSeeds.ACTION_CLOSE_ISSUE.getTranslated(getThesaurus());
     }
 
     private void initParameterDefinitions() {
-        CloseStatusParameter closeStatus = new CloseStatusParameter(issueService, thesaurus);
+        CloseStatusParameter closeStatus = new CloseStatusParameter(issueService, getThesaurus());
         parameterDefinitions.put(closeStatus.getKey(), closeStatus);
 
-        IssueCommentParameter comment = new IssueCommentParameter(thesaurus);
+        IssueCommentParameter comment = new IssueCommentParameter(getThesaurus());
         parameterDefinitions.put(comment.getKey(), comment);
     }
 }

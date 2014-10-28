@@ -2,11 +2,12 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.cep.CreationRuleValidationException;
+import com.elster.jupiter.issue.share.cep.CreationRuleOrActionValidationException;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -221,7 +222,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     @Override
     public void validate() {
-        CreationRuleValidationException exception = new CreationRuleValidationException(nlsService);
+        CreationRuleOrActionValidationException exception = new CreationRuleOrActionValidationException(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN), MessageSeeds.ISSUE_CREATION_RULE_VALIDATION_FAILED);
 
         Validator validator = getDataModel().getValidatorFactory().getValidator();
         for (ConstraintViolation<?> violation : validator.validate(this)) {

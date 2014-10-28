@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.share.cep;
 
 public enum ParameterDefinitionContext {
+    NONE(""),
     RULE("parameters."),
     ACTION("actions.parameters.");
 

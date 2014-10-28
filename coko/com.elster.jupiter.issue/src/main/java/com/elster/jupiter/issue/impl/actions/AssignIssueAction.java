@@ -12,13 +12,17 @@ import com.elster.jupiter.issue.share.cep.controls.DefaultActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+
 import static com.elster.jupiter.util.Checks.*;
+
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,34 +30,30 @@ import java.util.Map;
 public class AssignIssueAction extends AbstractIssueAction {
     private IssueService issueService;
     private UserService userService;
-    private Thesaurus thesaurus;
     private ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    public AssignIssueAction(Thesaurus thesaurus, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService) {
+    public AssignIssueAction(NlsService nlsService, Thesaurus thesaurus, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService) {
+        super(nlsService, thesaurus);
         this.issueService = issueService;
         this.userService = userService;
-        this.thesaurus = thesaurus;
         this.threadPrincipalService = threadPrincipalService;
         initParameterDefinitions();
     }
 
     @Override
     public IssueActionResult execute(Issue issue, Map<String, String> actionParameters) {
-        DefaultActionResult result = new DefaultActionResult();
-        if(issue == null || !validate(actionParameters).isEmpty()) {
-            result.fail(MessageSeeds.ACTION_INCORRECT_PARAMETERS.getTranslated(thesaurus));
-            return result;
-        }
+        validateParametersOrThrowException(actionParameters);
 
+        DefaultActionResult result = new DefaultActionResult();
         String assigneeType = actionParameters.get(Parameter.ASSIGNEE.getKey());
-        if (assigneeType != null){
+        if (assigneeType != null) {
             IssueAssignee assignee = getIssueAssignee(assigneeType, actionParameters);
             issue.assignTo(assignee);
             issue.save();
             User author = (User) threadPrincipalService.getPrincipal();
             issue.addComment(actionParameters.get(Parameter.COMMENT.getKey()), author);
-            result.success(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED.getTranslated(thesaurus, assignee.getName()));
+            result.success(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED.getTranslated(getThesaurus(), assignee.getName()));
         }
         return result;
     }
@@ -68,14 +68,14 @@ public class AssignIssueAction extends AbstractIssueAction {
 
     @Override
     public String getLocalizedName() {
-        return MessageSeeds.ACTION_ASSIGN_ISSUE.getTranslated(thesaurus);
+        return MessageSeeds.ACTION_ASSIGN_ISSUE.getTranslated(getThesaurus());
     }
 
     private void initParameterDefinitions() {
-        AssigneeParameter assigneeParameter = new AssigneeParameter(issueService, userService, thesaurus);
+        AssigneeParameter assigneeParameter = new AssigneeParameter(issueService, userService, getThesaurus());
         parameterDefinitions.put(assigneeParameter.getKey(), assigneeParameter);
 
-        IssueCommentParameter comment = new IssueCommentParameter(thesaurus);
+        IssueCommentParameter comment = new IssueCommentParameter(getThesaurus());
         parameterDefinitions.put(comment.getKey(), comment);
     }
 
@@ -86,12 +86,12 @@ public class AssignIssueAction extends AbstractIssueAction {
         if (!is(assigneeType).emptyOrOnlyWhiteSpace()){
             IssueAssignee assignee = getIssueAssignee(assigneeType, actionParameters);
             if (assignee == null){
-                errors.add(new ParameterViolation(Parameter.ASSIGNEE.getKey(), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(thesaurus)));
+                errors.add(new ParameterViolation(Parameter.ASSIGNEE.getKey(), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(getThesaurus())));
             }
         } else {
-            errors.add(new ParameterViolation(Parameter.ASSIGNEE.getKey(), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(thesaurus)));
+            errors.add(new ParameterViolation(Parameter.ASSIGNEE.getKey(), MessageSeeds.ACTION_WRONG_ASSIGNEE.getTranslated(getThesaurus())));
         }
-        errors.addAll(getParameterDefinitions().get(Parameter.COMMENT.getKey()).validate(actionParameters.get(Parameter.COMMENT.getKey()), ParameterDefinitionContext.ACTION));
+        errors.addAll(getParameterDefinitions().get(Parameter.COMMENT.getKey()).validate(actionParameters.get(Parameter.COMMENT.getKey()), ParameterDefinitionContext.NONE));
         return errors;
     }
 

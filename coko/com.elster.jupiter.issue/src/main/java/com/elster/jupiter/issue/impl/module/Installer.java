@@ -3,24 +3,18 @@ package com.elster.jupiter.issue.impl.module;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 public class Installer {
     private static final Logger LOG = Logger.getLogger("IssueInstaller");
 
     private final DataModel dataModel;
-    private final Thesaurus thesaurus;
     private final IssueService issueService;
 
-    public Installer(DataModel dataModel, Thesaurus thesaurus, IssueService issueService) {
+    public Installer(DataModel dataModel, IssueService issueService) {
         this.dataModel = dataModel;
-        this.thesaurus = thesaurus;
         this.issueService = issueService;
     }
 
@@ -37,9 +31,9 @@ public class Installer {
 
     private void setDefaultStatuses(){
         issueService.createStatus(IssueStatus.OPEN, false, MessageSeeds.ISSUE_STATUS_OPEN);
+        issueService.createStatus(IssueStatus.IN_PROGRESS, false, MessageSeeds.ISSUE_STATUS_IN_PROGRESS);
         issueService.createStatus(IssueStatus.RESOLVED, true, MessageSeeds.ISSUE_STATUS_RESOLVED);
         issueService.createStatus(IssueStatus.WONT_FIX, true, MessageSeeds.ISSUE_STATUS_WONT_FIX);
-        issueService.createStatus(IssueStatus.IN_PROGRESS, true, MessageSeeds.ISSUE_STATUS_IN_PROGRESS);
     }
 
     public static void run(Runnable runnable, String explanation){

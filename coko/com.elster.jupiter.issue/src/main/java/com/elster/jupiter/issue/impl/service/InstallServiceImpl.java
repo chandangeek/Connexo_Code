@@ -2,7 +2,6 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
-import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
@@ -109,7 +108,7 @@ public class InstallServiceImpl implements InstallService, TranslationKeyProvide
 
     @Override
     public final void install() {
-        new Installer(dataModel, thesaurus, issueService).install(true);
+        new Installer(dataModel, issueService).install(true);
 
         Installer.run(this::createPrivileges, "privileges");
         Installer.run(this::assignPrivilegesToDefaultRoles, "default roles");
