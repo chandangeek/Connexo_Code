@@ -32,7 +32,8 @@ import static com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider.DE
 @Component(name = "com.energyict.mdc.device.data.mdcgroups", service = MdcDeviceGroups.class,
         property = {
                 "osgi.command.scope=mdcgroups",
-                "osgi.command.function=create",
+                "osgi.command.function=createOr",
+                "osgi.command.function=createAnd",
                 "osgi.command.function=contents"},
         immediate = true)
 @SuppressWarnings("unused")
@@ -44,14 +45,19 @@ public class MdcDeviceGroups {
     private volatile DeviceService deviceService;
 
     @SuppressWarnings("unused")
-    public void create(String name, String mRID, String... fieldsAndValues) {
-        this.transactionService.execute(() -> this.doCreate(name, mRID, fieldsAndValues));
+    public void createOr(String name, String mRID, String... fieldsAndValues) {
+        this.transactionService.execute(() -> this.doCreate(BooleanOperand.OR, name, mRID, fieldsAndValues));
     }
 
-    private EndDeviceGroup doCreate(String name, String mRID, String... fieldsAndValues) {
+    @SuppressWarnings("unused")
+    public void createAnd(String name, String mRID, String... fieldsAndValues) {
+        this.transactionService.execute(() -> this.doCreate(BooleanOperand.AND, name, mRID, fieldsAndValues));
+    }
+
+    private EndDeviceGroup doCreate(BooleanOperand operand, String name, String mRID, String... fieldsAndValues) {
         if (this.numberOfFieldsAndValuesMatch(fieldsAndValues)) {
             this.setPrincipal();
-            Condition condition = this.conditionFromFieldsAndValues(fieldsAndValues);
+            Condition condition = this.conditionFromFieldsAndValues(operand, fieldsAndValues);
             QueryEndDeviceGroup queryEndDeviceGroup = this.meteringGroupsService.createQueryEndDeviceGroup(condition);
             queryEndDeviceGroup.setMRID(mRID);
             queryEndDeviceGroup.setName(name);
@@ -67,13 +73,13 @@ public class MdcDeviceGroups {
         }
     }
 
-    private Condition conditionFromFieldsAndValues(String[] fieldsAndValues) {
-        Condition condition = Condition.TRUE;
+    private Condition conditionFromFieldsAndValues(BooleanOperand operand, String[] fieldsAndValues) {
+        Condition condition = operand.initial();
         Iterator<String> iterator = Arrays.asList(fieldsAndValues).iterator();
         while (iterator.hasNext()) {
             String field = iterator.next();
             String value = iterator.next();
-            condition = condition.and(where(field).isEqualTo(value));
+            condition = operand.applyTo(condition, where(field).isEqualTo(value));
         }
         return condition;
     }
@@ -137,6 +143,36 @@ public class MdcDeviceGroups {
     @SuppressWarnings("unused")
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    private enum BooleanOperand {
+        OR {
+            @Override
+            public Condition initial() {
+                return Condition.FALSE;
+            }
+
+            @Override
+            public Condition applyTo(Condition c1, Condition c2) {
+                return c1.or(c2);
+            }
+        },
+
+        AND {
+            @Override
+            public Condition initial() {
+                return Condition.TRUE;
+            }
+
+            @Override
+            public Condition applyTo(Condition c1, Condition c2) {
+                return c1.and(c2);
+            }
+        };
+
+        public abstract Condition applyTo(Condition c1, Condition c2);
+
+        public abstract Condition initial();
     }
 
 }

@@ -11,6 +11,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+
 import java.util.Optional;
 
 import java.util.Date;
@@ -233,7 +234,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
 
     public boolean usesSameConnectionTaskAs(ComTaskExecution anotherTask);
 
-    public java.util.Optional<ComTaskExecutionSession> getLastSession();
+    public Optional<ComTaskExecutionSession> getLastSession();
 
     /**
      * Gets the timestamp of the last execution of this ComTaskExecution.

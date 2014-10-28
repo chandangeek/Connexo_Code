@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl.security;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
@@ -15,12 +13,15 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.time.Interval;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,9 +37,12 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     private volatile ProtocolPluggableService protocolPluggableService;
 
+    // For OSGi framework
+    @SuppressWarnings("unused")
     public SecurityPropertyServiceImpl() {
     }
 
+    // For unit testing purposes
     @Inject
     public SecurityPropertyServiceImpl(ProtocolPluggableService protocolPluggableService) {
         super();
@@ -46,7 +50,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     }
 
     @Override
-    public List<SecurityProperty> getSecurityProperties(Device device, Date when, SecurityPropertySet securityPropertySet) {
+    public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         List<SecurityProperty> defaultResult = new ArrayList<>(0);
         if (securityPropertySet.currentUserIsAllowedToViewDeviceProperties()) {
             Optional<Relation> relation = this.findActiveProperties(device, securityPropertySet, when);
@@ -57,7 +61,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         return defaultResult;
     }
 
-    public Optional<Relation> findActiveProperties(Device device, SecurityPropertySet securityPropertySet, Date activeDate) {
+    public Optional<Relation> findActiveProperties(Device device, SecurityPropertySet securityPropertySet, Instant activeDate) {
         RelationType relationType = this.findSecurityPropertyRelationType(device);
         if (relationType != null) {
             FilterAspect deviceAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME));
@@ -74,7 +78,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
             }
             else {
                 for (Relation relation : relations) {
-                    if (relation.getPeriod().contains(activeDate.toInstant(), Interval.EndpointBehavior.OPEN_CLOSED)) {
+                    if (relation.getPeriod().contains(activeDate, Interval.EndpointBehavior.OPEN_CLOSED)) {
                         return Optional.of(relation);
                     }
                 }
@@ -106,7 +110,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     }
 
     @Override
-    public boolean hasSecurityProperties(Device device, Date when, SecurityPropertySet securityPropertySet) {
+    public boolean hasSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         return this.findActiveProperties(device, securityPropertySet, when).isPresent();
     }
 

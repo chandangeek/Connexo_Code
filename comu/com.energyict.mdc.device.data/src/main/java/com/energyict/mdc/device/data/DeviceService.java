@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -80,7 +81,7 @@ public interface DeviceService {
      * @param timestamp The timestamp on which the devices are linked for communication purposes
      * @return a list of devices which use the given device for communication purposes
      */
-    public List<Device> findCommunicationReferencingDevicesFor(Device device, Date timestamp);
+    public List<Device> findCommunicationReferencingDevicesFor(Device device, Instant timestamp);
 
     /**
      * Finds the devices which are linked on the specified timestamp

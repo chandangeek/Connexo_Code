@@ -249,12 +249,10 @@ public class DeviceGroupTest {
         EndDevice endDevice;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-
             DeviceService deviceService = injector.getInstance(DeviceServiceImpl.class);
             Device device = deviceService.newDevice(getDeviceConfiguration(), DEVICE_NAME1, ED_MRID);
             device.save();
-            endDevice = meteringService.findAmrSystem(1).get().newMeter(String.valueOf(device.getId()), ED_MRID);
-            endDevice.save();
+            endDevice = meteringService.findAmrSystem(1).get().findMeter(String.valueOf(device.getId())).orElseThrow(() -> new RuntimeException("MDC bundle failed to create Kore meter in AMR system"));
             ctx.commit();
         }
 
@@ -290,8 +288,7 @@ public class DeviceGroupTest {
             DeviceService deviceService = injector.getInstance(DeviceServiceImpl.class);
             Device device = deviceService.newDevice(getDeviceConfiguration(), DEVICE_NAME2, ED_MRID2);
             device.save();
-            endDevice = meteringService.findAmrSystem(1).get().newMeter(String.valueOf(device.getId()), ED_MRID2);
-            endDevice.save();
+            endDevice = meteringService.findAmrSystem(1).get().findMeter(String.valueOf(device.getId())).orElseThrow(() -> new RuntimeException("MDC bundle failed to create Kore meter in AMR system"));
             ctx.commit();
         }
 

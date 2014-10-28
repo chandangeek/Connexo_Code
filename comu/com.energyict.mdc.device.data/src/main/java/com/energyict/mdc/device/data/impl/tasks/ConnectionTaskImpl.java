@@ -118,6 +118,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Reference<ComSession> lastSession = ValueReference.absent();
+    private boolean lastSessionStatus; // Redundant copy from lastSession to improve query performance
+    private ComSession.SuccessIndicator lastSessionSuccessIndicator;   // Redundant copy from lastSession to improve query performance
     private Instant modificationDate;
 
     private final Clock clock;
@@ -644,13 +646,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    public Date getLastCommunicationStart() {
-        return lastCommunicationStart == null ? null : Date.from(lastCommunicationStart);
+    public Instant getLastCommunicationStart() {
+        return this.lastCommunicationStart;
     }
 
     @Override
-    public Date getLastSuccessfulCommunicationEnd() {
-        return lastSuccessfulCommunicationEnd == null ? null : Date.from(lastSuccessfulCommunicationEnd);
+    public Instant getLastSuccessfulCommunicationEnd() {
+        return this.lastSuccessfulCommunicationEnd;
     }
 
     @Override
@@ -662,13 +664,19 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void sessionCreated(ComSession session) {
         if (this.lastSession.isPresent()) {
             if (session.endsAfter(this.lastSession.get())) {
-                this.lastSession.set(session);
+                this.setLastSession(session);
                 this.post();
             }
         } else {
-            this.lastSession.set(session);
+            this.setLastSession(session);
             this.post();
         }
+    }
+
+    private void setLastSession(ComSession session) {
+        this.lastSession.set(session);
+        this.lastSessionSuccessIndicator = session.getSuccessIndicator();
+        this.lastSessionStatus = session.wasSuccessful();
     }
 
     @Override

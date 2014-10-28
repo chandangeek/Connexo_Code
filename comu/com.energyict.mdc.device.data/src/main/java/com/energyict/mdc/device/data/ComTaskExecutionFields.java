@@ -30,7 +30,9 @@ public enum ComTaskExecutionFields implements ImplField {
     COMPORT("comPort"),
     PROTOCOLDIALECTCONFIGURATIONPROPERTIES("protocolDialectConfigurationProperties"),
     COM_SCHEDULE("comSchedule"),
-    LAST_SESSION("lastSession");
+    LAST_SESSION("lastSession"),
+    LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE("lastSessionHighestPriorityCompletionCode"),
+    LAST_SESSION_SUCCESSINDICATOR("lastSessionSuccessIndicator"),
     ;
 
     private final String javaFieldName;

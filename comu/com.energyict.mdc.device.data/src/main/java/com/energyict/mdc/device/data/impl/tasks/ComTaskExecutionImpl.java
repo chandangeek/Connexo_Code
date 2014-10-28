@@ -32,6 +32,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -99,6 +100,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private int currentRetryCount;
     private boolean lastExecutionFailed;
     private Reference<ComTaskExecutionSession> lastSession = ValueReference.absent();
+    private CompletionCode lastSessionHighestPriorityCompletionCode;
+    private ComTaskExecutionSession.SuccessIndicator lastSessionSuccessIndicator;
     private boolean useDefaultConnectionTask;
     private boolean ignoreNextExecutionSpecsForInbound;
 
@@ -157,7 +160,10 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @Override
     public boolean isExecuting() {
-        return this.comPort.isPresent() || (this.connectionTask.isPresent() && (this.connectionTask.get().getExecutingComServer() != null) && this.getNextExecutionTimestamp().before(Date.from(clock.instant())));
+        return this.comPort.isPresent()
+            || (   this.connectionTask.isPresent()
+                && (this.connectionTask.get().getExecutingComServer() != null)
+                && this.getNextExecutionTimestamp().before(Date.from(clock.instant())));
     }
 
     @Override
@@ -235,7 +241,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         ComTaskExecution updatedVersionOfMyself = this.communicationTaskService.findComTaskExecution(this.getId());
         if (updatedVersionOfMyself != null) {
             this.comPort.set(updatedVersionOfMyself.getExecutingComPort());
-            this.obsoleteDate = asInstant(updatedVersionOfMyself.getObsoleteDate());
+            this.obsoleteDate = this.asInstant(updatedVersionOfMyself.getObsoleteDate());
             this.setConnectionTask(updatedVersionOfMyself.getConnectionTask());
         }
     }
@@ -268,7 +274,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @Override
     public Date getObsoleteDate() {
-        return asDate(obsoleteDate);
+        return this.asDate(this.obsoleteDate);
     }
 
     @Override
@@ -297,24 +303,30 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @Override
     public Date getLastExecutionStartTimestamp() {
-        return asDate(lastExecutionTimestamp);
+        return this.asDate(this.lastExecutionTimestamp);
     }
 
     @Override
     public void sessionCreated(ComTaskExecutionSession session) {
         if (this.lastSession.isPresent()) {
             if (session.endsAfter(this.lastSession.get())) {
-                this.lastSession.set(session);
+                this.setLastSession(session);
                 this.post();
             }
         } else {
-            this.lastSession.set(session);
+            this.setLastSession(session);
             this.post();
         }
     }
 
+    private void setLastSession(ComTaskExecutionSession session) {
+        this.lastSession.set(session);
+        this.lastSessionHighestPriorityCompletionCode = session.getHighestPriorityCompletionCode();
+        this.lastSessionSuccessIndicator = session.getSuccessIndicator();
+    }
+
     @Override
-    public java.util.Optional<ComTaskExecutionSession> getLastSession() {
+    public Optional<ComTaskExecutionSession> getLastSession() {
         Optional<ComTaskExecutionSession> optional = this.lastSession.getOptional();
         if (optional.isPresent()) {
             return java.util.Optional.of(optional.get());
@@ -326,7 +338,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @Override
     public Date getLastSuccessfulCompletionTimestamp() {
-        return asDate(lastSuccessfulCompletionTimestamp);
+        return this.asDate(this.lastSuccessfulCompletionTimestamp);
     }
 
     @Override

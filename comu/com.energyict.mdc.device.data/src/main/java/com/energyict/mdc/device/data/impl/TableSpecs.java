@@ -362,13 +362,13 @@ public enum TableSpecs {
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
             Column statistics = table.column("COMSTATISTICS").number().notNull().add();
-            Column startDate = table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
+            table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
             table.column("STOPDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
             table.column("TOTALMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TOTAL_TIME.fieldName()).add();
             table.column("CONNECTMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.CONNECT_MILLIS.fieldName()).add();
             table.column("TALKMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TALK_MILLIS.fieldName()).add();
             table.column("STOREMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.STORE_MILLIS.fieldName()).add();
-            Column successIndicator = table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
+            table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             table.column("TASKSUCCESSCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_SUCCESS_COUNT.fieldName()).add();
             table.column("TASKFAILURECOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_FAILURE_COUNT.fieldName()).add();
@@ -405,6 +405,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<?> table = dataModel.getTable(DDC_CONNECTIONTASK.name());
             Column lastSession = table.column("LASTSESSION").number().add();
+            table.column("LASTSESSIONSUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName()).add();
+            table.column("LASTSESSIONSTATUS").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.LAST_SESSION_STATUS.fieldName()).add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_LASTCS").
                     on(lastSession).
                     references(DDC_COMSESSION.name()).
@@ -462,6 +464,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<?> table = dataModel.getTable(DDC_COMTASKEXEC.name());
             Column lastSession = table.column("LASTSESSION").number().add();
+            table.column("LASTSESS_HIGHESTPRIOCOMPLCODE").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE.fieldName()).add();
+            table.column("LASTSESS_SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName()).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS").
                     on(lastSession).
                     references(DDC_COMTASKEXECSESSION.name()).
