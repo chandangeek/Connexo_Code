@@ -106,21 +106,19 @@ import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -548,12 +546,12 @@ public class DeviceImpl implements Device {
 
     @Override
     public Device getPhysicalGateway() {
-        return this.getPhysicalGateway(asDate(clock.instant()));
+        return this.getPhysicalGateway(clock.instant());
     }
 
     @Override
-    public Device getPhysicalGateway(Date timestamp) {
-        return this.physicalGatewayReferenceDevice.effective(timestamp.toInstant())
+    public Device getPhysicalGateway(Instant timestamp) {
+        return this.physicalGatewayReferenceDevice.effective(timestamp)
                 .map(PhysicalGatewayReference::getPhysicalGateway)
                 .orElse(null);
     }
@@ -599,9 +597,11 @@ public class DeviceImpl implements Device {
     @Override
     public void setPhysicalGateway(BaseDevice gateway) {
         if (gateway != null) {
-            Date currentTime = Date.from(clock.instant());
+            Instant currentTime = clock.instant();
             terminateTemporal(currentTime, this.physicalGatewayReferenceDevice);
-            PhysicalGatewayReferenceImpl physicalGatewayReference = this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime.toInstant()), (Device) gateway, this);
+            PhysicalGatewayReferenceImpl physicalGatewayReference =
+                    this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class)
+                            .createFor(Interval.startAt(currentTime), (Device) gateway, this);
             savePhysicalGateway(physicalGatewayReference);
             topologyChanged();
         }
@@ -614,12 +614,12 @@ public class DeviceImpl implements Device {
 
     @Override
     public void clearPhysicalGateway() {
-        terminateTemporal(Date.from(clock.instant()), this.physicalGatewayReferenceDevice);
+        terminateTemporal(clock.instant(), this.physicalGatewayReferenceDevice);
         topologyChanged();
     }
 
-    private void terminateTemporal(Date currentTime, TemporalReference<? extends GatewayReference> temporalReference) {
-        Optional<? extends GatewayReference> currentGateway = temporalReference.effective(currentTime.toInstant());
+    private void terminateTemporal(Instant currentTime, TemporalReference<? extends GatewayReference> temporalReference) {
+        Optional<? extends GatewayReference> currentGateway = temporalReference.effective(currentTime);
         if (currentGateway.isPresent()) {
             GatewayReference gateway = currentGateway.get();
             gateway.terminate(currentTime);
@@ -630,9 +630,11 @@ public class DeviceImpl implements Device {
     @Override
     public void setCommunicationGateway(Device gateway) {
         if (gateway != null) {
-            Date currentTime = Date.from(clock.instant());
+            Instant currentTime = clock.instant();
             terminateTemporal(currentTime, this.communicationGatewayReferenceDevice);
-            CommunicationGatewayReferenceImpl communicationGatewayReference = this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class).createFor(Interval.startAt(currentTime.toInstant()), gateway, this);
+            CommunicationGatewayReferenceImpl communicationGatewayReference =
+                    this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class)
+                            .createFor(Interval.startAt(currentTime), gateway, this);
             saveCommunicationGateway(communicationGatewayReference);
             topologyChanged();
         }
@@ -645,7 +647,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public void clearCommunicationGateway() {
-        terminateTemporal(Date.from(clock.instant()), this.communicationGatewayReferenceDevice);
+        terminateTemporal(clock.instant(), this.communicationGatewayReferenceDevice);
         topologyChanged();
     }
 
@@ -655,30 +657,32 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<Device> getCommunicationReferencingDevices(Date timestamp) {
+    public List<Device> getCommunicationReferencingDevices(Instant timestamp) {
         return this.deviceService.findCommunicationReferencingDevicesFor(this, timestamp);
     }
 
     @Override
     public List<Device> getAllCommunicationReferencingDevices() {
-        return this.getAllCommunicationReferencingDevices(Date.from(clock.instant()));
+        return this.getAllCommunicationReferencingDevices(clock.instant());
     }
 
     @Override
-    public List<Device> getAllCommunicationReferencingDevices(Date timestamp) {
+    public List<Device> getAllCommunicationReferencingDevices(Instant timestamp) {
         Map<Long, Device> allDevicesInTopology = new HashMap<>();
         this.collectAllCommunicationReferencingDevices(timestamp, this, allDevicesInTopology);
         return new ArrayList<>(allDevicesInTopology.values());
     }
 
-    private void collectAllCommunicationReferencingDevices(Date timestamp, Device topologyRoot, Map<Long, Device> devices) {
-        for (Device device : topologyRoot.getCommunicationReferencingDevices(timestamp)) {
-            if (!devices.containsKey(device.getId())) {
-                // The device was not encountered yet, recursive call
-                devices.put(device.getId(), device);
-                this.collectAllCommunicationReferencingDevices(timestamp, device, devices);
-            }
-        }
+    private void collectAllCommunicationReferencingDevices(Instant timestamp, Device topologyRoot, Map<Long, Device> devices) {
+        topologyRoot.getCommunicationReferencingDevices(timestamp)
+                .stream()
+                // Filter the devices that were not encountered yet
+                .filter(device -> !devices.containsKey(device.getId()))
+                // and collect the referencing devices for those
+                .forEach(device -> {
+                    devices.put(device.getId(), device);
+                    this.collectAllCommunicationReferencingDevices(timestamp, device, devices);
+        });
     }
 
     @Override
@@ -708,49 +712,40 @@ public class DeviceImpl implements Device {
     }
 
     private Interval intervalSpanOf(List<CommunicationTopologyEntry> topologyEntries) {
-        Date earliestStartDate = this.earliestStartDate(topologyEntries);
-        Date latestEndDate = this.latestEndDate(topologyEntries);
-        return new Interval(earliestStartDate, latestEndDate);
+        Instant earliestStartDate = this.earliestStartDate(topologyEntries);
+        Instant latestEndDate = this.latestEndDate(topologyEntries);
+        return Interval.of(earliestStartDate, latestEndDate);
     }
 
-    private Date earliestStartDate(List<CommunicationTopologyEntry> topologyEntries) {
+    private Instant earliestStartDate(List<CommunicationTopologyEntry> topologyEntries) {
         if (!topologyEntries.isEmpty()) {
-            return Collections.min(this.startDatesOfAll(topologyEntries), new MinDateComparator());
+            return Collections.min(this.startDatesOfAll(topologyEntries), new MinInstantComparator());
         } else {
             return null;
         }
     }
 
-    private Collection<? extends Date> startDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
-        Collection<Date> startDates = new ArrayList<>(topologyEntries.size());
+    private Collection<Instant> startDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
+        Collection<Instant> startDates = new ArrayList<>(topologyEntries.size());
         for (CommunicationTopologyEntry topologyEntry : topologyEntries) {
-            startDates.add(asDate(topologyEntry.getInterval().getStart()));
+            startDates.add(topologyEntry.getInterval().getStart());
         }
         return startDates;
     }
 
-    private Date latestEndDate(List<CommunicationTopologyEntry> topologyEntries) {
+    private Instant latestEndDate(List<CommunicationTopologyEntry> topologyEntries) {
         if (!topologyEntries.isEmpty()) {
-            return Collections.max(this.endDatesOfAll(topologyEntries), new MaxDateComparator());
+            return Collections.max(this.endDatesOfAll(topologyEntries), new MaxInstantComparator());
         } else {
             return null;
         }
     }
 
-    private Collection<? extends Date> endDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
+    private Collection<Instant> endDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
         return topologyEntries
                 .stream()
-                .map(topologyEntry -> asDate(topologyEntry.getInterval().getEnd()))
+                .map(topologyEntry -> topologyEntry.getInterval().getEnd())
                 .collect(Collectors.toList());
-    }
-
-    private Date asDate(Instant instant) {
-        if (instant == null) {
-            return null;
-        }
-        else {
-            return Date.from(instant);
-        }
     }
 
     private List<CommunicationTopologyEntry> toSortedCommunicationTopologyEntries(CommunicationTopology communicationTopology) {
@@ -783,12 +778,12 @@ public class DeviceImpl implements Device {
 
     @Override
     public Device getCommunicationGateway() {
-        return this.getCommunicationGateway(Date.from(clock.instant()));
+        return this.getCommunicationGateway(clock.instant());
     }
 
     @Override
-    public Device getCommunicationGateway(Date timestamp) {
-        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp.toInstant());
+    public Device getCommunicationGateway(Instant timestamp) {
+        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp);
         if (communicationGatewayReferenceOptional.isPresent()) {
             return communicationGatewayReferenceOptional.get().getCommunicationGateway();
         }
@@ -1083,7 +1078,7 @@ public class DeviceImpl implements Device {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval, meter.get());
-                Interval capped = interval.withEnd(lastReadingCapped(loadProfile, interval).toDate().toInstant());
+                Interval capped = interval.withEnd(lastReadingCapped(loadProfile, interval));
                 for (Channel channel : loadProfile.getChannels()) {
                     meterHasData |= this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
                 }
@@ -1104,7 +1099,7 @@ public class DeviceImpl implements Device {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval, meter.get());
-                Interval capped = interval.withEnd(lastReadingCapped(channel.getLoadProfile(), interval).toDate().toInstant());
+                Interval capped = interval.withEnd(lastReadingCapped(channel.getLoadProfile(), interval));
                 meterHasData = this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
@@ -1145,7 +1140,7 @@ public class DeviceImpl implements Device {
             if (!meterReadings.isEmpty()) {
                 meterHasData = true;
             }
-            java.util.Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
+            Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
                 List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval.toClosedRange());
                 validationStatus.stream()
@@ -1161,7 +1156,7 @@ public class DeviceImpl implements Device {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading);
                 loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
-                loadProfileReading.setReadingTime(Date.from(meterReading.getReportedDateTime()));
+                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
         }
         return meterHasData;
@@ -1187,32 +1182,30 @@ public class DeviceImpl implements Device {
      * @return
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval requestInterval, Meter meter) {
-        IntermittentInterval meterActivationIntervals = new IntermittentInterval(meter.getMeterActivations().stream().map(m -> new Interval(asDate(m.getStart()), asDate(m.getEnd()))).collect(toList()));
+        IntermittentInterval meterActivationIntervals = new IntermittentInterval(meter.getMeterActivations().stream().map(m -> Interval.of(m.getStart(), m.getEnd())).collect(toList()));
 
         Map<Instant, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
-        Period period = Period.seconds(loadProfile.getInterval().getSeconds());
-        DateTime timeIndex = new DateTime(requestInterval.getStart().toEpochMilli() - (requestInterval.getStart().toEpochMilli() % period.toStandardDuration().getMillis())); // round start time to interval boundary
-        DateTime endTime = lastReadingCapped(loadProfile, requestInterval);
+        Duration period = Duration.ofSeconds(loadProfile.getInterval().getSeconds());
+        Instant timeIndex = Instant.ofEpochMilli(requestInterval.getStart().toEpochMilli() - (requestInterval.getStart().toEpochMilli() % period.toMillis())); // round start time to interval boundary
+        Instant endTime = lastReadingCapped(loadProfile, requestInterval);
         while (timeIndex.compareTo(endTime) < 0) {
-            DateTime intervalEnd = timeIndex.plus(period);
-            if (meterActivationIntervals.contains(timeIndex.toDate().toInstant())) {
+            Instant intervalEnd = timeIndex.plus(period);
+            if (meterActivationIntervals.contains(timeIndex)) {
                 LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                value.setInterval(new Interval(timeIndex.toDate(), intervalEnd.toDate()));
-                loadProfileReadingMap.put(intervalEnd.toDate().toInstant(), value);
+                value.setInterval(Interval.of(timeIndex, intervalEnd));
+                loadProfileReadingMap.put(intervalEnd, value);
             }
             timeIndex = intervalEnd;
         }
         return loadProfileReadingMap;
     }
 
-    private DateTime lastReadingCapped(LoadProfile loadProfile, Interval requestInterval) {
-        DateTime endTime;
+    private Instant lastReadingCapped(LoadProfile loadProfile, Interval requestInterval) {
         if (loadProfile.getLastReading() != null && requestInterval.getEnd().isAfter(loadProfile.getLastReading().toInstant())) {
-            endTime = new DateTime(loadProfile.getLastReading().getTime());
+            return Instant.ofEpochMilli(loadProfile.getLastReading().getTime());
         } else {
-            endTime = new DateTime(requestInterval.getEnd().toEpochMilli());
+            return Instant.ofEpochMilli(requestInterval.getEnd().toEpochMilli());
         }
-        return endTime;
     }
 
     Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
@@ -1232,11 +1225,11 @@ public class DeviceImpl implements Device {
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
         ReadingType readingType = register.getRegisterSpec().getRegisterType().getReadingType();
         for (MeterActivation meterActivation : this.getSortedMeterActivations(meter)) {
-            java.util.Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
+            Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
             if (channel.isPresent()) {
-                Date lastReadingDate = asDate(channel.get().getLastDateTime());
+                Instant lastReadingDate = channel.get().getLastDateTime();
                 if (lastReadingDate != null) {
-                    return this.getLast(channel.get().getRegisterReadings(new Interval(lastReadingDate, lastReadingDate).toClosedRange()));
+                    return this.getLast(channel.get().getRegisterReadings(Interval.of(lastReadingDate, lastReadingDate).toClosedRange()));
                 }
             }
         }
@@ -1295,7 +1288,7 @@ public class DeviceImpl implements Device {
         return Collections.emptyList();
     }
 
-    private java.util.Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
+    private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
         for (com.elster.jupiter.metering.Channel channel : meterActivation.getChannels()) {
             if (channel.getReadingTypes().contains(readingType)) {
                 return java.util.Optional.of(channel);
@@ -1336,7 +1329,7 @@ public class DeviceImpl implements Device {
         return Collections.emptyList();
     }
 
-    public DeviceMultiplier getDeviceMultiplier(Date date) {
+    public DeviceMultiplier getDeviceMultiplier(Instant date) {
         return null;
     }
 
@@ -1544,7 +1537,7 @@ public class DeviceImpl implements Device {
 
     @Override
     public List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet) {
-        return this.getSecurityProperties(Date.from(clock.instant()), securityPropertySet);
+        return this.getSecurityProperties(clock.instant(), securityPropertySet);
     }
 
     @Override
@@ -1552,13 +1545,13 @@ public class DeviceImpl implements Device {
         return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
     }
 
-    private List<SecurityProperty> getSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {
+    private List<SecurityProperty> getSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
         return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
     }
 
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
-        return this.hasSecurityProperties(Date.from(clock.instant()), securityPropertySet);
+        return this.hasSecurityProperties(clock.instant(), securityPropertySet);
     }
 
     @Override
@@ -1569,7 +1562,7 @@ public class DeviceImpl implements Device {
         return deviceValidation;
     }
 
-    private boolean hasSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {
+    private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
         return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
     }
 
@@ -1796,17 +1789,17 @@ public class DeviceImpl implements Device {
      * Compares Dates where <code>null</code> is considered infinity in the past (aka the early big bang)
      * and is always smaller than anything else (except another <code>null</code> of course).
      */
-    private class MinDateComparator implements Comparator<Date> {
+    private class MinInstantComparator implements Comparator<Instant> {
         @Override
-        public int compare(Date date1, Date date2) {
-            if (date1 == null && date2 == null) {
+        public int compare(Instant instant1, Instant instant2) {
+            if (instant1 == null && instant2 == null) {
                 return 0;
-            } else if (date1 == null) {
+            } else if (instant1 == null) {
                 return -1;
-            } else if (date2 == null) {
+            } else if (instant2 == null) {
                 return 1;
             } else {
-                return date1.compareTo(date2);
+                return instant1.compareTo(instant2);
             }
         }
     }
@@ -1815,17 +1808,17 @@ public class DeviceImpl implements Device {
      * Compares Dates where <code>null</code> is considered infinity in the future
      * and is always bigger than anything else (except another <code>null</code> of course).
      */
-    private class MaxDateComparator implements Comparator<Date> {
+    private class MaxInstantComparator implements Comparator<Instant> {
         @Override
-        public int compare(Date date1, Date date2) {
-            if (date1 == null && date2 == null) {
+        public int compare(Instant instant1, Instant instant2) {
+            if (instant1 == null && instant2 == null) {
                 return 0;
-            } else if (date1 == null) {
+            } else if (instant1 == null) {
                 return 1;
-            } else if (date2 == null) {
+            } else if (instant2 == null) {
                 return -1;
             } else {
-                return date1.compareTo(date2);
+                return instant1.compareTo(instant2);
             }
         }
     }

@@ -7,7 +7,7 @@ import com.energyict.mdc.device.data.Device;
 import org.joda.time.DateMidnight;
 import org.junit.Test;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,8 +21,8 @@ import static org.mockito.Mockito.when;
  * <ul>
  * <li>{@link DeviceImpl#getCommunicationReferencingDevices()}</li>
  * <li>{@link DeviceImpl#getAllCommunicationReferencingDevices()}</li>
- * <li>{@link DeviceImpl#getCommunicationReferencingDevices(Date)}</li>
- * <li>{@link DeviceImpl#getAllCommunicationReferencingDevices(Date)}</li>
+ * <li>{@link DeviceImpl#getCommunicationReferencingDevices(Instant)}</li>
+ * <li>{@link DeviceImpl#getAllCommunicationReferencingDevices(Instant)}</li>
  * <li>{@link DeviceImpl#getAllCommunicationTopologies(Interval)}</li>
  * </ul>
  */
@@ -76,7 +76,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         Device master = this.createSimpleDevice();
 
         // Business method
-        List<Device> slaves = master.getCommunicationReferencingDevices(new DateMidnight(2014, 5, 2).toDate());
+        List<Device> slaves = master.getCommunicationReferencingDevices(new DateMidnight(2014, 5, 2).toDate().toInstant());
 
         // Asserts
         assertThat(slaves).isEmpty();
@@ -91,7 +91,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         this.createSlaveDevice("Slave2", master);
 
         // Business method
-        List<Device> slaves = master.getCommunicationReferencingDevices(MIDNIGHT_MAY_2ND_2014.toDate());
+        List<Device> slaves = master.getCommunicationReferencingDevices(MIDNIGHT_MAY_2ND_2014.toDate().toInstant());
 
         // Asserts
         assertThat(slaves).isEmpty();
@@ -108,7 +108,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         long slave2Id = slave2.getId();
 
         // Business method
-        List<Device> slaves = master.getCommunicationReferencingDevices(MIDNIGHT_MAY_31ST_2014.plusDays(1).toDate());
+        List<Device> slaves = master.getCommunicationReferencingDevices(MIDNIGHT_MAY_31ST_2014.plusDays(1).toDate().toInstant());
         Set<Long> actualSlaveIds = new HashSet<>();
         for (Device slave : slaves) {
             actualSlaveIds.add(slave.getId());
@@ -156,7 +156,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         Device master = this.createSimpleDevice();
 
         // Business method
-        List<Device> slaves = master.getAllCommunicationReferencingDevices(new DateMidnight(2014, 5, 2).toDate());
+        List<Device> slaves = master.getAllCommunicationReferencingDevices(new DateMidnight(2014, 5, 2).toDate().toInstant());
 
         // Asserts
         assertThat(slaves).isEmpty();
@@ -171,7 +171,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         this.createSlaveDevice("Slave2", slave1);
 
         // Business method
-        List<Device> slaves = master.getAllCommunicationReferencingDevices(MIDNIGHT_MAY_2ND_2014.toDate());
+        List<Device> slaves = master.getAllCommunicationReferencingDevices(MIDNIGHT_MAY_2ND_2014.toDate().toInstant());
 
         // Asserts
         assertThat(slaves).isEmpty();
@@ -188,7 +188,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         long slave2Id = slave2.getId();
 
         // Business method
-        List<Device> slaves = master.getAllCommunicationReferencingDevices(MIDNIGHT_MAY_31ST_2014.plusDays(1).toDate());
+        List<Device> slaves = master.getAllCommunicationReferencingDevices(MIDNIGHT_MAY_31ST_2014.plusDays(1).toDate().toInstant());
         Set<Long> actualSlaveIds = new HashSet<>();
         for (Device slave : slaves) {
             actualSlaveIds.add(slave.getId());

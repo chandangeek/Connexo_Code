@@ -7,10 +7,9 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfileReading;
 
-import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,7 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     private Interval interval;
     private Map<Channel, IntervalReadingRecord> values = new HashMap<>();
     private Map<Channel, DataValidationStatus> states = new HashMap<>();
-    private Date readingTime;
+    private Instant readingTime;
     private final List<ProfileStatus.Flag> flags = new ArrayList<>();
 
     @Override
@@ -54,13 +53,12 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
         return Collections.unmodifiableMap(states);
     }
 
-    @Override
-    public void setReadingTime(Date reportedDateTime) {
+    public void setReadingTime(Instant reportedDateTime) {
         this.readingTime = reportedDateTime;
     }
 
     @Override
-    public Date getReadingTime() {
+    public Instant getReadingTime() {
         return readingTime;
     }
 
@@ -74,4 +72,5 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     public List<ProfileStatus.Flag> getFlags() {
         return Collections.unmodifiableList(flags);
     }
+
 }

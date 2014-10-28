@@ -1,16 +1,17 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.CantBeOwnGateway;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -43,8 +44,8 @@ public class PhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
     }
 
     @Override
-    public boolean existsFor(Date existenceDate) {
-        return isEffectiveAt(existenceDate.toInstant());
+    public boolean existsFor(Instant existenceDate) {
+        return isEffectiveAt(existenceDate);
     }
 
     @Override
@@ -53,15 +54,16 @@ public class PhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
     }
 
     @Override
-    public void terminate(Date closingDate) {
-        if (!isEffectiveAt(closingDate.toInstant())) {
+    public void terminate(Instant closingDate) {
+        if (!isEffectiveAt(closingDate)) {
             throw new IllegalArgumentException();
         }
-        interval = interval.withEnd(closingDate.toInstant());
+        interval = interval.withEnd(closingDate);
     }
 
     @Override
     public Device getOrigin(){
         return this.origin.orNull();
     }
+
 }
