@@ -1,27 +1,27 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.BusinessObjectProxy;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.common.TypeId;
 import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
 
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Interval;
 import org.joda.time.DateTimeConstants;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -362,12 +362,14 @@ public class RelationImpl implements Relation {
             throw new BusinessException("relationIsObsolete", "This relation is obsolete");
         }
         if (newTo != null && !newTo.after(getFrom())) {
-            throw new BusinessException(
-                    "invalidToDateX",
-                    "Invalid 'To date' {0}",
-                    getRelationType().hasTimeResolution() ?
-                            Environment.DEFAULT.get().getFormatPreferences().getDateTimeFormat(true).format(newTo) :
-                            Environment.DEFAULT.get().getFormatPreferences().getDateFormat().format(newTo));
+            SimpleDateFormat dateFormatter;
+            if (getRelationType().hasTimeResolution()) {
+                dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            }
+            else {
+                dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+            }
+            throw new BusinessException("invalidToDateX", "Invalid 'To date' {0}", dateFormatter.format(newTo));
         }
         this.period = new Interval(getFrom(), newTo);
         this.factory.updateTo(this);
@@ -399,11 +401,6 @@ public class RelationImpl implements Relation {
     public void updateFlags(int flags) throws SQLException {
         this.flags = flags;
         this.factory.updateFlags(this, flags);
-    }
-
-    @Override
-    public boolean canDelete() {
-        return true;
     }
 
     @Override
@@ -477,7 +474,7 @@ public class RelationImpl implements Relation {
     public Interval getInterval() {
     	return period;
     }
-    
+
     /**
      * {@inheritDoc}
      */

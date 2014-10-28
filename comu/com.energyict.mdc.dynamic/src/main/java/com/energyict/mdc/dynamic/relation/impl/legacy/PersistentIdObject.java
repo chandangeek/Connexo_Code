@@ -6,7 +6,6 @@ import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.common.TypeId;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -70,19 +69,6 @@ public abstract class PersistentIdObject implements IdBusinessObject {
         this.validateDelete();
         this.deleteDependents();
         this.getDataMapper().remove(this);
-    }
-
-    public final boolean canDelete() {
-        try {
-            validateDelete();
-            return true;
-        }
-        catch (BusinessException ex) {
-            return false;
-        }
-        catch (SQLException ex) {
-            throw new DatabaseException(ex);
-        }
     }
 
     /**

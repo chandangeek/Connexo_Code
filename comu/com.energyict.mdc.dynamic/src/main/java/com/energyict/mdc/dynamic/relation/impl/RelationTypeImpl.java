@@ -651,10 +651,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return this.getBaseFactory().findByPrimaryKey(key);
     }
 
-    public Relation findByHandle(byte[] handle) {
-        return this.getBaseFactory().findByHandle(handle);
-    }
-
     @Override
     protected void validate(String name) {
         if ((name == null) || (name.trim().isEmpty())) {
@@ -717,13 +713,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
 
     Instant getModDate() {
         return this.modDate;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final boolean isMetaTypeFactory() {
-        return false;
     }
 
     @Override
