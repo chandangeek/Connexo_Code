@@ -239,11 +239,17 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
         if (dataStore.getTotalCount() > 0) {
             dataStore.each(function (record) {
-                Ext.iterate(record.get('channelData'), function (key, value) {
-                    if (channelDataArrays[key]) {
-                        channelDataArrays[key].unshift([record.get('interval').end, parseFloat(value)]);
-                    }
-                });
+                if (record.get('channelData')) {
+                    Ext.iterate(record.get('channelData'), function (key, value) {
+                        if (channelDataArrays[key]) {
+                            if (value) {
+                                channelDataArrays[key].unshift([record.get('interval').end, parseFloat(value)]);
+                            } else {
+                                channelDataArrays[key].unshift([record.get('interval').end, null]);
+                            }
+                        }
+                    });
+                }
             });
             container.down('#graphContainer').show();
             container.down('#emptyGraphMessage').hide();

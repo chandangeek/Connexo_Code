@@ -38,7 +38,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                         //itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceConnectionHistoryGrid',
-                            mrid: this.mrid
+                            mRID: this.mrid,
+                            connectionId: this.connectionMethodId
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -75,7 +76,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                                             },
                                             emptyComponent: {
                                                 xtype: 'no-items-found-panel',
-                                                title: Uni.I18n.translate('deviceconnectionhistory.empty.title', 'MDC', 'No history found')
+                                                title: Uni.I18n.translate('deviceconnectionhistory.empty.title', 'MDC', 'No history found'),
+                                                reasons: [
+                                                    Uni.I18n.translate('deviceconnectionhistory.empty.list.item1', 'MDC', 'The communication task has never been executed on the device'),
+                                                ]
                                             },
                                             previewComponent:   {
                                                 xtype: 'deviceCommunicationTaskExecutionPreview'
