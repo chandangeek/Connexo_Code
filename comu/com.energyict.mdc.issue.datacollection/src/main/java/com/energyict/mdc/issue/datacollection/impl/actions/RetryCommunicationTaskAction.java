@@ -7,6 +7,7 @@ import com.elster.jupiter.issue.share.cep.controls.DefaultActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -17,6 +18,7 @@ import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
 import javax.inject.Inject;
+
 import java.util.Map;
 
 public class RetryCommunicationTaskAction extends AbstractIssueAction {
@@ -24,13 +26,15 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
     private Thesaurus thesaurus;
 
     @Inject
-    public RetryCommunicationTaskAction(Thesaurus thesaurus, IssueService issueService) {
+    public RetryCommunicationTaskAction(NlsService nlsService, Thesaurus thesaurus, IssueService issueService) {
+        super(nlsService, thesaurus);
         this.issueService = issueService;
-        this.thesaurus = thesaurus;
     }
 
     @Override
     public IssueActionResult execute(Issue issue, Map<String, String> actionParameters) {
+        validateParametersOrThrowException(actionParameters);
+        
         DefaultActionResult result = new DefaultActionResult();
         if (isApplicable(issue)){
             issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
