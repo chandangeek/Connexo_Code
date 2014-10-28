@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
@@ -34,24 +33,11 @@ import static java.util.Comparator.*;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
 
-//    private static final Ordering<ChannelValidation> ORDER_BY_LASTCHECKED_NULL_IS_GREATEST_WITH_ACTIVE_RULES = new Ordering<ChannelValidation>() {
-//        @Override
-//        public int compare(ChannelValidation left, ChannelValidation right) {
-//            return NullSafeOrdering.NULL_IS_GREATEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
-//        }
-//
-//        private Date getLastChecked(ChannelValidation validation) {
-//            return validation == null || !validation.hasActiveRules() ? null : validation.getLastChecked();
-//        }
-//    };
-
     private long id;
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
-    private long ruleSetId;
-    private transient IValidationRuleSet ruleSet;
+    private Reference<IValidationRuleSet> ruleSet = ValueReference.absent();
     private Instant lastRun;
     private List<ChannelValidation> channelValidations = new ArrayList<>();
-    private transient boolean saved = true;
     private Instant obsoleteTime;
 
     private final DataModel dataModel;
@@ -71,7 +57,6 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     static MeterActivationValidationImpl from(DataModel dataModel, MeterActivation meterActivation) {
         MeterActivationValidationImpl meterActivationValidation = dataModel.getInstance(MeterActivationValidationImpl.class);
-        meterActivationValidation.saved = false;
         return meterActivationValidation.init(meterActivation);
     }
 
@@ -87,52 +72,35 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public IValidationRuleSet getRuleSet() {
-        if (ruleSet == null) {
-            ruleSet = dataModel.mapper(IValidationRuleSet.class).getOptional(ruleSetId).get();
-        }
-        return ruleSet;
+        return ruleSet.get();
     }
 
     @Override
     public void setRuleSet(ValidationRuleSet ruleSet) {
-        this.ruleSet = (IValidationRuleSet) ruleSet;
-        this.ruleSetId = ruleSet == null ? 0 : ruleSet.getId();
+        this.ruleSet.set((IValidationRuleSet) ruleSet);       
     }
 
     @Override
     public ChannelValidationImpl addChannelValidation(Channel channel) {
         ChannelValidationImpl channelValidation = ChannelValidationImpl.from(dataModel, this, channel);
-        doGetChannelValidations().add(channelValidation);
-
+        channelValidations.add(channelValidation);
         return channelValidation;
     }
 
     @Override
     public Optional<ChannelValidation> getChannelValidation(Channel channel) {
-        return getChannelValidations().stream()
+        return channelValidations.stream()
                 .filter(v -> v.getChannel().getId() == channel.getId())
                 .findFirst();
     }
 
-    private List<ChannelValidation> doGetChannelValidations() {
-        if (channelValidations == null) {
-            channelValidations = loadChannelValidations();
-        }
-        return channelValidations;
-    }
-
-    private List<ChannelValidation> loadChannelValidations() {
-        return new ArrayList<>(dataModel.mapper(ChannelValidation.class).find("meterActivationValidation", this));
-    }
-
     @Override
     public void save() {
-        if (!saved) {
-            saved = true;
-            meterActivationValidationFactory().persist(this);
+    	if (id == 0) {
+            dataModel.persist(this);
         } else {
-            meterActivationValidationFactory().update(this);
-            dataModel.mapper(ChannelValidation.class).update(FluentIterable.from(getChannelValidations()).toList());
+            dataModel.update(this);
+            dataModel.mapper(ChannelValidation.class).update(channelValidations);
         }
     }
 
@@ -147,13 +115,9 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         return obsoleteTime != null;
     }
 
-    private DataMapper<IMeterActivationValidation> meterActivationValidationFactory() {
-        return dataModel.mapper(IMeterActivationValidation.class);
-    }
-
     @Override
     public Set<ChannelValidation> getChannelValidations() {
-        return Collections.unmodifiableSet(new HashSet<>(doGetChannelValidations()));
+        return Collections.unmodifiableSet(new HashSet<>(channelValidations));
     }
 
     @Override
@@ -161,8 +125,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         if (!isActive()) {
             return;
         }
-        getMeterActivation().getChannels().stream()
-                .forEach(c -> validateChannel(c, interval));
+        getMeterActivation().getChannels().forEach(c -> validateChannel(c, interval));
         lastRun = Instant.now(clock);
         save();
     }
@@ -266,7 +229,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     private ChannelValidationImpl findValidationFor(final Channel channel) {
-        return getChannelValidations().stream()
+        return channelValidations.stream()
                 .filter(c -> c.getChannel().getId() == channel.getId())
                 .map(ChannelValidationImpl.class::cast)
                 .findFirst()
@@ -275,8 +238,8 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public void updateLastChecked(Instant lastChecked) {
-        for (ChannelValidation channelValidation : getChannelValidations()) {
-            ((ChannelValidationImpl) channelValidation).updateLastChecked(lastChecked);
+        for (ChannelValidation channelValidation : channelValidations) {
+            ((IChannelValidation) channelValidation).updateLastChecked(lastChecked);
         }
     }
 
@@ -287,10 +250,10 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
                 return false;
             }
             Comparator<? super Instant> comparator = nullsLast(naturalOrder());
-            return getChannelValidations().stream()
+            return channelValidations.stream()
                     .noneMatch(c -> c.hasActiveRules() && comparator.compare(c.getLastChecked(), c.getChannel().getLastDateTime()) < 0);
         }
-        return getChannelValidations().stream()
+        return channelValidations.stream()
                 .noneMatch(ChannelValidation::hasActiveRules);
     }
 
@@ -309,7 +272,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     private Stream<Instant> lastCheckedStream() {
-        return getChannelValidations().stream()
+        return channelValidations.stream()
                 .filter(notNull())
                 .filter(ChannelValidation::hasActiveRules)
                 .map(ChannelValidation::getLastChecked)
@@ -329,8 +292,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     @Override
     public void activate() {
         setActive(true);
-        getMeterActivation().getChannels().stream()
-                .forEach(c -> getChannelValidation(c).orElseGet(() -> addChannelValidation(c)));
+        getMeterActivation().getChannels().forEach(c -> getChannelValidation(c).orElseGet(() -> addChannelValidation(c)));
     }
 
     @Override

@@ -17,8 +17,10 @@ import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 
-    VAL_VALIDATIONRULESET(ValidationRuleSet.class) {
-        void describeTable(Table table) {
+    VAL_VALIDATIONRULESET {
+    	@Override
+        void addTo(DataModel dataModel) {
+        	Table<ValidationRuleSet> table = dataModel.addTable(name(), ValidationRuleSet.class);
             table.map(ValidationRuleSetImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULESETJRNL");
             Column idColumn = table.addAutoIdColumn();
@@ -32,9 +34,10 @@ public enum TableSpecs {
             table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();
         }
     },
-    VAL_VALIDATIONRULE(ValidationRule.class) {
+    VAL_VALIDATIONRULE {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<ValidationRule> table = dataModel.addTable(name(), ValidationRule.class);
             table.map(ValidationRuleImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULEJRNL");
             Column idColumn = table.addAutoIdColumn();
@@ -50,10 +53,11 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
         }
     },
-    VAL_VALIDATIONRULEPROPS(ValidationRuleProperties.class) {
+    VAL_VALIDATIONRULEPROPS {
         @Override
-        void describeTable(Table table) {
-            table.map(ValidationRulePropertiesImpl.class);
+        void addTo(DataModel dataModel) {
+        	Table<ValidationRuleProperties> table = dataModel.addTable(name(), ValidationRuleProperties.class);
+        	table.map(ValidationRulePropertiesImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULEPROPSJRNL");
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
@@ -63,12 +67,13 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(RESTRICT).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
         }
     },
-    VAL_MA_VALIDATION(IMeterActivationValidation.class) {
+    VAL_MA_VALIDATION {
         @Override
-        void describeTable(Table table) {
-            table.map(MeterActivationValidationImpl.class);
+        void addTo(DataModel dataModel) {
+        	Table<IMeterActivationValidation> table = dataModel.addTable(name(), IMeterActivationValidation.class);
+        	table.map(MeterActivationValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column ruleSetIdColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).map("ruleSetId").add();
+            Column ruleSetIdColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
             Column meterActivationId = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.column("ACTIVE").bool().map("active").add();
@@ -78,9 +83,10 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).onDelete(DeleteRule.RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
         }
     },
-    VAL_CH_VALIDATION(ChannelValidation.class) {
+    VAL_CH_VALIDATION {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<ChannelValidation> table = dataModel.addTable(name(), ChannelValidation.class);
             table.map(ChannelValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).add();
@@ -93,10 +99,10 @@ public enum TableSpecs {
                     .composition().on(meterActivationValidationColumn).add();
         }
     },
-
-    VAL_METER_VALIDATION(MeterValidationImpl.class) {
+    VAL_METER_VALIDATION {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<MeterValidationImpl> table = dataModel.addTable(name(), MeterValidationImpl.class);        
             table.map(MeterValidationImpl.class);
             Column meterId = table.column("METERID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("ACTIVE").bool().map("isActive").add();
@@ -105,8 +111,10 @@ public enum TableSpecs {
         }
     },
 
-    VAL_READINGTYPEINVALRULE(ReadingTypeInValidationRule.class) {
-        void describeTable(Table table) {
+    VAL_READINGTYPEINVALRULE {
+    	@Override
+    	void addTo(DataModel dataModel) {
+        	Table<ReadingTypeInValidationRule> table = dataModel.addTable(name(), ReadingTypeInValidationRule.class);
             table.map(ReadingTypeInValidationRuleImpl.class);
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRID").add();
@@ -116,17 +124,6 @@ public enum TableSpecs {
         }
     };
 
-    private final Class<?> api;
-
-    TableSpecs(Class<?> api) {
-        this.api = api;
-    }
-
-    public void addTo(DataModel component) {
-        Table table = component.addTable(name(), api);
-        describeTable(table);
-    }
-
-    abstract void describeTable(Table table);
-
+    abstract void addTo(DataModel component);
+        
 }

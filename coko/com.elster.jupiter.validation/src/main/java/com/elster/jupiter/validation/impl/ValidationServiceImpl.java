@@ -401,23 +401,23 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return returnList;
     }
 
-    private java.util.Optional<IMeterActivationValidation> getForRuleSet(List<IMeterActivationValidation> meterActivations, ValidationRuleSet ruleSet) {
+    private Optional<IMeterActivationValidation> getForRuleSet(List<IMeterActivationValidation> meterActivations, ValidationRuleSet ruleSet) {
         for (IMeterActivationValidation meterActivation : meterActivations) {
             if (ruleSet.equals(meterActivation.getRuleSet())) {
-                return java.util.Optional.of(meterActivation);
+                return Optional.of(meterActivation);
             }
         }
-        return java.util.Optional.empty();
+        return Optional.empty();
     }
 
     List<IMeterActivationValidation> getIMeterActivationValidations(MeterActivation meterActivation) {
         Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull());
-        return dataModel.query(IMeterActivationValidation.class).select(condition);
+        return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class).select(condition);
     }
 
     private List<IMeterActivationValidation> getActiveIMeterActivationValidations(MeterActivation meterActivation) {
         Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull()).and(where("active").isEqualTo(true));
-        return dataModel.query(IMeterActivationValidation.class).select(condition);
+        return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class).select(condition);
     }
 
     private IMeterActivationValidation applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
@@ -431,11 +431,6 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         meterActivationValidation.save();
         return meterActivationValidation;
     }
-
-/*    @Override
-    public List<? extends MeterActivationValidation> getMeterActivationValidationsForMeterActivation(MeterActivation meterActivation) {
-        return getOrCreateMeterActivationValidations(meterActivation);
-    }*/
 
     @Override
     public List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation) {
@@ -458,8 +453,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
    
     List<IMeterActivationValidation> getMeterActivationValidations(Channel channel) {
-    	return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class)
-    		.select(where("channelValidations.channel").isEqualTo(channel));
+    	return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class).select(where("channelValidations.channel").isEqualTo(channel));
     }
 
     List<ChannelValidation> getChannelValidations(Channel channel) {
@@ -484,11 +478,6 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     public ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval) {
         return new ValidationEvaluatorForMeter(this, meter, interval);
     }
-
-    private List<ChannelValidation> getChannelValidationsWithActiveRules(Channel channel) {
-        return dataModel.mapper(ChannelValidation.class).find("channel", channel, "activeRules", true);
-    }
-
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(ValidatorFactory validatorfactory) {

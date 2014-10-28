@@ -38,6 +38,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +50,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.lang.reflect.Field;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -87,8 +89,6 @@ public class ValidationServiceImplTest {
     private MeterActivation meterActivation;
     @Mock
     private Meter meter;
-    @Mock
-    private DataMapper<IMeterActivationValidation> meterActivationValidationFactory;
     @Mock
     private Channel channel1, channel2;
     @Mock
@@ -136,8 +136,7 @@ public class ValidationServiceImplTest {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(validationRuleSetFactory);
-        when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);
-        when(dataModel.mapper(IMeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
+        when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);        
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
         when(dataModel.mapper(MeterValidationImpl.class)).thenReturn(meterValidationFactory);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
@@ -153,28 +152,12 @@ public class ValidationServiceImplTest {
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
-        when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleSetImpl(dataModel, eventService);
-            }
-        });
-
-        when(dataModel.getInstance(MeterActivationValidationImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new MeterActivationValidationImpl(dataModel, clock);
-            }
-        });
-        when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ChannelValidationImpl();
-            }
-        });
-        when(dataModel.query(IMeterActivationValidation.class)).thenReturn(queryExecutor);
-        when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.<IMeterActivationValidation>emptyList());
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
+        when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService));
+        when(dataModel.getInstance(MeterActivationValidationImpl.class)).thenAnswer(invocationOnMock -> new MeterActivationValidationImpl(dataModel, clock));
+        when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(invocationOnMock -> new ChannelValidationImpl());
+        when(dataModel.query(IMeterActivationValidation.class, ChannelValidation.class)).thenReturn(queryExecutor);
+        when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
+        when(thesaurus.getFormat(any())).thenReturn(nlsMessageFormat);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(javaxValidator);
     }
@@ -240,7 +223,14 @@ public class ValidationServiceImplTest {
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
-
+        doAnswer((invocation) -> {
+        		Object meterActivationValidation = invocation.getArguments()[0];        		
+        		Field field = meterActivationValidation.getClass().getDeclaredField("id");
+    			field.setAccessible(true);
+    			field.set(meterActivationValidation, 1L);
+        		return null;
+    	 	}).when(dataModel).persist(any(IMeterActivationValidation.class));
+        	
         ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
         ValidationRule validationRule = mock(IValidationRule.class);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
@@ -249,7 +239,7 @@ public class ValidationServiceImplTest {
         validationService.validate(meterActivation, Range.atLeast(Instant.EPOCH));
 
         ArgumentCaptor<IMeterActivationValidation> meterActivationValidationCapture = ArgumentCaptor.forClass(IMeterActivationValidation.class);
-        verify(meterActivationValidationFactory).persist(meterActivationValidationCapture.capture());
+        verify(dataModel).persist(meterActivationValidationCapture.capture());
 
         final IMeterActivationValidation meterActivationValidationCaptureValue = meterActivationValidationCapture.getValue();
         final Set<ChannelValidation> channelValidations = meterActivationValidationCaptureValue.getChannelValidations();
