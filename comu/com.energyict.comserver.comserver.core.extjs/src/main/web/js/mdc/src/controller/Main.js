@@ -72,7 +72,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.SetupOverview',
         'Mdc.controller.setup.ValidationRuleSets',
         'Mdc.controller.setup.Messages',
-        'Mdc.controller.setup.DeviceCommunicationTaskHistory'
+        'Mdc.controller.setup.DeviceCommunicationTaskHistory',
+        'Mdc.controller.setup.DeviceConnectionHistory'
     ],
 
     refs: [
