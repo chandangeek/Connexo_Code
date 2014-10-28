@@ -232,7 +232,7 @@ public class DataExportTaskResource {
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask)).build();
     }
 
-    private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
+    private EndDeviceGroup endDeviceGroup(String endDeviceGroupId) {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 

@@ -29,7 +29,7 @@ public class DataExportTaskInfo {
     public boolean exportContinuousData;
     public ValidatedDataOption validatedDataOption = ValidatedDataOption.INCLUDE_ALL;
     public long lastRun = Instant.now().toEpochMilli();
-    public long endDeviceGroupId;
+    public String endDeviceGroupId;
 
 
     public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask) {
