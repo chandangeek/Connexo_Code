@@ -1,13 +1,18 @@
 package com.elster.jupiter.demo;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
@@ -15,17 +20,25 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
@@ -51,15 +64,19 @@ import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.PropertySpecServiceDependency;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 import java.sql.Connection;
@@ -70,6 +87,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -94,6 +112,9 @@ public class DemoTest {
             when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
             bind(LicenseService.class).toInstance(licenseService);
             bind(SerialComponentService.class).to(SerialComponentServiceImpl.class).in(Scopes.SINGLETON);
+
+            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(LogService.class).toInstance(mock(LogService.class));
         }
 
         private License mockLicense() {
@@ -104,7 +125,7 @@ public class DemoTest {
             when(license.getDescription()).thenReturn("MDC application license example");
             when(license.getStatus()).thenReturn(License.Status.ACTIVE);
             when(license.getType()).thenReturn(License.Type.EVALUATION);
-            when(license.getGracePeriodInDays()).thenReturn(5);
+            when(license.getGracePeriodInDays()).thenReturn(5);            
             when(license.getExpiration()).thenReturn(Instant.parse("9999-12-31T24:00:00Z"));
             when(license.getLicensedValues()).thenReturn(properties);
             return license;
@@ -129,6 +150,9 @@ public class DemoTest {
                 new TransactionModule(),
                 new NlsModule(),
                 new UserModule(),
+                new MeteringGroupsModule(),
+                new KpiModule(),
+                new TaskModule(),
 
                 new MdcCommonModule(),
                 new MdcReadingTypeUtilServiceModule(),
@@ -201,8 +225,16 @@ public class DemoTest {
     private void fixMissedDynamicReference() {
         // Register device factory provider
         injector.getInstance(PropertySpecServiceDependency.class);
+        injector.getInstance(MeteringGroupsService.class);
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         propertySpecService.addFactoryProvider((DeviceServiceImpl)injector.getInstance(DeviceService.class));
         propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl)injector.getInstance(ConnectionTaskService.class));
+
+        DefaultValidatorFactory defaultValidatorFactory = new DefaultValidatorFactory();
+        defaultValidatorFactory.setPropertySpecService(propertySpecService);
+        defaultValidatorFactory.setNlsService(injector.getInstance(NlsService.class));
+        ((ValidationServiceImpl)injector.getInstance(ValidationService.class)).addResource(defaultValidatorFactory);
+
+        ((DeviceConfigurationServiceImpl)injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
     }
 }

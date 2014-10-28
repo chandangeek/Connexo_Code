@@ -9,6 +9,13 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -27,12 +34,15 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
+import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -40,11 +50,12 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Instant;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 
-@Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {"osgi.command.scope=demo", "osgi.command.function=createDemoData"}, immediate = true)
+@Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {"osgi.command.scope=demo", "osgi.command.function=createDemoData", "osgi.command.function=createDemoUsers", "osgi.command.function=createValidationRules"}, immediate = true)
 public class DemoServiceImpl implements DemoService {
     public static final String ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH = "Active Energy Import Tariff 1 (kWh)";
     public static final String ACTIVE_ENERGY_IMPORT_TARIFF_1_WH = "Active Energy Import Tariff 1 (Wh)";
@@ -83,15 +94,23 @@ public class DemoServiceImpl implements DemoService {
     public static final String COM_TASK_READ_REGISTER_BILLING_DATA = "Read register billing data";
     public static final String COM_TASK_READ_LOAD_PROFILE_DATA = "Read load profile data";
 
-    public static final String OUTBOUND_TCP_POOL_NAME = "Outbound TCP Pool";
+    public static final String VODAFONE_TCP_POOL_NAME = "Vodafone";
+    public static final String ORANGE_TCP_POOL_NAME = "Orange";
 
     public static final String COM_SCHEDULE_DAILY_READ_ALL = "Daily read all";
     public static final String COM_SCHEDULE_MOUNTHLY_BILLING_DATA = "Monthly billing data";
 
     private static final String[] DEVICE_TYPES_NAMES = {"Elster AS1440", "Elster AS3000", "Landis+Gyr ZMD", "Actaris SL7000", "Siemens 7ED", "Iskra 382"};
 
+    public static final String USER_NAME_SAM = "Sam";
+    public static final String USER_NAME_MELISSA = "Melissa";
+    public static final String USER_NAME_SYSTEM = "System";
+    public static final String VALIDATION_DETECT_MISSING_VALUES = "Detect missing values";
+
     private final Boolean rethrowExceptions;
     private volatile EngineModelService engineModelService;
+    private volatile UserService userService;
+    private volatile ValidationService validationService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -110,6 +129,8 @@ public class DemoServiceImpl implements DemoService {
     @Inject
     public DemoServiceImpl(
             EngineModelService engineModelService,
+            UserService userService,
+            ValidationService validationService,
             TransactionService transactionService,
             ThreadPrincipalService threadPrincipalService,
             ProtocolPluggableService protocolPluggableService,
@@ -121,6 +142,8 @@ public class DemoServiceImpl implements DemoService {
             ConnectionTaskService connectionTaskService,
             SchedulingService schedulingService) {
         this.engineModelService = engineModelService;
+        this.userService = userService;
+        this.validationService = validationService;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
         this.protocolPluggableService = protocolPluggableService;
@@ -143,17 +166,10 @@ public class DemoServiceImpl implements DemoService {
                 store.getProperties().put("host", host);
 
                 OnlineComServer comServer = createComServer("Deitvs099");
-                //OnlineComServer comServer = createComServer(comServerName);
-                OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP 099", comServer);
-                OutboundComPortPool outboundTcpComPortPool = createOutboundTcpComPortPool("Outbound TCP Pool 099", outboundTCPPort);
-                InboundComPortPool inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool 099");
-                createInboundServletPort("Inbound Servlet 099", 4444, comServer, inboundServletComPortPool);
-
                 comServer = createComServer(comServerName);
-                outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
-                store.getOutboundComPortPools().put(OUTBOUND_TCP_POOL_NAME,createOutboundTcpComPortPool(OUTBOUND_TCP_POOL_NAME, outboundTCPPort));
-                inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool");
-                createInboundServletPort("Inbound Servlet", 4444, comServer, inboundServletComPortPool);
+                OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
+                store.getOutboundComPortPools().put(VODAFONE_TCP_POOL_NAME, createOutboundTcpComPortPool(VODAFONE_TCP_POOL_NAME, outboundTCPPort));
+                store.getOutboundComPortPools().put(ORANGE_TCP_POOL_NAME, createOutboundTcpComPortPool(ORANGE_TCP_POOL_NAME, outboundTCPPort));
 
                 findRegisterTypes(store);
                 createLoadProfiles(store);
@@ -162,6 +178,8 @@ public class DemoServiceImpl implements DemoService {
                 createCommunicationTasks(store);
                 createCommunicationSchedules(store);
                 createDeviceTypes(store);
+                createDemoUsersImpl();
+                createValidationRulesImpl();
             }
         });
     }
@@ -581,7 +599,7 @@ public class DemoServiceImpl implements DemoService {
         Device device = deviceService.newDevice(configuration, mrid, mrid);
         device.setSerialNumber(serialNumber);
         calendar.set(2014, 1, 1);
-        device.setYearOfCertification(calendar.getTime());
+        device.setYearOfCertification(calendar.toInstant());
         device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_DAILY_READ_ALL)).add();
         device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_MOUNTHLY_BILLING_DATA)).add();
         device.save();
@@ -591,7 +609,7 @@ public class DemoServiceImpl implements DemoService {
     private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
         PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration().getPartialOutboundConnectionTasks().get(0);
         ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
+                .setComPortPool(store.getOutboundComPortPools().get((device.getId() & 1) == 1L ? VODAFONE_TCP_POOL_NAME : ORANGE_TCP_POOL_NAME))
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
@@ -602,9 +620,95 @@ public class DemoServiceImpl implements DemoService {
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
     }
 
+    @Override
+    public void createDemoUsers(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createDemoUsersImpl();
+            }
+        });
+    }
+
+    public void createDemoUsersImpl(){
+        System.out.println("==> Creating demo users...");
+        createUserAndJoinAllGroups(USER_NAME_SAM);
+        createUserAndJoinAllGroups(USER_NAME_MELISSA);
+        createUserAndJoinAllGroups(USER_NAME_SYSTEM);
+    }
+
+    private void createUserAndJoinAllGroups(String userName) {
+        User user = userService.findUser(userName).orElse(null);
+        if (user == null){
+            String pass = userName;
+            while (pass.length() < 4){
+                pass = pass + pass;
+            }
+            System.out.println("==> Creating new user: " + userName + " with password: " + pass);
+            user = userService.createUser(userName, "");
+            user.setPassword(pass);
+        }
+        for (Group group : userService.getGroups()) {
+            user.join(group);
+        }
+        user.save();
+    }
+
+    @Override
+    public void createValidationRules(){
+        executeTransaction(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                createValidationRulesImpl();
+            }
+        });
+    }
+
+    public void createValidationRulesImpl(){
+        System.out.println("==> Creating validation rules");
+        if (validationService.getValidationRuleSet(VALIDATION_DETECT_MISSING_VALUES).isPresent()){
+            System.out.println("==> Validation rule set " + VALIDATION_DETECT_MISSING_VALUES + " already exists, skip step.");
+        }
+        ValidationRuleSet ruleSet = validationService.createValidationRuleSet(VALIDATION_DETECT_MISSING_VALUES);
+        ValidationRule rule = ruleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.MissingValuesValidator", VALIDATION_DETECT_MISSING_VALUES);
+        // 15min Electricity
+        rule.addReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        rule.addReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        // Daily Electricity
+        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("11.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        // Monthly Electricity
+        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        rule.addReadingType("13.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
+        rule.activate();
+
+        ruleSet.save();
+
+        List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(ruleSet);
+        for (DeviceConfiguration configuration : configurations) {
+            System.out.println("==> Validation rule set added to: " + configuration.getName() + " (id = " + configuration.getId() + ")");
+            configuration.addValidationRuleSet(ruleSet);
+            configuration.save();
+        }
+    }
+
     @Reference
     public void setEngineModelService(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Reference
