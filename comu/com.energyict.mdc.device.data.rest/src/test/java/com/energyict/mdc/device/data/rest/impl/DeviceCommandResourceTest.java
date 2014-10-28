@@ -51,6 +51,7 @@ import org.mockito.Mock;
 import static com.energyict.mdc.device.data.rest.impl.DeviceCommandResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -70,8 +71,8 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
-        DeviceMessage<?> command1 = mockCommand(device, 1, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
-        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", 4, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
+        DeviceMessage<?> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
+        DeviceMessage<?> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", 4, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
         when(device.getMessages()).thenReturn(Arrays.asList(command1,command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -105,7 +106,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
-        DeviceMessage<?> command1 = mockCommand(device, 1, DeviceMessageId.CLOCK_SET_TIME, "set clock", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
+        DeviceMessage<?> command1 = mockCommand(device, 1L, DeviceMessageId.CLOCK_SET_TIME, "set clock", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
         DeviceMessageAttribute attribute1 = mockAttribute("ID", BigDecimal.valueOf(123L), new BigDecimalFactory(), Required);
         DeviceMessageAttribute attribute2 = mockAttribute("Delete", true, new BooleanFactory(), Required);
         Date now = new Date();
@@ -154,7 +155,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
+        DeviceMessage<?> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
@@ -184,7 +185,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
+        DeviceMessage<?> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
@@ -215,7 +216,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
+        DeviceMessage<?> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
@@ -246,7 +247,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
+        DeviceMessage<?> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
@@ -326,9 +327,26 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testCreateDeviceMessage() throws Exception {
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
+        DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
+        when(deviceMessageCategory.getName()).thenReturn("category");
+        when(deviceMessageSpec.getCategory()).thenReturn(deviceMessageCategory);
+        when(deviceMessageService.findMessageSpecById(DeviceMessageId.CONTACTOR_OPEN.dbValue())).thenReturn(Optional.of(deviceMessageSpec));
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
-
+        Device.DeviceMessageBuilder deviceMessageBuilder = mock(Device.DeviceMessageBuilder.class);
+        when(deviceMessageBuilder.addProperty(anyString(), anyObject())).thenReturn(deviceMessageBuilder);
+        when(deviceMessageBuilder.setReleaseDate(anyObject())).thenReturn(deviceMessageBuilder);
+        DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getSpecification()).thenReturn(deviceMessageSpec);
+        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);
+        when(deviceMessage.getSentDate()).thenReturn(Optional.empty());
+        User user = mock(User.class);
+        when(user.getName()).thenReturn("username");
+        when(deviceMessage.getUser()).thenReturn(user);
+        when(deviceMessageBuilder.add()).thenReturn(deviceMessage);
+        when(device.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN)).thenReturn(deviceMessageBuilder);
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
         deviceMessageInfo.releaseDate=Instant.now();
         deviceMessageInfo.messageSpecification=new DeviceMessageSpecInfo();
@@ -338,9 +356,19 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         deviceMessageInfo.properties.add(new PropertyInfo("Time",new PropertyValueInfo<>(1414067539213L, null, null),new PropertyTypeInfo(SimplePropertyType.CLOCK, null, null, null), true));
         Response response = target("/devices/ZABF010000080004/commands").request().post(Entity.json(deviceMessageInfo));
 
-        ArgumentCaptor<DeviceMessageId> argumentCaptor = ArgumentCaptor.forClass(DeviceMessageId.class);
-        verify(device, times(1)).newDeviceMessage(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue()).isEqualTo(DeviceMessageId.CONTACTOR_OPEN);
+        ArgumentCaptor<DeviceMessageId> deviceMessageIdArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageId.class);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Object> objectArgumentCaptor = ArgumentCaptor.forClass(Object.class);
+        ArgumentCaptor<Instant> instantArgumentCaptor = ArgumentCaptor.forClass(Instant.class);
+        verify(device, times(1)).newDeviceMessage(deviceMessageIdArgumentCaptor.capture());
+//        verify(deviceMessageBuilder, times(2)).addProperty(stringArgumentCaptor.capture(), objectArgumentCaptor.capture());
+        verify(deviceMessageBuilder, times(1)).setReleaseDate(instantArgumentCaptor.capture());
+        assertThat(deviceMessageIdArgumentCaptor.getValue()).isEqualTo(DeviceMessageId.CONTACTOR_OPEN);
+//        assertThat(stringArgumentCaptor.getAllValues().get(0)).isEqualTo("ID");
+//        assertThat(objectArgumentCaptor.getAllValues().get(0)).isEqualTo(123L);
+//        assertThat(stringArgumentCaptor.getAllValues().get(1)).isEqualTo("Time");
+//        assertThat(objectArgumentCaptor.getAllValues().get(1)).isEqualTo(1414067539213L);
+        assertThat(instantArgumentCaptor.getValue()).isEqualTo(deviceMessageInfo.releaseDate);
 
     }
 
@@ -372,7 +400,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         return comTask;
     }
 
-    private DeviceMessage<?> mockCommand(Device device, Integer id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Integer categoryId, String categoryName, Instant creationDate, Instant releaseDate, Instant sentDate) {
+    private DeviceMessage<?> mockCommand(Device device, Long id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Integer categoryId, String categoryName, Instant creationDate, Instant releaseDate, Instant sentDate) {
         DeviceMessage mock = mock(DeviceMessage.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getSentDate()).thenReturn(Optional.ofNullable(sentDate));

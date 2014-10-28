@@ -22,4 +22,7 @@ public class DeviceMessageInfo {
     public Boolean willBePickedUpByComTask;
     public Boolean willBePickedUpByScheduledComTask;
     public List<PropertyInfo> properties;
+
+    public DeviceMessageInfo() {
+    }
 }
