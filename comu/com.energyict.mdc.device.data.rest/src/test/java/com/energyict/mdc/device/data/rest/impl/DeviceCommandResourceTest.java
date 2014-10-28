@@ -4,6 +4,9 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -13,6 +16,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -30,6 +34,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -37,13 +42,18 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceCommandResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -60,8 +70,8 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
-        DeviceMessage<?> command1 = mockCommand(device, 1, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
-        DeviceMessage<?> command2 = mockCommand(device, 2, "reset clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", 4, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
+        DeviceMessage<?> command1 = mockCommand(device, 1, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
+        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", 4, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
         when(device.getMessages()).thenReturn(Arrays.asList(command1,command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -74,9 +84,10 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         JsonModel model = JsonModel.model(response);
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(2);
-        assertThat(model.<List<Long>>get("$.commands[*].releaseDate")).isSortedAccordingTo((c1,c2)->-c1.compareTo(c2));
+        assertThat(model.<List<Long>>get("$.commands[*].releaseDate")).isSortedAccordingTo((c1, c2) -> -c1.compareTo(c2));
         assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(1);
-        assertThat(model.<String>get("$.commands[0].name")).isEqualTo("do delete rule");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("do delete rule");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("DEVICE_ACTIONS_DEMAND_RESET");
         assertThat(model.<String>get("$.commands[0].trackingId")).isEqualTo("T14");
         assertThat(model.<String>get("$.commands[0].category")).isEqualTo("DeviceMessageCategories.RESET");
         assertThat(model.<String>get("$.commands[0].status")).isEqualTo("Pending");
@@ -90,14 +101,15 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
     }
 
     @Test
-    public void testGetDeviceCommandAttributes() throws Exception {
+    public void testGetDeviceCommandProperties() throws Exception {
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
-        DeviceMessage<?> command1 = mockCommand(device, 1, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
+        DeviceMessage<?> command1 = mockCommand(device, 1, DeviceMessageId.CLOCK_SET_TIME, "set clock", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
         DeviceMessageAttribute attribute1 = mockAttribute("ID", BigDecimal.valueOf(123L), new BigDecimalFactory(), Required);
         DeviceMessageAttribute attribute2 = mockAttribute("Delete", true, new BooleanFactory(), Required);
-        DeviceMessageAttribute attribute3 = mockAttribute("Time", new Date(), new DateAndTimeFactory(), Required);
+        Date now = new Date();
+        DeviceMessageAttribute attribute3 = mockAttribute("Time", now, new DateAndTimeFactory(), Required);
         when(command1.getAttributes()).thenReturn(Arrays.asList(attribute1, attribute2, attribute3));
         when(device.getMessages()).thenReturn(Arrays.asList(command1));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
@@ -110,6 +122,18 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         JsonModel model = JsonModel.model(response);
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<String>get("$.commands[0].properties[0].key")).isEqualTo("ID");
+        assertThat(model.<Integer>get("$.commands[0].properties[0].propertyValueInfo.value")).isEqualTo(123);
+        assertThat(model.<String>get("$.commands[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
+        assertThat(model.<Boolean>get("$.commands[0].properties[0].required")).isEqualTo(true);
+        assertThat(model.<String>get("$.commands[0].properties[1].key")).isEqualTo("Delete");
+        assertThat(model.<Boolean>get("$.commands[0].properties[1].propertyValueInfo.value")).isEqualTo(true);
+        assertThat(model.<String>get("$.commands[0].properties[1].propertyTypeInfo.simplePropertyType")).isEqualTo("BOOLEAN");
+        assertThat(model.<Boolean>get("$.commands[0].properties[1].required")).isEqualTo(true);
+        assertThat(model.<String>get("$.commands[0].properties[2].key")).isEqualTo("Time");
+        assertThat(model.<Long>get("$.commands[0].properties[2].propertyValueInfo.value")).isEqualTo(now.getTime());
+        assertThat(model.<String>get("$.commands[0].properties[2].propertyTypeInfo.simplePropertyType")).isEqualTo("CLOCK");
+        assertThat(model.<Boolean>get("$.commands[0].properties[2].required")).isEqualTo(true);
     }
 
     private DeviceMessageAttribute mockAttribute(String name, Object value, ValueFactory valueFactory, Necessity necessity) {
@@ -130,7 +154,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<?> command2 = mockCommand(device, 2, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
+        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
@@ -148,7 +172,8 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.commands[0].name")).isEqualTo("reset clock");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("reset clock");
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isEqualTo(true);
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(false);
     }
@@ -159,7 +184,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<?> command2 = mockCommand(device, 2, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
+        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
@@ -177,7 +202,8 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.commands[0].name")).isEqualTo("reset clock");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("reset clock");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isEqualTo(true);
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(true);
     }
@@ -189,7 +215,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<?> command2 = mockCommand(device, 2, "reset clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
+        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
@@ -207,7 +233,8 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.commands[0].name")).isEqualTo("reset clock");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("reset clock");
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isNull();
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isNull();
     }
@@ -219,7 +246,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<?> command2 = mockCommand(device, 2, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
+        DeviceMessage<?> command2 = mockCommand(device, 2, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
@@ -237,7 +264,8 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.commands[0].name")).isEqualTo("reset clock");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
+        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("reset clock");
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isEqualTo(true);
         assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(false);
     }
@@ -296,6 +324,26 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[1].id")).isEqualTo("CONTACTOR_OPEN");
     }
 
+    @Test
+    public void testCreateDeviceMessage() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+
+        DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
+        deviceMessageInfo.releaseDate=Instant.now();
+        deviceMessageInfo.messageSpecification=new DeviceMessageSpecInfo();
+        deviceMessageInfo.messageSpecification.id="CONTACTOR_OPEN";
+        deviceMessageInfo.properties=new ArrayList<>();
+        deviceMessageInfo.properties.add(new PropertyInfo("ID",new PropertyValueInfo<>(123L, null, null),new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        deviceMessageInfo.properties.add(new PropertyInfo("Time",new PropertyValueInfo<>(1414067539213L, null, null),new PropertyTypeInfo(SimplePropertyType.CLOCK, null, null, null), true));
+        Response response = target("/devices/ZABF010000080004/commands").request().post(Entity.json(deviceMessageInfo));
+
+        ArgumentCaptor<DeviceMessageId> argumentCaptor = ArgumentCaptor.forClass(DeviceMessageId.class);
+        verify(device, times(1)).newDeviceMessage(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).isEqualTo(DeviceMessageId.CONTACTOR_OPEN);
+
+    }
+
     private ComTaskExecution mockComTaskExecution(int categoryId, boolean isOnHold) {
         ComTaskExecution mock = mock(ComTaskExecution.class);
         ComTask comTask = mockComTaskWithProtocolTaskForCategory(categoryId);
@@ -324,7 +372,7 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         return comTask;
     }
 
-    private DeviceMessage<?> mockCommand(Device device, Integer id, String commandName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Integer categoryId, String categoryName, Instant creationDate, Instant releaseDate, Instant sentDate) {
+    private DeviceMessage<?> mockCommand(Device device, Integer id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Integer categoryId, String categoryName, Instant creationDate, Instant releaseDate, Instant sentDate) {
         DeviceMessage mock = mock(DeviceMessage.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getSentDate()).thenReturn(Optional.ofNullable(sentDate));
@@ -341,7 +389,8 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
         when(category.getName()).thenReturn(categoryName);
         when(category.getId()).thenReturn(categoryId);
         when(specification.getCategory()).thenReturn(category);
-        when(specification.getName()).thenReturn(commandName);
+        when(specification.getId()).thenReturn(deviceMessageId);
+        when(specification.getName()).thenReturn(messageSpecName);
         when(mock.getSpecification()).thenReturn(specification);
         when(mock.getDevice()).thenReturn(device);
         return mock;

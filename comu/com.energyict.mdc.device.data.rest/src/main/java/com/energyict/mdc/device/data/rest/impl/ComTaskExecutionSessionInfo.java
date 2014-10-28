@@ -2,10 +2,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
-import com.elster.jupiter.rest.util.JsonInstantAdapter;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 import java.util.List;
 
@@ -25,9 +21,7 @@ class ComTaskExecutionSessionInfo {
     public TemporalExpressionInfo comScheduleFrequency;
     public int urgency;
     public String result;
-    @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant startTime;
-    @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant finishTime;
     public boolean alwaysExecuteOnInbound;
 }

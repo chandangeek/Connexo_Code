@@ -7,7 +7,7 @@ import java.util.List;
  */
 public class DeviceMessageCategoryInfo {
 
-    public long id;
+    public int id;
     public String name;
     public List<DeviceMessageSpecInfo> deviceMessageSpecs;
 }

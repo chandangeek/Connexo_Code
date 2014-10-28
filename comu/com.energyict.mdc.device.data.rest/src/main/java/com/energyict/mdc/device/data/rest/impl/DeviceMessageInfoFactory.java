@@ -24,7 +24,6 @@ public class DeviceMessageInfoFactory {
     private final Thesaurus thesaurus;
     private final MdcPropertyUtils mdcPropertyUtils;
 
-
     @Inject
     public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils) {
         this.thesaurus = thesaurus;
@@ -35,7 +34,10 @@ public class DeviceMessageInfoFactory {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingId = deviceMessage.getTrackingId();
-        info.name = deviceMessage.getSpecification().getName();
+        info.messageSpecification = new DeviceMessageSpecInfo();
+        info.messageSpecification.id = deviceMessage.getSpecification().getId().name();
+        info.messageSpecification.name = deviceMessage.getSpecification().getName();
+
         info.category = deviceMessage.getSpecification().getCategory().getName();
         String marshaledStatus = MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus());
         info.status = thesaurus.getString(marshaledStatus, marshaledStatus);
@@ -66,14 +68,14 @@ public class DeviceMessageInfoFactory {
             }
         }
 
-        info.attributes = new ArrayList<>();
+        info.properties = new ArrayList<>();
 
         TypedProperties typedProperties = TypedProperties.empty();
         deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(null,
                 deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList()),
                 typedProperties,
-                info.attributes
+                info.properties
                 );
 
 
