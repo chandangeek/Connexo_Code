@@ -3,7 +3,7 @@ Ext.define('Tme.model.RelativePeriod', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string', useNull: true},
-        {name: 'categories', type: 'string', useNull: true},
+        //{name: 'categories', type: 'string', useNull: true},
         'from',
         'to',
         'categories'
