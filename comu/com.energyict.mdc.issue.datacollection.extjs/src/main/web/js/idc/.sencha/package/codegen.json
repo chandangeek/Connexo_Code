@@ -33,8 +33,8 @@
         "pkgType": "code",
         "touchRelPath": "../../${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "Idc",
-        "extRelPath": "../.."
+        "pkgName": "com.energyict.mdc.issue.datacollection.extjs",
+        "extRelPath": "../../ext"
       }
     },
     "sass/config.rb": {
@@ -44,8 +44,8 @@
         "pkgType": "code",
         "touchRelPath": "../../${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "Idc",
-        "extRelPath": "../.."
+        "pkgName": "com.energyict.mdc.issue.datacollection.extjs",
+        "extRelPath": "../../ext"
       }
     },
     "sass/etc/all.scss": {
@@ -55,8 +55,8 @@
         "pkgType": "code",
         "touchRelPath": "../../${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "Idc",
-        "extRelPath": "../.."
+        "pkgName": "com.energyict.mdc.issue.datacollection.extjs",
+        "extRelPath": "../../ext"
       }
     },
     "package.json": {
@@ -66,8 +66,8 @@
         "pkgType": "code",
         "touchRelPath": "../../${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "Idc",
-        "extRelPath": "../.."
+        "pkgName": "com.energyict.mdc.issue.datacollection.extjs",
+        "extRelPath": "../../ext"
       }
     },
     ".sencha/package/testing.properties": {
@@ -77,8 +77,8 @@
         "pkgType": "code",
         "touchRelPath": "../../${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "Idc",
-        "extRelPath": "../.."
+        "pkgName": "com.energyict.mdc.issue.datacollection.extjs",
+        "extRelPath": "../../ext"
       }
     },
     "sass/example/custom.js": {
@@ -88,8 +88,8 @@
         "pkgType": "code",
         "touchRelPath": "../../${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "Idc",
-        "extRelPath": "../.."
+        "pkgName": "com.energyict.mdc.issue.datacollection.extjs",
+        "extRelPath": "../../ext"
       }
     },
     "sass/example/theme.html": {
@@ -99,8 +99,8 @@
         "pkgType": "code",
         "touchRelPath": "../../${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "Idc",
-        "extRelPath": "../.."
+        "pkgName": "com.energyict.mdc.issue.datacollection.extjs",
+        "extRelPath": "../../ext"
       }
     },
     ".sencha/package/build.properties": {
@@ -110,8 +110,8 @@
         "pkgType": "code",
         "touchRelPath": "../../${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "Idc",
-        "extRelPath": "../.."
+        "pkgName": "com.energyict.mdc.issue.datacollection.extjs",
+        "extRelPath": "../../ext"
       }
     }
   }
