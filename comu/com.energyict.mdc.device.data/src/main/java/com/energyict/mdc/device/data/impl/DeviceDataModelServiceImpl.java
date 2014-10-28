@@ -23,6 +23,7 @@ import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -140,6 +141,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 NlsService.COMPONENTNAME,
                 MessageService.COMPONENTNAME,
                 UserService.COMPONENTNAME,
+                DeviceMessageService.COMPONENT_NAME,
                 DeviceConfigurationService.COMPONENTNAME,
                 PluggableService.COMPONENTNAME,
                 EngineModelService.COMPONENT_NAME,

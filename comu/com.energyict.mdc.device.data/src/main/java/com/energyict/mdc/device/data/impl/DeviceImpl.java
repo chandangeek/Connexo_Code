@@ -137,6 +137,7 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static com.elster.jupiter.util.Checks.is;
 import static java.util.stream.Collectors.toList;
@@ -1709,6 +1710,12 @@ public class DeviceImpl implements Device {
     @Override
     public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
         return new InternalDeviceMessageBuilder(deviceMessageId);
+    }
+
+    @Override
+    public void removeDeviceMessage(DeviceMessage<?> deviceMessage) {
+        // TODO implement
+        throw new NotImplementedException();
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{

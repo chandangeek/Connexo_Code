@@ -210,8 +210,8 @@ public class InMemoryIntegrationPersistence {
             this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.schedulingService = injector.getInstance(SchedulingService.class);
-            this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
             this.deviceDataModelService = injector.getInstance(DeviceDataModelService.class);
+            this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             initializeFactoryProviders();
