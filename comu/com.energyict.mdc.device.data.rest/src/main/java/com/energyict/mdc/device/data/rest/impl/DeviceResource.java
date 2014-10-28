@@ -28,6 +28,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -108,11 +111,9 @@ public class DeviceResource {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
 
-        Calendar calendar = Calendar.getInstance();
         Device newDevice = deviceService.newDevice(deviceConfiguration.get(), info.mRID, info.mRID);
         newDevice.setSerialNumber(info.serialNumber);
-        calendar.set(Integer.parseInt(info.yearOfCertification), 1, 1);
-        newDevice.setYearOfCertification(calendar.getTime());
+        newDevice.setYearOfCertification(ZonedDateTime.of(Integer.parseInt(info.yearOfCertification), 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant());
         newDevice.save();
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date

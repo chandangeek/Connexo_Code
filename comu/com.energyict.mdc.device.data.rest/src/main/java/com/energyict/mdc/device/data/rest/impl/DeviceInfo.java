@@ -6,6 +6,8 @@ import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,8 +43,8 @@ public class DeviceInfo {
         deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
         deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         if (device.getYearOfCertification()!= null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
-            deviceInfo.yearOfCertification = dateFormat.format(device.getYearOfCertification());
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy").withZone(ZoneId.of("UTC"));
+            deviceInfo.yearOfCertification = dateTimeFormatter.format(device.getYearOfCertification());
         }
         Optional<Batch> optionalBatch = deviceImportService.findBatch(device.getId());
         if (optionalBatch.isPresent()) {
