@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonInstantAdapter;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Channel;
@@ -12,8 +13,8 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class LoadProfileDataInfo {
     public IntervalInfo interval;
     public Map<Long, String> channelData = new HashMap<>();
     public Map<Long, ValidationInfo> channelValidationData = new HashMap<>();
-    public Date readingTime;
+    public Instant readingTime;
     public List<String> intervalFlags;
     public boolean validationActive;
 
