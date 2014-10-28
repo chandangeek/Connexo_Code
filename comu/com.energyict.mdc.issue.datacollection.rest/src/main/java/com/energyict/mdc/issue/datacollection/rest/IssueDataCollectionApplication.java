@@ -1,6 +1,6 @@
 package com.energyict.mdc.issue.datacollection.rest;
 
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptionMapper;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -70,7 +70,7 @@ public class IssueDataCollectionApplication extends Application implements Binde
                 IssueResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedExceptionMapper.class,
-                CreationRuleValidationExceptionMapper.class);
+                CreationRuleOrActionValidationExceptionMapper.class);
     }
 
     @Reference
