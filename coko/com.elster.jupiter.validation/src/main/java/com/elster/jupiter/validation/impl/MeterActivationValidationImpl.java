@@ -109,11 +109,9 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public Optional<ChannelValidation> getChannelValidation(Channel channel) {
-        ChannelValidation channelValidation = getChannelValidations().stream()
+        return getChannelValidations().stream()
                 .filter(v -> v.getChannel().getId() == channel.getId())
-                .findFirst()
-                .orElse(null);
-        return Optional.ofNullable(channelValidation);
+                .findFirst();
     }
 
     private List<ChannelValidation> doGetChannelValidations() {

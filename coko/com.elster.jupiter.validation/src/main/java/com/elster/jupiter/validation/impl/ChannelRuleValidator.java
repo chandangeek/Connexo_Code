@@ -36,15 +36,14 @@ class ChannelRuleValidator {
         this.rule = rule;
     }
 
-    // interval is interpreted as closed
-    Instant validateReadings(Channel channel, Range<Instant> interval) {
-        ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, interval);
-        Optional<Instant> lastChecked = channel.getReadingTypes().stream()
+    Instant validateReadings(Channel channel, Range<Instant> range) {
+        ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, range);
+        return channel.getReadingTypes().stream()
                 .filter(r -> rule.getReadingTypes().contains(r))
-                .map(r -> validateReadings(channel, interval, r, existingReadingQualities))
+                .map(r -> validateReadings(channel, range, r, existingReadingQualities))
                 .filter(notNull())
-                .max(Comparator.<Instant>naturalOrder());
-        return lastChecked.orElse(null);
+                .max(Comparator.naturalOrder())
+                .orElse(null);
     }
 
     private Instant validateReadings(Channel channel, Range<Instant> interval, ReadingType channelReadingType, ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities) {

@@ -12,7 +12,6 @@ import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
 import java.util.Objects;
-import java.util.Optional;
 
 public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationRule {
 
@@ -57,8 +56,7 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
     @Override
     public ReadingType getReadingType() {
         if (readingType == null) {
-            Optional<ReadingType> optional = meteringService.getReadingType(readingTypeMRID);
-            return (optional.isPresent() ? optional.get() : null);
+            readingType = meteringService.getReadingType(readingTypeMRID).get();
         }
         return readingType;
     }
@@ -67,7 +65,7 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
     public String toString() {
         return "ReadingTypeInValidationRule{" +
                 "rule=" + rule.get() +
-                ", readingType=" + readingType +
+                ", readingType=" + readingTypeMRID +
                 '}';
     }
 

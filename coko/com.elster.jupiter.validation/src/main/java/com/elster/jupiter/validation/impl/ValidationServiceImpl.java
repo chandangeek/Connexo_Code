@@ -308,9 +308,8 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(String name) {
-        Condition condition = Operator.EQUAL.compare("name", name).and(Operator.ISNULL.compare(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD));
-        List<ValidationRuleSet> ruleSets = getRuleSetQuery().select(condition);
-        return ruleSets.isEmpty() ? Optional.<ValidationRuleSet>empty() : Optional.of(ruleSets.get(0));
+        Condition condition = where("name").isEqualTo(name).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull());
+        return getRuleSetQuery().select(condition).stream().findFirst();        
     }
 
     @Override
@@ -383,7 +382,6 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
                     .filter(MeterActivationValidation::isActive)
                     .forEach(m -> m.validate(interval, readingTypeCode));
         }
-
     }
 
     List<IMeterActivationValidation> getUpdatedMeterActivationValidations(MeterActivation meterActivation) {

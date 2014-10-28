@@ -1,8 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.orm.DataModel;
@@ -23,7 +20,6 @@ final class ChannelValidationImpl implements IChannelValidation {
     private Instant lastChecked;
     private boolean activeRules;
 
-    @SuppressWarnings("unused")
     @Inject
     ChannelValidationImpl() {
     }
