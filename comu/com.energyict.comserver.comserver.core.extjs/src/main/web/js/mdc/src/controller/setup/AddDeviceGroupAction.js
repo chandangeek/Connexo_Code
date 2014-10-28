@@ -13,7 +13,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     ],
 
     stores: [
-        'Mdc.store.DevicesBuffered'
+        'Mdc.store.DevicesBuffered',
+        'DeviceGroups'
     ],
 
     refs: [
@@ -67,7 +68,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         },
         {
             ref: 'step1FormErrorMessage',
-            selector: 'devicegroup-wizard-step1 uni-form-error-message'
+            selector: 'devicegroup-wizard-step1 #step1-adddevicegroup-errors'
+        },
+        {
+            ref: 'step1FormNameErrorMessage',
+            selector: 'devicegroup-wizard-step1 #step1-adddevicegroup-name-errors'
         },
         {
             ref: 'step2FormErrorMessage',
@@ -83,7 +88,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         }
     ],
 
-    addDeviceGroupWidget: null,
+    //addDeviceGroupWidget: null,
 
     init: function () {
         this.control({
@@ -117,6 +122,12 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
             (this.getNameTextField().getValue() == '')) {
                 this.getStep1FormErrorMessage().setVisible(true);
+            this.getStep1FormNameErrorMessage().setVisible(false);
+        } else if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
+            (this.getNameTextField().getValue() !== '') &&
+            (this.nameExists())) {
+            this.getStep1FormNameErrorMessage().setVisible(true);
+            this.getStep1FormErrorMessage().setVisible(false);
         } else {
             if (layout.getNext().name == 'deviceGroupWizardStep2') {
                 if (this.getDynamicRadioButton().checked) {
@@ -128,6 +139,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 }
             }
             this.getStep1FormErrorMessage().setVisible(false);
+            this.getStep1FormNameErrorMessage().setVisible(false);
             this.getNavigationMenu().moveNextStep();
             this.changeContent(layout.getNext(), layout.getActiveItem());
             if (layout.getActiveItem().name == 'deviceGroupWizardStep2') {
@@ -135,6 +147,18 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             }
         }
         this.getStep2FormErrorMessage().setVisible(false);
+    },
+
+    nameExists: function() {
+        var store = this.getDeviceGroupsStore();
+        var newName = this.getNameTextField().getValue();
+        store.clearFilter();
+        store.filter([
+            {filterFn: function(item) { return item.get("name") === newName;     }}
+        ]);
+        var length = store.data.length;
+        store.clearFilter();
+        return length > 0;
     },
 
     confirmClick: function () {
@@ -156,7 +180,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     addDeviceGroupAndReturnToList: function() {
-        this.addDeviceGroupWidget = null;
+        //this.addDeviceGroupWidget = null;
         this.addDeviceGroup();
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('devices/devicegroups').forward();
@@ -220,17 +244,17 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     cancelClick: function () {
-        this.addDeviceGroupWidget = null;
+        //this.addDeviceGroupWidget = null;
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('devices/devicegroups').forward();
     },
 
     showAddDeviceGroupAction: function () {
-        if (this.addDeviceGroupWidget == null) {
+        //if (this.addDeviceGroupWidget == null) {
             this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
             this.getAddDeviceGroupSideFilter().setVisible(false);
             this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
-        }
+        //}
     },
 
 
