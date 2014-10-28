@@ -16,13 +16,6 @@ public interface BusinessObject extends BusinessObjectProxy {
     public void delete() throws BusinessException, SQLException;
 
     /**
-     * Indicates if  this business object can be removed from the application.
-     *
-     * @return true if it can be removed, false if not.
-     */
-    public boolean canDelete();
-
-    /**
      * Return the <code>BusinessObjectFactory<code> used to create it.
      *
      * @return a BusinessObjectFactory.

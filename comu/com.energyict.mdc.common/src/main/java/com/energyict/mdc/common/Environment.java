@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-18 (16:03)
  */
-public interface Environment extends FormatProvider {
+public interface Environment {
 
     public static final AtomicReference<Environment> DEFAULT = new AtomicReference<>();
 
@@ -26,16 +26,6 @@ public interface Environment extends FormatProvider {
     public String getProperty (String key, String defaultValue);
 
     public String getProperty (String key);
-
-    public FormatPreferences getFormatPreferences ();
-
-    public DecimalFormatSymbols getDecimalFormatSymbols ();
-
-    public char getDecimalSeparator ();
-
-    public char getGroupingSeparator ();
-
-    public void signalEvent (BusinessEvent event) throws BusinessException, SQLException;
 
     public ApplicationContext getApplicationContext ();
 

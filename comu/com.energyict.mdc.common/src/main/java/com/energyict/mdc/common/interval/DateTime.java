@@ -321,8 +321,7 @@ public class DateTime implements Comparable, Serializable {
 
     private SimpleDateFormat getDateFormatter() {
         if (dateFormatter == null) {
-            dateFormatter = (SimpleDateFormat)
-                    Environment.DEFAULT.get().getFormatPreferences().getDateTimeFormat(false);
+            dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         }
         return dateFormatter;
     }

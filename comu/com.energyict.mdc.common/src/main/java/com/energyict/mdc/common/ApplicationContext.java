@@ -10,7 +10,6 @@ public class ApplicationContext {
     private Locale locale;
     private final MainComponent mainComponent;
     private Translator translator;
-    private FormatPreferences formatPreferences;
     private final boolean global;
 
     public ApplicationContext(MainComponent mainComponent, boolean global) {
@@ -23,10 +22,6 @@ public class ApplicationContext {
         this.mainComponent = mainComponent;
         addComponent(mainComponent);
 
-    }
-
-    public BusinessEventManager createEventManager() {
-        return mainComponent.createEventManager();
     }
 
     public Translator getTranslator() {
@@ -66,39 +61,8 @@ public class ApplicationContext {
         return components;
     }
 
-    public ApplicationComponent getComponent(String name) {
-        for (ApplicationComponent each : components) {
-            if (each.getName().equals(name)) {
-                return each;
-            }
-        }
-        return null;
-    }
-
-    public FormatPreferences getFormatPreferences() {
-        if (formatPreferences == null) {
-            formatPreferences = mainComponent.getFormatPreferences();
-        }
-        return formatPreferences;
-    }
-
-    public void preferencesChange () {
-        translator = null;
-        formatPreferences = null;
-        locale = mainComponent.getLocale();
-        if (global) {
-            updateVmSettings();
-        }
-    }
-
     public boolean isGlobal() {
         return global;
-    }
-
-    private void updateVmSettings() {
-        if (!locale.equals(Locale.getDefault())) {
-            Locale.setDefault(locale);
-        }
     }
 
     public <T> List<T> getModulesImplementing(Class<T> t) {

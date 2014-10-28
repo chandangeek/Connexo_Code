@@ -23,8 +23,6 @@ public interface BusinessObjectFactory<S extends BusinessObject> {
 
     public S findByPrimaryKey(Serializable key);
 
-    public S findByHandle(byte[] handle);
-
     /**
      * Returns the id that uniquely identifies this factory or object type.
      * The management of all factory ids is done in the MeteringWarehouse
@@ -32,14 +30,5 @@ public interface BusinessObjectFactory<S extends BusinessObject> {
      * @return the id value
      */
     int getId();
-
-    /**
-     * Returns true if the factory is a meta type factory or not. This will return true when the BusinessObjects returned by the factory are also
-     * factories themselves for other types. This is the case for VirtualMeterTypeFactory and FolderTypeFactory. The FolderType and VirtualMeterType
-     * are both BusinessObjects and factories for other objects types, and are the product of a meta type factory.
-     *
-     * @return True if the factory is a meta type factory, false if it is not.
-     */
-    boolean isMetaTypeFactory();
 
 }

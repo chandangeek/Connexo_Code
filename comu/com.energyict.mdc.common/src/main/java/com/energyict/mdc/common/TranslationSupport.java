@@ -22,13 +22,7 @@ public enum TranslationSupport {
     }
 
     private static String localizedName (Enum value, boolean classNameAsPrefix) {
-        if (value instanceof LocalizableEnum) {
-            LocalizableEnum localizableEnum = (LocalizableEnum) value;
-            return localizableEnum.getLocalizedName();
-        }
-        else {
-            return localizedValue(value, classNameAsPrefix);
-        }
+        return localizedValue(value, classNameAsPrefix);
     }
 
     public static String localizedValue (Enum value, boolean classNameAsPrefix) {

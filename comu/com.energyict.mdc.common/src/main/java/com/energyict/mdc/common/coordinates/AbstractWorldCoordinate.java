@@ -1,13 +1,11 @@
 package com.energyict.mdc.common.coordinates;
 
-import com.energyict.mdc.common.FormatPreferences;
-
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 public abstract class AbstractWorldCoordinate implements WorldCoordinate {
 
-    private DecimalFormat formatter = new FormatPreferences().getNumberFormat("#0.#####");
+    private DecimalFormat formatter = new DecimalFormat("#0.#####");
 
     private BigDecimal value;
 
