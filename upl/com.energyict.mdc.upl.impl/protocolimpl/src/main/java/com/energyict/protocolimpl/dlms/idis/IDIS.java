@@ -256,6 +256,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
         List<String> optional = new ArrayList<String>();
         optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
         optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
+        optional.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
+        optional.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
         optional.add(DlmsProtocolProperties.CONNECTION);
         optional.add(DlmsProtocolProperties.TIMEOUT);
         optional.add(DlmsProtocolProperties.ADDRESSING_MODE);
