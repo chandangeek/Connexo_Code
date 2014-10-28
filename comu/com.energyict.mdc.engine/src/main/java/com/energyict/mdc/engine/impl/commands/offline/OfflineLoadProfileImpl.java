@@ -92,7 +92,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         setDeviceId(this.loadProfile.getDevice().getId());
         setLoadProfileTypeId((int) this.loadProfile.getLoadProfileSpec().getLoadProfileType().getId());
         setSerialNumber(this.loadProfile.getDevice().getSerialNumber());
-        setLastReading(this.loadProfile.getLastReading());
+        setLastReading(this.loadProfile.getLastReading().map(Date::from).orElse(null));
         setLoadProfileInterval(this.loadProfile.getLoadProfileSpec().getInterval());
         setLoadProfileObisCode(this.loadProfile.getLoadProfileSpec().getDeviceObisCode());
         setLoadProfileChannels(convertToOfflineChannels(this.loadProfile.getChannels()));

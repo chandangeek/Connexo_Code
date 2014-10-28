@@ -34,6 +34,8 @@ import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageServiceImpl;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import java.time.Instant;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -457,6 +459,7 @@ public class OfflineDeviceImplTest {
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
         when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
         LoadProfile loadProfile = mock(LoadProfile.class);
+        when(loadProfile.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile.getLoadProfileTypeObisCode()).thenReturn(obisCode);
         when(loadProfile.getDevice()).thenReturn(device);

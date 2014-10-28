@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -44,7 +45,7 @@ public class OfflineLoadProfileImplTest {
         LoadProfile loadProfile = mock(LoadProfile.class);
         when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile.getId()).thenReturn(id);
-        when(loadProfile.getLastReading()).thenReturn(LAST_READING);
+        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING.toInstant()));
         when(loadProfile.getDevice()).thenReturn(rtu);
         return loadProfile;
     }

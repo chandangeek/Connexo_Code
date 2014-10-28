@@ -376,6 +376,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
-        assertThat(device.getLoadProfiles().get(0).getLastReading()).isEqualTo(intervalEndTime4);
+        assertThat(device.getLoadProfiles().get(0).getLastReading().isPresent()).isTrue();
+        assertThat(device.getLoadProfiles().get(0).getLastReading().get()).isEqualTo(intervalEndTime4.toInstant());
     }
 }
