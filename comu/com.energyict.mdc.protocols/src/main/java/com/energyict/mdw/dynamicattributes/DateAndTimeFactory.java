@@ -1,12 +1,11 @@
 package com.energyict.mdw.dynamicattributes;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeType;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Seed;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
 
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -52,8 +51,7 @@ public class DateAndTimeFactory extends AbstractDateFactory {
     }
 
     protected String doGetHtmlString(Date object) {
-        DateFormat df = Environment.DEFAULT.get().getFormatPreferences().getDateTimeFormat(false);
-        return df.format(object);
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(object);
     }
 
     public boolean isTime() {

@@ -98,23 +98,14 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
     public boolean validateValue(T value, boolean isRequired) throws InvalidValueException {
         if (isRequired &&
                 (value == null ||
-                        (value instanceof String && ((String) value).length() == 0) ||
-                        (value instanceof Password && (((Password) value).getValue() == null || ((Password) value).getValue().length() == 0))
+                        (value instanceof String && ((String) value).isEmpty()) ||
+                        (value instanceof Password && (((Password) value).getValue() == null || ((Password) value).getValue().isEmpty()))
                 )
                 ) {
             throw new ValueRequiredException("XisARequiredAttribute", "\"{0}\" is a required message attribute", this.getKey());
         }
         else if (value == null) {
             return true;    // All non required properties support null values
-        }
-        else if (this.getDomain().isReference()) {
-            try {
-                IdBusinessObject idBusinessObject = (IdBusinessObject) value;
-                return this.getDomain().isValidReference(idBusinessObject);
-            }
-            catch (ClassCastException e) {
-                throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getKey(), value);
-            }
         }
         else {
             if (!this.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
@@ -136,17 +127,12 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
 
     @Override
     public boolean isReference() {
-        return this.getDomain().isReference();
+        return false;
     }
 
     @Override
     public IdBusinessObjectFactory getObjectFactory() {
-        if (this.isReference()) {
-            return (IdBusinessObjectFactory) this.getDomain().getFactory();
-        }
-        else {
-            return null;
-        }
+        return null;
     }
 
     @Override

@@ -1,15 +1,14 @@
 package com.energyict.protocols.messaging;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.common.TypeId;
-import com.energyict.mdc.common.UserAction;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileShadow;
+
+import com.elster.jupiter.util.time.Interval;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -71,13 +70,6 @@ final class IncludedUserFile implements UserFile {
     /**
      * {@inheritDoc}
      */
-    public final boolean isInUse() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public final boolean isPictureFile() {
         return false;
     }
@@ -118,21 +110,7 @@ final class IncludedUserFile implements UserFile {
     /**
      * {@inheritDoc}
      */
-    public final String getFullName() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public final String getName() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final String getNameSeparator() {
         return null;
     }
 
@@ -159,29 +137,7 @@ final class IncludedUserFile implements UserFile {
     /**
      * {@inheritDoc}
      */
-    public final boolean canDelete() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public final void delete() {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public final Class getAspectType(final String name) {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final String[] getCopyAspects() {
-        return null;
     }
 
     /**
@@ -217,20 +173,6 @@ final class IncludedUserFile implements UserFile {
      */
     public final boolean proxies(final BusinessObject obj) {
         return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final boolean isAuthorized(final String action) {
-        return false;
-    }
-
-    /**
-     *
-     */
-    public final boolean isAuthorized(final UserAction action) {
-        return true;
     }
 
     /**

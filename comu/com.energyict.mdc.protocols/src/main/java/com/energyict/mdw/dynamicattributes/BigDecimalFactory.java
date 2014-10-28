@@ -1,13 +1,12 @@
 package com.energyict.mdw.dynamicattributes;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeType;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Seed;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 /**
  * @author Karel
@@ -51,8 +50,7 @@ public class BigDecimalFactory extends AbstractValueFactory<BigDecimal> {
     }
 
     protected String doGetHtmlString(BigDecimal object) {
-        DecimalFormat df = Environment.DEFAULT.get().getFormatPreferences().getNumberFormat();
-        return df.format(object);
+        return NumberFormat.getNumberInstance().format(object);
     }
 
     public boolean isNumeric() {

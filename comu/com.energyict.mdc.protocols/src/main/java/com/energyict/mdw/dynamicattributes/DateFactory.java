@@ -56,8 +56,7 @@ public class DateFactory extends AbstractDateFactory {
     }
 
     protected String doGetHtmlString(Date object) {
-        DateFormat df = Environment.DEFAULT.get().getFormatPreferences().getDateFormat();
-        return df.format(object);
+        return new SimpleDateFormat("yyyy-MM-dd").format(object);
     }
 
     public boolean isTime() {
