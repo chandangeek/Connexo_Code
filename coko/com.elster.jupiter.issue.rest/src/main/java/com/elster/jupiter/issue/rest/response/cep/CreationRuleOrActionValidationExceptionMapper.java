@@ -1,27 +1,25 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
-import com.elster.jupiter.issue.share.cep.CreationRuleValidationException;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-import java.util.Map;
 
-public class CreationRuleValidationExceptionMapper implements ExceptionMapper<CreationRuleValidationException> {
+import com.elster.jupiter.issue.share.cep.CreationRuleOrActionValidationException;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+
+public class CreationRuleOrActionValidationExceptionMapper implements ExceptionMapper<CreationRuleOrActionValidationException> {
     private final Provider<ConstraintViolationInfo> infoProvider;
-    private final NlsService nlsService;
 
     @Inject
-    public CreationRuleValidationExceptionMapper(Provider<ConstraintViolationInfo> infoProvider, NlsService nlsService) {
+    public CreationRuleOrActionValidationExceptionMapper(Provider<ConstraintViolationInfo> infoProvider) {
         this.infoProvider = infoProvider;
-        this.nlsService = nlsService;
     }
 
     @Override
-    public Response toResponse(CreationRuleValidationException exception) {
+    public Response toResponse(CreationRuleOrActionValidationException exception) {
         ConstraintViolationInfo constraintViolationInfo = infoProvider.get();
         constraintViolationInfo.message= exception.getLocalizedMessage();
         constraintViolationInfo.error= exception.getMessageSeed().getKey();

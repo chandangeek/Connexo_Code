@@ -3,7 +3,7 @@ package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
 import com.elster.jupiter.issue.rest.resource.*;
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptionMapper;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -73,7 +73,7 @@ public class IssueApplication extends Application implements BinderProvider, Ins
                 ActionResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedExceptionMapper.class,
-                CreationRuleValidationExceptionMapper.class);
+                CreationRuleOrActionValidationExceptionMapper.class);
     }
 
     @Reference
