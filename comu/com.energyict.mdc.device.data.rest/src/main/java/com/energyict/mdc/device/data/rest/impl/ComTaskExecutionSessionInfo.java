@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.time.Instant;
 import java.util.List;
@@ -12,10 +13,11 @@ import java.util.List;
  * @since 2014-10-17 (16:34)
  */
 class ComTaskExecutionSessionInfo {
+    public long id;
     public String name;
     public List<IdWithNameInfo> comTasks;
     public IdWithNameInfo device;
-    public IdWithNameInfo deviceConfiguration;
+    public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
     public String comScheduleName;
     public TemporalExpressionInfo comScheduleFrequency;
@@ -23,5 +25,7 @@ class ComTaskExecutionSessionInfo {
     public String result;
     public Instant startTime;
     public Instant finishTime;
+    public Long durationInSeconds;
     public boolean alwaysExecuteOnInbound;
+    public ComSessionInfo comSession;
 }

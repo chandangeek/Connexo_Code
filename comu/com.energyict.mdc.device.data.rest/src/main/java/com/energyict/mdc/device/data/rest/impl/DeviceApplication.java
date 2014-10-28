@@ -28,6 +28,7 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -37,6 +38,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
 import java.util.Arrays;
@@ -78,8 +80,10 @@ public class DeviceApplication extends Application implements InstallService {
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
+    private volatile TaskService taskService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile Clock clock;
+    private volatile CommunicationTaskService communicationTaskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -204,6 +208,16 @@ public class DeviceApplication extends Application implements InstallService {
     }
 
     @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
     public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
         this.deviceMessageService = deviceMessageService;
     }
@@ -285,6 +299,8 @@ public class DeviceApplication extends Application implements InstallService {
             bind(deviceMessageService).to(DeviceMessageService.class);
             bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class);
             bind(DeviceMessageSpecInfoFactory.class).to(DeviceMessageSpecInfoFactory.class);
+            bind(taskService).to(TaskService.class);
+            bind(communicationTaskService).to(CommunicationTaskService.class);
         }
     }
 

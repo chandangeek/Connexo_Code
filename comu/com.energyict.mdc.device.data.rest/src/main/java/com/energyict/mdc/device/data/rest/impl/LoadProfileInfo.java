@@ -5,10 +5,11 @@ import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfile;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -24,7 +25,7 @@ public class LoadProfileInfo {
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
     public TimeDurationInfo interval; // the interval definition of the load profile
-    public Date lastReading;
+    public Instant lastReading;
     public List<ChannelInfo> channels;
 
     // optionally filled if requesting details
@@ -44,7 +45,7 @@ public class LoadProfileInfo {
         info.name=loadProfile.getLoadProfileSpec().getLoadProfileType().getName();
         info.obisCode=loadProfile.getDeviceObisCode();
         info.interval=new TimeDurationInfo(loadProfile.getInterval());
-        info.lastReading=loadProfile.getLastReading();
+        info.lastReading=loadProfile.getLastReading().orElse(null);
         return info;
     }
 

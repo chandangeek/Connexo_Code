@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -16,17 +18,14 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -35,10 +34,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by bvn on 10/3/14.
@@ -50,13 +49,13 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
     @Test
     public void testGetComTaskExecutions() throws Exception {
-        Device device = mock(Device.class);
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        Device device = mockDevice(connectionTask);
         when(deviceService.findByUniqueMrid("XAW1")).thenReturn(device);
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
+        when(connectionTask.getDevice()).thenReturn(device);
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
@@ -73,7 +72,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.connectionMethod")).isEqualTo("GPRS");
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.comSessions")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.comSessions[0].connectionMethod")).isEqualTo("GPRS");
+        assertThat(jsonModel.<String>get("$.comSessions[0].connectionMethod.name")).isEqualTo("GPRS");
+        assertThat(jsonModel.<Integer>get("$.comSessions[0].connectionMethod.id")).isEqualTo(3);
         assertThat(jsonModel.<Long>get("$.comSessions[0].startedOn")).isEqualTo(start.toEpochMilli());
         assertThat(jsonModel.<Long>get("$.comSessions[0].finishedOn")).isEqualTo(end.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.comSessions[0].durationInSeconds")).isEqualTo(10);
@@ -93,15 +93,29 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
     }
 
+    private Device mockDevice(ConnectionTask<?, ?> connectionTask) {
+        Device device = mock(Device.class);
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(1001L);
+        when(deviceType.getName()).thenReturn("device type");
+        when(device.getDeviceType()).thenReturn(deviceType);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        return device;
+    }
+
     @Test
     public void testGetComSessionById() throws Exception {
-        Device device = mock(Device.class);
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
+        Device device = mockDevice(connectionTask);
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
         when(deviceService.findByUniqueMrid("XAW1")).thenReturn(device);
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
+        when(connectionTask.getDevice()).thenReturn(device);
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
@@ -115,7 +129,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/777").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<String>get("$.connectionMethod")).isEqualTo("GPRS");
+        assertThat(jsonModel.<String>get("$.connectionMethod.name")).isEqualTo("GPRS");
+        assertThat(jsonModel.<Integer>get("$.connectionMethod.id")).isEqualTo(3);
         assertThat(jsonModel.<Long>get("$.startedOn")).isEqualTo(start.toEpochMilli());
         assertThat(jsonModel.<Long>get("$.finishedOn")).isEqualTo(end.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.durationInSeconds")).isEqualTo(10);
@@ -137,13 +152,14 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
     @Test
     public void testGetComTaskExecutionsSorted() throws Exception {
-        Device device = mock(Device.class);
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
+        Device device = mockDevice(connectionTask);
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
         when(deviceService.findByUniqueMrid("XAW1")).thenReturn(device);
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
+        when(connectionTask.getDevice()).thenReturn(device);
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);
@@ -190,13 +206,14 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     }
 
     private void setupJournalMocking() {
-        Device device = mock(Device.class);
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
+        Device device = mockDevice(connectionTask);
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
         when(deviceService.findByUniqueMrid("XAW1")).thenReturn(device);
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
+        when(connectionTask.getDevice()).thenReturn(device);
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.INBOUND);

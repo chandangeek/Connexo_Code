@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.device.data.rest.LogLevelAdapter;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -36,6 +37,13 @@ public class DeviceFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Object getAllEndDeviceEventOrActions() {
         return asJsonArrayObjectWithTranslation("eventOrActions", "eventOrAction", new EndDeviceEventOrActionAdapter().getClientSideValues());
+    }
+
+    @GET
+    @Path("/loglevels")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object getLogLevels() {
+        return asJsonArrayObjectWithTranslation("logLevels", "logLevel", new LogLevelAdapter().getClientSideValues());
     }
 
 }

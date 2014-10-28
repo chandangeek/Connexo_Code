@@ -246,8 +246,8 @@ public class ChannelResource {
     }
 
     private void validateChannel(Channel channel, Instant start) {
-        if (channel.getLastReading() != null && (start == null || channel.getLastReading().after(Date.from(start)))) {
-            channel.getDevice().forValidation().validateChannel(channel, start, channel.getLastReading().toInstant());
+        if (channel.getLastReading().isPresent() && (start == null || channel.getLastReading().get().isAfter(start))) {
+            channel.getDevice().forValidation().validateChannel(channel, start, channel.getLastReading().get());
         } else if (start != null) {
             channel.getDevice().forValidation().setLastChecked(channel, start);
         }

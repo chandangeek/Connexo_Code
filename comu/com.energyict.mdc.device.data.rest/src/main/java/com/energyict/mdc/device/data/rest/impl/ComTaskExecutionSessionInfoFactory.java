@@ -1,7 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -9,11 +12,9 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
-import com.elster.jupiter.nls.Thesaurus;
-
-import javax.inject.Inject;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import javax.inject.Inject;
 
 import static java.util.stream.Collectors.toList;
 
@@ -22,6 +23,7 @@ import static java.util.stream.Collectors.toList;
  */
 public class ComTaskExecutionSessionInfoFactory {
 
+    private final CompletionCodeAdapter completionCodeAdapter = new CompletionCodeAdapter();
     private final Thesaurus thesaurus;
 
     @Inject
@@ -35,8 +37,9 @@ public class ComTaskExecutionSessionInfoFactory {
         ComTaskExecution comTaskExecution = comTaskExecutionSession.getComTaskExecution();
         info.comTasks = comTaskExecution.getComTasks().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).map(IdWithNameInfo::new).collect(toList());
         info.name = String.join(" + ", info.comTasks.stream().map(i -> i.name).collect(toList()));
+        info.id = comTaskExecutionSession.getId();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
-        info.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration());
+        info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecution instanceof ScheduledComTaskExecution) {
             ComSchedule comSchedule = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule();
@@ -54,11 +57,12 @@ public class ComTaskExecutionSessionInfoFactory {
             }
         }
         info.urgency = comTaskExecution.getExecutionPriority();
-        MessageSeeds successIndicatorSeed = comTaskExecutionSession.getSuccessIndicator().equals(ComTaskExecutionSession.SuccessIndicator.Success) ?
-                MessageSeeds.SUCCESS : MessageSeeds.FAILURE;
-        info.result=thesaurus.getString(successIndicatorSeed.getKey(), successIndicatorSeed.getDefaultFormat());
+        if (comTaskExecutionSession.getHighestPriorityCompletionCode()!=null) {
+            info.result = thesaurus.getString(completionCodeAdapter.marshal(comTaskExecutionSession.getHighestPriorityCompletionCode()), completionCodeAdapter.marshal(comTaskExecutionSession.getHighestPriorityCompletionCode()));
+        }
         info.startTime=comTaskExecutionSession.getStartDate();
         info.finishTime =comTaskExecutionSession.getStopDate();
+        info.durationInSeconds = info.startTime.until(info.finishTime, ChronoUnit.SECONDS);
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
 
         return info;
