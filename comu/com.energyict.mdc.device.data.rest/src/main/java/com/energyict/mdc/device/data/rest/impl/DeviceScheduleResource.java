@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -11,9 +10,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-
-import com.elster.jupiter.nls.Thesaurus;
-
+import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -24,19 +21,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 public class DeviceScheduleResource {
 
     private final ResourceHelper resourceHelper;
-    private final ExceptionFactory exceptionFactory;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceScheduleResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
+    public DeviceScheduleResource(ResourceHelper resourceHelper) {
         this.resourceHelper = resourceHelper;
-        this.exceptionFactory = exceptionFactory;
-        this.thesaurus = thesaurus;
     }
 
     @GET
