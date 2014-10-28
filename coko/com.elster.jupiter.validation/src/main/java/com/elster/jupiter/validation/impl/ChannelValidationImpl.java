@@ -12,12 +12,8 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-
-import org.hamcrest.core.IsSame;
-
 import java.time.Instant;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 final class ChannelValidationImpl implements IChannelValidation {
 
