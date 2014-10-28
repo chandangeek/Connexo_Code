@@ -46,10 +46,6 @@ public interface SecurityPropertySet extends HasName, HasId, RelationParticipant
      * Tests if the User that is currently
      * logged in to the application has sufficient privileges to edit
      * device security properties of this SecurityPropertySet.
-     * This is the case the {@link Role} of the
-     * UserGroup that he belongs to
-     * or his own Role contains one of the {@link DeviceSecurityUserAction}s
-     * that have been assigned to this SecurityPropertySet.
      *
      * @return A flag that indicates if the current User has sufficient privileges to edit this SecurityPropertySet
      */
@@ -59,10 +55,6 @@ public interface SecurityPropertySet extends HasName, HasId, RelationParticipant
      * Tests if the User that is currently
      * logged in to the application has sufficient privileges to view
      * device security properties of this SecurityPropertySet.
-     * This is the case the {@link Role} of the
-     * UserGroup that he belongs to
-     * or his own Role contains one of the {@link DeviceSecurityUserAction}s
-     * that have been assigned to this SecurityPropertySet.
      *
      * @return A flag that indicates if the current User has sufficient privileges to view this SecurityPropertySet
      */
