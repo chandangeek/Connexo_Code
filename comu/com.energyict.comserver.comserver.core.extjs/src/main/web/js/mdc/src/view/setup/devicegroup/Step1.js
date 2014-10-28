@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
 
     ],
 
-    title: Uni.I18n.translate('devicegroup.wizard.step1title', 'MDC', 'Add a device group - Step 1 of 2: General'),
+    title: Uni.I18n.translate('devicegroup.wizard.step1title', 'MDC', 'Add a device group - Step 1 of 2: Name and type'),
 
 
     items: [
@@ -24,15 +24,14 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
                     itemId: 'step1-adddevicegroup-errors',
                     xtype: 'uni-form-error-message',
                     hidden: true,
-                    text: Uni.I18n.translate('devicegroup.misingname', 'MDC', 'Please enter a name for the device group.')
+                    text: Uni.I18n.translate('devicegroup.missingname', 'MDC', 'Please enter a name for the device group.')
                 },
-                /*{
-                    xtype: 'container',
-                    itemId: 'stepSelectionError',
-                    //margin: '-20 0 0 0',
-                    //hidden: true,
-                    html: '<span style="color: #eb5642">' + Uni.I18n.translate('devicegroup.misingname', 'MDC', 'Please enter a name for the device group.') + '</span>'
-                },*/
+                {
+                    itemId: 'step1-adddevicegroup-name-errors',
+                    xtype: 'uni-form-error-message',
+                    hidden: true,
+                    text: Uni.I18n.translate('devicegroup.duplicatename', 'MDC', 'A device group with this name already exists.')
+                },
                 {
                     xtype: 'textfield',
                     fieldLabel: 'Name',
@@ -41,12 +40,6 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
                     allowBlank : false,
                     width: 400
                 },
-                /*{
-                    itemId: 'step1-adddevicegroup-errors',
-                    xtype: 'uni-form-error-message',
-                    //hidden: true,
-                    text: Uni.I18n.translate('searchItems.bulk.devicesError', 'MDC', 'It is required to select one or more devices to go to the next step.')
-                },*/
                 {
                     itemId: 'staticDynamicRadioButton',
                     xtype: 'radiogroup',

@@ -17,7 +17,8 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
 
     stores: [
         'Mdc.store.Devices',
-        'Mdc.store.filter.DeviceTypes'
+        'Mdc.store.filter.DeviceTypes',
+        'Mdc.store.DevicesBuffered'
     ],
 
     refs: [
@@ -28,6 +29,10 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         {
             ref: 'devicesSearchSideFilterForm',
             selector: 'mdc-search-results-side-filter form'
+        },
+        {
+            ref: 'dynamicRadioButton',
+            selector: 'devicegroup-wizard-step1 #dynamicDeviceGroup'
         }
     ],
 
@@ -49,7 +54,12 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         var filterForm = this.getSideFilterForm();
         filterForm.updateRecord();
         filterForm.getRecord().save();
-        var store = this.getStore('Mdc.store.Devices');
+        var store;
+        if (this.getDynamicRadioButton().checked) {
+            store = this.getStore('Mdc.store.Devices');
+        } else {
+            store = this.getStore('Mdc.store.DevicesBuffered');
+        }
         var router = this.getController('Uni.controller.history.Router');
         router.filter = filterForm.getRecord();
         store.setFilterModel(router.filter);
