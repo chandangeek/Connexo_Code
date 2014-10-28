@@ -75,10 +75,13 @@ Ext.define('Uni.form.RelativePeriod', {
                 fieldLabel: 'Preview',
                 items: [
                     {
-                        xtype: 'label',
+                        xtype: 'component',
                         itemId: 'preview-label',
-                        text: '',
-                        cls: Ext.baseCSSPrefix + 'form-cb-label'
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        },
+                        html: ''
                     }
                 ]
             }
@@ -107,12 +110,12 @@ Ext.define('Uni.form.RelativePeriod', {
             atHourField = atField.getHourField(),
             atMinuteField = atField.getMinuteField();
 
-        onField.setOptionCurrentDisabled(frequency !== 'month');
-        onField.setOptionDayOfMonthDisabled(frequency !== 'month');
-        onField.setOptionDayOfWeekDisabled(frequency !== 'week');
+        onField.setOptionCurrentDisabled(frequency !== 'months');
+        onField.setOptionDayOfMonthDisabled(frequency !== 'months');
+        onField.setOptionDayOfWeekDisabled(frequency !== 'weeks');
 
-        atHourField.setDisabled(frequency === 'hour' || frequency === 'minute');
-        atMinuteField.setDisabled(frequency === 'minute');
+        atHourField.setDisabled(frequency === 'hours' || frequency === 'minutes');
+        atMinuteField.setDisabled(frequency === 'minutes');
     },
 
     updatePreview: function () {
@@ -120,16 +123,17 @@ Ext.define('Uni.form.RelativePeriod', {
             label = me.down('#preview-label'),
             dateString = me.noPreviewDateErrorMsg;
 
-        label.setText('');
         label.mask();
 
         Ext.Ajax.request({
             url: me.previewUrl,
             method: 'PUT',
             jsonData: me.formatJsonPreviewRequest(),
-            success: function () {
-                if (typeof me.previewDate !== 'undefined') {
-                    dateString = Uni.I18n.formatDate('datetime.longdate', me.previewDate, 'UNI', 'l F j, Y \\a\\t H:i a');
+            success: function (response, data) {
+                var dateLong = data.jsonData ? data.jsonData.date : undefined;
+
+                if (typeof dateLong !== 'undefined') {
+                    dateString = Uni.I18n.formatDate('datetime.longdate', new Date(dateLong), 'UNI', 'l F j, Y \\a\\t H:i a');
                     dateString = me.formatPreviewTextFn(dateString);
                 }
             },
@@ -137,7 +141,7 @@ Ext.define('Uni.form.RelativePeriod', {
                 // Already caught be the default value of the date string.
             },
             callback: function () {
-                label.setText(dateString);
+                label.update(dateString);
                 label.unmask();
             }
         });

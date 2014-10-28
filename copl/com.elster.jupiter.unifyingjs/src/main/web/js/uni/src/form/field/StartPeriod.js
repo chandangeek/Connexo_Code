@@ -108,7 +108,10 @@ Ext.define('Uni.form.field.StartPeriod', {
                 {
                     xtype: 'label',
                     text: 'ago',
-                    cls: Ext.baseCSSPrefix + 'form-cb-label'
+                    cls: Ext.baseCSSPrefix + 'form-item-label',
+                    style: {
+                        fontWeight: 'normal'
+                    }
                 }
             ]
         });
@@ -154,10 +157,6 @@ Ext.define('Uni.form.field.StartPeriod', {
         }, me);
 
         me.getOptionAgoContainer().down('combobox').on('change', function () {
-            me.selectOptionAgo();
-        }, me);
-
-        me.getOptionAgoContainer().down('label').getEl().on('click', function () {
             me.selectOptionAgo();
         }, me);
 

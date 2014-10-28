@@ -38,7 +38,10 @@ Ext.define('Uni.form.field.AtPeriod', {
             {
                 xtype: 'label',
                 text: ':',
-                cls: Ext.baseCSSPrefix + 'form-cb-label'
+                cls: Ext.baseCSSPrefix + 'form-item-label',
+                style: {
+                    fontWeight: 'normal'
+                }
             },
             {
                 xtype: 'numberfield',
@@ -63,14 +66,6 @@ Ext.define('Uni.form.field.AtPeriod', {
 
         me.getMinuteField().on('change', function () {
             me.fireEvent('periodchange', me.getValue());
-        }, me);
-
-        me.down('label').getEl().on('click', function () {
-            if (!me.getHourField().isDisabled()) {
-                me.getHourField().focus();
-            } else {
-                me.getMinuteField().focus();
-            }
         }, me);
     },
 

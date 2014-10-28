@@ -2,7 +2,7 @@
  * @class Uni.form.RelativePeriodPreview
  */
 Ext.define('Uni.form.RelativePeriodPreview', {
-    extend: 'Ext.form.FieldContainer',
+    extend: 'Ext.container.Container',
     xtype: 'uni-form-relativeperiodpreview',
 
     requires: [
@@ -18,14 +18,18 @@ Ext.define('Uni.form.RelativePeriodPreview', {
     previewUrl: '/api/tmr/relativeperiods/preview',
 
     /**
-     *
+     * @cfg startPeriodValue
      */
-    startValue: undefined,
+    startPeriodValue: undefined,
+
+    startPeriodDate: undefined,
 
     /**
-     *
+     * @cfg endPeriodValue
      */
-    endValue: undefined,
+    endPeriodValue: undefined,
+
+    endPeriodDate: undefined,
 
     initComponent: function () {
         var me = this;
@@ -47,28 +51,83 @@ Ext.define('Uni.form.RelativePeriodPreview', {
         var me = this;
 
         me.items = [
-            Ext.apply(
-                {
-                    xtype: 'uni-form-field-startperiod',
-                    required: true
+            {
+                xtype: 'component',
+                itemId: 'preview-label',
+                html: me.noPreviewDateErrorMsg,
+                cls: Ext.baseCSSPrefix + 'form-item-label',
+                style: {
+                    fontWeight: 'normal'
                 },
-                me.startPeriodCfg
-            ),
-            {
-                xtype: 'uni-form-field-onperiod'
+                margin: '8 0 8 0'
             },
             {
-                xtype: 'uni-form-field-atperiod'
-            },
-            {
-                xtype: 'fieldcontainer',
-                fieldLabel: 'Preview',
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
                 items: [
                     {
                         xtype: 'label',
-                        itemId: 'preview-label',
-                        text: '',
-                        cls: Ext.baseCSSPrefix + 'form-cb-label'
+                        text: 'The relative period is defined using',
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'datefield',
+                        allowBlank: false,
+                        value: new Date(),
+                        width: 128,
+                        margin: '0 6 0 6'
+                    },
+                    {
+                        xtype: 'label',
+                        text: 'at',
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'numberfield',
+                        itemId: 'hour-field',
+                        hideLabel: true,
+                        value: 0,
+                        minValue: 0,
+                        maxValue: 23,
+                        allowBlank: false,
+                        width: 64,
+                        margin: '0 6 0 6'
+                    },
+                    {
+                        xtype: 'label',
+                        text: ':',
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'numberfield',
+                        itemId: 'minute-field',
+                        hideLabel: true,
+                        value: 0,
+                        minValue: 0,
+                        maxValue: 59,
+                        allowBlank: false,
+                        width: 64,
+                        margin: '0 6 0 6'
+                    },
+                    {
+                        xtype: 'label',
+                        text: 'as reference',
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
                     }
                 ]
             }
@@ -78,76 +137,127 @@ Ext.define('Uni.form.RelativePeriodPreview', {
     initListeners: function () {
         var me = this;
 
-    },
-
-    onStartPeriodChange: function (value) {
-        var me = this;
-
-        me.updatePeriodFields(value.freqAgo);
-        me.updatePreview();
-    },
-
-    updatePeriodFields: function (frequency) {
-        var me = this,
-            onField = me.getOnPeriodField(),
-            atField = me.getAtPeriodField(),
-            atHourField = atField.getHourField(),
-            atMinuteField = atField.getMinuteField();
-
-        onField.setOptionCurrentDisabled(frequency !== 'month');
-        onField.setOptionDayOfMonthDisabled(frequency !== 'month');
-        onField.setOptionDayOfWeekDisabled(frequency !== 'week');
-
-        atHourField.setDisabled(frequency === 'hour' || frequency === 'minute');
-        atMinuteField.setDisabled(frequency === 'minute');
+        me.getDateField().on('change', me.updatePreview, me);
+        me.getHourField().on('change', me.updatePreview, me);
+        me.getMinuteField().on('change', me.updatePreview, me);
     },
 
     updatePreview: function () {
         var me = this,
-            label = me.down('#preview-label'),
+            label = me.getPreviewLabel(),
             dateString = me.noPreviewDateErrorMsg;
 
-        label.setText('');
         label.mask();
 
-        // TODO
+        if (typeof me.startPeriodValue !== 'undefined' && typeof me.endPeriodValue !== 'undefined') {
+            me.startPeriodDate = undefined;
+            me.endPeriodDate = undefined;
+
+            Ext.Ajax.request({
+                url: me.previewUrl,
+                method: 'PUT',
+                jsonData: me.formatJsonPreviewRequest(me.startPeriodValue),
+                success: function (response, data) {
+                    var dateLong = data.jsonData ? data.jsonData.date : undefined;
+
+                    if (typeof dateLong !== 'undefined') {
+                        me.startPeriodDate = new Date(dateLong);
+                    }
+
+                    me.updatePreviewLabel(me.startPeriodDate, me.endPeriodDate);
+                },
+                failure: function (response) {
+                    me.getPreviewLabel().update(dateString);
+                }
+            });
+
+            Ext.Ajax.request({
+                url: me.previewUrl,
+                method: 'PUT',
+                jsonData: me.formatJsonPreviewRequest(me.endPeriodValue),
+                success: function (response, data) {
+                    var dateLong = data.jsonData ? data.jsonData.date : undefined;
+
+                    if (typeof dateLong !== 'undefined') {
+                        me.endPeriodDate = new Date(dateLong);
+                    }
+
+                    me.updatePreviewLabel(me.startPeriodDate, me.endPeriodDate);
+                },
+                failure: function (response) {
+                    me.getPreviewLabel().update(dateString);
+                }
+            });
+        }
     },
 
-    formatJsonPreviewRequest: function () {
+    updatePreviewLabel: function (startDate, endDate) {
         var me = this,
-            date = new Date(),
-            value = me.getValue();
+            startDateString = Uni.I18n.formatDate('datetime.longdate', startDate, 'UNI', 'l F j, Y \\a\\t H:i a'),
+            endDateString = Uni.I18n.formatDate('datetime.longdate', endDate, 'UNI', 'l F j, Y \\a\\t H:i a'),
+            dateString = me.formatPreviewTextFn(startDateString, endDateString);
 
+        if (typeof startDate !== 'undefined' && typeof endDate !== 'undefined') {
+            me.getPreviewLabel().update(dateString);
+            me.getPreviewLabel().unmask();
+        }
+    },
+
+    updateStartPeriodValue: function (startPeriodValue) {
+        this.startPeriodValue = startPeriodValue;
+    },
+
+    updateEndPeriodValue: function (endPeriodValue) {
+        this.endPeriodValue = endPeriodValue;
+    },
+
+    formatPreviewTextFn: function (startDateString, endDateString) {
+        return Uni.I18n.translate(
+            'form.relativeperiodpreview.previewText',
+            'UNI',
+            'From {0} to {1}.',
+            [startDateString, endDateString]
+        );
+    },
+
+    formatJsonPreviewRequest: function (periodValue) {
+        var me = this,
+            date = me.getValue();
+        debugger;
         return {
-            date: date,
+            date: date.getTime(),
             zoneOffset: date.getTimezoneOffset(),
-            relativeDateInfo: value
+            relativeDateInfo: periodValue
         };
     },
 
-    getStartPeriodField: function () {
-        return this.down('uni-form-field-startperiod');
+    getPreviewLabel: function () {
+        return this.down('#preview-label');
     },
 
-    getOnPeriodField: function () {
-        return this.down('uni-form-field-onperiod');
+    getDateField: function () {
+        return this.down('datefield');
     },
 
-    getAtPeriodField: function () {
-        return this.down('uni-form-field-atperiod');
+    getHourField: function () {
+        return this.down('#hour-field');
+    },
+
+    getMinuteField: function () {
+        return this.down('#minute-field');
     },
 
     getValue: function () {
         var me = this,
-            result = {},
-            startValue = me.getStartPeriodField().getValue(),
-            onValue = me.getOnPeriodField().getValue(),
-            atValue = me.getAtPeriodField().getValue();
+            date = me.getDateField().getValue(),
+            hours = me.getHourField().getValue(),
+            minutes = me.getMinuteField().getValue();
 
-        Ext.apply(result, startValue);
-        Ext.apply(result, onValue);
-        Ext.apply(result, atValue);
+        date.setHours(hours);
+        date.setMinutes(minutes);
+        date.setSeconds(0);
+        date.setMilliseconds(0);
 
-        return result;
+        return date;
     }
 });

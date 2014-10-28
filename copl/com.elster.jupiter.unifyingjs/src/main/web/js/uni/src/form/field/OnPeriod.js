@@ -51,7 +51,10 @@ Ext.define('Uni.form.field.OnPeriod', {
                     {
                         xtype: 'label',
                         text: 'Day',
-                        cls: Ext.baseCSSPrefix + 'form-cb-label'
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
                     },
                     {
                         xtype: 'combobox',
@@ -89,7 +92,10 @@ Ext.define('Uni.form.field.OnPeriod', {
                     {
                         xtype: 'label',
                         text: 'of the month',
-                        cls: Ext.baseCSSPrefix + 'form-cb-label'
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
                     }
                 ]
             },
