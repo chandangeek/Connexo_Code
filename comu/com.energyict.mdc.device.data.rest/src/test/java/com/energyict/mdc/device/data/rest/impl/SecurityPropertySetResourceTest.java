@@ -52,9 +52,9 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].name")).isEqualTo("Set 1");
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].authenticationLevel.id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.securityPropertySets[0].authenticationLevel.name")).isEqualTo("DlmsSecuritySupportPerClient.authenticationlevel.1");
+        assertThat(jsonModel.<String>get("$.securityPropertySets[0].authenticationLevel.name")).isEqualTo(MessageSeeds.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].encryptionLevel.id")).isEqualTo(2);
-        assertThat(jsonModel.<String>get("$.securityPropertySets[0].encryptionLevel.name")).isEqualTo("Mtu155SecuritySupport.encryptionlevel.2");
+        assertThat(jsonModel.<String>get("$.securityPropertySets[0].encryptionLevel.name")).isEqualTo(MessageSeeds.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_2.getDefaultFormat());
         assertThat(jsonModel.<List>get("$.securityPropertySets[0].properties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].properties[0].key")).isEqualTo("password");
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].properties[0].propertyValueInfo.inheritedValue")).isNull();
@@ -91,9 +91,9 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("Set 1");
         assertThat(jsonModel.<Integer>get("$.authenticationLevel.id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.authenticationLevel.name")).isEqualTo("DlmsSecuritySupportPerClient.authenticationlevel.1");
+        assertThat(jsonModel.<String>get("$.authenticationLevel.name")).isEqualTo(MessageSeeds.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
         assertThat(jsonModel.<Integer>get("$.encryptionLevel.id")).isEqualTo(2);
-        assertThat(jsonModel.<String>get("$.encryptionLevel.name")).isEqualTo("Mtu155SecuritySupport.encryptionlevel.2");
+        assertThat(jsonModel.<String>get("$.encryptionLevel.name")).isEqualTo(MessageSeeds.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_2.getDefaultFormat());
         assertThat(jsonModel.<List>get("$.properties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo("password");
         assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.inheritedValue")).isNull();
@@ -227,9 +227,9 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].name")).isEqualTo("Set 1");
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].authenticationLevel.id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.securityPropertySets[0].authenticationLevel.name")).isEqualTo("DlmsSecuritySupportPerClient.authenticationlevel.1");
+        assertThat(jsonModel.<String>get("$.securityPropertySets[0].authenticationLevel.name")).isEqualTo(MessageSeeds.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].encryptionLevel.id")).isEqualTo(2);
-        assertThat(jsonModel.<String>get("$.securityPropertySets[0].encryptionLevel.name")).isEqualTo("Mtu155SecuritySupport.encryptionlevel.2");
+        assertThat(jsonModel.<String>get("$.securityPropertySets[0].encryptionLevel.name")).isEqualTo(MessageSeeds.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_2.getDefaultFormat());
         assertThat(jsonModel.<List>get("$.securityPropertySets[0].properties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].properties[0].key")).isEqualTo("password");
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].properties[0].propertyValueInfo.inheritedValue")).isNull();
@@ -260,9 +260,9 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].name")).isEqualTo("Set 1");
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].authenticationLevel.id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.securityPropertySets[0].authenticationLevel.name")).isEqualTo("DlmsSecuritySupportPerClient.authenticationlevel.1");
+        assertThat(jsonModel.<String>get("$.securityPropertySets[0].authenticationLevel.name")).isEqualTo(MessageSeeds.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
         assertThat(jsonModel.<Integer>get("$.securityPropertySets[0].encryptionLevel.id")).isEqualTo(2);
-        assertThat(jsonModel.<String>get("$.securityPropertySets[0].encryptionLevel.name")).isEqualTo("Mtu155SecuritySupport.encryptionlevel.2");
+        assertThat(jsonModel.<String>get("$.securityPropertySets[0].encryptionLevel.name")).isEqualTo(MessageSeeds.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_2.getDefaultFormat());
         assertThat(jsonModel.<List>get("$.securityPropertySets[0].properties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].properties[0].key")).isEqualTo("password");
         assertThat(jsonModel.<String>get("$.securityPropertySets[0].properties[0].propertyValueInfo.inheritedValue")).isNull();
