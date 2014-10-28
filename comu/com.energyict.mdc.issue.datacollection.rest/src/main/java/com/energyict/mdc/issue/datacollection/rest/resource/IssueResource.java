@@ -91,7 +91,7 @@ public class IssueResource extends BaseResource {
                     .onlyGroupWithKey(params.getFirst(ID)) // Reason id
                     .withIssueType(params.getFirst(ISSUE_TYPE)) // Reasons only with specific issue type
                     .withStatuses(params.get(STATUS)) // All selected statuses
-                    .withAssigneeType(params.getFirst(ASSIGNEE_TYPE)) // User, Group ot Role type of assignee
+                    .withAssigneeType(params.getFirst(ASSIGNEE_TYPE)) // User, Group or Role type of assignee
                     .withAssigneeId(params.getFirstLong(ASSIGNEE_ID)) // Id of selected assignee
                     .withMeterMrid(params.getFirst(METER)) // Filter by meter MRID
                     .groupBy(params.getFirst(FIELD)) // Main grouping column
