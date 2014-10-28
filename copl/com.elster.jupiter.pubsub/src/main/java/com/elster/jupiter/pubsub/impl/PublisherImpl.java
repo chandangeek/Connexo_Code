@@ -35,6 +35,11 @@ public class PublisherImpl implements Publisher {
 		}		
 	}
 
+    @Override
+    public void addSubscriber(Subscriber subscriber) {
+    	addHandler(subscriber);
+    }
+    
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addHandler(Subscriber subscriber) {
 		this.subscriptions.add(new Subscription(subscriber));

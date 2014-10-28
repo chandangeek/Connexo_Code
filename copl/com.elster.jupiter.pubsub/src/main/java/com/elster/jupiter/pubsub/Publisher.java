@@ -16,6 +16,10 @@ public interface Publisher {
      */
     void publish(Object notification, Object... notificationDetails);
 
+    /**
+     * Manually add a subscriber. Only use when you can not publish your subscriber as an OSGI service 
+     */
+    void addSubscriber(Subscriber subscriber);
 
 	void addThreadSubscriber(Subscriber subscriber);
 
