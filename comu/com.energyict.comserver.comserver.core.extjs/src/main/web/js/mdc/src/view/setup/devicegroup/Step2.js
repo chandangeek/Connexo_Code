@@ -16,13 +16,14 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
     ],
 
 
-    title: Uni.I18n.translate('devicegroup.wizard.step2title', 'MDC', 'Add a device group - Step 2 of 2: Device group'),
+    title: Uni.I18n.translate('devicegroup.wizard.step2title', 'MDC', 'Add a device group - Step 2 of 2:  Add device group'),
 
     items: [
         {
-            xtype: 'panel',
-            ui: 'large',
-            title: Uni.I18n.translate('setup.devicesearch.searchResults.title', 'MDC', 'Search')
+            itemId: 'step2-adddevicegroup-errors',
+            xtype: 'uni-form-error-message',
+            hidden: true,
+            text: Uni.I18n.translate('devicegroup.noDevicesSelected', 'MDC', 'Please select at least one device.')
         },
         {
             xtype: 'filter-top-panel'

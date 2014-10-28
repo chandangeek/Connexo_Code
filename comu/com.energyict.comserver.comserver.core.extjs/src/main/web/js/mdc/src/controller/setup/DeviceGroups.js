@@ -102,32 +102,40 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             var deviceGroup = deviceGroups[0];
             this.getDeviceGroupPreviewForm().loadRecord(deviceGroup);
             this.getDeviceGroupPreview().setTitle(deviceGroup.get('name'));
-            var criteria = deviceGroup.criteriaStore.data.items;
-            this.getSearchCriteriaContainer().removeAll();
-            for (var i = 0; i < criteria.length; i++) {
-                var foundCriteria = criteria[i].data;
-                var criteriaName = foundCriteria.criteriaName;
-                var criteriaValues = foundCriteria.criteriaValues;
-                criteriaName = this.translateCriteriaName(criteriaName);
-                var criteriaValue = '';
-                for (var j = 0; j < criteriaValues.length; j++) {
-                    singleCriteriaValue = criteriaValues[j];
-                    criteriaValue = criteriaValue + singleCriteriaValue;
-                    if (j != (criteriaValues.length - 1)) {
-                        criteriaValue = criteriaValue + ', '
-                    }
-                }
-                this.getSearchCriteriaContainer().add(
-                    {
-                        xtype: 'displayfield',
-                        name: 'name',
-                        fieldLabel: criteriaName,
-                        renderer: function (value) {
-                            return criteriaValue;
+
+
+            if (deviceGroup.get('dynamic')) {
+                this.getSearchCriteriaContainer().setVisible(true);
+                var criteria = deviceGroup.criteriaStore.data.items;
+                this.getSearchCriteriaContainer().removeAll();
+                for (var i = 0; i < criteria.length; i++) {
+                    var foundCriteria = criteria[i].data;
+                    var criteriaName = foundCriteria.criteriaName;
+                    var criteriaValues = foundCriteria.criteriaValues;
+                    criteriaName = this.translateCriteriaName(criteriaName);
+                    var criteriaValue = '';
+                    for (var j = 0; j < criteriaValues.length; j++) {
+                        singleCriteriaValue = criteriaValues[j];
+                        criteriaValue = criteriaValue + singleCriteriaValue;
+                        if (j != (criteriaValues.length - 1)) {
+                            criteriaValue = criteriaValue + ', '
                         }
                     }
-                )
-            };
+                    this.getSearchCriteriaContainer().add(
+                        {
+                            xtype: 'displayfield',
+                            name: 'name',
+                            fieldLabel: criteriaName,
+                            renderer: function (value) {
+                                return criteriaValue;
+                            }
+                        }
+                    )
+                }
+            } else {
+                this.getSearchCriteriaContainer().setVisible(false);
+            }
+
         }
     },
 
