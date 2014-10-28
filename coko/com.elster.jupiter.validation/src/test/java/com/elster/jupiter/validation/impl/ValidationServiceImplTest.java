@@ -284,7 +284,7 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(false);
         when(queryExecutor.select(any(Condition.class))).thenReturn(Arrays.asList(meterActivationValidation));
-        when(meterActivationValidation.getMinLastChecked()).thenReturn(Instant.ofEpochMilli(5000L));
+        when(meterActivationValidation.getMaxLastChecked()).thenReturn(Instant.ofEpochMilli(5000L));
         when(meterActivationValidation.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation1, channelValidation2));
         when(channelValidation1.getLastChecked()).thenReturn(Instant.ofEpochMilli(-5000));
         when(channelValidation2.getLastChecked()).thenReturn(Instant.ofEpochMilli(5000L));

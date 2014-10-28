@@ -52,9 +52,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
     private void handleReadingStorer(ReadingStorer storer) {
         Map<MeterActivation, Range<Instant>> map = determineScopePerMeterActivation(storer);
-        for (Map.Entry<MeterActivation, Range<Instant>> entry : map.entrySet()) {
-            validationService.validateForNewData(entry.getKey(), entry.getValue());
-        }
+        map.entrySet().forEach(entry -> validationService.validateForNewData(entry.getKey(), entry.getValue()));
     }
 
     private Map<MeterActivation, Range<Instant>> determineScopePerMeterActivation(ReadingStorer storer) {
@@ -62,12 +60,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
         for (Map.Entry<Channel, Range<Instant>> entry : storer.getScope().entrySet()) {
             MeterActivation meterActivation = entry.getKey().getMeterActivation();
             Range<Instant> adjustedInterval = adjust(entry.getKey(), entry.getValue());
-            if (!toValidate.containsKey(meterActivation)) {
-                toValidate.put(meterActivation, adjustedInterval);
-            } else {
-                Range<Instant> span = toValidate.get(meterActivation).span(adjustedInterval);
-                toValidate.put(meterActivation, span);
-            }
+            toValidate.merge(meterActivation, adjustedInterval, Range::span);            
         }
         return toValidate;
     }

@@ -346,7 +346,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
         meterActivationValidations.stream()
                 .peek(m -> {
-                    if (!validationActive || !m.isActive() && does(interval).startBefore(m.getMaxLastChecked())) {
+                    if ((!validationActive || !m.isActive()) && does(interval).startBefore(m.getMaxLastChecked())) {
                         handleDataOverwrite(m, interval);
                     }
                 })
