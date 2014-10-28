@@ -11,15 +11,20 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.Optional;
+
 import com.google.inject.AbstractModule;
-import org.joda.time.MutableDateTime;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -128,14 +133,10 @@ public class KpiServiceImpl implements IKpiService, InstallService {
     }
 
     private void createPartitions(Vault vault) {
-        MutableDateTime startOfMonth = new MutableDateTime();
-        startOfMonth.setMillisOfDay(0);
-        startOfMonth.setMonthOfYear(1);
-        startOfMonth.setDayOfMonth(1);
-        vault.activate(startOfMonth.toDate().toInstant());
+    	YearMonth yearMonth = YearMonth.now();
+        vault.activate(yearMonth.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
         for (int i = 0; i < MONTHS_PER_YEAR; i++) {
-            startOfMonth.addMonths(1);
-            vault.addPartition(startOfMonth.toDate().toInstant());
+            vault.addPartition(yearMonth.plusMonths(i+1).atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
     }
 
