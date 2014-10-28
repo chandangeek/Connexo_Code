@@ -28,6 +28,7 @@ Ext.define('Uni.form.field.AtPeriod', {
                 xtype: 'numberfield',
                 itemId: 'hour-field',
                 hideLabel: true,
+                valueToRaw: me.formatDisplayOfTime,
                 value: 0,
                 minValue: 0,
                 maxValue: 23,
@@ -47,6 +48,7 @@ Ext.define('Uni.form.field.AtPeriod', {
                 xtype: 'numberfield',
                 itemId: 'minute-field',
                 hideLabel: true,
+                valueToRaw: me.formatDisplayOfTime,
                 value: 0,
                 minValue: 0,
                 maxValue: 59,
@@ -86,5 +88,19 @@ Ext.define('Uni.form.field.AtPeriod', {
             atHour: hourValue,
             atMinute: minuteValue
         };
+    },
+
+    // TODO Use the date-time xtype for this.
+    formatDisplayOfTime: function (value) {
+        var result = '00';
+
+        if (value) {
+            if (value < 10 && value > 0) {
+                result = '0' + value;
+            } else if (value >= 10) {
+                result = value;
+            }
+        }
+        return result;
     }
 });

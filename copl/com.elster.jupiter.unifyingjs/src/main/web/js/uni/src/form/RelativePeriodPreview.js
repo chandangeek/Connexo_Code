@@ -6,6 +6,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
     xtype: 'uni-form-relativeperiodpreview',
 
     requires: [
+        'Uni.form.field.DateTime'
     ],
 
     /**
@@ -95,6 +96,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         xtype: 'numberfield',
                         itemId: 'hour-field',
                         hideLabel: true,
+                        valueToRaw: me.formatDisplayOfTime,
                         value: 0,
                         minValue: 0,
                         maxValue: 23,
@@ -114,6 +116,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         xtype: 'numberfield',
                         itemId: 'minute-field',
                         hideLabel: true,
+                        valueToRaw: me.formatDisplayOfTime,
                         value: 0,
                         minValue: 0,
                         maxValue: 59,
@@ -269,5 +272,19 @@ Ext.define('Uni.form.RelativePeriodPreview', {
         date.setMilliseconds(0);
 
         return date;
+    },
+
+    // TODO Use the date-time xtype for this.
+    formatDisplayOfTime: function (value) {
+        var result = '00';
+
+        if (value) {
+            if (value < 10 && value > 0) {
+                result = '0' + value;
+            } else if (value >= 10) {
+                result = value;
+            }
+        }
+        return result;
     }
 });
