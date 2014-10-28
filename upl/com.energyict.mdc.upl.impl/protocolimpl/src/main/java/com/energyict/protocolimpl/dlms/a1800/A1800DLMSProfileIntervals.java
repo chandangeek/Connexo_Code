@@ -50,6 +50,7 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
         IntervalData currentInterval;
         int profileStatus = 0;
         if (getAllDataTypes().size() != 0) {
+            removeCurrentIntervalIndexes();
             for (int i = 0; i < nrOfDataTypes(); i++) {
                 Structure element = (Structure) getDataType(i);
                 List<Long> values = new ArrayList<Long>();
@@ -87,6 +88,25 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
             }
         }
         return intervalList;
+    }
+
+    /**
+     * <p>When requesting profile data, the device sends all data in buffer,
+     * but it also sends a snapshot of current index alongside.</p>
+     * This data should be filtered out, as it should not be stored in EIMaster.
+     * <BR>
+     * E.g.: readout at 13h:41m of 15min profile
+     * <ul>
+     *  <li>13:00</li>
+     *  <li>13:15</li>
+     *  <li>13:30</li>
+     *  <li>13:30</li>
+     *  <li><b>13:41</b></li>
+     *  </ul>
+     *
+     */
+    private void removeCurrentIntervalIndexes() {
+        getAllDataTypes().remove(0);    // The current index is always the last one
     }
 
     private int getEisStatusCode(int lineStatus) {

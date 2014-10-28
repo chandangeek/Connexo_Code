@@ -37,7 +37,7 @@ public class A1800 extends AbstractDlmsSessionProtocol {
     private RegisterReader registerReader = null;
 
     /**
-     * The protocol version
+     * The protocol version date
      */
     public String getProtocolVersion() {
         return "$Date: 2014-06-27 13:00:00$";

@@ -44,7 +44,7 @@ public class A1800EventLog {
         MeterEventMapper eventMapper = new MeterEventMapper();
         Calendar fromC = getCalendar(from);
         Calendar toC = getCalendar(to);
-        session.getLogger().log(Level.INFO, "Fetching EVENTS from " + toString() + " from [" + fromC.getTime() + "] to [" + toC.getTime() + "]");
+        session.getLogger().log(Level.INFO, "Fetching EVENTS from " + obisCode.toString() + " from [" + fromC.getTime() + "] to [" + toC.getTime() + "]");
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         Array eventArray = getEventArray(fromC, toC);
         for (AbstractDataType abstractEventData : eventArray.getAllDataTypes()) {
