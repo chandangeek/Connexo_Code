@@ -218,8 +218,8 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ACTION_ISSUE)
     public Response performAction(@PathParam(ID) long id, PerformActionRequest request) {
-        Optional<Issue> issue = getIssueService().findIssue(id);
-        if (!issue.isPresent()) {
+        Optional<IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
+        if (!issueRef.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         Optional<IssueActionType> action = getIssueActionService().findActionType(request.getId());
@@ -227,7 +227,7 @@ public class IssueResource extends BaseResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        IssueActionResult actionResult = getIssueActionService().executeAction(action.get(), issue.get(), request.getParameters());
+        IssueActionResult actionResult = getIssueActionService().executeAction(action.get(), issueRef.get(), request.getParameters());
         return entity(actionResult).build();
     }
 

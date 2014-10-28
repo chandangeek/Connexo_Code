@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.rest;
 
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleValidationExceptionMapper;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
@@ -118,7 +118,7 @@ public class Mocks extends JerseyTest {
                 IssueResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedExceptionMapper.class,
-                CreationRuleValidationExceptionMapper.class,
+                CreationRuleOrActionValidationExceptionMapper.class,
                 SecurityRequestFilter.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(new AbstractBinder() {
