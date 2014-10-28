@@ -119,6 +119,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
     @Override
     protected final void configureClient(ClientConfig config) {
         config.register(JacksonFeature.class); // client side JSON processing
+        config.register(ObjectMapperProvider.class);
         super.configureClient(config);
     }
 
