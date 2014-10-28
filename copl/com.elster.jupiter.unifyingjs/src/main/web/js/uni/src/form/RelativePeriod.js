@@ -49,7 +49,7 @@ Ext.define('Uni.form.RelativePeriod', {
     onAfterRender: function () {
         var me = this;
 
-        me.updatePeriodFields(me.getValue().freqAgo);
+        me.updatePeriodFields(me.getValue().startPeriodAgo);
         me.updatePreview();
     },
 
@@ -99,7 +99,7 @@ Ext.define('Uni.form.RelativePeriod', {
     onStartPeriodChange: function (value) {
         var me = this;
 
-        me.updatePeriodFields(value.freqAgo);
+        me.updatePeriodFields(value.startPeriodAgo);
         me.updatePreview();
     },
 
@@ -123,6 +123,7 @@ Ext.define('Uni.form.RelativePeriod', {
             label = me.down('#preview-label'),
             dateString = me.noPreviewDateErrorMsg;
 
+        me.fireEvent('periodchange', me.getValue());
         label.mask();
 
         Ext.Ajax.request({

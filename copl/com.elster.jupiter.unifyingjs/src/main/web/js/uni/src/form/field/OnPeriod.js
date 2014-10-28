@@ -175,7 +175,7 @@ Ext.define('Uni.form.field.OnPeriod', {
         this.getOptionCurrentRadio().setValue(true);
 
         if (!suspendEvent) {
-            this.fireEvent('change', this.getValue());
+            this.fireEvent('periodchange', this.getValue());
         }
     },
 
@@ -183,7 +183,7 @@ Ext.define('Uni.form.field.OnPeriod', {
         this.getOptionDayOfMonthRadio().setValue(true);
 
         if (!suspendEvent) {
-            this.fireEvent('change', this.getValue());
+            this.fireEvent('periodchange', this.getValue());
         }
     },
 

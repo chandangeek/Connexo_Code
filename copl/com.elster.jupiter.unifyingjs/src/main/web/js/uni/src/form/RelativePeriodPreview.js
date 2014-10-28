@@ -128,6 +128,16 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         style: {
                             fontWeight: 'normal'
                         }
+                    },
+                    {
+                        xtype: 'button',
+                        tooltip: Uni.I18n.translate('relativeperiod.form.referencedete.tooltip', 'TME', 'You can change the reference to define another relative period'),
+                        iconCls: 'icon-info-small',
+                        ui: 'blank',
+                        itemId: 'latestReadingHelp',
+                        shadow: false,
+                        margin: '6 0 0 6',
+                        width: 16
                     }
                 ]
             }
