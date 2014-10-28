@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -222,6 +223,7 @@ public class MeterReadingStorerTest {
             channel.removeReadings(readings);
             assertThat(channel.getReadings(range)).hasSize(1);
             assertThat(channel.findReadingQuality(range)).hasSize(3);
+            assertThat(channel.findReadingQuality(range).get(1).getType().qualityIndex().get()).isEqualTo(QualityCodeIndex.REJECTED);
             ctx.commit();
         }
     }

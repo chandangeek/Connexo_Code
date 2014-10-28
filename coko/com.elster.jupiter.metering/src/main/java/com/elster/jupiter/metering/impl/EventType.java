@@ -30,6 +30,21 @@ public enum EventType {
                     .create().save();
         }
     },
+    READINGS_DELETED("reading/DELETED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish()
+                    .withProperty("start", ValueType.LONG, "startMillis")
+                    .withProperty("end", ValueType.LONG, "endMillis")
+                    .withProperty("channelId", ValueType.LONG, "channelId")
+                    .create().save();
+        }
+    },
     METERREADING_CREATED("meterreading/CREATED") {
         @Override
         public void install(EventService eventService) {
@@ -42,21 +57,6 @@ public enum EventType {
                     .withProperty("start", ValueType.LONG, "start")
                     .withProperty("end", ValueType.LONG, "end")
                     .withProperty("meterId", ValueType.LONG, "meterId")
-                    .create().save();
-        }
-    },
-    METERREADING_REMOVED("meterreading/REMOVED") {
-        @Override
-        public void install(EventService eventService) {
-            eventService.buildEventTypeWithTopic(topic())
-                    .name(name())
-                    .component(MeteringService.COMPONENTNAME)
-                    .category("Crud")
-                    .scope("System")
-                    .shouldPublish()
-                    .withProperty("start", ValueType.LONG, "startMillis")
-                    .withProperty("end", ValueType.LONG, "endMillis")
-                    .withProperty("channelId", ValueType.LONG, "channelId")
                     .create().save();
         }
     },

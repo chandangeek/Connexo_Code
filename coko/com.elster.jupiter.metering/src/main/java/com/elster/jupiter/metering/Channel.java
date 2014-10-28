@@ -38,7 +38,7 @@ public interface Channel {
 	void removeReadings(List<? extends BaseReadingRecord> readings);
 	Instant getLastDateTime();
 	
-	interface ReadingsRemovedEvent {
+	interface ReadingsDeletedEvent {
 		Channel getChannel();
 		Set<Instant> getReadingTimeStamps();
 	}

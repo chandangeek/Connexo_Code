@@ -310,13 +310,13 @@ public final class ChannelImpl implements ChannelContract {
     @Override
     public List<ReadingQualityRecord> findReadingQuality(Range<Instant> range) {
         Condition condition = inRange(range).and(ofThisChannel());
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition);
+        return dataModel.mapper(ReadingQualityRecord.class).select(condition,  Order.ascending("readingTimestamp"));
     }
 
     @Override
     public List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> range) {
         Condition condition = inRange(range).and(ofThisChannel()).and(isActual());
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition);
+        return dataModel.mapper(ReadingQualityRecord.class).select(condition, Order.ascending("readingTimestamp"));
     }
 
     private Condition isActual() {
@@ -457,16 +457,16 @@ public final class ChannelImpl implements ChannelContract {
         qualityRecords.stream()
         	.filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
             .forEach(qualityRecord -> qualityRecord.delete());
-        ReadingQualityType errorQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ERRORCODE);
-        readingTimes.forEach(readingTime -> createReadingQuality(errorQualityType, readingTime).save());
-        eventService.postEvent(EventType.METERREADING_REMOVED.topic(), new ReadingRemovedEventImpl(this,readingTimes));
+        ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED);
+        readingTimes.forEach(readingTime -> createReadingQuality(rejected, readingTime).save());
+        eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this,readingTimes));
     }
     
-    public static class ReadingRemovedEventImpl implements Channel.ReadingsRemovedEvent {
+    public static class ReadingsDeletedEventImpl implements Channel.ReadingsDeletedEvent {
 		private ChannelImpl channel;
 		private Set<Instant> readingTimes;
     	
-    	public ReadingRemovedEventImpl(ChannelImpl channel, Set<Instant> readingTimes) {
+    	public ReadingsDeletedEventImpl(ChannelImpl channel, Set<Instant> readingTimes) {
     		this.channel = channel;
     		this.readingTimes = readingTimes;
 		}
