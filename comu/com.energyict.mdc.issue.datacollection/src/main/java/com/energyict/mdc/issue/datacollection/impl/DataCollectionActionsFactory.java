@@ -29,6 +29,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     private static final Logger LOG = Logger.getLogger(DataCollectionActionsFactory.class.getName());
     public static final String ID = DataCollectionActionsFactory.class.getName();
 
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
@@ -54,6 +55,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
         injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
+                bind(NlsService.class).toInstance(nlsService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
@@ -80,6 +82,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
 
     @Reference
     public final void setThesaurus(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
 

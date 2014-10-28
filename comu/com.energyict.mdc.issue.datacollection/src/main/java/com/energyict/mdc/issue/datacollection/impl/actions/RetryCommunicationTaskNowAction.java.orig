@@ -9,7 +9,6 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -21,12 +20,11 @@ import javax.inject.Inject;
 
 import java.util.Map;
 
-public class RetryCommunicationTaskAction extends AbstractIssueAction {
+public class RetryCommunicationTaskNowAction extends AbstractIssueAction {
     private IssueService issueService;
-    private Thesaurus thesaurus;
 
     @Inject
-    public RetryCommunicationTaskAction(NlsService nlsService, Thesaurus thesaurus, IssueService issueService) {
+    public RetryCommunicationTaskNowAction(NlsService nlsService, Thesaurus thesaurus, IssueService issueService) {
         super(nlsService, thesaurus);
         this.issueService = issueService;
     }
@@ -40,8 +38,8 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
             issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
             issue.save();
             ComTaskExecution comTaskExecution = ((IssueDataCollection) issue).getCommunicationTask().get();
-            comTaskExecution.scheduleNow();
-            result.success(MessageSeeds.ACTION_RETRY_COM_TASK_SUCCESS.getTranslated(thesaurus));
+            comTaskExecution.runNow();
+            result.success(MessageSeeds.ACTION_RETRY_COM_TASK_SUCCESS.getTranslated(getThesaurus()));
         }
         return result;
     }
@@ -50,11 +48,15 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
     public <T extends Issue> boolean isApplicable(T issue) {
         if (issue != null && issue instanceof IssueDataCollection){
             IssueDataCollection dcIssue = (IssueDataCollection) issue;
+<<<<<<< HEAD
+            if (!dcIssue.getStatus().isHistorical() && dcIssue.getConnectionTask().isPresent()
+                    && dcIssue.getCommunicationTask().isPresent()){
+=======
             if (!dcIssue.getStatus().isHistorical() && dcIssue.getConnectionTask().isPresent() && dcIssue.getCommunicationTask().isPresent()){
+>>>>>>> ccd9a57a040ab457cc50d83b7ecc22f858e63ed0
                 ConnectionTask task = dcIssue.getConnectionTask().get();
                 return task instanceof ScheduledConnectionTask
-                        && task.getConnectionType().getDirection() == ConnectionType.Direction.OUTBOUND
-                        && ((ScheduledConnectionTask) task).getConnectionStrategy() == ConnectionStrategy.MINIMIZE_CONNECTIONS;
+                        && task.getConnectionType().getDirection() == ConnectionType.Direction.OUTBOUND;
             }
         }
         return false;
@@ -62,6 +64,6 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
 
     @Override
     public String getLocalizedName() {
-        return MessageSeeds.ACTION_RETRY.getTranslated(thesaurus);
+        return MessageSeeds.ACTION_RETRY_NOW.getTranslated(getThesaurus());
     }
 }
