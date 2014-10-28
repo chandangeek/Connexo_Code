@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 itemId: 'startedOn',
                 text: Uni.I18n.translate('deviceconnectionhistory.startedOn', 'MDC', 'Started on'),
                 dataIndex: 'startedOn',
-                flex: 1,
+                flex: 2,
                 renderer: function (value, metadata) {
                     if (value !== null) {
                         return new Date(value).toLocaleString();
@@ -39,7 +39,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 itemId: 'status',
                 text: Uni.I18n.translate('deviceconnectionhistory.status', 'MDC', 'Status'),
                 dataIndex: 'status',
-                flex: 1
+                flex: 1,
+                renderer: function(status,metadata,rowObject){
+                    return status!==''?'<a href="#/devices/'+this.mRID+ '/connectionmethods/' + this.connectionId + '/history/' + rowObject.get('id') + '/viewlog?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22connections%22%2C%22communications%22%5D%7D' + '">' + status + '</a>':'';
+                }
             },
             {
                 itemId: 'result',
