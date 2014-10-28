@@ -69,7 +69,7 @@ public class Installer {
     private void createDTCPrivileges() {
         List<String> collect = Arrays.asList(DeviceSecurityUserAction.values()).stream().map(DeviceSecurityUserAction::getPrivilege).collect(toList());
         collect.addAll(Arrays.asList(DeviceMessageUserAction.values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList()));
-        this.userService.createResourceWithPrivileges(DeviceConfigurationServiceImpl.COMPONENTNAME, "MDC", "compatibility.with.EIServer", collect.toArray(new String[collect.size()]));
+        this.userService.createResourceWithPrivileges("MDC", DeviceConfigurationServiceImpl.COMPONENTNAME, "compatibility.with.EIServer", collect.toArray(new String[collect.size()]));
     }
 
     private void assignPrivilegesToDefaultRoles() {
