@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.api.codetables;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NamedBusinessObject;
-import com.energyict.mdc.common.Protectable;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
+
+import com.elster.jupiter.util.time.Interval;
 
 import java.util.Date;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.TimeZone;
 /**
  * Code implements a Calendar assigning to each interval a code.
  */
-public interface Code extends NamedBusinessObject, Protectable, RelationParticipant {
+public interface Code extends NamedBusinessObject, RelationParticipant {
 
     /**
      * Returns the begin year of this Code
