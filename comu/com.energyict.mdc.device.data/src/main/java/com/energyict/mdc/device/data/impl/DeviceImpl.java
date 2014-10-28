@@ -100,7 +100,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
@@ -115,6 +114,12 @@ import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1083,10 +1088,14 @@ public class DeviceImpl implements Device {
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval, meter.get());
-                Interval capped = interval.withEnd(lastReadingCapped(loadProfile, interval));
+                Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap =
+                        getPreFilledLoadProfileReadingMap(
+                                loadProfile,
+                                Range.openClosed(interval.getStart(), interval.getEnd()),
+                                meter.get());
+                Interval clipped = interval.withEnd(lastReadingClipped(loadProfile, interval));
                 for (Channel channel : loadProfile.getChannels()) {
-                    meterHasData |= this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
+                    meterHasData |= this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
                 }
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
@@ -1104,9 +1113,13 @@ public class DeviceImpl implements Device {
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval, meter.get());
-                Interval capped = interval.withEnd(lastReadingCapped(channel.getLoadProfile(), interval));
-                meterHasData = this.addChannelDataToMap(capped, meter.get(), channel, sortedLoadProfileReadingMap);
+                Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap =
+                        getPreFilledLoadProfileReadingMap(
+                                channel.getLoadProfile(),
+                                Range.openClosed(interval.getStart(), interval.getEnd()),
+                                meter.get());
+                Interval clipped = interval.withEnd(lastReadingClipped(channel.getLoadProfile(), interval));
+                meterHasData = this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
                 }
@@ -1179,38 +1192,163 @@ public class DeviceImpl implements Device {
     }
 
     /**
-     * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value), just a list of placeholders for each reading
-     * interval within the requestInterval for all datetimes that occur with the bounds of a meter activation and load profile's last reading.
+     * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value),
+     * just a list of placeholders for each reading interval within the requestedInterval for all datetimes
+     * that occur with the bounds of a meter activation and load profile's last reading.
      *
      * @param loadProfile     The LoadProfile
-     * @param requestInterval interval over which user wants to see readings
+     * @param requestedInterval interval over which user wants to see readings
      * @param meter           The Meter
      * @return
      */
-    private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval requestInterval, Meter meter) {
-        IntermittentInterval meterActivationIntervals = new IntermittentInterval(meter.getMeterActivations().stream().map(m -> Interval.of(m.getStart(), m.getEnd())).collect(toList()));
-
+    private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
+        // TODO: what if there are gaps in the meter activations
         Map<Instant, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
-        Duration period = Duration.ofSeconds(loadProfile.getInterval().getSeconds());
-        Instant timeIndex = Instant.ofEpochMilli(requestInterval.getStart().toEpochMilli() - (requestInterval.getStart().toEpochMilli() % period.toMillis())); // round start time to interval boundary
-        Instant endTime = lastReadingCapped(loadProfile, requestInterval);
-        while (timeIndex.compareTo(endTime) < 0) {
-            Instant intervalEnd = timeIndex.plus(period);
-            if (meterActivationIntervals.contains(timeIndex)) {
+        TemporalAmount intervalLength = this.intervalLength(loadProfile);
+        List<MeterActivation> allMeterActivations = new ArrayList<>(meter.getMeterActivations());
+        List<MeterActivation> affectedMeterActivations =
+                allMeterActivations
+                        .stream()
+                        .filter(ma -> ma.overlaps(requestedInterval))
+                        .collect(toList());
+        for (MeterActivation affectedMeterActivation : affectedMeterActivations) {
+            Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation.getRange());
+            ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
+            ZonedDateTime requestEnd =
+                    ZonedDateTime.ofInstant(
+                            this.lastReadingClipped(loadProfile, requestedInterval),
+                            affectedMeterActivation.getZoneId());
+            Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+            while (meterActivationInterval.contains(requestStart.toInstant())) {
+                ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
                 LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                value.setInterval(Interval.of(timeIndex, intervalEnd));
-                loadProfileReadingMap.put(intervalEnd, value);
+                value.setInterval(Interval.of(requestStart.toInstant(), readingTimestamp.toInstant()));
+                loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                requestStart = readingTimestamp;
             }
-            timeIndex = intervalEnd;
         }
         return loadProfileReadingMap;
     }
 
-    private Instant lastReadingCapped(LoadProfile loadProfile, Interval requestInterval) {
-        if (loadProfile.getLastReading() != null && requestInterval.getEnd().isAfter(loadProfile.getLastReading().toInstant())) {
-            return Instant.ofEpochMilli(loadProfile.getLastReading().getTime());
+    private ZonedDateTime prefilledIntervalStart(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
+        switch (loadProfile.getInterval().getTimeUnit()) {
+            case MINUTES: // Intentional fall-through
+            case HOURS: {
+                return this.prefilledIntervalStartWithIntervalWithinDay(loadProfile, zoneId, requestedIntervalClippedToMeterActivation);
+            }
+            case DAYS: // Intentional fall-through
+            case WEEKS: // Intentional fall-through
+            case MONTHS: // Intentional fall-through
+            case YEARS: {
+                return this.prefilledIntervalStartWithIntervalLongerThanDay(loadProfile, zoneId, requestedIntervalClippedToMeterActivation);
+            }
+            case MILLISECONDS:  //Intentional fall-through
+            case SECONDS:   //Intentional fall-through
+            default: {
+                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval().getTimeUnit());
+            }
+        }
+    }
+
+    private ZonedDateTime prefilledIntervalStartWithIntervalWithinDay(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
+        /* Implementation note: truncate meter activation end point of the interval to the interval length
+         * and then increment with interval length until start >= meter activation start
+         * to cater for the situation where meter activation is e.g. 8h43 with interval length of 15mins
+         * where truncating would start at 8h00 */
+        ZonedDateTime attempt =
+                ZonedDateTime
+                    .ofInstant(
+                        requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                        zoneId)
+                    .truncatedTo(this.trunctationUnit(loadProfile));    // round start time to interval boundary
+        while (attempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
+            attempt = attempt.plus(this.intervalLength(loadProfile));
+        }
+        return attempt;
+    }
+
+    private ZonedDateTime prefilledIntervalStartWithIntervalLongerThanDay(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
+        return ZonedDateTime
+                    .ofInstant(
+                            requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                            zoneId)
+                    .truncatedTo(this.trunctationUnit(loadProfile));    // round start time to interval boundary
+    }
+
+    private TemporalUnit trunctationUnit (LoadProfile loadProfile) {
+        switch (loadProfile.getInterval().getTimeUnit()) {
+            case MINUTES: {
+                return ChronoUnit.HOURS;
+            }
+            case HOURS: {
+                return ChronoUnit.DAYS;
+            }
+            case DAYS: {
+                return ChronoUnit.DAYS;
+            }
+            case WEEKS: {
+                return ChronoUnit.WEEKS;
+            }
+            case MONTHS: {
+                return ChronoUnit.MONTHS;
+            }
+            case YEARS: {
+                return ChronoUnit.YEARS;
+            }
+            case MILLISECONDS:  //Intentional fall-through
+            case SECONDS:   //Intentional fall-through
+            default: {
+                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval().getTimeUnit());
+            }
+        }
+    }
+
+    private TemporalAmount intervalLength(LoadProfile loadProfile) {
+        switch (loadProfile.getInterval().getTimeUnit()) {
+            case MILLISECONDS: {
+                return Duration.ofMillis(loadProfile.getInterval().getCount());
+            }
+            case SECONDS: {
+                return Duration.ofSeconds(loadProfile.getInterval().getCount());
+            }
+            case MINUTES: {
+                return Duration.ofMinutes(loadProfile.getInterval().getCount());
+            }
+            case HOURS: {
+                return Duration.ofHours(loadProfile.getInterval().getCount());
+            }
+            case DAYS: {
+                return Period.ofDays(loadProfile.getInterval().getCount());
+            }
+            case WEEKS: {
+                return Period.ofWeeks(loadProfile.getInterval().getCount());
+            }
+            case MONTHS: {
+                return Period.ofMonths(loadProfile.getInterval().getCount());
+            }
+            case YEARS: {
+                return Period.ofYears(loadProfile.getInterval().getCount());
+            }
+            default: {
+                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval().getTimeUnit());
+            }
+        }
+    }
+
+    private Instant lastReadingClipped(LoadProfile loadProfile, Interval requestInterval) {
+        if (loadProfile.getLastReading().isPresent() && requestInterval.getEnd().isAfter(loadProfile.getLastReading().get())) {
+            return loadProfile.getLastReading().get();
         } else {
             return Instant.ofEpochMilli(requestInterval.getEnd().toEpochMilli());
+        }
+    }
+
+    private Instant lastReadingClipped(LoadProfile loadProfile, Range<Instant> interval) {
+        if (loadProfile.getLastReading().isPresent() && interval.contains(loadProfile.getLastReading().get())) {
+            return loadProfile.getLastReading().get();
+        }
+        else {
+            return interval.upperEndpoint();
         }
     }
 

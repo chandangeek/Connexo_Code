@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
@@ -18,15 +22,7 @@ import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
-
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
-
-import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,6 +33,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -162,8 +159,8 @@ public class ComSessionImpl implements ComSession {
         return DefaultFinder.of(
                 ComTaskExecutionJournalEntry.class,
                 where("comTaskExecutionSession.comSession").isEqualTo(this)
-                        .and(where("class").isEqualTo(0)
-                            .or(where("class").isEqualTo(1)
+                        .and(where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComCommandJournalEntryImplDiscriminator)
+                            .or(where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComTaskExecutionMessageJournalEntryImplDiscriminator)
                                 .and(where("logLevel").in(new ArrayList<>(levels))))),
                 this.dataModel,
                 ComTaskExecutionSession.class).
@@ -184,9 +181,9 @@ public class ComSessionImpl implements ComSession {
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
         sqlBuilder.append(" ctes on cteje.COMTASKEXECSESSION = ctes.id where ctes.comsession =");
         sqlBuilder.addLong(this.getId());
-        sqlBuilder.append("and discriminator = '0' or (discriminator = '1' and loglevel in (");
+        sqlBuilder.append("and ( discriminator = '0' or (discriminator = '1' and loglevel in (");
         this.appendLogLevels(levels, sqlBuilder);
-        sqlBuilder.append(")) order by timestamp desc");
+        sqlBuilder.append("))) order by timestamp desc");
         sqlBuilder.asPageBuilder(start, start + pageSize - 1);
         List<CombinedLogEntry> logEntries = new ArrayList<>();
         try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {

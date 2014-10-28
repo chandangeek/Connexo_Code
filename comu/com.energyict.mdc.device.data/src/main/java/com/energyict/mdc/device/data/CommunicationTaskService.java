@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -207,7 +211,7 @@ public interface CommunicationTaskService {
 
     public Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
 
-    public List<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution);
+    public Finder<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution);
 
     /**
      * Counts the number of communication errors that have occurred in the specified

@@ -9,8 +9,10 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -46,7 +48,7 @@ public interface Channel extends BaseChannel {
 
     public Phenomenon getPhenomenon();
 
-    public Date getLastReading();
+    public Optional<Instant> getLastReading();
 
     long getId();
 

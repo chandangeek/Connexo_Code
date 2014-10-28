@@ -5,8 +5,11 @@ import com.energyict.mdc.common.HasId;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a LoadProfile on a Device. It <i>bundles</i> channels
@@ -26,7 +29,7 @@ public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
      *
      * @return end time of the last interval.
      */
-    Date getLastReading();
+    Optional<Instant> getLastReading();
 
     /**
      * Returns the receiver's {@link com.energyict.mdc.protocol.api.device.BaseChannel}s.

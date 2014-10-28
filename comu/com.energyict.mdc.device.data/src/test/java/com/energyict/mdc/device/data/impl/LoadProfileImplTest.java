@@ -25,6 +25,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import java.time.Instant;
 import java.util.Optional;
 import org.fest.assertions.core.Condition;
 import org.junit.Before;
@@ -367,20 +369,21 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         Device device = createSimpleDeviceWithLoadProfiles();
 
         LoadProfile loadProfile = getReloadedLoadProfile(device);
-        assertThat(loadProfile.getLastReading()).isNull();
+        assertThat(loadProfile.getLastReading().isPresent()).isFalse();
     }
 
     @Test
     @Transactional
     public void updateLastReadingTest() {
         Device device = createSimpleDeviceWithLoadProfiles();
-        Date newLastReading = new Date(123546);
+        Instant newLastReading = Instant.ofEpochMilli(123546);
         LoadProfile loadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(loadProfile);
-        loadProfileUpdater.setLastReading(newLastReading);
+        loadProfileUpdater.setLastReading(Date.from(newLastReading));
         loadProfileUpdater.update();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
-        assertThat(reloadedLoadProfile.getLastReading()).isEqualTo(newLastReading);
+        assertThat(reloadedLoadProfile.getLastReading().isPresent()).isTrue();
+        assertThat(reloadedLoadProfile.getLastReading().get()).isEqualTo(newLastReading);
     }
 
     @Test
@@ -388,35 +391,37 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     public void updateLastReadingIfLaterTest() {
         Device device = createSimpleDeviceWithLoadProfiles();
         Date oldLastReading = new Date(123);
-        Date newLastReading = new Date(123546);
+        Instant newLastReading = Instant.ofEpochMilli(123546);
         LoadProfile loadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(loadProfile);
         loadProfileUpdater.setLastReading(oldLastReading);
         loadProfileUpdater.update();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater2 = device.getLoadProfileUpdaterFor(reloadedLoadProfile);
-        loadProfileUpdater2.setLastReadingIfLater(newLastReading);
+        loadProfileUpdater2.setLastReadingIfLater(Date.from(newLastReading));
         loadProfileUpdater2.update();
         LoadProfile finalReloadedLoadProfile = getReloadedLoadProfile(device);
-        assertThat(finalReloadedLoadProfile.getLastReading()).isEqualTo(newLastReading);
+        assertThat(finalReloadedLoadProfile.getLastReading().isPresent()).isTrue();
+        assertThat(finalReloadedLoadProfile.getLastReading().get()).isEqualTo(newLastReading);
     }
 
     @Test
     @Transactional
     public void updateLastReadingIfNotLaterTest() {
         Device device = createSimpleDeviceWithLoadProfiles();
-        Date oldLastReading = new Date(999999999);
+        Instant oldLastReading = Instant.ofEpochMilli(999999999);
         Date newLastReading = new Date(123546);
         LoadProfile loadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(loadProfile);
-        loadProfileUpdater.setLastReading(oldLastReading);
+        loadProfileUpdater.setLastReading(Date.from(oldLastReading));
         loadProfileUpdater.update();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
         LoadProfile.LoadProfileUpdater loadProfileUpdater2 = device.getLoadProfileUpdaterFor(reloadedLoadProfile);
         loadProfileUpdater2.setLastReadingIfLater(newLastReading);
         loadProfileUpdater2.update();
         LoadProfile finalReloadedLoadProfile = getReloadedLoadProfile(device);
-        assertThat(finalReloadedLoadProfile.getLastReading()).isEqualTo(oldLastReading);
+        assertThat(finalReloadedLoadProfile.getLastReading().isPresent()).isTrue();
+        assertThat(finalReloadedLoadProfile.getLastReading().get()).isEqualTo(oldLastReading);
     }
 
     @Test
