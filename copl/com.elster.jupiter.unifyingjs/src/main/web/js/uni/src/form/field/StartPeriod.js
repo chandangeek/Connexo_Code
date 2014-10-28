@@ -219,18 +219,21 @@ Ext.define('Uni.form.field.StartPeriod', {
             freqAgoValue = me.getOptionAgoContainer().down('combobox').getValue();
 
         var result = {
-            startAmountAgo: amountAgoValue,
-            startPeriodAgo: freqAgoValue,
             startNow: selectedValue === 'now'
         };
 
-        if (me.showOptionDate) {
+        if (selectedValue === 'date') {
             var dateValue = me.getOptionDateContainer().down('datefield').getValue();
 
             Ext.apply(result, {
                 startFixedDay: dateValue.getDay(),
                 startFixedMonth: dateValue.getMonth(),
                 startFixedYear: dateValue.getFullYear()
+            });
+        } else if (selectedValue === 'ago') {
+            Ext.apply(result, {
+                startAmountAgo: amountAgoValue,
+                startPeriodAgo: freqAgoValue
             });
         }
 

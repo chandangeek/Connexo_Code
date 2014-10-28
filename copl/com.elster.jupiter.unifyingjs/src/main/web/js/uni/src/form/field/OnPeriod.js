@@ -277,10 +277,23 @@ Ext.define('Uni.form.field.OnPeriod', {
             dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').getValue(),
             dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').getValue();
 
-        return {
+        var result = {
+            onCurrentDay: selectedValue === 'currentday'
+        };
+        if(selectedValue === 'dayofmonth') {
+            Ext.apply(result, {
+                onDayOfMonth: dayOfMonthValue
+            });
+        } else if (selectedValue === 'dayofweek') {
+            Ext.apply(result, {
+                onDayOfWeek: dayOfWeekValue
+            });
+        }
+        /*return {
             onCurrentDay: selectedValue === 'currentday',
             onDayOfMonth: dayOfMonthValue,
             onDayOfWeek: dayOfWeekValue
-        };
+        };*/
+        return result;
     }
 });
