@@ -467,7 +467,9 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         DeviceMessageBuilder setReleaseDate(Instant releaseDate);
 
         /**
-         * Set a trackingId for the currently building DeviceMessage
+         * Set a trackingId for the currently building DeviceMessage.
+         * <br/>
+         * (a TrackingID should be a business process 'item', most probably it will not be set by the User)
          *
          * @param trackingId the trackingId
          * @return this builder
