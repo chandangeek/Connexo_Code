@@ -1,7 +1,7 @@
 {
     "name": "com.energyict.mdc.issue.datacollection.extjs",
     "type": "code",
-    "creator": "Elster Jupiter Project",
+    "creator": "anonymous",
     "summary": "Short summary",
     "detailedDescription": "Long description of package",
     "version": "1.0.0",
@@ -9,7 +9,7 @@
     "format": "1",
     "local": true,
     "requires": [
-		"com.elster.jupiter.unifyingjs",
-		"com.elster.jupiter.issue.extjs"
+        "com.elster.jupiter.unifyingjs",
+        "com.elster.jupiter.issue.extjs"
     ]
 }

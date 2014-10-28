@@ -1,2 +1,0 @@
-# Idc - Read Me
-
