@@ -5,6 +5,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 
+import java.lang.reflect.Method;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -44,12 +45,15 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Upcast;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -81,7 +85,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService) {
+    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
         this.clock = clock;
         this.eventService = eventService;
         this.meteringService = meteringService;
@@ -91,6 +95,10 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         setUserService(userService);
         activate();
         install();
+        // subscribe manually when not using OSGI
+        ValidationEventHandler handler = new ValidationEventHandler();
+        handler.setValidationService(this);
+        publisher.addSubscriber(handler);
     }
 
     @Activate
@@ -449,6 +457,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     Query<IValidationRule> getAllValidationRuleQuery() {
         return queryService.wrap(dataModel.query(IValidationRule.class));
+    }
+   
+    List<IMeterActivationValidation> getMeterActivationValidations(Channel channel) {
+    	return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class)
+    		.select(where("channelValidations.channel").isEqualTo(channel));
     }
 
     List<ChannelValidation> getChannelValidations(Channel channel) {

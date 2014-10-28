@@ -4,11 +4,15 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -20,7 +24,8 @@ import java.util.Map;
 @Component(name = "com.elster.jupiter.validation.validationeventhandler", service = Subscriber.class, immediate = true)
 public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
-    private static final String TOPIC = "com/elster/jupiter/metering/reading/CREATED";
+    private static final String CREATEDTOPIC = "com/elster/jupiter/metering/reading/CREATED";
+    private static final String REMOVEDTOPIC = "com/elster/jupiter/metering/reading/DELETED";
 
     private volatile ValidationService validationService;
 
@@ -35,9 +40,13 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
     @Override
     protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(TOPIC)) {
+        if (event.getType().getTopic().equals(CREATEDTOPIC)) {
             ReadingStorer storer = (ReadingStorer) event.getSource();
             handleReadingStorer(storer);
+        }
+        if (event.getType().getTopic().equals(REMOVEDTOPIC)) {
+        	Channel.ReadingsDeletedEvent deleteEvent = (Channel.ReadingsDeletedEvent) event.getSource();
+        	handleDeleteEvent(deleteEvent);
         }
     }
 
@@ -74,4 +83,25 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
         }
         return Range.greaterThan(adjustedlLowerBound);
     }
+    
+    private void handleDeleteEvent(Channel.ReadingsDeletedEvent deleteEvent) {
+    	((ValidationServiceImpl) validationService).getMeterActivationValidations(deleteEvent.getChannel())
+    		.forEach(meterActivationValidation -> handle(meterActivationValidation, deleteEvent));
+    }
+    
+    private void handle(MeterActivationValidation meterActivationValidation, Channel.ReadingsDeletedEvent deleteEvent) {
+    	ChannelValidation channelValidation = meterActivationValidation.getChannelValidation(deleteEvent.getChannel()).get();
+    	Instant lastChecked = channelValidation.getLastChecked();
+    	if (lastChecked == null) {
+    		return;
+    	}
+    	if (deleteEvent.getReadingTimeStamps().contains(lastChecked)) {
+    		Instant newLastChecked = deleteEvent.getChannel().getReadingsOnOrBefore(lastChecked, 1).stream().findFirst().map(BaseReading::getTimeStamp).orElse(null);
+    		if (newLastChecked != lastChecked) {
+    			((IChannelValidation) channelValidation).updateLastChecked(newLastChecked);
+    			meterActivationValidation.save();
+    		}
+    	}
+    }
+    
 }

@@ -99,8 +99,9 @@ final class ChannelValidationImpl implements IChannelValidation {
     
     @Override
     public void updateLastChecked(Instant instant) {
-    	if (lastChecked != null && lastChecked.isAfter(instant)) {
-    		channel.get().findReadingQuality(Range.greaterThan(instant)).stream()
+    	if (lastChecked != null && (instant == null || lastChecked.isAfter(instant))) {
+    		Range<Instant> range = instant == null ? Range.all() : Range.greaterThan(instant);
+    		channel.get().findReadingQuality(range).stream()
     			.filter(this::isRelevant)
     			.forEach(ReadingQualityRecord::delete);
     	}
