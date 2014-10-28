@@ -165,6 +165,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
         return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();       
     }
 
+    @Override
+    public Optional<EndDeviceGroup> findEndDeviceGroupByName(String name) {
+        return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("name", name)).stream().findFirst();
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering Groups");

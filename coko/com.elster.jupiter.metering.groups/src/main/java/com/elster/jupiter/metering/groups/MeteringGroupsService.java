@@ -32,6 +32,8 @@ public interface MeteringGroupsService {
 
     EndDeviceQueryProvider getEndDeviceQueryProvider(String name);
 
+    Optional<EndDeviceGroup> findEndDeviceGroupByName(String name);
+
     void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider);
 
     Query<EndDeviceGroup> getEndDeviceGroupQuery();
