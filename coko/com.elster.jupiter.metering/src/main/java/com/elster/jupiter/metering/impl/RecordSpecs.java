@@ -6,8 +6,6 @@ import static com.elster.jupiter.ids.FieldType.LONGINTEGER;
 import static com.elster.jupiter.ids.FieldType.NUMBER;
 import static com.elster.jupiter.ids.FieldType.TEXT;
 
-import java.time.Instant;
-import java.util.Optional;
 import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
@@ -16,7 +14,6 @@ import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
-import com.google.common.collect.Range;
 
 
 public enum RecordSpecs {

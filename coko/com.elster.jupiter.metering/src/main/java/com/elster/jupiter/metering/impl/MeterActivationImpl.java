@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;

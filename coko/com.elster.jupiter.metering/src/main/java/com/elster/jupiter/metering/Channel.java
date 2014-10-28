@@ -6,6 +6,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.List;
+import java.util.Set;
 
 public interface Channel {
 	long getId();
@@ -36,4 +37,9 @@ public interface Channel {
 	void editReadings(List<? extends BaseReading> readings);
 	void removeReadings(List<? extends BaseReadingRecord> readings);
 	Instant getLastDateTime();
+	
+	interface ReadingsRemovedEvent {
+		Channel getChannel();
+		Set<Instant> getReadingTimeStamps();
+	}
 }

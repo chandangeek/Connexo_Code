@@ -87,7 +87,7 @@ public class MeterActivationImplTest {
         final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
 			@Override
 			public ChannelImpl get() {
-				return new ChannelImpl(dataModel, idsService, meteringService, clock);
+				return new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
 			}
 		};
 		

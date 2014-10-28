@@ -3,12 +3,14 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -39,6 +41,7 @@ import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -75,13 +78,15 @@ public final class ChannelImpl implements ChannelContract {
     private final MeteringService meteringService;
     private final Clock clock;
     private final DataModel dataModel;
+    private final EventService eventService;
 
     @Inject
-    ChannelImpl(DataModel dataModel, IdsService idsService, MeteringService meteringService, Clock clock) {
+    ChannelImpl(DataModel dataModel, IdsService idsService, MeteringService meteringService, Clock clock, EventService eventService) {
         this.dataModel = dataModel;
         this.idsService = idsService;
         this.meteringService = meteringService;
         this.clock = clock;
+        this.eventService = eventService;
     }
 
     ChannelImpl init(MeterActivation meterActivation, List<ReadingTypeImpl> readingTypes) {
@@ -454,5 +459,39 @@ public final class ChannelImpl implements ChannelContract {
             .forEach(qualityRecord -> qualityRecord.delete());
         ReadingQualityType errorQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ERRORCODE);
         readingTimes.forEach(readingTime -> createReadingQuality(errorQualityType, readingTime).save());
+        eventService.postEvent(EventType.METERREADING_REMOVED.topic(), new ReadingRemovedEventImpl(this,readingTimes));
+    }
+    
+    public static class ReadingRemovedEventImpl implements Channel.ReadingsRemovedEvent {
+		private ChannelImpl channel;
+		private Set<Instant> readingTimes;
+    	
+    	public ReadingRemovedEventImpl(ChannelImpl channel, Set<Instant> readingTimes) {
+    		this.channel = channel;
+    		this.readingTimes = readingTimes;
+		}
+    	
+    	@Override
+    	public Channel getChannel() {
+			return channel;
+		}
+
+    	@Override
+		public Set<Instant> getReadingTimeStamps(){
+			return readingTimes;
+		}
+
+    	public long getChannelId() {
+    		return channel.getId();
+    	}
+    	
+    	public long getStartMillis() {
+    		return readingTimes.stream().min(Comparator.naturalOrder()).get().toEpochMilli();
+    	}
+    	
+    	public long getEndMillis() {
+    		return readingTimes.stream().max(Comparator.naturalOrder()).get().toEpochMilli();
+    	}
+
     }
 }

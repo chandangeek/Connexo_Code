@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
@@ -86,10 +87,12 @@ public class ChannelImplTest extends EqualsContractTest {
     private Clock clock;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private EventService eventService;
 
     @Before
     public void setUp() {
-        when(dataModel.getInstance(ChannelImpl.class)).thenReturn(new ChannelImpl(dataModel, idsService, meteringService, clock));
+        when(dataModel.getInstance(ChannelImpl.class)).thenReturn(new ChannelImpl(dataModel, idsService, meteringService, clock, eventService));
         when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -116,7 +119,7 @@ public class ChannelImplTest extends EqualsContractTest {
         readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3, "3");
         readingType4 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID4, "4");
 
-        channel = new ChannelImpl(dataModel, idsService, meteringService, clock).init(meterActivation,ImmutableList.of(readingType1,readingType2));
+        channel = new ChannelImpl(dataModel, idsService, meteringService, clock, eventService).init(meterActivation,ImmutableList.of(readingType1,readingType2));
     }
 
     @After
@@ -124,7 +127,7 @@ public class ChannelImplTest extends EqualsContractTest {
     }
 
     private ChannelImpl createChannel() {
-    	return new ChannelImpl(dataModel, idsService, meteringService, clock);
+    	return new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
     }
     
     @Override
@@ -264,7 +267,7 @@ public class ChannelImplTest extends EqualsContractTest {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1_IRR, "1");
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2_IRR, "2");
 
-        channel = new ChannelImpl(dataModel,idsService,meteringService,clock).init(meterActivation,ImmutableList.of(readingType1,readingType2));
+        channel = new ChannelImpl(dataModel,idsService,meteringService,clock, eventService).init(meterActivation,ImmutableList.of(readingType1,readingType2));
 
         when(timeSeries.getEntries(INTERVAL)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);

@@ -45,6 +45,21 @@ public enum EventType {
                     .create().save();
         }
     },
+    METERREADING_REMOVED("meterreading/REMOVED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish()
+                    .withProperty("start", ValueType.LONG, "startMillis")
+                    .withProperty("end", ValueType.LONG, "endMillis")
+                    .withProperty("channelId", ValueType.LONG, "channelId")
+                    .create().save();
+        }
+    },
     READING_QUALITY_CREATED("readingquality/CREATED") {
         @Override
         public void install(EventService eventService) {
