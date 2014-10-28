@@ -35,8 +35,9 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest{
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).add();
 
-        assertThat(deviceMessage).isNotNull();
-        assertThat(deviceMessage.getDeviceMessageId()).isEqualTo(contactorClose);
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getMessages()).hasSize(0);
     }
 
 }
