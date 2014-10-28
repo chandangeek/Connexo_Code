@@ -47,6 +47,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 '#changeUrgencyOfDeviceComTask[action=changeUrgencyOfDeviceComTask]': {
                     click: this.showChangePopUp
                 },
+                '#viewHistoryOfDeviceComTask[action=viewHistoryOfDeviceComTask]': {
+                    click: this.showHistory
+                },
                 '#runDeviceComTask[action=runDeviceComTask]': {
                     click: this.runDeviceComTask
                 },
@@ -64,6 +67,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 },
                 '#changeButton[action=changeConnectionMethodOfDeviceComTask]': {
                     click: this.changeConnectionMethod
+                },
+                '#changeButton[action=viewHistoryOfDeviceComTask]': {
+                    click: this.showHistory
                 }
             }
         );
@@ -97,6 +103,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         changeItems.push(menu.down('#changeUrgencyOfDeviceComTask'));
         changeItems.push(menu.down('#runDeviceComTaskNow'));
         changeItems.push(menu.down('#runDeviceComTask'));
+        changeItems.push(menu.down('#viewHistoryOfDeviceComTask'));
         selection = menu.record || this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
         Ext.each(changeItems, function (item) {
             item.hide();
@@ -109,12 +116,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             changeItems[2].show();
             changeItems[3].show();
             changeItems[4].show();
+            changeItems[5].show();
         } else {
             changeItems[0].show();
             changeItems[1].show();
             changeItems[2].show();
             changeItems[3].show();
-            changeItems[4].show();
+            changeItems[5].show();
         }
 
     },
@@ -247,5 +255,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 me.showDeviceCommunicationTasksView(me.mrid);
             }
         });
+    },
+
+    showHistory: function(){
+        location.href = '#/devices/' + this.mrid + '/communicationtasks/' + this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0].get('comTask').id + '/history';
     }
 });

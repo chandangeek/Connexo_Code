@@ -107,8 +107,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         var connectionHistory = this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0];
         this.getDeviceConnectionHistoryPreviewForm().loadRecord(connectionHistory);
         this.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('comPort'), '<a href="#/administration/comservers/' + connectionHistory.get('comServer').id + '/overview">' + connectionHistory.get('comServer').name + '</a>'));
-        this.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('connectionMethod'), me.device.get('mRID')));
-        this.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.comtasksTitle', 'MDC', 'Communications of {0} connection on {1}'), connectionHistory.get('connectionMethod'), this.device.get('mRID')));
+        this.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('connectionMethod').name, me.device.get('mRID')));
+        this.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.comtasksTitle', 'MDC', 'Communications of {0} connection on {1}'), connectionHistory.get('connectionMethod').name, this.device.get('mRID')));
         var deviceCommunicationTaskExecutionsStore = this.getDeviceCommunicationTaskExecutionsStore();
 
 
@@ -153,7 +153,11 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                 text: Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.viewComTaskLog', 'MDC', 'View \'{0}\' log'), item.name),
                 action: {
                     action: 'viewlog',
-                    comTask: item.name
+                    comTask: {
+                        mRID: me.deviceMrId,
+                        sessionId: communication.get('id'),
+                        comTaskId: item.id
+                    }
                 },
                 listeners: {
                     click: me.showComTaskLog
@@ -220,7 +224,11 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     },
 
     showComTaskLog: function (item) {
-        console.log('dfdfdffdfd');
+        location.href = '#/devices/' + item.action.comTask.mRID
+            + '/communicationtasks/' + item.action.comTask.comTaskId
+            + '/history/' + item.action.comTask.sessionId
+            + '/viewlog' +
+            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
 
     applyFilter: function () {
@@ -257,5 +265,4 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         record.set(key, null);
         record.save();
     }
-
 });
