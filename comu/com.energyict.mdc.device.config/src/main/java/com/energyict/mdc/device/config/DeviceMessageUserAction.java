@@ -4,7 +4,7 @@ import com.energyict.mdc.device.config.security.Privileges;
 import java.util.Optional;
 
 /**
- * Defines the {@link com.energyict.mdc.common.UserAction}s that relate to device message executions
+ * Defines the Privileges that relate to device message executions.
  */
 public enum DeviceMessageUserAction {
 

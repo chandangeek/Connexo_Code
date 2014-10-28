@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.UserAction;
 import com.energyict.mdc.device.config.security.Privileges;
+
 import java.util.Optional;
 
 /**
- * Defines the {@link UserAction}s that relate to device security properties.
+ * Defines the Privileges that relate to device security properties.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-01-03 (11:32)

@@ -592,7 +592,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     private void initPrivileges() {
         privileges.clear();
-        List<Resource> resources = userService.getResources(COMPONENTNAME);
+        List<Resource> resources = userService.getResources("MDC");
         for (Resource resource : resources) {
             for (Privilege privilege : resource.getPrivileges()) {
                 Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forPrivilege(privilege.getName());
