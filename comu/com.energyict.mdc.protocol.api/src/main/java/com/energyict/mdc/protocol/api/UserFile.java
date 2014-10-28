@@ -1,10 +1,8 @@
 package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Protectable;
 import com.energyict.mdc.common.NamedBusinessObject;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import com.energyict.mdc.protocol.api.UserFileShadow;
 
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -15,7 +13,7 @@ import java.util.Date;
  *
  * @author Geert
  */
-public interface UserFile extends NamedBusinessObject, Protectable, RelationParticipant {
+public interface UserFile extends NamedBusinessObject, RelationParticipant {
 
     /**
      * Returns the file extension
