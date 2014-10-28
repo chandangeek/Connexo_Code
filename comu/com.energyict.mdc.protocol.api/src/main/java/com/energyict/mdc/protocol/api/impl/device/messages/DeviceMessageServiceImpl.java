@@ -3,15 +3,23 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -24,11 +32,13 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (13:33)
  */
-@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageService.class, InstallService.class}, property = "name=" + DeviceMessageService.COMPONENT_NAME)
+@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageService.class, InstallService.class}, property = "name=" + DeviceMessageService.COMPONENT_NAME, immediate = true)
 public class DeviceMessageServiceImpl implements DeviceMessageService, InstallService {
 
     private volatile PropertySpecService propertySpecService;
     private Thesaurus thesaurus;
+    private DataModel dataModel;
+    private BundleContext bundleContext;
 
     // For OSGi
     @SuppressWarnings("unused")
@@ -38,11 +48,30 @@ public class DeviceMessageServiceImpl implements DeviceMessageService, InstallSe
 
     // For unit testing purposes
     @Inject
-    public DeviceMessageServiceImpl(PropertySpecService propertySpecService, NlsService nlsService) {
+    public DeviceMessageServiceImpl(BundleContext bundleContext, OrmService ormService,PropertySpecService propertySpecService, NlsService nlsService) {
         super();
+        this.setOrmService(ormService);
         this.setPropertySpecService(propertySpecService);
         this.setNlsService(nlsService);
+        this.activate(bundleContext);
         this.install();
+    }
+
+    @Activate
+    public void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+        this.dataModel.register(this.getModule());
+    }
+
+    @Deactivate
+    public void deactivate(BundleContext bundleContext){
+        System.out.println("Stopping the DeviceMessageService");
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        DataModel dataModel = ormService.newDataModel(DeviceMessageService.COMPONENT_NAME, "DeviceMessages");
+        this.dataModel = dataModel;
     }
 
     @Reference
@@ -55,6 +84,18 @@ public class DeviceMessageServiceImpl implements DeviceMessageService, InstallSe
     @SuppressWarnings("unused")
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceMessageService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    private Module getModule() {
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(DataModel.class).toInstance(dataModel);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(DeviceMessageService.class).toInstance(DeviceMessageServiceImpl.this);
+            }
+        };
     }
 
     @Override

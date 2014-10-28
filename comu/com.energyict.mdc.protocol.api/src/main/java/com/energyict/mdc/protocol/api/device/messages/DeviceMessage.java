@@ -2,12 +2,12 @@ package com.energyict.mdc.protocol.api.device.messages;
 
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.CanGoOffline;
-import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.dynamic.ReadOnlyDynamicAttributeOwner;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +29,11 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:13)
  */
-public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, ReadOnlyDynamicAttributeOwner, CanGoOffline<OfflineDeviceMessage> {
+public interface DeviceMessage<D extends BaseDevice> extends HasId, CanGoOffline<OfflineDeviceMessage> {
+
+    public void save();
+
+    public void delete();
 
     /**
      * Gets the {@link DeviceMessageSpec specification} of this DeviceMessage.
@@ -37,6 +41,11 @@ public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, R
      * @return The specification
      */
     public DeviceMessageSpec getSpecification();
+
+    /**
+     * @return the DeviceMessageId of the spec of this DeviceMessage
+     */
+    public DeviceMessageId getDeviceMessageId();
 
     /**
      * Gets the {@link DeviceMessageAttribute}s of this DeviceMessage.
@@ -83,14 +92,6 @@ public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, R
      * @return The release Date
      */
     public Instant getReleaseDate();
-
-    /**
-     * Gets the Date on which the last modification to
-     * this DeviceMessage was effected.
-     *
-     * @return The last modification date
-     */
-    public Date getModificationDate();
 
     /**
      * Provides the date when this object was created
