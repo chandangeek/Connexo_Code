@@ -1,9 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.*;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
@@ -78,7 +75,7 @@ public class ComSessionResource {
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
         ComSessionInfo info = comSessionInfoFactory.from(comSession);
-        info.connectionMethod = connectionTask.getName();
+        info.connectionMethod = new IdWithNameInfo(connectionTask);
         return info;
     }
 

@@ -613,7 +613,8 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Long>get("$.comTaskExecutionSessions[0].finishTime")).isEqualTo(execSessionStopTime.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].durationInSeconds")).isEqualTo(26);
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.id")).isEqualTo(14);
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.connectionMethod")).isEqualTo("connection task");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.connectionMethod.name")).isEqualTo("connection task");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.connectionMethod.id")).isEqualTo(13);
         assertThat(jsonModel.<Long>get("$.comTaskExecutionSessions[0].comSession.startedOn")).isEqualTo(sessionStartTime.toEpochMilli());
         assertThat(jsonModel.<Long>get("$.comTaskExecutionSessions[0].comSession.finishedOn")).isEqualTo(sessionFinishTime.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.durationInSeconds")).isEqualTo(30);

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -189,6 +190,30 @@ public class DeviceComTaskResource {
         return PagedInfoList.asJson("comTaskExecutionSessions", infos, queryParameters);
 
     }
+
+    @GET
+    @Path("{comTaskId}/comtaskexecutionsessions/{comTaskExecutionSessionId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComTaskExecutionSessionInfo getComTaskExecutionSession(@PathParam("mRID") String mrid,
+                                                                  @PathParam("comTaskId") long comTaskId, @PathParam("comTaskExecutionSessionId") Long comTaskExecutionSessionId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ComTask comTask = taskService.findComTask(comTaskId);
+        if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
+        }
+        ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
+        List<ComTaskExecutionSessionInfo> infos = new ArrayList<>();
+        List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findByComTaskExecution(comTaskExecution).find();
+        for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
+            if(comTaskExecutionSession.getId()==comTaskExecutionSessionId){
+                ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionFactory.from(comTaskExecutionSession);
+                comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession());
+                return comTaskExecutionSessionInfo;
+            }
+        }
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK_EXEC_SESSION);
+    }
+
 
     @GET
     @Path("{comTaskId}/comtaskexecutionsessions/{sessionId}/journals")

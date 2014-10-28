@@ -72,7 +72,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.connectionMethod")).isEqualTo("GPRS");
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.comSessions")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.comSessions[0].connectionMethod")).isEqualTo("GPRS");
+        assertThat(jsonModel.<String>get("$.comSessions[0].connectionMethod.name")).isEqualTo("GPRS");
+        assertThat(jsonModel.<Integer>get("$.comSessions[0].connectionMethod.id")).isEqualTo(3);
         assertThat(jsonModel.<Long>get("$.comSessions[0].startedOn")).isEqualTo(start.toEpochMilli());
         assertThat(jsonModel.<Long>get("$.comSessions[0].finishedOn")).isEqualTo(end.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.comSessions[0].durationInSeconds")).isEqualTo(10);
@@ -128,7 +129,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/777").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<String>get("$.connectionMethod")).isEqualTo("GPRS");
+        assertThat(jsonModel.<String>get("$.connectionMethod.name")).isEqualTo("GPRS");
+        assertThat(jsonModel.<Integer>get("$.connectionMethod.id")).isEqualTo(3);
         assertThat(jsonModel.<Long>get("$.startedOn")).isEqualTo(start.toEpochMilli());
         assertThat(jsonModel.<Long>get("$.finishedOn")).isEqualTo(end.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.durationInSeconds")).isEqualTo(10);

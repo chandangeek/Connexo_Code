@@ -10,7 +10,7 @@ import java.util.Date;
  */
 class ComSessionInfo {
     public long id;
-    public String connectionMethod;
+    public IdWithNameInfo connectionMethod;
     public Date startedOn;
     public Date finishedOn;
     public Long durationInSeconds;

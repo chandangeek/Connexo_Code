@@ -7,6 +7,8 @@ import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+
 import java.time.Duration;
 import java.time.temporal.ChronoField;
 import java.util.Date;
@@ -28,10 +30,10 @@ public class ComSessionInfoFactory {
         ConnectionTask<?,?> connectionTask = comSession.getConnectionTask();
         PartialConnectionTask partialConnectionTask = connectionTask.getPartialConnectionTask();
         info.id = comSession.getId();
-        info.device = new IdWithNameInfo(comSession.getConnectionTask().getDevice());
+        info.device = new IdWithNameInfo(comSession.getConnectionTask().getDevice().getmRID(), comSession.getConnectionTask().getDevice().getName());
         info.deviceType = new IdWithNameInfo(comSession.getConnectionTask().getDevice().getDeviceType());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(comSession.getConnectionTask().getDevice().getDeviceConfiguration());
-        info.connectionMethod = connectionTask.getName();
+        info.connectionMethod = new IdWithNameInfo(connectionTask);
         info.isDefault = connectionTask.isDefault();
         info.startedOn = Date.from(comSession.getStartDate().with(ChronoField.MILLI_OF_SECOND,0));
         info.finishedOn = Date.from(comSession.getStopDate().with(ChronoField.MILLI_OF_SECOND, 0));
