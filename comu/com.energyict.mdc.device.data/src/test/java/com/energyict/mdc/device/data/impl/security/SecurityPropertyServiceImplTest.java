@@ -39,9 +39,7 @@ import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -74,7 +72,6 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -150,7 +147,7 @@ public class SecurityPropertyServiceImplTest {
         when(this.securityPropertySet.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
 
         // Business method
-        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, new Date(), this.securityPropertySet);
+        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet);
 
         // Asserts
         verify(this.securityPropertySet).currentUserIsAllowedToViewDeviceProperties();
@@ -162,7 +159,7 @@ public class SecurityPropertyServiceImplTest {
         when(this.protocolPluggableService.findSecurityPropertyRelationType(this.deviceProtocolPluggableClass)).thenReturn(null);
 
         // Business method
-        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, new Date(), this.securityPropertySet);
+        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet);
 
         // Asserts
         verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
@@ -175,7 +172,7 @@ public class SecurityPropertyServiceImplTest {
         try {
             this.initializeDatabase();
             // Business method
-            List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, new Date(), this.securityPropertySet);
+            List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet);
 
             // Asserts
             verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
@@ -275,15 +272,12 @@ public class SecurityPropertyServiceImplTest {
         }
 
         private void initializeFactoryProviders() {
-            ((PropertySpecServiceImpl) this.propertySpecService).addFactoryProvider(new ReferencePropertySpecFinderProvider() {
-                @Override
-                public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-                    List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-                    finders.add(new ConnectionTaskFinder(ormService.getDataModels().get(0)));
-                    finders.add(new DeviceFinder(ormService.getDataModels().get(0)));
-                    finders.add(new SecuritySetFinder(ormService.getDataModels().get(0)));
-                    return finders;
-                }
+            this.propertySpecService.addFactoryProvider(() -> {
+                List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+                finders.add(new ConnectionTaskFinder(ormService.getDataModels().get(0)));
+                finders.add(new DeviceFinder(ormService.getDataModels().get(0)));
+                finders.add(new SecuritySetFinder(ormService.getDataModels().get(0)));
+                return finders;
             });
         }
 

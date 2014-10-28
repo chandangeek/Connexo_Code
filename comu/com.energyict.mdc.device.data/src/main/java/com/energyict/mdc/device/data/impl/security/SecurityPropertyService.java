@@ -3,7 +3,8 @@ package com.energyict.mdc.device.data.impl.security;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import java.util.Date;
+
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public interface SecurityPropertyService {
      * @param securityPropertySet The SecurityPropertySet
      * @return The List of SecurityProperties
      */
-    public List<SecurityProperty> getSecurityProperties(Device device, Date when, SecurityPropertySet securityPropertySet);
+    public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
 
     /**
      * Tests if the {@link Device} has properties for the specified {@link SecurityPropertySet}
@@ -35,6 +36,6 @@ public interface SecurityPropertyService {
      * @param securityPropertySet The SecurityPropertySet
      * @return A flag that indicates if the Device has security properties on the specified Date
      */
-    public boolean hasSecurityProperties(Device device, Date when, SecurityPropertySet securityPropertySet);
+    public boolean hasSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
 
 }

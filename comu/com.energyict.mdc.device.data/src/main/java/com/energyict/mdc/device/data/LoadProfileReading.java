@@ -5,8 +5,7 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 
-import java.math.BigDecimal;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -23,11 +22,10 @@ public interface LoadProfileReading {
 
     Map<Channel, DataValidationStatus> getChannelValidationStates();
 
-    void setReadingTime(Date reportedDateTime);
-
-    Date getReadingTime();
+    Instant getReadingTime();
 
     void setFlags(List<ProfileStatus.Flag> flags);
 
     List<ProfileStatus.Flag> getFlags();
+
 }
