@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation of a LoadProfile of a {@link com.energyict.mdc.device.data.Device}
@@ -58,12 +59,8 @@ public class LoadProfileImpl implements LoadProfile {
     }
 
     @Override
-    public Date getLastReading() {
-        if(lastReading != null){
-            return Date.from(lastReading);
-        } else {
-            return null;
-        }
+    public Optional<Instant> getLastReading() {
+        return Optional.ofNullable(this.lastReading);
     }
 
     @Override
@@ -243,7 +240,7 @@ public class LoadProfileImpl implements LoadProfile {
         }
 
         @Override
-        public Date getLastReading() {
+        public Optional<Instant> getLastReading() {
             return getLoadProfile().getLastReading();
         }
 
