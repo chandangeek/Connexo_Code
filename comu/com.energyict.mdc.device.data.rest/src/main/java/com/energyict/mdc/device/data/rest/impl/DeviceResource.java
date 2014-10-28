@@ -53,7 +53,7 @@ public class DeviceResource {
     private final Provider<DeviceScheduleResource> deviceScheduleResourceProvider;
     private final Provider<DeviceComTaskResource> deviceComTaskResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
-    private final Provider<DeviceCommandResource> deviceCommandResourceProvider;
+    private final Provider<DeviceMessageResource> deviceCommandResourceProvider;
     private final DeviceMessageService deviceMessageService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
@@ -74,7 +74,7 @@ public class DeviceResource {
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
             Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
-            Provider<DeviceCommandResource> deviceCommandResourceProvider,
+            Provider<DeviceMessageResource> deviceCommandResourceProvider,
             DeviceMessageService deviceMessageService,
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory, DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory) {
 
@@ -231,7 +231,7 @@ public class DeviceResource {
     }
 
     @Path("/{mRID}/commands")
-    public DeviceCommandResource getCommandResource() {
+    public DeviceMessageResource getCommandResource() {
         return deviceCommandResourceProvider.get();
     }
 }

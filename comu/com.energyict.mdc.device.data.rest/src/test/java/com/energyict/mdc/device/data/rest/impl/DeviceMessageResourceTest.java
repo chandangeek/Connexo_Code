@@ -48,7 +48,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import static com.energyict.mdc.device.data.rest.impl.DeviceCommandResourceTest.Necessity.Required;
+import static com.energyict.mdc.device.data.rest.impl.DeviceMessageResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -60,7 +60,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 10/22/14.
  */
-public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTest {
+public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Mock
     private PropertySpecService propertySpecService;
@@ -370,6 +370,24 @@ public class DeviceCommandResourceTest extends DeviceDataRestApplicationJerseyTe
 //        assertThat(objectArgumentCaptor.getAllValues().get(1)).isEqualTo(1414067539213L);
         assertThat(instantArgumentCaptor.getValue()).isEqualTo(deviceMessageInfo.releaseDate);
 
+    }
+
+    @Test
+    public void testDeleteDeviceMessage() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        DeviceMessage msg1 = mock(DeviceMessage.class);
+        when(msg1.getId()).thenReturn(1L);
+        DeviceMessage msg2 = mock(DeviceMessage.class);
+        when(msg2.getId()).thenReturn(2L);
+        DeviceMessage msg3 = mock(DeviceMessage.class);
+        when(msg3.getId()).thenReturn(3L);
+        when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
+        Response response = target("/devices/ZABF010000080004/commands/2").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ArgumentCaptor<DeviceMessage> argumentCaptor = ArgumentCaptor.forClass(DeviceMessage.class);
+        verify(device, times(1)).removeDeviceMessage(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getId()).isEqualTo(2L);
     }
 
     private ComTaskExecution mockComTaskExecution(int categoryId, boolean isOnHold) {

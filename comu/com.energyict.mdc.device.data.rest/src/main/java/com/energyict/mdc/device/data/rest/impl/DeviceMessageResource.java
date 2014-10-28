@@ -7,6 +7,7 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -14,18 +15,21 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 10/22/14.
  */
-public class DeviceCommandResource {
+public class DeviceMessageResource {
     private final ResourceHelper resourceHelper;
     private final DeviceMessageInfoFactory deviceMessageInfoFactory;
     private final MdcPropertyUtils mdcPropertyUtils;
@@ -33,7 +37,7 @@ public class DeviceCommandResource {
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceCommandResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceMessageService deviceMessageService, ExceptionFactory exceptionFactory) {
+    public DeviceMessageResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceMessageService deviceMessageService, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceMessageInfoFactory = deviceMessageInfoFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
@@ -76,5 +80,15 @@ public class DeviceCommandResource {
         }
 
         return deviceMessageInfoFactory.asInfo(deviceMessageBuilder.add());
+    }
+
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("{deviceMessageId}")
+    public Response deleteDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        DeviceMessage<?> deviceMessage = device.getMessages().stream().filter(message -> message.getId() == deviceMessageId).findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE));
+        device.removeDeviceMessage(deviceMessage);
+        return Response.status(Response.Status.OK).build();
     }
 }

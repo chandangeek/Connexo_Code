@@ -88,7 +88,9 @@ public enum MessageSeeds implements MessageSeed {
     COMMAND_SENT(104, "CommandSent", "Sent"),
     COMMAND_WAITING(105, "CommandWaiting", "Waiting"),
     NO_SUCH_USER(106, "NoSuchUser", "No such user"),
-    NO_SUCH_MESSAGE_SPEC(107, "NoSuchMessageSpec", "No such device message specification");
+    NO_SUCH_MESSAGE_SPEC(107, "NoSuchMessageSpec", "No such device message specification"),
+    NO_SUCH_MESSAGE(108, "NoSuchMessage", "No such device message exists on the device" )
+    ;
 
     private final int number;
     private final String key;

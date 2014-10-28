@@ -109,7 +109,7 @@ public class DeviceApplication extends Application implements InstallService {
                 DeviceGroupResource.class,
                 ConnectionMethodResource.class,
                 ComSessionResource.class,
-                DeviceCommandResource.class
+                DeviceMessageResource.class
         );
     }
 
