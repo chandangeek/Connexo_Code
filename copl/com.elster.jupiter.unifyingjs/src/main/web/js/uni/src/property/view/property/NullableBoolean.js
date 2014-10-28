@@ -11,6 +11,7 @@ Ext.define('Uni.property.view.property.NullableBoolean', {
             allowBlank: false,
             vertical: true,
             columns: 1,
+            readOnly: me.isReadOnly,
             items: [
                 {
                     boxLabel: Uni.I18n.translate('true', me.translationKey, 'True'),

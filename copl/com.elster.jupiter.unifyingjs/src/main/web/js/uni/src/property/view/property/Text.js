@@ -8,7 +8,8 @@ Ext.define('Uni.property.view.property.Text', {
             name: this.getName(),
             itemId: me.key + 'textfield',
             width: me.width,
-            msgTarget: 'under'
+            msgTarget: 'under',
+            readOnly: me.isReadOnly
         }
     },
 
