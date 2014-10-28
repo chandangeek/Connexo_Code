@@ -180,8 +180,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
         Ext.Array.each(loadProfileRecord.get('channels'), function (channel, index) {
             var seriesObject = {marker: {
-                    enabled: false
-                }};
+                enabled: false
+            }};
             seriesObject['name'] = channel.name;
             channelDataArrays[channel.id] = [];
             seriesObject['data'] = channelDataArrays[channel.id];
@@ -205,7 +205,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
         lineCount = measurementTypeOrder.length;
         step = (100 / lineCount | 0) - 1;
-        axisBacklash = (4 -lineCount) > 0 ? (4 -lineCount) : 0;
+        axisBacklash = (4 - lineCount) > 0 ? (4 - lineCount) : 0;
 
         Ext.Array.each(channels, function (channel, index) {
             var yAxisObject = {
@@ -231,7 +231,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             yAxisObject['title'] = {
                 rotation: 0,
                 align: 'high',
-                margin: -40 - 5 * yAxisTitle.length,
+                margin: - 5 * yAxisTitle.length,
                 text: yAxisTitle
             };
             yAxis.push(yAxisObject);
@@ -339,7 +339,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             nonSuspect = nonSuspectField.boxLabel,
             eventDateText = '';
         eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-                    + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y') + ' ';
+            + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y') + ' ';
         filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
         filterView.down('#Reset').setText('Reset');
         if (suspectField.getValue()) {
