@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -18,13 +16,8 @@ import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -32,10 +25,17 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ComServerDAOImpl} component.
@@ -65,8 +65,6 @@ public class ComServerDAOImplTest {
     private DeviceIdentifier deviceIdentifier;
     @Mock
     private DeviceIdentifier gatewayDeviceIdentifier;
-    @Mock
-    private BusinessEvent businessEvent;
     @Mock
     private EngineModelService engineModelService;
     @Mock

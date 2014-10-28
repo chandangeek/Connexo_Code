@@ -75,6 +75,11 @@ public class MultiThreadedComPortListenerTest {
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
     }
 
+    @After
+    public void resetServiceProvider () {
+        ServiceProvider.instance.set(null);
+    }
+
     @Before
     public void setupEventPublisher () {
         EventPublisherImpl.setInstance(this.eventPublisher);
@@ -85,7 +90,7 @@ public class MultiThreadedComPortListenerTest {
         EventPublisherImpl.setInstance(null);
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 10000)
     public void testStart() throws BusinessException, InterruptedException {
         MultiThreadedComPortListener multiThreadedComPortListener = null;
         try {
@@ -134,7 +139,7 @@ public class MultiThreadedComPortListenerTest {
         }
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 10000)
     public void testAcceptedInboundCall() throws InterruptedException {
         MultiThreadedComPortListener multiThreadedComPortListener = null;
 
@@ -290,7 +295,7 @@ public class MultiThreadedComPortListenerTest {
         }
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 10000)
     public void testWorkFailed() throws BusinessException, InterruptedException {
         LatchDrivenMultiThreadedComPortListener multiThreadedComPortListener = null;
         try {

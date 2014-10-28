@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.EventType;
@@ -202,7 +201,6 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         // Asserts
         verify(comServerDAO, times(1)).updateGateway(any(DeviceIdentifier.class), any(DeviceIdentifier.class));
-        verify(comServerDAO, never()).signalEvent(anyString(), any(BusinessEvent.class));
         verify(mockedExecutionLogger).addIssue(eq(CompletionCode.ConfigurationWarning), any(Issue.class), eq(comTaskExecution));
     }
 
@@ -240,7 +238,6 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         // Asserts
         verify(comServerDAO, never()).updateGateway(any(DeviceIdentifier.class), any(DeviceIdentifier.class));
-        verify(comServerDAO, times(1)).signalEvent(anyString(), any(BusinessEvent.class));
         verify(mockedExecutionLogger).addIssue(eq(CompletionCode.ConfigurationWarning), any(Issue.class), eq(comTaskExecution));
     }
 
