@@ -1,13 +1,9 @@
-Ext.define('Isu.model.CreationRuleTemplate', {
+Ext.define('Isu.model.AssignmentRule', {
     extend: 'Ext.data.Model',
-    requires: [
-        'Isu.model.CreationRule'
-    ],
-    belongsTo: 'Isu.model.CreationRule',
     fields: [
         {
-            name: 'uid',
-            type: 'string'
+            name: 'id',
+            type: 'int'
         },
         {
             name: 'name',
@@ -18,16 +14,18 @@ Ext.define('Isu.model.CreationRuleTemplate', {
             type: 'string'
         },
         {
-            name: 'parameters',
+            name: 'assignee',
             type: 'auto'
+        },
+        {
+            name: 'version',
+            type: 'int'
         }
     ],
 
-    idProperty: 'uid',
-
     proxy: {
         type: 'rest',
-        url: '/api/isu/rules/templates',
+        url: '/api/isu/rules/assign',
         reader: {
             type: 'json',
             root: 'data'

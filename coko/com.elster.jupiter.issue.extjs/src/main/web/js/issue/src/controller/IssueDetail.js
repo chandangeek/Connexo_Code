@@ -1,163 +1,161 @@
 Ext.define('Isu.controller.IssueDetail', {
     extend: 'Ext.app.Controller',
 
-    requires: [
-    ],
+    showOverview: function (id, issueModel, issuesStore, widgetXtype) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget(widgetXtype, {
+                router: router
+            });
 
-    stores: [
-        'Isu.store.Issues',
-        'Isu.store.IssueComments'
-    ],
-
-    views: [
-        'workspace.issues.DetailOverview'
-    ],
-
-    refs: [
-        {
-            ref: 'page',
-            selector: 'issue-detail-overview'
-        },
-        {
-            ref: 'detailPanel',
-            selector: 'issue-detail-overview issue-detail'
-        },
-        {
-            ref: 'commentsPanel',
-            selector: 'issue-detail-overview issue-comments dataview'
-        },
-        {
-            ref: 'commentForm',
-            selector: 'issue-detail-overview issue-comments comment-add-form'
-        },
-        {
-            ref: 'commentInput',
-            selector: 'issue-detail-overview issue-comments comment-add-form textareafield'
-        },
-        {
-            ref: 'addCommentButton',
-            selector: 'issue-detail-overview issue-comments button[action=add]'
-        },
-        {
-            ref: 'sendCommentButton',
-            selector: 'issue-detail-overview form button[action=send]'
-        }
-    ],
-
-    init: function () {
-        this.control({
-            'issue-detail-overview issue-comments button[action=add]': {
-                click: this.showCommentForm
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+        me.getModel(issueModel).load(id, {
+            callback: function () {
+                widget.setLoading(false);
             },
-            'issue-detail-overview form button[action=cancel]': {
-                click: this.hideCommentForm
-            },
-            'issue-detail-overview form button[action=send]': {
-                click: this.addComment
-            },
-            'issue-detail-overview form textareafield': {
-                change: this.validateCommentForm
-            }
-        });
-    },
-
-    showOverview: function (id, showCommentForm) {
-        var self = this,
-            widget = Ext.widget('issue-detail-overview'),
-            issueDetailModel = self.getModel('Isu.model.Issues'),
-            form = widget.down('issue-form');
-
-        showCommentForm && self.showCommentForm();
-        issueDetailModel.load(id, {
             success: function (record) {
-                form.loadRecord(record);
-                form.setTitle(record.get('title'));
-
-                var store = record.comments();
-
-                // todo: this is dirty solution, rewrite in to the more solid one
-                store.getProxy().url = store.getProxy().url.replace('{issue_id}', record.getId());
-                store.clearFilter();
-
-                store.proxy.url = '/api/idc/issue/' + id + '/comments';
-                store.load();
-                self.getApplication().fireEvent('changecontentevent', widget);
-                self.getCommentsPanel().bindStore(store);
-                self.setNavigationButtons(record);
+                if (!widget.isDestroyed) {
+                    me.getApplication().fireEvent('issueLoad', record);
+                    widget.down('#issue-detail-top-title').setTitle(record.get('title'));
+                    me.getDetailForm().loadRecord(record);
+                    widget.down('#issue-detail-action-menu').record = record;
+                    me.loadComments(record);
+                    me.setNavigationButtons(record, me.getStore(issuesStore));
+                }
             },
             failure: function () {
-                window.location.href = '#/workspace/datacollection/issues';
+                router.getRoute(router.currentRoute.replace('/view', '')).forward();
             }
         });
     },
 
-    showCommentForm: function (btn) {
-        this.getCommentForm().show();
-        this.getCommentInput().focus();
-        btn.hide();
+    loadComments: function (record) {
+        var commentsView = this.getPage().down('#issue-comments-view'),
+            commentsStore = record.comments();
+
+        commentsStore.getProxy().url = record.getProxy().url + '/' + record.getId() + '/comments';
+        commentsView.bindStore(commentsStore);
+        commentsView.setLoading(true);
+        commentsStore.load(function (records) {
+            if (!commentsView.isDestroyed) {
+                commentsStore.add(records);
+                commentsView.setLoading(false);
+                commentsView.previousSibling('#no-issue-comments').setVisible(!records.length);
+            }
+        });
+        if (this.getController('Uni.controller.history.Router').queryParams.addComment) {
+            this.showCommentForm();
+        }
+    },
+
+    showCommentForm: function () {
+        var commentsPanel = this.getCommentsPanel();
+
+        commentsPanel.down('#issue-add-comment-form').show();
+        commentsPanel.down('#issue-add-comment-area').focus();
+        commentsPanel.down('#issue-comments-add-comment-button').hide();
     },
 
     hideCommentForm: function () {
-        var form = this.getCommentForm(),
-            button = this.getAddCommentButton();
+        var commentsPanel = this.getCommentsPanel();
 
-        form.down('textareafield').reset();
-        form.hide();
-        button.show();
+        commentsPanel.down('#issue-add-comment-form').hide();
+        commentsPanel.down('#issue-add-comment-area').reset();
+        commentsPanel.down('#issue-comments-add-comment-button').show();
     },
 
-    validateCommentForm: function (form, newValue) {
-        var sendBtn = this.getSendCommentButton();
-        sendBtn.setDisabled(!newValue.trim().length);
+    validateCommentForm: function (textarea, newValue) {
+        this.getCommentsPanel().down('#issue-comment-save-button').setDisabled(!newValue.trim().length);
     },
 
     addComment: function () {
-        var self = this,
-            commentsPanel = self.getCommentsPanel(),
-            commentsStore = commentsPanel.getStore()
-            ;
+        var me = this,
+            commentsPanel = me.getCommentsPanel(),
+            commentsStore = commentsPanel.down('#issue-comments-view').getStore();
 
-        var store = commentsPanel.getStore();
-        store.add(self.getCommentForm().getValues());
-        store.sync();
-
-        self.hideCommentForm();
+        commentsStore.add(commentsPanel.down('#issue-add-comment-form').getValues());
+        commentsStore.sync();
+        commentsPanel.down('#no-issue-comments').hide();
+        me.hideCommentForm();
     },
 
-    setNavigationButtons: function (model) {
-        var prevBtn = this.getPage().down('[action=prev]'),
-            nextBtn = this.getPage().down('[action=next]'),
-            issueStore = this.getStore('Isu.store.Issues'),
-            currentIndex = issueStore.indexOf(model),
+    setNavigationButtons: function (record, issuesStore) {
+        var me = this,
+            navigationPanel = this.getNavigation(),
+            prevBtn = navigationPanel.down('[action=prev]'),
+            nextBtn = navigationPanel.down('[action=next]'),
+            currentIndex = issuesStore.indexOf(record),
             router = this.getController('Uni.controller.history.Router'),
             prevIndex,
             nextIndex;
 
-        if (currentIndex != -1) {
+        if (currentIndex !== -1) {
             currentIndex && (prevIndex = currentIndex - 1);
-            (issueStore.getCount() > (currentIndex + 1)) && (nextIndex = currentIndex + 1);
+            (issuesStore.getCount() > (currentIndex + 1)) && (nextIndex = currentIndex + 1);
 
             if (prevIndex || prevIndex == 0) {
+                prevBtn.setHref(router.getRoute(router.currentRoute).buildUrl({issueId: issuesStore.getAt(prevIndex).getId()}));
                 prevBtn.on('click', function () {
-                    router.getRoute('workspace/datacollection/issues/view').forward({id: issueStore.getAt(prevIndex).getId()});
-                });
+                    router.getRoute(router.currentRoute).forward({issueId: issuesStore.getAt(prevIndex).getId()});
+                }, me, {single: true});
             } else {
                 prevBtn.setDisabled(true);
             }
 
             if (nextIndex) {
+                nextBtn.setHref(router.getRoute(router.currentRoute).buildUrl({issueId: issuesStore.getAt(nextIndex).getId()}));
                 nextBtn.on('click', function () {
-                    router.getRoute('workspace/datacollection/issues/view').forward({id: issueStore.getAt(nextIndex).getId()});
-                });
+                    router.getRoute(router.currentRoute).forward({issueId: issuesStore.getAt(nextIndex).getId()});
+                }, me, {single: true});
             } else {
                 nextBtn.setDisabled(true);
             }
 
-            prevBtn.show();
-            nextBtn.show();
+            navigationPanel.show();
         } else {
-            prevBtn.hide();
-            nextBtn.hide();
+            navigationPanel.hide();
         }
+    },
+
+    chooseAction: function (menu, menuItem) {
+        var router = this.getController('Uni.controller.history.Router');
+
+        if (Ext.isEmpty(menuItem.actionRecord.get('parameters'))) {
+            this.applyActionImmediately(menu.record, menuItem.actionRecord);
+        } else {
+            router.getRoute(router.currentRoute + '/action').forward({issueId: menu.record.getId(), actionId: menuItem.actionRecord.getId()});
+        }
+    },
+
+    applyActionImmediately: function (issue, action) {
+        var me = this,
+            actionModel = Ext.create(issue.actions().model);
+
+        actionModel.setId(action.getId());
+        actionModel.set('parameters', {});
+        actionModel.getProxy().url = issue.getProxy().url + '/' + issue.getId() + '/actions';
+        actionModel.save({
+            callback: function (model, operation, success) {
+                var responseText = Ext.decode(operation.response.responseText, true);
+
+                if (responseText) {
+                    if (responseText.data.actions[0].success) {
+                        me.getApplication().fireEvent('acknowledge', responseText.data.actions[0].message);
+                        me.getModel(issue.$className).load(issue.getId(), {
+                            success: function (record) {
+                                var form = me.getDetailForm();
+
+                                if (form) {
+                                    form.loadRecord(record);
+                                }
+                            }
+                        });
+                    } else {
+                        me.getApplication().getController('Uni.controller.Error').showError(model.get('name'), responseText.data.actions[0].message);
+                    }
+                }
+            }
+        });
     }
 });

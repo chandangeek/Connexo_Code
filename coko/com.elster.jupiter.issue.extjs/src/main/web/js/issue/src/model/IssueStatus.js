@@ -1,18 +1,9 @@
 Ext.define('Isu.model.IssueStatus', {
     extend: 'Ext.data.Model',
-    requires: [
-        'Ext.data.proxy.Rest'
-    ],
-
     fields: [
-        {
-            name: 'id',
-            type: 'auto'
-        },
-        {
-            name: 'name',
-            type: 'string'
-        }
+        {name: 'id', type: 'auto'},
+        {name: 'name', type: 'string'},
+        {name: 'allowForClosing', type: 'boolean'}
     ],
 
     proxy: {

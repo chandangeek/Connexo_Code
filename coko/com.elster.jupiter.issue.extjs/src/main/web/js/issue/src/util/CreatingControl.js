@@ -1,6 +1,7 @@
 Ext.define('Isu.util.CreatingControl', {
     requires: [
-        'Isu.view.workspace.issues.component.UserCombo'
+        'Isu.view.component.UserCombo',
+        'Isu.view.component.AssigneeControl'
     ],
     createControl: function (obj) {
         var control = false;
@@ -26,6 +27,12 @@ Ext.define('Isu.util.CreatingControl', {
                 break;
             case 'trendperiodcontrol':
                 control = this.createTrendPeriodControl(obj);
+                break;
+            case 'checkbox':
+                control = Ext.isEmpty(obj.suffix) ? this.createCheckBox(obj) : this.suffixAppender(this.createCheckBox(obj), obj.suffix);
+                break;
+            case 'issueassignee':
+                control = this.createIssueAssignee(obj);
                 break;
         }
 
@@ -86,7 +93,8 @@ Ext.define('Isu.util.CreatingControl', {
                 queryMode: 'local',
                 displayField: 'title',
                 valueField: 'id',
-                editable: false,
+                editable: true,
+                forceSelection: true,
                 formBind: false
             };
 
@@ -173,11 +181,78 @@ Ext.define('Isu.util.CreatingControl', {
         delete trendPeriod.fieldLabel;
         delete trendPeriod.required;
         trendPeriod.width = 150;
-        trendPeriod.margin = '0 10 0 0' ;
+        trendPeriod.margin = '0 10 0 0';
         trendPeriodUnit.flex = 1;
         trendPeriodControl.items.push(trendPeriod, trendPeriodUnit);
 
         return trendPeriodControl;
+    },
+
+    createIssueAssignee: function (obj) {
+        var me = this,
+            issueAssigneeControl = {
+                xtype: 'issues-assignee-control',
+                fieldLabel: obj.label,
+                name: obj.key,
+                required: obj.constraint.required,
+                items: []
+            },
+            controls = [
+                obj.control.groupControl,
+                obj.control.roleControl,
+                obj.control.userControl
+            ];
+
+        Ext.Array.each(controls, function (item, index) {
+            var control = me.createControl(item),
+                radio = {
+                    xtype: 'radiofield',
+                    name: obj.key,
+                    boxLabel: item.label,
+                    inputValue: item.key,
+                    checked: index === 0 ? true : false,
+                    width: 100,
+                    listeners: {
+                        focus: {
+                            fn: function () {
+                                this.nextSibling().focus();
+                            }
+                        }
+                    }
+                };
+            control.fieldLabel = '';
+            control.listeners = {
+                focus: {
+                    fn: function () {
+                        this.previousSibling().setValue(true);
+                    }
+                }
+            };
+            control.flex = 1;
+            issueAssigneeControl.items.push({
+                items: [
+                    radio,
+                    control
+                ]
+            });
+        });
+
+        return issueAssigneeControl;
+    },
+
+    createCheckBox: function (obj) {
+        var checkBox = {
+            xtype: 'checkboxfield',
+            name: obj.key,
+            fieldLabel: obj.label,
+            formBind: false
+        };
+
+        obj.defaultValue && (checkBox.value = obj.defaultValue);
+        obj.help && (checkBox.afterSubTpl = '<span style="color: #686868; font-style: italic">' + obj.help + '</span>');
+        obj.dependOn && (checkBox.dependOn = obj.dependOn);
+
+        return checkBox;
     },
 
     suffixAppender: function (field, suffix) {

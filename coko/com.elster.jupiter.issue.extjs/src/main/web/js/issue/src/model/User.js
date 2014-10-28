@@ -31,4 +31,3 @@ Ext.define('Isu.model.User', {
         }
     }
 });
-

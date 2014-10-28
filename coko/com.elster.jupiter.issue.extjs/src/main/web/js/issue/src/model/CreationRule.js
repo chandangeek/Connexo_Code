@@ -1,5 +1,8 @@
 Ext.define('Isu.model.CreationRule', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Isu.model.CreationRuleAction'
+    ],
     idProperty: 'id',
     fields: [
         {

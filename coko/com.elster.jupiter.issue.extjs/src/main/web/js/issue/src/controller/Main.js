@@ -12,38 +12,14 @@ Ext.define('Isu.controller.Main', {
     ],
 
     controllers: [
-        'Isu.controller.history.Workspace',
         'Isu.controller.history.Administration',
-        'Isu.controller.Issues',
-        'Isu.controller.AssignIssues',
-        'Isu.controller.CloseIssues',
-        'Isu.controller.BulkChangeIssues',
-        'Isu.controller.MessageWindow',
-        'Isu.controller.IssueAssignmentRules',
-        'Isu.controller.IssueCreationRules',
+        'Isu.controller.AssignmentRules',
+        'Isu.controller.CreationRules',
+        'Isu.controller.CreationRuleEdit',
+        'Isu.controller.CreationRuleActionEdit',
+        'Isu.controller.IssuesOverview',
         'Isu.controller.IssueDetail',
-        'Isu.controller.AdministrationDataCollection',
-        'Isu.controller.NotifySend',
-        'Isu.controller.DataValidation',
-        'Isu.controller.IssueCreationRulesEdit',
-        'Isu.controller.IssueCreationRulesActionsEdit',
-        'Isu.controller.DataCollectionOverview'
-    ],
-
-    stores: [
-        'Isu.store.Issues',
-        'Isu.store.Users'
-    ],
-
-    refs: [
-        {
-            ref: 'viewport',
-            selector: 'viewport'
-        },
-        {
-            ref: 'contentPanel',
-            selector: 'viewport > #contentPanel'
-        }
+        'Isu.controller.ApplyIssueAction'
     ],
 
     init: function () {
@@ -51,81 +27,22 @@ Ext.define('Isu.controller.Main', {
     },
 
     initMenu: function () {
-        var me = this;
+        var me = this,
+            issuemanagement = null,
+            issuemanagementItems = [],
+            router = me.getController('Uni.controller.history.Router'),
+            historian = me.getController('Isu.controller.history.Administration'); // Forces route registration.
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'])) {
-            var workspaceItem = Ext.create('Uni.model.MenuItem', {
-                text: 'Workspace',
-                glyph: 'workspace',
-                portal: 'workspace',
-                index: 30
-            });
-
-            Uni.store.MenuItems.add(workspaceItem);
-        }
         if (Uni.Auth.hasAnyPrivilege(['privilege.view.assignmentRule','privilege.administrate.creationRule','privilege.view.creationRule'])){
-            var administrationItem = Ext.create('Uni.model.MenuItem', {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: 'Administration',
                 glyph: 'settings',
                 portal: 'administration',
                 index: 10
-            });
-
-            Uni.store.MenuItems.add(administrationItem);
+            }));
         }
-        var router = me.getController('Uni.controller.history.Router'),
-            historian0 = me.getController('Isu.controller.history.Workspace'), // Forces route registration.
-            historian1 = me.getController('Isu.controller.history.Administration'); // Forces route registration.
-
-        var datacollection = null;
-
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'])) {
-            datacollection = Ext.create('Uni.model.PortalItem', {
-                title: 'Data collection',
-                portal: 'workspace',
-                route: 'datacollection',
-                items: [
-                    {
-                        text: 'Overview',
-                        href: router.getRoute('workspace/datacollection').buildUrl()
-                    },
-                    {
-                        text: 'Issues',
-                        href: router.getRoute('workspace/datacollection/issues').buildUrl()
-                    },
-                    {
-                        text: 'My open issues',
-                        href: router.getRoute('workspace/datacollection/issues').buildUrl({}, {myopenissues: true})
-                    }
-                ]
-            });
-        }
-
-        var datavalidation = null;
-
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'])) {
-            datavalidation = Ext.create('Uni.model.PortalItem', {
-                title: 'Data validation',
-                portal: '' +
-                    'workspace',
-                route: 'datavalidation',
-                items: [
-                    {
-                        text: 'Overview',
-                        href: '#/workspace/datavalidation'
-                    },
-                    {
-                        text: 'Issues',
-                        href: '#/workspace/datavalidation/issues'
-                    }
-                ]
-            });
-        }
-
-        var issuemanagement = null;
 
         if (Uni.Auth.hasAnyPrivilege(['privilege.view.assignmentRule','privilege.administrate.creationRule','privilege.view.creationRule'])){
-            var issuemanagementItems = [];
             if(Uni.Auth.hasAnyPrivilege(['privilege.view.assignmentRule'])) {
                 issuemanagementItems.push(
                     {
@@ -138,7 +55,7 @@ Ext.define('Isu.controller.Main', {
                 issuemanagementItems.push(
                     {
                         text: 'Issue creation rules',
-                            href: router.getRoute('administration/creationrules').buildUrl()
+                        href: router.getRoute('administration/creationrules').buildUrl()
                     }
                 );
             }
@@ -150,15 +67,8 @@ Ext.define('Isu.controller.Main', {
             });
         }
 
-        if (datacollection != null) {
-            Uni.store.PortalItems.add(datacollection);
-        }
-        if (datavalidation != null) {
-            Uni.store.PortalItems.add(datavalidation);
-        }
-        if (issuemanagement != null) {
+        if (issuemanagement !== null) {
             Uni.store.PortalItems.add(issuemanagement);
         }
-
     }
 });

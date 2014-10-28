@@ -1,20 +1,16 @@
-Ext.define('Isu.store.AssignmentRules', {
+Ext.define('Isu.store.CreationRuleActions', {
     extend: 'Ext.data.Store',
     requires: [
         'Ext.data.proxy.Rest'
     ],
-    model: 'Isu.model.AssignmentRule',
+    model: 'Isu.model.Action',
     autoLoad: false,
-
     proxy: {
         type: 'rest',
-        url: '/api/isu/rules/assign',
+        url: '/api/isu/actions',
         reader: {
             type: 'json',
             root: 'data'
-        },
-        pageParam: false,
-        startParam: false,
-        limitParam: false
+        }
     }
 });

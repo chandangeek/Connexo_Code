@@ -1,7 +1,6 @@
 Ext.define('Isu.store.CreationRuleActionPhases', {
     extend: 'Ext.data.Store',
-    model: 'Isu.model.CreationRuleActionPhases',
-    pageSize: 50,
+    model: 'Isu.model.CreationRuleActionPhase',
     autoLoad: false,
 
     proxy: {
@@ -10,6 +9,9 @@ Ext.define('Isu.store.CreationRuleActionPhases', {
         reader: {
             type: 'json',
             root: 'data'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });

@@ -1,14 +1,23 @@
 Ext.define('Isu.store.IssueGrouping', {
     extend: 'Ext.data.Store',
-    model: 'Isu.model.IssueGrouping',
-    data: [
+    fields: [
         {
-            value: 'none',
-            display: 'None'
+            name: 'id',
+            type: 'string'
         },
         {
-            value: 'reason',
-            display: 'Reason'
+            name: 'value',
+            type: 'string'
+        }
+    ],
+    data: [
+        {
+            id: 'none',
+            value: 'None'
+        },
+        {
+            id: 'reason',
+            value: 'Reason'
         }
     ]
 });
