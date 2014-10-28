@@ -8,11 +8,13 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -27,7 +29,9 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -42,13 +46,15 @@ public class DeviceGroupResource {
     private final RestQueryService restQueryService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final MeteringService meteringService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, ExceptionFactory exceptionFactory) {
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
         this.restQueryService = restQueryService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -80,6 +86,10 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
+        Optional optional = meteringGroupsService.findEndDeviceGroupByName(deviceGroupInfo.name);
+        if (optional.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.DEVICEGROUPNAME_ALREADY_EXISTS, deviceGroupInfo.name);
+        }
         String name = deviceGroupInfo.name;
         boolean dynamic = deviceGroupInfo.dynamic;
         Condition condition = Condition.TRUE;

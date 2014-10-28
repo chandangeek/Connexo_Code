@@ -77,6 +77,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_SESSION_ON_CONNECTION_METHOD(88,"noSuchComSession" ,"No such communication session exists for this connection method"),
     INBOUND(89, ConnectionType.Direction.INBOUND.name(), "Inbound"),
     OUTBOUND(90, ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
+    DEVICEGROUPNAME_ALREADY_EXISTS(91, "deviceGroupNameAlreadyExists", "A devicegroup with name {0} already exists"),
     ;
 
     private final int number;
