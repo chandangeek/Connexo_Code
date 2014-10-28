@@ -1225,6 +1225,26 @@ public class DeviceImpl implements Device {
     }
 
     private ZonedDateTime prefilledIntervalStart(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
+        switch (loadProfile.getInterval().getTimeUnit()) {
+            case MINUTES: // Intentional fall-through
+            case HOURS: {
+                return this.prefilledIntervalStartWithIntervalWithinDay(loadProfile, zoneId, requestedIntervalClippedToMeterActivation);
+            }
+            case DAYS: // Intentional fall-through
+            case WEEKS: // Intentional fall-through
+            case MONTHS: // Intentional fall-through
+            case YEARS: {
+                return this.prefilledIntervalStartWithIntervalLongerThanDay(loadProfile, zoneId, requestedIntervalClippedToMeterActivation);
+            }
+            case MILLISECONDS:  //Intentional fall-through
+            case SECONDS:   //Intentional fall-through
+            default: {
+                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval().getTimeUnit());
+            }
+        }
+    }
+
+    private ZonedDateTime prefilledIntervalStartWithIntervalWithinDay(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
         /* Implementation note: truncate meter activation end point of the interval to the interval length
          * and then increment with interval length until start >= meter activation start
          * to cater for the situation where meter activation is e.g. 8h43 with interval length of 15mins
@@ -1239,6 +1259,14 @@ public class DeviceImpl implements Device {
             attempt = attempt.plus(this.intervalLength(loadProfile));
         }
         return attempt;
+    }
+
+    private ZonedDateTime prefilledIntervalStartWithIntervalLongerThanDay(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
+        return ZonedDateTime
+                    .ofInstant(
+                            requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                            zoneId)
+                    .truncatedTo(this.trunctationUnit(loadProfile));    // round start time to interval boundary
     }
 
     private TemporalUnit trunctationUnit (LoadProfile loadProfile) {
