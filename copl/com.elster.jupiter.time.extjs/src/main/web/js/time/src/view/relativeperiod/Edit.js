@@ -142,7 +142,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
 
     updatePreview: function () {
         var me = this;
-        debugger;
+
         me.getRelativePeriodPreview().updateStartPeriodValue(me.getStartRelativePeriodField().getValue());
         me.getRelativePeriodPreview().updateEndPeriodValue(me.getEndRelativePeriodField().getValue());
         me.getRelativePeriodPreview().updatePreview();
