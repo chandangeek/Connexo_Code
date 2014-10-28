@@ -87,9 +87,9 @@ Ext.define('Uni.controller.Navigation', {
         }
 
         if (!Ext.isEmpty(text)) {
-            Ext.getDoc().dom.title = me.applicationTitle + ' '
+            Ext.getDoc().dom.title = text + ' '
                 + me.applicationTitleSeparator + ' '
-                + text;
+                + me.applicationTitle;
         } else {
             Ext.getDoc().dom.title = me.applicationTitle;
         }
