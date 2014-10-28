@@ -251,6 +251,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_A1800(218, "com.energyict.protocolimpl.dlms.a1800.A1800"),
     ELSTER_AM540(219, "com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540", FamilyRule.DSMR_NTA),
     SAGEMCOM_CX2009_DSMR(220, "com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.CX20009", FamilyRule.DSMR_NTA),
+    SOCOMEC_COUNTIS_E44(221, "com.energyict.protocolimpl.modbus.socomec.countis.e44.E44"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
