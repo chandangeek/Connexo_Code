@@ -59,6 +59,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -1051,8 +1052,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataIfRequestIntervalPreceedsActualMeterActivation() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
-        Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
-        Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
+        Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
+        Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
@@ -1060,24 +1061,24 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
-        Date readingTimeStamp = new Date(1406884500000L);// 1/8/2014 9:15
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp.toInstant(), readingValue));
+        Instant readingTimeStamp = Instant.ofEpochMilli(1406884500000L);// 1/8/2014 9:15
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        Date previousReadingTimeStamp = new Date(1406883600000L);// 1/8/2014 9:00 -> this reading will end up in an interval starting at 8:45
-        Date startIntervalForPreviousReadingTimeStamp = new Date(1406882700000L);// 1/8/2014 8:45
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp.toInstant(), BigDecimal.ZERO));
+        Instant previousReadingTimeStamp = Instant.ofEpochMilli(1406883600000L);// 1/8/2014 9:00 -> this reading will end up in an interval starting at 8:45
+        Instant startIntervalForPreviousReadingTimeStamp = Instant.ofEpochMilli(1406882700000L);// 1/8/2014 8:45
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp, BigDecimal.ZERO));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock);
         meterReading.addIntervalBlock(intervalBlock2);
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Interval.of(dayStart, dayEnd));
         assertThat(readings).describedAs("There should be no data(holders) for the interval 00:00->08:45").hasSize(24 * 4 - 4 * 9 + 1);
-        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(dayEnd.toInstant());
-        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(startIntervalForPreviousReadingTimeStamp.toInstant());
+        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(dayEnd);
+        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(startIntervalForPreviousReadingTimeStamp);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
-            if (reading.getInterval().getEnd().equals(readingTimeStamp.toInstant())) {
+            if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
                 for (Map.Entry<Channel, IntervalReadingRecord> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
@@ -1091,8 +1092,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataIfRequestIntervalExceedsLoadProfilesLastReading() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
-        Date requestIntervalStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
-        Date requestIntervalEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
+        Instant requestIntervalStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
+        Instant requestIntervalEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
@@ -1100,26 +1101,25 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
-        Date readingTimeStamp = new Date(1406852100000L);// 1/8/2014 0:15
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp.toInstant(), readingValue));
+        Instant readingTimeStamp = Instant.ofEpochMilli(1406852100000L);// 1/8/2014 0:15
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        Date previousReadingTimeStamp = new Date(1406851200000L);// 1/8/2014 0:00
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp.toInstant(), BigDecimal.ZERO));
+        Instant previousReadingTimeStamp = Instant.ofEpochMilli(1406851200000L);// 1/8/2014 0:00
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp, BigDecimal.ZERO));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock);
         meterReading.addIntervalBlock(intervalBlock2);
         device.store(meterReading);
         Date lastReading = new Date(1406926800000L); //  Fri, 01 Aug 2014 21:00:00 GMT
-        Date startIntervalOfLastReading = new Date(1406925900000L); //  Fri, 01 Aug 2014 20:45:00 GMT
         device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(requestIntervalStart, requestIntervalEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Interval.of(requestIntervalStart, requestIntervalEnd));
         assertThat(readings).describedAs("There should be no data(holders) for the interval 21:00->00:00").hasSize(24 * 4 - 12); // 3 times 4 intervals/hour missing
         assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(lastReading.toInstant());
-        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(requestIntervalStart.toInstant());
+        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(requestIntervalStart);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
-            if (reading.getInterval().getEnd().equals(readingTimeStamp.toInstant())) {
+            if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
                 for (Map.Entry<Channel, IntervalReadingRecord> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
