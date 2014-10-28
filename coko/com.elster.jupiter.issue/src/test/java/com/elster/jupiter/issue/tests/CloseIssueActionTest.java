@@ -1,6 +1,22 @@
 package com.elster.jupiter.issue.tests;
 
-import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+
+import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.parameters.Parameter;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.share.cep.IssueAction;
@@ -11,31 +27,14 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
-@Ignore("Comment action disabled for now")
-public class CommentIssueActionTest {
+@RunWith(MockitoJUnitRunner.class)
+public class CloseIssueActionTest {
     
     private Injector injector;
 
@@ -65,49 +64,35 @@ public class CommentIssueActionTest {
                 bind(IssueService.class).toInstance(issueService);
             }
         });
-        User user = mock(User.class);
-        when(user.getId()).thenReturn(1L);
-        when(user.getName()).thenReturn("console");
-        ThreadPrincipalService principalService = injector.getInstance(ThreadPrincipalService.class);
-        principalService.set(user);
         when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesarus);
         when(thesarus.getString(Matchers.anyString(), Matchers.anyString())).thenReturn("string");
+
+        IssueStatus status = mock(IssueStatus.class);
+        when(issueService.findStatus(IssueStatus.RESOLVED)).thenReturn(Optional.of(status));
+        when(status.isHistorical()).thenReturn(true);
         IssueActionFactory actionFactory = injector.getInstance(IssueDefaultActionsFactory.class);
-        action = actionFactory.createIssueAction(CommentIssueAction.class.getName());
+        action = actionFactory.createIssueAction(CloseIssueAction.class.getName());
     }
 
     @Test
     public void testCreateAction() {
         assertThat(action).isNotNull();
-        assertThat(action instanceof CommentIssueAction).isTrue();
+        assertThat(action instanceof CloseIssueAction).isTrue();
 
         Map<String, String> params = new HashMap<>();
-        params.put(Parameter.COMMENT.getKey(), "comment");
+        params.put(Parameter.CLOSE_STATUS.getKey(), "status.resolved");
         assertThat(action.validate(params)).hasSize(0);
-        assertThat(action.getParameterDefinitions()).hasSize(1);
     }
 
     @Test
     public void testActionValidation() {
-        Issue issue = mock(Issue.class);
-        when(issue.getId()).thenReturn(1L);
-
+        when(issueService.findStatus("zxcv")).thenReturn(Optional.empty());
+        
         Map<String, String> params = new HashMap<>();
-        params.put(Parameter.COMMENT.getKey(), null);
-        action.execute(issue, params);
-        verify(issue, times(0)).getId();
-
-        params.put(Parameter.COMMENT.getKey(), "");
-        action.execute(issue, params);
-        verify(issue, times(0)).getId();
-
-        params.put(Parameter.COMMENT.getKey(), " ");
-        action.execute(issue, params);
-        verify(issue, times(0)).getId();
-
+        params.put(Parameter.CLOSE_STATUS.getKey(), "zxcv");
+        assertThat(action.validate(params)).hasSize(1);
     }
 
-    @Test
     public void testExecuteAction() {
         Map<String, String> inputParams = new HashMap<>();
         inputParams.put(Parameter.COMMENT.getKey(), "some comment");
@@ -123,11 +108,14 @@ public class CommentIssueActionTest {
         Issue issue = mock(Issue.class);
         IssueStatus status = mock(IssueStatus.class);
         when(issue.getStatus()).thenReturn(status);
+        when(status.getKey()).thenReturn(IssueStatus.OPEN);
         
-        when(status.isHistorical()).thenReturn(false);
         assertThat(action.isApplicable(issue)).isTrue();
-        
-        when(status.isHistorical()).thenReturn(true);
-        assertThat(action.isApplicable(issue)).isTrue();
+        when(status.getKey()).thenReturn(IssueStatus.IN_PROGRESS);
+        assertThat(action.isApplicable(issue)).isFalse();
+        when(status.getKey()).thenReturn(IssueStatus.RESOLVED);
+        assertThat(action.isApplicable(issue)).isFalse();
+        when(status.getKey()).thenReturn(IssueStatus.WONT_FIX);
+        assertThat(action.isApplicable(issue)).isFalse();
     }
 }

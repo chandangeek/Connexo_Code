@@ -60,10 +60,7 @@ public class AssignIssueAction extends AbstractIssueAction {
 
     @Override
     public <T extends Issue> boolean isApplicable(T issue) {
-        if (issue != null){
-            return !issue.getStatus().isHistorical();
-        }
-        return false;
+        return issue != null;
     }
 
     @Override

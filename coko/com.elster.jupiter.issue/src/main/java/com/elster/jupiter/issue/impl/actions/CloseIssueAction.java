@@ -52,7 +52,7 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public <T extends Issue> boolean isApplicable(T issue) {
         if (issue != null){
-            return !issue.getStatus().isHistorical();
+            return IssueStatus.OPEN.equals(issue.getStatus().getKey());
         }
         return false;
     }

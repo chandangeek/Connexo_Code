@@ -7,6 +7,7 @@ import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -18,6 +19,7 @@ import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -111,5 +113,18 @@ public class AssignIssueActionTest {
         when(issue.getId()).thenReturn(1L);
 
         action.execute(issue, inputParams);
+    }
+    
+    @Test
+    public void testActionAvailabilityDependingOnStatsus() {
+        Issue issue = mock(Issue.class);
+        IssueStatus status = mock(IssueStatus.class);
+        when(issue.getStatus()).thenReturn(status);
+        
+        when(status.isHistorical()).thenReturn(false);
+        assertThat(action.isApplicable(issue)).isTrue();
+        
+        when(status.isHistorical()).thenReturn(true);
+        assertThat(action.isApplicable(issue)).isTrue();
     }
 }
