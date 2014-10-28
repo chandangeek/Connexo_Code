@@ -64,13 +64,11 @@ import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.PropertySpecServiceDependency;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTimeZone;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

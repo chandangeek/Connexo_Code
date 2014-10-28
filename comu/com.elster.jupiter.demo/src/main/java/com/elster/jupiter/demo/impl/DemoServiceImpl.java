@@ -94,6 +94,8 @@ public class DemoServiceImpl implements DemoService {
     public static final String COM_TASK_READ_REGISTER_BILLING_DATA = "Read register billing data";
     public static final String COM_TASK_READ_LOAD_PROFILE_DATA = "Read load profile data";
 
+    public static final String OUTBOUND_TCP_POOL_NAME = "Outbound TCP Pool";
+
     public static final String VODAFONE_TCP_POOL_NAME = "Vodafone";
     public static final String ORANGE_TCP_POOL_NAME = "Orange";
 
