@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;

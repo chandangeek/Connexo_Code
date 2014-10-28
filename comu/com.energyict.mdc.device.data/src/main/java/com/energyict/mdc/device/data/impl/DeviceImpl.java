@@ -183,6 +183,8 @@ public class DeviceImpl implements Device {
     private List<ConnectionTaskImpl<?, ?>> connectionTasks;
     @Valid
     private List<ComTaskExecutionImpl> comTaskExecutions;
+    @Valid
+    private List<DeviceMessageImpl> deviceMessages;
 
     private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
@@ -193,6 +195,7 @@ public class DeviceImpl implements Device {
     private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     private final Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
+    private final Provider<DeviceMessageImpl> deviceMessageProvider;
     private transient DeviceValidationImpl deviceValidation;
 
     @Inject
@@ -211,7 +214,8 @@ public class DeviceImpl implements Device {
             Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
             Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
             Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
-            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
+            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider,
+            Provider<DeviceMessageImpl> deviceMessageProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
@@ -227,6 +231,7 @@ public class DeviceImpl implements Device {
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
         this.scheduledComTaskExecutionProvider = scheduledComTaskExecutionProvider;
         this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
+        this.deviceMessageProvider = deviceMessageProvider;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
@@ -1565,7 +1570,37 @@ public class DeviceImpl implements Device {
 
     @Override
     public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
-        return null;
+        return new InternalDeviceMessageBuilder(deviceMessageId);
+    }
+
+    private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{
+
+        private final DeviceMessageImpl deviceMessage;
+
+        public InternalDeviceMessageBuilder(DeviceMessageId deviceMessageId) {
+            deviceMessage = deviceMessageProvider.get().initialize(DeviceImpl.this, deviceMessageId);
+        }
+
+        @Override
+        public DeviceMessageBuilder addProperty(String key, Object value) {
+            return null;
+        }
+
+        @Override
+        public DeviceMessageBuilder setReleaseDate(Instant releaseDate) {
+            return null;
+        }
+
+        @Override
+        public DeviceMessageBuilder setTrackingId(String trackingId) {
+            return null;
+        }
+
+        @Override
+        public DeviceMessage<Device> add() {
+            DeviceImpl.this.deviceMessages.add(this.deviceMessage);
+            return this.deviceMessage;
+        }
     }
 
     private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {

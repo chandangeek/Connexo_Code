@@ -13,6 +13,7 @@ import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import org.junit.After;
@@ -31,6 +32,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.TimeZone;
 
 import static org.mockito.Mockito.mock;
@@ -69,6 +71,8 @@ public abstract class PersistenceIntegrationTest {
     protected static Clock clock = mock(Clock.class);
     protected static InMemoryIntegrationPersistence inMemoryPersistence;
 
+    EnumSet<DeviceMessageId> deviceMessageIds;
+
     @BeforeClass
     public static void initialize() throws SQLException {
         initializeClock();
@@ -89,6 +93,10 @@ public abstract class PersistenceIntegrationTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
+                DeviceMessageId.CONTACTOR_OPEN,
+                DeviceMessageId.CONTACTOR_ARM);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;
         when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
@@ -97,9 +105,9 @@ public abstract class PersistenceIntegrationTest {
         when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
+        deviceType.save();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceType.save();
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);

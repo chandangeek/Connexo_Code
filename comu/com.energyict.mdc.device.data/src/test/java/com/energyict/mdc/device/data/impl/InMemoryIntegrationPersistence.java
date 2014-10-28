@@ -28,6 +28,7 @@ import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
@@ -61,6 +62,7 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -129,6 +131,7 @@ public class InMemoryIntegrationPersistence {
     private LicenseService licenseService;
     private LicensedProtocolService licensedProtocolService;
     private ValidationService validationService;
+    private DeviceMessageService deviceMessageService;
 
     public InMemoryIntegrationPersistence() {
         this(Clock.systemDefaultZone());
@@ -178,7 +181,6 @@ public class InMemoryIntegrationPersistence {
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
                 new BasicPropertiesModule(),
-                new MdcDynamicModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
                 new KpiModule(),
@@ -208,6 +210,7 @@ public class InMemoryIntegrationPersistence {
             this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.schedulingService = injector.getInstance(SchedulingService.class);
+            this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
             this.deviceDataModelService = injector.getInstance(DeviceDataModelService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
@@ -247,7 +250,7 @@ public class InMemoryIntegrationPersistence {
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class);
+        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
         when(this.principal.getName()).thenReturn(testName);
         this.applicationContext = mock(ApplicationContext.class);
         Translator translator = mock(Translator.class);
@@ -382,7 +385,9 @@ public class InMemoryIntegrationPersistence {
                 }
             });
         }
-
     }
 
+    public User getMockedUser(){
+        return (User) this.principal;
+    }
 }

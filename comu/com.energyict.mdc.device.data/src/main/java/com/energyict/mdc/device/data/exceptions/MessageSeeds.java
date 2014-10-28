@@ -78,7 +78,10 @@ public enum MessageSeeds implements MessageSeed {
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2047, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
     COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2048, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device", Level.SEVERE),
     DEVICE_GROUP_IS_REQUIRED(2049, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection device group", Level.SEVERE),
-    EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),;
+    EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),
+    UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE(2051, Keys.UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE, "The deviceMessageId {1} is not known for a device like {0}", Level.SEVERE),
+    ;
+
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -159,6 +162,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = "deviceProtocolDialectProperty.value.invalid";
         public static final String DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = "deviceProtocolDialectProperty.required";
         public static final String DEVICE_IS_REQUIRED = "deviceIsRequired";
+        public static final String USER_IS_REQUIRED = "userIsRequired";
         public static final String COMTASK_IS_REQUIRED = "comTaskIsRequired";
         public static final String COMSCHEDULE_IS_REQUIRED = "comScheduleIsRequired";
         public static final String NEXTEXECUTIONSPEC_IS_REQUIRED = "nextExecutionSpecIsRequired";
@@ -186,6 +190,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "comScheduleCannotDeleteNotFromDevice";
         public static final String DEVICE_GROUP_IS_REQUIRED = "endDeviceGroupIsRequired";
         public static final String EMPTY_DATA_COLLECTION_KPI = "dataCollectionKpi.cannotBeEmpty";
+        public static final String UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE = "unknown.deviceMessageId.device";
     }
 
 }

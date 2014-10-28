@@ -42,7 +42,11 @@ public enum EventType {
             return eventTypeBuilder.withProperty("minId", ValueType.LONG, "minId")
                     .withProperty("maxId", ValueType.LONG, "maxId").withProperty("comScheduleId", ValueType.LONG, "comScheduleId");
         }
-    };
+    },
+    DEVICEMESSAGE_CREATED("deviceMessage/CREATED"),
+    DEVICEMESSAGE_UPDATED("deviceMessage/UPDATED"),
+    DEVICEMESSAGE_DELETED("deviceMessage/DELETED"),
+    ;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";
     private final String topic;
