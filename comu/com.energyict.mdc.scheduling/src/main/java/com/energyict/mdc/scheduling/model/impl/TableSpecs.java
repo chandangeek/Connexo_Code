@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.common.Global;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.TaskService;
@@ -32,8 +31,8 @@ public enum TableSpecs {
             Table<ComSchedule> table = dataModel.addTable(name(), ComSchedule.class);
             table.map(ComScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(Global.DEFAULT_DB_STRING_LENGTH).map(ComScheduleImpl.Fields.NAME.fieldName()).add();
-            table.column("MRID").varChar(Global.DEFAULT_DB_STRING_LENGTH).map(ComScheduleImpl.Fields.MRID.fieldName()).add();
+            table.column("NAME").varChar().map(ComScheduleImpl.Fields.NAME.fieldName()).add();
+            table.column("MRID").varChar().map(ComScheduleImpl.Fields.MRID.fieldName()).add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(ComScheduleImpl.Fields.STATUS.fieldName()).add();
             table.column("STARTDATE").number().conversion(NUMBER2INSTANT).map(ComScheduleImpl.Fields.START_DATE.fieldName()).add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).add();

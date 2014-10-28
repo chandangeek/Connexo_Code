@@ -1,21 +1,21 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.common.Global;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
-import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -114,7 +114,7 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.TOO_LONG+"}", property = "name")
     public void testNameMaxLength() throws Exception {
-        String illegalName = StringUtils.repeat("x", Global.DEFAULT_DB_STRING_LENGTH + 1);
+        String illegalName = StringUtils.repeat("x", Table.NAME_LENGTH + 1);
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(illegalName, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
         comSchedule.addComTask(simpleComTask);
         comSchedule.save();
@@ -124,7 +124,7 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.TOO_LONG+"}", property = "mRID")
     public void testMridMaxLength() throws Exception {
-        String illegalMrid = StringUtils.repeat("x", Global.DEFAULT_DB_STRING_LENGTH + 1);
+        String illegalMrid = StringUtils.repeat("x", Table.NAME_LENGTH + 1);
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).mrid(illegalMrid).build();
         comSchedule.addComTask(simpleComTask);
         comSchedule.save();

@@ -3,12 +3,12 @@ package com.energyict.mdc.scheduling.model.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import java.time.Clock;
 import java.time.Instant;
-import com.energyict.mdc.common.Global;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -78,9 +78,9 @@ public class ComScheduleImpl implements ComSchedule {
 
     private long id;
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
     private String name;
-    @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
     private String mRID;
     @Size(min=1, groups = { NotObsolete.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND+"}")
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
