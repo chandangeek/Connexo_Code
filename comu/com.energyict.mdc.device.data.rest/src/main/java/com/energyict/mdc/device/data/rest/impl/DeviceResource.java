@@ -74,11 +74,10 @@ public class DeviceResource {
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
             Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
-            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<DeviceMessageResource> deviceCommandResourceProvider,
             DeviceMessageService deviceMessageService,
-            DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory, DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory) {
-            Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
+            DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
+            DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider) {
 
