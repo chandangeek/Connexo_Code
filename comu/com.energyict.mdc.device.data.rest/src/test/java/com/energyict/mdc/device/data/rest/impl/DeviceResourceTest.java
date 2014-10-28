@@ -800,6 +800,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Phenomenon phenomenon = mock(Phenomenon.class);
         when(phenomenon.getUnit()).thenReturn(Unit.get("kWh"));
         when(mock.getPhenomenon()).thenReturn(phenomenon);
+        when(mock.getLastReading()).thenReturn(Optional.empty());
         return mock;
     }
 
@@ -813,7 +814,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile1.getId()).thenReturn(id);
         when(loadProfile1.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, (int) id));
         when(loadProfile1.getChannels()).thenReturn(channels == null ? Collections.<Channel>emptyList() : Arrays.asList(channels));
-        when(loadProfile1.getLastReading()).thenReturn(Date.from(Instant.ofEpochMilli(1406617200000L))); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
+        when(loadProfile1.getLastReading()).thenReturn(Optional.of(Instant.ofEpochMilli(1406617200000L))); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         return loadProfile1;

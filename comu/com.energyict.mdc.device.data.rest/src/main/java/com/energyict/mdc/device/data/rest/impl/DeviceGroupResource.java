@@ -2,13 +2,19 @@ package com.energyict.mdc.device.data.rest.impl;
 
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -23,7 +29,9 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -36,13 +44,17 @@ public class DeviceGroupResource {
 
     private final MeteringGroupsService meteringGroupsService;
     private final RestQueryService restQueryService;
-    private final DeviceConfigurationService deviceConfigurationService;;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final MeteringService meteringService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, RestQueryService restQueryService) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, ExceptionFactory exceptionFactory) {
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.meteringService = meteringService;
         this.restQueryService = restQueryService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -74,52 +86,59 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
-        //String groupMRID = deviceGroupInfo.mRID;
+        Optional optional = meteringGroupsService.findEndDeviceGroupByName(deviceGroupInfo.name);
+        if (optional.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.DEVICEGROUPNAME_ALREADY_EXISTS, deviceGroupInfo.name);
+        }
         String name = deviceGroupInfo.name;
         boolean dynamic = deviceGroupInfo.dynamic;
-        LinkedHashMap filter = (LinkedHashMap) deviceGroupInfo.filter;
-        String mRID = (String) filter.get("mRID");
         Condition condition = Condition.TRUE;
-        if ((mRID != null) && (!"".equals(mRID))) {
-            condition = condition.and(where("mRID").isEqualTo(mRID));
-        }
-
-        String serialNumber = (String) filter.get("serialNumber");
-        if ((serialNumber != null) && (!"".equals(serialNumber))) {
-            condition = condition.and(where("serialNumber").isEqualTo(serialNumber));
-        }
-
-
-        Object deviceTypesObject = filter.get("deviceTypes");
-        if ((deviceTypesObject != null) && (deviceTypesObject instanceof List)) {
-            List<Integer> deviceTypes = (List) deviceTypesObject;
-            if ((deviceTypes != null) && (!deviceTypes.isEmpty())) {
-                Condition orCondition = Condition.FALSE;
-                for (int deviceTypeId : deviceTypes) {
-                    Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceType(deviceTypeId);
-                    if (deviceTypeOptional.isPresent()) {
-                        DeviceType deviceType = deviceTypeOptional.get();
-                        orCondition = orCondition.or(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType.getName()));
-                    }
-                }
-                condition = condition.and(orCondition);
+        Object filterParam = deviceGroupInfo.filter;
+        if ((filterParam != null) && (filterParam instanceof LinkedHashMap)) {
+            LinkedHashMap filter = (LinkedHashMap) deviceGroupInfo.filter;
+            String mRID = (String) filter.get("mRID");
+            if ((mRID != null) && (!"".equals(mRID))) {
+                condition = condition.and(where("mRID").isEqualTo(mRID));
             }
-        }
 
-        Object deviceConfigurationsObject = filter.get("deviceConfigurations");
-        if ((deviceConfigurationsObject != null) && (deviceConfigurationsObject instanceof List)) {
-            List<Integer> deviceConfigurations = (List) deviceConfigurationsObject;
-            if ((deviceConfigurations != null) && (!deviceConfigurations.isEmpty())) {
-                Condition orCondition = Condition.FALSE;
-                for (int deviceConfigurationId : deviceConfigurations) {
-                    Optional<DeviceConfiguration> deviceConfigurationOptional = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
-                    if (deviceConfigurationOptional.isPresent()) {
-                        DeviceConfiguration deviceConfiguration = deviceConfigurationOptional.get();
-                        orCondition = orCondition.or(where("deviceConfiguration.name").isEqualTo(deviceConfiguration.getName()));
-                    }
-                }
-                condition = condition.and(orCondition);
+            String serialNumber = (String) filter.get("serialNumber");
+            if ((serialNumber != null) && (!"".equals(serialNumber))) {
+                condition = condition.and(where("serialNumber").isEqualTo(serialNumber));
             }
+
+
+            Object deviceTypesObject = filter.get("deviceTypes");
+            if ((deviceTypesObject != null) && (deviceTypesObject instanceof List)) {
+                List<Integer> deviceTypes = (List) deviceTypesObject;
+                if ((deviceTypes != null) && (!deviceTypes.isEmpty())) {
+                    Condition orCondition = Condition.FALSE;
+                    for (int deviceTypeId : deviceTypes) {
+                        Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceType(deviceTypeId);
+                        if (deviceTypeOptional.isPresent()) {
+                            DeviceType deviceType = deviceTypeOptional.get();
+                            orCondition = orCondition.or(where("deviceConfiguration.deviceType.name").isEqualTo(deviceType.getName()));
+                        }
+                    }
+                    condition = condition.and(orCondition);
+                }
+            }
+
+            Object deviceConfigurationsObject = filter.get("deviceConfigurations");
+            if ((deviceConfigurationsObject != null) && (deviceConfigurationsObject instanceof List)) {
+                List<Integer> deviceConfigurations = (List) deviceConfigurationsObject;
+                if ((deviceConfigurations != null) && (!deviceConfigurations.isEmpty())) {
+                    Condition orCondition = Condition.FALSE;
+                    for (int deviceConfigurationId : deviceConfigurations) {
+                        Optional<DeviceConfiguration> deviceConfigurationOptional = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
+                        if (deviceConfigurationOptional.isPresent()) {
+                            DeviceConfiguration deviceConfiguration = deviceConfigurationOptional.get();
+                            orCondition = orCondition.or(where("deviceConfiguration.name").isEqualTo(deviceConfiguration.getName()));
+                        }
+                    }
+                    condition = condition.and(orCondition);
+                }
+            }
+
         }
 
         EndDeviceGroup endDeviceGroup;
@@ -129,6 +148,15 @@ public class DeviceGroupResource {
             endDeviceGroup.setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider");
         } else {
             endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(name);
+            List<Integer> devices = (List<Integer>) deviceGroupInfo.devices;
+            if (devices != null) {
+                for (int deviceId : devices) {
+                    Optional<EndDevice> deviceOptional = meteringService.findEndDevice(deviceId);
+                    if (deviceOptional.isPresent()) {
+                        ((EnumeratedEndDeviceGroup) endDeviceGroup).add(deviceOptional.get(), Interval.sinceEpoch().toClosedRange());
+                    }
+                }
+            }
         }
         endDeviceGroup.setLabel("MDC");
         endDeviceGroup.setMRID("MDC:" + endDeviceGroup.getName());
