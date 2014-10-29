@@ -656,6 +656,7 @@
         <module>../com.energyict.mdc.engine.config</module>
         <module>../com.energyict.mdc.issue.datacollection</module>
         <module>../com.energyict.mdc.issue.datacollection.rest</module>
+        <module>../com.energyict.mdc.issue.datacollection.extjs</module>
         <module>../com.energyict.mdc.scheduling</module>
         <module>../com.energyict.mdc.scheduling.rest</module>
         <module>../com.energyict.mdc.protocols</module>
