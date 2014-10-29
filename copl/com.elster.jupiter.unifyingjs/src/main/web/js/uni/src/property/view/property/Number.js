@@ -25,7 +25,8 @@ Ext.define('Uni.property.view.property.Number', {
             minValue: minValue,
             maxValue: maxValue,
             allowDecimals: allowDecimals,
-            msgTarget: 'under'
+            msgTarget: 'under',
+            readOnly: me.isReadOnly
         };
     },
 

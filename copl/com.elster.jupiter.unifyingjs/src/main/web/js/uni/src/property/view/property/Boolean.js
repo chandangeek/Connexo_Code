@@ -10,7 +10,8 @@ Ext.define('Uni.property.view.property.Boolean', {
             itemId: me.key + 'checkbox',
             width: me.width,
             cls: 'check',
-            msgTarget: 'under'
+            msgTarget: 'under',
+            readOnly: me.isReadOnly
         };
     },
 

@@ -13,7 +13,8 @@ Ext.define('Uni.property.view.property.Combobox', {
             displayField: 'value',
             valueField: 'key',
             width: me.width,
-            forceSelection: me.getProperty().getExhaustive()
+            forceSelection: me.getProperty().getExhaustive(),
+            readOnly: me.isReadOnly
         }
     },
 
