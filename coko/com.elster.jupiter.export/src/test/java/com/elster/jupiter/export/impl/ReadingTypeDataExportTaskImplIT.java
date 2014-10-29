@@ -6,7 +6,6 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -97,8 +96,8 @@ public class ReadingTypeDataExportTaskImplIT {
     private LogService logService;
     @Mock
     private DataProcessorFactory dataProcessorFactory;
-    @Mock
-    private DataProcessor dataProcessor;
+    //@Mock
+    //private DataProcessor dataProcessor;
     @Mock
     private PropertySpec propertySpec;
 
@@ -149,8 +148,7 @@ public class ReadingTypeDataExportTaskImplIT {
             return null;
         });
         when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
-        when(dataProcessorFactory.createTemplateDataFormatter()).thenReturn(dataProcessor);
-        when(dataProcessor.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        when(dataProcessorFactory.getProperties()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
     }

@@ -4,7 +4,6 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -101,8 +100,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public List<PropertySpec<?>> getPropertiesSpecsForProcessor(String name) {
         return getDataProcessorFactory(name)
-                .map(DataProcessorFactory::createTemplateDataFormatter)
-                .map(DataProcessor::getPropertySpecs)
+                .map(DataProcessorFactory::getProperties)
                 .orElse(Collections.emptyList());
     }
 
