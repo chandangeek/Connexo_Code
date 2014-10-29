@@ -124,7 +124,12 @@ public final class ReadingTypeCodeBuilder {
 		this.unit = unit;
 		return this;		
 	}
-	
+
+    public ReadingTypeCodeBuilder in (MetricMultiplier multiplier) {
+        this.multiplier = multiplier;
+        return this;
+    }
+
 	public ReadingTypeCodeBuilder in (ReadingTypeUnit unit) {
 		return in(MetricMultiplier.ZERO,unit);
 	}
