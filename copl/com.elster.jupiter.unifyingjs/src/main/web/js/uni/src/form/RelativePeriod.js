@@ -23,13 +23,13 @@ Ext.define('Uni.form.RelativePeriod', {
      *
      * Message shown in the preview when no preview date has been defined.
      */
-    noPreviewDateErrorMsg: 'It was not possible to calculate the preview date.',
+    noPreviewDateErrorMsg: Uni.I18n.translate('form.relativePeriod.errorMsg', 'UNI', 'It was not possible to calculate the preview date.'),
 
     previewUrl: '/api/tmr/relativeperiods/preview',
 
     formatPreviewTextFn: function (dateString) {
         return Uni.I18n.translate(
-            'form.relativeperiod.previewText',
+            'form.relativePeriod.previewText',
             'UNI',
             'The datetime of the relative period is {0}.',
             [dateString]
@@ -72,7 +72,7 @@ Ext.define('Uni.form.RelativePeriod', {
             },
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: 'Preview',
+                fieldLabel: Uni.I18n.translate('form.relativePeriod.preview', 'UNI', 'Preview'),
                 items: [
                     {
                         xtype: 'component',

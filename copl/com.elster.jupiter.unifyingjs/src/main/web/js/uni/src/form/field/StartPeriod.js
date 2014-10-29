@@ -5,7 +5,7 @@ Ext.define('Uni.form.field.StartPeriod', {
     extend: 'Ext.form.RadioGroup',
     xtype: 'uni-form-field-startperiod',
 
-    fieldLabel: 'From',
+    fieldLabel: Uni.I18n.translate('form.field.startPeriod.label', 'UNI', 'From'),
     columns: 1,
     vertical: true,
 
@@ -47,7 +47,7 @@ Ext.define('Uni.form.field.StartPeriod', {
 
         if (me.showOptionNow) {
             me.items.push({
-                boxLabel: 'Now',
+                boxLabel: Uni.I18n.translate('form.field.startPeriod.optionNow.label', 'UNI', 'Now'),
                 itemId: 'option-now',
                 name: me.baseRadioName,
                 inputValue: me.inputValueNow,
@@ -94,11 +94,11 @@ Ext.define('Uni.form.field.StartPeriod', {
                         fields: ['name', 'value'],
                         data: (function () {
                             return [
-                                {name: 'Month(s)', value: 'months'},
-                                {name: 'Week(s)', value: 'weeks'},
-                                {name: 'Day(s)', value: 'days'},
-                                {name: 'Hour(s)', value: 'hours'},
-                                {name: 'Minute(s)', value: 'minutes'}
+                                {name: Uni.I18n.translate('period.months', 'UNI', 'Month(s)'), value: 'months'},
+                                {name: Uni.I18n.translate('period.weeks', 'UNI', 'Week(s)'), value: 'weeks'},
+                                {name: Uni.I18n.translate('period.days', 'UNI', 'Day(s)'), value: 'days'},
+                                {name: Uni.I18n.translate('period.hours', 'UNI', 'Hour(s)'), value: 'hours'},
+                                {name: Uni.I18n.translate('period.minutes', 'UNI', 'Minute(s)'), value: 'minutes'}
                             ];
                         })()
                     }),
@@ -107,7 +107,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                 },
                 {
                     xtype: 'label',
-                    text: 'ago',
+                    text: Uni.I18n.translate('form.field.startPeriod.optionAgo.label', 'UNI', 'ago'),
                     cls: Ext.baseCSSPrefix + 'form-item-label',
                     style: {
                         fontWeight: 'normal'

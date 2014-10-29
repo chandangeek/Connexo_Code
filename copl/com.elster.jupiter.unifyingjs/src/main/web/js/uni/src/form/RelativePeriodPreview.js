@@ -14,7 +14,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
      *
      * Message shown in the preview when no preview date has been defined.
      */
-    noPreviewDateErrorMsg: 'It was not possible to calculate the preview dates.',
+    noPreviewDateErrorMsg: Uni.I18n.translate('form.relativePeriod.errorMsg', 'UNI', 'It was not possible to calculate the preview date.'),
 
     previewUrl: '/api/tmr/relativeperiods/preview',
 

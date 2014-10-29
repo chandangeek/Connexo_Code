@@ -5,7 +5,7 @@ Ext.define('Uni.form.field.OnPeriod', {
     extend: 'Ext.form.RadioGroup',
     xtype: 'uni-form-field-onperiod',
 
-    fieldLabel: 'On',
+    fieldLabel: Uni.I18n.translate('form.field.onPeriod.label', 'UNI', 'On'),
     columns: 1,
     vertical: true,
 
@@ -27,7 +27,7 @@ Ext.define('Uni.form.field.OnPeriod', {
 
         me.items = [
             {
-                boxLabel: 'Current day of the month',
+                boxLabel: Uni.I18n.translate('form.field.onPeriod.optionCurrent.label', 'UNI', 'Current day of the month'),
                 itemId: 'option-current',
                 name: me.baseRadioName,
                 inputValue: 'currentday',
@@ -50,7 +50,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                     },
                     {
                         xtype: 'label',
-                        text: 'Day',
+                        text: Uni.I18n.translate('form.field.onPeriod.optionDayOfMonth.day', 'UNI', 'Day'),
                         cls: Ext.baseCSSPrefix + 'form-item-label',
                         style: {
                             fontWeight: 'normal'
@@ -91,7 +91,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                     },
                     {
                         xtype: 'label',
-                        text: 'of the month',
+                        text: Uni.I18n.translate('form.field.onPeriod.optionDayOfMonth.month', 'UNI', 'of the month'),
                         cls: Ext.baseCSSPrefix + 'form-item-label',
                         style: {
                             fontWeight: 'normal'
@@ -125,13 +125,13 @@ Ext.define('Uni.form.field.OnPeriod', {
                             data: (function () {
                                 // TODO Create a days of week store.
                                 return [
-                                    {name: 'Monday', value: 1},
-                                    {name: 'Tuesday', value: 2},
-                                    {name: 'Wednesday', value: 3},
-                                    {name: 'Thursday', value: 4},
-                                    {name: 'Friday', value: 5},
-                                    {name: 'Saturday', value: 6},
-                                    {name: 'Sunday', value: 7}
+                                    {name: Uni.I18n.translate('general.day.monday', 'UNI', 'Monday'), value: 1},
+                                    {name: Uni.I18n.translate('general.day.tuesday', 'UNI', 'Tuesday'), value: 2},
+                                    {name: Uni.I18n.translate('general.day.wednesday', 'UNI', 'Wednesday'), value: 3},
+                                    {name: Uni.I18n.translate('general.day.thursday', 'UNI', 'Thursday'), value: 4},
+                                    {name: Uni.I18n.translate('general.day.friday', 'UNI', 'Friday'), value: 5},
+                                    {name: Uni.I18n.translate('general.day.saturday', 'UNI', 'Saturday'), value: 6},
+                                    {name: Uni.I18n.translate('general.day.sunday', 'UNI', 'Sunday'), value: 7}
                                 ];
                             })()
                         }),
@@ -280,7 +280,7 @@ Ext.define('Uni.form.field.OnPeriod', {
         var result = {
             onCurrentDay: selectedValue === 'currentday'
         };
-        if(selectedValue === 'dayofmonth') {
+        if (selectedValue === 'dayofmonth') {
             Ext.apply(result, {
                 onDayOfMonth: dayOfMonthValue
             });
@@ -290,10 +290,10 @@ Ext.define('Uni.form.field.OnPeriod', {
             });
         }
         /*return {
-            onCurrentDay: selectedValue === 'currentday',
-            onDayOfMonth: dayOfMonthValue,
-            onDayOfWeek: dayOfWeekValue
-        };*/
+         onCurrentDay: selectedValue === 'currentday',
+         onDayOfMonth: dayOfMonthValue,
+         onDayOfWeek: dayOfWeekValue
+         };*/
         return result;
     }
 });
