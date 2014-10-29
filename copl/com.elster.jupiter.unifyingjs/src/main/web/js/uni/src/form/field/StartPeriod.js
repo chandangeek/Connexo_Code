@@ -161,6 +161,10 @@ Ext.define('Uni.form.field.StartPeriod', {
         }, me);
 
         if (me.showOptionDate) {
+            me.getOptionDateRadio().on('change', function () {
+                me.fireEvent('periodchange', me.getValue());
+            }, me);
+
             me.getOptionDateContainer().down('datefield').on('change', function () {
                 me.selectOptionDate();
             }, me);

@@ -105,14 +105,16 @@ Ext.define('Uni.form.RelativePeriod', {
 
     updatePeriodFields: function (frequency) {
         var me = this,
+            startField = me.getStartPeriodField(),
+            useStartDate = startField.showOptionDate ? startField.getOptionDateRadio().getValue() : true,
             onField = me.getOnPeriodField(),
             atField = me.getAtPeriodField(),
             atHourField = atField.getHourField(),
             atMinuteField = atField.getMinuteField();
 
-        onField.setOptionCurrentDisabled(frequency !== 'months');
-        onField.setOptionDayOfMonthDisabled(frequency !== 'months');
-        onField.setOptionDayOfWeekDisabled(frequency !== 'weeks');
+        onField.setOptionCurrentDisabled(frequency !== 'months' || useStartDate);
+        onField.setOptionDayOfMonthDisabled(frequency !== 'months' || useStartDate);
+        onField.setOptionDayOfWeekDisabled(frequency !== 'weeks' || useStartDate);
 
         atHourField.setDisabled(frequency === 'hours' || frequency === 'minutes');
         atMinuteField.setDisabled(frequency === 'minutes');
