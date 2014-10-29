@@ -13,6 +13,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validators.MessageSeeds;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -21,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 @Component(name = "com.elster.jupiter.validators.impl.DefaultValidatorFactory", service = {ValidatorFactory.class, InstallService.class}, property = "name=" + MessageSeeds.COMPONENT_NAME, immediate = true)
 public class DefaultValidatorFactory implements ValidatorFactory, InstallService {
@@ -32,6 +35,15 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
+    
+    public DefaultValidatorFactory() {
+	}
+    
+    @Inject
+    public DefaultValidatorFactory(NlsService nlsService, PropertySpecService propertySpecService) {
+    	setNlsService(nlsService);
+    	setPropertySpecService(propertySpecService);
+    }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
