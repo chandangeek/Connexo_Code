@@ -13,6 +13,8 @@ Ext.define('Dsh.model.CommunicationTask', {
         "alwaysExecuteOnInbound",
         "latestResult",
         "connectionTask",
+        "sessionId",
+        "comTasks",
         { name: 'startTime', type: 'date', dateFormat: 'time'},
         { name: 'successfulFinishTime', type: 'date', dateFormat: 'time'},
         { name: 'nextCommunication', type: 'date', dateFormat: 'time'},
