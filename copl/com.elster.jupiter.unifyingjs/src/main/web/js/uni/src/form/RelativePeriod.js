@@ -133,8 +133,8 @@ Ext.define('Uni.form.RelativePeriod', {
             method: 'PUT',
             jsonData: me.formatJsonPreviewRequest(),
             success: function (response, data) {
-                var dateLong = data.jsonData ? data.jsonData.date : undefined;
-
+                var json = Ext.decode(response.responseText, true);
+                var dateLong = json.date;
                 if (typeof dateLong !== 'undefined') {
                     dateString = Uni.I18n.formatDate('datetime.longdate', new Date(dateLong), 'UNI', 'l F j, Y \\a\\t H:i a');
                     dateString = me.formatPreviewTextFn(dateString);

@@ -171,7 +171,8 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                 method: 'PUT',
                 jsonData: me.formatJsonPreviewRequest(me.startPeriodValue),
                 success: function (response, data) {
-                    var dateLong = data.jsonData ? data.jsonData.date : undefined;
+                    var json = Ext.decode(response.responseText, true);
+                    var dateLong = json.date;
 
                     if (typeof dateLong !== 'undefined') {
                         me.startPeriodDate = new Date(dateLong);
@@ -189,8 +190,8 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                 method: 'PUT',
                 jsonData: me.formatJsonPreviewRequest(me.endPeriodValue),
                 success: function (response, data) {
-                    var dateLong = data.jsonData ? data.jsonData.date : undefined;
-
+                    var json = Ext.decode(response.responseText, true);
+                    var dateLong = json.date;
                     if (typeof dateLong !== 'undefined') {
                         me.endPeriodDate = new Date(dateLong);
                     }
