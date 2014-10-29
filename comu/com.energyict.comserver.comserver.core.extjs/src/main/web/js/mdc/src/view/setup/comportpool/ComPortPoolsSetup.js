@@ -22,9 +22,9 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsSetup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('setup.comportpool.ComPortPoolsSetup.NoItemsFoundPanel.title', 'MDC', 'No comuncation port pools found'),
+                        title: Uni.I18n.translate('setup.comportpool.ComPortPoolsSetup.NoItemsFoundPanel.title', 'MDC', 'No communcation port pools found'),
                         reasons: [
-                            Uni.I18n.translate('setup.comportpool.ComPortPoolsSetup.NoItemsFoundPanel.reason1', 'MDC', 'No comuncation port pools created yet.')
+                            Uni.I18n.translate('setup.comportpool.ComPortPoolsSetup.NoItemsFoundPanel.reason1', 'MDC', 'No communcation port pools created yet.')
                         ],
                         stepItems: [
                             {
