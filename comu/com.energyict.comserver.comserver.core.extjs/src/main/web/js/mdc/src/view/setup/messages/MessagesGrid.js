@@ -3,8 +3,10 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
     alias: 'widget.messages-grid',
     requires: [
         'Mdc.view.setup.messages.PrivilegesInfoPanel',
-        'Uni.view.toolbar.PagingTop'
+        'Uni.view.toolbar.PagingTop',
+        'Mdc.store.MessagesGridStore'
     ],
+    store: 'MessagesGridStore',
     ui: 'medium',
     hidden: true,
     style: {
@@ -71,24 +73,28 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
     ],
     initComponent: function () {
         var me = this;
-        me.dockedItems = [
-            {
-                xtype: 'pagingtoolbartop',
-                store: me.store,
-                dock: 'top',
-                displayMsg: Uni.I18n.translate('messages.pagingtoolbartop.displayMsgs', 'MDC', '{0} - {1} of {2} messages'),
-                displayMoreMsg: Uni.I18n.translate('messages.pagingtoolbartop.displayMoreMsgs', 'MDC', '{0} - {1} of more than {2} messages'),
-                emptyMsg: Uni.I18n.translate('messages.pagingtoolbartop.emptyMsgsMessage', 'MDC', 'There are no messages to display'),
-                items: [
-                    '->',
-                    {
-                        xtype: 'button',
-                        itemId: 'messages-actionbutton',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                        iconCls: 'x-uni-action-iconD'
-                    }
-                ]
-            }
+        me.dockedItems = [{
+            xtype: 'toolbar',
+            dock: 'top',
+            items: [
+                {
+                    xtype: 'container',
+                    itemId: 'deviceMessagesCount'
+                },
+                {
+                    xtype: 'container',
+                    flex: 1
+                },
+                {
+                    xtype: 'button',
+                    itemId: 'messages-actionbutton',
+                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    iconCls: 'x-uni-action-iconD'
+                }
+            ]
+        }
+
+
         ];
         me.callParent(arguments);
     }
