@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
     overflowY: 'auto',
     itemId: 'deviceopenissuespanel',
     mRID: null,
+    router: null,
     ui: 'tile',
     title: Uni.I18n.translate('deviceOpenIssues.openIssuesTitle', 'MDC', 'Open issues'),
     initComponent: function () {
@@ -26,8 +27,20 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
                     itemId: 'dataCollectionIssuesLink',
                     fieldLabel: Uni.I18n.translate('deviceOpenIssues.dataCollectionIssuesTitle', 'MDC', 'Data collection issues'),
                     renderer: function(value, field) {
+                        var url = me.router.getRoute('workspace/datacollection/issues').buildUrl({}, {
+                            filter: {
+                                status: 'status.open',
+                                meter: me.mRID,
+                                sorting: [
+                                    {
+                                        type: 'dueDate',
+                                        value: 'asc'
+                                    }
+                                ]
+                            }
+                        });
                         if (value !== 0) {
-                        return '<a href="#/workspace/datacollection/issues?issueType=datacollection&group=none&status=1&meter=' + me.mRID + '" >' + Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssues',value, 'MDC', 'issues') + '</a>';
+                        return '<a href="' + url + '" >' + Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssues',value, 'MDC', 'issues') + '</a>';
                         } else {
                             return Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssues',0, 'MDC', 'issues');
                         }

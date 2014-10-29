@@ -18,11 +18,11 @@ Ext.define('Mdc.view.setup.devicesearch.SearchItems', {
     ],
 
     content: [
-        {
+        /*{
             xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate('setup.devicesearch.searchResults.title', 'MDC', 'Search')
-        },
+        },*/
         {
             xtype: 'filter-top-panel'
         },
