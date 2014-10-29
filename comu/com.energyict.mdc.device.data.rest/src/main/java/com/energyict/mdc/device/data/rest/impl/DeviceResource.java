@@ -178,7 +178,7 @@ public class DeviceResource {
                     .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
                     .filter(dms->device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
                     .sorted((dms1, dms2) -> dms1.getName().compareToIgnoreCase(dms2.getName()))
-                    .map(dms->deviceMessageSpecInfoFactory.asInfo(dms, device))
+                    .map(dms->deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
                     .collect(Collectors.toList());
             if (!deviceMessageSpecs.isEmpty()) {
                 DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);

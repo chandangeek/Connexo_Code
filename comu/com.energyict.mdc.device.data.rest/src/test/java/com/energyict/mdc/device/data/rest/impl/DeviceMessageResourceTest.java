@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -15,8 +16,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -46,12 +47,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessageResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -61,9 +63,6 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 10/22/14.
  */
 public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTest {
-
-    @Mock
-    private PropertySpecService propertySpecService;
 
     @Test
     public void testGetDeviceCommands() throws Exception {
@@ -323,6 +322,60 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Boolean>get("$[0].deviceMessageSpecs[0].willBePickedUpByScheduledComTask")).isNotNull();
         assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[1].name")).isEqualTo("Contactor open");
         assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[1].id")).isEqualTo("CONTACTOR_OPEN");
+    }
+
+    @Test
+    public void testGetAvailableCategoriesWithMessageSpecsForUserOnDevice() throws Exception {
+        int categoryId = 1011;
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+
+        // there is a total of 34 device messages supported by the protocol
+        when(deviceMessageService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
+
+        doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], (ValueFactory)invocationOnMock.getArguments()[2])).
+                when(propertySpecService).basicPropertySpec(any(String.class), any(Boolean.class), any(ValueFactory.class));
+        doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], new BigDecimalFactory())).
+                when(propertySpecService).bigDecimalPropertySpecWithValues(any(String.class), any(Boolean.class), any(BigDecimal.class), any(BigDecimal.class));
+        ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
+
+        // User has access to 2 device messages
+        EnumSet<DeviceMessageId> userAuthorizedDeviceMessages = EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT);
+
+
+        DeviceMessageEnablement deviceMessageEnablement1 = mock(DeviceMessageEnablement.class);
+        when(deviceMessageEnablement1.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT);
+        DeviceMessageEnablement deviceMessageEnablement2 = mock(DeviceMessageEnablement.class);
+        when(deviceMessageEnablement2.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT);
+        DeviceMessageEnablement deviceMessageEnablement3 = mock(DeviceMessageEnablement.class);
+        when(deviceMessageEnablement3.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM);
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
+        // 3 device messages are enabled on the device config
+        when(deviceConfiguration.getDeviceMessageEnablements()).thenReturn(Arrays.asList(deviceMessageEnablement1, deviceMessageEnablement2, deviceMessageEnablement3));
+        when(deviceConfiguration.isAuthorized(anyObject())).thenAnswer(invocationOnMock -> userAuthorizedDeviceMessages.contains(invocationOnMock.getArguments()[0]));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId, true);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
+
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceType()).thenReturn(deviceType);
+
+        // given the above: we expect 2 device messages in the same category
+        String response = target("/devices/ZABF010000080004/messagecategories").request().get(String.class);
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<List>get("$")).hasSize(1); // one category
+        assertThat(jsonModel.<String>get("$[0].name")).isEqualTo("Contactor");
+        assertThat(jsonModel.<Integer>get("$[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$[0].deviceMessageSpecs")).hasSize(2); // 2 device messages
     }
 
     @Test

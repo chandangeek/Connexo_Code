@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import java.util.List;
+
 /**
  * Created by bvn on 10/24/14.
  */
@@ -8,4 +11,5 @@ public class DeviceMessageSpecInfo {
     public String name;
     public boolean willBePickedUpByScheduledComTask;
     public boolean willBePickedUpByComTask;
+    public List<PropertyInfo> propertySpecs;
 }

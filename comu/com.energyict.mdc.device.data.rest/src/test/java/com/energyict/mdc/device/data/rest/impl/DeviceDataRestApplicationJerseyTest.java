@@ -13,16 +13,16 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import org.mockito.Mock;
-
-import javax.ws.rs.core.Application;
 import java.time.Clock;
+import javax.ws.rs.core.Application;
+import org.mockito.Mock;
 
 /**
  * Created by bvn on 9/19/14.
@@ -64,6 +64,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     TaskService taskService;
     @Mock
     CommunicationTaskService communicationTaskService;
+    @Mock
+    PropertySpecService propertySpecService;
 
 
     @Override
