@@ -261,6 +261,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(deviceType.getName()).thenReturn("device type");
         when(device.getDeviceType()).thenReturn(deviceType);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceConfiguration.getId()).thenReturn(123123L);
         when(deviceConfiguration.getName()).thenReturn("Configuration");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -344,6 +345,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(123123L);
         when(deviceConfiguration.getName()).thenReturn("123123");
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
         when(comTaskExecution1.getConnectionTask()).thenReturn((ConnectionTask) connectionTask);

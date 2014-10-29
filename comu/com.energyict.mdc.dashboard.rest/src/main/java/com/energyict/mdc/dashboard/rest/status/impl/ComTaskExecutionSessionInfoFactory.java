@@ -2,6 +2,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -33,7 +34,7 @@ public class ComTaskExecutionSessionInfoFactory {
     public List<ComTaskExecutionSessionInfo> from(List<ComTaskExecutionSession> comTaskExecutionSessions) {
         List<ComTaskExecutionSessionInfo> comTaskExecutionSessionInfos = new ArrayList<>(comTaskExecutionSessions.size());
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
-            comTaskExecutionSessionInfos.add(this.from(comTaskExecutionSession/*, communicationTaskService.findLastSessionFor(comTaskExecutionSession)*/));
+            comTaskExecutionSessionInfos.add(this.from(comTaskExecutionSession));
         }
         return comTaskExecutionSessionInfos;
     }
@@ -48,7 +49,7 @@ public class ComTaskExecutionSessionInfoFactory {
         info.name = Joiner.on(" + ").join(info.comTasks);
         Device device = comTaskExecutionSession.getDevice();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
-        info.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration());
+        info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecution instanceof ScheduledComTaskExecution) {
             ComSchedule comSchedule = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule();
