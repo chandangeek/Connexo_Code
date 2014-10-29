@@ -55,6 +55,6 @@ public class ReadingTypeGeneratorTest {
     		mRIDs.add(each.getMRID());
     		aliases.add(each.getAliasName());
     	}
-    	assertThat(generated.size()).isEqualTo(aliases.size()).isEqualTo(mRIDs.size());
+    	assertThat(generated.size()).isEqualTo(mRIDs.size());
     }
 }
