@@ -1,8 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.dashboard.rest.status.impl.ComServerTypeAdapter;
-import java.util.Date;
+
+import java.time.Instant;
 
 /**
  * Represents the status of a ComServer in the REST layer.
@@ -18,12 +18,7 @@ public class ComServerStatusInfo {
     public boolean running;
     public boolean blocked;
     public TimeDurationInfo blockTime;
-    public Date blockedSince;
+    public Instant blockedSince;
     public String defaultUri;
-
-    public ComServerStatusInfo() {
-        super();
-    }
-
 
 }

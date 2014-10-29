@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 import org.joda.time.DateTimeConstants;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class ComServerStatusResourceTest extends DashboardApplicationJerseyTest 
         when(notRunning.isRunning()).thenReturn(true);
         when(notRunning.isBlocked()).thenReturn(true);
         when(notRunning.getBlockTime()).thenReturn(Duration.ofMillis(DateTimeConstants.MILLIS_PER_MINUTE * 5));
-        when(notRunning.getBlockTimestamp()).thenReturn(new Date());
+        when(notRunning.getBlockTimestamp()).thenReturn(Instant.now());
         when(notRunning.getComServerName()).thenReturn("testServerRunningAndBlocked");
         when(notRunning.getComServerType()).thenReturn(ComServerType.ONLINE);
         when(this.statusService.getStatus()).thenReturn(notRunning);
