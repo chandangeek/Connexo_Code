@@ -18,6 +18,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -60,7 +61,7 @@ public class DeviceMessageResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public DeviceMessageInfo createDeviceMessage(@PathParam("mRID") String mrid, DeviceMessageInfo deviceMessageInfo) {
+    public Response createDeviceMessage(@PathParam("mRID") String mrid, DeviceMessageInfo deviceMessageInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(deviceMessageInfo.messageSpecification.id);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(deviceMessageInfo.releaseDate);
@@ -79,7 +80,23 @@ public class DeviceMessageResource {
             }
         }
 
-        return deviceMessageInfoFactory.asInfo(deviceMessageBuilder.add());
+        return Response.status(Response.Status.CREATED).entity(deviceMessageInfoFactory.asInfo(deviceMessageBuilder.add())).build();
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("{deviceMessageId}")
+    public DeviceMessageInfo updateDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId, DeviceMessageInfo deviceMessageInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        DeviceMessage<?> deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
+        deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
+        deviceMessage.save();
+
+        // refresh and return
+        device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
+        return deviceMessageInfoFactory.asInfo(deviceMessage);
     }
 
     @DELETE
@@ -87,8 +104,12 @@ public class DeviceMessageResource {
     @Path("{deviceMessageId}")
     public Response deleteDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        DeviceMessage<?> deviceMessage = device.getMessages().stream().filter(message -> message.getId() == deviceMessageId).findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE));
+        DeviceMessage<?> deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
         device.removeDeviceMessage(deviceMessage);
         return Response.status(Response.Status.OK).build();
+    }
+
+    private DeviceMessage<?> findDeviceMessageOrThrowException(Device device, long deviceMessageId) {
+        return device.getMessages().stream().filter(message -> message.getId() == deviceMessageId).findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE));
     }
 }

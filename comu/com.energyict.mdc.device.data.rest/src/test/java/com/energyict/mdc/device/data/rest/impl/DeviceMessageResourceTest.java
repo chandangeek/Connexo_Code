@@ -327,24 +327,13 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testCreateDeviceMessage() throws Exception {
-        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
-        when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
-        DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
-        when(deviceMessageCategory.getName()).thenReturn("category");
-        when(deviceMessageSpec.getCategory()).thenReturn(deviceMessageCategory);
-        when(deviceMessageService.findMessageSpecById(DeviceMessageId.CONTACTOR_OPEN.dbValue())).thenReturn(Optional.of(deviceMessageSpec));
+        DeviceMessage<Device> deviceMessage = mockDeviceMessage(1L);
+
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
         Device.DeviceMessageBuilder deviceMessageBuilder = mock(Device.DeviceMessageBuilder.class);
         when(deviceMessageBuilder.addProperty(anyString(), anyObject())).thenReturn(deviceMessageBuilder);
         when(deviceMessageBuilder.setReleaseDate(anyObject())).thenReturn(deviceMessageBuilder);
-        DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
-        when(deviceMessage.getSpecification()).thenReturn(deviceMessageSpec);
-        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);
-        when(deviceMessage.getSentDate()).thenReturn(Optional.empty());
-        User user = mock(User.class);
-        when(user.getName()).thenReturn("username");
-        when(deviceMessage.getUser()).thenReturn(user);
         when(deviceMessageBuilder.add()).thenReturn(deviceMessage);
         when(device.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN)).thenReturn(deviceMessageBuilder);
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
@@ -356,6 +345,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         deviceMessageInfo.properties.add(new PropertyInfo("Time",new PropertyValueInfo<>(1414067539213L, null, null),new PropertyTypeInfo(SimplePropertyType.CLOCK, null, null, null), true));
         Response response = target("/devices/ZABF010000080004/commands").request().post(Entity.json(deviceMessageInfo));
 
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         ArgumentCaptor<DeviceMessageId> deviceMessageIdArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageId.class);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Object> objectArgumentCaptor = ArgumentCaptor.forClass(Object.class);
@@ -388,6 +378,48 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         ArgumentCaptor<DeviceMessage> argumentCaptor = ArgumentCaptor.forClass(DeviceMessage.class);
         verify(device, times(1)).removeDeviceMessage(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().getId()).isEqualTo(2L);
+    }
+
+    @Test
+    public void testUpdateDeviceMessage() throws Exception {
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        DeviceMessage msg1 = mock(DeviceMessage.class);
+        when(msg1.getId()).thenReturn(1L);
+        DeviceMessage msg2 = mock(DeviceMessage.class);
+        when(msg2.getId()).thenReturn(2L);
+        DeviceMessage msg3 = mockDeviceMessage(3L);
+        when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
+
+        DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
+        deviceMessageInfo.releaseDate=Instant.now();
+
+        Response response = target("/devices/ZABF010000080004/commands/3").request().put(Entity.json(deviceMessageInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ArgumentCaptor<Instant> argumentCaptor = ArgumentCaptor.forClass(Instant.class);
+        verify(msg3, times(1)).setReleaseDate(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).isEqualTo(deviceMessageInfo.releaseDate);
+
+        verify(msg3, times(1)).save();
+    }
+
+    private DeviceMessage<Device> mockDeviceMessage(long id) {
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
+        DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
+        when(deviceMessageCategory.getName()).thenReturn("category");
+        when(deviceMessageSpec.getCategory()).thenReturn(deviceMessageCategory);
+        when(deviceMessageService.findMessageSpecById(DeviceMessageId.CONTACTOR_OPEN.dbValue())).thenReturn(Optional.of(deviceMessageSpec));
+        DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getSpecification()).thenReturn(deviceMessageSpec);
+        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);
+        when(deviceMessage.getSentDate()).thenReturn(Optional.empty());
+        when(deviceMessage.getId()).thenReturn(id);
+        User user = mock(User.class);
+        when(user.getName()).thenReturn("username");
+        when(deviceMessage.getUser()).thenReturn(user);
+        return deviceMessage;
     }
 
     private ComTaskExecution mockComTaskExecution(int categoryId, boolean isOnHold) {
