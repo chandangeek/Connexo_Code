@@ -19,11 +19,10 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import javax.inject.Inject;
 
 /**
  * Copyrights EnergyICT
@@ -159,5 +158,11 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public void setReleaseDate(Instant releaseDate) {
+        // TODO verify
+        this.releaseDate = releaseDate;
     }
 }
