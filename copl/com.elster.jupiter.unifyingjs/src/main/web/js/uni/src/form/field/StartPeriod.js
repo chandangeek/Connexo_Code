@@ -147,10 +147,30 @@ Ext.define('Uni.form.field.StartPeriod', {
         var me = this;
 
         if (me.showOptionNow) {
-            me.getOptionNowRadio().on('change', function () {
-                me.fireEvent('periodchange', me.getValue());
+            me.getOptionNowRadio().on('change', function (scope, newValue, oldValue) {
+                if (newValue) {
+                    me.fireEvent('periodchange', me.getValue());
+                }
             }, me);
         }
+
+        me.getOptionAgoRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                if (me.showOptionDate) {
+                    me.getOptionDateRadio().suspendEvents();
+                    me.getOptionDateRadio().setValue(false);
+                    me.getOptionDateRadio().resumeEvents();
+                }
+
+                if (me.showOptionNow) {
+                    me.getOptionNowRadio().suspendEvents();
+                    me.getOptionNowRadio().setValue(false);
+                    me.getOptionNowRadio().resumeEvents();
+                }
+
+                me.fireEvent('periodchange', me.getValue());
+            }
+        }, me);
 
         me.getOptionAgoContainer().down('numberfield').on('change', function () {
             me.selectOptionAgo();
@@ -161,8 +181,10 @@ Ext.define('Uni.form.field.StartPeriod', {
         }, me);
 
         if (me.showOptionDate) {
-            me.getOptionDateRadio().on('change', function () {
-                me.fireEvent('periodchange', me.getValue());
+            me.getOptionDateRadio().on('change', function (scope, newValue, oldValue) {
+                if (newValue) {
+                    me.fireEvent('periodchange', me.getValue());
+                }
             }, me);
 
             me.getOptionDateContainer().down('datefield').on('change', function () {
@@ -172,7 +194,9 @@ Ext.define('Uni.form.field.StartPeriod', {
     },
 
     selectOptionNow: function (suspendEvent) {
+        this.getOptionNowRadio().suspendEvents();
         this.getOptionNowRadio().setValue(true);
+        this.getOptionNowRadio().resumeEvents();
 
         if (!suspendEvent) {
             this.fireEvent('periodchange', this.getValue());
@@ -180,7 +204,9 @@ Ext.define('Uni.form.field.StartPeriod', {
     },
 
     selectOptionAgo: function (suspendEvent) {
+        this.getOptionAgoRadio().suspendEvents();
         this.getOptionAgoRadio().setValue(true);
+        this.getOptionAgoRadio().resumeEvents();
 
         if (!suspendEvent) {
             this.fireEvent('periodchange', this.getValue());
@@ -188,7 +214,9 @@ Ext.define('Uni.form.field.StartPeriod', {
     },
 
     selectOptionDate: function (suspendEvent) {
+        this.getOptionDateRadio().suspendEvents();
         this.getOptionDateRadio().setValue(true);
+        this.getOptionDateRadio().resumeEvents();
 
         if (!suspendEvent) {
             this.fireEvent('periodchange', this.getValue());

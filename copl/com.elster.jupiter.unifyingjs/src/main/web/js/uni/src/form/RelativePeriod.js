@@ -106,7 +106,7 @@ Ext.define('Uni.form.RelativePeriod', {
     updatePeriodFields: function (frequency) {
         var me = this,
             startField = me.getStartPeriodField(),
-            useStartDate = startField.showOptionDate ? startField.getOptionDateRadio().getValue() : true,
+            useStartDate = startField.showOptionDate ? startField.getOptionDateRadio().getValue() : false,
             onField = me.getOnPeriodField(),
             atField = me.getAtPeriodField(),
             atHourField = atField.getHourField(),

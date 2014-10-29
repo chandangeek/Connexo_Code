@@ -146,13 +146,15 @@ Ext.define('Uni.form.field.OnPeriod', {
     initListeners: function () {
         var me = this;
 
-        me.getOptionCurrentRadio().on('change', function () {
-            me.fireEvent('periodchange', me.getValue());
+        me.getOptionCurrentRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                me.fireEvent('periodchange', me.getValue());
+            }
         }, me);
 
-        me.getOptionDayOfMonthContainer().down('label:first').getEl().on('click', function () {
-            if (!me.getOptionDayOfMonthRadio().isDisabled()) {
-                me.selectOptionDayOfMonth();
+        me.getOptionDayOfMonthRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                me.fireEvent('periodchange', me.getValue());
             }
         }, me);
 
@@ -160,9 +162,9 @@ Ext.define('Uni.form.field.OnPeriod', {
             me.selectOptionDayOfMonth();
         }, me);
 
-        me.getOptionDayOfMonthContainer().down('label:last').getEl().on('click', function () {
-            if (!me.getOptionDayOfMonthRadio().isDisabled()) {
-                me.selectOptionDayOfMonth();
+        me.getOptionDayOfWeekRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                me.fireEvent('periodchange', me.getValue());
             }
         }, me);
 
@@ -172,7 +174,9 @@ Ext.define('Uni.form.field.OnPeriod', {
     },
 
     selectOptionCurrent: function (suspendEvent) {
+        this.getOptionCurrentRadio().suspendEvents();
         this.getOptionCurrentRadio().setValue(true);
+        this.getOptionCurrentRadio().resumeEvents();
 
         if (!suspendEvent) {
             this.fireEvent('periodchange', this.getValue());
@@ -180,7 +184,9 @@ Ext.define('Uni.form.field.OnPeriod', {
     },
 
     selectOptionDayOfMonth: function (suspendEvent) {
+        this.getOptionDayOfMonthRadio().suspendEvents();
         this.getOptionDayOfMonthRadio().setValue(true);
+        this.getOptionDayOfMonthRadio().resumeEvents();
 
         if (!suspendEvent) {
             this.fireEvent('periodchange', this.getValue());
@@ -188,7 +194,9 @@ Ext.define('Uni.form.field.OnPeriod', {
     },
 
     selectOptionDayOfWeek: function (suspendEvent) {
+        this.getOptionDayOfWeekRadio().suspendEvents();
         this.getOptionDayOfWeekRadio().setValue(true);
+        this.getOptionDayOfWeekRadio().resumeEvents();
 
         if (!suspendEvent) {
             this.fireEvent('periodchange', this.getValue());
@@ -257,16 +265,22 @@ Ext.define('Uni.form.field.OnPeriod', {
             monthRadio = me.getOptionDayOfMonthRadio(),
             weekRadio = me.getOptionDayOfWeekRadio();
 
-        if (dayRadio.getValue() && dayRadio.isDisabled()) {
+        if (!monthRadio.getValue() && dayRadio.getValue() && dayRadio.isDisabled()) {
+            monthRadio.suspendEvents();
             monthRadio.setValue(true);
+            monthRadio.resumeEvents();
         }
 
-        if (monthRadio.getValue() && monthRadio.isDisabled()) {
+        if (!weekRadio.getValue() && monthRadio.getValue() && monthRadio.isDisabled()) {
+            weekRadio.suspendEvents();
             weekRadio.setValue(true);
+            weekRadio.resumeEvents();
         }
 
-        if (weekRadio.getValue() && weekRadio.isDisabled()) {
+        if (!dayRadio.getValue() && weekRadio.getValue() && weekRadio.isDisabled()) {
+            dayRadio.suspendEvents();
             dayRadio.setValue(true);
+            dayRadio.resumeEvents();
         }
     },
 
