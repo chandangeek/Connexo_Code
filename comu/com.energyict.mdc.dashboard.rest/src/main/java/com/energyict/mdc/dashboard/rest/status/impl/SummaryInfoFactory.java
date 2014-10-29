@@ -3,12 +3,12 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import java.util.ArrayList;
+
+import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
 
 /**
  * Created by bvn on 9/18/14.
@@ -35,7 +35,7 @@ public class SummaryInfoFactory {
         successfulConnections=new TaskSummaryCounterInfo();
         successfulConnections.count= summaryData.getSuccess();
         successfulConnections.id= asJsonStringList(EnumSet.of(TaskStatus.Waiting));
-        successfulConnections.displayName=thesaurus.getString(MessageSeeds.SUCCESS.getKey(),"Success");
+        successfulConnections.displayName=thesaurus.getString(MessageSeeds.ALL_TASKS_SUCCESSFUL.getKey(),"Success, all tasks successful");
         successfulConnections.name=KpiId.Success.name();
         info.counters.add(successfulConnections);
 
@@ -44,7 +44,7 @@ public class SummaryInfoFactory {
             connectionsWithFailingTasks = new TaskSummaryCounterInfo();
             connectionsWithFailingTasks.count = atLeastOneTaskFailed;
             connectionsWithFailingTasks.id = null; // not navigable
-            connectionsWithFailingTasks.displayName = thesaurus.getString(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), "Success with failed tasks");
+            connectionsWithFailingTasks.displayName = thesaurus.getString(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), "Success, with failed tasks");
             connectionsWithFailingTasks.name = KpiId.SuccessWithFailedTasks.name();
             info.counters.add(connectionsWithFailingTasks);
         }

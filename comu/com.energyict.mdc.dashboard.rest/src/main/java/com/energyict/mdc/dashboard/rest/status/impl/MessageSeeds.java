@@ -8,8 +8,8 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     SUCCESS(1, "Success", "Success"),
-    ALL_TASKS_SUCCESSFUL(2, "AllTasksSuccessful", "All tasks successful"),
-    SUCCESS_WITH_FAILED_TASKS(3, "SomeTasksFailed", "Success with failed tasks"),
+    ALL_TASKS_SUCCESSFUL(2, "AllTasksSuccessful", "Success, all tasks successful"),
+    SUCCESS_WITH_FAILED_TASKS(3, "SomeTasksFailed", "Success, with failed tasks"),
     PENDING(4, "Pending", "Pending"),
     FAILED(5, "Failed", "Failed"),
     BUSY(6, "Busy", "Busy"),
