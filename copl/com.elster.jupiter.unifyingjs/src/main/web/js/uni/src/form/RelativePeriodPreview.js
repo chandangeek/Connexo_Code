@@ -236,7 +236,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
     formatJsonPreviewRequest: function (periodValue) {
         var me = this,
             date = me.getValue();
-        debugger;
+
         return {
             date: date.getTime(),
             zoneOffset: date.getTimezoneOffset(),
