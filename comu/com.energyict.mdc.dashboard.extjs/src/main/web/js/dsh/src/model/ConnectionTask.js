@@ -37,6 +37,7 @@ Ext.define('Dsh.model.ConnectionTask', {
         { name: 'window', type: 'auto' },
         { name: 'connectionStrategy', type: 'auto' },
         { name: 'nextExecution', type: 'date', dateFormat: 'time'},
-        { name: 'comPort', type: 'auto'}
+        { name: 'comPort', type: 'auto'},
+        { name: 'comSessionId', type: 'auto'}
     ]
 });

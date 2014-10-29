@@ -7,8 +7,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
         'Ext.grid.column.Template',
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Dsh.view.widget.ActionMenu'
+        'Uni.view.toolbar.PagingBottom'
     ],
     itemId: 'connectionslist',
     store: 'Dsh.store.ConnectionTasks',
@@ -87,8 +86,11 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 flex: 1
             },
             {
-                itemId: 'action',
-                xtype: 'uni-actioncolumn'
+                itemId: 'connectionsGridActionMenu',
+                xtype: 'uni-actioncolumn',
+                menu: {
+
+                }
             }
         ]
     },

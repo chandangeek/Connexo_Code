@@ -8,8 +8,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
         'Ext.grid.column.Template',
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Dsh.view.widget.ActionMenu'
+        'Uni.view.toolbar.PagingBottom'
     ],
     columns: {
         defaults: {
@@ -75,8 +74,11 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 flex: 2
             },
             {
-                itemId: 'action',
-                xtype: 'uni-actioncolumn'
+                itemId: 'communicationsGridActionMenu',
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    //xtype: 'communications-action-menu'
+                }
             }
         ]
     },
