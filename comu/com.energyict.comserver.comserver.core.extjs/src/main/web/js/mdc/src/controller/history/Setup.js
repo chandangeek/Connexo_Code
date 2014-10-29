@@ -974,7 +974,29 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                             action: 'showDeviceCommunicationTasksView',
                             items: {
+                                history: {
+                                    title: 'Show communication history',
+                                    route: '{comTaskId}/history',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationTaskHistory',
+                                    action: 'showDeviceCommunicationTaskHistory',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCommunicationTask', function (record) {
+                                            route.setTitle(('general.history', 'MDC', 'History of') + ' \'' + record.get('name') + '\'');
+                                            return true;
+                                        }, {single: true});
 
+                                        return this;
+                                    },
+                                    items: {
+                                        viewlog: {
+                                            title: 'Communication log',
+                                            route: '{historyId}/viewlog',
+                                            controller: 'Mdc.controller.setup.DeviceCommunicationTaskHistory',
+                                            action: 'showDeviceCommunicationTaskHistoryLog',
+                                            filter: 'Mdc.model.DeviceComTaskLogFilter'
+                                        }
+                                    }
+                                }
                             }
                         },
                         loadprofiles: {
@@ -1117,6 +1139,20 @@ Ext.define('Mdc.controller.history.Setup', {
                                             filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                                         }
                                     }
+                                }
+                            }
+                        },
+                        securitysettings: {
+                            title: 'Security settings',
+                            route: 'securitysettings',
+                            controller: 'Mdc.controller.setup.DeviceSecuritySettings',
+                            action: 'showDeviceSecuritySettings',
+                            items: {
+                                edit: {
+                                    title: 'Edit security setting',
+                                    route: '{securitySettingId}/edit',
+                                    controller: 'Mdc.controller.setup.DeviceSecuritySettings',
+                                    action: 'showDeviceSecuritySettingEditView'
                                 }
                             }
                         }
