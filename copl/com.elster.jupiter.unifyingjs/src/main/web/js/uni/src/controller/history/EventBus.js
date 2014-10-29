@@ -46,12 +46,11 @@ Ext.define('Uni.controller.history.EventBus', {
         var queryStringIndex = token.indexOf('?');
 
 
-
+        var current = token;
         if (queryStringIndex > 0) {
-            token = token.substring(0, queryStringIndex);
+            current = current.substring(0, queryStringIndex);
         }
 
-        var current = token;
         var previous = this.getCurrentPath();
 
         if (this.getCurrentPath() !== null) {
