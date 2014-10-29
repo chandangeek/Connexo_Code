@@ -63,4 +63,13 @@ public interface SecurityProperty {
      */
     public Interval getActivePeriod ();
 
+
+    /**
+     * returns true if all required properties are filled in
+     * returns false if one of more required properties are not filled in
+     *
+     * @return the completion status
+     */
+    public Boolean isComplete ();
+
 }
