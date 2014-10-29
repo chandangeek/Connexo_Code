@@ -140,6 +140,7 @@ public enum TableSpecs {
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2INSTANT).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
+            table.column("GATEWAY_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName()).notNull().add();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
             table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE").
                     on(deviceTypeId).

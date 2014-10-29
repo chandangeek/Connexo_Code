@@ -145,6 +145,7 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_ENABLEMENT_PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_MUST_BE_FROM_SAME_CONFIGURATION(14006, Keys.COM_TASK_ENABLEMENT_PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_MUST_BE_FROM_SAME_CONFIGURATION, "The protocol dialect properties must be from the same device configuration", SEVERE),
     COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_MUST_BE_FROM_SAME_CONFIGURATION(14007, Keys.COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_MUST_BE_FROM_SAME_CONFIGURATION, "The protocol dialect properties must be from the same device configuration", SEVERE),
     COM_TASK_ENABLEMENT_DOES_NOT_EXIST(14008, Keys.COM_TASK_ENABLEMENT_DOES_NOT_EXIST, "The communication task ''{0}'' is not enabled on the device configuration ''{1}'' and can therefore not be disabled", SEVERE),
+    INCORRECT_GATEWAY_TYPE(14009, Keys.INCORRECT_GATEWAY_TYPE, "You must specify the gateway type if your configuration can act as gateway", SEVERE),
     ;
 
     private final int number;
@@ -242,6 +243,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_TASK_ENABLEMENT_DOES_NOT_EXIST = "comTaskEnablement.doesNotExist";
         public static final String DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE = "deviceConfig.active.field.immutable";
         public static final String INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD = "incorrect.direction.connection.method";
+        public static final String INCORRECT_GATEWAY_TYPE = "incorrect.gateway.type";
     }
 
 }
