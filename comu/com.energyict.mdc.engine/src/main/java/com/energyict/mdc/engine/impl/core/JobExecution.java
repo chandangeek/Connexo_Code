@@ -22,14 +22,13 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.impl.ConnectionTaskCompletionEventInfo;
-import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleFailedExecution;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecution;
 import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
@@ -156,8 +155,8 @@ public abstract class JobExecution implements ScheduledJob {
 
     @Override
     public void completed() {
+        this.addCompletionEvent();
         this.completeSuccessfulComSession();
-        this.publishCompletion();
     }
 
     @Override
@@ -167,8 +166,8 @@ public abstract class JobExecution implements ScheduledJob {
 
     @Override
     public void failed(Throwable t, ExecutionFailureReason reason) {
+        this.addCompletionEvent();
         this.completeFailedComSession(t, reason);
-        this.publishCompletion();
     }
 
     @Override
@@ -176,16 +175,17 @@ public abstract class JobExecution implements ScheduledJob {
         this.doReschedule(comServerDAO, rescheduleReason);
     }
 
-    private void publishCompletion() {
-        this.serviceProvider.eventService().
-                postEvent(
-                        EventType.DEVICE_CONNECTION_COMPLETION.topic(),
-                        ConnectionTaskCompletionEventInfo.forCompletion(
-                                this.getConnectionTask(),
-                                this.getComPort(),
-                                this.getSuccessfulComTaskExecutions(),
-                                this.getFailedComTaskExecutions(),
-                                this.getNotExecutedComTaskExecutions()));
+    private void addCompletionEvent() {
+        if (!this.getExecutionContext().connectionFailed()) {
+            this.getExecutionContext().getStoreCommand().add(
+                    new PublishConnectionCompletionEvent(
+                            this.serviceProvider.eventService(),
+                            this.getConnectionTask(),
+                            this.getComPort(),
+                            this.getSuccessfulComTaskExecutions(),
+                            this.getFailedComTaskExecutions(),
+                            this.getNotExecutedComTaskExecutions()));
+        }
     }
 
     @Override

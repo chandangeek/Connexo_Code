@@ -17,6 +17,7 @@ import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.services.HexService;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 
@@ -451,6 +452,11 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         @Override
         public NlsService nlsService() {
             return serviceProvider.nlsService();
+        }
+
+        @Override
+        public EventService eventService() {
+            return serviceProvider.eventService();
         }
 
         @Override

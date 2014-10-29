@@ -46,6 +46,11 @@ public abstract class CompositeDeviceCommandImpl implements CompositeDeviceComma
     }
 
     @Override
+    public void add(PublishConnectionTaskEventDeviceCommand command) {
+        this.addDeviceCommand(command);
+    }
+
+    @Override
     public void add(RescheduleExecutionDeviceCommand command) {
         this.addDeviceCommand(command);
     }

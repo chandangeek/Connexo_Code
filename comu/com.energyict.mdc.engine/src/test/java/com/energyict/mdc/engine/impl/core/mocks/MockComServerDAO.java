@@ -315,11 +315,6 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions) {
-        this.connectionTaskLocking.remove(connectionTask);
-    }
-
-    @Override
     public void executionFailed (ConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
     }

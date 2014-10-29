@@ -360,14 +360,6 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions) {
-        this.serviceProvider.eventService().
-                postEvent(
-                        EventType.DEVICE_CONNECTION_FAILURE.topic(),
-                        ConnectionTaskCompletionEventInfo.forFailure(connectionTask, comPort, comTaskExecutions));
-    }
-
-    @Override
     public void executionCompleted(final ConnectionTask connectionTask) {
         this.toServerConnectionTask(connectionTask).executionCompleted();
     }

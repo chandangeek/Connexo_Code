@@ -18,6 +18,7 @@ public enum EventType {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             return super.addCustomProperties(eventTypeBuilder).
+                    withProperty("comSessionId", ValueType.LONG, "comSessionId").
                     withProperty("comPortId", ValueType.LONG, "comPortId").
                     withProperty("comServerId", ValueType.LONG, "comServerId").
                     withProperty("deviceIdentifier", ValueType.LONG, "deviceIdentifier").
@@ -28,6 +29,7 @@ public enum EventType {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             return super.addCustomProperties(eventTypeBuilder).
+                    withProperty("comSessionId", ValueType.LONG, "comSessionId").
                     withProperty("comPortId", ValueType.LONG, "comPortId").
                     withProperty("comServerId", ValueType.LONG, "comServerId").
                     withProperty("deviceIdentifier", ValueType.LONG, "deviceIdentifier").

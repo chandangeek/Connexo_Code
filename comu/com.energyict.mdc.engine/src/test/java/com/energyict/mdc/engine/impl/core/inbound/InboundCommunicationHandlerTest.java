@@ -26,6 +26,7 @@ import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecution;
 import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
@@ -461,11 +462,12 @@ public class InboundCommunicationHandlerTest {
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
-        assertThat(compositeDeviceCommand.getChildren()).hasSize(3);
+        assertThat(compositeDeviceCommand.getChildren()).hasSize(4);
         DeviceCommand createComSessionDeviceCommand = compositeDeviceCommand.getChildren().get(2);
         assertThat(createComSessionDeviceCommand).isInstanceOf(CreateInboundComSession.class);
+        DeviceCommand publishConnectionTaskEvent = compositeDeviceCommand.getChildren().get(3);
+        assertThat(publishConnectionTaskEvent).isInstanceOf(PublishConnectionCompletionEvent.class);
         verify(this.comSessionBuilder).endSession(any(Instant.class), any(ComSession.SuccessIndicator.class));
-        verify(this.eventService).postEvent(eq(EventType.DEVICE_CONNECTION_COMPLETION.topic()), anyObject());
         DeviceCommand rescheduleDeviceCommand = compositeDeviceCommand.getChildren().get(0);
         assertThat(rescheduleDeviceCommand).isInstanceOf(RescheduleSuccessfulExecution.class);
         DeviceCommand unlockDeviceCommand = compositeDeviceCommand.getChildren().get(1);
@@ -514,7 +516,6 @@ public class InboundCommunicationHandlerTest {
         // Asserts
         verify(this.comSessionBuilder).endSession(any(Instant.class), eq(ComSession.SuccessIndicator.Success));
         verify(this.comSessionBuilder, never()).addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Instant.class));
-        verify(this.eventService).postEvent(eq(EventType.DEVICE_CONNECTION_COMPLETION.topic()), anyObject());
     }
 
     @Test
@@ -650,9 +651,11 @@ public class InboundCommunicationHandlerTest {
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
-        assertThat(compositeDeviceCommand.getChildren()).hasSize(3);
+        assertThat(compositeDeviceCommand.getChildren()).hasSize(4);
         DeviceCommand childDeviceCommand = compositeDeviceCommand.getChildren().get(2);
         assertThat(childDeviceCommand).isInstanceOf(CreateInboundComSession.class);
+        DeviceCommand publishConnectionTaskEvent = compositeDeviceCommand.getChildren().get(3);
+        assertThat(publishConnectionTaskEvent).isInstanceOf(PublishConnectionCompletionEvent.class);
         verify(this.comSessionBuilder).endSession(any(Instant.class), any(ComSession.SuccessIndicator.class));
         DeviceCommand rescheduleDeviceCommand = compositeDeviceCommand.getChildren().get(0);
         assertThat(rescheduleDeviceCommand).isInstanceOf(RescheduleSuccessfulExecution.class);

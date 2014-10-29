@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 
@@ -57,6 +58,7 @@ public class ConnectionTaskCompletionEventInfoTest {
     private static final long COMPORT_ID = COMSERVER_ID + 1;
     private static final long COMTASK_EXECUTION_1_ID = COMPORT_ID + 1;
     private static final long COMTASK_EXECUTION_2_ID = COMTASK_EXECUTION_1_ID + 1;
+    private static final long COMSESSION_ID = COMTASK_EXECUTION_2_ID + 1;
 
     @Mock
     private BundleContext bundleContext;
@@ -72,6 +74,8 @@ public class ConnectionTaskCompletionEventInfoTest {
     private ComServer comServer;
     @Mock
     private ComPort comPort;
+    @Mock
+    private ComSession comSession;
     @Mock
     private ScheduledComTaskExecution comTaskExecution1;
     @Mock
@@ -125,6 +129,7 @@ public class ConnectionTaskCompletionEventInfoTest {
         when(this.comTaskExecution1.getDevice()).thenReturn(this.device);
         when(this.comTaskExecution2.getId()).thenReturn(COMTASK_EXECUTION_2_ID);
         when(this.comTaskExecution2.getDevice()).thenReturn(this.device);
+        when(this.comSession.getId()).thenReturn(COMSESSION_ID);
     }
 
     @Test
@@ -132,6 +137,7 @@ public class ConnectionTaskCompletionEventInfoTest {
         ConnectionTaskCompletionEventInfo eventInfo = ConnectionTaskCompletionEventInfo.forCompletion(
                 this.connectionTask,
                 this.comPort,
+                this.comSession,
                 Arrays.asList(this.comTaskExecution1, this.comTaskExecution2),
                 Arrays.asList(this.comTaskExecution2, this.comTaskExecution1),
                 Collections.emptyList());

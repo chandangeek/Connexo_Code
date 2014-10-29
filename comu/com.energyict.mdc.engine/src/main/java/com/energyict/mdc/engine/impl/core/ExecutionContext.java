@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
@@ -28,6 +29,7 @@ import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournalist;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComCommandLogger;
@@ -67,6 +69,8 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         public NlsService nlsService();
 
+        public EventService eventService();
+
         public IssueService issueService();
 
         public ConnectionTaskService connectionTaskService();
@@ -78,6 +82,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     private final JobExecution jobExecution;
     private final ServiceProvider serviceProvider;
 
+    private boolean connectionFailed;
     private ComPortRelatedComChannel comPortRelatedComChannel;
     private ComSessionBuilder sessionBuilder;
     private ComTaskExecutionSessionBuilder currentTaskExecutionBuilder;
@@ -189,6 +194,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      */
     public boolean connect() {
         try {
+            this.connectionFailed = false;
             this.connecting = new StopWatch();
             this.executing = new StopWatch();
             this.executing.stop();  // Do not auto start but start it manually as soon as execution starts.
@@ -388,7 +394,17 @@ public final class ExecutionContext implements JournalEntryFactory {
      * @see #close()
      */
     private void connectionFailed(ConnectionException e, ConnectionTask<?, ?> connectionTask) {
-        this.getComServerDAO().connectionFailed(connectionTask, this.comPort, this.jobExecution.getComTaskExecutions());
+        this.connectionFailed = true;
+        this.getStoreCommand().add(
+                new PublishConnectionSetupFailureEvent(
+                        this.serviceProvider.eventService(),
+                        connectionTask,
+                        this.comPort,
+                        this.jobExecution.getComTaskExecutions()));
+    }
+
+    public boolean connectionFailed () {
+        return this.connectionFailed;
     }
 
     private void createComSessionCommand(ComSessionBuilder comSessionBuilder, ComSession.SuccessIndicator successIndicator) {

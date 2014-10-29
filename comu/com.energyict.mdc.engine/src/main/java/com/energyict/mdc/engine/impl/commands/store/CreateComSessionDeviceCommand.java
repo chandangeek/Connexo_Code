@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
 /**
@@ -13,5 +14,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 public interface CreateComSessionDeviceCommand extends DeviceCommand, DeviceCommand.ExecutionLogger, CanProvideDescriptionTitle {
 
     public ComSessionBuilder getComSessionBuilder();
+
+    public ComSession getComSession();
 
 }

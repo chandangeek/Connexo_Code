@@ -61,6 +61,11 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     }
 
     @Override
+    public ComSession getComSession() {
+        return this.inboundComSession;
+    }
+
+    @Override
     public void executeDuringShutdown (ComServerDAO comServerDAO) {
         this.execute(comServerDAO);
     }

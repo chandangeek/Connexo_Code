@@ -18,6 +18,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
 
     private List<DeviceCommand> finalCommands = new ArrayList<>();
     private CreateComSessionDeviceCommand createComSessionDeviceCommand;
+    private PublishConnectionTaskEventDeviceCommand publishConnectionTaskEventDeviceCommand;
 
     public ComSessionRootDeviceCommand () {
         this(ComServer.LogLevel.INFO);
@@ -30,6 +31,17 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     @Override
     public void add (CreateComSessionDeviceCommand command) {
         this.createComSessionDeviceCommand = command;
+        if (this.publishConnectionTaskEventDeviceCommand != null) {
+            this.publishConnectionTaskEventDeviceCommand.setCreateComSessionDeviceCommand(command);
+        }
+    }
+
+    @Override
+    public void add (PublishConnectionTaskEventDeviceCommand command) {
+        this.publishConnectionTaskEventDeviceCommand = command;
+        if (this.createComSessionDeviceCommand != null) {
+            this.publishConnectionTaskEventDeviceCommand.setCreateComSessionDeviceCommand(this.createComSessionDeviceCommand);
+        }
     }
 
     @Override
@@ -48,6 +60,9 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
         deviceCommands.addAll(this.finalCommands);
         if (this.createComSessionDeviceCommand != null) {
             deviceCommands.add(this.createComSessionDeviceCommand);
+        }
+        if (this.publishConnectionTaskEventDeviceCommand != null) {
+            deviceCommands.add(this.publishConnectionTaskEventDeviceCommand);
         }
         return deviceCommands;
     }

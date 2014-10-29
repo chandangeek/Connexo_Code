@@ -173,12 +173,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions) {
-        this.connectionTaskExecutionFailed.increment();
-        this.actual.connectionFailed(connectionTask, comPort, comTaskExecutions);
-    }
-
-    @Override
     public void executionCompleted (ConnectionTask connectionTask) {
         this.connectionTaskExecutionCompleted.increment();
         this.actual.executionCompleted(connectionTask);
@@ -383,11 +377,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public void executionStarted (ConnectionTask connectionTask, ComServer comServer) {
             this.verifier.verify(connectionTaskExecutionStarted);
-        }
-
-        @Override
-        public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions) {
-            this.verifier.verify(connectionTaskExecutionFailed);
         }
 
         @Override

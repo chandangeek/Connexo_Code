@@ -28,10 +28,15 @@ import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
+import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecution;
+import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComPort;
@@ -69,6 +74,7 @@ import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
+import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
@@ -82,6 +88,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -399,14 +406,10 @@ public class ScheduledJobImplTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
-        Runnable jobRunnable = new Runnable() {
-            @Override
-            public void run() {
-                jobExecutor.execute(job);
-                startLatch.countDown();
-            }
-        };
-        Thread jobThread = new Thread(jobRunnable);
+        Thread jobThread = new Thread(() -> {
+            jobExecutor.execute(job);
+            startLatch.countDown();
+        });
         jobThread.setName("ScheduledComTaskExecution for testThatConnectionCompletionPublishesEventForIssueModule");
         jobThread.start();
 
@@ -420,16 +423,17 @@ public class ScheduledJobImplTest {
         deviceCommandExecutionStartedLatch.await();
 
         // Asserts
-        ArgumentCaptor<ConnectionTaskCompletionEventInfo> captor = ArgumentCaptor.forClass(ConnectionTaskCompletionEventInfo.class);
-        verify(this.eventService).postEvent(eq(EventType.DEVICE_CONNECTION_COMPLETION.topic()), captor.capture());
-        ConnectionTaskCompletionEventInfo connectionTaskCompletionEventInfo = captor.getValue();
-        assertThat(connectionTaskCompletionEventInfo.getComPortId()).isEqualTo(comPort.getId());
-        assertThat(connectionTaskCompletionEventInfo.getComServerId()).isEqualTo(comServer.getId());
-        assertThat(connectionTaskCompletionEventInfo.getConnectionTaskId()).isEqualTo(connectionTask.getId());
-        assertThat(connectionTaskCompletionEventInfo.getDeviceIdentifier()).isEqualTo(device.getId());
-        assertThat(connectionTaskCompletionEventInfo.getFailedTaskIDs()).isEmpty();
-        assertThat(connectionTaskCompletionEventInfo.getSkippedTaskIDs()).isEmpty();
-        assertThat(connectionTaskCompletionEventInfo.getSuccessTaskIDs()).contains(String.valueOf(COM_TASK_EXECUTION_ID));
+        ArgumentCaptor<DeviceCommand> deviceCommandArgumentCaptor = ArgumentCaptor.forClass(DeviceCommand.class);
+        verify(this.deviceCommandExecutor).execute(deviceCommandArgumentCaptor.capture(), any(DeviceCommandExecutionToken.class));
+        DeviceCommand rootCommand = deviceCommandArgumentCaptor.getValue();
+        assertThat(rootCommand).isInstanceOf(CompositeDeviceCommand.class);
+        CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) rootCommand;
+        assertThat(compositeDeviceCommand.getChildren()).areAtLeast(1, new Condition<DeviceCommand>() {
+            @Override
+            public boolean matches(DeviceCommand deviceCommand) {
+                return deviceCommand instanceof PublishConnectionCompletionEvent;
+            }
+        });
     }
 
     @Test
@@ -445,7 +449,7 @@ public class ScheduledJobImplTest {
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         Device device = this.createMockDevice(this.createMockOfflineDevice());
         when(connectionTask.getDevice()).thenReturn(device);
-        when(connectionTask.connect(eq(comPort), anyList())).thenReturn(mock(ComChannel.class));
+        doThrow(ConnectionException.class).when(connectionTask).connect(eq(comPort), anyList());
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
@@ -462,14 +466,10 @@ public class ScheduledJobImplTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
-        Runnable jobRunnable = new Runnable() {
-            @Override
-            public void run() {
-                jobExecutor.execute(job);
-                startLatch.countDown();
-            }
-        };
-        Thread jobThread = new Thread(jobRunnable);
+        Thread jobThread = new Thread(() -> {
+            jobExecutor.execute(job);
+            startLatch.countDown();
+        });
         jobThread.setName("ScheduledComTaskExecution for testThatConnectionFailurePublishesEventForIssueModule");
         jobThread.start();
 
@@ -483,16 +483,17 @@ public class ScheduledJobImplTest {
         deviceCommandExecutionStartedLatch.await();
 
         // Asserts
-        ArgumentCaptor<ConnectionTaskCompletionEventInfo> captor = ArgumentCaptor.forClass(ConnectionTaskCompletionEventInfo.class);
-        verify(this.eventService).postEvent(eq(EventType.DEVICE_CONNECTION_COMPLETION.topic()), captor.capture());
-        ConnectionTaskCompletionEventInfo connectionTaskCompletionEventInfo = captor.getValue();
-        assertThat(connectionTaskCompletionEventInfo.getComPortId()).isEqualTo(comPort.getId());
-        assertThat(connectionTaskCompletionEventInfo.getComServerId()).isEqualTo(comServer.getId());
-        assertThat(connectionTaskCompletionEventInfo.getConnectionTaskId()).isEqualTo(connectionTask.getId());
-        assertThat(connectionTaskCompletionEventInfo.getDeviceIdentifier()).isEqualTo(device.getId());
-        assertThat(connectionTaskCompletionEventInfo.getFailedTaskIDs()).contains(String.valueOf(COM_TASK_EXECUTION_ID));
-        assertThat(connectionTaskCompletionEventInfo.getSkippedTaskIDs()).isEmpty();
-        assertThat(connectionTaskCompletionEventInfo.getSuccessTaskIDs()).isEmpty();
+        ArgumentCaptor<DeviceCommand> deviceCommandArgumentCaptor = ArgumentCaptor.forClass(DeviceCommand.class);
+        verify(this.deviceCommandExecutor).execute(deviceCommandArgumentCaptor.capture(), any(DeviceCommandExecutionToken.class));
+        DeviceCommand rootCommand = deviceCommandArgumentCaptor.getValue();
+        assertThat(rootCommand).isInstanceOf(CompositeDeviceCommand.class);
+        CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) rootCommand;
+        assertThat(compositeDeviceCommand.getChildren()).areAtLeast(1, new Condition<DeviceCommand>() {
+            @Override
+            public boolean matches(DeviceCommand deviceCommand) {
+                return deviceCommand instanceof PublishConnectionSetupFailureEvent;
+            }
+        });
     }
 
     private ServerComTaskExecution createMockServerScheduledComTask(Device device, ConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {

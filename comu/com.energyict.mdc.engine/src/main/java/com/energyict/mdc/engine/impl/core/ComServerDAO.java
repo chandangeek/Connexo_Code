@@ -1,13 +1,12 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -23,8 +22,10 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.Transaction;
 
 import java.text.DateFormat;
 import java.util.Collection;
@@ -179,15 +180,6 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param comServer The ComServer that started the execution
      */
     public void executionStarted (ConnectionTask connectionTask, ComServer comServer);
-
-    /**
-     * Notifies that setting up the {@link ConnectionTask} failed.
-     *
-     * @param connectionTask The ConnectionTask
-     * @param comPort The ComPort on which the connection was being established but failed
-     * @param comTaskExecutions The List of {@link ComTaskExecution}s that were planned to be executed while the connection was established
-     */
-    public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions);
 
     /**
      * Notifies that execution of the specified OutboundConnectionTask completed.

@@ -186,11 +186,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions) {
-        // Todo
-    }
-
-    @Override
     public void executionCompleted (ConnectionTask connectionTask) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());

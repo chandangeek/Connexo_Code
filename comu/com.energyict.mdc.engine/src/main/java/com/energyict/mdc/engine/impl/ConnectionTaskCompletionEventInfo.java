@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  * @since 2014-09-16 (14:41)
  */
 public class ConnectionTaskCompletionEventInfo {
+    private long comSessionId;
     private long comPortId;
     private String comPortName;
     private long comServerId;
@@ -25,8 +27,9 @@ public class ConnectionTaskCompletionEventInfo {
     private String failedTaskIDs;
     private String skippedTaskIDs;
 
-    public static ConnectionTaskCompletionEventInfo forFailure(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> plannedComTaskExecutions) {
+    public static ConnectionTaskCompletionEventInfo forFailure(ConnectionTask<?, ?> connectionTask, ComPort comPort, ComSession comSession, List<ComTaskExecution> plannedComTaskExecutions) {
         ConnectionTaskCompletionEventInfo eventInfo = new ConnectionTaskCompletionEventInfo();
+        eventInfo.setComSessionId(comSession.getId());
         eventInfo.setComPort(comPort);
         eventInfo.setConnectionTask(connectionTask);
         eventInfo.setSuccessTaskIDs("");
@@ -35,8 +38,9 @@ public class ConnectionTaskCompletionEventInfo {
         return eventInfo;
     }
 
-    public static ConnectionTaskCompletionEventInfo forCompletion(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> successfulComTaskExecutions, List<ComTaskExecution> failedComTaskExecutions, List<ComTaskExecution> skippedComTaskExecutions) {
+    public static ConnectionTaskCompletionEventInfo forCompletion(ConnectionTask<?, ?> connectionTask, ComPort comPort, ComSession comSession, List<ComTaskExecution> successfulComTaskExecutions, List<ComTaskExecution> failedComTaskExecutions, List<ComTaskExecution> skippedComTaskExecutions) {
         ConnectionTaskCompletionEventInfo eventInfo = new ConnectionTaskCompletionEventInfo();
+        eventInfo.setComSessionId(comSession.getId());
         eventInfo.setComPort(comPort);
         eventInfo.setConnectionTask(connectionTask);
         eventInfo.setSuccessTaskIDs(toCommaSeparatedIdList(successfulComTaskExecutions));
@@ -66,6 +70,14 @@ public class ConnectionTaskCompletionEventInfo {
     private void setComServer(ComServer comServer) {
         this.setComServerId(comServer.getId());
         this.setComServerName(comServer.getName());
+    }
+
+    public long getComSessionId() {
+        return comSessionId;
+    }
+
+    public void setComSessionId(long comSessionId) {
+        this.comSessionId = comSessionId;
     }
 
     public long getComPortId() {
