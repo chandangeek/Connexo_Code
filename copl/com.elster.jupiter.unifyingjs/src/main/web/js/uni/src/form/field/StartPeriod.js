@@ -268,8 +268,8 @@ Ext.define('Uni.form.field.StartPeriod', {
             var dateValue = me.getOptionDateContainer().down('datefield').getValue();
 
             Ext.apply(result, {
-                startFixedDay: dateValue.getDay(),
-                startFixedMonth: dateValue.getMonth(),
+                startFixedDay: dateValue.getDate(),
+                startFixedMonth: dateValue.getMonth()+1,
                 startFixedYear: dateValue.getFullYear()
             });
         } else if (selectedValue === 'ago') {
