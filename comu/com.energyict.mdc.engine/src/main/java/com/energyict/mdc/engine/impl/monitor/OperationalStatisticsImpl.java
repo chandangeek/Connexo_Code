@@ -11,9 +11,11 @@ import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link OperationalStatistics} interface.
@@ -34,27 +36,27 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
 
     private final Clock clock;
     private final Thesaurus thesaurus;
-    private final Date startTimestamp;
+    private final Instant startTimestamp;
     private final TimeDuration changesInterPollDelay;
-    private Date lastCheckForChangesTimestamp;
+    private Instant lastCheckForChangesTimestamp;
 
     public OperationalStatisticsImpl(Clock clock, Thesaurus thesaurus, TimeDuration changesInterPollDelay) {
         super();
         this.clock = clock;
         this.thesaurus = thesaurus;
-        this.startTimestamp = Date.from(this.clock.instant());
+        this.startTimestamp = this.clock.instant();
         this.changesInterPollDelay = changesInterPollDelay;
     }
 
     @Override
-    public Date getStartTimestamp () {
+    public Instant getStartTimestamp () {
         return startTimestamp;
     }
 
     @Override
     public TimeDuration getRunningTime () {
-        Date now = Date.from(clock.instant());
-        return new TimeDuration(this.asSeconds(now.getTime() - this.startTimestamp.getTime()), TimeDuration.TimeUnit.SECONDS);
+        Instant now = this.clock.instant();
+        return TimeDuration.seconds(this.asSeconds(now.toEpochMilli() - this.startTimestamp.toEpochMilli()));
     }
 
     private int asSeconds (long millis) {
@@ -67,12 +69,12 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     }
 
     @Override
-    public Date getLastCheckForChangesTimestamp () {
-        return lastCheckForChangesTimestamp;
+    public Optional<Instant> getLastCheckForChangesTimestamp() {
+        return Optional.ofNullable(this.lastCheckForChangesTimestamp);
     }
 
     @Override
-    public void setLastCheckForChangesTimestamp (Date lastCheckForChangesTimestamp) {
+    public void setLastCheckForChangesTimestamp (Instant lastCheckForChangesTimestamp) {
         this.lastCheckForChangesTimestamp = lastCheckForChangesTimestamp;
     }
 
@@ -132,33 +134,23 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     @Override
     protected void initializeAccessors (List<CompositeDataItemAccessor> accessors) {
         accessors.add(
-                new CompositeDataItemAccessor(START_TIMESTAMP_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getStartTimestamp();
-                    }
-                }));
+                new CompositeDataItemAccessor(
+                        START_TIMESTAMP_ITEM_NAME,
+                        () -> Date.from(getStartTimestamp())));
         accessors.add(
-                new CompositeDataItemAccessor(RUNNING_TIME_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return new PrettyPrintTimeDuration(getRunningTime(), thesaurus).toString();
-                    }
-                }));
+                new CompositeDataItemAccessor(
+                        RUNNING_TIME_ITEM_NAME,
+                        () -> new PrettyPrintTimeDuration(getRunningTime(), thesaurus).toString()));
         accessors.add(
-                new CompositeDataItemAccessor(CHANGES_INTERPOLL_DELAY_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return new PrettyPrintTimeDuration(getChangesInterPollDelay(), thesaurus).toString();
-                    }
-                }));
+                new CompositeDataItemAccessor(
+                        CHANGES_INTERPOLL_DELAY_ITEM_NAME,
+                        () -> new PrettyPrintTimeDuration(getChangesInterPollDelay(), thesaurus).toString()));
         accessors.add(
-                new CompositeDataItemAccessor(LAST_CHECK_FOR_CHANGES_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getLastCheckForChangesTimestamp();
-                    }
-                }));
+                new CompositeDataItemAccessor(
+                        LAST_CHECK_FOR_CHANGES_ITEM_NAME,
+                        () -> getLastCheckForChangesTimestamp()
+                                    .map(Date::from)
+                                    .orElse(null)));
     }
 
 }

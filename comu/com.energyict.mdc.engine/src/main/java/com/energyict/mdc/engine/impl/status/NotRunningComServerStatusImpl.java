@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link ComServerStatus} interface
@@ -53,7 +53,7 @@ public class NotRunningComServerStatusImpl implements ComServerStatus {
     }
 
     @Override
-    public Date getBlockTimestamp() {
+    public Instant getBlockTimestamp() {
         return null;
     }
 

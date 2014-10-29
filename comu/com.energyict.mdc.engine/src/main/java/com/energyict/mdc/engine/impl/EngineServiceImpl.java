@@ -426,11 +426,6 @@ public class EngineServiceImpl implements EngineService, InstallService {
         }
 
         @Override
-        public WebSocketEventPublisherFactory webSocketEventPublisherFactory() {
-            return webSocketEventPublisherFactory;
-        }
-
-        @Override
         public EmbeddedWebServerFactory embeddedWebServerFactory() {
             return embeddedWebServerFactory;
         }

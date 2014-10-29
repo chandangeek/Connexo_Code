@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.status;
 
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models status information of a {@link com.energyict.mdc.engine.model.ComServer}
@@ -60,11 +60,12 @@ public interface ComServerStatus {
      * @return The time that the ComServer is already block
      *         or <code>null</code> if the ComServer is not blocked.
      */
-    public Date getBlockTimestamp();
+    public Instant getBlockTimestamp();
 
     /**
      * id of the comserver, used to access the REST resource to the comserver
      * @return comserver id
      */
     public long getComServerId();
+
 }

@@ -15,7 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -122,7 +122,7 @@ public class RunningComServerStatusImplTest {
         when(clock.instant()).thenReturn(now);
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(1))));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(1))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
         RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
@@ -138,8 +138,8 @@ public class RunningComServerStatusImplTest {
         when(clock.instant()).thenReturn(now);
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getStartTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(1))));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(null);
+        when(operationalStatistics.getStartTimestamp()).thenReturn(now.minus(Duration.ofMinutes(1)));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.<Instant>empty());
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
         RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
@@ -155,7 +155,7 @@ public class RunningComServerStatusImplTest {
         when(clock.instant()).thenReturn(now);
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(10))));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(10))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
         RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
@@ -170,8 +170,8 @@ public class RunningComServerStatusImplTest {
         when(clock.instant()).thenReturn(now);
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(null);
-        when(operationalStatistics.getStartTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(10))));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.<Instant>empty());
+        when(operationalStatistics.getStartTimestamp()).thenReturn(now.minus(Duration.ofMinutes(10)));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
         RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
@@ -186,7 +186,7 @@ public class RunningComServerStatusImplTest {
         when(clock.instant()).thenReturn(now);
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(15))));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(15))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
         RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
@@ -201,8 +201,8 @@ public class RunningComServerStatusImplTest {
         when(clock.instant()).thenReturn(now);
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(null);
-        when(operationalStatistics.getStartTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(15))));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.<Instant>empty());
+        when(operationalStatistics.getStartTimestamp()).thenReturn(now.minus(Duration.ofMinutes(15)));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
         RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
 
@@ -218,14 +218,14 @@ public class RunningComServerStatusImplTest {
         // Setup such that ComServer is not blocked
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(1))));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(1))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
 
         ScheduledComPortMonitor nonBlockedComPortMonitor = mock(ScheduledComPortMonitor.class);
         ScheduledComPortOperationalStatistics nonBlockedOperationalStatistics = mock(ScheduledComPortOperationalStatistics.class);
         when(nonBlockedOperationalStatistics.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(nonBlockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(2))));
-        when(nonBlockedOperationalStatistics.getLastCheckForWorkTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(1))));
+        when(nonBlockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(2))));
+        when(nonBlockedOperationalStatistics.getLastCheckForWorkTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(1))));
         when(nonBlockedComPortMonitor.getOperationalStatistics()).thenReturn(nonBlockedOperationalStatistics);
         RunningComServerStatusImpl comServerStatus =
                 new RunningComServerStatusImpl(
@@ -244,21 +244,22 @@ public class RunningComServerStatusImplTest {
         Clock clock = mock(Clock.class);
         Instant now = Instant.ofEpochMilli(DateTimeConstants.MILLIS_PER_HOUR);
         when(clock.instant()).thenReturn(now);
-        // Setup such that ComServer is not block
+        // Setup such that ComServer is not blocking
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(1))));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(1))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
 
         ScheduledComPortMonitor blockedComPortMonitor = mock(ScheduledComPortMonitor.class);
         ScheduledComPortOperationalStatistics blockedOperationalStatistics = mock(ScheduledComPortOperationalStatistics.class);
         when(blockedOperationalStatistics.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(blockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(15))));
+        when(blockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(15))));
         when(blockedComPortMonitor.getOperationalStatistics()).thenReturn(blockedOperationalStatistics);
         ScheduledComPortMonitor nonBlockedComPortMonitor = mock(ScheduledComPortMonitor.class);
         ScheduledComPortOperationalStatistics nonBlockedOperationalStatistics = mock(ScheduledComPortOperationalStatistics.class);
         when(nonBlockedOperationalStatistics.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(nonBlockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(15))));
+        when(nonBlockedOperationalStatistics.getLastCheckForWorkTimestamp()).thenReturn(Optional.empty());
+        when(nonBlockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(15))));
         when(nonBlockedComPortMonitor.getOperationalStatistics()).thenReturn(nonBlockedOperationalStatistics);
         RunningComServerStatusImpl comServerStatus =
                 new RunningComServerStatusImpl(
@@ -279,7 +280,7 @@ public class RunningComServerStatusImplTest {
         // Setup such that ComServer is not block
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(1))));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(1))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
 
         ScheduledComPortMonitor blockedComPortMonitor = mock(ScheduledComPortMonitor.class);
@@ -287,12 +288,13 @@ public class RunningComServerStatusImplTest {
         when(blockedOperationalStatistics.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(blockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(null);
         when(blockedOperationalStatistics.getLastCheckForWorkTimestamp()).thenReturn(null);
-        when(blockedOperationalStatistics.getStartTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(15))));
+        when(blockedOperationalStatistics.getStartTimestamp()).thenReturn(now.minus(Duration.ofMinutes(15)));
         when(blockedComPortMonitor.getOperationalStatistics()).thenReturn(blockedOperationalStatistics);
         ScheduledComPortMonitor nonBlockedComPortMonitor = mock(ScheduledComPortMonitor.class);
         ScheduledComPortOperationalStatistics nonBlockedOperationalStatistics = mock(ScheduledComPortOperationalStatistics.class);
         when(nonBlockedOperationalStatistics.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(nonBlockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(15))));
+        when(nonBlockedOperationalStatistics.getLastCheckForWorkTimestamp()).thenReturn(Optional.empty());
+        when(nonBlockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(15))));
         when(nonBlockedComPortMonitor.getOperationalStatistics()).thenReturn(nonBlockedOperationalStatistics);
         RunningComServerStatusImpl comServerStatus =
                 new RunningComServerStatusImpl(
@@ -313,18 +315,19 @@ public class RunningComServerStatusImplTest {
         // Setup such that ComServer is not block
         ComServerOperationalStatistics operationalStatistics = mock(ComServerOperationalStatistics.class);
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(1))));
+        when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(1))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
 
         ScheduledComPortMonitor blockedComPortMonitor = mock(ScheduledComPortMonitor.class);
         ScheduledComPortOperationalStatistics blockedOperationalStatistics = mock(ScheduledComPortOperationalStatistics.class);
         when(blockedOperationalStatistics.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(blockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(15))));
+        when(blockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(15))));
         when(blockedComPortMonitor.getOperationalStatistics()).thenReturn(blockedOperationalStatistics);
         ScheduledComPortMonitor nonBlockedComPortMonitor = mock(ScheduledComPortMonitor.class);
         ScheduledComPortOperationalStatistics nonBlockedOperationalStatistics = mock(ScheduledComPortOperationalStatistics.class);
         when(nonBlockedOperationalStatistics.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(5));
-        when(nonBlockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(15))));
+        when(nonBlockedOperationalStatistics.getLastCheckForWorkTimestamp()).thenReturn(Optional.empty());
+        when(nonBlockedOperationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(now.minus(Duration.ofMinutes(15))));
         when(nonBlockedComPortMonitor.getOperationalStatistics()).thenReturn(nonBlockedOperationalStatistics);
         RunningComServerStatusImpl comServerStatus =
                 new RunningComServerStatusImpl(

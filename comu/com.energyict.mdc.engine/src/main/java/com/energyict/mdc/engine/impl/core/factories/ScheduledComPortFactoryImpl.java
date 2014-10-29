@@ -44,10 +44,10 @@ public class ScheduledComPortFactoryImpl implements ScheduledComPortFactory {
                     return null;
                 }
                 case 1: {
-                    return new SingleThreadedScheduledComPort(comPort, this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, serviceProvider);
+                    return new SingleThreadedScheduledComPort(comPort, this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, this.serviceProvider);
                 }
                 default: {
-                    return new MultiThreadedScheduledComPort(comPort, this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, serviceProvider);
+                    return new MultiThreadedScheduledComPort(comPort, this.comServerDAO, this.deviceCommandExecutor, this.threadFactory, this.serviceProvider);
                 }
             }
         }

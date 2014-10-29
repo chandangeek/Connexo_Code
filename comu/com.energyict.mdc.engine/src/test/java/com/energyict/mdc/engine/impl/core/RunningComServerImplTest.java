@@ -112,8 +112,8 @@ public class RunningComServerImplTest {
     public void testConstructorWithoutComPorts() throws SQLException, BusinessException {
         OnlineComServer comServer = mock(OnlineComServer.class);
         doThrow(BusinessException.class).when(comServer).getEventRegistrationUriIfSupported();
-        when(comServer.getInboundComPorts()).thenReturn(new ArrayList<InboundComPort>(0));
-        when(comServer.getOutboundComPorts()).thenReturn(new ArrayList<OutboundComPort>(0));
+        when(comServer.getInboundComPorts()).thenReturn(new ArrayList<>(0));
+        when(comServer.getOutboundComPorts()).thenReturn(new ArrayList<>(0));
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getNumberOfStoreTaskThreads()).thenReturn(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
         when(comServer.getStoreTaskThreadPriority()).thenReturn(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);

@@ -16,7 +16,6 @@ import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
-import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapable;
@@ -45,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class RunningComServerImpl implements RunningComServer, Runnable, EngineService.DeactivationNotificationListener {
 
     public interface ServiceProvider
-            extends
+        extends
             ScheduledComPortImpl.ServiceProvider,
             ComChannelBasedComPortListenerImpl.ServiceProvider,
             ComServerDAOImpl.ServiceProvider {
@@ -53,8 +52,6 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         public ManagementBeanFactory managementBeanFactory();
 
         public WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory();
-
-        public WebSocketEventPublisherFactory webSocketEventPublisherFactory();
 
         public EmbeddedWebServerFactory embeddedWebServerFactory();
 
@@ -100,10 +97,6 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private TimeOutMonitor timeOutMonitor;
     private ComServerMonitor operationalMonitor;
 
-    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
-        this(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new ComServerThreadFactory(comServer), cleanupDuringStartup, serviceProvider);
-    }
-
     protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
@@ -146,9 +139,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void addOutboundComPorts(List<OutboundComPort> outboundComPorts) {
-        for (OutboundComPort comPort : outboundComPorts) {
-            this.add(comPort);
-        }
+        outboundComPorts.forEach(this::add);
     }
 
     private ScheduledComPort add(OutboundComPort comPort) {
@@ -305,12 +296,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void installVMShutdownHook() {
-        Thread shutdownHook = this.threadFactory.newThread(new Runnable() {
-            @Override
-            public void run() {
-                shutdownImmediate();
-            }
-        });
+        Thread shutdownHook = this.threadFactory.newThread(this::shutdownImmediate);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
@@ -460,6 +446,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         try {
             Thread.sleep(this.getChangesInterPollDelayMillis());
             ComServer newVersion = this.comServerDAO.refreshComServer(this.comServer);
+            this.operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(this.serviceProvider.clock().instant());
             if (newVersion == null) {
                 // ComServer was deleted or made obsolete, shutdown
                 this.shutdown();

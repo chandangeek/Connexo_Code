@@ -12,7 +12,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -72,7 +71,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
     }
 
     @Override
-    public Date getBlockTimestamp() {
+    public Instant getBlockTimestamp() {
         for (ScheduledComPortMonitor comPortMonitor : this.comPortMonitors) {
             if (this.isBlocked(comPortMonitor)) {
                 return this.lastActivity(comPortMonitor.getOperationalStatistics());
@@ -89,20 +88,10 @@ public class RunningComServerStatusImpl implements ComServerStatus {
         return this.isBlocked(this.lastActivity(operationalStatistics), Duration.ofMillis(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
     }
 
-    private Date lastActivity(ScheduledComPortOperationalStatistics operationalStatistics) {
-        Date lastCheckForWorkTimestamp = operationalStatistics.getLastCheckForWorkTimestamp();
-        Date lastActivity;
-        if (lastCheckForWorkTimestamp != null) {
-            lastActivity = lastCheckForWorkTimestamp;
-        }
-        else if (operationalStatistics.getLastCheckForChangesTimestamp() != null) {
-            lastActivity = operationalStatistics.getLastCheckForChangesTimestamp();
-        }
-        else {
-            // Never checked for work or changes: consider comport start time to be last activity
-            lastActivity = operationalStatistics.getStartTimestamp();
-        }
-        return lastActivity;
+    private Instant lastActivity(ScheduledComPortOperationalStatistics operationalStatistics) {
+        return operationalStatistics.getLastCheckForWorkTimestamp()
+                    .orElseGet(() -> operationalStatistics.getLastCheckForChangesTimestamp()
+                    .orElseGet(operationalStatistics::getStartTimestamp));
     }
 
     private boolean isBlocked(ComServerMonitor comServerMonitor) {
@@ -110,24 +99,14 @@ public class RunningComServerStatusImpl implements ComServerStatus {
         return this.isBlocked(this.lastActivity(operationalStatistics), Duration.ofMillis(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
     }
 
-    private Date lastActivity(ComServerOperationalStatistics operationalStatistics) {
-        Date lastCheckForChangesTimestamp = operationalStatistics.getLastCheckForChangesTimestamp();
-        Date lastActivity;
-        if (lastCheckForChangesTimestamp != null) {
-            lastActivity = lastCheckForChangesTimestamp;
-        }
-        else {
-            // Never checked for changes: consider server start time to be last activity
-            lastActivity = operationalStatistics.getStartTimestamp();
-        }
-        return lastActivity;
+    private Instant lastActivity(ComServerOperationalStatistics operationalStatistics) {
+        return operationalStatistics.getLastCheckForChangesTimestamp().orElseGet(operationalStatistics::getStartTimestamp);
     }
 
-    private boolean isBlocked(Date lastActivity, Duration lenientDuration) {
+    private boolean isBlocked(Instant lastActivity, Duration lenientDuration) {
         Instant now = this.clock.instant();
         Instant latestExpectedActivity = now.minusMillis(lenientDuration.toMillis());
-        Instant lastActualActivity = Instant.ofEpochMilli(lastActivity.getTime());
-        return lastActualActivity.isBefore(latestExpectedActivity);
+        return lastActivity.isBefore(latestExpectedActivity);
     }
 
     @Override
@@ -153,8 +132,8 @@ public class RunningComServerStatusImpl implements ComServerStatus {
         return this.getBlockTime(this.lastActivity(operationalStatistics), Duration.ofMillis(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
     }
 
-    private Duration getBlockTime(Date lastActivity, Duration lenientDuration) {
-        return Duration.between(Instant.ofEpochMilli(lastActivity.getTime()).plusMillis(lenientDuration.toMillis()), this.clock.instant());
+    private Duration getBlockTime(Instant lastActivity, Duration lenientDuration) {
+        return Duration.between(lastActivity.plusMillis(lenientDuration.toMillis()), this.clock.instant());
     }
 
 }

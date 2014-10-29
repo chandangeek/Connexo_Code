@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.impl.core.mocks.MockTCPInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatistics;
 import com.energyict.mdc.engine.impl.monitor.EventAPIStatistics;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -63,6 +65,8 @@ public class RunningComServerChangesTest {
     private ComServerMonitorImplMBean comServerMonitor;
     @Mock
     private EventAPIStatistics eventApiStatistics;
+    @Mock
+    private ComServerOperationalStatistics comServerOperationalStatistics;
 
     private Clock clock = Clock.systemDefaultZone();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -82,6 +86,7 @@ public class RunningComServerChangesTest {
         when(this.managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(this.comServerMonitor);
         ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
         when(comServerMonitor.getEventApiStatistics()).thenReturn(this.eventApiStatistics);
+        when(comServerMonitor.getOperationalStatistics()).thenReturn(this.comServerOperationalStatistics);
     }
 
     @After
@@ -473,13 +478,13 @@ public class RunningComServerChangesTest {
         ScheduledComPort firstScheduledComPortAfterChanges = mock(ScheduledComPort.class);
         when(firstScheduledComPortAfterChanges.getStatus()).thenReturn(ServerProcessStatus.STARTED);
         when(firstScheduledComPortAfterChanges.getComPort()).thenReturn(firstComPort);
-        when(scheduledComPortFactory.newFor(firstComPort)).thenReturn(firstScheduledComPort);
-        when(scheduledComPortFactory.newFor(secondComPort)).thenReturn(secondScheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        when(scheduledComPortFactory.newFor(firstComPort)).thenReturn(firstScheduledComPort);
+        when(scheduledComPortFactory.newFor(secondComPort)).thenReturn(secondScheduledComPort);
         this.initializeEventPublisher(runningComServer);
         runningComServer.start();
 

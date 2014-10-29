@@ -8,8 +8,10 @@ import java.time.Clock;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ScheduledComPortOperationalStatistics} interface.
@@ -23,7 +25,7 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
     private static final String LAST_CHECK_FOR_WORK_ITEM_DESCRIPTION = "last check for work timestamp";
 
     private final ScheduledComPort comPort;
-    private Date lastCheckForWorkTimestamp;
+    private Instant lastCheckForWorkTimestamp;
 
     public ScheduledComPortOperationalStatisticsImpl(ScheduledComPort comPort, Clock clock, Thesaurus thesaurus) {
         super(clock, thesaurus, comPort.getComPort().getComServer().getChangesInterPollDelay());
@@ -36,12 +38,12 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
     }
 
     @Override
-    public Date getLastCheckForWorkTimestamp() {
-        return this.lastCheckForWorkTimestamp;
+    public Optional<Instant> getLastCheckForWorkTimestamp() {
+        return Optional.ofNullable(this.lastCheckForWorkTimestamp);
     }
 
     @Override
-    public void setLastCheckForWorkTimestamp(Date lastCheckForWorkTimestamp) {
+    public void setLastCheckForWorkTimestamp(Instant lastCheckForWorkTimestamp) {
         this.lastCheckForWorkTimestamp = lastCheckForWorkTimestamp;
     }
 
@@ -67,12 +69,12 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
     protected void initializeAccessors (List<CompositeDataItemAccessor> accessors) {
         super.initializeAccessors(accessors);
         accessors.add(
-                new CompositeDataItemAccessor(LAST_CHECK_FOR_WORK_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getLastCheckForWorkTimestamp().toString();
-                    }
-                }));
+                new CompositeDataItemAccessor(
+                        LAST_CHECK_FOR_WORK_ITEM_NAME,
+                        () -> getLastCheckForWorkTimestamp()
+                                    .map(Date::from)
+                                    .map(Date::toString)
+                                    .orElse("")));
     }
 
 }

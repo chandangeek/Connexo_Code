@@ -363,12 +363,9 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
         final CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
-        when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(new Answer<List<ComJob>>() {
-            @Override
-            public List<ComJob> answer(InvocationOnMock invocation) {
-                stopLatch.countDown();
-                return new ArrayList<>(0);
-            }
+        when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(invocation -> {
+            stopLatch.countDown();
+            return new ArrayList<>(0);
         });
 
         try {
@@ -403,18 +400,15 @@ public class SingleThreadedScheduledComPortTest {
         }
         final AtomicBoolean returnActualWork = new AtomicBoolean(true);
         final CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
-        when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(new Answer<List<ComJob>>() {
-            @Override
-            public List<ComJob> answer(InvocationOnMock invocation) {
-                List<ComJob> result;
-                if (returnActualWork.getAndSet(false)) {
-                    result = work;
-                } else {
-                    result = new ArrayList<>(0);
-                }
-                stopLatch.countDown();
-                return result;
+        when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(invocation -> {
+            List<ComJob> result;
+            if (returnActualWork.getAndSet(false)) {
+                result = work;
+            } else {
+                result = new ArrayList<>(0);
             }
+            stopLatch.countDown();
+            return result;
         });
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(1);
         when(this.deviceCommandExecutor.acquireTokens(1)).thenReturn(tokens);
@@ -454,18 +448,15 @@ public class SingleThreadedScheduledComPortTest {
         }
         final AtomicBoolean returnActualWork = new AtomicBoolean(true);
         final CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
-        when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(new Answer<List<ComJob>>() {
-            @Override
-            public List<ComJob> answer(InvocationOnMock invocation) {
-                List<ComJob> result;
-                if (returnActualWork.getAndSet(false)) {
-                    result = work;
-                } else {
-                    result = new ArrayList<>(0);
-                }
-                stopLatch.countDown();
-                return result;
+        when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(invocation -> {
+            List<ComJob> result;
+            if (returnActualWork.getAndSet(false)) {
+                result = work;
+            } else {
+                result = new ArrayList<>(0);
             }
+            stopLatch.countDown();
+            return result;
         });
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(1);
         when(this.deviceCommandExecutor.acquireTokens(1)).thenReturn(tokens);
@@ -503,12 +494,9 @@ public class SingleThreadedScheduledComPortTest {
             work.add(this.toComJob(this.mockComTask(i + 1, this.simultaneousConnectionTask1)));
         }
         final CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
-        when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(new Answer<List<ComJob>>() {
-            @Override
-            public List<ComJob> answer(InvocationOnMock invocation) {
-                stopLatch.countDown();
-                return work;
-            }
+        when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(invocation -> {
+            stopLatch.countDown();
+            return work;
         });
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(NUMBER_OF_TASKS);
 
@@ -840,11 +828,6 @@ public class SingleThreadedScheduledComPortTest {
             assertTrue("Was expecting at least one attempt to lock a ConnectionTask.", this.numberOfConnectionTaskLockAttemptCalls > 0);
         }
 
-        public void verifyExecuteComTaskCalls() {
-            int totalNumberOfExecuteCalls = this.numberOfJobExecuteCalls + this.numberOfGroupExecuteCalls;
-            assertTrue("Was expecting at least one call to execute(ScheduledComTask).", totalNumberOfExecuteCalls > 0);
-        }
-
         public void verifyNoExecuteComTaskCalls() {
             int totalNumberOfExecuteCalls = this.numberOfJobExecuteCalls + this.numberOfGroupExecuteCalls;
             assertEquals("Was NOT expecting calls to execute(ScheduledComTask).", 0, totalNumberOfExecuteCalls);
@@ -852,10 +835,6 @@ public class SingleThreadedScheduledComPortTest {
 
         public void verifyExecuteComTaskJobCalls() {
             assertTrue("Was expecting at least one call to execute(ComTaskExecutionJob).", this.numberOfJobExecuteCalls > 0);
-        }
-
-        public void verifyNoExecuteComTaskJobCalls() {
-            assertEquals("Was NOT expecting calls to execute(ComTaskExecutionJob).", 0, this.numberOfJobExecuteCalls);
         }
 
         public void verifyExecuteComTaskGroupCalls() {
