@@ -21,6 +21,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -32,8 +34,30 @@ import java.util.Optional;
  */
 public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> implements DeviceMessage<Device>{
 
+    public enum Fields {
+        DEVICEMESSAGEID("deviceMessageId"),
+        DEVICEMESSAGESTATUS("deviceMessageStatus"),
+        TRACKINGID("trackingId"),
+        PROTOCOLINFO("protocolInfo"),
+        CREATIONDATE("creationDate"),
+        RELEASEDATE("releaseDate"),
+        SENTDATE("sentDate"),
+        ;
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private ThreadPrincipalService threadPrincipalService;
     private DeviceMessageService deviceMessageService;
+    private Clock clock;
 
     private long id;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.USER_IS_REQUIRED + "}")
@@ -42,17 +66,20 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     private Reference<Device> device = ValueReference.absent();
     private DeviceMessageId deviceMessageId;
     private DeviceMessageStatus deviceMessageStatus;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CREATE_DATE_IS_REQUIRED + "}")
     private Instant creationDate;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.RELEASE_DATE_IS_REQUIRED + "}")
     private Instant releaseDate;
     private Instant sentDate;
     private String trackingId;
     private String protocolInfo;
 
     @Inject
-    public DeviceMessageImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceMessageService deviceMessageService) {
+    public DeviceMessageImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceMessageService deviceMessageService, Clock clock) {
         super(DeviceMessage.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
         this.deviceMessageService = deviceMessageService;
+        this.clock = clock;
     }
 
     public DeviceMessageImpl initialize(Device device, DeviceMessageId deviceMessageId){
@@ -118,7 +145,7 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     }
 
     private boolean statusIsPending() {
-        return this.deviceMessageStatus == DeviceMessageStatus.WAITING && !getReleaseDate().isAfter(Instant.now());
+        return this.deviceMessageStatus == DeviceMessageStatus.WAITING && !getReleaseDate().isAfter(this.clock.instant());
     }
 
     @Override
@@ -159,5 +186,27 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    protected void postNew() {
+        this.creationDate = this.clock.instant();
+        super.postNew();
+    }
+
+    public void setProtocolInfo(String protocolInfo) {
+        this.protocolInfo = protocolInfo;
+    }
+
+    public void setTrackingId(String trackingId) {
+        this.trackingId = trackingId;
+    }
+
+    public void setSentDate(Instant sentDate) {
+        this.sentDate = sentDate;
+    }
+
+    public void setReleaseDate(Instant releaseDate) {
+        this.releaseDate = releaseDate;
     }
 }

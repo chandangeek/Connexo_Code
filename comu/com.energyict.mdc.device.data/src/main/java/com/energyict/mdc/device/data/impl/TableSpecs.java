@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
@@ -570,7 +571,18 @@ public enum TableSpecs {
             Table<DeviceMessage> table = dataModel.addTable(name(), DeviceMessage.class);
             table.map(DeviceMessageImpl.class);
             Column id = table.addAutoIdColumn();
+            Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).notNull().add();
+            table.column("STATUS").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).notNull().add();
+            Column user = table.column("USER").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("TRACKINGID").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.TRACKINGID.fieldName()).add();
+            table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
+            table.column("CREATEDATE").number().map(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("RELEASEDATE").number().map(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("SENTDATE").number().map(DeviceMessageImpl.Fields.SENTDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
+            table.foreignKey("FK_DDC_DEVMESSAGE_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("deviceMessages").add();
+            table.foreignKey("FK_DDC_DEVMESSAGE_USR").on(user).references(UserService.COMPONENTNAME, "USR_USER").map("user").add();
         }
     }
     ;

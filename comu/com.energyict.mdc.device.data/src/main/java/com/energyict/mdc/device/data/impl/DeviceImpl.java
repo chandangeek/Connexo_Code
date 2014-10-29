@@ -801,12 +801,12 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public List<DeviceMessage> getMessages() {
+    public List<DeviceMessage<Device>> getMessages() {
         return Collections.unmodifiableList(this.deviceMessages);
     }
 
     @Override
-    public List<DeviceMessage> getMessagesByState(DeviceMessageStatus status) {
+    public List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status) {
         return Collections.emptyList();
     }
 
@@ -1778,21 +1778,24 @@ public class DeviceImpl implements Device, CanLock {
 
         @Override
         public DeviceMessageBuilder addProperty(String key, Object value) {
-            return null;
+            return this;
         }
 
         @Override
         public DeviceMessageBuilder setReleaseDate(Instant releaseDate) {
-            return null;
+            this.deviceMessage.setReleaseDate(releaseDate);
+            return this;
         }
 
         @Override
         public DeviceMessageBuilder setTrackingId(String trackingId) {
-            return null;
+            this.deviceMessage.setTrackingId(trackingId);
+            return this;
         }
 
         @Override
         public DeviceMessage<Device> add() {
+            this.deviceMessage.save();
             DeviceImpl.this.deviceMessages.add(this.deviceMessage);
             return this.deviceMessage;
         }

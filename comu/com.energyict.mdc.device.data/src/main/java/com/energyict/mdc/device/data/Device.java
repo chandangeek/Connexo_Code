@@ -162,14 +162,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     List<CommunicationTopologyEntry> getAllCommunicationTopologies(Interval interval);
 
-    List<DeviceMessage> getMessages();
+    List<DeviceMessage<Device>> getMessages();
 
     /**
      * returns The released pending messages for this device
      *
      * @return a List of all messages of this device
      */
-    List<DeviceMessage> getMessagesByState(DeviceMessageStatus status);
+    List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status);
 
 
     /**

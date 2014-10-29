@@ -30,7 +30,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -146,7 +146,6 @@ public class DataCollectionKpiImplTest {
             bind(DeviceProtocolService.class).toInstance(mock(DeviceProtocolService.class));
             bind(InboundDeviceProtocolService.class).toInstance(mock(InboundDeviceProtocolService.class));
             bind(LicensedProtocolService.class).toInstance(mock(LicensedProtocolService.class));
-            bind(UserService.class).toInstance(mock(UserService.class));
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(CronExpressionParser.class).toInstance(cronExpressionParser);
         }
@@ -178,6 +177,7 @@ public class DataCollectionKpiImplTest {
                 new DomainUtilModule(),
                 new MasterDataModule(),
                 new PartyModule(),
+                new UserModule(),
                 new IdsModule(),
                 new MeteringModule(),
                 new EventsModule(),

@@ -80,6 +80,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_GROUP_IS_REQUIRED(2049, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection device group", Level.SEVERE),
     EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),
     UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE(2051, Keys.UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE, "The deviceMessageId {1} is not known for a device like {0}", Level.SEVERE),
+    CREATE_DATE_IS_REQUIRED(2052, Keys.CREATE_DATE_IS_REQUIRED, "The create date is required for a device message", Level.SEVERE),
+    RELEASE_DATE_IS_REQUIRED(2053, Keys.RELEASE_DATE_IS_REQUIRED, "The release date is required for a device message", Level.SEVERE),
     ;
 
     private final int number;
@@ -191,6 +193,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_GROUP_IS_REQUIRED = "endDeviceGroupIsRequired";
         public static final String EMPTY_DATA_COLLECTION_KPI = "dataCollectionKpi.cannotBeEmpty";
         public static final String UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE = "unknown.deviceMessageId.device";
+        public static final String CREATE_DATE_IS_REQUIRED = "createDateIsRequired.deviceMessage";
+        public static final String RELEASE_DATE_IS_REQUIRED = "releaseDateIsRequired.deviceMessage";
     }
 
 }

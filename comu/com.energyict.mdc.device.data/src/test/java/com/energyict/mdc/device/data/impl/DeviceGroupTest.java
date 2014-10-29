@@ -28,6 +28,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -162,7 +163,6 @@ public class DeviceGroupTest {
             bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
-            bind(UserService.class).toInstance(userService);
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(LogService.class).toInstance(mock(LogService.class));
         }
@@ -184,6 +184,7 @@ public class DeviceGroupTest {
                 new DomainUtilModule(),
                 new MasterDataModule(),
                 new PartyModule(),
+                new UserModule(),
                 new IdsModule(),
                 new MeteringModule(),
                 new InMemoryMessagingModule(),
