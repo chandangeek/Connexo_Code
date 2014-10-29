@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BaseReadingRecord extends BaseReading {
     List<Quantity> getQuantities();
@@ -27,5 +29,10 @@ public interface BaseReadingRecord extends BaseReading {
     
     default boolean edited() {
     	return getProcesStatus().get(ProcessStatus.Flag.EDITED);
+    }
+    
+    default boolean wasAdded() {
+    	return edited() && 
+    		getReadingQualities().stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.ADDED);     			
     }
 }

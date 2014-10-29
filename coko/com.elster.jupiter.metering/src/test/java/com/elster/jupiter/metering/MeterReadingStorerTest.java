@@ -294,12 +294,17 @@ public class MeterReadingStorerTest {
             Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
             List<Reading> changes = new ArrayList<>();
             changes.add(ReadingImpl.of(intervalReadingTypeCode, BigDecimal.valueOf(1300), instant));
+            changes.add(ReadingImpl.of(intervalReadingTypeCode, BigDecimal.valueOf(1400), instant.plusSeconds(3600)));
             channel.editReadings(changes);
             readings = meter.getReadings(Range.atLeast(Instant.EPOCH), meteringService.getReadingType(intervalReadingTypeCode).get());
             assertThat(readings).isNotEmpty();
             assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1300));
-            assertThat(readings.get(0).getProcesStatus().get(ProcessStatus.Flag.EDITED)).isTrue();
+            assertThat(readings.get(0).edited()).isTrue();
+            assertThat(readings.get(0).wasAdded()).isFalse();
+            assertThat(readings.get(1).edited()).isTrue();
+            assertThat(readings.get(1).wasAdded()).isTrue();
             ctx.commit();
+            
         }
     }
 
