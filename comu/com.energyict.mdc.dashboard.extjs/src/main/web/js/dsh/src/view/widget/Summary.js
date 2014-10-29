@@ -24,7 +24,8 @@ Ext.define('Dsh.view.widget.Summary', {
                     '{% var parentIndex = xindex; %}' +
                     '<tr>' +
                     '<td class="label">' +
-                    '<a href="#{alias}">{displayName}</a>' +
+                    '<tpl if="href">' +
+                    '<a href="{href}">{displayName}</a><tpl else>{displayName}</tpl>' +
                     '</td>' +
                     '<td width="100%" id="bar-{[parentIndex]}" class="bar-{[parentIndex]} bar-{name}"></td>' +
                     '</tr>' +
@@ -62,11 +63,11 @@ Ext.define('Dsh.view.widget.Summary', {
                                 label: Math.round(!view.total ? 0 : record.get('count') * 100 / view.total) + '% (' + record.get('count') + ')'
                             });
                             bar.render(view.getEl().down('#bar-' + pos));
-
-                            var filter = me.router.filter.getWriteData(true, true);
-                            filter[view.record.get('alias')] = record.get('id');
-                            var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
-                            view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
+//
+//                            var filter = me.router.filter.getWriteData(true, true);
+//                            filter[view.record.get('alias')] = record.get('id');
+//                            var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
+//                            view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
                         });
                     }
                 }
@@ -78,7 +79,7 @@ Ext.define('Dsh.view.widget.Summary', {
     summaryTitleUpdate: function (total) {
         var me = this,
             title = me.down('#connection-summary-title-panel');
-        title.update('<h3>' + me.wTitle + ' (' + total + ' ' + Uni.I18n.translate('overview.widget.summary.active' + me.parent, 'Dsh', me.parent) + ')' + '</h3>')
+        title.update('<h3>' + me.wTitle + ' (' + total + ')' + '</h3>')
     },
 
     setRecord: function (record) {
@@ -88,6 +89,16 @@ Ext.define('Dsh.view.widget.Summary', {
             total = record.get('total');
         view.total = total || 0;
         view.record = record;
+
+        record.counters().each(function (item) {
+            if (item.get('id')) {
+                var filter = me.router.filter.getWriteData(true, true);
+                filter[record.get('alias')] = item.get('id');
+                var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
+                item.set('href', href);
+            }
+        });
+
         view.bindStore(record.counters());
         me.summaryTitleUpdate(total)
     }

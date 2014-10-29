@@ -12,7 +12,8 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.util.FilterStoreHydrator',
         'Dsh.model.Filterable',
         'Dsh.model.Kpi',
-        'Dsh.model.Series'
+        'Dsh.model.Series',
+        'Dsh.controller.OperatorDashboard'
     ],
 
     controllers: [
@@ -20,6 +21,7 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.controller.BaseController',
         'Dsh.controller.CommunicationOverview',
         'Dsh.controller.ConnectionOverview',
+        'Dsh.controller.OperatorDashboard',
         'Dsh.controller.Connections',
         'Dsh.controller.Communications'
     ],
@@ -53,7 +55,7 @@ Ext.define('Dsh.controller.Main', {
         Uni.store.MenuItems.add(
             Ext.create('Uni.model.MenuItem', {
                 text: route.title,
-                glyph: 'dashboard',
+                glyph: 'home',
                 portal: 'dashboard',
                 index: 0
             })

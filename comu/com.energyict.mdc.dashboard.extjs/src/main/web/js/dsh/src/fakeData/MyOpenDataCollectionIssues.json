@@ -1,0 +1,42 @@
+{
+    "unassignedIssues": {
+        "total": 25,
+        "filter": {
+            "assigneeType": "UnexistingType",
+            "assigneeId": -1
+        }
+    },
+    "assignedToMeIssues": {
+        "total": 18,
+        "filter": {
+            "assigneeType": "USER",
+            "assigneeId": 123
+        },
+        "topMyIssues": [
+            {
+                "id": 31,
+                "title": "Unable to connect to ZEDA342342",
+                "dueDate": 1414069490112
+            },
+            {
+                "id": 45,
+                "title": "Connection lost to ZEDA341234",
+                "dueDate": 1414069876398
+            },
+            {
+                "id": 314,
+                "title": "Unable to connect to ZEDA342342",
+                "dueDate": 1414158405000
+            },
+            {
+                "id": 13,
+                "title": "Unable to connect to ZEDA342342",
+                "dueDate": 1414194720000
+            },
+            {
+                "id": 37,
+                "title": "Unable to connect to ZEDA342342"
+            }
+        ]
+    }
+}

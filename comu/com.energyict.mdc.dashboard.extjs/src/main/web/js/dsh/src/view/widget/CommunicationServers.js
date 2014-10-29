@@ -8,7 +8,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
 
     tbar: {
         xtype: 'container',
-        html: '<h3>' + Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Communication servers') + '</h3>',
+//        html: '<h3> </h3>',
         itemId: 'connection-summary-title-panel'
     },
 
@@ -74,7 +74,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
         '</tr>',
         '<tpl if="blockedSince">',
         '<tr>',
-            '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.downSince', 'DSH', 'Blocked since') + '</td>',
+            '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.downSince', 'DSH', 'Not responding since') + '</td>',
         '<td></td>{[Ext.util.Format.date(new Date(values.blockedSince), "D M j, Y G:i")]}',
         '</tr>',
         '</tpl>',
@@ -88,6 +88,9 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
 
         me.setLoading();
         store.load(function () {
+            var title = '<h3>' + Uni.I18n.translatePlural('overview.widget.communicationServers.header', store.count(), 'DSH', 'Communication servers ({0})') + '</h3>';
+            me.down('#connection-summary-title-panel').update(title);
+
             var groups = store.getGroups().map(function (item) {
                 item.title = Uni.I18n.translate('overview.widget.communicationServers.title.' + item.name, 'DSH', item.name);
                 item.expand = (item.name === 'blocked' && item.children && item.children.length < 5);
@@ -106,19 +109,6 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
 
                 return item;
             });
-            var keys = _.pluck(groups, 'name');
-            var order = ['blocked', 'stopped', 'running'];
-
-            _.difference(order, keys).map(function(item) {
-                groups.push({
-                    name: item,
-                    title: Uni.I18n.translate('overview.widget.communicationServers.empty.' + item, 'DSH', item),
-                    expand: false
-                })
-            });
-
-            // sort on defined order
-            groups = _.sortBy(groups, function(item){return _.indexOf(order, item.name)});
 
             elm.bindStore(Ext.create('Ext.data.Store', {
                 fields: ['children', 'name', 'title', 'tooltip', 'expand'],

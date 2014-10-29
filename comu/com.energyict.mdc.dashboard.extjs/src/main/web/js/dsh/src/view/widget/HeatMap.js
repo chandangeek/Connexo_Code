@@ -5,6 +5,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
     items: {
         xtype: 'panel',
         ui: 'tile',
+        minHeight: '400',
         itemId: 'heatmapchart'
     },
 
@@ -203,6 +204,12 @@ Ext.define('Dsh.view.widget.HeatMap', {
                         style: {
                             textShadow: 'none',
                             HcTextStroke: null
+                        }
+                    },
+                    states: {
+                        hover: {
+                            color: '#CBCBCB',
+                            borderColor: '#CBCBCB'
                         }
                     }
                 }
