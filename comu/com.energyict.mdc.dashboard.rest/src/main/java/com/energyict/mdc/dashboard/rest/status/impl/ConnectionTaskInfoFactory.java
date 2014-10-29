@@ -43,7 +43,6 @@ public class ConnectionTaskInfoFactory {
         info.latestStatus=new LatestStatusInfo();
         info.latestStatus.id =connectionTask.getSuccessIndicator();
         info.latestStatus.displayValue=thesaurus.getString(SUCCESS_INDICATOR_ADAPTER.marshal(connectionTask.getSuccessIndicator()), SUCCESS_INDICATOR_ADAPTER.marshal(connectionTask.getSuccessIndicator()));
-
         if (lastComSessionOptional.isPresent()) {
             ComSession comSession = lastComSessionOptional.get();
             info.latestResult = new SuccessIndicatorInfo(comSession.getSuccessIndicator(), thesaurus);
@@ -62,6 +61,7 @@ public class ConnectionTaskInfoFactory {
             info.comPort = new IdWithNameInfo(comSession.getComPort());
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());
             info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
+            info.comSessionId = comSession.getId();
         }
 
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),connectionTask.getConnectionType().getDirection().name());
