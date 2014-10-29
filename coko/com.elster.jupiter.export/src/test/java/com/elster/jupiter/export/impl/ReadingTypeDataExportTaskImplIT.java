@@ -28,6 +28,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
@@ -64,6 +65,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -191,8 +193,8 @@ public class ReadingTypeDataExportTaskImplIT {
                     HOUR.equalTo(0),
                     MINUTES.equalTo(0)
             );
-            lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear);
-            oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear);
+            lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
+            oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
 
             endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
             endDeviceGroup.save();
