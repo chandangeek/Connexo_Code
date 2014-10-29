@@ -7,7 +7,8 @@ Ext.define('Tme.view.relativeperiod.Edit', {
         'Uni.form.RelativePeriod',
         'Uni.form.RelativePeriodPreview',
         'Tme.store.RelativePeriodCategories',
-        'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime',
+        'Uni.util.FormErrorMessage'
     ],
 
     edit: false,
@@ -58,9 +59,17 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                         },
                         items: [
                             {
+                                itemId: 'form-errors',
+                                xtype: 'uni-form-error-message',
+                                name: 'form-errors',
+                                margin: '0 0 10 0',
+                                hidden: true
+                            },
+                            {
                                 xtype: 'textfield',
                                 itemId: 'edit-relative-period-name',
                                 name: 'name',
+                                required: true,
                                 width: 600,
                                 fieldLabel: Uni.I18n.translate('relativeperiod.name', 'TME', 'Name')
                             },
@@ -95,7 +104,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 xtype: 'uni-form-relativeperiod',
                                 itemId: 'relative-date-start',
                                 startPeriodCfg: {
-                                    fieldLabel: 'Start',
+                                    fieldLabel: Uni.I18n.translate('general.start', 'TME', 'Start'),
                                     showOptionNow: false
                                 },
                                 defaults: {
@@ -111,7 +120,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 xtype: 'uni-form-relativeperiod',
                                 itemId: 'relative-date-end',
                                 startPeriodCfg: {
-                                    fieldLabel: 'End',
+                                    fieldLabel: Uni.I18n.translate('general.end', 'TME', 'End'),
                                     showOptionDate: false
                                 },
                                 defaults: {
@@ -136,13 +145,14 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                         xtype: 'button',
                                         itemId: 'create-edit-button',
                                         text: Uni.I18n.translate('general.add', 'DXP', 'Add'),
-                                        ui: 'action',
+                                        ui: 'action'
                                     },
                                     {
                                         xtype: 'button',
                                         itemId: 'cancel-link',
                                         text: Uni.I18n.translate('general.cancel', 'DXP', 'Cancel'),
-                                        ui: 'link'
+                                        ui: 'link',
+                                        href: '#/administration/communicationtasks/create'
                                     }
                                 ]
                             }
