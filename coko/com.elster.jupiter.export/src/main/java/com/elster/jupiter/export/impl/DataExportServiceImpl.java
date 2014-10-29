@@ -79,6 +79,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
+    public List<DataProcessorFactory> getAvailableProcessors() {
+        return Collections.unmodifiableList(dataProcessorFactories);
+    }
+
+    @Override
     public DataExportTaskBuilder newBuilder() {
         return new DataExportTaskBuilderImpl(dataModel);
     }

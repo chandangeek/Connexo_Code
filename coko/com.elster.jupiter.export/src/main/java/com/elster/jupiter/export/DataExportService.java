@@ -20,4 +20,6 @@ public interface DataExportService {
 
     List<PropertySpec<?>> getPropertiesSpecsForProcessor(String name);
 
+    List<DataProcessorFactory> getAvailableProcessors();
+
 }
