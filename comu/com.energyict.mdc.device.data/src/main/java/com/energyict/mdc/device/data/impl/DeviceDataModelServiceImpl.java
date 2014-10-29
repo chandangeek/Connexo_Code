@@ -143,6 +143,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 NlsService.COMPONENTNAME,
                 MessageService.COMPONENTNAME,
                 UserService.COMPONENTNAME,
+                DeviceMessageService.COMPONENT_NAME,
                 DeviceConfigurationService.COMPONENTNAME,
                 PluggableService.COMPONENTNAME,
                 EngineModelService.COMPONENT_NAME,
