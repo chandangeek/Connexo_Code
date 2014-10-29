@@ -114,6 +114,10 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         assertThat(jsonModel.<String>get("$.kpi.series[1].name")).isEqualTo("Ongoing");
         assertThat(jsonModel.<String>get(("$.kpi.series[2].name"))).isEqualTo("Failed");
         assertThat(jsonModel.<String>get(("$.kpi.series[3].name"))).isEqualTo("Target");
+        assertThat(jsonModel.<Integer>get(("$.kpi.series[0].data[0]"))).isEqualTo(0);
+        assertThat(jsonModel.<Integer>get(("$.kpi.series[1].data[0]"))).isEqualTo(99);
+        assertThat(jsonModel.<Integer>get(("$.kpi.series[2].data[0]"))).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get(("$.kpi.series[3].data[0]"))).isEqualTo(100);
     }
 
     private DataCollectionKpi mockDataCommunicationKpi() {
@@ -121,6 +125,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         when(dataCollectionKpi.calculatesComTaskExecutionKpi()).thenReturn(true);
         when(dataCollectionKpi.comTaskExecutionKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
+        kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 0, 0, 0).toInstant(ZoneOffset.UTC)), 0, 99, 1, 100));
         kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 0, 0).toInstant(ZoneOffset.UTC)), 10, 80, 10, 100));
         kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 15, 0).toInstant(ZoneOffset.UTC)), 20, 70, 10, 100));
         kpiScores.add(mockDataCommunicationKpiScore(Date.from(LocalDateTime.of(2014, 10, 1, 14, 30, 0).toInstant(ZoneOffset.UTC)), 30, 60, 10, 100));
