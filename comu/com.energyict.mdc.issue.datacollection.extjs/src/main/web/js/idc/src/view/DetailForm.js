@@ -27,16 +27,6 @@ Ext.define('Idc.view.DetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-collection-issue-detail-customer',
-                        fieldLabel: Uni.I18n.translate('general.title.customer', 'ISU', 'Customer'),
-                        name: 'customer'
-                    },
-                    {
-                        itemId: 'data-collection-issue-detail-service-location',
-                        fieldLabel: Uni.I18n.translate('general.title.location', 'ISU', 'Location'),
-                        name: 'service_location'
-                    },
-                    {
                         itemId: 'data-collection-issue-detail-usage-point',
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
                         name: 'usage_point'
@@ -96,11 +86,6 @@ Ext.define('Idc.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
                         name: 'creationDate',
                         renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
-                    },
-                    {
-                        itemId: 'data-collection-issue-detail-service-category',
-                        fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISU', 'Service category'),
-                        name: 'service_category'
                     }
                 ]
             }

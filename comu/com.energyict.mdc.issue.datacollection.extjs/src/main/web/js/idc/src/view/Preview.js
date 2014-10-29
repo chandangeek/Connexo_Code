@@ -13,22 +13,6 @@ Ext.define('Idc.view.Preview', {
     },
     frame: true,
     router: null,
-    tools: [
-        {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'issues-action-menu',
-                itemId: 'issues-overview-action-menu'
-            },
-            listeners: {
-                click: function () {
-                    this.showMenu();
-                }
-            }
-        }
-    ],
     bbar: {
         layout: {
             type: 'vbox',
@@ -43,6 +27,24 @@ Ext.define('Idc.view.Preview', {
     },
     initComponent: function () {
         var me = this;
+
+        me.tools = [
+            {
+                xtype: 'button',
+                text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
+                iconCls: 'x-uni-action-iconD',
+                menu: {
+                    xtype: 'issues-action-menu',
+                    itemId: 'issues-overview-action-menu',
+                    router: me.router
+                },
+                listeners: {
+                    click: function () {
+                        this.showMenu();
+                    }
+                }
+            }
+        ];
 
         me.items = [
             {
@@ -59,16 +61,6 @@ Ext.define('Idc.view.Preview', {
                         renderer: function (value) {
                             return value.name ? value.name : '';
                         }
-                    },
-                    {
-                        itemId: 'data-collection-issue-preview-customer',
-                        fieldLabel: Uni.I18n.translate('general.title.customer', 'ISU', 'Customer'),
-                        name: 'customer'
-                    },
-                    {
-                        itemId: 'data-collection-issue-preview-service-location',
-                        fieldLabel: Uni.I18n.translate('general.title.location', 'ISU', 'Location'),
-                        name: 'service_location'
                     },
                     {
                         itemId: 'data-collection-issue-preview-usage-point',
@@ -133,11 +125,6 @@ Ext.define('Idc.view.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
                         name: 'creationDate',
                         renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
-                    },
-                    {
-                        itemId: 'data-collection-issue-preview-service-category',
-                        fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISU', 'Service category'),
-                        name: 'service_category'
                     }
                 ]
             }
