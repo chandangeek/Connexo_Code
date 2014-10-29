@@ -146,7 +146,6 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     viewCommunicationLog: function(item){
-        debugger;
         location.href = '#/devices/' + item.action.comTask.mRID
             + '/communicationtasks/' +  item.action.comTask.comTaskId
             + '/history/' +  item.action.comTask.sessionId
