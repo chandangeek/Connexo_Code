@@ -127,7 +127,6 @@ import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static com.elster.jupiter.util.Checks.is;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
@@ -1765,7 +1764,7 @@ public class DeviceImpl implements Device, CanLock {
     @Override
     public void removeDeviceMessage(DeviceMessage<?> deviceMessage) {
         // TODO implement
-        throw new NotImplementedException();
+        throw new NoSuchMethodError("Method removeDeviceMessage is not yet implemented on DeviceImpl");
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{

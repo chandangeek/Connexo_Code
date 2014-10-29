@@ -12,6 +12,7 @@ import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.UnknownDeviceMessageId;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ValidDeviceMessageId;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
@@ -32,6 +33,7 @@ import java.util.Optional;
  * Date: 10/27/14
  * Time: 1:06 PM
  */
+@ValidDeviceMessageId(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
 public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> implements DeviceMessage<Device>{
 
     public enum Fields {
@@ -41,8 +43,7 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
         PROTOCOLINFO("protocolInfo"),
         CREATIONDATE("creationDate"),
         RELEASEDATE("releaseDate"),
-        SENTDATE("sentDate"),
-        ;
+        SENTDATE("sentDate"),;
 
         private final String javaFieldName;
 
