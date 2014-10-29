@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -202,7 +201,6 @@ public class DeviceComTaskResource {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
         ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
-        List<ComTaskExecutionSessionInfo> infos = new ArrayList<>();
         List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findByComTaskExecution(comTaskExecution).find();
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
             if(comTaskExecutionSession.getId()==comTaskExecutionSessionId){
