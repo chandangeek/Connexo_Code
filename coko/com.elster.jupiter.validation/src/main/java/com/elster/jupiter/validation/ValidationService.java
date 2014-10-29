@@ -73,4 +73,11 @@ public interface ValidationService {
     ValidationEvaluator getEvaluator();
 
     ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval);
+
+    /*
+     * Following methods for adding resources in a non OSGI environment
+     */
+    
+	void addValidatorFactory(ValidatorFactory validatorfactory);
+	void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
 }

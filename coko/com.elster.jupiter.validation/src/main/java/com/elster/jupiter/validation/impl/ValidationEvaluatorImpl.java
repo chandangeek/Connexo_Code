@@ -62,17 +62,6 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
 
 
     @Override
-    public ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities) {
-        if (qualities.isEmpty()) {
-            return ValidationResult.NOT_VALIDATED;
-        }
-        if(qualities.size() == 1 && qualities.iterator().next().getTypeCode().equals(ReadingQualityType.MDM_VALIDATED_OK_CODE)) {
-            return ValidationResult.VALID;
-        }
-        return ValidationResult.SUSPECT;
-    }
-
-    @Override
     public boolean isAllDataValidated(MeterActivation meterActivation) {
         for (IMeterActivationValidation meterActivationValidation : validationService.getIMeterActivationValidations(meterActivation)) {
             if (!meterActivationValidation.isAllDataValidated()) {
@@ -98,7 +87,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
             ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
             for (BaseReading reading : readings) {
                 List<ReadingQualityRecord> qualities = (readingQualities.containsKey(reading.getTimeStamp()) ? readingQualities.get(reading.getTimeStamp()) : new ArrayList<ReadingQualityRecord>());
-                if (qualities.isEmpty() && configured) {
+                if (configured) {
                     if (wasValidated(lastChecked, reading.getTimeStamp())) {
                         qualities.add(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp()));
                     }
@@ -133,9 +122,9 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         for (BaseReading reading : readings) {
             boolean containsKey = readingQualities.containsKey(reading.getTimeStamp());
-            List<ReadingQualityRecord> qualities = (containsKey ? readingQualities.get(reading.getTimeStamp()) : new ArrayList<ReadingQualityRecord>());
+            List<ReadingQualityRecord> qualities = (containsKey ? new ArrayList<>(readingQualities.get(reading.getTimeStamp())) : new ArrayList<>());
             timesWithReadings.add(reading.getTimeStamp());
-            if (qualities.isEmpty() && configured) {
+            if (configured) {
                 if (wasValidated(lastChecked, reading.getTimeStamp())) {
                     qualities.add(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp()));
                 }
@@ -153,9 +142,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
 
         for (Instant readingTimestamp : timesWithoutReadings) {
             List<ReadingQuality> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
-            boolean wasValidated = wasValidated(lastChecked, readingTimestamp);
-            boolean fullyValidated = configured && wasValidated;
-            result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, validationRuleMap));
+            result.add(createDataValidationStatusListFor(readingTimestamp, false, qualities, validationRuleMap));
         }
         return result;
     }

@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Comparator;
 
 @Component(name = "com.elster.jupiter.validation.validationeventhandler", service = Subscriber.class, immediate = true)
 public class ValidationEventHandler extends EventHandler<LocalEvent> {
@@ -88,13 +89,12 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     	if (lastChecked == null) {
     		return;
     	}
-    	if (deleteEvent.getReadingTimeStamps().contains(lastChecked)) {
-    		Instant newLastChecked = deleteEvent.getChannel().getReadingsOnOrBefore(lastChecked, 1).stream().findFirst().map(BaseReading::getTimeStamp).orElse(null);
-    		if (newLastChecked != lastChecked) {
-    			((IChannelValidation) channelValidation).updateLastChecked(newLastChecked);
-    			meterActivationValidation.save();
-    		}
+    	Instant first = deleteEvent.getReadingTimeStamps().stream().min(Comparator.naturalOrder()).get();
+    	if (lastChecked.isAfter(first)) {
+    		Instant newLastChecked = deleteEvent.getChannel().getReadingsBefore(first, 1).stream().findFirst().map(BaseReading::getTimeStamp).orElse(null);
+    		((IChannelValidation) channelValidation).updateLastChecked(newLastChecked);
+    		meterActivationValidation.save();
+    		validationService.validate(deleteEvent.getChannel().getMeterActivation(), Range.greaterThan(newLastChecked));
     	}
     }
-    
 }

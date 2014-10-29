@@ -46,18 +46,6 @@ import static java.util.Comparator.nullsFirst;
  */
 class ValidationEvaluatorForMeter implements ValidationEvaluator {
 
-    private static final ReadingQuality OK_QUALITY = new ReadingQuality() {
-        @Override
-        public String getComment() {
-            return "";
-        }
-
-        @Override
-        public String getTypeCode() {
-            return ReadingQualityType.MDM_VALIDATED_OK_CODE;
-        }
-    };
-
     private final Meter meter;
     private final Range<Instant> interval;
     private final ValidationServiceImpl validationService;
@@ -75,10 +63,6 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
         this.interval = interval;
     }
 
-    @Override
-    public ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities) {
-       return ValidationResult.getValidationResult(qualities);
-    }
 
     @Override
     public boolean isAllDataValidated(MeterActivation meterActivation) {
@@ -107,9 +91,9 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
         ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         for (BaseReading reading : readings) {
             boolean containsKey = readingQualities.containsKey(reading.getTimeStamp());
-            List<ReadingQualityRecord> qualities = (containsKey ? readingQualities.get(reading.getTimeStamp()) : new ArrayList<ReadingQualityRecord>());
+            List<ReadingQualityRecord> qualities = (containsKey ? new ArrayList<>(readingQualities.get(reading.getTimeStamp())) : new ArrayList<ReadingQualityRecord>());
             timesWithReadings.add(reading.getTimeStamp());
-            if (qualities.isEmpty() && configured && wasValidated(lastChecked, reading.getTimeStamp())) {
+            if (configured && wasValidated(lastChecked, reading.getTimeStamp())) {
                 qualities.add(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp()));
             }
             boolean fullyValidated = false;

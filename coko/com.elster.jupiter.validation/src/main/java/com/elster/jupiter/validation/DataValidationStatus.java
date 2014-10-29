@@ -16,4 +16,6 @@ public interface DataValidationStatus {
     Collection<ValidationRule> getOffendedValidationRule(ReadingQuality readingQuality);
 
     Collection<ValidationRule> getOffendedRules();
+
+	ValidationResult getValidationResult();
 }

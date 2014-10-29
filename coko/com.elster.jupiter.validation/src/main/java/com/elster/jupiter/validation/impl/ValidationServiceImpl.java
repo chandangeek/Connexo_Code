@@ -479,6 +479,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return new ValidationEvaluatorForMeter(this, meter, interval);
     }
 
+    @Override
+    public void addValidatorFactory(ValidatorFactory validatorfactory) {
+    	addResource(validatorfactory);
+    }
+    
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(ValidatorFactory validatorfactory) {
         validatorFactories.add(validatorfactory);

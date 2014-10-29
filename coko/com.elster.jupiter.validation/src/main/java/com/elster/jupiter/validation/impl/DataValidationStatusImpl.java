@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.collect.ImmutableList;
 
@@ -57,5 +58,10 @@ public class DataValidationStatusImpl implements DataValidationStatus {
 
     public void addReadingQuality(ReadingQuality quality, List<IValidationRule> iValidationRules) {
         qualityRecordList.put(quality, iValidationRules);
+    }
+    
+    @Override
+    public ValidationResult getValidationResult() {
+    	return ValidationResult.getValidationResult(getReadingQualities());
     }
 }

@@ -18,7 +18,13 @@ import java.util.Optional;
  */
 public interface ValidationEvaluator {
 
-    public ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities);
+	@Deprecated
+	/*
+	 * use DataValidationStatis.getValidationResult()
+	 */
+    default ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities) {
+		return ValidationResult.getValidationResult(qualities);
+	}
 
     boolean isAllDataValidated(MeterActivation meterActivation);
 
