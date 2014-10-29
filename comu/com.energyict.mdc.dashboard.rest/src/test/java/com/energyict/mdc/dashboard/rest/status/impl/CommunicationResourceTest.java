@@ -316,7 +316,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
                 .containsKey("nextCommunication")
                 .containsKey("alwaysExecuteOnInbound")
                 .containsKey("connectionTask")
-                .hasSize(15);
+                .hasSize(16);
 
 
     }

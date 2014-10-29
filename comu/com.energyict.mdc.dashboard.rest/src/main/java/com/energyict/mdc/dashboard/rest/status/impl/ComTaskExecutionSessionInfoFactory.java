@@ -17,6 +17,7 @@ import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 /**
@@ -44,9 +45,10 @@ public class ComTaskExecutionSessionInfoFactory {
         ComTaskExecution comTaskExecution = comTaskExecutionSession.getComTaskExecution();
         info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
         for (ComTask comTask : comTaskExecution.getComTasks()) {
-            info.comTasks.add(comTask.getName());
+            info.comTasks.add(new IdWithNameInfo(comTask));
         }
-        info.name = Joiner.on(" + ").join(info.comTasks);
+        info.name = comTaskExecution.getComTasks().stream().map(ComTask::getName).collect(Collectors.joining(" + "));
+        info.id = comTaskExecutionSession.getId();
         Device device = comTaskExecutionSession.getDevice();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());

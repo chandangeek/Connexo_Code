@@ -13,7 +13,8 @@ import java.util.List;
 public class ComTaskExecutionSessionInfo {
 
     public String name;
-    public List<String> comTasks;
+    public long id;
+    public List<IdWithNameInfo> comTasks;
     public IdWithNameInfo device;
     public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;

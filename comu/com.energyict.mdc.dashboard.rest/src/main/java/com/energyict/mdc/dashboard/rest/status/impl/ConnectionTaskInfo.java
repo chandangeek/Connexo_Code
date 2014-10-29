@@ -34,6 +34,7 @@ public class ConnectionTaskInfo {
     public String window;
     public ConnectionStrategyInfo connectionStrategy;
     public Date nextExecution;
+    public long comSessionId;
 }
 
 class LatestStatusInfo {

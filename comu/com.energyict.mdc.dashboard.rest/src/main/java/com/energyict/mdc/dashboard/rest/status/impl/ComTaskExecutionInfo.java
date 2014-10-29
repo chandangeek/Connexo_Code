@@ -14,7 +14,7 @@ import java.util.List;
 public class ComTaskExecutionInfo {
 
     public String name;
-    public List<String> comTasks;
+    public List<IdWithNameInfo> comTasks;
     public IdWithNameInfo device;
     public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
@@ -28,6 +28,7 @@ public class ComTaskExecutionInfo {
     public Date nextCommunication;
     public boolean alwaysExecuteOnInbound;
     public ConnectionTaskInfo connectionTask;
+    public long sessionId;
 
 
 }

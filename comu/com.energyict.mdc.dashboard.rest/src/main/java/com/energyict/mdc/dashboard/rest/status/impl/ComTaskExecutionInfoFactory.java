@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -43,9 +44,9 @@ public class ComTaskExecutionInfoFactory {
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
         info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
         for (ComTask comTask : comTaskExecution.getComTasks()) {
-            info.comTasks.add(comTask.getName());
+            info.comTasks.add(new IdWithNameInfo(comTask));
         }
-        info.name = Joiner.on(" + ").join(info.comTasks);
+        info.name = comTaskExecution.getComTasks().stream().map(ComTask::getName).collect(Collectors.joining(" + "));
         Device device = comTaskExecution.getDevice();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
@@ -68,6 +69,9 @@ public class ComTaskExecutionInfoFactory {
         info.urgency = comTaskExecution.getExecutionPriority();
         info.currentState = new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
         info.latestResult = comTaskExecutionSession.map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus)).orElse(null);
+        if(comTaskExecutionSession.isPresent()){
+            info.sessionId = comTaskExecutionSession.get().getId();
+        }
         info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
         info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
