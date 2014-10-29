@@ -20,6 +20,7 @@ import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfo
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -40,6 +41,18 @@ public class MdcPropertyUtils {
             PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
+    }
+
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties) {
+        List<PropertyInfo> propertyInfoList = new ArrayList<>();
+        for (PropertySpec<?> propertySpec : propertySpecs) {
+            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
+            SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
+            PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType);
+            PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+            propertyInfoList.add(propertyInfo);
+        }
+        return propertyInfoList;
     }
 
     private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec) {
