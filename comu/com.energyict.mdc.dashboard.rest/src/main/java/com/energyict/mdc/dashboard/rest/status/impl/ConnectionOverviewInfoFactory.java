@@ -2,17 +2,21 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -58,7 +62,10 @@ public class ConnectionOverviewInfoFactory {
         ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData);
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup);
         if (dataCollectionKpiOptional.isPresent() && dataCollectionKpiOptional.get().calculatesConnectionSetupKpi()) {
-            info.kpi = kpiScoreFactory.getKpiAsInfo(dataCollectionKpiOptional.get());
+            TemporalAmount frequency = dataCollectionKpiOptional.get().connectionSetupKpiCalculationIntervalLength().get();
+            Interval intervalByPeriod = kpiScoreFactory.getIntervalByPeriod(frequency);
+            List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getConnectionSetupKpiScores(intervalByPeriod);
+            info.kpi = kpiScoreFactory.getKpiAsInfo(frequency, kpiScores, intervalByPeriod);
         }
         info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
         return info;

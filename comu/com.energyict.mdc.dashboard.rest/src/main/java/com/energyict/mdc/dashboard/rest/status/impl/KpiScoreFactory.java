@@ -2,7 +2,6 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -33,7 +32,7 @@ public class KpiScoreFactory {
         this.clock = clock;
     }
 
-    public KpiInfo getKpiAsInfo(DataCollectionKpi dataCollectionKpi) {
+    public KpiInfo getKpiAsInfo(TemporalAmount frequency, List<DataCollectionKpiScore> kpiScores, Interval intervalByPeriod) {
         KpiInfo kpiInfo = new KpiInfo();
         kpiInfo.time = new ArrayList<>();
         kpiInfo.series = new ArrayList<>();
@@ -46,9 +45,6 @@ public class KpiScoreFactory {
         kpiInfo.series.add(failed);
         kpiInfo.series.add(target);
 
-        TemporalAmount frequency = dataCollectionKpi.connectionSetupKpiCalculationIntervalLength().get();
-        Interval intervalByPeriod = getIntervalByPeriod(frequency);
-        List<DataCollectionKpiScore> kpiScores = dataCollectionKpi.getConnectionSetupKpiScores(intervalByPeriod);
         Instant timeIndex = intervalByPeriod.getStart();
         Instant endTimeIndex = intervalByPeriod.getEnd();
 
@@ -74,7 +70,7 @@ public class KpiScoreFactory {
         return kpiInfo;
     }
 
-    private Interval getIntervalByPeriod(TemporalAmount temporalAmount) {
+    public Interval getIntervalByPeriod(TemporalAmount temporalAmount) {
         LocalDate startDay=null;
         LocalDate endDay=null;
         if (temporalAmount.getUnits().contains(ChronoUnit.SECONDS)) {
