@@ -11,6 +11,9 @@ Ext.define('Uni.form.field.AtPeriod', {
         type: 'hbox'
     },
 
+    lastHourTask: undefined,
+    lastMinuteTask: undefined,
+
     initComponent: function () {
         var me = this;
 
@@ -63,11 +66,27 @@ Ext.define('Uni.form.field.AtPeriod', {
         var me = this;
 
         me.getHourField().on('change', function () {
-            me.fireEvent('periodchange', me.getValue());
+            if (me.lastHourTask) {
+                me.lastHourTask.cancel();
+            }
+
+            me.lastHourTask = new Ext.util.DelayedTask(function () {
+                me.fireEvent('periodchange', me.getValue());
+            });
+
+            me.lastHourTask.delay(100);
         }, me);
 
         me.getMinuteField().on('change', function () {
-            me.fireEvent('periodchange', me.getValue());
+            if (me.lastMinuteTask) {
+                me.lastMinuteTask.cancel();
+            }
+
+            me.lastMinuteTask = new Ext.util.DelayedTask(function () {
+                me.fireEvent('periodchange', me.getValue());
+            });
+
+            me.lastMinuteTask.delay(100);
         }, me);
     },
 

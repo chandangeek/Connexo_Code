@@ -29,6 +29,8 @@ Ext.define('Uni.form.field.StartPeriod', {
     inputValueAgo: 'ago',
     inputValueDate: 'date',
 
+    lastTask: undefined,
+
     initComponent: function () {
         var me = this;
 
@@ -173,7 +175,15 @@ Ext.define('Uni.form.field.StartPeriod', {
         }, me);
 
         me.getOptionAgoContainer().down('numberfield').on('change', function () {
-            me.selectOptionAgo();
+            if (me.lastTask) {
+                me.lastTask.cancel();
+            }
+
+            me.lastTask = new Ext.util.DelayedTask(function () {
+                me.selectOptionAgo();
+            });
+
+            me.lastTask.delay(100);
         }, me);
 
         me.getOptionAgoContainer().down('combobox').on('change', function () {
