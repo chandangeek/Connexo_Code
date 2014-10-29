@@ -2,7 +2,10 @@ Ext.define('Mdc.controller.setup.Messages', {
     extend: 'Ext.app.Controller',
     requires: [
         'Mdc.store.MessageCategories',
-        'Mdc.model.MessageCategory'
+        'Mdc.model.MessageCategory',
+        'Mdc.model.MessageActivate',
+        'Mdc.store.MessagesPrivileges',
+        'Mdc.store.MessagesGridStore'
     ],
     views: [
         'Mdc.view.setup.messages.MessagesOverview'
@@ -10,7 +13,8 @@ Ext.define('Mdc.controller.setup.Messages', {
     stores: [
         'DeviceConfigMessages',
         'MessagesPrivileges',
-        'MessageCategories'
+        'MessageCategories',
+        'MessagesGridStore'
     ],
     models: [ 'Mdc.model.MessageCategory' ],
     refs: [
@@ -47,17 +51,18 @@ Ext.define('Mdc.controller.setup.Messages', {
 
     showMessagesOverview: function (deviceTypeId, deviceConfigId) {
         var me = this,
-            widget = Ext.widget('messages-overview', { deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId });
+            model = Ext.ModelManager.getModel('Mdc.model.MessageCategory');
+        model.getProxy().setExtraParam('deviceType', deviceTypeId);
+        model.getProxy().setExtraParam('deviceConfig', deviceConfigId);
 
+        var  widget = Ext.widget('messages-overview', { deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId });
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigId = deviceConfigId;
-
+        me.getMessageCategoriesStore().getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
-
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
@@ -75,7 +80,7 @@ Ext.define('Mdc.controller.setup.Messages', {
         model.getProxy().setExtraParam('deviceConfig', grid.deviceConfigId);
         grid.store.load({
             callback: function (messagesCategories) {
-                if (messagesCategories.length > 1) {
+                if (messagesCategories && messagesCategories.length > 0) {
                     grid.getSelectionModel().doSelect(0);
                 }
             }
@@ -83,21 +88,39 @@ Ext.define('Mdc.controller.setup.Messages', {
     },
 
     onMessageCategoryChange: function (sm, records) {
+        var router = this.getController('Uni.controller.history.Router'),
+            model = Ext.ModelManager.getModel('Mdc.model.MessageCategory');
+
+        model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+
         var record = records[0],
             grid = this.getMessagesGrid(),
+            countContainer = grid.down('#deviceMessagesCount'),
             gridContainer = grid.ownerCt,
-            noItemsFoundPanel = gridContainer.down('no-items-found-panel'),
+            noItemsFoundPanel = grid.down('no-items-found-panel'),
             menu = this.getMessagesCategoriesActionMenu();
-
         if (noItemsFoundPanel) noItemsFoundPanel.destroy();
+        countContainer.removeAll();
         grid.setVisible(false);
         menu.removeAll(true);
+        grid.getStore().removeAll();
         if (record) {
             var enablements = record['deviceMessageEnablementsStore'];
-            if (enablements && enablements.getRange().length > 1) {
-                grid.setTitle(Uni.I18n.translate('messages.titleof','MDC','Messages of ') + record.get('name'));
-                grid.getView().bindStore(record['deviceMessageEnablementsStore']);
-                gridContainer.down('pagingtoolbartop').bindStore(record['deviceMessageEnablementsStore']);
+            if (enablements && enablements.getRange().length > 0) {
+                var store = grid.getStore();
+                grid.setTitle(Uni.I18n.translate('messages.titleof', 'MDC', 'Messages of ') + record.get('name'));
+
+                record['deviceMessageEnablementsStore'].each(function (rec) {
+                    store.add(rec);
+                });
+                var messagesCount = store.getCount();
+                countContainer.add({
+                    xtype: 'container',
+                    html: (messagesCount > 1) ?
+                        Uni.I18n.translatePlural('messages.messages', messagesCount, 'MDC', ' {0} messages'):
+                        Uni.I18n.translatePlural('messages.message', messagesCount, 'MDC', ' {0} message')
+                });
 
                 Ext.defer(function () {
                     grid.doLayout();
@@ -183,7 +206,10 @@ Ext.define('Mdc.controller.setup.Messages', {
     },
 
     onMessagesGridInfoIconClick: function () {
-        Ext.widget('privileges-info-panel');
+        var widget = Ext.widget('privileges-info-panel'),
+            dataView = widget.down('dataview');
+
+        dataView.store.load();
     },
 
     onMessagesCategoriesActionMenuClick: function (menu, item) {
@@ -194,7 +220,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                     this.deactivateAll(messagesCategory);
                     break;
                 default:
-                    this.showSelectPrivilegesPanel(messagesCategory, item.action);
+                    this.showSelectPrivilegesPanel(messagesCategory, item.action, false);
             }
         }
     },
@@ -207,21 +233,46 @@ Ext.define('Mdc.controller.setup.Messages', {
                     this.deactivate(message);
                     break;
                 default:
-                    this.showSelectPrivilegesPanel(message, item.action);
+                    this.showSelectPrivilegesPanel(message, item.action, true);
             }
         }
     },
 
-    showSelectPrivilegesPanel: function (record, action) {
+    showSelectPrivilegesPanel: function (record, action, setAlreadyChecked) {
         var me = this,
             isMessageCategory = !Ext.isEmpty(record.get('DeviceMessageCategory')),
             recordName = isMessageCategory ? record.get('DeviceMessageCategory') : record.get('name'),
-
             selectPrivilegesPanel = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                init: function () {
+                    var initStore = me.get('deviceMessageEnablements');
+                    initStore.load();
+                    var initPrivStore = me.get('MessagesPrivileges');
+                    initPrivStore.load();
+                },
                 confirmation: function () {
-                    var privileges = this.down('checkboxgroup').getValues().privilege;
-                    me[action](record, privileges, me);
+                    var privileges = this.down('checkboxgroup').getChecked();
+                    var privIds = [];
+                    if (action == 'changePrivilegesForAll' || action == 'activateAll' || action == 'activate') {
+                        Ext.each(privileges, function (privilege) {
+                            privIds.push({privilege: privilege.inputValue})
+                        })
+                        me[action](record, privIds);
+                    } else {
+                        Ext.each(privileges, function (privilege) {
+                            var privilegesStore = me.getMessagesPrivilegesStore();
+                            privilegesStore.load(function () {
+                                privilegesStore.each(function (privilegeItem) {
+
+                                    if (privilege.boxLabel === privilegeItem.get('name'))
+                                        privIds.push({privilege: privilegeItem.get('privilege')});
+                                })
+                                me[action](record, privIds);
+                            })
+
+                        });
+                    }
+
                     this.close();
                 },
                 listeners: {
@@ -232,6 +283,7 @@ Ext.define('Mdc.controller.setup.Messages', {
             });
 
         selectPrivilegesPanel.add(
+
             Ext.create('Ext.container.Container', {
                 width: 400,
                 items: [
@@ -245,59 +297,162 @@ Ext.define('Mdc.controller.setup.Messages', {
                         columns: 1,
                         vertical: true,
                         items: [
-                            { boxLabel: 'Level 1', name: 'name', inputValue: 'MessagesPrivileges'[0].privilege, checked: true },
-                            { boxLabel: 'Level 2', name: 'name', inputValue: 'MessagesPrivileges'[1].privilege, checked: true },
-                            { boxLabel: 'Level 3', name: 'name', inputValue: 'MessagesPrivileges'[2].privilege, checked: true },
-                            { boxLabel: 'Level 4', name: 'name', inputValue: 'MessagesPrivileges'[3].privilege }
+                            { boxLabel: 'Level 1', name: 'cbgroup', inputValue: 'execute.device.message.level1'},
+                            { boxLabel: 'Level 2', name: 'cbgroup', inputValue: 'execute.device.message.level2'},
+                            { boxLabel: 'Level 3', name: 'cbgroup', inputValue: 'execute.device.message.level3'},
+                            { boxLabel: 'Level 4', name: 'cbgroup', inputValue: 'execute.device.message.level4'}
                         ]
                     }
                 ]
             })
         );
 
-        selectPrivilegesPanel.show({
-            title: isMessageCategory ?
-                Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of messages of '{0}'") :
-                Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for message '{0}'"),
-
-            msg: isMessageCategory ? Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the messages that weren`t already active.') : ''
-        });
+        selectPrivilegesPanel.show(
+            {
+                title: isMessageCategory ?
+                    Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of messages of '{0}'") :
+                    Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for message '{0}'"),
+                msg: isMessageCategory ? Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the messages that weren`t already active.') : ''
+            });
+        if (setAlreadyChecked) {
+            var checked = record.get('privileges');
+            var checkboxgroup = selectPrivilegesPanel.down('checkboxgroup');
+            Ext.each(checkboxgroup.items.items, function (checkbox) {
+                for (var i = 0, l = checked.length; i < l; i++) {
+                    if (checkbox.inputValue == checked[i].privilege)
+                        checkbox.setValue(true);
+                }
+            });
+        }
     },
-
     activateAll: function (messagesCategory, privileges) {
-        // Should be integrated with REST when it will be ready
         var inactiveEnablements = [];
         Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
-            if (!e.get('active')) inactiveEnablements.push(e);
+            if (!e.get('active')) {
+
+                inactiveEnablements.push(e.get('id'));
+                if (!Ext.isEmpty(e.get('privileges'))) {
+                    Ext.each(e.get('privileges'), function (privilege) {
+                        privileges.push({privilege: privilege.privilege});
+                    });
+                }
+
+            }
+        });
+
+        var router = this.getController('Uni.controller.history.Router');
+        var model = Ext.create('Mdc.model.MessageActivate');
+        model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        model.set('messageIds', inactiveEnablements);
+        model.set('privileges', privileges);
+        model.save();
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        this.getMessagesCategoriesGrid().store.load();
+    },
+
+    deactivateRequest: function(message) {
+        var router = this.getController('Uni.controller.history.Router');
+        Ext.Ajax.request({
+            url: '/api/dtc/devicetypes/' + router.arguments.deviceTypeId + '/deviceconfigurations/' + router.arguments.deviceConfigurationId
+                + '/devicemessageenablements/?messageId=' + message,
+            method: 'DELETE',
+            waitMsg: 'Removing...',
+            success: function () {
+            },
+            failure: function (response) {
+                var errorText = "Unknown error occurred";
+
+                if (response.status == 400) {
+                    var result = Ext.JSON.decode(response.responseText, true);
+                    if (result && result.message) {
+                        errorText = result.message;
+                    }
+                }
+            }
         });
     },
 
+
     deactivateAll: function (messagesCategory) {
-        // Should be integrated with REST when it will be ready
+        var me = this,
+            model = Ext.ModelManager.getModel('Mdc.model.MessageCategory');
+        var router = this.getController('Uni.controller.history.Router');
         var activeEnablements = [];
+
         Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
-            if (e.get('active')) activeEnablements.push(e);
+            if (e.get('active')) {
+                activeEnablements.push(e.get('id'));
+            }
         });
+        Ext.each(activeEnablements, function(e) {
+            me.deactivateRequest(e);
+        });
+
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        this.getMessagesCategoriesGrid().store.load();
+
     },
 
     changePrivilegesForAll: function (messagesCategory, privileges) {
-        // Should be integrated with REST when it will be ready
-        var activeEnablements = [];
+        var inactiveEnablements = [];
         Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
-            if (e.get('active')) activeEnablements.push(e);
+            inactiveEnablements.push(e.get('id'));
         });
+        var router = this.getController('Uni.controller.history.Router');
+        var model = Ext.create('Mdc.model.MessageActivate');
+        model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        model.set('messageIds', inactiveEnablements);
+        model.set('privileges', privileges);
+        model.save();
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        this.getMessagesCategoriesGrid().store.load();
     },
 
     activate: function (message, privileges) {
-        // Should be integrated with REST when it will be ready
+        var messageIds = [];
+        messageIds.push(message.get('id'));
+        var router = this.getController('Uni.controller.history.Router');
+        var model = Ext.create('Mdc.model.MessageActivate');
+        model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        model.set('messageIds', messageIds);
+        model.set('privileges', privileges);
+        model.save();
+
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        this.getMessagesCategoriesGrid().store.load();
     },
 
     deactivate: function (message) {
-        // Should be integrated with REST when it will be ready
+        var messageIds = [];
+        messageIds.push(message.get('id'));
+        this.deactivateRequest(messageIds);
+        var router = this.getController('Uni.controller.history.Router');
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        this.getMessagesCategoriesGrid().store.load();
     },
 
     changePrivileges: function (message, privileges) {
-        // Should be integrated with REST when it will be ready
+        var messageIds = [];
+        messageIds.push(message.get('id'));
+        var router = this.getController('Uni.controller.history.Router');
+        var model = Ext.create('Mdc.model.MessageActivate');
+        model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        model.set('messageIds', messageIds);
+        model.set('privileges', privileges);
+        model.save();
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
+        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
+        this.getMessagesCategoriesGrid().store.load();
+
     }
 });
 
