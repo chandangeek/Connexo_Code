@@ -268,6 +268,7 @@ public class DeviceConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(deviceConfigurationInfo.name).
                 description(deviceConfigurationInfo.description);
+        deviceConfigurationBuilder.gatewayType(deviceConfigurationInfo.gatewayType);
         if (deviceConfigurationInfo.canBeGateway!=null) {
             deviceConfigurationBuilder.canActAsGateway(deviceConfigurationInfo.canBeGateway);
         }

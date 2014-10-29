@@ -25,14 +25,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -318,6 +311,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
         when(deviceConfiguration.canActAsGateway()).thenReturn(true);
+        when(deviceConfiguration.getGetwayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
         when(deviceConfiguration.canBeDirectlyAddressable()).thenReturn(true);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
@@ -331,7 +325,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List) map.get("deviceConfigurations")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(11);
+        assertThat(jsonDeviceConfiguration).hasSize(12);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("active")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -342,6 +336,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("logBookCount")).isEqualTo(3).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("loadProfileCount")).isEqualTo(4).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("canBeGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("gatewayType")).isEqualTo("HAN").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("isDirectlyAddressable")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 

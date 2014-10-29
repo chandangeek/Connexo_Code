@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -24,6 +26,8 @@ public class DeviceConfigurationInfo {
     public Integer logBookCount;
     public Boolean canBeGateway;
     public Boolean isDirectlyAddressable;
+    @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
+    public GatewayType gatewayType;
     @JsonUnwrapped // As requested by ExtJS people
     public DeviceProtocolInfo deviceProtocolInfo;
     @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
@@ -41,6 +45,7 @@ public class DeviceConfigurationInfo {
         registerCount = deviceConfiguration.getRegisterSpecs().size();
         logBookCount = deviceConfiguration.getLogBookSpecs().size();
         canBeGateway = deviceConfiguration.canActAsGateway();
+        gatewayType = deviceConfiguration.getGetwayType();
         isDirectlyAddressable = deviceConfiguration.canBeDirectlyAddressable();
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
@@ -64,6 +69,7 @@ public class DeviceConfigurationInfo {
     public void writeTo(DeviceConfiguration deviceConfiguration) {
         deviceConfiguration.setDescription(this.description);
         deviceConfiguration.setName(this.name);
+        deviceConfiguration.setGatewayType(this.gatewayType);
         if (this.canBeGateway!=null) {
             deviceConfiguration.setCanActAsGateway(this.canBeGateway);
         }
