@@ -8,29 +8,31 @@ import java.util.Arrays;
  * Created by borunova on 01.10.2014.
  */
 public enum RelativeField {
-    YEAR(1, ChronoUnit.YEARS, ChronoField.YEAR),
-    MONTH(2, ChronoUnit.MONTHS, ChronoField.MONTH_OF_YEAR),
-    WEEK(3, ChronoUnit.WEEKS),
-    DAY(4, ChronoUnit.DAYS, ChronoField.DAY_OF_MONTH),
-    HOUR(5, ChronoUnit.HOURS, ChronoField.HOUR_OF_DAY),
-    MINUTES(6, ChronoUnit.MINUTES, ChronoField.MINUTE_OF_HOUR),
-    SECONDS(7, ChronoUnit.SECONDS, ChronoField.SECOND_OF_MINUTE),
-    MILLIS(8, ChronoUnit.MILLIS, ChronoField.MILLI_OF_SECOND),
-    DAY_OF_WEEK(9, ChronoUnit.DAYS, ChronoField.DAY_OF_WEEK);
+    YEAR(1, ChronoUnit.YEARS, ChronoField.YEAR, 1),
+    MONTH(2, ChronoUnit.MONTHS, ChronoField.MONTH_OF_YEAR, 2),
+    WEEK(3, ChronoUnit.WEEKS, 3),
+    DAY(4, ChronoUnit.DAYS, ChronoField.DAY_OF_MONTH, 4),
+    HOUR(5, ChronoUnit.HOURS, ChronoField.HOUR_OF_DAY, 5),
+    MINUTES(6, ChronoUnit.MINUTES, ChronoField.MINUTE_OF_HOUR, 6),
+    SECONDS(7, ChronoUnit.SECONDS, ChronoField.SECOND_OF_MINUTE, 7),
+    MILLIS(8, ChronoUnit.MILLIS, ChronoField.MILLI_OF_SECOND, 8),
+    DAY_OF_WEEK(9, ChronoUnit.DAYS, ChronoField.DAY_OF_WEEK, 4);
 
     int id;
     private final ChronoUnit chronoUnit;
     private final ChronoField chronoField;
+    private Integer priority;
     public static long LAST_DAY_OF_MONTH = 31;
 
-    private RelativeField(int id, ChronoUnit chronoUnit) {
-        this(id, chronoUnit, null);
+    private RelativeField(int id, ChronoUnit chronoUnit, Integer priority) {
+        this(id, chronoUnit, null, priority);
     }
 
-    private RelativeField(int id, ChronoUnit chronoUnit, ChronoField chronoField) {
+    private RelativeField(int id, ChronoUnit chronoUnit, ChronoField chronoField, Integer priority) {
         this.id = id;
         this.chronoUnit = chronoUnit;
         this.chronoField = chronoField;
+        this.priority = priority;
     }
 
     public ChronoUnit getChronoUnit() {
@@ -43,6 +45,10 @@ public enum RelativeField {
 
     public int getId() {
         return this.id;
+    }
+
+    public Integer getPriority() {
+        return this.priority;
     }
 
     public boolean isValid(long value, RelativeOperator operator) {

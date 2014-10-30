@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by borunova on 01.10.2014.
  */
-public class RelativeOperation {
+public class RelativeOperation implements Comparable<RelativeOperation>{
     public static String SEPARATOR = ":";
 
     private RelativeField field;
@@ -46,6 +46,11 @@ public class RelativeOperation {
                 .append(operator.toString()).append(SEPARATOR)
                 .append(shift);
         return builder.toString();
+    }
+
+    @Override
+    public int compareTo(RelativeOperation o) {
+        return this.getField().getPriority().compareTo(o.getField().getPriority());
     }
 
     public long getShift() {

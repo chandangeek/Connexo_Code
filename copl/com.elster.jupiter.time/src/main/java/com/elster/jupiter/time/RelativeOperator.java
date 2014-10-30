@@ -1,6 +1,7 @@
 package com.elster.jupiter.time;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.UnknownFormatConversionException;
 
 /**
@@ -25,8 +26,8 @@ public enum RelativeOperator {
             if (field.getChronoField() == null) {
                 throw new UnknownFormatConversionException("Unsupportable operator was used for ChronoField type of field");
             }
-            return field.equals(RelativeField.DAY) && value == RelativeField.LAST_DAY_OF_MONTH ? dateTime : dateTime.with(field.getChronoField(), value);
-            //return dateTime.with(field.getChronoField(), value);
+            return field.equals(RelativeField.DAY) && value == RelativeField.LAST_DAY_OF_MONTH ?
+                    dateTime.with(TemporalAdjusters.lastDayOfMonth()) : dateTime.with(field.getChronoField(), value);
         }
     };
 

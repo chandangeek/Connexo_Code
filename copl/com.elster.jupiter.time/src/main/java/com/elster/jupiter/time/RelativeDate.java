@@ -3,12 +3,10 @@ package com.elster.jupiter.time;
 import com.elster.jupiter.util.UpdatableHolder;
 
 import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RelativeDate {
@@ -42,16 +40,6 @@ public class RelativeDate {
         UpdatableHolder<ZonedDateTime> result = new UpdatableHolder<>(referenceDate);
 
         operationsToApply().forEach(op -> result.update(op::performOperation));
-
-        List<RelativeOperation> lastDayOfMonth = operationsToApply().filter(operation ->
-                operation.getField().equals(RelativeField.DAY)
-                && operation.getOperator().equals(RelativeOperator.EQUAL)
-                && operation.getShift() == RelativeField.LAST_DAY_OF_MONTH).collect(Collectors.toList());
-        if(!lastDayOfMonth.isEmpty()) {
-            ZonedDateTime date = result.get();
-            date = date.with(TemporalAdjusters.lastDayOfMonth());
-            result.update(date);
-        }
         return result.get();
     }
 
@@ -74,6 +62,7 @@ public class RelativeDate {
         if(this.operations.isEmpty() && !this.relativeDate.isEmpty()) {
             setOperations();
         }
+        Collections.sort(this.operations);
         return this.operations;
     }
 
