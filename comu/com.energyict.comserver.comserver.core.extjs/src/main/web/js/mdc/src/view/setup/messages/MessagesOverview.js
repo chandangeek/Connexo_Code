@@ -15,9 +15,9 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                 items: [
                     {
                         xtype: 'device-configuration-menu',
+                        toggle: 9,
                         deviceTypeId: me.deviceTypeId,
-                        deviceConfigId: me.deviceConfigId,
-                        toggle: 9
+                        deviceConfigurationId: me.deviceConfigId
                     }
                 ]
             }

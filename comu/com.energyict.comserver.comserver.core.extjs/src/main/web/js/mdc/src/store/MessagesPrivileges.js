@@ -4,7 +4,8 @@ Ext.define('Mdc.store.MessagesPrivileges', {
     autoLoad: false,
     fields: [
         { name: 'name', type: 'string' },
-        { name: 'roles', type: 'auto' }
+        { name: 'roles', type: 'auto' },
+        { name: 'privilege', type: 'auto'}
     ],
     proxy: {
         type: 'rest',
