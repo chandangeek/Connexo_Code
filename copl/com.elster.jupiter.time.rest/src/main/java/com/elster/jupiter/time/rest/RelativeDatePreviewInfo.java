@@ -11,6 +11,7 @@ public class RelativeDatePreviewInfo {
 
     public RelativeDatePreviewInfo(ZonedDateTime dateTime) {
         date = dateTime.toInstant().toEpochMilli();
+        zoneOffset = -dateTime.getOffset().getTotalSeconds()/60;
     }
 
     public int parseOffsetHours() {
