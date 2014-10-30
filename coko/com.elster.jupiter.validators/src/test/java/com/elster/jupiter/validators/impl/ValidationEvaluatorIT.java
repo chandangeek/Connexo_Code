@@ -337,4 +337,41 @@ public class ValidationEvaluatorIT {
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
     }
 
+    @Test
+    public void testDataOverruleValidation() {
+    	ValidationService validationService = injector.getInstance(ValidationService.class);
+        injector.getInstance(TransactionService.class).execute(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * 1)));
+        	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(102L), date1.plusSeconds(900 * 2)));
+        	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(103L), date1.plusSeconds(900 * 3)));
+        	meter.store(meterReading);
+        	return null;
+        });
+        ValidationEvaluator evaluator = validationService.getEvaluator();
+        Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+        assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900*3));
+        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        assertThat(validationStates).hasSize(3);
+        List<ValidationResult> validationResults =  validationStates.stream()
+        		.sorted(Comparator.comparing(DataValidationStatus::getReadingTimestamp))
+        		.map(DataValidationStatus::getValidationResult)
+        		.collect(Collectors.toList());        
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
+        injector.getInstance(TransactionService.class).execute(() -> {
+        	MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+         	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(150L), date1.plusSeconds(900 * 1)));
+         	meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * 2)));
+         	meter.store(meterReading);
+         	return null;
+        });
+        assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900*3));
+        validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        assertThat(validationStates).hasSize(3);
+        validationResults =  validationStates.stream()
+        		.sorted(Comparator.comparing(DataValidationStatus::getReadingTimestamp))
+        		.map(DataValidationStatus::getValidationResult)
+        		.collect(Collectors.toList());
+        assertThat(validationResults).isEqualTo(ImmutableList.of(SUSPECT, VALID, SUSPECT));
+    }
 }
