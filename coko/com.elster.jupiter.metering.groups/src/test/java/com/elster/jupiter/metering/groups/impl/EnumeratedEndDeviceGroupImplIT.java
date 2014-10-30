@@ -5,7 +5,9 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -139,12 +141,14 @@ public class EnumeratedEndDeviceGroupImplIT {
 
     @Test
     public void testAmrIdQuey() {
-        int NUMBER_OF_DEVICES_IN_GROUP = 25;
+        int NUMBER_OF_DEVICES_IN_GROUP = 24;
         List<EndDevice> endDevices = new ArrayList<>();
         MeteringService meteringService = injector.getInstance(MeteringService.class);
+        AmrSystem MDC = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalStateException::new);
+        AmrSystem EAMS = meteringService.findAmrSystem(KnownAmrSystem.ENERGY_AXIS.getId()).orElseThrow(IllegalStateException::new);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             for (int i = 0; i < 2 * NUMBER_OF_DEVICES_IN_GROUP; i++) {
-                EndDevice endDevice = meteringService.findAmrSystem(1).get().newMeter("" + i, "MRID" + i);
+                EndDevice endDevice = (i % 2 == 0 ? MDC : EAMS).newMeter("" + i, "MRID" + i);
                 endDevice.save();
                 endDevices.add(endDevice);
             }
@@ -170,9 +174,15 @@ public class EnumeratedEndDeviceGroupImplIT {
         EnumeratedEndDeviceGroup group = (EnumeratedEndDeviceGroup) found.get();
 
 
+        // get all
         Subquery subQuery = group.getAmrIdSubQuery();
         List<EndDevice> deviceList = meteringService.getEndDeviceQuery().select(ListOperator.IN.contains(subQuery, "amrId"));
         assertThat(deviceList).hasSize(NUMBER_OF_DEVICES_IN_GROUP);
+
+        subQuery = group.getAmrIdSubQuery(MDC);
+        deviceList = meteringService.getEndDeviceQuery().select(ListOperator.IN.contains(subQuery, "amrId"));
+        assertThat(deviceList).hasSize(NUMBER_OF_DEVICES_IN_GROUP / 2);
+
     }
 
 }
