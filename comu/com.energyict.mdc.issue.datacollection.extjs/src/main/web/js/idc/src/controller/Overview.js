@@ -85,6 +85,9 @@ Ext.define('Idc.controller.Overview', {
             'data-collection-issues-overview #data-collection-issues-grid': {
                 select: this.showPreview
             },
+            'data-collection-issues-overview #data-collection-issues-grid gridview': {
+                refresh: this.setAssigneeTypeIconTooltip
+            },
             'data-collection-issues-overview #issues-filter-apply': {
                 click: this.applyFilter
             },
