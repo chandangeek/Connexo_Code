@@ -24,6 +24,7 @@ Ext.define('Mdc.model.DeviceConnectionMethod', {
                 return {start: data.comWindowStart, end: data.comWindowEnd};
             }
         }
+
     ],
     associations: [
         {name: 'rescheduleRetryDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleRetryDelay'},

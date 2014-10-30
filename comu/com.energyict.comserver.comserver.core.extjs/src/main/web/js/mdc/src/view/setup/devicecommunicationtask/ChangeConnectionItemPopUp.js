@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                 }
 
             ]
-        },
+        }
     ],
 
     bbar: [
@@ -77,7 +77,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
         switch (this.action) {
             case 'changeConnectionMethodOfDeviceComTask':
             {
-                this.setTitle(Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethod', 'MDC', 'Change connection method of {0}'),this.comTaskName));
+                this.setTitle(Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethodOf', 'MDC', 'Change connection method of \'{0}\''),this.comTaskName));
                 this.down('#changeConnectionItemForm').add(
                     {
                         xtype: 'combobox',
@@ -86,13 +86,12 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                         displayField: 'name',
                         store: this.store,
                         queryMode: 'local',
-                        value: this.init
-                    });
+                        value: this.init });
                 break;
             }
             case 'changeFrequencyOfDeviceComTask':
             {
-                this.setTitle(Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.changeFrequencyOfDeviceComTask', 'MDC', 'Change frequency of {0}'),this.comTaskName));
+                this.setTitle(Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.changeFrequencyOfDeviceComTask', 'MDC', 'Change frequency of \'{0}\''),this.comTaskName));
                 this.down('#changeConnectionItemForm').add({
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
