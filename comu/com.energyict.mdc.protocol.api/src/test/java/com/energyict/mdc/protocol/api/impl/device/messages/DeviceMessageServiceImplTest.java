@@ -202,13 +202,13 @@ public class DeviceMessageServiceImplTest {
     }
 
     private DeviceMessageService newService () {
-        return new DeviceMessageServiceImpl(this.propertySpecService, this.nlsService);
+        return new DeviceMessageServiceImpl(null, null, null, null);
     }
 
     private DeviceMessageService newServiceWithRealPropertSpecService () {
         PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl());
         propertySpecService.addFactoryProvider(new FinderProvider());
-        return new DeviceMessageServiceImpl(propertySpecService, this.nlsService);
+        return new DeviceMessageServiceImpl(null, null, null, null);
     }
 
     private class LoadProfile implements BaseLoadProfile<BaseChannel>, HasId {
