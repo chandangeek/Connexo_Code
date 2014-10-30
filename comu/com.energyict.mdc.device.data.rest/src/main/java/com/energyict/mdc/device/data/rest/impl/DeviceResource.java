@@ -236,7 +236,7 @@ public class DeviceResource {
         return deviceComTaskResourceProvider.get();
     }
 
-    @Path("/{mRID}/commands")
+    @Path("/{mRID}/devicemessages")
     public DeviceMessageResource getCommandResource() {
         return deviceCommandResourceProvider.get();
     }

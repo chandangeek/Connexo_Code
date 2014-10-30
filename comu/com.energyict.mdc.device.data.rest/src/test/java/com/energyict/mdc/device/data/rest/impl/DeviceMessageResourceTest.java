@@ -80,24 +80,24 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
         when(command1.getAttributes()).thenReturn(Collections.emptyList());
 
-        String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(2);
-        assertThat(model.<List<Long>>get("$.commands[*].releaseDate")).isSortedAccordingTo((c1, c2) -> -c1.compareTo(c2));
-        assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(1);
-        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("do delete rule");
-        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("DEVICE_ACTIONS_DEMAND_RESET");
-        assertThat(model.<String>get("$.commands[0].trackingId")).isEqualTo("T14");
-        assertThat(model.<String>get("$.commands[0].category")).isEqualTo("DeviceMessageCategories.RESET");
-        assertThat(model.<String>get("$.commands[0].status")).isEqualTo("Pending");
-        assertThat(model.<Long>get("$.commands[0].releaseDate")).isEqualTo(created.plusSeconds(10).toEpochMilli());
-        assertThat(model.<Long>get("$.commands[0].creationDate")).isEqualTo(created.toEpochMilli());
-        assertThat(model.<Long>get("$.commands[0].sentDate")).isNull();
-        assertThat(model.<String>get("$.commands[0].user")).isEqualTo("Jeff");
-        assertThat(model.<String>get("$.commands[0].errorMessage")).isEqualTo("Error message");
+        assertThat(model.<List<Long>>get("$.deviceMessages[*].releaseDate")).isSortedAccordingTo((c1, c2) -> -c1.compareTo(c2));
+        assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.name")).isEqualTo("do delete rule");
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("DEVICE_ACTIONS_DEMAND_RESET");
+        assertThat(model.<String>get("$.deviceMessages[0].trackingId")).isEqualTo("T14");
+        assertThat(model.<String>get("$.deviceMessages[0].category")).isEqualTo("DeviceMessageCategories.RESET");
+        assertThat(model.<String>get("$.deviceMessages[0].status")).isEqualTo("Pending");
+        assertThat(model.<Long>get("$.deviceMessages[0].releaseDate")).isEqualTo(created.plusSeconds(10).toEpochMilli());
+        assertThat(model.<Long>get("$.deviceMessages[0].creationDate")).isEqualTo(created.toEpochMilli());
+        assertThat(model.<Long>get("$.deviceMessages[0].sentDate")).isNull();
+        assertThat(model.<String>get("$.deviceMessages[0].user")).isEqualTo("Jeff");
+        assertThat(model.<String>get("$.deviceMessages[0].errorMessage")).isEqualTo("Error message");
 
-        assertThat(model.<Long>get("$.commands[1].sentDate")).isEqualTo(sent.toEpochMilli());
+        assertThat(model.<Long>get("$.deviceMessages[1].sentDate")).isEqualTo(sent.toEpochMilli());
     }
 
     @Test
@@ -118,22 +118,22 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
 
-        String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(model.<String>get("$.commands[0].properties[0].key")).isEqualTo("ID");
-        assertThat(model.<Integer>get("$.commands[0].properties[0].propertyValueInfo.value")).isEqualTo(123);
-        assertThat(model.<String>get("$.commands[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
-        assertThat(model.<Boolean>get("$.commands[0].properties[0].required")).isEqualTo(true);
-        assertThat(model.<String>get("$.commands[0].properties[1].key")).isEqualTo("Delete");
-        assertThat(model.<Boolean>get("$.commands[0].properties[1].propertyValueInfo.value")).isEqualTo(true);
-        assertThat(model.<String>get("$.commands[0].properties[1].propertyTypeInfo.simplePropertyType")).isEqualTo("BOOLEAN");
-        assertThat(model.<Boolean>get("$.commands[0].properties[1].required")).isEqualTo(true);
-        assertThat(model.<String>get("$.commands[0].properties[2].key")).isEqualTo("Time");
-        assertThat(model.<Long>get("$.commands[0].properties[2].propertyValueInfo.value")).isEqualTo(now.getTime());
-        assertThat(model.<String>get("$.commands[0].properties[2].propertyTypeInfo.simplePropertyType")).isEqualTo("CLOCK");
-        assertThat(model.<Boolean>get("$.commands[0].properties[2].required")).isEqualTo(true);
+        assertThat(model.<String>get("$.deviceMessages[0].properties[0].key")).isEqualTo("ID");
+        assertThat(model.<Integer>get("$.deviceMessages[0].properties[0].propertyValueInfo.value")).isEqualTo(123);
+        assertThat(model.<String>get("$.deviceMessages[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
+        assertThat(model.<Boolean>get("$.deviceMessages[0].properties[0].required")).isEqualTo(true);
+        assertThat(model.<String>get("$.deviceMessages[0].properties[1].key")).isEqualTo("Delete");
+        assertThat(model.<Boolean>get("$.deviceMessages[0].properties[1].propertyValueInfo.value")).isEqualTo(true);
+        assertThat(model.<String>get("$.deviceMessages[0].properties[1].propertyTypeInfo.simplePropertyType")).isEqualTo("BOOLEAN");
+        assertThat(model.<Boolean>get("$.deviceMessages[0].properties[1].required")).isEqualTo(true);
+        assertThat(model.<String>get("$.deviceMessages[0].properties[2].key")).isEqualTo("Time");
+        assertThat(model.<Long>get("$.deviceMessages[0].properties[2].propertyValueInfo.value")).isEqualTo(now.getTime());
+        assertThat(model.<String>get("$.deviceMessages[0].properties[2].propertyTypeInfo.simplePropertyType")).isEqualTo("CLOCK");
+        assertThat(model.<Boolean>get("$.deviceMessages[0].properties[2].required")).isEqualTo(true);
     }
 
     private DeviceMessageAttribute mockAttribute(String name, Object value, ValueFactory valueFactory, Necessity necessity) {
@@ -167,15 +167,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
         when(command2.getAttributes()).thenReturn(Collections.emptyList());
 
-        String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
-        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("reset clock");
-        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isEqualTo(true);
-        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(false);
+        assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.name")).isEqualTo("reset clock");
+        assertThat(model.<Boolean>get("$.deviceMessages[0].willBePickedUpByComTask")).isEqualTo(true);
+        assertThat(model.<Boolean>get("$.deviceMessages[0].willBePickedUpByScheduledComTask")).isEqualTo(false);
     }
 
     @Test
@@ -197,15 +197,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
         when(command2.getAttributes()).thenReturn(Collections.emptyList());
 
-        String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("reset clock");
-        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
-        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isEqualTo(true);
-        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(true);
+        assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.name")).isEqualTo("reset clock");
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
+        assertThat(model.<Boolean>get("$.deviceMessages[0].willBePickedUpByComTask")).isEqualTo(true);
+        assertThat(model.<Boolean>get("$.deviceMessages[0].willBePickedUpByScheduledComTask")).isEqualTo(true);
     }
 
     @Test
@@ -228,15 +228,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
         when(command2.getAttributes()).thenReturn(Collections.emptyList());
 
-        String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
-        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("reset clock");
-        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isNull();
-        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isNull();
+        assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.name")).isEqualTo("reset clock");
+        assertThat(model.<Boolean>get("$.deviceMessages[0].willBePickedUpByComTask")).isNull();
+        assertThat(model.<Boolean>get("$.deviceMessages[0].willBePickedUpByScheduledComTask")).isNull();
     }
 
     @Test
@@ -259,15 +259,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
         when(command2.getAttributes()).thenReturn(Collections.emptyList());
 
-        String response = target("/devices/ZABF010000080004/commands").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(model.<Integer>get("$.commands[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.commands[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
-        assertThat(model.<String>get("$.commands[0].messageSpecification.name")).isEqualTo("reset clock");
-        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByComTask")).isEqualTo(true);
-        assertThat(model.<Boolean>get("$.commands[0].willBePickedUpByScheduledComTask")).isEqualTo(false);
+        assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("CLOCK_SET_TIME");
+        assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.name")).isEqualTo("reset clock");
+        assertThat(model.<Boolean>get("$.deviceMessages[0].willBePickedUpByComTask")).isEqualTo(true);
+        assertThat(model.<Boolean>get("$.deviceMessages[0].willBePickedUpByScheduledComTask")).isEqualTo(false);
     }
 
     @Test
@@ -402,7 +402,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         deviceMessageInfo.properties=new ArrayList<>();
         deviceMessageInfo.properties.add(new PropertyInfo("ID",new PropertyValueInfo<>(123L, null, null),new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
         deviceMessageInfo.properties.add(new PropertyInfo("Time",new PropertyValueInfo<>(1414067539213L, null, null),new PropertyTypeInfo(SimplePropertyType.CLOCK, null, null, null), true));
-        Response response = target("/devices/ZABF010000080004/commands").request().post(Entity.json(deviceMessageInfo));
+        Response response = target("/devices/ZABF010000080004/devicemessages").request().post(Entity.json(deviceMessageInfo));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         ArgumentCaptor<DeviceMessageId> deviceMessageIdArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageId.class);
@@ -432,7 +432,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage msg3 = mock(DeviceMessage.class);
         when(msg3.getId()).thenReturn(3L);
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
-        Response response = target("/devices/ZABF010000080004/commands/2").request().delete();
+        Response response = target("/devices/ZABF010000080004/devicemessages/2").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<DeviceMessage> argumentCaptor = ArgumentCaptor.forClass(DeviceMessage.class);
         verify(device, times(1)).removeDeviceMessage(argumentCaptor.capture());
@@ -453,7 +453,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
         deviceMessageInfo.releaseDate=Instant.now();
 
-        Response response = target("/devices/ZABF010000080004/commands/3").request().put(Entity.json(deviceMessageInfo));
+        Response response = target("/devices/ZABF010000080004/devicemessages/3").request().put(Entity.json(deviceMessageInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         ArgumentCaptor<Instant> argumentCaptor = ArgumentCaptor.forClass(Instant.class);
