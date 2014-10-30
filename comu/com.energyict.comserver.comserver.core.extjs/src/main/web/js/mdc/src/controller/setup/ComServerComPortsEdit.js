@@ -139,6 +139,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     },
 
     addComportPool: function (allPressed, selection) {
+        debugger;
         var addStore = this.getStore('Mdc.store.AddComPortPools');
 
         if (allPressed) {
@@ -158,6 +159,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         if (newValue == 'SERIAL') {
             var editView = this.getComPortEdit();
             this.setDefaultValuesForSerial(editView);
+        }
+        if (newValue == 'SERIAL' || newValue == 'TCP' || newValue == 'UDP') {
+            this.getStore('Mdc.store.AddComPortPools').removeAll();
+            this.getComPortPoolsGrid().down('#comPortPoolsCount').update(
+                Uni.I18n.translate('comServerComPorts.addPools.noPools', 'MDC', 'No communication port pools'));
         }
         this.restoreState();
         this.filterStore();
