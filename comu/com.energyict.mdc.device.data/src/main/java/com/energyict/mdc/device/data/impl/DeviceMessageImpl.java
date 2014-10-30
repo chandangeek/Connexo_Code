@@ -27,6 +27,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import javax.inject.Inject;
 
 /**
  * Copyrights EnergyICT
@@ -208,6 +209,12 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     }
 
     public void setReleaseDate(Instant releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    @Override
+    public void setReleaseDate(Instant releaseDate) {
+        // TODO verify
         this.releaseDate = releaseDate;
     }
 }

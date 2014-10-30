@@ -85,6 +85,7 @@ import org.osgi.service.log.LogService;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Duration;
+import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -114,7 +115,6 @@ public class DataCollectionKpiImplTest {
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private static MessageService messageService;
     private static TaskService taskService;
     private static KpiService kpiService;
     private static DeviceDataModelServiceImpl deviceDataModelService;
@@ -201,7 +201,7 @@ public class DataCollectionKpiImplTest {
         );
         transactionService = injector.getInstance(TransactionService.class);
         endDeviceGroup = transactionService.execute(() -> {
-            messageService = injector.getInstance(MessageService.class);
+            injector.getInstance(MessageService.class);
             taskService = injector.getInstance(TaskService.class);
             kpiService = injector.getInstance(KpiService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
@@ -416,7 +416,7 @@ public class DataCollectionKpiImplTest {
 
     @Test
     @Transactional
-    public void testConnectionKpiKoreSettings() {
+    public void testConnectionKpiKoreSettingsOneHour() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         Duration expectedIntervalLength = Duration.ofHours(1);
         builder.calculateConnectionSetupKpi(expectedIntervalLength).expectingAsMaximum(BigDecimal.ONE);
@@ -428,6 +428,96 @@ public class DataCollectionKpiImplTest {
         Kpi connectionKpi = kpi.connectionKpi().get();
         assertThat(connectionKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
         assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
+    }
+
+    @Test
+    @Transactional
+    public void testConnectionKpiKoreSettings15Minutes() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        Duration expectedIntervalLength = Duration.ofMinutes(15);
+        builder.calculateConnectionSetupKpi(expectedIntervalLength).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
+
+        // Asserts
+        Kpi connectionKpi = kpi.connectionKpi().get();
+        assertThat(connectionKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
+        assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
+    }
+
+    @Test
+    @Transactional
+    public void testConnectionKpiKoreSettings60Minutes() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        Duration expectedIntervalLength = Duration.ofMinutes(60);
+        builder.calculateConnectionSetupKpi(expectedIntervalLength).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
+
+        // Asserts
+        Kpi connectionKpi = kpi.connectionKpi().get();
+        assertThat(connectionKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
+        assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
+    }
+
+    @Test
+    @Transactional
+    public void testConnectionKpiKoreSettings3600Seconds() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        Duration expectedIntervalLength = Duration.ofSeconds(3600);
+        builder.calculateConnectionSetupKpi(expectedIntervalLength).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
+
+        // Asserts
+        Kpi connectionKpi = kpi.connectionKpi().get();
+        assertThat(connectionKpi.getIntervalLength()).isEqualTo(expectedIntervalLength);
+        assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
+    }
+
+    @Test
+    @Transactional
+    public void testConnectionKpi1Year() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        Period expectedPeriod = Period.ofYears(1);
+        builder.calculateConnectionSetupKpi(expectedPeriod).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
+
+        // Asserts
+        Kpi connectionKpi = kpi.connectionKpi().get();
+        assertThat(connectionKpi.getIntervalLength()).isEqualTo(expectedPeriod);
+        assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @Transactional
+    public void testConnectionKpiZeroSeconds() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        Duration unsupported = Duration.ofSeconds(0);
+        builder.calculateConnectionSetupKpi(unsupported).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        builder.save();
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @Transactional
+    public void testConnectionKpiInYearsMonthsAndDays() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        Period unsupported = Period.of(1, 1, 1);
+        builder.calculateConnectionSetupKpi(unsupported).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        builder.save();
+
+        // Asserts: see expected exception rule
     }
 
     @Test
@@ -472,6 +562,19 @@ public class DataCollectionKpiImplTest {
 
         // Asserts
         assertThat(scores).isEmpty();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @Transactional
+    public void testComTaskExecutionKpiInYearsMonthsAndDays() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        Period unsupported = Period.of(1, 1, 1);
+        builder.calculateComTaskExecutionKpi(unsupported).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        builder.save();
+
+        // Asserts: see expected exception
     }
 
     @Test

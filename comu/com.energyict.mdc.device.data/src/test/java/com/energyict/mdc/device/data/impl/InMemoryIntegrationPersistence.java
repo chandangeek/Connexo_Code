@@ -78,10 +78,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.Principal;
@@ -93,6 +89,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -253,7 +252,7 @@ public class InMemoryIntegrationPersistence {
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+//        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
         when(this.principal.getName()).thenReturn(testName);
         this.applicationContext = mock(ApplicationContext.class);
         Translator translator = mock(Translator.class);

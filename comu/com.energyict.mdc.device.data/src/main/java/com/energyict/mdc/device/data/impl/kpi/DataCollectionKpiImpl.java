@@ -18,13 +18,20 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.ScheduleExpression;
+import org.joda.time.DateTimeConstants;
 
 import javax.inject.Inject;
+import java.time.Duration;
+import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DataCollectionKpi} interface.
@@ -343,7 +350,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
                 DestinationSpec destination = messageService.getDestinationSpec(DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
                 RecurrentTaskBuilder taskBuilder = taskService.newBuilder();
                 taskBuilder.setName(taskName());
-                taskBuilder.setScheduleExpressionString(cronExpression());
+                taskBuilder.setScheduleExpression(this.toScheduleExpression(this.kpi.get()));
                 taskBuilder.setDestination(destination);
                 taskBuilder.setPayLoad(scheduledExcutionPayload());
                 taskBuilder.scheduleImmediately();
@@ -361,9 +368,16 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             this.recurrentTask.set(recurrentTask);
         }
 
-        private String cronExpression() {
-            // Todo: wait for new api that use TemporalExpression, currently hardcodes every hour starting at midnight of every day
-            return "0 0 0/1 * * ? *";
+        private ScheduleExpression toScheduleExpression(Kpi kpi) {
+            if (kpi.getIntervalLength() instanceof Duration) {
+                Duration duration = (Duration) kpi.getIntervalLength();
+                return new TemporalExpression(new TimeDurationFromDurationFactory().from(duration));
+            }
+            else {
+                // Must be a Period
+                Period period = (Period) kpi.getIntervalLength();
+                return new TemporalExpression(new TimeDurationFromPeriodFactory().from(period));
+            }
         }
 
         private String scheduledExcutionPayload() {
@@ -374,6 +388,160 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             return this.kpiType.recurrentTaskName(DataCollectionKpiImpl.this);
         }
 
+    }
+
+    private interface TimeDurationFactory {
+        public TimeDuration from(TemporalAmount temporalAmount);
+    }
+
+    private class TimeDurationFromDurationFactory implements TimeDurationFactory {
+        private Stream<TimeDurationFactory> factories;
+
+        private TimeDurationFromDurationFactory() {
+            super();
+            this.factories = Stream.of(
+                    new TimeDurationFromDurationInHoursFactory(),
+                    new TimeDurationFromDurationInMinutesFactory(),
+                    new TimeDurationFromDurationInSecondsFactory());
+        }
+
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.factories
+                    .map(f -> f.from(temporalAmount))
+                    .filter(t -> t != null)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unable to convert Duration '" + temporalAmount + "' to TemporalExpression"));
+        }
+
+    }
+
+    private class TimeDurationFromDurationInHoursFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Duration) temporalAmount);
+        }
+
+        private TimeDuration from(Duration duration) {
+            if (duration.toHours() != 0) {
+                return TimeDuration.hours(Math.toIntExact(duration.toHours()));
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromDurationInMinutesFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Duration) temporalAmount);
+        }
+
+        private TimeDuration from(Duration duration) {
+            if (duration.toMinutes() != 0) {
+                return TimeDuration.minutes(Math.toIntExact(duration.toMinutes()));
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromDurationInSecondsFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Duration) temporalAmount);
+        }
+
+        private TimeDuration from(Duration duration) {
+            if (duration.getSeconds() != 0) {
+                return TimeDuration.seconds(Math.toIntExact(duration.getSeconds()));
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromPeriodFactory implements TimeDurationFactory {
+        private Stream<TimeDurationFactory> factories;
+
+        private TimeDurationFromPeriodFactory() {
+            super();
+            this.factories = Stream.of(
+                    new TimeDurationFromPeriodValidatingFactory(),
+                    new TimeDurationFromPeriodInMonthsFactory(),
+                    new TimeDurationFromPeriodInDaysFactory());
+        }
+
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.factories
+                    .map(f -> f.from(temporalAmount))
+                    .filter(t -> t != null)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unable to convert Period '" + temporalAmount + "' to TemporalExpression"));
+        }
+
+    }
+
+    private class TimeDurationFromPeriodValidatingFactory implements TimeDurationFactory {
+
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Period) temporalAmount);
+        }
+
+        private TimeDuration from(Period period) {
+            if (period.getYears() != 0 || period.getMonths() != 0) {
+                return this.noDays(period);
+            }
+            else {
+                return null;
+            }
+        }
+
+        private TimeDuration noDays(Period period) {
+            if (period.getDays() != 0) {
+                throw new IllegalArgumentException("Years and days or months and days are not supported");
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromPeriodInMonthsFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Period) temporalAmount);
+        }
+
+        private TimeDuration from(Period period) {
+            if (period.toTotalMonths() != 0) {
+                return TimeDuration.months(Math.toIntExact(period.toTotalMonths()));
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromPeriodInDaysFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Period) temporalAmount);
+        }
+
+        private TimeDuration from(Period period) {
+            if (period.getDays() != 0) {
+                return TimeDuration.days(Math.toIntExact(period.getDays()));
+            }
+            else {
+                return null;
+            }
+        }
     }
 
     private class UpdateOneRecurrentTask extends CreateOneRecurrentTask {
