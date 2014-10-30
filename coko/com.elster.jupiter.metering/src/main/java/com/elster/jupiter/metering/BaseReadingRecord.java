@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface BaseReadingRecord extends BaseReading {
     List<Quantity> getQuantities();

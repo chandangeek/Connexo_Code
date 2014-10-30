@@ -462,6 +462,11 @@ public final class ChannelImpl implements ChannelContract {
         eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this,readingTimes));
     }
     
+    @Override
+	public List<Instant> toList(Range<Instant> range) {
+		return timeSeries.get().toList(range);
+	}
+    
     public static class ReadingsDeletedEventImpl implements Channel.ReadingsDeletedEvent {
 		private ChannelImpl channel;
 		private Set<Instant> readingTimes;
@@ -494,4 +499,6 @@ public final class ChannelImpl implements ChannelContract {
     	}
 
     }
+
+	
 }
