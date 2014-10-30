@@ -6,11 +6,7 @@ import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.CommunicationTopologyEntry;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
@@ -190,6 +186,28 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Finder<Device> findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         return DefaultFinder.of(Device.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), this.deviceDataModelService.dataModel()).defaultSortColumn("lower(name)");
+    }
+
+    @Override
+    public List<CommunicationGatewayReference> getRecentlyAddedCommunicationReferencingDevices(Device device, int count) {
+        List<CommunicationGatewayReference> references = DefaultFinder.of(CommunicationGatewayReference.class, where(CommunicationGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(device), this.deviceDataModelService.dataModel())
+                .sorted(CommunicationGatewayReferenceImpl.Field.CREATION_TIME.fieldName(), false)
+                .paged(0, count).find();
+        if (count < references.size()){
+            references = references.subList(0, count);
+        }
+        return references;
+    }
+
+    @Override
+    public List<PhysicalGatewayReference> getRecentlyAddedPhysicalConnectedDevices(Device device, int count) {
+        List<PhysicalGatewayReference> references = DefaultFinder.of(PhysicalGatewayReference.class, where(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(device), this.deviceDataModelService.dataModel())
+                .sorted(PhysicalGatewayReferenceImpl.Field.CREATION_TIME.fieldName(), false)
+                .paged(0, count).find();
+        if (count < references.size()){
+            references = references.subList(0, count);
+        }
+        return references;
     }
 
 }
