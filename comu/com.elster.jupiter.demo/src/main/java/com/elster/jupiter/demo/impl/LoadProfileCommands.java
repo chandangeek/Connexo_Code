@@ -41,6 +41,7 @@ import static com.elster.jupiter.util.Checks.*;
 @Component(name = "com.elster.jupiter.demo.loadprofile", service = LoadProfileCommands.class, property = { "osgi.command.scope=loadprofile",
         "osgi.command.function=uploadData",
         "osgi.command.function=createMeasurementType"}, immediate = true)
+@SuppressWarnings("unused")
 public class LoadProfileCommands {
     public static final int MANDATORY_COLUMN_SIZE = 3;
 
@@ -126,7 +127,7 @@ public class LoadProfileCommands {
             return;
         }
 
-        Date dateShift = null;
+        Date dateShift;
         try {
             dateShift = dateTimeFormat.parse(startTime);
         } catch (ParseException e) {
@@ -179,18 +180,18 @@ public class LoadProfileCommands {
                     e.printStackTrace();
                 }
             }
-            
+
             for (IntervalBlockImpl block : blocks.values()) {
                 meterReading.addIntervalBlock(block);
             }
-            
+
             executeTransaction(new VoidTransaction() {
                 @Override
                 protected void doPerform() {
                     ((Meter)endDevice.get()).store(meterReading);
                 }
             });
-                
+
             scanner.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -203,7 +204,7 @@ public class LoadProfileCommands {
         final Optional<ReadingType> chReadingType = meteringService.getReadingType(channelReadingType);
         if (regReadingType.isPresent() && chReadingType.isPresent()) {
             executeTransaction(new VoidTransaction() {
-                
+
                 @Override
                 protected void doPerform() {
                     RegisterType newRegisterType = masterDataService.newRegisterType(name, ObisCode.fromString(obisCode), Unit.get(unit), regReadingType.get(), 0);
@@ -221,7 +222,7 @@ public class LoadProfileCommands {
     }
 
     private List<String> readHeader(String header) {
-        List<String> channels = new ArrayList<String>();
+        List<String> channels = new ArrayList<>();
         String[] columns = header.split(";");
         if (columns.length < MANDATORY_COLUMN_SIZE + 1) {
             System.out.println("Incorrect file header: should be 'Date, Code, Flags' + channels(one per column)");
@@ -273,12 +274,7 @@ public class LoadProfileCommands {
     }
 
     private Principal getPrincipal() {
-        return new Principal() {
-
-            @Override
-            public String getName() {
-                return "console";
-            }
-        };
+        return () -> "console";
     }
+
 }

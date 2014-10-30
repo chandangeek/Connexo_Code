@@ -34,22 +34,18 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
-import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.time.Instant;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -109,7 +105,7 @@ public class DemoServiceImpl implements DemoService {
     public static final String USER_NAME_SYSTEM = "System";
     public static final String VALIDATION_DETECT_MISSING_VALUES = "Detect missing values";
 
-    private final Boolean rethrowExceptions;
+    private final boolean rethrowExceptions;
     private volatile EngineModelService engineModelService;
     private volatile UserService userService;
     private volatile ValidationService validationService;
@@ -124,10 +120,13 @@ public class DemoServiceImpl implements DemoService {
     private volatile ConnectionTaskService connectionTaskService;
     private volatile SchedulingService schedulingService;
 
+    // For OSGi framework
+    @SuppressWarnings("unused")
     public DemoServiceImpl() {
-        rethrowExceptions = Boolean.FALSE;
+        rethrowExceptions = false;
     }
 
+    // For unit testing purposes
     @Inject
     public DemoServiceImpl(
             EngineModelService engineModelService,
@@ -156,7 +155,7 @@ public class DemoServiceImpl implements DemoService {
         this.deviceService = deviceService;
         this.connectionTaskService = connectionTaskService;
         this.schedulingService = schedulingService;
-        rethrowExceptions = Boolean.TRUE;
+        rethrowExceptions = true;
     }
 
     @Override
@@ -167,8 +166,8 @@ public class DemoServiceImpl implements DemoService {
                 Store store = new Store();
                 store.getProperties().put("host", host);
 
-                OnlineComServer comServer = createComServer("Deitvs099");
-                comServer = createComServer(comServerName);
+                OnlineComServer deitvs099ComServer = createComServer("Deitvs099");
+                OnlineComServer comServer = createComServer(comServerName);
                 OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
                 store.getOutboundComPortPools().put(VODAFONE_TCP_POOL_NAME, createOutboundTcpComPortPool(VODAFONE_TCP_POOL_NAME, outboundTCPPort));
                 store.getOutboundComPortPools().put(ORANGE_TCP_POOL_NAME, createOutboundTcpComPortPool(ORANGE_TCP_POOL_NAME, outboundTCPPort));
@@ -378,10 +377,10 @@ public class DemoServiceImpl implements DemoService {
         System.out.println("==> Creating Communication Tasks...");
 
         ComTask readAll = taskService.newComTask(COM_TASK_READ_ALL);
-        readAll.createLoadProfilesTask().loadProfileTypes(new ArrayList<LoadProfileType>(store.getLoadProfileTypes().values())).add();
+        readAll.createLoadProfilesTask().loadProfileTypes(new ArrayList<>(store.getLoadProfileTypes().values())).add();
         RegisterGroup[] registerGroupsForReadAll = {store.getRegisterGroups().get(REGISTER_GROUP_DEFAULT_GROUP), store.getRegisterGroups().get(REGISTER_GROUP_DEVICE_DATA)};
         readAll.createRegistersTask().registerGroups(Arrays.asList(registerGroupsForReadAll)).add();
-        readAll.createLogbooksTask().logBookTypes(new ArrayList<LogBookType>(store.getLogBookTypes().values())).add();
+        readAll.createLogbooksTask().logBookTypes(new ArrayList<>(store.getLogBookTypes().values())).add();
         readAll.save();
         store.getComTasks().put(COM_TASK_READ_ALL, readAll);
 
@@ -416,7 +415,7 @@ public class DemoServiceImpl implements DemoService {
         store.getComTasks().put(COM_TASK_READ_REGISTER_BILLING_DATA, readRegisterData);
 
         ComTask readLoadProfileData = taskService.newComTask(COM_TASK_READ_LOAD_PROFILE_DATA);
-        readLoadProfileData.createLoadProfilesTask().loadProfileTypes(new ArrayList<LoadProfileType>(store.getLoadProfileTypes().values())).add();
+        readLoadProfileData.createLoadProfilesTask().loadProfileTypes(new ArrayList<>(store.getLoadProfileTypes().values())).add();
         readLoadProfileData.save();
         store.getComTasks().put(COM_TASK_READ_LOAD_PROFILE_DATA, readLoadProfileData);
     }
@@ -570,7 +569,7 @@ public class DemoServiceImpl implements DemoService {
 
     private void addConnectionMethodToDeviceConfiguration(Store store, DeviceConfiguration configuration) {
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp");
-        PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration()
+        configuration.getCommunicationConfiguration()
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
                 .addProperty("host", store.getProperties().get("host"))
@@ -699,66 +698,79 @@ public class DemoServiceImpl implements DemoService {
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setEngineModelService(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
         this.connectionTaskService = connectionTaskService;
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
     }
@@ -794,11 +806,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private Principal getPrincipal() {
-        return new Principal() {
-            @Override
-            public String getName() {
-                return "console";
-            }
-        };
+        return () -> "console";
     }
+
 }

@@ -20,7 +20,6 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -123,7 +122,7 @@ public class DemoTest {
             when(license.getDescription()).thenReturn("MDC application license example");
             when(license.getStatus()).thenReturn(License.Status.ACTIVE);
             when(license.getType()).thenReturn(License.Type.EVALUATION);
-            when(license.getGracePeriodInDays()).thenReturn(5);            
+            when(license.getGracePeriodInDays()).thenReturn(5);
             when(license.getExpiration()).thenReturn(Instant.parse("9999-12-31T24:00:00Z"));
             when(license.getLicensedValues()).thenReturn(properties);
             return license;

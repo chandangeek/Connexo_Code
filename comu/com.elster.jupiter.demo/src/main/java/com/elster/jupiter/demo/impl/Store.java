@@ -22,14 +22,14 @@ public class Store {
     private Map<String, ComSchedule> comSchedules;
 
     public Store() {
-        properties = new HashMap<String, Object>();
-        registerTypes = new HashMap<String, RegisterType>();
-        registerGroups = new HashMap<String, RegisterGroup>();
-        loadProfileTypes = new HashMap<String, LoadProfileType>();
-        logBookTypes = new HashMap<String, LogBookType>();
-        comTasks = new HashMap<String, ComTask>();
-        outboundComPortPools = new HashMap<String, OutboundComPortPool>();
-        comSchedules = new HashMap<String, ComSchedule>();
+        properties = new HashMap<>();
+        registerTypes = new HashMap<>();
+        registerGroups = new HashMap<>();
+        loadProfileTypes = new HashMap<>();
+        logBookTypes = new HashMap<>();
+        comTasks = new HashMap<>();
+        outboundComPortPools = new HashMap<>();
+        comSchedules = new HashMap<>();
     }
 
     public Map<String, RegisterType> getRegisterTypes() {
@@ -63,4 +63,5 @@ public class Store {
     public Map<String, Object> getProperties() {
         return properties;
     }
+
 }
