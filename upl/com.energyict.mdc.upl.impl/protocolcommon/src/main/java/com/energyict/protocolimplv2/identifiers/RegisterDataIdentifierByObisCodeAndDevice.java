@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.collections.Collections;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterFactory;
@@ -80,6 +82,16 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
 
     public void setXmlType(String ignore) {
         // For xml unmarshalling purposes only
+    }
+
+    @Override
+    public RegisterIdentifierType getRegisterIdentifierType() {
+        return RegisterIdentifierType.DeviceIdentifierAndObisCode;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Collections.toList((Object) getDeviceIdentifier(), getRegisterObisCode());
     }
 
     private RegisterFactory getRegisterFactory() {

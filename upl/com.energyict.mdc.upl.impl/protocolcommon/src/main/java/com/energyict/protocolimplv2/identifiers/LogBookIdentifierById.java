@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.collections.Collections;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierType;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
@@ -10,6 +12,7 @@ import com.energyict.obis.ObisCode;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -62,6 +65,16 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     @XmlAttribute
     public ObisCode getLogBookObisCode() {
         return logBookObisCode;
+    }
+
+    @Override
+    public LogBookIdentifierType getLogBookIdentifierType() {
+        return LogBookIdentifierType.DataBaseId;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Collections.toList((Object) getLogBookId());
     }
 
     @XmlElement(name = "type")

@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.collections.Collections;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileFactory;
 import com.energyict.mdw.core.LoadProfileFactoryProvider;
@@ -9,6 +11,7 @@ import com.energyict.mdw.core.LoadProfileFactoryProvider;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Implementation of a {@link com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier} that uniquely identifies a {@link com.energyict.mdw.core.LoadProfile}
@@ -47,6 +50,16 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     @XmlAttribute
     public int getLoadProfileId() {
         return loadProfileId;
+    }
+
+    @Override
+    public LoadProfileIdentifierType getLoadProfileIdentifierType() {
+        return LoadProfileIdentifierType.DataBaseId;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Collections.toList((Object) getLoadProfileId());
     }
 
     @XmlElement(name = "type")

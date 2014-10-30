@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.collections.Collections;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileFactory;
@@ -47,7 +49,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
 
     @Override
     public LoadProfile getLoadProfile() {
-        if(loadProfile == null){
+        if (loadProfile == null) {
             final List<LoadProfile> loadProfiles = getLoadProfileFactory().findByDevice(deviceIdentifier.findDevice());
             for (LoadProfile profile : loadProfiles) {
                 if (profile.getDeviceObisCode().equals(this.loadProfileObisCode)) {
@@ -70,6 +72,16 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     @XmlAttribute
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
+    }
+
+    @Override
+    public LoadProfileIdentifierType getLoadProfileIdentifierType() {
+        return LoadProfileIdentifierType.DeviceIdentifierAndObisCode;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Collections.toList((Object) getDeviceIdentifier(), getLoadProfileObisCode());
     }
 
     @XmlElement(name = "type")

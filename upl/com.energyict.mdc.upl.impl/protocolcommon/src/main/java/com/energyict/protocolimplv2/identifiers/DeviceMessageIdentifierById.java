@@ -1,13 +1,16 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.collections.Collections;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.meterdata.identifiers.MessageIdentifierType;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -43,6 +46,16 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     @Override
     public String toString() {
         return "messageId = " + messageId;
+    }
+
+    @Override
+    public MessageIdentifierType getMessageIdentifierType() {
+        return MessageIdentifierType.DataBaseId;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Collections.toList((Object) getMessageId());
     }
 
     @XmlElement(name = "type")

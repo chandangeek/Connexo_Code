@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.collections.Collections;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
@@ -30,19 +32,18 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     public FirstLoadProfileOnDevice() {
     }
 
-    public FirstLoadProfileOnDevice (DeviceIdentifier deviceIdentifier) {
+    public FirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier) {
         super();
         this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
-    public LoadProfile getLoadProfile () {
+    public LoadProfile getLoadProfile() {
         Device device = this.deviceIdentifier.findDevice();
         List<LoadProfile> loadProfiles = device.getLoadProfiles();
         if (loadProfiles.isEmpty()) {
             throw new NotFoundException("Device with " + deviceIdentifier.toString() + " has no load profiles");
-        }
-        else {
+        } else {
             return loadProfiles.get(0);
         }
     }
@@ -50,6 +51,16 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     @XmlAttribute
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
+    }
+
+    @Override
+    public LoadProfileIdentifierType getLoadProfileIdentifierType() {
+        return LoadProfileIdentifierType.FistLoadProfileOnDevice;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Collections.toList((Object) getDeviceIdentifier());
     }
 
     @XmlElement(name = "type")
