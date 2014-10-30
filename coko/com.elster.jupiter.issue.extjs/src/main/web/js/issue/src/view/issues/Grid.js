@@ -52,7 +52,8 @@ Ext.define('Isu.view.issues.Grid', {
                 xtype: 'uni-actioncolumn',
                 menu: {
                     xtype: 'issues-action-menu',
-                    itemId: 'issues-overview-action-menu'
+                    itemId: 'issues-overview-action-menu',
+                    router: me.router
                 }
             }
         ];

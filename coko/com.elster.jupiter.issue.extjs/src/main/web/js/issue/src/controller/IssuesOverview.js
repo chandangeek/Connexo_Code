@@ -48,7 +48,7 @@ Ext.define('Isu.controller.IssuesOverview', {
             success: function (record) {
                 if (!preview.isDestroyed) {
                     preview.loadRecord(record);
-                    preview.down('menu').record = record;
+                    preview.down('issues-action-menu').record = record;
                     preview.down('#issue-view-details-link').setHref(preview.router.getRoute(preview.router.currentRoute + '/view').buildUrl({issueId: record.getId()}));
                     preview.setTitle(record.get('title'));
                 }
@@ -62,20 +62,8 @@ Ext.define('Isu.controller.IssuesOverview', {
     },
 
     chooseAction: function (menu, menuItem) {
-        var router = this.getController('Uni.controller.history.Router');
-
-        if (menuItem.isPredefined) {
-            switch (menuItem.action) {
-                case 'addComment':
-                    router.getRoute(router.currentRoute + '/view').forward({issueId: menu.record.getId()}, {addComment: true});
-                    break;
-            }
-        } else {
-            if (Ext.isEmpty(menuItem.actionRecord.get('parameters'))) {
-                this.applyActionImmediately(menu.record, menuItem.actionRecord);
-            } else {
-                router.getRoute(router.currentRoute + '/view/action').forward({issueId: menu.record.getId(), actionId: menuItem.actionRecord.getId()});
-            }
+        if (!Ext.isEmpty(menuItem.actionRecord)) {
+            this.applyActionImmediately(menu.record, menuItem.actionRecord);
         }
     },
 

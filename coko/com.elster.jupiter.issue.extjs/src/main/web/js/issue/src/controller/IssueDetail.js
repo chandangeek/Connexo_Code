@@ -19,7 +19,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     me.getApplication().fireEvent('issueLoad', record);
                     widget.down('#issue-detail-top-title').setTitle(record.get('title'));
                     me.getDetailForm().loadRecord(record);
-                    widget.down('#issue-detail-action-menu').record = record;
+                    widget.down('issues-action-menu').record = record;
                     me.loadComments(record);
                     me.setNavigationButtons(record, me.getStore(issuesStore));
                 }
@@ -119,12 +119,8 @@ Ext.define('Isu.controller.IssueDetail', {
     },
 
     chooseAction: function (menu, menuItem) {
-        var router = this.getController('Uni.controller.history.Router');
-
-        if (Ext.isEmpty(menuItem.actionRecord.get('parameters'))) {
+        if (!Ext.isEmpty(menuItem.actionRecord)) {
             this.applyActionImmediately(menu.record, menuItem.actionRecord);
-        } else {
-            router.getRoute(router.currentRoute + '/action').forward({issueId: menu.record.getId(), actionId: menuItem.actionRecord.getId()});
         }
     },
 
