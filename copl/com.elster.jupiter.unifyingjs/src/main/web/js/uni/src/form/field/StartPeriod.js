@@ -30,6 +30,7 @@ Ext.define('Uni.form.field.StartPeriod', {
     inputValueDate: 'date',
 
     lastTask: undefined,
+    previousValue: undefined,
 
     initComponent: function () {
         var me = this;
@@ -183,7 +184,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                 me.selectOptionAgo();
             });
 
-            me.lastTask.delay(100);
+            me.lastTask.delay(256);
         }, me);
 
         me.getOptionAgoContainer().down('combobox').on('change', function () {
@@ -256,9 +257,24 @@ Ext.define('Uni.form.field.StartPeriod', {
     getValue: function () {
         var me = this,
             selectedRadio = me.callParent(arguments),
-            selectedValue = selectedRadio[me.baseRadioName],
+            selectedValues = selectedRadio[me.baseRadioName],
+            selectedValue = undefined,
             amountAgoValue = me.getOptionAgoContainer().down('numberfield').getValue(),
             freqAgoValue = me.getOptionAgoContainer().down('combobox').getValue();
+
+        if (Ext.isArray(selectedValues)) {
+            for (var i = 0; i < selectedValues.length; i++) {
+                var value = selectedValues[i];
+
+                if (value !== me.previousValue) {
+                    me.previousValue = value;
+                    selectedValue = value;
+                    break;
+                }
+            }
+        } else {
+            selectedValue = selectedValues;
+        }
 
         var result = {
             startNow: selectedValue === 'now'
@@ -269,7 +285,7 @@ Ext.define('Uni.form.field.StartPeriod', {
 
             Ext.apply(result, {
                 startFixedDay: dateValue.getDate(),
-                startFixedMonth: dateValue.getMonth()+1,
+                startFixedMonth: dateValue.getMonth() + 1,
                 startFixedYear: dateValue.getFullYear()
             });
         } else if (selectedValue === 'ago') {

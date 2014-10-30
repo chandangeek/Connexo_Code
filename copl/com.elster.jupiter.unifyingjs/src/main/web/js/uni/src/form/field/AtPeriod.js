@@ -74,7 +74,7 @@ Ext.define('Uni.form.field.AtPeriod', {
                 me.fireEvent('periodchange', me.getValue());
             });
 
-            me.lastHourTask.delay(100);
+            me.lastHourTask.delay(256);
         }, me);
 
         me.getMinuteField().on('change', function () {
@@ -86,7 +86,7 @@ Ext.define('Uni.form.field.AtPeriod', {
                 me.fireEvent('periodchange', me.getValue());
             });
 
-            me.lastMinuteTask.delay(100);
+            me.lastMinuteTask.delay(256);
         }, me);
     },
 
