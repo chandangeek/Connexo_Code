@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -22,12 +23,7 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -179,10 +175,11 @@ public class DataCollectionEventHandlerTest extends BaseTest {
 
     private MeteringService mockMeteringService() {
         MeteringService meteringService = mock(MeteringService.class);
+        AmrSystem amrSystem = mock(AmrSystem.class);
         Meter meter = mock(Meter.class);
-        Query<Meter> meterQuery = mock(Query.class);
-        when(meteringService.getMeterQuery()).thenReturn(meterQuery);
-        when(meterQuery.select(Matchers.any(Condition.class))).thenReturn(Collections.singletonList(meter));
+
+        when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));
+        when(amrSystem.findMeter(Matchers.anyString())).thenReturn(Optional.of(meter));
         return meteringService;
     }
 

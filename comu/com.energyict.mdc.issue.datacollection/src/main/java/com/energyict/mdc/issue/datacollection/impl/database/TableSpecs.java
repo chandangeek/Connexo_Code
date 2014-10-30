@@ -26,7 +26,7 @@ public enum TableSpecs {
             Table<HistoricalIssueDataCollection> table = dataModel.addTable(name(), HistoricalIssueDataCollection.class);
             table.map(HistoricalIssueDataCollectionImpl.class);
             table.setJournalTableName(IDC_ISSUE_HISTORY_JRNL_TABLE_NAME);
-            Column idColumn = table.column(IDC_ID).map("id").type("number").conversion(NUMBER2LONG).notNull().add();
+            Column idColumn = table.column(IDC_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
 
             TableSpecs.TableBuilder.buildIssueTable(table, idColumn, "ISU_ISSUE_HISTORY", IDC_ISSUE_HISTORY_PK,
                     // Foreign keys
@@ -42,7 +42,7 @@ public enum TableSpecs {
             Table<OpenIssueDataCollection> table = dataModel.addTable(name(), OpenIssueDataCollection.class);
             table.map(OpenIssueDataCollectionImpl.class);
             table.setJournalTableName(IDC_ISSUE_OPEN_JRNL_TABLE_NAME);
-            Column idColumn = table.column(IDC_ID).map("id").type("number").conversion(NUMBER2LONG).notNull().add();
+            Column idColumn = table.column(IDC_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
 
             TableSpecs.TableBuilder.buildIssueTable(table, idColumn, "ISU_ISSUE_OPEN", IDC_ISSUE_OPEN_PK,
                     // Foreign keys
@@ -58,7 +58,7 @@ public enum TableSpecs {
             Table<IssueDataCollection> table = dataModel.addTable(name(), IssueDataCollection.class);
             table.map(IssueDataCollectionImpl.class);
             table.doNotAutoInstall();
-            Column idColumn = table.column(IDC_ID).map("id").type("number").conversion(NUMBER2LONG).notNull().add();
+            Column idColumn = table.column(IDC_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
 
             TableSpecs.TableBuilder.buildIssueTable(table, idColumn, "ISU_ISSUE_ALL", IDC_ISSUE_PK,
                     // Foreign keys
@@ -76,9 +76,9 @@ public enum TableSpecs {
         private static final int EXPECTED_FK_KEYS_LENGTH = 3;
 
         static void buildIssueTable(Table table, Column idColumn, String issueTable, String pkKey, String... fkKeys){
-            Column issueColRef = table.column(IDC_BASE_ISSUE).type("number").conversion(NUMBER2LONG).notNull().add();
-            Column connectionTaskColRef = table.column(IDC_CONNECTION_TASK).type("number").conversion(NUMBER2LONG).add();
-            Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).type("number").conversion(NUMBER2LONG).add();
+            Column issueColRef = table.column(IDC_BASE_ISSUE).number().conversion(NUMBER2LONG).notNull().add();
+            Column connectionTaskColRef = table.column(IDC_CONNECTION_TASK).number().conversion(NUMBER2LONG).add();
+            Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).number().conversion(NUMBER2LONG).add();
             table.column(IDC_DEVICE_NUMBER).varChar(NAME_LENGTH).map("deviceSerialNumber").add();
 
             table.primaryKey(pkKey).on(idColumn).add();

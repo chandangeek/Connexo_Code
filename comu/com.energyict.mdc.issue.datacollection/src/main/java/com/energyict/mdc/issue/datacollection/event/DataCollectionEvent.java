@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datacollection.event;
 
+import com.elster.jupiter.metering.AmrSystem;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -36,6 +37,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     protected static final Logger LOG = Logger.getLogger(DataCollectionEvent.class.getName());
+    private static final int MDC_AMR_ID = 1;
 
     private final IssueDataCollectionService issueDataCollectionService;
     private final IssueService issueService;
@@ -142,12 +144,14 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     }
 
     public EndDevice findKoreDeviceByDevice() {
-        Query<Meter> meterQuery = getMeteringService().getMeterQuery();
-        List<Meter> meterList = meterQuery.select(where("amrId").isEqualTo(device.getId()));
-        if (meterList.size() != 1) {
-            throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device.getId());
+        Optional<AmrSystem> amrSystemRef = getMeteringService().findAmrSystem(MDC_AMR_ID);
+        if (amrSystemRef.isPresent()){
+            Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
+            if (meterRef.isPresent()){
+                return meterRef.get();
+            }
         }
-        return meterList.get(0);
+        throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device.getId());
     }
 
     protected Instant getLastSuccessfulCommunicationEnd(Device concentrator) {
