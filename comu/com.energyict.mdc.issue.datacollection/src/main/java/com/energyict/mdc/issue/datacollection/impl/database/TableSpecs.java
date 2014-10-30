@@ -32,7 +32,8 @@ public enum TableSpecs {
                     // Foreign keys
                     IDC_ISSUE_HISTORY_FK_TO_ISSUE,
                     IDC_ISSUE_HISTORY_FK_TO_CONNECTION_TASK,
-                    IDC_ISSUE_HISTORY_FK_TO_COM_TASK);
+                    IDC_ISSUE_HISTORY_FK_TO_COM_TASK,
+                    IDC_ISSUE_HISTORY_FK_TO_COM_SESSION);
             table.addAuditColumns();
         }
     },
@@ -48,7 +49,8 @@ public enum TableSpecs {
                     // Foreign keys
                     IDC_ISSUE_OPEN_FK_TO_ISSUE,
                     IDC_ISSUE_OPEN_FK_TO_CONNECTION_TASK,
-                    IDC_ISSUE_OPEN_FK_TO_COM_TASK);
+                    IDC_ISSUE_OPEN_FK_TO_COM_TASK,
+                    IDC_ISSUE_OPEN_FK_TO_COM_SESSION);
             table.addAuditColumns();
         }
     },
@@ -64,7 +66,8 @@ public enum TableSpecs {
                     // Foreign keys
                     IDC_ISSUE_FK_TO_ISSUE,
                     IDC_ISSUE_FK_TO_CONNECTION_TASK,
-                    IDC_ISSUE_FK_TO_COM_TASK);
+                    IDC_ISSUE_FK_TO_COM_TASK,
+                    IDC_ISSUE_FK_TO_COM_SESSION);
             table.addAuditColumns();
         }
     }
@@ -73,12 +76,13 @@ public enum TableSpecs {
 	public abstract void addTo(DataModel dataModel);
 
     private static class TableBuilder{
-        private static final int EXPECTED_FK_KEYS_LENGTH = 3;
+        private static final int EXPECTED_FK_KEYS_LENGTH = 4;
 
         static void buildIssueTable(Table table, Column idColumn, String issueTable, String pkKey, String... fkKeys){
             Column issueColRef = table.column(IDC_BASE_ISSUE).type("number").conversion(NUMBER2LONG).notNull().add();
             Column connectionTaskColRef = table.column(IDC_CONNECTION_TASK).type("number").conversion(NUMBER2LONG).add();
             Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).type("number").conversion(NUMBER2LONG).add();
+            Column comSessionColRef = table.column(IDC_COM_SESSION).type("number").conversion(NUMBER2LONG).add();
             table.column(IDC_DEVICE_NUMBER).varChar(NAME_LENGTH).map("deviceSerialNumber").add();
 
             table.primaryKey(pkKey).on(idColumn).add();
@@ -89,6 +93,7 @@ public enum TableSpecs {
             table.foreignKey(fkKeysIter.next()).map("baseIssue").on(issueColRef).references(IssueService.COMPONENT_NAME, issueTable).add();
             table.foreignKey(fkKeysIter.next()).map("connectionTask").on(connectionTaskColRef).references(DeviceDataServices.COMPONENT_NAME, "DDC_CONNECTIONTASK").add();
             table.foreignKey(fkKeysIter.next()).map("comTask").on(comTaskColRef).references(DeviceDataServices.COMPONENT_NAME, "DDC_COMTASKEXEC").add();
+            table.foreignKey(fkKeysIter.next()).map("comSession").on(comSessionColRef).references(DeviceDataServices.COMPONENT_NAME, "DDC_COMSESSION").add();
         }
     }
 }

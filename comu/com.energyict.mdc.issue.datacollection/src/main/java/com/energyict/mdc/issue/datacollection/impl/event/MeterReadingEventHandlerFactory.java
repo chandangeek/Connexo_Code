@@ -30,7 +30,7 @@ public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new MeterReadingEventHandler(jsonService, issueService, issueCreationService, meteringService, clock, thesaurus);
+        return new MeterReadingEventHandler(jsonService, issueService, issueCreationService, meteringService, clock);
     }
 
     @Reference

@@ -2,7 +2,6 @@ package com.energyict.mdc.issue.datacollection.impl.records;
 
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -15,8 +14,8 @@ public class OpenIssueDataCollectionImpl extends IssueDataCollectionImpl impleme
     private Reference<OpenIssue> baseIssue = ValueReference.absent();
 
     @Inject
-    public OpenIssueDataCollectionImpl(DataModel dataModel, IssueService issueService) {
-        super(dataModel, issueService);
+    public OpenIssueDataCollectionImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     @Override

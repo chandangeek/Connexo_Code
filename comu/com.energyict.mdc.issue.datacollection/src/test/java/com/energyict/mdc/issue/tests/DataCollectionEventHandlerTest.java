@@ -18,10 +18,12 @@ import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
+
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +41,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testSuccessfullProcess() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         MessageHandler handler = getDataCollectionEventHandler(getMockIssueCreationService());
@@ -57,6 +60,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testUnmappedEvent() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/unknown/EVENT");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         MessageHandler handler = getDataCollectionEventHandler(getMockIssueCreationService());
@@ -72,6 +76,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testEventMappingConnectionLost() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
@@ -85,6 +90,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testEventSplittingConnectionLost() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1, 10, 47");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
@@ -98,6 +104,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testEventMappingDeviceCommunicationFailed() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
@@ -111,6 +118,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testEventSplittingDeviceCommunicationFailed() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1, 17, 56, 57");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
@@ -124,6 +132,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testEventSplittingSeveralEvents() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "2,41,");
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, " 1 , 17 ,  , 56 ");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
@@ -138,6 +147,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testEventMappingUnableToConnect() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/FAILURE");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnableToConnectEvent.class);
@@ -149,6 +159,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testEventMappingUnknownInboundDevice() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownDeviceEvent.class);
@@ -160,7 +171,9 @@ public class DataCollectionEventHandlerTest extends BaseTest {
     public void testEventMappingUnknownOutboundDevice() {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownDeviceEvent.class);
         getDataCollectionEventHandler(mock).process(message);

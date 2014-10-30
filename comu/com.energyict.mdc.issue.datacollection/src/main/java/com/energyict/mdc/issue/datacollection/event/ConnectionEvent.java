@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
@@ -23,6 +24,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public abstract class ConnectionEvent extends DataCollectionEvent implements Cloneable {
     private Optional<ConnectionTask> connectionTask;
+    private Optional<ComSession> comSession;
     private final ConnectionTaskService connectionTaskService;
 
     public ConnectionEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
@@ -34,6 +36,10 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
         String connectionTaskIdAsStr = (String) rawEvent.get(ModuleConstants.CONNECTION_TASK_ID);
         if (!is(connectionTaskIdAsStr).emptyOrOnlyWhiteSpace()){
             setConnectionTask(Long.parseLong(connectionTaskIdAsStr.trim()));
+        }
+        String comSessionIdAsStr = (String) rawEvent.get(ModuleConstants.COM_SESSION_ID);
+        if (!is(comSessionIdAsStr).emptyOrOnlyWhiteSpace()){
+            setComSession(Long.parseLong(comSessionIdAsStr.trim()));
         }
     }
 
@@ -47,6 +53,7 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
         if (issue instanceof OpenIssueDataCollection){
             OpenIssueDataCollection dcIssue = (OpenIssueDataCollection) issue;
             dcIssue.setConnectionTask(getConnectionTask().get());
+            dcIssue.setComSession(getComSession().get());
         }
     }
 
@@ -57,16 +64,25 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
     protected Optional<ConnectionTask> getConnectionTask() {
         return this.connectionTask;
     }
+    
+    protected Optional<ComSession> getComSession() {
+        return comSession;
+    }
 
     protected void setConnectionTask(long connectionTaskId) {
         this.connectionTask = getConnectionTaskService().findConnectionTask(connectionTaskId);
         // TODO throw exception when we can't find the connection task
+    }
+    
+    protected void setComSession(long comSessionId) {
+        this.comSession = getConnectionTaskService().findComSession(comSessionId);
     }
 
     @Override
     public ConnectionEvent clone() {
         ConnectionEvent clone = (ConnectionEvent) super.clone();
         clone.connectionTask = connectionTask;
+        clone.comSession = comSession;
         return clone;
     }
 }

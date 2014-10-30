@@ -22,10 +22,12 @@ import com.energyict.mdc.issue.datacollection.impl.templates.BasicDatacollection
 import com.energyict.mdc.issue.datacollection.impl.templates.params.AutoResolutionParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
 import com.google.inject.Injector;
+
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -178,6 +180,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, amrId.toString());
+        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         event.wrap(messageMap, DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE);
         return event;
     }

@@ -3,7 +3,6 @@ package com.energyict.mdc.issue.datacollection.impl.records;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -19,8 +18,8 @@ public class HistoricalIssueDataCollectionImpl extends IssueDataCollectionImpl i
     private Reference<HistoricalIssue> baseIssue = ValueReference.absent();
 
     @Inject
-    public HistoricalIssueDataCollectionImpl(DataModel dataModel, IssueService issueService) {
-        super(dataModel, issueService);
+    public HistoricalIssueDataCollectionImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     @Override

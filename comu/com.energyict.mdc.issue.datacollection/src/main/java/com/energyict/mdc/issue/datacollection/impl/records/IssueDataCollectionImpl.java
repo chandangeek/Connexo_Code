@@ -8,7 +8,6 @@ import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -17,12 +16,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+
 import java.time.Instant;
 import java.util.Optional;
 
@@ -33,14 +34,12 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     private Reference<Issue> baseIssue = ValueReference.absent();
     private Reference<ComTaskExecution> comTask = ValueReference.absent();
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
+    private Reference<ComSession> comSession = ValueReference.absent();
     private String deviceSerialNumber;
 
-    private final IssueService issueService;
-
     @Inject
-    public IssueDataCollectionImpl(DataModel dataModel, IssueService issueService) {
+    public IssueDataCollectionImpl(DataModel dataModel) {
         super(dataModel);
-        this.issueService = issueService;
     }
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -199,6 +198,16 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     public void setDeviceSerialNumber(String deviceSerialNumber) {
         this.deviceSerialNumber = deviceSerialNumber;
     }
+    
+    @Override
+    public Optional<ComSession> getComSession() {
+        return comSession.getOptional();
+    }
+    
+    @Override
+    public void setComSession(ComSession comSession) {
+        this.comSession.set(comSession);
+    }
 
     @Override
     public void save() {
@@ -215,6 +224,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
             setIssue(source.baseIssue.orNull());
             this.comTask.set(source.comTask.orNull());
             this.connectionTask.set(source.connectionTask.orNull());
+            this.comSession.set(source.comSession.orNull());
             this.deviceSerialNumber = source.deviceSerialNumber;
         }
         return this;
