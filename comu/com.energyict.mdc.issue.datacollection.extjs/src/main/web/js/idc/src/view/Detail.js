@@ -18,7 +18,8 @@ Ext.define('Idc.view.Detail', {
             },
             {
                 xtype: 'issue-detail-top',
-                itemId: 'data-collection-issue-detail-top'
+                itemId: 'data-collection-issue-detail-top',
+                router: me.router
             },
             {
                 xtype: 'data-collection-issue-detail-form',
