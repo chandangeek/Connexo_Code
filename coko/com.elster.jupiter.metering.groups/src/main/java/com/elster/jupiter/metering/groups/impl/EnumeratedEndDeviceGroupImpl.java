@@ -1,29 +1,33 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
 
@@ -240,6 +244,16 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
             .filter( member -> member.getRanges().contains(instant))
             .findFirst()
             .ifPresent(member -> member.removeRange(Range.atLeast(instant)));
+    }
+
+    @Override
+    public Subquery getAmrIdSubQuery() {
+        MeteringService service = dataModel.getInstance(MeteringService.class);
+        Query<EndDevice> endDeviceQuery = service.getEndDeviceQuery();
+
+        QueryExecutor<EntryImpl> query = dataModel.query(EntryImpl.class);
+        Subquery subQueryEndDeviceIdInGroup = query.asSubquery(Where.where("endDeviceGroup").isEqualTo(this), "endDeviceId");
+        return endDeviceQuery.asSubquery(ListOperator.IN.contains(subQueryEndDeviceIdInGroup, "id"), "amrId");
     }
 
     private EndDeviceMembershipImpl forEndDevice(EndDevice endDevice) {
