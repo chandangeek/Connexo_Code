@@ -55,7 +55,7 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId, CanGoOffline
      *
      * @return The attributes
      */
-    public List<DeviceMessageAttribute> getAttributes();
+    public List<DeviceMessageAttribute<?>> getAttributes();
 
     /**
      * Gets the {@link com.energyict.mdc.protocol.api.device.BaseDevice device} to which this DeviceMessage
