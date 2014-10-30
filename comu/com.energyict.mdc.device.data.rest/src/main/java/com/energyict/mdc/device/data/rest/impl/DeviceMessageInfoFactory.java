@@ -71,13 +71,7 @@ public class DeviceMessageInfoFactory {
             }
         }
 
-        Optional<ComTask> comTaskForDeviceMessage = ((Device) deviceMessage.getDevice()).getComTaskExecutions().stream().
-                sorted((cte1, cte2)->Boolean.valueOf(cte1.isOnHold()).compareTo(cte2.isOnHold())). // non-scheduled to the front of the list
-                flatMap(cte -> cte.getComTasks().stream()).
-                filter(comTask -> comTask.getProtocolTasks().stream().
-                        filter(task -> task instanceof MessagesTask).
-                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).findFirst();
+        Optional<ComTask> comTaskForDeviceMessage = getSomeComTaskThatExecutesDeviceMessage(deviceMessage);
         if (comTaskForDeviceMessage.isPresent()) {
             info.executingComTask = new IdWithNameInfo(comTaskForDeviceMessage.get());
         }
@@ -93,5 +87,15 @@ public class DeviceMessageInfoFactory {
 
 
         return info;
+    }
+
+    private Optional<ComTask> getSomeComTaskThatExecutesDeviceMessage(DeviceMessage<?> deviceMessage) {
+        return ((Device) deviceMessage.getDevice()).getComTaskExecutions().stream().
+                    sorted((cte1, cte2)->Boolean.valueOf(cte1.isOnHold()).compareTo(cte2.isOnHold())). // non-scheduled to the front of the list
+                    flatMap(cte -> cte.getComTasks().stream()).
+                    filter(comTask -> comTask.getProtocolTasks().stream().
+                            filter(task -> task instanceof MessagesTask).
+                            flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
+                            anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).findFirst();
     }
 }

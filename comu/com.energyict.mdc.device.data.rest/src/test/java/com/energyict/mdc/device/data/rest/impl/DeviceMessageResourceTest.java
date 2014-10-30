@@ -386,9 +386,9 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testCreateDeviceMessage() throws Exception {
-        DeviceMessage<Device> deviceMessage = mockDeviceMessage(1L);
 
         Device device = mock(Device.class);
+        DeviceMessage<Device> deviceMessage = mockDeviceMessage(1L, device);
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
         Device.DeviceMessageBuilder deviceMessageBuilder = mock(Device.DeviceMessageBuilder.class);
         when(deviceMessageBuilder.addProperty(anyString(), anyObject())).thenReturn(deviceMessageBuilder);
@@ -447,7 +447,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(msg1.getId()).thenReturn(1L);
         DeviceMessage msg2 = mock(DeviceMessage.class);
         when(msg2.getId()).thenReturn(2L);
-        DeviceMessage msg3 = mockDeviceMessage(3L);
+        DeviceMessage msg3 = mockDeviceMessage(3L, device);
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
 
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
@@ -463,7 +463,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         verify(msg3, times(1)).save();
     }
 
-    private DeviceMessage<Device> mockDeviceMessage(long id) {
+    private DeviceMessage<Device> mockDeviceMessage(long id, Device device) {
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
         when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
@@ -475,6 +475,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);
         when(deviceMessage.getSentDate()).thenReturn(Optional.empty());
         when(deviceMessage.getId()).thenReturn(id);
+        when(deviceMessage.getDevice()).thenReturn(device);
         User user = mock(User.class);
         when(user.getName()).thenReturn("username");
         when(deviceMessage.getUser()).thenReturn(user);
