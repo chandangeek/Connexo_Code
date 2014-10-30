@@ -31,6 +31,7 @@ public class DataExportTaskInfo {
     public ValidatedDataOption validatedDataOption = ValidatedDataOption.INCLUDE_ALL;
     public DeviceGroupInfo deviceGroupInfo;
     public LastExportOccurenceInfo lastExportOccurenceInfo;
+    public long nextRun;
 
 
     public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask) {
@@ -60,6 +61,7 @@ public class DataExportTaskInfo {
 
         //todo last occurence
         // lastExportOccurenceInfo = new LastExportOccurenceInfo(dataExportTask.getLastOccurence());
+        nextRun = dataExportTask.getNextExecution().toEpochMilli();
 
 
     }

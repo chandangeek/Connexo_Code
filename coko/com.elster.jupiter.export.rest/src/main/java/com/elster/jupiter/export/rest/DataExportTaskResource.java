@@ -199,6 +199,7 @@ public class DataExportTaskResource {
         dataExportTaskInfo.lastExportOccurenceInfo.duration = dataExportTaskInfo.lastExportOccurenceInfo.finishedOn - dataExportTaskInfo.lastExportOccurenceInfo.startedOn;
         dataExportTaskInfo.lastExportOccurenceInfo.status = DataExportStatus.SUCCESS;
 
+        dataExportTaskInfo.nextRun = Instant.now().plus(3, ChronoUnit.HOURS).toEpochMilli();
 
         infos.dataExportTasks.add(dataExportTaskInfo);
         infos.total = params.determineTotal(/*list.size()*/ 1);
