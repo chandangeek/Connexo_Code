@@ -221,12 +221,6 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
         this.releaseDate = releaseDate;
     }
 
-    @Override
-    public void setReleaseDate(Instant releaseDate) {
-        // TODO verify
-        this.releaseDate = releaseDate;
-    }
-
     public <T> void addProperty(String key, T value) {
         if(messageSpec.isPresent()){
             PropertySpec<T> propertySpec = messageSpec.get().getPropertySpec(key);

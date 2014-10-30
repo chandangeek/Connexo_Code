@@ -252,7 +252,7 @@ public class InMemoryIntegrationPersistence {
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-//        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
         when(this.principal.getName()).thenReturn(testName);
         this.applicationContext = mock(ApplicationContext.class);
         Translator translator = mock(Translator.class);
