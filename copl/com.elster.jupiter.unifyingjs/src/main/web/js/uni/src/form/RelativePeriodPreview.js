@@ -238,11 +238,12 @@ Ext.define('Uni.form.RelativePeriodPreview', {
         var me = this,
             date = me.getValue();
 
-        return {
+        var result = {
             date: date.getTime(),
             zoneOffset: date.getTimezoneOffset(),
             relativeDateInfo: periodValue
         };
+        return result;
     },
 
     getPreviewLabel: function () {

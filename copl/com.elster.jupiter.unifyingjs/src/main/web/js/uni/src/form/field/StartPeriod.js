@@ -148,7 +148,6 @@ Ext.define('Uni.form.field.StartPeriod', {
 
     initListeners: function () {
         var me = this;
-
         if (me.showOptionNow) {
             me.getOptionNowRadio().on('change', function (scope, newValue, oldValue) {
                 if (newValue) {
@@ -283,16 +282,18 @@ Ext.define('Uni.form.field.StartPeriod', {
         if (selectedValue === 'date') {
             var dateValue = me.getOptionDateContainer().down('datefield').getValue();
 
-            Ext.apply(result, {
+            var fixedDate = {
                 startFixedDay: dateValue.getDate(),
                 startFixedMonth: dateValue.getMonth() + 1,
                 startFixedYear: dateValue.getFullYear()
-            });
+            };
+            Ext.apply(result, fixedDate);
         } else if (selectedValue === 'ago') {
-            Ext.apply(result, {
+            var shiftDate = {
                 startAmountAgo: amountAgoValue,
                 startPeriodAgo: freqAgoValue
-            });
+            };
+            Ext.apply(result, shiftDate);
         }
 
         return result;
