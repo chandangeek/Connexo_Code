@@ -44,23 +44,15 @@ Ext.define('Uni.controller.history.EventBus', {
 
     onHistoryChange: function (token) {
         var queryStringIndex = token.indexOf('?');
-
-
-        var current = token;
         if (queryStringIndex > 0) {
-            current = current.substring(0, queryStringIndex);
+            token = token.substring(0, queryStringIndex);
         }
-
-        var previous = this.getCurrentPath();
 
         if (this.getCurrentPath() !== null) {
             this.setPreviousPath(this.getCurrentPath());
         }
         this.setCurrentPath(token);
 
-
-        if (current !== previous) {
-            crossroads.parse(token);
-        }
+        crossroads.parse(token);
     }
 });
