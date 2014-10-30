@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
@@ -22,9 +23,11 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -44,7 +47,9 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
         PROTOCOLINFO("protocolInfo"),
         CREATIONDATE("creationDate"),
         RELEASEDATE("releaseDate"),
-        SENTDATE("sentDate"),;
+        SENTDATE("sentDate"),
+        DEVICEMESSAGEATTRIBUTES("deviceMessageAttributes"),
+        ;
 
         private final String javaFieldName;
 
@@ -75,6 +80,9 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     private Instant sentDate;
     private String trackingId;
     private String protocolInfo;
+    private Optional<DeviceMessageSpec> messageSpec;
+    @Valid //TODO need to validate if all attributes are properly filled in ...
+    private List<DeviceMessageAttribute<?>> deviceMessageAttributes = new ArrayList<>();
 
     @Inject
     public DeviceMessageImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceMessageService deviceMessageService, Clock clock) {
@@ -90,6 +98,7 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
         this.user.set((User) this.threadPrincipalService.getPrincipal());
         this.creationDate = Instant.now();
         this.deviceMessageStatus = DeviceMessageStatus.WAITING;
+        this.messageSpec = this.deviceMessageService.findMessageSpecById(this.deviceMessageId.dbValue());
         return this;
     }
 
@@ -129,8 +138,8 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     }
 
     @Override
-    public List<DeviceMessageAttribute> getAttributes() {
-        return null;
+    public List<DeviceMessageAttribute<?>> getAttributes() {
+        return this.deviceMessageAttributes;
     }
 
     @Override
@@ -216,5 +225,16 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     public void setReleaseDate(Instant releaseDate) {
         // TODO verify
         this.releaseDate = releaseDate;
+    }
+
+    public <T> void addProperty(String key, T value) {
+        if(messageSpec.isPresent()){
+            PropertySpec<T> propertySpec = messageSpec.get().getPropertySpec(key);
+            if(propertySpec != null){
+                DeviceMessageAttributeImpl<T> deviceMessageAttribute = this.getDataModel().getInstance(DeviceMessageAttributeImpl.class).initialize(this, key);
+                deviceMessageAttribute.setValue(value);
+                deviceMessageAttributes.add(deviceMessageAttribute);
+            } // what do we do when we don't find it???
+        }
     }
 }

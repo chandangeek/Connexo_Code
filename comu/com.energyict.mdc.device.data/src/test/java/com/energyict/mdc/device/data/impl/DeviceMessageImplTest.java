@@ -6,6 +6,8 @@ import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import org.junit.Before;
@@ -13,8 +15,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -112,5 +117,78 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest{
         Device device = createSimpleDeviceWithName("createWithIncorrectDeviceMessageIdTest", "createWithIncorrectDeviceMessageIdTest");
         DeviceMessageId contactorClose = DeviceMessageId.FIRMWARE_UPGRADE_URL;
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+    }
+
+    @Test
+    @Transactional
+    public void simpleTestWithADeviceMessageAttribute() {
+        Instant myReleaseInstant = initializeClockWithCurrentAndReleaseInstant();
+
+        Device device = createSimpleDeviceWithName("simpleTestWithADeviceMessageAttribute", "simpleTestWithADeviceMessageAttribute");
+        DeviceMessageId contactorOpenWithOutput = DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT;
+        BigDecimal value = BigDecimal.valueOf(1);
+
+        device.newDeviceMessage(contactorOpenWithOutput)
+                .setReleaseDate(myReleaseInstant)
+                .addProperty(DeviceMessageConstants.digitalOutputAttributeName, value)
+                .add();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
+        assertThat(messages).hasSize(1);
+        DeviceMessage<Device> deviceMessage1 = messages.get(0);
+        assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorOpenWithOutput);
+        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
+        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
+        assertThat(deviceMessage1.getAttributes()).hasSize(1);
+        List<DeviceMessageAttribute<?>> attributes = deviceMessage1.getAttributes();
+        assertThat(attributes.get(0).getName()).isEqualTo(DeviceMessageConstants.digitalOutputAttributeName);
+        assertThat(attributes.get(0).getValue()).isEqualTo(value);
+    }
+
+    @Test
+    @Transactional
+    public void deviceMessageWithMultipleAttributesTest() {
+        Instant myReleaseInstant = initializeClockWithCurrentAndReleaseInstant();
+
+        Device device = createSimpleDeviceWithName("simpleTestWithADeviceMessageAttribute", "simpleTestWithADeviceMessageAttribute");
+        DeviceMessageId contactorClose = DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS;
+        String displayMessageAttributeName = "DisplayMessageAttributeName";
+        BigDecimal displayMessageTimeDurationAttributeName = BigDecimal.valueOf(123);
+        Date displayMessageActivationDate = Date.from(myReleaseInstant);
+
+        device.newDeviceMessage(contactorClose)
+                .setReleaseDate(myReleaseInstant)
+                .addProperty(DeviceMessageConstants.DisplayMessageAttributeName, displayMessageAttributeName)
+                .addProperty(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName, displayMessageTimeDurationAttributeName)
+                .addProperty(DeviceMessageConstants.DisplayMessageActivationDate, displayMessageActivationDate)
+                .add();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
+        assertThat(messages).hasSize(1);
+        DeviceMessage<Device> deviceMessage1 = messages.get(0);
+        assertThat(deviceMessage1.getAttributes()).hasSize(3);
+        List<DeviceMessageAttribute<?>> attributes = deviceMessage1.getAttributes();
+
+        Optional<DeviceMessageAttribute<?>> deviceMessageAttributeOptional1 =
+                attributes.stream()
+                        .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageAttributeName))
+                        .findFirst();
+        assertThat(deviceMessageAttributeOptional1.isPresent()).isTrue();
+        assertThat(deviceMessageAttributeOptional1.get().getValue()).isEqualTo(displayMessageAttributeName);
+
+        Optional<DeviceMessageAttribute<?>> deviceMessageAttributeOptional2 =
+                attributes.stream()
+                        .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName))
+                        .findFirst();
+        assertThat(deviceMessageAttributeOptional2.isPresent()).isTrue();
+        assertThat(deviceMessageAttributeOptional2.get().getValue()).isEqualTo(displayMessageTimeDurationAttributeName);
+
+
+        //todo validate the other attributes
+
     }
 }

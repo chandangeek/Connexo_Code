@@ -13,6 +13,7 @@ import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.device.messages.DisplayDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -95,7 +96,10 @@ public abstract class PersistenceIntegrationTest {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
                 DeviceMessageId.CONTACTOR_OPEN,
-                DeviceMessageId.CONTACTOR_ARM);
+                DeviceMessageId.CONTACTOR_ARM,
+                DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT,
+                DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE,
+                DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;

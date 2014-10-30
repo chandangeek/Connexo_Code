@@ -452,7 +452,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     interface DeviceMessageBuilder {
 
         /**
-         * Add a key/value-Pair which will result in a DeviceMessageAttribute
+         * Add a key/value-Pair which will result in a DeviceMessageAttribute.
+         * If you try to add the same key twice, then the first one will be overwritten.
          *
          * @param key   the key of the attribute
          * @param value the value of the attribute

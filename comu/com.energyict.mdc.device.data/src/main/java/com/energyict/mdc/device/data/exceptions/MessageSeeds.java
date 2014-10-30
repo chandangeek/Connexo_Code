@@ -83,6 +83,7 @@ public enum MessageSeeds implements MessageSeed {
     CREATE_DATE_IS_REQUIRED(2052, Keys.CREATE_DATE_IS_REQUIRED, "The create date is required for a device message", Level.SEVERE),
     RELEASE_DATE_IS_REQUIRED(2053, Keys.RELEASE_DATE_IS_REQUIRED, "The release date is required for a device message", Level.SEVERE),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(2054, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The device message is not supported for the device", Level.SEVERE),
+    DEVICE_MESSAGE_IS_REQUIRED(2055, Keys.DEVICE_MESSAGE_IS_REQUIRED, "The device message is required for a device message attribute", Level.SEVERE),
     ;
 
     private final int number;
@@ -197,6 +198,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CREATE_DATE_IS_REQUIRED = "createDateIsRequired.deviceMessage";
         public static final String RELEASE_DATE_IS_REQUIRED = "releaseDateIsRequired.deviceMessage";
         public static final String DEVICE_MESSAGE_ID_NOT_SUPPORTED = "deviceMessageId.deviceMessage.device.notSupported";
+        public static final String DEVICE_MESSAGE_IS_REQUIRED = "deviceMessage.required.deviceMessageAttribute";
     }
 
 }

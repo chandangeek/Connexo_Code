@@ -1777,6 +1777,7 @@ public class DeviceImpl implements Device, CanLock {
 
         @Override
         public DeviceMessageBuilder addProperty(String key, Object value) {
+            this.deviceMessage.addProperty(key, value);
             return this;
         }
 

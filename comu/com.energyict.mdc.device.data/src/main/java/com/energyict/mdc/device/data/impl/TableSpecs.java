@@ -29,6 +29,7 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -583,6 +584,28 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
             table.foreignKey("FK_DDC_DEVMESSAGE_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("deviceMessages").add();
             table.foreignKey("FK_DDC_DEVMESSAGE_USR").on(user).references(UserService.COMPONENTNAME, "USR_USER").map("user").add();
+        }
+    },
+
+    DDC_DEVICEMESSAGEATTR{
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DeviceMessageAttribute> table = dataModel.addTable(name(), DeviceMessageAttribute.class);
+            table.map(DeviceMessageAttributeImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column deviceMessage = table.column("DEVICEMESSAGE").number().conversion(NUMBER2LONG).notNull().add();
+            Column name = table.column("NAME").varChar(NAME_LENGTH).map("name").notNull().add();
+            table.column("VALUE").varChar(DESCRIPTION_LENGTH).map("stringValue").notNull().add();
+
+            table.primaryKey("PK_DDC_DEVMESATTR").on(id).add();
+            table.foreignKey("FK_DDC_DEVMESATTR_DEV")
+                    .on(deviceMessage)
+                    .references(DDC_DEVICEMESSAGE.name())
+                    .map("deviceMessage")
+                    .composition()
+                    .reverseMap(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
+                    .add();
+            table.unique("UK_DDC_DEVMESATTR_NAME").on(deviceMessage, name).add();
         }
     }
     ;
