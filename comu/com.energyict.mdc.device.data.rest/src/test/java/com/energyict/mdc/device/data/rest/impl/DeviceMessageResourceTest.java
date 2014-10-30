@@ -378,10 +378,10 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<String>get("$.categories[0].name")).isEqualTo("Contactor");
         assertThat(jsonModel.<Integer>get("$.categories[0].id")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.categories[0].deviceMessageSpecs")).hasSize(2); // 2 device messages
-        assertThat(jsonModel.<List>get("$.categories[0].deviceMessageSpecs[0].propertySpecs")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].propertySpecs[0].key")).isEqualTo("ContactorDeviceMessage.digitalOutput");
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].propertySpecs[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
-        assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].propertySpecs[0].required")).isEqualTo(true);
+        assertThat(jsonModel.<List>get("$.categories[0].deviceMessageSpecs[0].properties")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].properties[0].key")).isEqualTo("ContactorDeviceMessage.digitalOutput");
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
+        assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].properties[0].required")).isEqualTo(true);
     }
 
     @Test

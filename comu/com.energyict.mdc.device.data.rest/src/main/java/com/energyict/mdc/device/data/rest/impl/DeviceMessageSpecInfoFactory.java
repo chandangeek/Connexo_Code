@@ -47,7 +47,7 @@ public class DeviceMessageSpecInfoFactory {
 
     public DeviceMessageSpecInfo asInfoWithMessagePropertySpecs(DeviceMessageSpec deviceMessageSpec, Device device) {
         DeviceMessageSpecInfo info = asInfo(deviceMessageSpec, device);
-        info.propertySpecs = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), TypedProperties.empty());
+        info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), TypedProperties.empty());
         return info;
     }
 

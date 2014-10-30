@@ -11,5 +11,5 @@ public class DeviceMessageSpecInfo {
     public String name;
     public boolean willBePickedUpByScheduledComTask;
     public boolean willBePickedUpByComTask;
-    public List<PropertyInfo> propertySpecs;
+    public List<PropertyInfo> properties;
 }
