@@ -47,12 +47,14 @@ Ext.define('Uni.view.container.ContentContainer', {
     extend: 'Ext.container.Container',
     alias: 'widget.contentcontainer',
     ui: 'contentcontainer',
+    overflowY: 'auto',
 
     requires: [
     ],
 
-    //baseCls: Uni.About.baseCssPrefix + 'content-container',
-    layout: 'border',
+    layout: {
+        type: 'hbox'
+    },
 
     /**
      * @cfg {Object/Ext.Component}
@@ -70,17 +72,17 @@ Ext.define('Uni.view.container.ContentContainer', {
 
     items: [
         {
-            region: 'west',
             xtype: 'container',
             itemId: 'westContainer',
+            overflowY: 'auto',
             cls: 'west'
         },
         {
-            region: 'center',
             xtype: 'container',
             itemId: 'centerContainer',
-            cls: 'center',
             overflowY: 'auto',
+            cls: 'center',
+            flex: 1,
             layout: {
                 type: 'vbox',
                 align: 'stretch'

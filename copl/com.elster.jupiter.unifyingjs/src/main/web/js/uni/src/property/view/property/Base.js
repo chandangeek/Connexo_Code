@@ -33,6 +33,7 @@ Ext.define('Uni.property.view.property.Base', {
     ],
 
     isEdit: true,
+    isReadOnly: false,
     property: null,
     key: null,
 

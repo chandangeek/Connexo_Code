@@ -87,9 +87,9 @@ Ext.define('Uni.controller.Navigation', {
         }
 
         if (!Ext.isEmpty(text)) {
-            Ext.getDoc().dom.title = me.applicationTitle + ' '
+            Ext.getDoc().dom.title = text + ' '
                 + me.applicationTitleSeparator + ' '
-                + text;
+                + me.applicationTitle;
         } else {
             Ext.getDoc().dom.title = me.applicationTitle;
         }
@@ -237,6 +237,7 @@ Ext.define('Uni.controller.Navigation', {
         if (token) {
             token = token.indexOf(Uni.controller.history.Settings.tokenDelimiter) === 0 ? token.substring(1) : token;
             token = token.replace(/#\/|#/g, ''); // Regex to replace all '#' or '#/'.
+            token = token.slice(0, token.indexOf('?'));
             return token.split(Uni.controller.history.Settings.tokenDelimiter);
         } else {
             return [];

@@ -16,7 +16,8 @@ Ext.define('Uni.property.view.property.CodeTable', {
                 xtype: 'button',
                 text: '...',
                 scale: 'small',
-                action: 'showCodeTable'
+                action: 'showCodeTable',
+                disabled: me.isReadOnly
             }
         ];
     },

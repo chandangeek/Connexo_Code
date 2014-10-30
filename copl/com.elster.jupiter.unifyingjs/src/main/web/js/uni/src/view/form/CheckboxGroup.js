@@ -65,7 +65,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
             if (checkbox.getValue()) {
                 me.store.each(function (group) {
                     if (group.get(me.valueField) === checkbox.inputValue) {
-                        groups.push(group.raw);
+                        groups.push(group.getId());
                     }
                 });
             }
