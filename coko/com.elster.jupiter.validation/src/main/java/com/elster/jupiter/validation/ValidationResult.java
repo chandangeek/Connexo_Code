@@ -6,8 +6,6 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import java.util.Collection;
 import java.util.EnumSet;
 
-import oracle.net.aso.q;
-
 public enum ValidationResult {
 
     VALID, SUSPECT, NOT_VALIDATED;

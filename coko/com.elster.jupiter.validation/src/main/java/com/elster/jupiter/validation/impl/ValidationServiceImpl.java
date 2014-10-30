@@ -1,14 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
 import static com.elster.jupiter.util.conditions.Where.where;
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsFirst;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,7 +51,6 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 
@@ -182,12 +178,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
                 meterValidation.get().setActivationStatus(true);
                 meterValidation.get().save();
                 meter.getCurrentMeterActivation()
-                	.map(this::meterActivationValidationsFor)
+                	.map(this::updatedMeterActivationValidationsFor)
                 	.ifPresent(MeterActivationValidationContainer::activate);
             } // else already active
         } else {
             createMeterValidation(meter, true);
-            meter.getCurrentMeterActivation().ifPresent(this::meterActivationValidationsFor);
+            meter.getCurrentMeterActivation().ifPresent(this::updatedMeterActivationValidationsFor);
         }
     }
 
@@ -218,29 +214,29 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public void updateLastChecked(MeterActivation meterActivation, Instant date) {
-        meterActivationValidationsFor(meterActivation).updateActiveLastChecked(Objects.requireNonNull(date));       
+        updatedMeterActivationValidationsFor(meterActivation).updateLastChecked(Objects.requireNonNull(date));       
     }
 
     @Override
     public void updateLastChecked(Channel channel, Instant date) {
-    	meterActivationValidationsFor(Objects.requireNonNull(channel).getMeterActivation())
-    		.updateActiveLastChecked(channel, Objects.requireNonNull(date));
+    	activeMeterActivationValidationsFor(Objects.requireNonNull(channel).getMeterActivation())
+    		.updateLastChecked(channel, Objects.requireNonNull(date));
      }
 
     
     @Override
     public boolean isValidationActive(Channel channel) {
-    	return meterActivationValidationsFor(Objects.requireNonNull(channel).getMeterActivation()).isValidationActive(channel);    		
+    	return activeMeterActivationValidationsFor(Objects.requireNonNull(channel).getMeterActivation()).isValidationActive(channel);    		
     }
 
     @Override
     public Optional<Instant> getLastChecked(MeterActivation meterActivation) {
-    	return meterActivationValidationsFor(Objects.requireNonNull(meterActivation)).getLastChecked();
+    	return activeMeterActivationValidationsFor(Objects.requireNonNull(meterActivation)).getLastChecked();
     }
 
     @Override
     public Optional<Instant> getLastChecked(Channel channel) {
-    	return meterActivationValidationsFor(Objects.requireNonNull(channel).getMeterActivation()).getLastChecked(channel);    	
+    	return activeMeterActivationValidationsFor(Objects.requireNonNull(channel).getMeterActivation()).getLastChecked(channel);    	
     }
 
     @Override
@@ -273,22 +269,20 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override 
     public void validate(MeterActivation meterActivation) {
-    	throw new UnsupportedOperationException();
+    	if (isValidationActive(meterActivation)) {
+    		updatedMeterActivationValidationsFor(meterActivation).validate();
+    	}
     }
     
     @Override
+    @Deprecated
     public void validate(MeterActivation meterActivation, Range<Instant> interval) {
-        if (isValidationActive(meterActivation)) {
-            List<IMeterActivationValidation> meterActivationValidations = getUpdatedMeterActivationValidations(meterActivation);
-            meterActivationValidations.stream()
-                    .filter(MeterActivationValidation::isActive)
-                    .forEach(m -> m.validate(interval));
-        }
+    	validate(meterActivation);
     }
 
     public void validate(MeterActivation meterActivation, Instant instant) {
-    	MeterActivationValidationContainer container = meterActivationValidationsFor(meterActivation);
-    	container.updateAllLastChecked(instant);
+    	MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
+    	container.updateLastCheckedIfEarlier(instant);
     	if (isValidationActive(meterActivation)) {
     		container.validate();
     	}
@@ -330,7 +324,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         return returnList;
     }
     
-    MeterActivationValidationContainer meterActivationValidationsFor(MeterActivation meterActivation) {
+    MeterActivationValidationContainer activeMeterActivationValidationsFor(MeterActivation meterActivation) {
+    	return MeterActivationValidationContainer.of(getActiveIMeterActivationValidations(meterActivation));
+    }
+    
+    MeterActivationValidationContainer updatedMeterActivationValidationsFor(MeterActivation meterActivation) {
     	return MeterActivationValidationContainer.of(getUpdatedMeterActivationValidations(meterActivation));
     }
 
@@ -376,10 +374,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     Query<IValidationRule> getAllValidationRuleQuery() {
         return queryService.wrap(dataModel.query(IValidationRule.class));
-    }
-   
-    List<IMeterActivationValidation> getMeterActivationValidations(Channel channel) {
-    	return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class).select(where("channelValidations.channel").isEqualTo(channel));
     }
 
     List<ChannelValidation> getChannelValidations(Channel channel) {

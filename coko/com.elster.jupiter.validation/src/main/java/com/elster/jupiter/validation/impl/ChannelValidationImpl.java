@@ -115,7 +115,8 @@ final class ChannelValidationImpl implements IChannelValidation {
     	return readingQuality.hasReasonabilityCategory() || readingQuality.hasValidationCategory(); 
     }
     
-    void validate() {
+    @Override
+    public void validate() {
     	Instant end = channel.get().getLastDateTime();
     	if (end == null) {
     		return;
@@ -123,6 +124,9 @@ final class ChannelValidationImpl implements IChannelValidation {
     	Instant start = lastChecked;
     	if (start == null) {
     		start = channel.get().getMeterActivation().getStart();
+    	}
+    	if (start.isAfter(end)) {
+    		return;
     	}
     	Range<Instant> intervalToValidate = channel.get().isRegular() ? Range.openClosed(start, end) : Range.closed(start,end);
         Instant newLastChecked = null;

@@ -1,19 +1,16 @@
 package com.elster.jupiter.validation.impl;
 
 import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsFirst;
 
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.validation.ChannelValidation;
-import com.google.common.collect.Ordering;
 
 public class MeterActivationValidationContainer {
 	
@@ -31,20 +28,27 @@ public class MeterActivationValidationContainer {
 		meterActivationValidations.forEach(IMeterActivationValidation::validate);
 	}
 	
-	void updateAllLastChecked(Instant instant) {
-		meterActivationValidations.forEach(meterActivationValidation -> updateLastChecked(meterActivationValidation, instant));
+	void updateLastCheckedIfEarlier(Instant instant) {
+		meterActivationValidations.forEach(meterActivationValidation -> updateLastCheckedIfEarlier(meterActivationValidation, instant));
 	}
 	
-	void updateActiveLastChecked(Instant instant) {
+	void updateLastChecked(Instant instant) {
 		meterActivationValidations.stream()
 			.filter(IMeterActivationValidation::isActive)
 			.forEach(meterActivationValidation -> updateLastChecked(meterActivationValidation, instant));
 	}
 
-	private void updateLastChecked(IMeterActivationValidation meterActivationValidation, Instant instant) {
+	private void updateLastCheckedIfEarlier(IMeterActivationValidation meterActivationValidation, Instant instant) {
 		meterActivationValidation.getChannelValidations().stream()
         	.filter(c -> isBefore(instant, c.getLastChecked()))
             .map(IChannelValidation.class::cast)
+            .forEach(c -> c.updateLastChecked(instant));
+		meterActivationValidation.save();
+	}
+	
+	private void updateLastChecked(IMeterActivationValidation meterActivationValidation, Instant instant) {
+		meterActivationValidation.getChannelValidations().stream()
+        	.map(IChannelValidation.class::cast)
             .forEach(c -> c.updateLastChecked(instant));
 		meterActivationValidation.save();
 	}
@@ -60,27 +64,12 @@ public class MeterActivationValidationContainer {
 	    	return mayBeNull == null ? false : instant.isBefore(mayBeNull);
 	}
 	
-    void updateActiveLastChecked(Channel channel, Instant date) {
-        meterActivationValidations.stream()
-    		.filter(IMeterActivationValidation::isActive)
-    		.map(m -> m.getChannelValidation(channel))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .filter(ChannelValidation::hasActiveRules)
-            .map(ChannelValidationImpl.class::cast)
-            .forEach(cv -> {
-                cv.updateLastChecked(date);
-                cv.getMeterActivationValidation().save();
-            });
+    void updateLastChecked(Channel channel, Instant date) {
+        channelValidationsFor(channel).updateLastChecked(date);
     }
     
     boolean isValidationActive(Channel channel) {
-    	return meterActivationValidations.stream()
-			.filter(IMeterActivationValidation::isActive)
-            .map(m -> m.getChannelValidation(channel))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .anyMatch(ChannelValidation::hasActiveRules);
+    	return channelValidationsFor(channel).isValidationActive();
     }
     
     Optional<Instant> getLastChecked() {
@@ -93,15 +82,29 @@ public class MeterActivationValidationContainer {
     }
 
     Optional<Instant> getLastChecked(Channel channel) {
-    	return meterActivationValidations.stream()
-    		.filter(IMeterActivationValidation::isActive)
-            .map(m -> m.getChannelValidation(channel))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(ChannelValidation::getLastChecked)
-            .filter(Objects::nonNull)
-            .min(naturalOrder());
+    	return channelValidationsFor(channel).getLastChecked();
+    }
+    
+    boolean isAllDataValidated() {
+    	return meterActivationValidations.stream().allMatch(IMeterActivationValidation::isAllDataValidated);
+    }
+    
+    @Deprecated
+    Stream<IMeterActivationValidation> stream() {
+    	return meterActivationValidations.stream();
     }
 
+    private ChannelValidationContainer channelValidationsFor(Channel channel) {
+    	return ChannelValidationContainer.of(getChannelValidations(channel));
+    }
+    
+    private List<IChannelValidation> getChannelValidations(Channel channel) {
+    	return meterActivationValidations.stream()
+    		.map(meterActivation -> meterActivation.getChannelValidation(channel))
+    		.filter(Optional::isPresent)
+    		.map(Optional::get)
+    		.map(IChannelValidation.class::cast)
+    		.collect(Collectors.toList());
+    }
 }
 	

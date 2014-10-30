@@ -3,7 +3,6 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -131,23 +130,13 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     @Override
-    public void validate(Range<Instant> interval) {
-        if (!isActive()) {
-            return;
-        }
-        getMeterActivation().getChannels().forEach(c -> validateChannel(c, interval));
-        lastRun = Instant.now(clock);
-        save();
-    }
-
-    @Override
     public void validate(Range<Instant> interval, String readingTypeCode) {
         if (!isActive()) {
             return;
         }
         getMeterActivation().getChannels().stream()
                 .filter(c -> c.getReadingTypes().stream().map(ReadingType::getMRID).anyMatch(readingTypeCode::equals))
-                .forEach(c -> validateChannel(c, interval));
+                .forEach(c -> validateChannel(c));
         save();
     }
 
@@ -165,33 +154,6 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         }    	
     }
     
-    // given interval is interpreted as consumption interval for cumulative
-    private void validateChannel(Channel channel, Range<Instant> interval) {
-        Instant earliestLastChecked = null;
-        List<IValidationRule> activeRules = getActiveRules();
-        if (hasApplicableRules(channel, activeRules)) {
-            ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
-            Range<Instant> intervalToValidate = intervalToValidate(channelValidation, interval); // this interval is to be interpreted closed-closed
-            Instant lastChecked = null;
-            for (IValidationRule validationRule : activeRules) {
-                lastChecked = validationRule.validateChannel(channel, intervalToValidate);
-                if (lastChecked != null) {
-                    earliestLastChecked = getEarliestDate(earliestLastChecked, lastChecked);
-                }
-            }
-
-            if (earliestLastChecked != null) {
-                channelValidation.updateLastChecked(earliestLastChecked);
-            }
-            channelValidation.setActiveRules(true);
-        } else {
-            ChannelValidationImpl channelValidation = findValidationFor(channel);
-            if (channelValidation != null) {
-                channelValidation.setActiveRules(false);
-            }
-        }
-    }
-
     private Range<Instant> intervalToValidate(ChannelValidationImpl channelValidation, Range<Instant> interval) {
         Range<Instant> maxScope = channelValidation.getMeterActivationValidation().getMeterActivation().getRange();
         if (!does(maxScope).overlap(interval)) {

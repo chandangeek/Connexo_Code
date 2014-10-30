@@ -79,7 +79,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     }
     
     private void handleDeleteEvent(Channel.ReadingsDeletedEvent deleteEvent) {
-    	((ValidationServiceImpl) validationService).getMeterActivationValidations(deleteEvent.getChannel())
+    	((ValidationServiceImpl) validationService).getUpdatedMeterActivationValidations(deleteEvent.getChannel().getMeterActivation())
     		.forEach(meterActivationValidation -> handle(meterActivationValidation, deleteEvent));
     }
     
@@ -94,7 +94,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     		Instant newLastChecked = deleteEvent.getChannel().getReadingsBefore(first, 1).stream().findFirst().map(BaseReading::getTimeStamp).orElse(null);
     		((IChannelValidation) channelValidation).updateLastChecked(newLastChecked);
     		meterActivationValidation.save();
-    		validationService.validate(deleteEvent.getChannel().getMeterActivation(), Range.greaterThan(newLastChecked));
+    		validationService.validate(deleteEvent.getChannel().getMeterActivation());
     	}
     }
 }

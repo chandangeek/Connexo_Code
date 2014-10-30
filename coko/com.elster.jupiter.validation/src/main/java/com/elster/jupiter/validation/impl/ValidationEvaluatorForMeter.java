@@ -18,6 +18,7 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
@@ -50,7 +51,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
     private final Range<Instant> interval;
     private final ValidationServiceImpl validationService;
 
-    private Multimap<Long, IMeterActivationValidation> mapToValidation;
+    private Map<Long, MeterActivationValidationContainer> mapToValidation;
     private Multimap<Instant, ReadingQualityRecord> readingQualities;
     private Multimap<Long, ChannelValidation> mapChannelToValidation;
     private Multimap<String, IValidationRule> mapQualityToRule;
@@ -66,8 +67,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
 
     @Override
     public boolean isAllDataValidated(MeterActivation meterActivation) {
-        return getMapToValidation().get(meterActivation.getId()).stream()
-                .allMatch(IMeterActivationValidation::isAllDataValidated);
+        return getMapToValidation().get(meterActivation.getId()).isAllDataValidated();               
     }
 
     @Override
@@ -156,11 +156,11 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
         return readingQualityMapBuilder.build();
     }
 
-    private ImmutableMultimap<Long, IMeterActivationValidation> initMeterActivationMap(ValidationServiceImpl validationService, Meter meter) {
-        ImmutableMultimap.Builder<Long, IMeterActivationValidation> validationMapBuilder = ImmutableMultimap.builder();
+    private ImmutableMap<Long, MeterActivationValidationContainer> initMeterActivationMap(ValidationServiceImpl validationService, Meter meter) {
+        ImmutableMap.Builder<Long, MeterActivationValidationContainer> validationMapBuilder = ImmutableMap.builder();
         for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            List<IMeterActivationValidation> meterActivationValidations = ((ValidationServiceImpl) validationService).getUpdatedMeterActivationValidations(meterActivation);
-            validationMapBuilder.putAll(meterActivation.getId(), meterActivationValidations);
+            MeterActivationValidationContainer container = ((ValidationServiceImpl) validationService).updatedMeterActivationValidationsFor(meterActivation);
+            validationMapBuilder.put(meterActivation.getId(), container);
         }
         return validationMapBuilder.build();
     }
@@ -241,7 +241,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
         return readingQualities;
     }
 
-    private Multimap<Long, IMeterActivationValidation> getMapToValidation() {
+    private Map<Long, MeterActivationValidationContainer> getMapToValidation() {
         if (mapToValidation == null) {
             mapToValidation = initMeterActivationMap(validationService, meter);
         }
