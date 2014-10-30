@@ -11,6 +11,6 @@ import com.energyict.mdc.common.ApplicationComponent;
  */
 public interface BaseDeviceMessageFactory {
 
-    public DeviceMessage findDeviceMessage(int messageId);
+    public DeviceMessage findDeviceMessage(long messageId);
 
 }
