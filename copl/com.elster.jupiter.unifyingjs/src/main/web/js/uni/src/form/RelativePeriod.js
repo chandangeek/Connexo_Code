@@ -135,8 +135,12 @@ Ext.define('Uni.form.RelativePeriod', {
             success: function (response, data) {
                 var json = Ext.decode(response.responseText, true);
                 var dateLong = json.date;
+                var zoneOffset = json.zoneOffset;
                 if (typeof dateLong !== 'undefined') {
-                    dateString = Uni.I18n.formatDate('datetime.longdate', new Date(dateLong), 'UNI', 'l F j, Y \\a\\t H:i a');
+                    var startDate = new Date(dateLong);
+                    var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
+                    var zonedDate = new Date(startDateUtc - (60000*zoneOffset));
+                    dateString = Uni.I18n.formatDate('datetime.longdate', new Date(zonedDate), 'UNI', 'l F j, Y \\a\\t H:i a');
                     dateString = me.formatPreviewTextFn(dateString);
                 }
             },

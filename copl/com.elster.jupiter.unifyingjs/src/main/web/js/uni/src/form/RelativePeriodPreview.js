@@ -173,9 +173,12 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                 success: function (response, data) {
                     var json = Ext.decode(response.responseText, true);
                     var dateLong = json.date;
-
+                    var zoneOffset = json.zoneOffset;
                     if (typeof dateLong !== 'undefined') {
-                        me.startPeriodDate = new Date(dateLong);
+                        var startDate = new Date(dateLong);
+                        var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
+                        var zonedDate = new Date(startDateUtc - (60000*zoneOffset));
+                        me.startPeriodDate = new Date(zonedDate);
                     }
 
                     me.updatePreviewLabel(me.startPeriodDate, me.endPeriodDate);
@@ -192,8 +195,12 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                 success: function (response, data) {
                     var json = Ext.decode(response.responseText, true);
                     var dateLong = json.date;
+                    var zoneOffset = json.zoneOffset;
                     if (typeof dateLong !== 'undefined') {
-                        me.endPeriodDate = new Date(dateLong);
+                        var startDate = new Date(dateLong);
+                        var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
+                        var zonedDate = new Date(startDateUtc - (60000*zoneOffset));
+                        me.endPeriodDate = new Date(zonedDate);
                     }
 
                     me.updatePreviewLabel(me.startPeriodDate, me.endPeriodDate);
