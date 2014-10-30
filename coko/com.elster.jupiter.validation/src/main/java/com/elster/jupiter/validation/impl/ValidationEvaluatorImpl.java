@@ -86,7 +86,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
             ListMultimap<Instant, ReadingQualityRecord> readingQualities = getReadingQualities(channel, getInterval(readings));
             ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
             for (BaseReading reading : readings) {
-                List<ReadingQualityRecord> qualities = (readingQualities.containsKey(reading.getTimeStamp()) ? readingQualities.get(reading.getTimeStamp()) : new ArrayList<ReadingQualityRecord>());
+                List<ReadingQualityRecord> qualities = (readingQualities.containsKey(reading.getTimeStamp()) ? new ArrayList<>(readingQualities.get(reading.getTimeStamp())) : new ArrayList<ReadingQualityRecord>());
                 if (configured) {
                     if (wasValidated(lastChecked, reading.getTimeStamp())) {
                         qualities.add(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp()));

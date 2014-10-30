@@ -158,7 +158,7 @@ public class ValidationIT {
             public Void perform() {
                 MeteringService meteringService = injector.getInstance(MeteringService.class);
                 ReadingType readingType1 = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-                ReadingType readingType2 = meteringService.getReadingType("0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+                ReadingType readingType2 = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
                 ReadingType readingType3 = meteringService.getReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
                 Meter meter = amrSystem.newMeter("2331");
