@@ -1,6 +1,19 @@
-package com.elster.jupiter.issue.rest;
+package com.energyict.mdc.issue.issue.datacollection.rest;
 
-import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.ws.rs.core.Application;
+
+import org.mockito.Mock;
+
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
@@ -10,7 +23,6 @@ import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -18,137 +30,61 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueHelpService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
+import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 
-import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.ext.Provider;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
-import static org.mockito.Mockito.*;
-
-@Ignore("Mocks")
-public class Mocks extends JerseyTest {
-
-    protected static IssueService issueService;
-    protected static IssueCreationService issueCreationService;
-    protected static IssueAssignmentService issueAssignmentService;
-    protected static IssueActionService issueActionService;
-
-    protected static MeteringService meteringService;
-    protected static UserService userService;
-    protected static NlsService nlsService;
-    protected static Thesaurus thesaurus;
-    protected static TransactionService transactionService;
-    protected static RestQueryService restQueryService;
-    protected static SecurityContext securityContext;
-
-
-    @Provider
-    @Priority(Priorities.AUTHORIZATION)
-    private static class SecurityRequestFilter implements ContainerRequestFilter {
-        @Override
-        public void filter(ContainerRequestContext requestContext) throws IOException {
-            requestContext.setSecurityContext(securityContext);
-        }
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        issueService = mock(IssueService.class);
-        issueCreationService = mock(IssueCreationService.class);
-        issueAssignmentService = mock(IssueAssignmentService.class);
-        issueActionService = mock(IssueActionService.class);
-
-        meteringService = mock(MeteringService.class);
-        userService = mock(UserService.class);
-        nlsService = mock(NlsService.class);
-        thesaurus = mock(Thesaurus.class);
-        transactionService = mock(TransactionService.class);
-        restQueryService = mock(RestQueryService.class);
-        securityContext = mock(SecurityContext.class);
-
+    @Mock
+    RestQueryService restQueryService;
+    @Mock
+    UserService userService;
+    @Mock
+    IssueService issueService;
+    @Mock
+    IssueDataCollectionService issueDataCollectionService;
+    @Mock
+    IssueActionService issueActionService;
+    @Mock
+    MeteringService meteringService;
+    @Mock
+    DeviceService deviceService;
+    
+    @Override
+    protected Application getApplication() {
+        IssueDataCollectionApplication application = new IssueDataCollectionApplication();
+        application.setTransactionService(transactionService);
+        application.setRestQueryService(restQueryService);
+        application.setUserService(userService);
+        application.setIssueService(issueService);
+        application.setIssueDataCollectionService(issueDataCollectionService);
+        application.setIssueActionService(issueActionService);
+        application.setMeteringService(meteringService);
+        application.setNlsService(nlsService);
+        when(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
+        application.setDeviceService(deviceService);
+        return application;
     }
 
     @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        reset(issueService, issueCreationService, issueAssignmentService, issueActionService);
+    protected MessageSeed[] getMessageSeeds() {
+        return MessageSeeds.values();
     }
-
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(
-                IssueResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class,
-                CreationRuleOrActionValidationExceptionMapper.class,
-                SecurityRequestFilter.class);
-        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(issueService).to(IssueService.class);
-                bind(issueAssignmentService).to(IssueAssignmentService.class);
-                bind(issueCreationService).to(IssueCreationService.class);
-                bind(issueActionService).to(IssueActionService.class);
-
-                bind(userService).to(UserService.class);
-                bind(meteringService).to(MeteringService.class);
-                bind(nlsService).to(NlsService.class);
-                bind(thesaurus).to(Thesaurus.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(restQueryService).to(RestQueryService.class);
-
-                bind(mock(IssueHelpService.class)).to(IssueHelpService.class);
-                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-            }
-        });
-        return resourceConfig;
-    }
-
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class); // client side JSON processing
-        super.configureClient(config);
-    }
-
+    
     protected IssueStatus mockStatus(String key, String name, boolean isFinal) {
         IssueStatus status = mock(IssueStatus.class);
         when(status.isHistorical()).thenReturn(isFinal);
@@ -184,17 +120,21 @@ public class Mocks extends JerseyTest {
         return mockReason("1", "Reason", getDefaultIssueType());
     }
 
-    protected Meter mockMeter(long id, String mrid) {
+    protected Meter mockDevice(long id, String mrid) {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(id);
         when(meter.getMRID()).thenReturn(mrid);
+        when(meter.getAmrId()).thenReturn(String.valueOf(id));
         Optional<? extends MeterActivation> optionalMA = Optional.empty();
-        doReturn(optionalMA).when(meter.getCurrentMeterActivation());
+        doReturn(optionalMA).when(meter).getCurrentMeterActivation();
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(meter.getAmrSystem()).thenReturn(amrSystem);
+        when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
         return meter;
     }
 
-    protected Meter getDefaultMeter() {
-        return mockMeter(1, "0.0.0.0.0.0.0.0");
+    protected Meter getDefaultDevice() {
+        return mockDevice(1, "0.0.0.0.0.0.0.0");
     }
 
     protected IssueAssignee mockAssignee(long id, String name, String type) {
@@ -294,8 +234,8 @@ public class Mocks extends JerseyTest {
         return mockIssueActionType(1, "send", issueType);
     }
 
-    protected Issue getDefaultIssue() {
-        return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultMeter());
+    protected OpenIssueDataCollection getDefaultIssue() {
+        return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultDevice());
     }
 
     protected CreationRule mockCreationRule(long id, String name) {
@@ -322,8 +262,8 @@ public class Mocks extends JerseyTest {
         return mockCreationRule(1, "Rule 1");
     }
 
-    protected Issue mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
-        Issue issue = mock(Issue.class);
+    protected OpenIssueDataCollection mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
+        OpenIssueDataCollection issue = mock(OpenIssueDataCollection.class);
         when(issue.getId()).thenReturn(id);
         when(issue.getReason()).thenReturn(reason);
         when(issue.getStatus()).thenReturn(status);

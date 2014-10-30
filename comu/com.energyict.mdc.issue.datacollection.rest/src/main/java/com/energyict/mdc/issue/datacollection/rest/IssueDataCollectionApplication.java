@@ -17,22 +17,29 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
+import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 import com.google.common.collect.ImmutableSet;
+
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.rest", service = {Application.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/idc", "name=" + IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT})
-public class IssueDataCollectionApplication extends Application implements BinderProvider, InstallService, TranslationKeyProvider {
+public class IssueDataCollectionApplication extends Application implements InstallService, TranslationKeyProvider {
     public static final String ISSUE_DATACOLLECTION_REST_COMPONENT = "IDR";
 
     private volatile TransactionService transactionService;
@@ -44,25 +51,7 @@ public class IssueDataCollectionApplication extends Application implements Binde
     private volatile MeteringService meteringService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
-
-    @Override
-    public Binder getBinder() {
-        return new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(issueService).to(IssueService.class);
-                bind(issueActionService).to(IssueActionService.class);
-                bind(issueDataCollectionService).to(IssueDataCollectionService.class);
-                bind(userService).to(UserService.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(restQueryService).to(RestQueryService.class);
-                bind(meteringService).to(MeteringService.class);
-                bind(nlsService).to(NlsService.class);
-                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-                bind(thesaurus).to(Thesaurus.class);
-            }
-        };
-    }
+    private volatile DeviceService deviceService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -113,6 +102,11 @@ public class IssueDataCollectionApplication extends Application implements Binde
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST);
     }
+    
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
 
     @Override
     public void install() {
@@ -137,5 +131,32 @@ public class IssueDataCollectionApplication extends Application implements Binde
     @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(MessageSeeds.values());
+    }
+    
+    @Override
+    public Set<Object> getSingletons() {
+        Set<Object> hashSet = new HashSet<>();
+        hashSet.addAll(super.getSingletons());
+        hashSet.add(new HK2Binder());
+        return Collections.unmodifiableSet(hashSet);
+    }
+    
+    class HK2Binder extends AbstractBinder {
+
+        @Override
+        protected void configure() {
+            bind(issueService).to(IssueService.class);
+            bind(issueActionService).to(IssueActionService.class);
+            bind(issueDataCollectionService).to(IssueDataCollectionService.class);
+            bind(userService).to(UserService.class);
+            bind(transactionService).to(TransactionService.class);
+            bind(restQueryService).to(RestQueryService.class);
+            bind(meteringService).to(MeteringService.class);
+            bind(nlsService).to(NlsService.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(thesaurus).to(Thesaurus.class);
+            bind(deviceService).to(DeviceService.class);
+            bind(DataCollectionIssueInfoFactory.class).to(DataCollectionIssueInfoFactory.class);
+        }
     }
 }

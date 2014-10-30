@@ -4,13 +4,20 @@ import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 
-public class DataCollectionIssueInfo extends IssueInfo<DeviceInfo, IssueDataCollection> {
+public class DataCollectionIssueInfo<T extends DeviceInfo> extends IssueInfo<T, IssueDataCollection> {
 
-    public String deviceId;
+    //MDC device mRID
+    public String deviceMRID;
+    
+    //for view connection log
     public Long connectionTaskId;
     public Long comSessionId;
     
-    public DataCollectionIssueInfo(IssueDataCollection issue) {
-        super(issue);
+    //for view communication log
+    public Long comTaskId;
+    public Long comTaskSessionId;
+
+    public DataCollectionIssueInfo(IssueDataCollection issue, Class<T> deviceInfoClass){
+        super(issue, deviceInfoClass);
     }
 }

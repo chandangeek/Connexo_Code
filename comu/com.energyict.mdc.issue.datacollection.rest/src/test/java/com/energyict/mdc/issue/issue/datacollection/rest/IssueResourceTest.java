@@ -1,12 +1,33 @@
-package com.elster.jupiter.issue.rest;
+package com.energyict.mdc.issue.issue.datacollection.rest;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.FIELD;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.share.entity.AssigneeRole;
 import com.elster.jupiter.issue.share.entity.AssigneeTeam;
-import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -21,26 +42,10 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Matchers;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-@SuppressWarnings("unchecked")
-@Ignore
-public class IssueResourceTest extends Mocks {
+public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest {
 
     @Test
     public void testGetAllIssuesWithoutParameters() {
@@ -49,52 +54,46 @@ public class IssueResourceTest extends Mocks {
     }
 
     @Test
-    public void testGetAllIssuesWithoutIssueTypeParamter() {
-        Response response = target("/issue").queryParam(START, "0").queryParam(LIMIT, "10").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
     public void testGetAllIssuesWithoutStartParamter() {
-        Response response = target("/issue").queryParam(ISSUE_TYPE, "datacollection").queryParam(LIMIT, "10").request().get();
+        Response response = target("/issue").queryParam(LIMIT, "10").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void testGetAllIssuesWithoutLimitParamter() {
-        Response response = target("/issue").queryParam(ISSUE_TYPE, "datacollection").queryParam(START, "0").request().get();
+        Response response = target("/issue").queryParam(START, "0").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
-
 
     @Test
     public void testGetAllIssuesNominalCase() {
         Optional<IssueStatus> status = Optional.of(getDefaultStatus());
-        Query<IssueStatus> statusQuery = mock(Query.class);
-        when(statusQuery.get(1L)).thenReturn(status);
-        when(issueService.query(IssueStatus.class)).thenReturn(statusQuery);
+        when(issueService.findStatus("open")).thenReturn(status);
 
-        Query<Issue> issuesQuery = mock(Query.class);
-        when(issueService.query(Issue.class, EndDevice.class, User.class, IssueReason.class, IssueStatus.class, AssigneeRole.class, AssigneeTeam.class, IssueType.class))
+        Query<OpenIssueDataCollection> issuesQuery = mock(Query.class);
+        when(issueDataCollectionService.query(OpenIssueDataCollection.class, OpenIssue.class, EndDevice.class, User.class, IssueReason.class, IssueStatus.class, AssigneeRole.class, AssigneeTeam.class, IssueType.class))
                 .thenReturn(issuesQuery);
 
         Optional<IssueType> issueType = Optional.of(getDefaultIssueType());
         when(issueService.findIssueType("datacollection")).thenReturn(issueType);
 
-        List<Issue> issues = Arrays.asList(getDefaultIssue());
-        when(issuesQuery.select(Matchers.<Condition>anyObject(), Matchers.eq(1), Matchers.eq(1), Matchers.<Order>anyVararg())).thenReturn(issues);
+        List<OpenIssueDataCollection> issues = Arrays.asList(getDefaultIssue(), getDefaultIssue());
+        when(issuesQuery.select(Matchers.<Condition>anyObject(), Matchers.eq(1), Matchers.eq(2), Matchers.<Order>anyVararg())).thenReturn(issues);
 
-        Map<?, ?> map = target("/issue").queryParam(ISSUE_TYPE, "datacollection").queryParam(STATUS, "1").queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
+        Map<?, ?> map = target("/issue").queryParam(STATUS, "open").queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(2);
 
-        Map<?, ?> issueMap = (Map<?, ?>) ((List<?>) map.get("data")).get(0);
+        List<?> data = (List<?>) map.get("data");
+        assertThat(data).hasSize(1);
+        
+        Map<?, ?> issueMap = (Map<?, ?>) data.get(0);
         assertDefaultIssueMap(issueMap);
     }
 
     @Test
     public void testGetIssueById() {
-        Optional<Issue> issue = Optional.of(getDefaultIssue());
-        when(issueService.findIssue(1)).thenReturn(issue);
+        Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
+        when(issueDataCollectionService.findIssue(1)).thenReturn(issue);
 
         Map<?, ?> map = target("/issue/1").request().get(Map.class);
         Map<?, ?> issueMap = (Map<?, ?>) map.get("data");
@@ -103,9 +102,7 @@ public class IssueResourceTest extends Mocks {
 
     @Test
     public void testGetUnexistingIssueById() {
-        Optional<OpenIssue> issue = mock(Optional.class);
-        when(issue.isPresent()).thenReturn(false);
-        when(issueService.findOpenIssue(1)).thenReturn(issue);
+        when(issueDataCollectionService.findIssue(1)).thenReturn(Optional.empty());
 
         Response response = target("/issue/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -156,7 +153,17 @@ public class IssueResourceTest extends Mocks {
 
     @Test
     public void testCloseAction() {
-        Entity<CloseIssueRequest> json = Entity.json(new CloseIssueRequest());
+        CloseIssueRequest request = new CloseIssueRequest();
+        EntityReference issueRef = new EntityReference();
+        issueRef.setId(1L);
+        request.setIssues(Arrays.asList(issueRef));
+        request.setStatus("resolved");
+        IssueStatus status = mockStatus("resolved", "Resolved", true);
+        when(issueService.findStatus("resolved")).thenReturn(Optional.of(status));
+        OpenIssueDataCollection issueDataCollection = mock(OpenIssueDataCollection.class);
+        when(issueDataCollectionService.findOpenIssue(1L)).thenReturn(Optional.of(issueDataCollection));
+        
+        Entity<CloseIssueRequest> json = Entity.json(request);
         Response response = target("issue/close").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
@@ -170,8 +177,8 @@ public class IssueResourceTest extends Mocks {
 
     @Test
     public void testPerformAction() {
-        Optional<Issue> issue = Optional.of(getDefaultIssue());
-        when(issueService.findIssue(1)).thenReturn(issue);
+        Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
+        when(issueDataCollectionService.findIssue(1)).thenReturn(issue);
 
         Optional<IssueActionType> mockActionType = Optional.of(getDefaultIssueActionType());
         when(issueActionService.findActionType(1)).thenReturn(mockActionType);
@@ -179,15 +186,13 @@ public class IssueResourceTest extends Mocks {
         PerformActionRequest request = new PerformActionRequest();
         request.setId(1);
 
-        Response response = target("issue/1/action").request().put(Entity.json(request));
+        Response response = target("issue/1/actions/1").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
     public void testPerformActionOnUnexistingIssue() {
-        Optional<Issue> issue = mock(Optional.class);
-        when(issue.isPresent()).thenReturn(false);
-        when(issueService.findIssue(1123)).thenReturn(issue);
+        when(issueDataCollectionService.findIssue(1123)).thenReturn(Optional.empty());
 
         Response response = target("issue/1123/action").request().put(Entity.json(new PerformActionRequest()));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -195,12 +200,9 @@ public class IssueResourceTest extends Mocks {
 
     @Test
     public void testPerformUnexistingAction() {
-        Optional<Issue> issue = Optional.of(getDefaultIssue());
-        when(issueService.findIssue(1)).thenReturn(issue);
-
-        Optional<IssueActionType> mockActionType = mock(Optional.class);
-        when(mockActionType.isPresent()).thenReturn(false);
-        when(issueActionService.findActionType(1)).thenReturn(mockActionType);
+        Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
+        when(issueDataCollectionService.findIssue(1)).thenReturn(issue);
+        when(issueActionService.findActionType(1)).thenReturn(Optional.empty());
 
         PerformActionRequest request = new PerformActionRequest();
         request.setId(1);
