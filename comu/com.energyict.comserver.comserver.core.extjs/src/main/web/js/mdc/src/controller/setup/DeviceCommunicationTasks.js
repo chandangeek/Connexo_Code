@@ -161,7 +161,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 connectionMethodsOfDeviceStore.load({
                     callback: function () {
                         var nameOfDefaultConnectionMethod = Uni.I18n.translate('deviceCommunicationTask.notDefinedYey', 'MDC', 'Not defined yet');
-                        debugger;
                         Ext.each(connectionMethodsOfDeviceStore.data.items,function(value){
                             if(value.data.isDefault){
                                 nameOfDefaultConnectionMethod = value.data.name;
