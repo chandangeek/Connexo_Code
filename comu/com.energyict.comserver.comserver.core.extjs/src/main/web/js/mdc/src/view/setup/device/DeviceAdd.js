@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
     itemId: 'deviceAdd',
     requires: [
         'Mdc.store.AvailableDeviceTypes',
-        'Mdc.store.AvailableDeviceConfigurations'
+        'Mdc.store.AvailableDeviceConfigurations',
+        'Uni.util.Hydrator'
     ],
 
     content: [

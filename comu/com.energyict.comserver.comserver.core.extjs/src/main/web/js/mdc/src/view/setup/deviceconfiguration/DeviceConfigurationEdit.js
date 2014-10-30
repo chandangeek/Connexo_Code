@@ -36,6 +36,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                     {
                                         xtype: 'form',
                                         border: false,
+                                        width: 800,
                                         itemId: 'deviceConfigurationEditForm',
                                         layout: {
                                             type: 'vbox',
@@ -64,54 +65,126 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 itemId: 'editDeviceConfigurationDescriptionField'
                                             },
                                             {
-                                                xtype: 'checkbox',
-                                                inputValue: true,
-                                                uncheckedValue: 'false',
-                                                name: 'canBeGateway',
-                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.isGateway', 'MDC', 'Can act as gateway'),
-                                                itemId: 'gatewayCheckbox',
-                                                msgTarget: 'under'
-                                            },
-                                            {
                                                 xtype: 'fieldcontainer',
                                                 columnWidth: 0.5,
-                                                fieldLabel: ' ',
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
+                                                required: true,
                                                 layout: {
                                                     type: 'hbox'
                                                 },
-                                                hidden: true,
-                                                itemId: 'gatewayMessage',
                                                 items: [
                                                     {
-                                                        xtype: 'component',
-                                                        cls: 'x-form-display-field',
-                                                        html: '<span style="color: grey"><i>' + Uni.I18n.translate('deviceconfiguration.gatewayMessage', 'MDC', 'The device can not act as a gateway') + '</i>'
+                                                        xtype: 'radiogroup',
+                                                        itemId: 'directlyAddressableCombo',
+                                                        columns: 1,
+                                                        vertical: true,
+                                                        items: [
+                                                            {
+                                                                name: "isDirectlyAddressable",
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
+                                                                inputValue: true,
+                                                                checked: true
+                                                            },
+                                                            {
+                                                                name: "isDirectlyAddressable",
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
+                                                                inputValue: false,
+                                                                checked: false
+                                                            }
+                                                        ]
                                                     }
                                                 ]
                                             },
                                             {
-                                                xtype: 'checkbox',
-                                                inputValue: true,
-                                                uncheckedValue: 'false',
-                                                name: 'isDirectlyAddressable',
-                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
-                                                itemId: 'addressableCheckbox',
-                                                msgTarget: 'under'
+                                                xtype: 'fieldcontainer',
+                                                fieldLabel: ' ',
+                                                padding: '-12 0 15 0',
+                                                itemId: 'addressableMessage',
+                                                items: [
+                                                    {
+                                                        xtype: 'container',
+                                                        html: '<span style="color: grey;padding: 0 0 0 23px;">' + Uni.I18n.translate('deviceconfiguration.directlyAddressable.description', 'MDC', 'If a device is directly addressable, a connection can be made to this device') + '</span>'
+                                                    }
+                                                ]
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
                                                 columnWidth: 0.5,
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.deviceIsGateway', 'MDC', 'Device is a gateway'),
+                                                required: true,
+                                                layout: {
+                                                    type: 'hbox'
+                                                },
+                                                hidden: false,
+                                                items: [
+                                                    {
+                                                        xtype: 'radiogroup',
+                                                        itemId: 'deviceIsGatewayCombo',
+                                                        columns: 1,
+                                                        vertical: true,
+                                                        items: [
+                                                            {
+                                                                name: "canBeGateway",
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
+                                                                inputValue: true,
+                                                                checked: false
+                                                            },
+                                                            {
+                                                                name: "canBeGateway",
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
+                                                                inputValue: false,
+                                                                checked: true
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
                                                 fieldLabel: ' ',
+                                                padding: '-12 0 0 0',
+                                                itemId: 'gatewayMessage',
+                                                items: [
+                                                    {
+                                                        xtype: 'container',
+                                                        html: '<span style="color: grey;padding: 0 0 0 23px;">' + Uni.I18n.translate('deviceconfiguration.deviceIsGateway.description', 'MDC', 'Gateways can be used as a connection to slave devices') + '</span>'
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
+                                                columnWidth: 0.5,
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.typeOfGateway', 'MDC', 'Type of gateway'),
+                                                itemId: 'typeOfGatewayComboContainer',
+                                                padding: '15 0 0 0',
+                                                required: true,
                                                 layout: {
                                                     type: 'hbox'
                                                 },
                                                 hidden: true,
-                                                itemId: 'addressableMessage',
                                                 items: [
                                                     {
-                                                        xtype: 'component',
-                                                        cls: 'x-form-display-field',
-                                                        html: '<span style="color: grey"><i>' + Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', 'The device cannot be directly addressed') + '</i>'
+                                                        xtype: 'radiogroup',
+                                                        itemId: 'typeOfGatewayCombo',
+                                                        columns: 1,
+                                                        vertical: true,
+                                                        items: [
+                                                            {
+                                                                name: "gatewayType",
+                                                                boxLabel: '<b>' + Uni.I18n.translate('deviceconfiguration.HAN', 'MDC', 'HAN (Home Area Network)') + '</b>',
+                                                                afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('deviceconfiguration.HAN.description', 'MDC', 'Connects a small number of slave devices in a home environment') + '</span>',
+                                                                padding: '0 0 10 0',
+                                                                inputValue: 'HAN',
+                                                                checked: true
+                                                            },
+                                                            {
+                                                                name: "gatewayType",
+                                                                boxLabel: '<b>' + Uni.I18n.translate('deviceconfiguration.LAN', 'MDC', 'LAN (Local Area Network)') + '</b>',
+                                                                afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('deviceconfiguration.LAN.description', 'MDC', 'Connects a large number of slave devices in a local environment') + '</span>',
+                                                                inputValue: 'LAN',
+                                                                checked: false
+                                                            }
+                                                        ]
                                                     }
                                                 ]
                                             },
