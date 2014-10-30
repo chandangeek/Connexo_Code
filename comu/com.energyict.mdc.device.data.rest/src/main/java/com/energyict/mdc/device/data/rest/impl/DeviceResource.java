@@ -5,6 +5,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -164,7 +165,7 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{mRID}/messagecategories")
-    public List<DeviceMessageCategoryInfo> getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid) {
+    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
         Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
@@ -186,7 +187,8 @@ public class DeviceResource {
                 infos.add(info);
             }
         });
-        return infos;
+        List<DeviceMessageCategoryInfo> deviceMessageCategoryInfosInPage = ListPager.of(infos).from(queryParameters).find();
+        return PagedInfoList.asJson("categories", deviceMessageCategoryInfosInPage, queryParameters);
     }
 
     @Path("/{mRID}/connectionmethods")
@@ -234,7 +236,7 @@ public class DeviceResource {
         return deviceComTaskResourceProvider.get();
     }
 
-    @Path("/{mRID}/commands")
+    @Path("/{mRID}/devicemessages")
     public DeviceMessageResource getCommandResource() {
         return deviceCommandResourceProvider.get();
     }

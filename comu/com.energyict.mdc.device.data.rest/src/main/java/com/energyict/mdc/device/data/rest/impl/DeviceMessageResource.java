@@ -55,7 +55,7 @@ public class DeviceMessageResource {
                 map(deviceMessageInfoFactory::asInfo).
                 collect(toList());
 
-        return PagedInfoList.asJson("commands", infos, queryParameters);
+        return PagedInfoList.asJson("deviceMessages", infos, queryParameters);
     }
 
     @POST
