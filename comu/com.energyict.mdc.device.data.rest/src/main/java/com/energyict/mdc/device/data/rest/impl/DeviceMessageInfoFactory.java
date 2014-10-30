@@ -2,15 +2,18 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Optional;
 import javax.inject.Inject;
 
 import static java.util.stream.Collectors.toList;
@@ -68,6 +71,16 @@ public class DeviceMessageInfoFactory {
             }
         }
 
+        Optional<ComTask> comTaskForDeviceMessage = ((Device) deviceMessage.getDevice()).getComTaskExecutions().stream().
+                sorted((cte1, cte2)->Boolean.valueOf(cte1.isOnHold()).compareTo(cte2.isOnHold())). // non-scheduled to the front of the list
+                flatMap(cte -> cte.getComTasks().stream()).
+                filter(comTask -> comTask.getProtocolTasks().stream().
+                        filter(task -> task instanceof MessagesTask).
+                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
+                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).findFirst();
+        if (comTaskForDeviceMessage.isPresent()) {
+            info.executingComTask = new IdWithNameInfo(comTaskForDeviceMessage.get());
+        }
         info.properties = new ArrayList<>();
 
         TypedProperties typedProperties = TypedProperties.empty();

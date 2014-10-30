@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import java.time.Instant;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class DeviceMessageInfo {
     public Boolean willBePickedUpByComTask;
     public Boolean willBePickedUpByScheduledComTask;
     public List<PropertyInfo> properties;
+    public IdWithNameInfo executingComTask;
 
     public DeviceMessageInfo() {
     }
