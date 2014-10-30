@@ -139,7 +139,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     },
 
     addComportPool: function (allPressed, selection) {
-        debugger;
         var addStore = this.getStore('Mdc.store.AddComPortPools');
 
         if (allPressed) {
