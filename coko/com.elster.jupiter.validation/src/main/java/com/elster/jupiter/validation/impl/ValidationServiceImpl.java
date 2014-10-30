@@ -329,6 +329,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return getRuleSetQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
     }
 
+    @Override 
+    public void validate(MeterActivation meterActivation) {
+    	throw new UnsupportedOperationException();
+    }
+    
     @Override
     public void validate(MeterActivation meterActivation, Range<Instant> interval) {
         if (isValidationActive(meterActivation)) {
