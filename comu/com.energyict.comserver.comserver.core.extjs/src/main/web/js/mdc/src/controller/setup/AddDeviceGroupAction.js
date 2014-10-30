@@ -88,7 +88,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         }
     ],
 
-    //addDeviceGroupWidget: null,
+    addDeviceGroupWidget: null,
 
     init: function () {
         this.control({
@@ -180,7 +180,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     addDeviceGroupAndReturnToList: function() {
-        //this.addDeviceGroupWidget = null;
+        this.addDeviceGroupWidget = null;
         this.addDeviceGroup();
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('devices/devicegroups').forward();
@@ -244,17 +244,17 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     cancelClick: function () {
-        //this.addDeviceGroupWidget = null;
+        this.addDeviceGroupWidget = null;
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('devices/devicegroups').forward();
     },
 
     showAddDeviceGroupAction: function () {
-        //if (this.addDeviceGroupWidget == null) {
+        if (this.addDeviceGroupWidget == null) {
             this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
             this.getAddDeviceGroupSideFilter().setVisible(false);
             this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
-        //}
+        }
     },
 
 
