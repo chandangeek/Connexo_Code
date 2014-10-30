@@ -2,6 +2,7 @@ package com.elster.jupiter.export.rest;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
@@ -25,7 +26,6 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.Range;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -40,12 +40,12 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static com.elster.jupiter.time.RelativeField.*;
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/dataexporttask")
 public class DataExportTaskResource {
@@ -96,10 +96,12 @@ public class DataExportTaskResource {
 
         DataExportTaskInfos infos = new DataExportTaskInfos(/*params.clipToLimit(list)*/);
         infos.dataExportTasks = new ArrayList<>();
+
         DataExportTaskInfo dataExportTaskInfo = new DataExportTaskInfo();
         ReadingTypeInfo readingTypeInfo = new ReadingTypeInfo();
         readingTypeInfo.mRID = "1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18";
         dataExportTaskInfo.readingTypes.add(readingTypeInfo);
+
         PropertyInfo prop = new PropertyInfo();
         prop.key = "fileformat.prefix";
         prop.required = true;
@@ -185,6 +187,18 @@ public class DataExportTaskResource {
             }
         });
         dataExportTaskInfo.updatePeriod = dataExportTaskInfo.exportperiod;
+        dataExportTaskInfo.deviceGroupInfo = new DeviceGroupInfo();
+        dataExportTaskInfo.deviceGroupInfo.name = "My Device Group";
+        dataExportTaskInfo.deviceGroupInfo.id = 35;
+
+        dataExportTaskInfo.lastExportOccurenceInfo = new LastExportOccurenceInfo();
+        dataExportTaskInfo.lastExportOccurenceInfo.status = DataExportStatus.SUCCESS;
+        dataExportTaskInfo.lastExportOccurenceInfo.lastRun = Instant.now().minus(25, ChronoUnit.MINUTES).toEpochMilli();
+        dataExportTaskInfo.lastExportOccurenceInfo.startedOn = Instant.now().minus(50, ChronoUnit.MINUTES).toEpochMilli();
+        dataExportTaskInfo.lastExportOccurenceInfo.finishedOn = dataExportTaskInfo.lastExportOccurenceInfo.lastRun;
+        dataExportTaskInfo.lastExportOccurenceInfo.duration = dataExportTaskInfo.lastExportOccurenceInfo.finishedOn - dataExportTaskInfo.lastExportOccurenceInfo.startedOn;
+        dataExportTaskInfo.lastExportOccurenceInfo.status = DataExportStatus.SUCCESS;
+
 
         infos.dataExportTasks.add(dataExportTaskInfo);
         infos.total = params.determineTotal(/*list.size()*/ 1);
@@ -229,7 +243,7 @@ public class DataExportTaskResource {
                 .setExportPeriod(getRelativePeriod(info.exportperiod))
                 .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
                 .setValidatedDataOption(info.validatedDataOption)
-                .setEndDeviceGroup(endDeviceGroup(info.endDeviceGroupId))
+                .setEndDeviceGroup(endDeviceGroup(info.deviceGroupInfo.id))
                 .exportContinuousData(info.exportContinuousData)
                 .exportUpdate(info.exportUpdate);
 
@@ -268,7 +282,7 @@ public class DataExportTaskResource {
         return infos;
     }
 
-    private EndDeviceGroup endDeviceGroup(String endDeviceGroupId) {
+    private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
