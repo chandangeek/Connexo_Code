@@ -1,17 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.*;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
@@ -1751,6 +1741,15 @@ public class DeviceImpl implements Device, CanLock {
             deviceValidation = new DeviceValidationImpl(getMdcAmrSystem().get(), validationService, clock, this);
         }
         return deviceValidation;
+    }
+
+    @Override
+    public GatewayType getConfigurationGatewayType(){
+        DeviceConfiguration configuration = getDeviceConfiguration();
+        if (configuration == null) {
+            return GatewayType.NONE;
+        }
+        return configuration.getGetwayType();
     }
 
     private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
