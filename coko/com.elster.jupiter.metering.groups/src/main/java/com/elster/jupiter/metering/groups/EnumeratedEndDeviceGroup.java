@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.groups;
 
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -18,8 +19,9 @@ public interface EnumeratedEndDeviceGroup extends EndDeviceGroup {
      * Returns a Subquery that gives all amrIds of the EndDevice of this group
      *
      * @return
+     * @param amrSystems
      */
-    Subquery getAmrIdSubQuery();
+    Subquery getAmrIdSubQuery(AmrSystem... amrSystems);
 
     interface Entry extends Effectivity {
         EndDevice getEndDevice();
