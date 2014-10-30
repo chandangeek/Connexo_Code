@@ -111,7 +111,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         Date now = new Date();
         DeviceMessageAttribute attribute3 = mockAttribute("Time", now, new DateAndTimeFactory(), Required);
         when(command1.getAttributes()).thenReturn(Arrays.asList(attribute1, attribute2, attribute3));
-        when(device.getMessages()).thenReturn(Arrays.asList(command1));
+        when(device.getMessages()).thenReturn(Arrays.<DeviceMessage<Device>>asList(command1));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
