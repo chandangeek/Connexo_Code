@@ -187,17 +187,17 @@ public class DataExportTaskResource {
             }
         });
         dataExportTaskInfo.updatePeriod = dataExportTaskInfo.exportperiod;
-        dataExportTaskInfo.deviceGroupInfo = new DeviceGroupInfo();
-        dataExportTaskInfo.deviceGroupInfo.name = "My Device Group";
-        dataExportTaskInfo.deviceGroupInfo.id = 35;
+        dataExportTaskInfo.deviceGroup = new DeviceGroupInfo();
+        dataExportTaskInfo.deviceGroup.name = "My Device Group";
+        dataExportTaskInfo.deviceGroup.id = 35;
 
-        dataExportTaskInfo.lastExportOccurenceInfo = new LastExportOccurenceInfo();
-        dataExportTaskInfo.lastExportOccurenceInfo.status = DataExportStatus.SUCCESS;
-        dataExportTaskInfo.lastExportOccurenceInfo.lastRun = Instant.now().minus(25, ChronoUnit.MINUTES).toEpochMilli();
-        dataExportTaskInfo.lastExportOccurenceInfo.startedOn = Instant.now().minus(50, ChronoUnit.MINUTES).toEpochMilli();
-        dataExportTaskInfo.lastExportOccurenceInfo.finishedOn = dataExportTaskInfo.lastExportOccurenceInfo.lastRun;
-        dataExportTaskInfo.lastExportOccurenceInfo.duration = dataExportTaskInfo.lastExportOccurenceInfo.finishedOn - dataExportTaskInfo.lastExportOccurenceInfo.startedOn;
-        dataExportTaskInfo.lastExportOccurenceInfo.status = DataExportStatus.SUCCESS;
+        dataExportTaskInfo.lastExportOccurence = new LastExportOccurenceInfo();
+        dataExportTaskInfo.lastExportOccurence.status = DataExportStatus.SUCCESS;
+        dataExportTaskInfo.lastExportOccurence.lastRun = Instant.now().minus(25, ChronoUnit.MINUTES).toEpochMilli();
+        dataExportTaskInfo.lastExportOccurence.startedOn = Instant.now().minus(50, ChronoUnit.MINUTES).toEpochMilli();
+        dataExportTaskInfo.lastExportOccurence.finishedOn = dataExportTaskInfo.lastExportOccurence.lastRun;
+        dataExportTaskInfo.lastExportOccurence.duration = dataExportTaskInfo.lastExportOccurence.finishedOn - dataExportTaskInfo.lastExportOccurence.startedOn;
+        dataExportTaskInfo.lastExportOccurence.status = DataExportStatus.SUCCESS;
 
         dataExportTaskInfo.nextRun = Instant.now().plus(3, ChronoUnit.HOURS).toEpochMilli();
 
@@ -244,7 +244,7 @@ public class DataExportTaskResource {
                 .setExportPeriod(getRelativePeriod(info.exportperiod))
                 .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
                 .setValidatedDataOption(info.validatedDataOption)
-                .setEndDeviceGroup(endDeviceGroup(info.deviceGroupInfo.id))
+                .setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id))
                 .exportContinuousData(info.exportContinuousData)
                 .exportUpdate(info.exportUpdate);
 

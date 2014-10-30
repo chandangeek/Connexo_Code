@@ -29,8 +29,8 @@ public class DataExportTaskInfo {
     public boolean exportUpdate;
     public boolean exportContinuousData;
     public ValidatedDataOption validatedDataOption = ValidatedDataOption.INCLUDE_ALL;
-    public DeviceGroupInfo deviceGroupInfo;
-    public LastExportOccurenceInfo lastExportOccurenceInfo;
+    public DeviceGroupInfo deviceGroup;
+    public LastExportOccurenceInfo lastExportOccurence;
     public long nextRun;
 
 
@@ -38,7 +38,7 @@ public class DataExportTaskInfo {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
-        deviceGroupInfo = new DeviceGroupInfo(dataExportTask.getEndDeviceGroup());
+        deviceGroup = new DeviceGroupInfo(dataExportTask.getEndDeviceGroup());
         for (ReadingType readingType : dataExportTask.getReadingTypes()) {
             readingTypes.add(new ReadingTypeInfo(readingType));
         }
@@ -60,7 +60,7 @@ public class DataExportTaskInfo {
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
 
         //todo last occurence
-        // lastExportOccurenceInfo = new LastExportOccurenceInfo(dataExportTask.getLastOccurence());
+        // lastExportOccurence = new LastExportOccurenceInfo(dataExportTask.getLastOccurence());
         nextRun = dataExportTask.getNextExecution().toEpochMilli();
 
 
