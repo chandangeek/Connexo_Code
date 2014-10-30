@@ -298,7 +298,7 @@ public class ValidationServiceImplTest {
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
-        validationService.validateForNewData(meterActivation, Range.atLeast(Instant.EPOCH));
+        validationService.validate(meterActivation, Instant.EPOCH);
         verify(channelValidation2).updateLastChecked(Instant.ofEpochMilli(0L));
         verify(meterActivationValidation).save();
     }

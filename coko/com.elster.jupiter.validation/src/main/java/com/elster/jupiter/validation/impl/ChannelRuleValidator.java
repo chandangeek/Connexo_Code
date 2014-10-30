@@ -36,7 +36,8 @@ class ChannelRuleValidator {
         this.rule = rule;
     }
 
-    Instant validateReadings(Channel channel, Range<Instant> range) {
+    Instant validateReadings(Channel channel, Range<Instant> requestedRange) {
+    	Range<Instant> range = adjustedRange(channel,requestedRange);
         ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, range);
         return channel.getReadingTypes().stream()
                 .filter(r -> rule.getReadingTypes().contains(r))
@@ -45,6 +46,15 @@ class ChannelRuleValidator {
                 .max(Comparator.naturalOrder())
                 .orElse(null);
     }
+    
+    private Range<Instant> adjustedRange(Channel channel, Range<Instant> range) {
+    	if (channel.isRegular()) {
+            return copy(range).withClosedLowerBound(range.lowerEndpoint().minusMillis(1));
+    	} else {
+    		return range;
+    	}
+    }
+    
 
     private Instant validateReadings(Channel channel, Range<Instant> interval, ReadingType channelReadingType, ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities) {
         Accumulator<Instant, ValidatedResult> lastChecked = new Accumulator<>((d, v) -> determineLastChecked(v, d));
@@ -69,8 +79,7 @@ class ChannelRuleValidator {
 
     private Stream<ValidatedResult> validatedResults(Validator validator, Channel channel, ReadingType channelReadingType, Range<Instant> interval) {
         if (channel.isRegular()) {
-            Range<Instant> toRequest = copy(interval).withClosedLowerBound(interval.lowerEndpoint().minusMillis(1));
-            return channel.getIntervalReadings(channelReadingType, toRequest).stream()
+            return channel.getIntervalReadings(channelReadingType, interval).stream()
                     .map(intervalReading -> new ReadingTarget(intervalReading, validator.validate(intervalReading)));
         }
         return channel.getRegisterReadings(channelReadingType, interval).stream()

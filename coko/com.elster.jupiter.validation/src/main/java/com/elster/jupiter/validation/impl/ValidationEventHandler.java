@@ -28,7 +28,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     private static final String CREATEDTOPIC = "com/elster/jupiter/metering/reading/CREATED";
     private static final String REMOVEDTOPIC = "com/elster/jupiter/metering/reading/DELETED";
 
-    private volatile ValidationService validationService;
+    private volatile ValidationServiceImpl validationService;
 
     public ValidationEventHandler() {
         super(LocalEvent.class);
@@ -36,7 +36,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
     @Reference
     public void setValidationService(ValidationService validationService) {
-        this.validationService = validationService;
+        this.validationService = (ValidationServiceImpl) validationService;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
     private void handleReadingStorer(ReadingStorer storer) {
         Map<MeterActivation, Range<Instant>> map = determineScopePerMeterActivation(storer);
-        map.entrySet().forEach(entry -> validationService.validateForNewData(entry.getKey(), entry.getValue()));
+        map.entrySet().forEach(entry -> validationService.validate(entry.getKey(), entry.getValue().lowerEndpoint()));
     }
 
     private Map<MeterActivation, Range<Instant>> determineScopePerMeterActivation(ReadingStorer storer) {

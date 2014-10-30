@@ -47,7 +47,7 @@ public class ValidationEventHandlerTest {
     @Mock
     private MeterActivation meterActivation1, meterActivation2;
     @Mock
-    private ValidationService validationService;
+    private ValidationServiceImpl validationService;
     @Mock
     private LocalEvent localEvent;
     @Mock
@@ -92,8 +92,8 @@ public class ValidationEventHandlerTest {
     public void testOnEvent() {
         handler.handle(localEvent);
 
-        verify(validationService).validateForNewData(meterActivation1, interval(date1, date5));
-        verify(validationService).validateForNewData(meterActivation2, interval(date4, date5));
+        verify(validationService).validate(meterActivation1, date1);
+        verify(validationService).validate(meterActivation2, date4);
     }
 
 

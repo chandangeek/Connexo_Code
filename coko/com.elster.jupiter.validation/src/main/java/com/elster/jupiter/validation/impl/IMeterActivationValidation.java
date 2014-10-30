@@ -16,6 +16,8 @@ public interface IMeterActivationValidation extends MeterActivationValidation {
 
     void makeObsolete();
 
+    void validate();
+    
     void validate(Range<Instant> interval);
 
     void validate(Range<Instant> interval, String readingTypeCode);

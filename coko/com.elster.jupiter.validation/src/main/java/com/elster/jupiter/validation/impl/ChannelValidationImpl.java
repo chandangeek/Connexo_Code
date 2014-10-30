@@ -6,11 +6,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ValidationRule;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 final class ChannelValidationImpl implements IChannelValidation {
 
@@ -60,13 +64,20 @@ final class ChannelValidationImpl implements IChannelValidation {
 
     @Override
     public boolean hasActiveRules() {
-        activeRules = getMeterActivationValidation().getRuleSet().getRules().stream()
-                .filter(ValidationRule::isActive)
-                .flatMap(r -> r.getReadingTypes().stream())
-                .anyMatch(t -> getChannel().getReadingTypes().contains(t));
-        return activeRules;
+        return !activeRules().isEmpty();
     }
 
+    private List<IValidationRule> activeRules() {
+    	return getMeterActivationValidation().getRuleSet().getRules().stream()
+    			.filter(this::isApplicable)
+    			.map(IValidationRule.class::cast)
+                .collect(Collectors.toList());
+    }
+    
+    private boolean isApplicable(ValidationRule rule) {
+    	return rule.isActive() && rule.getReadingTypes().stream().anyMatch(readingType -> channel.get().getReadingTypes().contains(readingType));
+    }
+    
     void setActiveRules(boolean activeRules) {
         this.activeRules = activeRules;
     }
@@ -102,6 +113,29 @@ final class ChannelValidationImpl implements IChannelValidation {
     
     private boolean isRelevant(ReadingQualityRecord readingQuality) {
     	return readingQuality.hasReasonabilityCategory() || readingQuality.hasValidationCategory(); 
+    }
+    
+    void validate() {
+    	Instant end = channel.get().getLastDateTime();
+    	if (end == null) {
+    		return;
+    	}
+    	Instant start = lastChecked;
+    	if (start == null) {
+    		start = channel.get().getMeterActivation().getStart();
+    	}
+    	Range<Instant> intervalToValidate = channel.get().isRegular() ? Range.openClosed(start, end) : Range.closed(start,end);
+        Instant newLastChecked = null;
+        Instant earliestLastChecked = null;
+        for (IValidationRule validationRule : activeRules()) {
+            newLastChecked = validationRule.validateChannel(channel.get(), intervalToValidate);
+            if (newLastChecked != null) {
+                earliestLastChecked = Ordering.natural().nullsLast().min(earliestLastChecked, newLastChecked);
+            }
+        }
+        if (earliestLastChecked != null) {
+            updateLastChecked(earliestLastChecked);
+        }
     }
     	        
 }

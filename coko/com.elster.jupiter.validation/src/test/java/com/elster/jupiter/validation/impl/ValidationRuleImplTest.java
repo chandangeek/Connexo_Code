@@ -324,7 +324,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(DATE1);
 
-        verify(validator).init(channel, readingType2, INTERVAL);
+        //verify(validator).init(channel, readingType2, INTERVAL);
         verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord);
         verify(channel).createReadingQuality(new ReadingQualityType("3.5.258"), intervalReadingRecord);
         verify(readingQuality).save();

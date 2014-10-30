@@ -119,6 +119,16 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     public Set<ChannelValidation> getChannelValidations() {
         return Collections.unmodifiableSet(new HashSet<>(channelValidations));
     }
+    
+    @Override
+    public void validate() {
+    	if (!isActive()) {
+    		return;
+    	}
+    	getMeterActivation().getChannels().forEach(this::validateChannel);
+        lastRun = Instant.now(clock);
+        save();
+    }
 
     @Override
     public void validate(Range<Instant> interval) {
@@ -141,6 +151,20 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         save();
     }
 
+    private void validateChannel(Channel channel) {
+    	List<IValidationRule> activeRules = getActiveRules();
+        if (hasApplicableRules(channel, activeRules)) {
+            ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
+            channelValidation.validate();
+            channelValidation.setActiveRules(true);
+        } else {
+            ChannelValidationImpl channelValidation = findValidationFor(channel);
+            if (channelValidation != null) {
+                channelValidation.setActiveRules(false);
+            }
+        }    	
+    }
+    
     // given interval is interpreted as consumption interval for cumulative
     private void validateChannel(Channel channel, Range<Instant> interval) {
         Instant earliestLastChecked = null;
