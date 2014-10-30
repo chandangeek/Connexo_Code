@@ -312,16 +312,17 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         // given the above: we expect 2 device messages in the same category
         String response = target("/devices/ZABF010000080004/messagecategories").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
-        assertThat(jsonModel.<List>get("$")).hasSize(1); // one category
-        assertThat(jsonModel.<String>get("$[0].name")).isEqualTo("Contactor");
-        assertThat(jsonModel.<Integer>get("$[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<List>get("$[0].deviceMessageSpecs")).hasSize(2); // 2 device messages
-        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[0].name")).isEqualTo("Contactor close");
-        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[0].id")).isEqualTo("CONTACTOR_CLOSE");
-        assertThat(jsonModel.<Boolean>get("$[0].deviceMessageSpecs[0].willBePickedUpByComTask")).isNotNull();
-        assertThat(jsonModel.<Boolean>get("$[0].deviceMessageSpecs[0].willBePickedUpByScheduledComTask")).isNotNull();
-        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[1].name")).isEqualTo("Contactor open");
-        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[1].id")).isEqualTo("CONTACTOR_OPEN");
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.categories")).hasSize(1); // one category
+        assertThat(jsonModel.<String>get("$.categories[0].name")).isEqualTo("Contactor");
+        assertThat(jsonModel.<Integer>get("$.categories[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.categories[0].deviceMessageSpecs")).hasSize(2); // 2 device messages
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].name")).isEqualTo("Contactor close");
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].id")).isEqualTo("CONTACTOR_CLOSE");
+        assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].willBePickedUpByComTask")).isNotNull();
+        assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].willBePickedUpByScheduledComTask")).isNotNull();
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[1].name")).isEqualTo("Contactor open");
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[1].id")).isEqualTo("CONTACTOR_OPEN");
     }
 
     @Test
@@ -372,14 +373,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         // given the above: we expect 2 device messages in the same category
         String response = target("/devices/ZABF010000080004/messagecategories").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
-        assertThat(jsonModel.<List>get("$")).hasSize(1); // one category
-        assertThat(jsonModel.<String>get("$[0].name")).isEqualTo("Contactor");
-        assertThat(jsonModel.<Integer>get("$[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<List>get("$[0].deviceMessageSpecs")).hasSize(2); // 2 device messages
-        assertThat(jsonModel.<List>get("$[0].deviceMessageSpecs[0].propertySpecs")).hasSize(1);
-        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[0].propertySpecs[0].key")).isEqualTo("ContactorDeviceMessage.digitalOutput");
-        assertThat(jsonModel.<String>get("$[0].deviceMessageSpecs[0].propertySpecs[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
-        assertThat(jsonModel.<Boolean>get("$[0].deviceMessageSpecs[0].propertySpecs[0].required")).isEqualTo(true);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1); // one category
+        assertThat(jsonModel.<List>get("$.categories")).hasSize(1); // one category
+        assertThat(jsonModel.<String>get("$.categories[0].name")).isEqualTo("Contactor");
+        assertThat(jsonModel.<Integer>get("$.categories[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.categories[0].deviceMessageSpecs")).hasSize(2); // 2 device messages
+        assertThat(jsonModel.<List>get("$.categories[0].deviceMessageSpecs[0].propertySpecs")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].propertySpecs[0].key")).isEqualTo("ContactorDeviceMessage.digitalOutput");
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].propertySpecs[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
+        assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].propertySpecs[0].required")).isEqualTo(true);
     }
 
     @Test
