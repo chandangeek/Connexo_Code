@@ -30,4 +30,5 @@ public interface TimeSeries {
 	default void removeEntry(Instant instant) {
 		removeEntries(Range.closed(instant, instant));
 	}
+	List<Instant> toList(Range<Instant> range);
 }

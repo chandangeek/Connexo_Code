@@ -9,6 +9,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -21,6 +22,7 @@ import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -251,6 +253,29 @@ public final class TimeSeriesImpl implements TimeSeries {
         }
         return !MONTH.equals(intervalLengthUnit) || dateTime.getDayOfMonth() == 1;
     }
+	
+	Instant validInstantOnOrAfter(Instant instant) {
+		if (isValid(instant)) {
+			return instant;
+		}
+		ZonedDateTime dateTime = ZonedDateTime.ofInstant(instant, getZoneId());
+		if (intervalLengthUnit == MINUTE) {
+			dateTime = dateTime.truncatedTo(ChronoUnit.MINUTES);
+			if (dateTime.getMinute() % intervalLength != 0) {
+				dateTime = dateTime.withMinute((dateTime.getMinute() / intervalLength) * intervalLength);
+			}
+			return next(dateTime.toInstant(),1);
+		}
+		if (dateTime.getHour() < getOffset()) {
+			dateTime = dateTime.minusDays(1);
+		}
+		dateTime = dateTime.withHour(getOffset()).truncatedTo(ChronoUnit.HOURS);
+		if (!MONTH.equals(intervalLengthUnit)) {
+			return next(dateTime.toInstant(),1);
+		}
+		dateTime = dateTime.withDayOfMonth(1);
+		return next(dateTime.toInstant(),1);
+	}
 
     private boolean validTimeOfDay(ZonedDateTime dateTime) {
         return dateTime.getMinute() == 0 && dateTime.getSecond() == 0 && dateTime.getNano() == 0 && dateTime.getHour() == getOffset();
@@ -336,4 +361,25 @@ public final class TimeSeriesImpl implements TimeSeries {
 			dataModel.update(this, "lastTime");
 		}
 	}
+	
+	@Override
+	public List<Instant> toList(Range<Instant> range) {
+		if (!isRegular()) {
+			return Collections.emptyList();
+		}
+		if (!range.hasLowerBound() || !range.hasUpperBound()) {
+			throw new IllegalArgumentException("Range must be finite");
+		}
+		ImmutableList.Builder<Instant> builder = ImmutableList.builder();
+		Instant start = validInstantOnOrAfter(range.lowerEndpoint());
+		if (!range.contains(start)) {
+			start = next(start, 1);
+		}
+		while (range.contains(start)) {
+			builder.add(start);
+			start = next(start,1);
+		}
+		return builder.build();
+	}
+	
 }
