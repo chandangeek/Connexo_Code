@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PhysicalGatewayReference;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.CantBeOwnGateway;
 
@@ -23,29 +21,11 @@ import java.time.Instant;
 @CantBeOwnGateway(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY +"}")
 public class PhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
 
-    public enum Field implements ImplField {
-        CREATION_TIME("creationTime"),
-        GATEWAY("gateway"),
-        ;
-
-        private final String javaFieldName;
-
-        private Field(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        @Override
-        public String fieldName() {
-            return javaFieldName;
-        }
-    }
-
     private Reference<Device> origin = ValueReference.absent();
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Reference<Device> gateway = ValueReference.absent();
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Interval interval;
-    private Instant creationTime;
 
     @Inject
     public PhysicalGatewayReferenceImpl() {
@@ -55,7 +35,6 @@ public class PhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
         this.interval = interval;
         this.gateway.set(master);
         this.origin.set(origin);
-        this.creationTime = Instant.now();
         return this;
     }
 
@@ -80,11 +59,6 @@ public class PhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
             throw new IllegalArgumentException();
         }
         interval = interval.withEnd(closingDate);
-    }
-
-    @Override
-    public Instant getCreationTime() {
-        return this.creationTime;
     }
 
     @Override

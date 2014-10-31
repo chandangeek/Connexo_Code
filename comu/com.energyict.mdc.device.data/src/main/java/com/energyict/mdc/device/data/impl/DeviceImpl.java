@@ -2,7 +2,18 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.*;
 import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.CommunicationTopologyEntry;
+import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
@@ -1759,16 +1770,6 @@ public class DeviceImpl implements Device, CanLock {
             return GatewayType.NONE;
         }
         return configuration.getGetwayType();
-    }
-
-    @Override
-    public List<CommunicationGatewayReference> getRecentlyAddedCommunicationReferencingDevices(int count) {
-        return deviceService.getRecentlyAddedCommunicationReferencingDevices(this, count);
-    }
-
-    @Override
-    public List<PhysicalGatewayReference> getRecentlyAddedPhysicalConnectedDevices(int count) {
-        return deviceService.getRecentlyAddedPhysicalConnectedDevices(this, count);
     }
 
     private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {

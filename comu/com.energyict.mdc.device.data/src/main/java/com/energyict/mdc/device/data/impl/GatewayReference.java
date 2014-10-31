@@ -1,7 +1,6 @@
-package com.energyict.mdc.device.data;
+package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.associations.Effectivity;
-import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
 
@@ -22,9 +21,5 @@ public interface GatewayReference extends Effectivity {
      * Closes the current interval
      */
     void terminate(Instant closingDate);
-
-    Device getOrigin();
-
-    Instant getCreationTime();
 
 }

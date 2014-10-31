@@ -1,7 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceFields;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -119,7 +126,6 @@ public enum TableSpecs {
             Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column physicalGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
-            table.column("CREATETIME").notNull().number().conversion(NUMBER2INSTANT).map(PhysicalGatewayReferenceImpl.Field.CREATION_TIME.fieldName()).add();
             table.primaryKey("PK_DDC_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
             table.foreignKey("FK_DDC_PHYSGATEWAYREF_ORIGIN").
                     on(originId).
@@ -145,7 +151,6 @@ public enum TableSpecs {
             Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column communicationGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
-            table.column("CREATETIME").notNull().number().conversion(NUMBER2INSTANT).map(CommunicationGatewayReferenceImpl.Field.CREATION_TIME.fieldName()).add();
             table.primaryKey("PK_DDC_COMMUNICATIONGATEWAYREF").on(originId, intervalColumns.get(0)).add();
             table.foreignKey("FK_DDC_COMGATEWAYREF_ORIGIN").
                     on(originId).references(DDC_DEVICE.name()).
