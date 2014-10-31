@@ -1,5 +1,19 @@
 package com.elster.jupiter.validation.impl;
 
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsFirst;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
@@ -15,27 +29,11 @@ import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsFirst;
 
 /**
 * Created by tgr on 5/09/2014.
@@ -75,7 +73,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
         List<DataValidationStatus> result = new ArrayList<>(readings.size());
         if (!readings.isEmpty()) {
-            List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
+            List<? extends ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
             boolean configured = !channelValidations.isEmpty();
             Instant lastChecked = configured ? getMinLastChecked(channelValidations.stream()
                     .filter(ChannelValidation::hasActiveRules)
@@ -107,7 +105,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
     @Override
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
         List<DataValidationStatus> result = new ArrayList<>();
-        List<ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
+        List<? extends ChannelValidation> channelValidations = validationService.getChannelValidations(channel);
         boolean configured = !channelValidations.isEmpty();
         Instant lastChecked = configured ? getMinLastChecked(channelValidations.stream()
                 .filter(ChannelValidation::hasActiveRules)
@@ -153,7 +151,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         return dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null;
     }
 
-    private ListMultimap<String, IValidationRule> getValidationRulesPerReadingQuality(List<ChannelValidation> channelValidations) {
+    private ListMultimap<String, IValidationRule> getValidationRulesPerReadingQuality(List<? extends ChannelValidation> channelValidations) {
         Query<IValidationRule> ruleQuery = validationService.getAllValidationRuleQuery();
         Set<IValidationRule> rules = channelValidations.stream()
                 .map(ChannelValidation::getMeterActivationValidation)

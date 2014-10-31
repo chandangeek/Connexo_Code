@@ -68,8 +68,10 @@ public interface ValidationService {
     @Deprecated
     void validate(MeterActivation meterActivation, String readingTypeCode, Range<Instant> interval);
 
+    @Deprecated
     List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation);
 
+    @Deprecated
     List<? extends MeterActivationValidation> getActiveMeterActivationValidations(MeterActivation meterActivation);
 
     ValidationEvaluator getEvaluator();

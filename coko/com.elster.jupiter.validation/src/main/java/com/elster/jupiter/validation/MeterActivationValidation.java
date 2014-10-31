@@ -30,5 +30,5 @@ public interface MeterActivationValidation {
 
     void deactivate();
 
-    Optional<ChannelValidation> getChannelValidation(Channel channel);
+    Optional<? extends ChannelValidation> getChannelValidation(Channel channel);
 }

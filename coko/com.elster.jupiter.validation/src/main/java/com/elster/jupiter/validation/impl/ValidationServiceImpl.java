@@ -282,7 +282,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     public void validate(MeterActivation meterActivation, Instant instant) {
     	MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
-    	container.updateLastCheckedIfEarlier(instant);
+    	container.moveLastCheckedBefore(instant);
     	if (isValidationActive(meterActivation)) {
     		container.validate();
     	}
@@ -303,7 +303,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
             List<IMeterActivationValidation> meterActivationValidations = getUpdatedMeterActivationValidations(meterActivation);
             meterActivationValidations.stream()
                     .filter(MeterActivationValidation::isActive)
-                    .forEach(m -> m.validate(interval, readingTypeCode));
+                    .forEach(m -> m.validate(readingTypeCode));
         }
     }
 
@@ -376,8 +376,8 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         return queryService.wrap(dataModel.query(IValidationRule.class));
     }
 
-    List<ChannelValidation> getChannelValidations(Channel channel) {
-        return dataModel.mapper(ChannelValidation.class).find("channel", channel);
+    List<? extends ChannelValidation> getChannelValidations(Channel channel) {
+        return dataModel.mapper(IChannelValidation.class).find("channel", channel);
     }
 
     @Override

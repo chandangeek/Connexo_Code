@@ -1,5 +1,13 @@
 package com.elster.jupiter.validation.impl;
 
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
@@ -10,17 +18,7 @@ import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationService;
-import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Comparator;
 
 @Component(name = "com.elster.jupiter.validation.validationeventhandler", service = Subscriber.class, immediate = true)
 public class ValidationEventHandler extends EventHandler<LocalEvent> {
@@ -60,41 +58,13 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
         Map<MeterActivation, Range<Instant>> toValidate = new HashMap<>();
         for (Map.Entry<Channel, Range<Instant>> entry : storer.getScope().entrySet()) {
             MeterActivation meterActivation = entry.getKey().getMeterActivation();
-            Range<Instant> adjustedInterval = adjust(entry.getKey(), entry.getValue());
-            toValidate.merge(meterActivation, adjustedInterval, Range::span);            
+            toValidate.merge(meterActivation, entry.getValue(), Range::span);            
         }
         return toValidate;
     }
-
-    private Range<Instant> adjust(Channel channel, Range<Instant> interval) {
-        int minutes = channel.getMainReadingType().getMeasuringPeriod().getMinutes();
-        if (minutes == 0 || !interval.hasLowerBound()) {
-            return interval;
-        }
-        Instant adjustedlLowerBound = interval.lowerEndpoint().minus(minutes, ChronoUnit.MINUTES);
-        if (interval.hasUpperBound()) {
-            return Range.range(adjustedlLowerBound, BoundType.OPEN, interval.upperEndpoint(), interval.upperBoundType());
-        }
-        return Range.greaterThan(adjustedlLowerBound);
-    }
     
     private void handleDeleteEvent(Channel.ReadingsDeletedEvent deleteEvent) {
-    	((ValidationServiceImpl) validationService).getUpdatedMeterActivationValidations(deleteEvent.getChannel().getMeterActivation())
-    		.forEach(meterActivationValidation -> handle(meterActivationValidation, deleteEvent));
+    	validationService.validate(deleteEvent.getChannel().getMeterActivation(), deleteEvent.getRange().lowerEndpoint());
     }
     
-    private void handle(MeterActivationValidation meterActivationValidation, Channel.ReadingsDeletedEvent deleteEvent) {
-    	ChannelValidation channelValidation = meterActivationValidation.getChannelValidation(deleteEvent.getChannel()).get();
-    	Instant lastChecked = channelValidation.getLastChecked();
-    	if (lastChecked == null) {
-    		return;
-    	}
-    	Instant first = deleteEvent.getReadingTimeStamps().stream().min(Comparator.naturalOrder()).get();
-    	if (lastChecked.isAfter(first)) {
-    		Instant newLastChecked = deleteEvent.getChannel().getReadingsBefore(first, 1).stream().findFirst().map(BaseReading::getTimeStamp).orElse(null);
-    		((IChannelValidation) channelValidation).updateLastChecked(newLastChecked);
-    		meterActivationValidation.save();
-    		validationService.validate(deleteEvent.getChannel().getMeterActivation());
-    	}
-    }
 }

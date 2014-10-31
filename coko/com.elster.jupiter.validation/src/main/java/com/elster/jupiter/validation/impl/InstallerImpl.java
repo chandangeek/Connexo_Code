@@ -1,5 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -7,17 +13,10 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.MessageSeeds;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.security.Privileges;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class InstallerImpl {
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());

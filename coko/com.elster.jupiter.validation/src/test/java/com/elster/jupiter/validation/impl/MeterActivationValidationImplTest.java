@@ -126,7 +126,7 @@ public class MeterActivationValidationImplTest {
     @Test
     public void testValidateOneRuleAppliesToOneChannel() throws Exception {
         doReturn(Collections.singleton(readingType1)).when(rule1).getReadingTypes();
-        when(rule1.validateChannel(channel1, Range.closed(DATE1, DATE4))).thenReturn(DATE4);
+        when(rule1.validateChannel(channel1, Range.openClosed(DATE1, DATE4))).thenReturn(DATE4);
         when(channel1.getLastDateTime()).thenReturn(DATE4);
 
         meterActivationValidation.validate();

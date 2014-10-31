@@ -28,22 +28,17 @@ public class MeterActivationValidationContainer {
 		meterActivationValidations.forEach(IMeterActivationValidation::validate);
 	}
 	
-	void updateLastCheckedIfEarlier(Instant instant) {
-		meterActivationValidations.forEach(meterActivationValidation -> updateLastCheckedIfEarlier(meterActivationValidation, instant));
+	void moveLastCheckedBefore(Instant instant) {
+		meterActivationValidations.forEach( meterActivationValidation -> {
+			meterActivationValidation.moveLastCheckedBefore(instant);
+			meterActivationValidation.save();
+		});
 	}
 	
 	void updateLastChecked(Instant instant) {
 		meterActivationValidations.stream()
 			.filter(IMeterActivationValidation::isActive)
 			.forEach(meterActivationValidation -> updateLastChecked(meterActivationValidation, instant));
-	}
-
-	private void updateLastCheckedIfEarlier(IMeterActivationValidation meterActivationValidation, Instant instant) {
-		meterActivationValidation.getChannelValidations().stream()
-        	.filter(c -> isBefore(instant, c.getLastChecked()))
-            .map(IChannelValidation.class::cast)
-            .forEach(c -> c.updateLastChecked(instant));
-		meterActivationValidation.save();
 	}
 	
 	private void updateLastChecked(IMeterActivationValidation meterActivationValidation, Instant instant) {
@@ -58,10 +53,6 @@ public class MeterActivationValidationContainer {
 			meterActivation.activate();
 			meterActivation.save();
 		});
-	}
-	
-	private boolean isBefore(Instant instant, Instant mayBeNull) {
-	    	return mayBeNull == null ? false : instant.isBefore(mayBeNull);
 	}
 	
     void updateLastChecked(Channel channel, Instant date) {

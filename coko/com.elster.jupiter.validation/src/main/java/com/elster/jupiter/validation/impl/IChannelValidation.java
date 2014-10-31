@@ -11,5 +11,6 @@ import java.time.Instant;
  */
 public interface IChannelValidation extends ChannelValidation {
     void updateLastChecked(Instant date);
+    void moveLastCheckedBefore(Instant date);
     void validate();
 }

@@ -24,6 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,6 +67,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(meterActivationValidation.getMeterActivation()).thenReturn(meterActivation);
         when(meterActivationValidation1.getMeterActivation()).thenReturn(meterActivation);
+        when(meterActivation.getStart()).thenReturn(Year.of(2013).atMonth(Month.JANUARY).atDay(1).atTime(14,0).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     @Override
@@ -98,12 +100,13 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     	when(channel.findReadingQuality(any(Range.class))).thenReturn(ImmutableList.of(readingQuality));
     	when(readingQuality.hasReasonabilityCategory()).thenReturn(true);
     	ChannelValidationImpl channelValidation = ChannelValidationImpl.from(dataModel, meterActivationValidation, channel);
+    	assertThat(channelValidation.getLastChecked()).isNotNull();
+    	assertThat(channelValidation.getLastChecked()).isEqualTo(meterActivation.getStart());
     	ZonedDateTime dateTime = Year.of(2014).atMonth(Month.JANUARY).atDay(1).atStartOfDay(ZoneId.systemDefault());
     	channelValidation.updateLastChecked(dateTime.toInstant());
     	Instant instant = dateTime.minusMonths(1).toInstant();
     	channelValidation.updateLastChecked(instant);
     	verify(channel).findReadingQuality(Range.greaterThan(instant));
-    	verify(readingQuality).delete();
-    	
+    	verify(readingQuality).delete();    	
     }
 }

@@ -1,21 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.validation.ChannelValidation;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Range;
+import static com.elster.jupiter.util.streams.Predicates.notNull;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
 
-import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,9 +16,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.util.Ranges.does;
-import static com.elster.jupiter.util.streams.Predicates.notNull;
-import static java.util.Comparator.*;
+import javax.inject.Inject;
+
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
 
@@ -36,7 +33,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
     private Reference<IValidationRuleSet> ruleSet = ValueReference.absent();
     private Instant lastRun;
-    private List<ChannelValidation> channelValidations = new ArrayList<>();
+    private List<IChannelValidation> channelValidations = new ArrayList<>();
     private Instant obsoleteTime;
 
     private final DataModel dataModel;
@@ -87,7 +84,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     @Override
-    public Optional<ChannelValidation> getChannelValidation(Channel channel) {
+    public Optional<IChannelValidation> getChannelValidation(Channel channel) {
         return channelValidations.stream()
                 .filter(v -> v.getChannel().getId() == channel.getId())
                 .findFirst();
@@ -99,7 +96,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
             dataModel.persist(this);
         } else {
             dataModel.update(this);
-            dataModel.mapper(ChannelValidation.class).update(channelValidations);
+            dataModel.mapper(IChannelValidation.class).update(channelValidations);
         }
     }
 
@@ -130,7 +127,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     @Override
-    public void validate(Range<Instant> interval, String readingTypeCode) {
+    public void validate(String readingTypeCode) {
         if (!isActive()) {
             return;
         }
@@ -154,31 +151,6 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         }    	
     }
     
-    private Range<Instant> intervalToValidate(ChannelValidationImpl channelValidation, Range<Instant> interval) {
-        Range<Instant> maxScope = channelValidation.getMeterActivationValidation().getMeterActivation().getRange();
-        if (!does(maxScope).overlap(interval)) {
-            return Range.closedOpen(interval.lowerEndpoint(), interval.lowerEndpoint());
-        }
-        Range<Instant> clipped = maxScope.intersection(interval);
-        Instant lastChecked = getLatestDate(channelValidation.getLastChecked(), firstReadingTime(channelValidation));
-        Instant start = getEarliestDate(lastChecked, adjusted(channelValidation, clipped.lowerEndpoint()));
-        if (clipped.hasUpperBound()) {
-            Instant end = getLatestDate(channelValidation.getChannel().getLastDateTime(), clipped.upperEndpoint());
-            return Ranges.closed(start, end);
-        } else {
-            return Range.atLeast(start);
-        }
-    }
-
-    private Instant adjusted(ChannelValidationImpl channelValidation, Instant date) {
-        int minutes = channelValidation.getChannel().getMainReadingType().getMeasuringPeriod().getMinutes();
-        return date.plus(minutes, ChronoUnit.MINUTES);
-    }
-
-    private Instant firstReadingTime(ChannelValidationImpl channelValidation) {
-        return adjusted(channelValidation, channelValidation.getChannel().getMeterActivation().getRange().lowerEndpoint());
-    }
-
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
         return activeRules.stream()
                 .anyMatch(r -> isApplicable(r, channel));
@@ -198,15 +170,6 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         return getRuleSet().getRules().stream()
                 .filter(IValidationRule::isActive)
                 .collect(Collectors.toList());
-    }
-
-    private Instant getEarliestDate(Instant first, Instant second) {
-        return first == null ? second : Ordering.natural().min(second, first);
-    }
-
-    private Instant getLatestDate(Instant first, Instant second) {
-        Comparator<Instant> comparator = nullsFirst(naturalOrder());
-        return Ordering.from(comparator).max(first, second);
     }
 
     private ChannelValidationImpl findOrAddValidationFor(final Channel channel) {
@@ -288,5 +251,10 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     private void setActive(boolean status) {
         this.active = status;
+    }
+    
+    @Override
+    public void moveLastCheckedBefore(Instant instant) {
+    	channelValidations.forEach(channelValidation -> channelValidation.moveLastCheckedBefore(instant));
     }
 }

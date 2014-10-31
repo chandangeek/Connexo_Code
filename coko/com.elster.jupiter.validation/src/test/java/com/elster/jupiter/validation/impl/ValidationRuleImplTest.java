@@ -138,7 +138,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(properySpec.getName()).thenReturn(PROPERTY_NAME);
         when(properySpec.getValueFactory()).thenReturn(valueFactory);
         doReturn(Optional.<ReadingQualityType>empty()).when(validator).getReadingQualityTypeCode();
-        when(channel.getIntervalReadings(readingType2, copy(INTERVAL).withClosedLowerBound(START.minusMillis(1)))).thenReturn(Arrays.asList(intervalReadingRecord));
+        when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(intervalReadingRecord));
         when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));
     }
 
@@ -302,7 +302,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         doReturn(Arrays.asList(readingType3)).when(channel).getReadingTypes();
 
-        assertThat(validationRule.validateChannel(channel, INTERVAL)).isNull();
+        assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(INTERVAL.upperEndpoint());
     }
 
     @Test
@@ -376,7 +376,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         doReturn(Arrays.asList(readingType2, readingType3)).when(channel).getReadingTypes();
 
-        assertThat(validationRule.validateChannel(channel, INTERVAL)).isNull();
+        assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(INTERVAL.upperEndpoint());
 
         verify(validator, never()).init(channel, readingType2, INTERVAL);
         verify(channel, never()).createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord);

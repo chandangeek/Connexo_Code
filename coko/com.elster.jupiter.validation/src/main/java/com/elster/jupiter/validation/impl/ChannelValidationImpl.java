@@ -1,20 +1,24 @@
 package com.elster.jupiter.validation.impl;
 
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
-
-import javax.inject.Inject;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 final class ChannelValidationImpl implements IChannelValidation {
 
@@ -34,6 +38,7 @@ final class ChannelValidationImpl implements IChannelValidation {
         }
         this.meterActivationValidation.set(meterActivationValidation);
         this.channel.set(channel);
+        this.lastChecked = minLastChecked();
         this.activeRules = true;
         return this;
     }
@@ -99,16 +104,28 @@ final class ChannelValidationImpl implements IChannelValidation {
         return Objects.hash(channel, meterActivationValidation);
     }
     
+    private final Instant minLastChecked() {
+    	return meterActivationValidation.get().getMeterActivation().getStart();
+    }
     
     @Override
     public void updateLastChecked(Instant instant) {
-    	if (lastChecked != null && (instant == null || lastChecked.isAfter(instant))) {
-    		Range<Instant> range = instant == null ? Range.all() : Range.greaterThan(instant);
-    		channel.get().findReadingQuality(range).stream()
+    	Instant newValue = Objects.requireNonNull(instant).isBefore(minLastChecked()) ? minLastChecked() : instant;
+    	if (lastChecked.isAfter(newValue)) {
+    		channel.get().findReadingQuality(Range.greaterThan(newValue)).stream()
     			.filter(this::isRelevant)
     			.forEach(ReadingQualityRecord::delete);
     	}
-    	this.lastChecked = instant;
+    	this.lastChecked = newValue;
+    }
+    
+    @Override
+    public void moveLastCheckedBefore(Instant instant) {
+    	if (!lastChecked.isAfter(instant)) {
+    		return;
+    	}
+    	Optional<BaseReadingRecord> reading = channel.get().getReadingsBefore(instant, 1).stream().findFirst();
+    	updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));
     }
     
     private boolean isRelevant(ReadingQualityRecord readingQuality) {
@@ -118,28 +135,15 @@ final class ChannelValidationImpl implements IChannelValidation {
     @Override
     public void validate() {
     	Instant end = channel.get().getLastDateTime();
-    	if (end == null) {
+    	if (end == null || !lastChecked.isBefore(end)) {
     		return;
     	}
-    	Instant start = lastChecked;
-    	if (start == null) {
-    		start = channel.get().getMeterActivation().getStart();
-    	}
-    	if (start.isAfter(end)) {
-    		return;
-    	}
-    	Range<Instant> intervalToValidate = channel.get().isRegular() ? Range.openClosed(start, end) : Range.closed(start,end);
-        Instant newLastChecked = null;
-        Instant earliestLastChecked = null;
-        for (IValidationRule validationRule : activeRules()) {
-            newLastChecked = validationRule.validateChannel(channel.get(), intervalToValidate);
-            if (newLastChecked != null) {
-                earliestLastChecked = Ordering.natural().nullsLast().min(earliestLastChecked, newLastChecked);
-            }
-        }
-        if (earliestLastChecked != null) {
-            updateLastChecked(earliestLastChecked);
-        }
+    	Range<Instant> range = Range.openClosed(lastChecked, end);
+    	Instant newLastChecked = activeRules().stream()    			
+    			.map(validationRule -> validationRule.validateChannel(channel.get(), range))    			
+    			.min(Comparator.naturalOrder())
+    			.orElse(end);
+    	updateLastChecked(newLastChecked);
     }
     	        
 }

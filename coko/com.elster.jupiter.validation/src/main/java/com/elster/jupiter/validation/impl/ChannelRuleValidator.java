@@ -36,28 +36,17 @@ class ChannelRuleValidator {
         this.rule = rule;
     }
 
-    Instant validateReadings(Channel channel, Range<Instant> requestedRange) {
-    	Range<Instant> range = adjustedRange(channel,requestedRange);
+    Instant validateReadings(Channel channel, Range<Instant> range) {    	
         ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, range);
         return channel.getReadingTypes().stream()
                 .filter(r -> rule.getReadingTypes().contains(r))
-                .map(r -> validateReadings(channel, range, r, existingReadingQualities))
-                .filter(notNull())
+                .map(r -> validateReadings(channel, range, r, existingReadingQualities))                
                 .max(Comparator.naturalOrder())
-                .orElse(null);
+                .orElse(range.upperEndpoint());
     }
     
-    private Range<Instant> adjustedRange(Channel channel, Range<Instant> range) {
-    	if (channel.isRegular()) {
-            return copy(range).withClosedLowerBound(range.lowerEndpoint().minusMillis(1));
-    	} else {
-    		return range;
-    	}
-    }
-    
-
     private Instant validateReadings(Channel channel, Range<Instant> interval, ReadingType channelReadingType, ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities) {
-        Accumulator<Instant, ValidatedResult> lastChecked = new Accumulator<>((d, v) -> determineLastChecked(v, d));
+        Accumulator<Instant, ValidatedResult> lastChecked = new Accumulator<>(interval.lowerEndpoint(), (d, v) -> determineLastChecked(v, d));
 
         Consumer<ValidatedResult> validatedResultHandler = validationTarget -> {
             handleValidationResult(channel, existingReadingQualities, validationTarget);
@@ -213,7 +202,7 @@ class ChannelRuleValidator {
 
     private Instant determineLastChecked(ValidatedResult target, Instant lastChecked) {
         if (!ValidationResult.NOT_VALIDATED.equals(target.getResult())) {
-            return lastChecked == null ? target.getTimestamp() : Ordering.natural().max(lastChecked, target.getTimestamp());
+            return Ordering.natural().max(lastChecked, target.getTimestamp());
         }
         return lastChecked;
     }

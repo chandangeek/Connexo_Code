@@ -1,20 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.validation.ValidationService;
-import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -23,8 +10,21 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.ReadingType;
+import com.google.common.collect.Range;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationEventHandlerTest {

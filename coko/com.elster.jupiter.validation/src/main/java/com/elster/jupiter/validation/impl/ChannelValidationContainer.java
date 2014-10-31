@@ -35,8 +35,7 @@ public class ChannelValidationContainer {
 	
 	Optional<Instant> getLastChecked() {
 		return channelValidations.stream()
-			.map(IChannelValidation::getLastChecked)
-			.filter(Objects::nonNull)
+			.map(IChannelValidation::getLastChecked)	
 			.min(Comparator.naturalOrder());
 	}
 	

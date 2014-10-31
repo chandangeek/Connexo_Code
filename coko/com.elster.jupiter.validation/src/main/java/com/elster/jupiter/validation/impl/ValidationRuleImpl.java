@@ -333,7 +333,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     @Override
     public Instant validateChannel(Channel channel, Range<Instant> interval) {
         if (!active) {
-            return null;
+            return interval.upperEndpoint();
         }
         return getChannelRuleValidator().validateReadings(channel, interval);
     }
