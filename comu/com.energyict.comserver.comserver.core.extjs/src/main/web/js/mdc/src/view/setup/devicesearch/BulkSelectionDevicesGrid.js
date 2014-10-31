@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.devicesearch.BulkSelectionDevicesGrid', {
     allDescription: Uni.I18n.translate(
         'searchItems.BulkSelection.allDescription',
         'MDC',
-        'Select all devices'
+        'Select all devices (according to filter)'
     ),
     selectedLabel: Uni.I18n.translate('searchItems.BulkSelection.selectedLabel', 'MDC', 'Selected devices'),
 
