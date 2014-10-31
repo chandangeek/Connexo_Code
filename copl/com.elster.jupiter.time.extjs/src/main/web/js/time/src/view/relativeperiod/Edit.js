@@ -152,7 +152,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                         itemId: 'cancel-link',
                                         text: Uni.I18n.translate('general.cancel', 'DXP', 'Cancel'),
                                         ui: 'link',
-                                        href: '#/administration/communicationtasks/create'
+                                        href: '#/administration/dataexporttasks/add'
                                     }
                                 ]
                             }
