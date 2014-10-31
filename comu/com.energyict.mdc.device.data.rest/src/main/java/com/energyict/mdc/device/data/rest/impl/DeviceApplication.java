@@ -28,6 +28,7 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -36,6 +37,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -78,7 +80,9 @@ public class DeviceApplication extends Application implements InstallService {
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
+    private volatile TaskService taskService;
     private volatile Clock clock;
+    private volatile CommunicationTaskService communicationTaskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -102,6 +106,7 @@ public class DeviceApplication extends Application implements InstallService {
                 DeviceFieldResource.class,
                 ChannelResource.class,
                 DeviceGroupResource.class,
+                SecurityPropertySetResource.class,
                 ConnectionMethodResource.class,
                 ComSessionResource.class
         );
@@ -201,6 +206,16 @@ public class DeviceApplication extends Application implements InstallService {
         this.clock = clock;
     }
 
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
     @Override
     public void install() {
         Installer installer = new Installer();
@@ -269,11 +284,14 @@ public class DeviceApplication extends Application implements InstallService {
             bind(restQueryService).to(RestQueryService.class);
             bind(clock).to(Clock.class);
             bind(DeviceComTaskInfoFactory.class).to(DeviceComTaskInfoFactory.class);
+            bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
             bind(ChannelResource.class).to(ChannelResource.class);
             bind(ValidationInfoHelper.class).to(ValidationInfoHelper.class);
             bind(ComSessionInfoFactory.class).to(ComSessionInfoFactory.class);
             bind(ComTaskExecutionSessionInfoFactory.class).to(ComTaskExecutionSessionInfoFactory.class);
             bind(JournalEntryInfoFactory.class).to(JournalEntryInfoFactory.class);
+            bind(taskService).to(TaskService.class);
+            bind(communicationTaskService).to(CommunicationTaskService.class);
         }
     }
 

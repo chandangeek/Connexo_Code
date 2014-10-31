@@ -50,6 +50,7 @@ public class DeviceResource {
     private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
     private final Provider<DeviceScheduleResource> deviceScheduleResourceProvider;
     private final Provider<DeviceComTaskResource> deviceComTaskResourceProvider;
+    private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
 
     @Inject
@@ -66,7 +67,9 @@ public class DeviceResource {
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
-            Provider<DeviceComTaskResource> deviceComTaskResourceProvider, Provider<ConnectionMethodResource> connectionMethodResourceProvider) {
+            Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
+            Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
+            Provider<ConnectionMethodResource> connectionMethodResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -81,6 +84,7 @@ public class DeviceResource {
         this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
         this.deviceScheduleResourceProvider = deviceScheduleResourceProvider;
         this.deviceComTaskResourceProvider = deviceComTaskResourceProvider;
+        this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
     }
 
@@ -177,7 +181,11 @@ public class DeviceResource {
     }
 
     @Path("/{mRID}/comtasks")
-    public DeviceComTaskResource getComTaskResource() {
-        return deviceComTaskResourceProvider.get();
+    public DeviceComTaskResource getComTaskResource(){return deviceComTaskResourceProvider.get();}
+
+    @Path("/{mRID}/securityproperties")
+    public SecurityPropertySetResource getSecurityPropertySetResource() {
+        return securityPropertySetResourceProvider.get();
     }
+
 }

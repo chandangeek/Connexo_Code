@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -48,6 +49,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(deviceType.getId()).thenReturn(125L);
         when(deviceType.getName()).thenReturn("type AX1");
         when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceService.findByUniqueMrid("0c53c750-4d5a-11e4-916c-0800200c9a66")).thenReturn(device);
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
@@ -60,6 +62,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         assertThat(jsonModel.<String>get("$.device")).isEqualTo("AX1");
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.comTaskExecutionSessions")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].id")).isEqualTo(222);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].name")).isEqualTo("Read all + Basic check + Set clock");
         assertThat(jsonModel.<List>get("$.comTaskExecutionSessions[0].comTasks")).hasSize(2);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comTasks[0].name")).isEqualTo("Read all + Basic check");
@@ -79,7 +82,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comScheduleFrequency.offset.timeUnit")).isEqualTo("seconds");
         assertThat(jsonModel.<Boolean>get("$.comTaskExecutionSessions[0].comScheduleFrequency.lastDay")).isEqualTo(false);
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].urgency")).isEqualTo(-20);
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].result")).isEqualTo("Failure");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].result")).isEqualTo("I/O error");
         assertThat(jsonModel.<Long>get("$.comTaskExecutionSessions[0].startTime")).isEqualTo(1412341200000L);
         assertThat(jsonModel.<Long>get("$.comTaskExecutionSessions[0].finishTime")).isEqualTo(1412341300000L);
         assertThat(jsonModel.<Boolean>get("$.comTaskExecutionSessions[0].alwaysExecuteOnInbound")).isEqualTo(true);
@@ -112,6 +115,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getComSession()).thenReturn(comSession);
         when(comTaskExecutionSession.getDevice()).thenReturn(device);
+        when(comTaskExecutionSession.getId()).thenReturn(222L);
         ScheduledComTaskExecution comTaskExecution = mock(ScheduledComTaskExecution.class);
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("15 minutes"), new TimeDuration("10 seconds")));
@@ -127,7 +131,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(comTask2.getName()).thenReturn("Set clock");
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask2, comTask1));
         when(comTaskExecutionSession.getComTaskExecution()).thenReturn(comTaskExecution);
-        when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Failure);
+        when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.IOError);
         when(comTaskExecutionSession.getStartDate()).thenReturn(start);
         when(comTaskExecutionSession.getStopDate()).thenReturn(end);
         return comTaskExecutionSession;

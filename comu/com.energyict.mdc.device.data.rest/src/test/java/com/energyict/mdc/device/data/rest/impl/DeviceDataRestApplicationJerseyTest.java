@@ -9,6 +9,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -16,6 +17,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
@@ -55,6 +57,10 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     MeteringService meteringService;
     @Mock
     RestQueryService restQueryService;
+    @Mock
+    TaskService taskService;
+    @Mock
+    CommunicationTaskService communicationTaskService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -81,6 +87,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setSchedulingService(schedulingService);
         application.setValidationService(validationService);
         application.setRestQueryService(restQueryService);
+        application.setTaskService(taskService);
+        application.setCommunicationTaskService(communicationTaskService);
         return application;
     }
 }
