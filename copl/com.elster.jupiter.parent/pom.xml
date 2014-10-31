@@ -522,6 +522,10 @@
                 <module>../com.elster.jupiter.cbo</module>
                 <module>../com.elster.jupiter.config.extjs</module>
                 <module>../com.elster.jupiter.domain.util</module>
+                <module>../com.elster.jupiter.export</module>
+                <module>../com.elster.jupiter.export.extjs</module>
+                <module>../com.elster.jupiter.export.processors</module>
+                <module>../com.elster.jupiter.export.rest</module>
                 <module>../com.elster.jupiter.extjs</module>
                 <module>../com.elster.jupiter.events</module>
                 <module>../com.elster.jupiter.events.rest</module>
@@ -563,6 +567,8 @@
                 <module>../com.elster.jupiter.tasks</module>
                 <module>../com.elster.jupiter.theme.skyline</module>
                 <module>../com.elster.jupiter.time</module>
+                <module>../com.elster.jupiter.time.extjs</module>
+                <module>../com.elster.jupiter.time.rest</module>
                 <module>../com.elster.jupiter.transaction</module>
                 <module>../com.elster.jupiter.unifyingjs</module>
                 <module>../com.elster.jupiter.users</module>
