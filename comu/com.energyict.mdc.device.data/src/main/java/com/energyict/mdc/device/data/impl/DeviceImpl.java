@@ -96,11 +96,14 @@ import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Supplier;
@@ -1262,11 +1265,36 @@ public class DeviceImpl implements Device, CanLock {
             case HOURS: {
                 return this.prefilledIntervalStartWithIntervalWithinDay(loadProfile, zoneId, requestedIntervalClippedToMeterActivation);
             }
-            case DAYS: // Intentional fall-through
-            case WEEKS: // Intentional fall-through
-            case MONTHS: // Intentional fall-through
+            case DAYS: {
+                return ZonedDateTime
+                        .ofInstant(
+                                requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                                zoneId)
+                        .truncatedTo(this.trunctationUnit(loadProfile));    // round start time to interval boundary
+            }
+            case WEEKS: {
+                return ZonedDateTime
+                            .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
+                            .toLocalDate()
+                            .with(ChronoField.DAY_OF_WEEK, 1)
+                            .atStartOfDay()
+                            .atZone(zoneId);
+            }
+            case MONTHS: {
+                return ZonedDateTime
+                            .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
+                            .toLocalDate()
+                            .with(ChronoField.DAY_OF_MONTH, 1)
+                            .atStartOfDay()
+                            .atZone(zoneId);
+            }
             case YEARS: {
-                return this.prefilledIntervalStartWithIntervalLongerThanDay(loadProfile, zoneId, requestedIntervalClippedToMeterActivation);
+                return ZonedDateTime
+                            .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
+                            .toLocalDate()
+                            .with(ChronoField.DAY_OF_YEAR, 1)
+                            .atStartOfDay()
+                            .atZone(zoneId);
             }
             case MILLISECONDS:  //Intentional fall-through
             case SECONDS:   //Intentional fall-through
@@ -1291,14 +1319,6 @@ public class DeviceImpl implements Device, CanLock {
             attempt = attempt.plus(this.intervalLength(loadProfile));
         }
         return attempt;
-    }
-
-    private ZonedDateTime prefilledIntervalStartWithIntervalLongerThanDay(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
-        return ZonedDateTime
-                    .ofInstant(
-                            requestedIntervalClippedToMeterActivation.lowerEndpoint(),
-                            zoneId)
-                    .truncatedTo(this.trunctationUnit(loadProfile));    // round start time to interval boundary
     }
 
     private TemporalUnit trunctationUnit (LoadProfile loadProfile) {
