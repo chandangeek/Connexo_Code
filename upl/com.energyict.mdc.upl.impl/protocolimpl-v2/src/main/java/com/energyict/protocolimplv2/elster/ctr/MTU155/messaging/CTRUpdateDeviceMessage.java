@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.comserver.commands.UpdateDeviceMessage;
 import com.energyict.comserver.core.ComServerDAO;
+import com.energyict.comserver.issues.WarningImpl;
+import com.energyict.mdc.journal.CompletionCode;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.DeviceProtocolMessageAcknowledgement;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
@@ -35,6 +37,10 @@ public class CTRUpdateDeviceMessage extends UpdateDeviceMessage {
             } else {
                 comServerDAO.updateDeviceMessageInformation(getMessageIdentifier(), getDeviceMessageStatus(), getProtocolInfo());
             }
+        } else {
+            addIssueToExecutionLogger(comServerDAO, CompletionCode.ConfigurationWarning,
+                    new WarningImpl(this, "unknownDeviceMessageCollected", getMessageIdentifier())
+            );
         }
     }
 }
