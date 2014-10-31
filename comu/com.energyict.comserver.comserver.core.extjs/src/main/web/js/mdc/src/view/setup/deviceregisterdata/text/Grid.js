@@ -9,11 +9,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
 
         me.columns = [
             {
-                xtype: 'edited-column',
-                header: Uni.I18n.translate('general.edited', 'MDC', 'Edited'),
-                dataIndex: 'editedDateTime'
-            },
-            {
                 header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
                 xtype: 'datecolumn',
@@ -35,6 +30,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
                     }
                 },
                 flex: 3
+            },
+            {
+                xtype: 'edited-column',
+                header: '',
+                dataIndex: 'editedDateTime'
             },
             {
                 xtype: 'uni-actioncolumn',

@@ -117,7 +117,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
     chooseAction: function (menu, menuItem) {
         switch (menuItem.action) {
             case 'editValue':
-                this.getPage().down('device-loadprofile-channel-edit-readings-grid').getPlugin('cellplugin').startEdit(menu.record, 3);
+                this.getPage().down('device-loadprofile-channel-edit-readings-grid').getPlugin('cellplugin').startEdit(menu.record, 1);
                 break;
             case 'removeReading':
                 menu.record.set('value', null);

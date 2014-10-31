@@ -9,11 +9,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
 
         me.columns = [
             {
-                xtype: 'edited-column',
-                header: Uni.I18n.translate('general.edited', 'MDC', 'Edited'),
-                dataIndex: 'editedDateTime'
-            },
-            {
                 header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
                 xtype: 'datecolumn',
@@ -64,6 +59,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                         ? '<span class="validation-column-align">' + data + ' ' + record.get('unitOfMeasure') + ' ' + validationFlag + '</span>'
                         : '<span class="icon-validation icon-validation-black"></span>';
                 }
+            },
+            {
+                xtype: 'edited-column',
+                header: '',
+                dataIndex: 'editedDateTime'
             },
             {
                 xtype: 'uni-actioncolumn',

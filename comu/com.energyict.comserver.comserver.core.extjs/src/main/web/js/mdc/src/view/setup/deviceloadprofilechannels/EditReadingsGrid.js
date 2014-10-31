@@ -29,14 +29,25 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
 
         me.columns = [
             {
-                xtype: 'edited-column',
-                header: Uni.I18n.translate('general.edited', 'MDC', 'Edited'),
-                dataIndex: 'editedTime'
-            },
-            {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
                 width: 200
+            },
+            {
+                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                dataIndex: 'value',
+                flex: 1,
+                align: 'right',
+                renderer: function (value) {
+                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                },
+                editor: {
+                    xtype: 'textfield',
+                    stripCharsRe: /[^0-9\.]/,
+                    selectOnFocus: true,
+                    validateOnChange: true,
+                    fieldStyle: 'text-align: right'
+                }
             },
             {
                 header: '',
@@ -67,44 +78,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                 )
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                dataIndex: 'value',
-                flex: 1,
-                align: 'right',
-                renderer: function (value) {
-                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                },
-                editor: {
-                    xtype: 'textfield',
-                    stripCharsRe: /[^0-9\.]/,
-                    selectOnFocus: true,
-                    validateOnChange: true,
-                    fieldStyle: 'text-align: right'
-                }
-            }
-        ];
-
-        //Getting 4th magic number of a reading type to understand if it holds cumulative values or not
-        if (readingType) {
-            accumulationBehavior = readingType.split('.')[3];
-        }
-
-        // 1 means cumulative
-        if (accumulationBehavior && accumulationBehavior == 1) {
-            me.columns.push(
-                {
-                    header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
-                    dataIndex: 'delta',
-                    flex: 1,
-                    align: 'right',
-                    renderer: function (value, metaData, record) {
-                        return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                    }
-                }
-            );
-        }
-
-        me.columns.push(
+                xtype: 'edited-column',
+                header: '',
+                dataIndex: 'editedTime'
+            },
             {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
@@ -133,7 +110,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                     ]
                 }
             }
-        );
+        ];
 
         me.dockedItems = [
             {
