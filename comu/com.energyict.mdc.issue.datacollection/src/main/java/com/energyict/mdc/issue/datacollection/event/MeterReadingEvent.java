@@ -122,5 +122,4 @@ public class MeterReadingEvent implements IssueEvent {
         }
         return false;
     }
-
 }

@@ -19,7 +19,6 @@ import com.google.inject.Injector;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public abstract class ConnectionEvent extends DataCollectionEvent implements Cloneable {
@@ -33,19 +32,19 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
     }
 
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription){
-        String connectionTaskIdAsStr = (String) rawEvent.get(ModuleConstants.CONNECTION_TASK_ID);
-        if (!is(connectionTaskIdAsStr).emptyOrOnlyWhiteSpace()){
-            setConnectionTask(Long.parseLong(connectionTaskIdAsStr.trim()));
+        Integer connectionTaskId = (Integer) rawEvent.get(ModuleConstants.CONNECTION_TASK_ID);
+        if (connectionTaskId != null){
+            setConnectionTask(connectionTaskId);
         }
-        String comSessionIdAsStr = (String) rawEvent.get(ModuleConstants.COM_SESSION_ID);
-        if (!is(comSessionIdAsStr).emptyOrOnlyWhiteSpace()){
-            setComSession(Long.parseLong(comSessionIdAsStr.trim()));
+        Integer comSessionId = (Integer) rawEvent.get(ModuleConstants.COM_SESSION_ID);
+        if (comSessionId != null){
+            setComSession(comSessionId);
         }
     }
 
     @Override
     protected Condition getConditionForExistingIssue() {
-        return where("connectionTask").isEqualTo(getConnectionTask());
+        return where("connectionTask").isEqualTo(getConnectionTask().get());
     }
 
     @Override

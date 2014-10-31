@@ -25,9 +25,14 @@ public class UnknownDeviceEvent extends DataCollectionEvent {
     public UnknownDeviceEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
         super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);
     }
+    
+    @Override
+    protected void getEventDevice(Map<?, ?> rawEvent) {
+        this.deviceSerialNumber = (String) rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER);
+    }
 
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription){
-        this.deviceSerialNumber = (String) rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER);
+        //do nothing
     }
 
     @Override

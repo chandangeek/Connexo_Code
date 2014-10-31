@@ -78,8 +78,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
-        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(ConnectionLostEvent.class, ConnectionResolvedEvent.class); // really?
         getDataCollectionEventHandler(mock).process(message);
@@ -92,8 +92,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "1, 10, 47");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
-        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
@@ -106,8 +106,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
-        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(DeviceCommunicationFailureEvent.class, ConnectionResolvedEvent.class);
         getDataCollectionEventHandler(mock).process(message);
@@ -120,8 +120,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/COMPLETION");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, "1, 17, 56, 57");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
-        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
@@ -135,8 +135,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.SKIPPED_TASK_IDS, "2,41,");
         messageMap.put(ModuleConstants.FAILED_TASK_IDS, " 1 , 17 ,  , 56 ");
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
-        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, "1");
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
+        messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
@@ -148,7 +148,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/connectiontask/FAILURE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnableToConnectEvent.class);
         getDataCollectionEventHandler(mock).process(message);

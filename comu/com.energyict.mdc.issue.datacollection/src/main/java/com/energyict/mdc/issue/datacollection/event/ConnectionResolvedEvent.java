@@ -15,8 +15,6 @@ import com.google.inject.Injector;
 import javax.inject.Inject;
 import java.util.Map;
 
-import static com.elster.jupiter.util.Checks.is;
-
 public class ConnectionResolvedEvent extends ConnectionEvent {
     @Inject
     public ConnectionResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
@@ -25,9 +23,9 @@ public class ConnectionResolvedEvent extends ConnectionEvent {
 
     @Override
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
-        String connectionTaskIdAsStr = (String) rawEvent.get(ModuleConstants.CONNECTION_TASK_ID);
-        if (!is(connectionTaskIdAsStr).emptyOrOnlyWhiteSpace()) {
-            setConnectionTask(Long.parseLong(connectionTaskIdAsStr.trim()));
+        Integer connectionTaskId = (Integer) rawEvent.get(ModuleConstants.CONNECTION_TASK_ID);
+        if (connectionTaskId != null) {
+            setConnectionTask(connectionTaskId);
         }
     }
 
@@ -35,5 +33,4 @@ public class ConnectionResolvedEvent extends ConnectionEvent {
     public void apply(Issue issue) {
         // do nothing, this event shouldn't produce any issues
     }
-
 }
