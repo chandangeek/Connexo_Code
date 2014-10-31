@@ -226,7 +226,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].name")).isEqualTo("Contactor close");
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[0].id")).isEqualTo("CONTACTOR_CLOSE");
         assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].willBePickedUpByComTask")).isNotNull();
-        assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].willBePickedUpByScheduledComTask")).isNotNull();
+        assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].willBePickedUpByPlannedComTask")).isNotNull();
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[1].name")).isEqualTo("Contactor open");
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageSpecs[1].id")).isEqualTo("CONTACTOR_OPEN");
     }
