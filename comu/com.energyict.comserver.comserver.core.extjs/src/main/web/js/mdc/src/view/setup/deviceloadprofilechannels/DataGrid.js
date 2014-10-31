@@ -27,126 +27,65 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
 
         me.columns = [
             {
+                header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
+                dataIndex: 'interval_end',
+                width: 200
+            },
+            {
+                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                dataIndex: 'value',
+                flex: 1,
+                align: 'right',
+                renderer: function (value) {
+                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                },
+                editor: {
+                    xtype: 'textfield',
+                    stripCharsRe: /[^0-9\.]/,
+                    selectOnFocus: true,
+                    validateOnChange: true,
+                    fieldStyle: 'text-align: right'
+                }
+            },
+            {
+                header: '',
+                xtype: 'templatecolumn',
+                width: 30,
+                align: 'right',
+                tpl: new Ext.XTemplate(
+                    '{[this.checkValidationResult(values.validationResult)]}',
+                    {
+                        checkValidationResult: function (validationResult) {
+                            var result = '';
+
+                            switch (validationResult) {
+                                case 'validationStatus.notValidated':
+                                    result = '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>';
+                                    break;
+                                case 'validationStatus.ok':
+                                    result = '<span class="validation-column-align"><span class="icon-validation"></span>';
+                                    break;
+                                case 'validationStatus.suspect':
+                                    result = '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>';
+                                    break;
+                            }
+
+                            return result;
+                        }
+                    }
+                )
+            },
+            {
                 xtype: 'edited-column',
-                header: Uni.I18n.translate('general.edited', 'MDC', 'Edited'),
+                header: '',
                 dataIndex: 'editedTime'
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
-                dataIndex: 'interval_end',
-                flex: 1
+                xtype: 'interval-flags-column',
+                dataIndex: 'intervalFlags',
+                width: 150
             }
         ];
-
-        //Getting 4th magic number of a reading type to understand if it holds cumulative values or not
-        if (readingType) {
-            accumulationBehavior = readingType.split('.')[3];
-        }
-
-        // 1 means cumulative
-        if (accumulationBehavior && accumulationBehavior == 1) {
-            me.columns.push(
-                {
-                    header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                    dataIndex: 'value',
-                    align: 'right',
-                    minWidth: 150,
-                    flex: 1,
-                    renderer: function (data, metaData, record) {
-                        var validationFlag = '';
-                        switch (record.get('validationResult')) {
-                            case 'validationStatus.notValidated':
-                                validationFlag = '<span class="icon-validation icon-validation-black"></span>';
-                                break;
-                            case 'validationStatus.ok':
-                                validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
-                                break;
-                            case 'validationStatus.suspect':
-                                validationFlag = '<span class="icon-validation icon-validation-red"></span>';
-                                break;
-                            default:
-                                validationFlag = '';
-                                break;
-                        }
-                        if (Ext.isEmpty(data) && !Ext.isEmpty(validationFlag)) {
-                            return validationFlag;
-                        } else if (!Ext.isEmpty(data)) {
-                            return '<span class="validation-column-align">' + data + ' ' + measurementType + ' ' + validationFlag + '</span>';
-                        } else {
-                            return '<span class="icon-validation icon-validation-black"></span>';
-                        }
-                    }
-                },
-                {
-                    header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
-                    dataIndex: 'value',
-                    flex: 1,
-                    align: 'right',
-                    renderer: function (value, metaData, record) {
-                        var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                        return toDisplay;
-                    }
-                },
-                {
-                    header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
-                    dataIndex: 'delta',
-                    align: 'right',
-                    renderer: function (value, metaData, record) {
-                        return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                    },
-                    flex: 1
-                }
-            );
-        } else {
-            me.columns.push(
-                {
-                    header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                    dataIndex: 'value',
-                    align: 'right',
-                    minWidth: 150,
-                    flex: 1,
-                    renderer: function (data, metaData, record) {
-                        var validationFlag = '';
-                        switch (record.get('validationResult')) {
-                            case 'validationStatus.notValidated':
-                                validationFlag = '<span class="icon-validation icon-validation-black"></span>';
-                                break;
-                            case 'validationStatus.ok':
-                                validationFlag = '&nbsp;&nbsp;&nbsp;&nbsp;';
-                                break;
-                            case 'validationStatus.suspect':
-                                validationFlag = '<span class="icon-validation icon-validation-red"></span>';
-                                break;
-                            default:
-                                validationFlag = '';
-                                break;
-                        }
-                        if (Ext.isEmpty(data) && !Ext.isEmpty(validationFlag)) {
-                            return validationFlag;
-                        } else if (!Ext.isEmpty(data)) {
-                            return '<span class="validation-column-align">' + data + ' ' + measurementType + ' ' + validationFlag + '</span>';
-                        } else {
-                            return '<span class="icon-validation icon-validation-black"></span>';
-                        }
-                    }
-                },
-                {
-                    header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
-                    dataIndex: 'value',
-                    flex: 1,
-                    align: 'right',
-                    renderer: function (value, metaData, record) {
-                        var toDisplay = !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
-                        return toDisplay;
-                    }
-                });
-        }
-
-        me.columns.push({
-            xtype: 'interval-flags-column',
-            dataIndex: 'intervalFlags',
-            flex: 1
-        });
 
         me.callParent(arguments);
     }
