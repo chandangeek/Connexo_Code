@@ -24,14 +24,14 @@ public class DeviceMessageSpecInfoFactory {
         DeviceMessageSpecInfo info = new DeviceMessageSpecInfo();
         info.id=deviceMessageSpec.getId().name();
         info.name=deviceMessageSpec.getName();
-        info.willBePickedUpByScheduledComTask = device.getComTaskExecutions().stream().
+        info.willBePickedUpByPlannedComTask = device.getComTaskExecutions().stream().
                 filter(cte -> !cte.isOnHold()).
                 flatMap(cte -> cte.getComTasks().stream()).
                 flatMap(comTask -> comTask.getProtocolTasks().stream()).
                 filter(task -> task instanceof MessagesTask).
                 flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
                 anyMatch(category -> category.getId() == deviceMessageSpec.getCategory().getId());
-        if (info.willBePickedUpByScheduledComTask) {
+        if (info.willBePickedUpByPlannedComTask) {
             info.willBePickedUpByComTask = true; // shortcut
         } else {
             info.willBePickedUpByComTask = device.getDeviceConfiguration().
