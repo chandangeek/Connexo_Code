@@ -3,34 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
-import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
@@ -91,13 +64,16 @@ import java.util.Set;
  */
 @DeviceFunctionsAreSupportedByProtocol(groups = {Save.Update.class, Save.Create.class})
 @ImmutablePropertiesCanNotChangeForActiveConfiguration(groups = {Save.Update.class, Save.Create.class})
+@GatewayTypeMustBeSpecified(groups = {Save.Update.class, Save.Create.class})
 public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfiguration> implements DeviceConfiguration, ServerDeviceConfiguration {
 
     private static final DeviceCommunicationFunctionSetPersister deviceCommunicationFunctionSetPersister = new DeviceCommunicationFunctionSetPersister();
 
     enum Fields {
         CAN_ACT_AS_GATEWAY("canActAsGateway"), // 'virtual' BeanProperty not backed by actual member
-        IS_DIRECTLY_ADDRESSABLE("isDirectlyAddressable"); // 'virtual' BeanProperty not backed by actual member
+        IS_DIRECTLY_ADDRESSABLE("isDirectlyAddressable"), // 'virtual' BeanProperty not backed by actual member
+        GATEWAY_TYPE("gatewayType"),
+        ;
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -131,6 +107,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private int communicationFunctionMask;
     private Instant modificationDate;
     private Clock clock;
+    private GatewayType gatewayType = GatewayType.NONE;
     private final Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
     private final Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider;
     private final Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider;
@@ -229,6 +206,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
         } else {
             removeCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+            this.gatewayType = GatewayType.NONE;
         }
     }
 
@@ -981,4 +959,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return result;
     }
 
+    public GatewayType getGetwayType(){
+        return this.gatewayType;
+    }
+
+    public void setGatewayType(GatewayType gatewayType){
+        if (gatewayType != null){
+            this.gatewayType = gatewayType;
+        } else {
+            this.gatewayType = GatewayType.NONE;
+        }
+    }
 }

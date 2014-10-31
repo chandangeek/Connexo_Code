@@ -7,22 +7,12 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
@@ -37,7 +27,6 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -365,6 +354,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();
         deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+        deviceConfiguration.setGatewayType(GatewayType.HOME_AREA_NETWORK);
         deviceConfiguration.save();
 
         DeviceConfiguration refreshedDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
@@ -389,6 +379,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("gateway").add();
         deviceConfiguration.addCommunicationFunction(DeviceCommunicationFunction.GATEWAY);
+        deviceConfiguration.setGatewayType(GatewayType.HOME_AREA_NETWORK);
         deviceConfiguration.save();
     }
 
@@ -422,6 +413,34 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.setCanActAsGateway(true);
         deviceConfiguration.save();
     }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE + "}", property = "gatewayType", strict = false)
+    public void testCanNotUpdateGatewayTypeWhenDeviceConfigIfInUse() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").gatewayType(GatewayType.HOME_AREA_NETWORK).add();
+        deviceConfiguration.activate();
+
+        deviceConfiguration.setGatewayType(GatewayType.LOCAL_AREA_NETWORK);
+        deviceConfiguration.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_GATEWAY_TYPE + "}", property = "gatewayType", strict = false)
+    public void testCanNotSaveWithoutGatewayTypeWhenActsAsGateway() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").canActAsGateway(true).add();
+    }
+
+    @Test
+    @Transactional
+    public void testSaveDeviceConfigurationWithGateWayType() throws Exception {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").gatewayType(GatewayType.HOME_AREA_NETWORK).add();
+     }
+
 
     @Test
     @Transactional

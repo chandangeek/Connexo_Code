@@ -223,6 +223,7 @@ public interface DeviceType extends HasId, HasName {
         DeviceConfigurationBuilder description(String description);
         DeviceConfigurationBuilder canActAsGateway(boolean canActAsGateway);
         DeviceConfigurationBuilder isDirectlyAddressable(boolean canBeDirectlyAddressed);
+        DeviceConfigurationBuilder gatewayType(GatewayType gatewayType);
     }
 
 }
