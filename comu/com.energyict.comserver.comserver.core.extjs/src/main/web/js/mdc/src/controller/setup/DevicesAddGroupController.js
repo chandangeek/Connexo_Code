@@ -82,7 +82,7 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     },
 
     clearFilter: function () {
-        this.getCriteriaPanel().removeAll();
+        this.getCriteriaPanel().getContainer().removeAll();
         var router = this.getController('Uni.controller.history.Router');
         var record = router.filter;
         record.set('mRID', null);
