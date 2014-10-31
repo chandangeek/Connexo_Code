@@ -90,6 +90,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'valueContainer',
+                        required: true,
                         fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                         layout: 'hbox',
                         items: [
@@ -98,7 +99,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                                 name: 'value',
                                 maskRe: /[0-9\.]+/,
                                 itemId: 'valueTextField',
-                                margin: '0 5 0 0'
+                                margin: '0 5 0 0',
+                                allowBlank: false
                             },
                             {
                                 xtype: 'displayfield',

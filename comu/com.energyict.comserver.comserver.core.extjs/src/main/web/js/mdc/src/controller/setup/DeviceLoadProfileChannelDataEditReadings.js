@@ -174,8 +174,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
                                     router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').forward();
                                 }
                             }).show({
-                                msg: failureResponseText.message,
-                                title: failureResponseText.error
+                                msg: failureResponseText.message ? failureResponseText.message :
+                                    Uni.I18n.translate('general.emptyField', 'MDC', 'Value field can not be empty'),
+                                title: failureResponseText.error ? failureResponseText.error :
+                                    Uni.I18n.translate('general.during.editing', 'MDC,', 'Error during editing')
                             });
                         }
                     }
