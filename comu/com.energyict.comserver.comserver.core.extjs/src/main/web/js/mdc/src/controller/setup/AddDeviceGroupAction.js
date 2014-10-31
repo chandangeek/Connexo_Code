@@ -199,16 +199,12 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             record.set('name', this.getNameTextField().getValue());
             var isDynamic = this.getDynamicRadioButton().checked;
             record.set('dynamic', isDynamic);
-            if (isDynamic) {
-                record.set('filter', this.getController('Uni.controller.history.Router').filter.data);
-            } else {
+            record.set('filter', this.getController('Uni.controller.history.Router').filter.data);
+            if (!isDynamic) {
                 var grid = this.getStaticGrid();
                 var devicesList = [];
                 if (grid.allChosenByDefault) {
-                    var numberOfDevices = grid.store.data.getArray()[0].length;
-                    for (i = 0; i < numberOfDevices; i++) {
-                        devicesList.push(grid.store.data.getArray()[0][i].data.id);
-                    }
+                    devicesList = null;
                 } else {
                     var selection = this.getStaticGrid().getSelectionModel().getSelection();
                     var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
