@@ -42,5 +42,8 @@ public interface Channel {
 	interface ReadingsDeletedEvent {
 		Channel getChannel();
 		Set<Instant> getReadingTimeStamps();
+		default Range<Instant> getRange() {
+			return Range.encloseAll(getReadingTimeStamps());
+		}
 	}
 }
