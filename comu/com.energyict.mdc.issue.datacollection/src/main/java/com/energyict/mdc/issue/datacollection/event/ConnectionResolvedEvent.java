@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
 
-public class ConnectionResolvedEvent extends ConnectionEvent implements ResolveEvent{
+public class ConnectionResolvedEvent extends ConnectionEvent {
     @Inject
     public ConnectionResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
         super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, connectionTaskService, thesaurus, injector);
@@ -33,5 +33,9 @@ public class ConnectionResolvedEvent extends ConnectionEvent implements ResolveE
     @Override
     public void apply(Issue issue) {
         // do nothing, this event shouldn't produce any issues
+    }
+
+    public boolean isResolveEvent(){
+        return true;
     }
 }

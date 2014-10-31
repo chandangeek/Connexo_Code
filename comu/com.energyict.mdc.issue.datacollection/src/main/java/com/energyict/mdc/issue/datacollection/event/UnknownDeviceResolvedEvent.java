@@ -17,7 +17,7 @@ import com.google.inject.Injector;
 
 import javax.inject.Inject;
 
-public class UnknownDeviceResolvedEvent extends DataCollectionEvent implements ResolveEvent {
+public class UnknownDeviceResolvedEvent extends DataCollectionEvent {
     @Inject
     public UnknownDeviceResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
         super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);
@@ -36,5 +36,9 @@ public class UnknownDeviceResolvedEvent extends DataCollectionEvent implements R
     @Override
     protected Condition getConditionForExistingIssue() {
         return where("baseIssue.device").isEqualTo(getKoreDevice());
+    }
+
+    public boolean isResolveEvent(){
+        return true;
     }
 }

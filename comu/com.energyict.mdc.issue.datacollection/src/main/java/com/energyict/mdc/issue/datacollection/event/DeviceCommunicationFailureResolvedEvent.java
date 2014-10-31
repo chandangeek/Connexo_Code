@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public class DeviceCommunicationFailureResolvedEvent extends DeviceCommunicationFailureEvent implements ResolveEvent {
+public class DeviceCommunicationFailureResolvedEvent extends DeviceCommunicationFailureEvent {
 
     @Inject
     public DeviceCommunicationFailureResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
@@ -35,5 +35,9 @@ public class DeviceCommunicationFailureResolvedEvent extends DeviceCommunication
     @Override
     public void apply(Issue issue) {
         // do nothing, this event shouldn't produce any issues
+    }
+
+    public boolean isResolveEvent(){
+        return true;
     }
 }

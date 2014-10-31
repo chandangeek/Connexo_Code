@@ -249,4 +249,8 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         }
         return clone;
     }
+
+    public boolean isResolveEvent(){
+        return false;
+    }
 }
