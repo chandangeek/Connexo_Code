@@ -10,6 +10,11 @@ public class Accumulator<T, R> {
     public Accumulator(BiFunction<T, R, T> accumulation) {
         this.accumulation = accumulation;
     }
+    
+    public Accumulator(T initialValue, BiFunction<T, R, T> accumulation) {
+    	this.accumulated = initialValue;
+    	this.accumulation = accumulation;
+    }
 
     public void accept(R element) {
         accumulated = accumulation.apply(accumulated, element);
