@@ -38,11 +38,11 @@ public class StandardCsvDataProcessorFactoryTest {
         assertThat(property.isRequired()).isFalse();
         assertThat(property.getValueFactory()).isInstanceOf(BooleanFactory.class);
         property = properties.get(3);
-        assertThat(property.getName()).isEqualTo("fileFormat.updatedData.filenamePrefix");
+        assertThat(property.getName()).isEqualTo("fileFormat.updatedData.updateFilenamePrefix");
         assertThat(property.isRequired()).isFalse();
         assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
         property = properties.get(4);
-        assertThat(property.getName()).isEqualTo("fileFormat.updatedData.fileExtension");
+        assertThat(property.getName()).isEqualTo("fileFormat.updatedData.updateFileExtension");
         assertThat(property.isRequired()).isFalse();
         assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
         assertThat(property.getPossibleValues().getDefault()).isEqualTo("csv");

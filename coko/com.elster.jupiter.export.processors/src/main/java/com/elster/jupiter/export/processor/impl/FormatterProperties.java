@@ -11,8 +11,8 @@ public enum FormatterProperties implements TranslationKey {
     FILENAME_PREFIX("fileFormat.filenamePrefix", "File name prefix"),
     FILE_EXTENSION("fileFormat.fileExtension", "File extension"),
     UPDATE_IN_SEPARATE_FILE("fileFormat.updatedData.separateFile", "Separate file"),
-    UPDATE_FILE_PREFIX("fileFormat.updatedData.filenamePrefix", "File name prefix"),
-    UPDATE_FILE_EXTENSION("fileFormat.updatedData.fileExtension", "File extension"),
+    UPDATE_FILE_PREFIX("fileFormat.updatedData.updateFilenamePrefix", "File name prefix"),
+    UPDATE_FILE_EXTENSION("fileFormat.updatedData.updateFileExtension", "File extension"),
     SEPARATOR("formatterProperties.separator", "Separator");
 
     private String name;
