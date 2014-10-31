@@ -17,9 +17,12 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,14 +49,16 @@ public class DeviceGroupResource {
     private final RestQueryService restQueryService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final MeteringService meteringService;
+    private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, ExceptionFactory exceptionFactory) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory) {
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
         this.restQueryService = restQueryService;
+        this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -149,9 +154,19 @@ public class DeviceGroupResource {
         } else {
             endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(name);
             List<Integer> devices = (List<Integer>) deviceGroupInfo.devices;
-            if (devices != null) {
+            if (devices != null)  {
                 for (int deviceId : devices) {
                     Optional<EndDevice> deviceOptional = meteringService.findEndDevice(deviceId);
+                    if (deviceOptional.isPresent()) {
+                        ((EnumeratedEndDeviceGroup) endDeviceGroup).add(deviceOptional.get(), Interval.sinceEpoch().toClosedRange());
+                    }
+                }
+            // all devices option selected
+            } else {
+                Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
+                List<Device> allDevices = allDevicesFinder.find();
+                for (Device device : allDevices) {
+                    Optional<EndDevice> deviceOptional = meteringService.findEndDevice(device.getId());
                     if (deviceOptional.isPresent()) {
                         ((EnumeratedEndDeviceGroup) endDeviceGroup).add(deviceOptional.get(), Interval.sinceEpoch().toClosedRange());
                     }
