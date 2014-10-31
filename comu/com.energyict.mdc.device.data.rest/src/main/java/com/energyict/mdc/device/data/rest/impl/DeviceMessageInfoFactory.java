@@ -5,6 +5,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -12,9 +13,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.Optional;
-import java.util.function.Function;
 import javax.inject.Inject;
 
 import static java.util.stream.Collectors.toList;
@@ -115,50 +115,14 @@ public class DeviceMessageInfoFactory {
                 findFirst(). // A Dangling ComTask -> There is no ComTaskExecution yet but the enabled comTask supports the device message category
             orElse(device.
                 getComTaskExecutions().stream().
-                filter(cte -> cte.isAdHoc() && !cte.isOnHold()).
+                sorted(Comparator.comparing(ComTaskExecution::isAdHoc).thenComparing(ComTaskExecution::isScheduledManually).thenComparing(ComTaskExecution::isOnHold).reversed()).
                 flatMap(cte -> cte.getComTasks().stream()).
                 filter(comTask -> comTask.getProtocolTasks().stream().
                         filter(task -> task instanceof MessagesTask).
                         flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
                         anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).
-                findFirst(). // An AdHoc comTask that is already planned to be executed
-            orElse(device.
-                getComTaskExecutions().stream().
-                filter(cte -> !cte.isAdHoc() && cte.isOnHold() && cte.isScheduledManually()).
-                flatMap(cte -> cte.getComTasks().stream()).
-                filter(comTask -> comTask.getProtocolTasks().stream().
-                        filter(task -> task instanceof MessagesTask).
-                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).
-                findFirst(). // An manually scheduled comTask that is on hold
-            orElse(device.
-                getComTaskExecutions().stream().
-                filter(cte -> !cte.isAdHoc() && !cte.isOnHold() && cte.isScheduledManually()).
-                flatMap(cte -> cte.getComTasks().stream()).
-                filter(comTask -> comTask.getProtocolTasks().stream().
-                        filter(task -> task instanceof MessagesTask).
-                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).
-                findFirst(). // An manually scheduled comTask that is running
-            orElse(device.
-                getComTaskExecutions().stream().
-                filter(cte -> !cte.isAdHoc() && cte.isOnHold() && !cte.isScheduledManually()).
-                flatMap(cte -> cte.getComTasks().stream()).
-                filter(comTask -> comTask.getProtocolTasks().stream().
-                        filter(task -> task instanceof MessagesTask).
-                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).
-                findFirst(). // An shared scheduled comTask that is on hold
-            orElse(device.
-                getComTaskExecutions().stream().
-                filter(cte -> !cte.isAdHoc() && !cte.isOnHold() && !cte.isScheduledManually()).
-                flatMap(cte -> cte.getComTasks().stream()).
-                filter(comTask -> comTask.getProtocolTasks().stream().
-                        filter(task -> task instanceof MessagesTask).
-                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).
-                findFirst(). // An shared scheduled comTask that is running
-            orElse(null)))))));
+                findFirst().
+                orElse(null)));
     }
 
 }
