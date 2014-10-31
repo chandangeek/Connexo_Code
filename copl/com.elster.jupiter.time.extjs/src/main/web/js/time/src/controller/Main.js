@@ -4,11 +4,13 @@ Ext.define('Tme.controller.Main', {
     requires: [
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
-        'Uni.store.PortalItems'
+        'Uni.store.PortalItems',
+        'Tme.controller.history.Time'
     ],
 
     controllers: [
-        'Tme.controller.RelativePeriods'
+        'Tme.controller.RelativePeriods',
+        'Tme.controller.history.Time'
     ],
 
     init: function () {
