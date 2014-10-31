@@ -160,12 +160,19 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 connectionMethodsOfDeviceStore.getProxy().setExtraParam('mrid', this.mrid);
                 connectionMethodsOfDeviceStore.load({
                     callback: function () {
-                        connectionMethodsOfDeviceStore.add(Ext.create('Mdc.model.ConnectionMethod', {
+                        var nameOfDefaultConnectionMethod = Uni.I18n.translate('deviceCommunicationTask.notDefinedYey', 'MDC', 'Not defined yet');
+                        Ext.each(connectionMethodsOfDeviceStore.data.items,function(value){
+                            if(value.data.isDefault){
+                                nameOfDefaultConnectionMethod = value.data.name;
+                            };
+                        });
+                        connectionMethodsOfDeviceStore.add(Ext.create('Mdc.model.DeviceConnectionMethod', {
                             id: -1,
-                            name: Uni.I18n.translate('deviceCommunicationTask.default', 'MDC', 'Default')
+                            name: Uni.I18n.translate('deviceCommunicationTask.default', 'MDC', 'Default') + ' (' + nameOfDefaultConnectionMethod + ')',
+                            isDefault: false
                         }));
                         if(comTask.get('connectionMethod').toLowerCase().indexOf('default')>-1){
-                            var initialValue = 'Default';
+                            var initialValue = Uni.I18n.translate('deviceCommunicationTask.default', 'MDC', 'Default') + ' (' + nameOfDefaultConnectionMethod + ')';
 
                         } else {
                             initialValue = comTask.get('connectionMethod');

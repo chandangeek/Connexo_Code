@@ -37,14 +37,16 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'deviceConfigurationDetailDeviceTypeLink', selector: '#deviceConfigurationDetailDeviceTypeLink'},
         {ref: 'deviceConfigurationDetailForm', selector: '#deviceConfigurationDetailForm'},
         {ref: 'deviceConfigurationEditForm', selector: '#deviceConfigurationEditForm'},
+        {ref: 'deviceConfigurationEdit', selector: '#deviceConfigurationEdit'},
         {ref: 'deviceConfigurationsSetup', selector: '#deviceConfigurationsSetup'},
         {ref: 'activateDeviceconfigurationMenuItem', selector: '#activateDeviceconfigurationMenuItem'},
-        {ref: 'gatewayCheckbox', selector: '#gatewayCheckbox'},
-        {ref: 'addressableCheckbox', selector: '#addressableCheckbox'},
-        {ref: 'gatewayMessage', selector: '#gatewayMessage'},
-        {ref: 'addressableMessage', selector: '#addressableMessage'},
-        {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'} ,
-
+        {ref: 'gatewayMessage', selector: '#deviceConfigurationEditForm #gatewayMessage'},
+        {ref: 'addressableMessage', selector: '#deviceConfigurationEditForm #addressableMessage'},
+        {ref: 'gatewayCombo', selector: '#deviceConfigurationEditForm #deviceIsGatewayCombo'},
+        {ref: 'addressableCombo', selector: '#deviceConfigurationEditForm #directlyAddressableCombo'},
+        {ref: 'typeOfGatewayCombo', selector: '#deviceConfigurationEditForm #typeOfGatewayCombo'},
+        {ref: 'typeOfGatewayComboContainer', selector: '#deviceConfigurationEditForm #typeOfGatewayComboContainer'},
+        {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'},
         {ref: 'activateDeviceconfigurationMenuItem', selector: '#activateDeviceconfigurationMenuItem'}
     ],
 
@@ -76,11 +78,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 click: this.chooseAction,
                 show: this.configureMenu
             },
-            '#createEditButton[action=createDeviceConfiguration]': {
-                click: this.createDeviceConfiguration
+            '#createEditButton': {
+                click: this.createEditDeviceConfiguration
             },
-            '#createEditButton[action=editDeviceConfiguration]': {
-                click: this.editDeviceConfiguration
+            '#deviceConfigurationEditForm #deviceIsGatewayCombo': {
+                change: this.showTypeOfGatewayCombo
             }
         });
     },
@@ -96,6 +98,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             activate.show();
             deactivate.hide();
         }
+    },
+
+    showTypeOfGatewayCombo: function (deviceIsGatewayCombo) {
+        this.getTypeOfGatewayComboContainer().setVisible(deviceIsGatewayCombo.getValue().canBeGateway);
     },
 
     showDeviceConfigurations: function (id) {
@@ -300,46 +306,76 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('#deviceConfigurationEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device configuration' + '</h1>');
-                me.setCheckBoxes(deviceType);
+                me.setRadioButtons(deviceType);
             }
         });
     },
 
-    setCheckBoxes: function (deviceType, deviceConfiguration) {
-        if (deviceConfiguration !== undefined && deviceConfiguration.get('active')) {
-            this.getGatewayCheckbox().setDisabled(true);
-            this.getAddressableCheckbox().setDisabled(true);
-        }
-        else {
-            if (!deviceType.get('canBeGateway')) {
-                this.getGatewayCheckbox().setDisabled(!deviceType.get('canBeGateway'));
-                this.getGatewayMessage().show();
+    setRadioButtons: function (deviceType, deviceConfiguration) {
+        var addressableCombo = this.getAddressableCombo(),
+            gatewayCombo = this.getGatewayCombo(),
+            gatewayMessage = this.getGatewayMessage(),
+            addressableMessage = this.getAddressableMessage(),
+            typeOfGatewayCombo = this.getTypeOfGatewayCombo();
+
+        if (deviceConfiguration) {
+            addressableCombo.setValue({isDirectlyAddressable: deviceConfiguration.get('isDirectlyAddressable')});
+            gatewayCombo.setValue({canBeGateway: deviceConfiguration.get('canBeGateway')});
+            typeOfGatewayCombo.setValue({gatewayType: deviceConfiguration.get('gatewayType')});
+            if (deviceConfiguration.get('active')) {
+                gatewayCombo.disable();
+                addressableCombo.disable();
+                typeOfGatewayCombo.disable();
             }
-            if (!deviceType.get('canBeDirectlyAddressed')) {
-                this.getAddressableCheckbox().setDisabled(!deviceType.get('canBeDirectlyAddressed'));
-                this.getAddressableMessage().show();
-            }
         }
+
+        if (!deviceType.get('canBeGateway')) {
+            gatewayMessage.removeAll();
+            gatewayMessage.add({
+                xtype: 'container',
+                html: '<span style="color: grey;padding: 0 0 0 23px;">' + Uni.I18n.translate('deviceconfiguration.gatewayMessage', 'MDC', 'The device can not act as a gateway') + '</span>'
+            });
+            gatewayCombo.setValue({canBeGateway: false});
+            gatewayCombo.disable();
+        }
+
+        if (!deviceType.get('canBeDirectlyAddressed')) {
+            addressableMessage.removeAll();
+            addressableMessage.add({
+                xtype: 'container',
+                html: '<span style="color: grey;padding: 0 0 0 23px;">' + Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', 'The device cannot be directly addressed') + '</span>'
+            });
+            addressableCombo.setValue({isDirectlyAddressable: false});
+            addressableCombo.disable();
+        }
+
     },
 
     showDeviceConfigurationEditView: function (deviceTypeId, deviceConfigurationId) {
-        this.deviceTypeId = deviceTypeId;
-        var me = this;
-        var returnlink;
-        if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') > -1) {
-            returnlink = '#/administration/devicetypes/';
-        } else {
-            returnlink = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
-        }
-        var widget = Ext.widget('deviceConfigurationEdit', {
-            edit: true,
-            returnLink: returnlink
-        });
-        this.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
-        var me = this;
-        var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+        var me = this,
+            model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration'),
+            widget,
+            returnLink;
+
+        me.deviceTypeId = deviceTypeId;
         model.getProxy().setExtraParam('deviceType', this.deviceTypeId);
+
+
+        if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') > -1) {
+            returnLink = '#/administration/devicetypes/';
+        } else {
+            returnLink = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+        }
+
+        widget = Ext.widget('deviceConfigurationEdit', {
+            edit: true,
+            returnLink: returnLink
+        });
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+
+
         model.load(deviceConfigurationId, {
             success: function (deviceConfiguration) {
                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
@@ -347,8 +383,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         widget.down('form').loadRecord(deviceConfiguration);
-                        widget.down('#deviceConfigurationEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceConfiguration.get('name') + '"</h1>');
-                        me.setCheckBoxes(deviceType, deviceConfiguration);
+                        widget.down('#deviceConfigurationEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + deviceConfiguration.get('name') + '\'</h1>');
+                        me.setRadioButtons(deviceType, deviceConfiguration);
                         widget.setLoading(false);
                     }
                 });
@@ -357,46 +393,37 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         });
     },
 
-    createDeviceConfiguration: function () {
-        var me = this;
-        var record = Ext.create(Mdc.model.DeviceConfiguration),
-            values = this.getDeviceConfigurationEditForm().getValues();
-        if (record) {
-            record.set(values);
-            record.getProxy().setExtraParam('deviceType', this.deviceTypeId);
-            record.save({
-                success: function (record) {
-                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + /deviceconfigurations/ + record.get('id');
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved'));
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        me.getDeviceConfigurationEditForm().getForm().markInvalid(json.errors);
-                    }
-                }
-            });
+    createEditDeviceConfiguration: function (btn) {
+        var me = this,
+            editForm = me.getDeviceConfigurationEdit(),
+            values = me.getDeviceConfigurationEditForm().getValues(),
+            router = me.getController('Uni.controller.history.Router'),
+            record;
 
+
+        editForm.setLoading(true);
+
+        if (btn.action === 'createDeviceConfiguration') {
+            record = Ext.create(Mdc.model.DeviceConfiguration);
+        } else {
+            record = this.getDeviceConfigurationEditForm().getRecord();
         }
-    },
 
-    editDeviceConfiguration: function () {
-        var record = this.getDeviceConfigurationEditForm().getRecord(),
-            values = this.getDeviceConfigurationEditForm().getValues();
-        var me = this;
         if (record) {
             record.set(values);
             record.getProxy().setExtraParam('deviceType', this.deviceTypeId);
             record.save({
                 success: function (record) {
-                    location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+                    router.getRoute('administration/devicetypes/view/deviceconfigurations').forward();
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.saved', 'MDC', 'Device configuration saved'));
+                    editForm.setLoading(false);
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getDeviceConfigurationEditForm().getForm().markInvalid(json.errors);
                     }
+                    editForm.setLoading(false);
                 }
             });
         }
