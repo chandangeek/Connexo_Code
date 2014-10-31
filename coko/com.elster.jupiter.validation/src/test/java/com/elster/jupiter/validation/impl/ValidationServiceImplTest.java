@@ -541,7 +541,7 @@ public class ValidationServiceImplTest {
         when(readingQuality2.getTypeCode()).thenReturn("3.6.9856");
         when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality1, readingQuality2));
         ReadingQualityRecord readingDate2ReadingQuality = mock(ReadingQualityRecord.class);
-        when(channel1.createReadingQuality(any(), any())).thenReturn(readingDate2ReadingQuality);
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(BaseReading.class))).thenReturn(readingDate2ReadingQuality);
         when(channel1.getMainReadingType()).thenReturn(mock(ReadingType.class));
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType1, readingQualityType2);
 
