@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -86,6 +87,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,6 +104,7 @@ import static com.elster.jupiter.validation.ValidationResult.*;
 public class ValidationEvaluatorIT {
 
     private static final String MIN_MAX = DefaultValidatorFactory.THRESHOLD_VALIDATOR;
+    private static final String MISSING = DefaultValidatorFactory.MISSING_VALUES_VALIDATOR;
     private static final String MY_RULE_SET = "MyRuleSet";
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
@@ -164,7 +167,7 @@ public class ValidationEvaluatorIT {
             meter = amrSystem.newMeter("2331");
             meter.save();
             meterActivation = meter.activate(date1);
-            meterActivation.createChannel(readingType1);
+            //meterActivation.createChannel(readingType1);
             ValidationService validationService = injector.getInstance(ValidationService.class);
             validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
             final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
@@ -173,6 +176,9 @@ public class ValidationEvaluatorIT {
             minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
             minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
             minMaxRule.activate();
+            ValidationRule missingRule = validationRuleSet.addRule(ValidationAction.FAIL, MISSING, "missing");
+            missingRule.addReadingType(readingType1);
+            missingRule.activate();
             validationRuleSet.save();
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
@@ -258,12 +264,17 @@ public class ValidationEvaluatorIT {
             return null;
         });
         validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        validationStates.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
         assertThat(validationStates).hasSize(3);
         validationResults =  validationStates.stream()
-        		.sorted(Comparator.comparing(DataValidationStatus::getReadingTimestamp))
         		.map(DataValidationStatus::getValidationResult)
         		.collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,NOT_VALIDATED, SUSPECT));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
+        Set<QualityCodeIndex> qualityCodes = validationStates.get(1).getReadingQualities().stream()
+        		.map(q -> q.getType().qualityIndex().orElse(null))
+        		.collect(Collectors.toSet());
+        assertThat(qualityCodes).contains(QualityCodeIndex.KNOWNMISSINGREAD);
+        assertThat(qualityCodes).contains(QualityCodeIndex.REJECTED);
     }
     
     @Test
@@ -293,6 +304,7 @@ public class ValidationEvaluatorIT {
             channel.editReadings(ImmutableList.of(ReadingImpl.of(readingType,BigDecimal.valueOf(70L),date1.plusSeconds(900*2))));
             return null;
         });
+        assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900*1));
         validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(4);
         validationResults =  validationStates.stream()
