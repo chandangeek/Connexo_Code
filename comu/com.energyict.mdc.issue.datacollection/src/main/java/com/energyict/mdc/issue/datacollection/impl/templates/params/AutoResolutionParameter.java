@@ -32,6 +32,11 @@ public class AutoResolutionParameter extends TranslatedParameter {
     }
 
     @Override
+    public Object getDefaultValue() {
+        return Boolean.TRUE;
+    }
+
+    @Override
     public String getLabel() {
         return getString(MessageSeeds.PARAMETER_AUTO_RESOLUTION);
     }

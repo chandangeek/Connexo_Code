@@ -17,7 +17,7 @@ import com.google.inject.Injector;
 
 import javax.inject.Inject;
 
-public class UnknownDeviceResolvedEvent extends DataCollectionEvent {
+public class UnknownDeviceResolvedEvent extends DataCollectionEvent implements ResolveEvent {
     @Inject
     public UnknownDeviceResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
         super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);

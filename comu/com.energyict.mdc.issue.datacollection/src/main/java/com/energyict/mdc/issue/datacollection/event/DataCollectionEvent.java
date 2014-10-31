@@ -124,8 +124,8 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     }
 
     protected void getEventDevice(Map<?, ?> rawEvent) {
-        Integer amrId = Integer.class.cast(rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER));
-        device = getDeviceService().findDeviceById(amrId);
+        Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
+        device = getDeviceService().findDeviceById(amrId.orElse(0L));
         if (device != null) {
             koreDevice = findKoreDeviceByDevice();
         } else {
@@ -221,9 +221,12 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
 
     protected abstract Condition getConditionForExistingIssue();
 
-    protected Long getLong(Map<?, ?> map, String key) {
+    protected Optional<Long> getLong(Map<?, ?> map, String key) {
         Object contents = map.get(key);
-        return ((Number) contents).longValue();
+        if (contents == null){
+            return Optional.empty();
+        }
+        return Optional.of(((Number) contents).longValue());
     }
 
     @Override

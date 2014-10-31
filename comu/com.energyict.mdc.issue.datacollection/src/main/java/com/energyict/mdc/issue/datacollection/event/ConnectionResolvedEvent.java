@@ -14,8 +14,9 @@ import com.google.inject.Injector;
 
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.Optional;
 
-public class ConnectionResolvedEvent extends ConnectionEvent {
+public class ConnectionResolvedEvent extends ConnectionEvent implements ResolveEvent{
     @Inject
     public ConnectionResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
         super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, connectionTaskService, thesaurus, injector);
@@ -23,9 +24,9 @@ public class ConnectionResolvedEvent extends ConnectionEvent {
 
     @Override
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
-        Integer connectionTaskId = (Integer) rawEvent.get(ModuleConstants.CONNECTION_TASK_ID);
-        if (connectionTaskId != null) {
-            setConnectionTask(connectionTaskId);
+        Optional<Long> connectionTaskId = getLong(rawEvent, ModuleConstants.CONNECTION_TASK_ID);
+        if (connectionTaskId.isPresent()){
+            setConnectionTask(connectionTaskId.get());
         }
     }
 

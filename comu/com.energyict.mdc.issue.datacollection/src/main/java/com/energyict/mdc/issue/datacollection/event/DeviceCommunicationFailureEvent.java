@@ -59,12 +59,7 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
 
     protected void setComTask(long comTaskId) {
         ComTaskExecution comTaskExecution = getCommunicationTaskService().findComTaskExecution(comTaskId);
-        if (comTaskExecution != null) {
-            this.comTask = Optional.of(comTaskExecution);
-        } else {
-            this.comTask = Optional.empty();
-            // Todo: throw exception when we can't find the communication task
-        }
+        this.comTask = Optional.ofNullable(comTaskExecution);
     }
 
     @Override

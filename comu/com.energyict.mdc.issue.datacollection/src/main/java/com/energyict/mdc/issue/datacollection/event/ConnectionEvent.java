@@ -32,13 +32,14 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
     }
 
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription){
-        Integer connectionTaskId = (Integer) rawEvent.get(ModuleConstants.CONNECTION_TASK_ID);
-        if (connectionTaskId != null){
-            setConnectionTask(connectionTaskId);
+        Optional<Long> connectionTaskId = getLong(rawEvent, ModuleConstants.CONNECTION_TASK_ID);
+        if (connectionTaskId.isPresent()){
+            setConnectionTask(connectionTaskId.get());
         }
-        Integer comSessionId = (Integer) rawEvent.get(ModuleConstants.COM_SESSION_ID);
-        if (comSessionId != null){
-            setComSession(comSessionId);
+
+        Optional<Long> comSessionId = getLong(rawEvent, ModuleConstants.COM_SESSION_ID);
+        if (comSessionId.isPresent()){
+            setComSession(comSessionId.get());
         }
     }
 
@@ -70,7 +71,6 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
 
     protected void setConnectionTask(long connectionTaskId) {
         this.connectionTask = getConnectionTaskService().findConnectionTask(connectionTaskId);
-        // TODO throw exception when we can't find the connection task
     }
     
     protected void setComSession(long comSessionId) {

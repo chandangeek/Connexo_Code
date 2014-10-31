@@ -27,6 +27,11 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
             }
             return false;
         }
+
+        @Override
+        public String getUniqueKey() {
+            return DataCollectionEventDescription.CONNECTION_LOST.getUniqueKey();
+        }
     },
 
     DEVICE_COMMUNICATION_FAILURE_AUTO_RESOLVE(
@@ -43,15 +48,32 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
         public List<Map<?, ?>> splitEvents(Map<?, ?> map) {
             return splitEventsByKey(map, ModuleConstants.SUCCESS_TASK_IDS);
         }
+
+        @Override
+        public String getUniqueKey() {
+            return DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE.getUniqueKey();
+        }
     },
 
     UNABLE_TO_CONNECT_AUTO_RESOLVE(
             "com/energyict/mdc/connectiontask/COMPLETION",
-            ConnectionResolvedEvent.class),
+            ConnectionResolvedEvent.class){
+
+        @Override
+        public String getUniqueKey() {
+            return DataCollectionEventDescription.UNABLE_TO_CONNECT.getUniqueKey();
+        }
+    },
 
     UNKNOWN_DEVICE_EVENT_AUTO_RESOLVE(
             "com/elster/jupiter/metering/enddeviceevent/CREATED",
-            UnknownDeviceResolvedEvent.class);
+            UnknownDeviceResolvedEvent.class){
+
+        @Override
+        public String getUniqueKey() {
+            return DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE.getUniqueKey();
+        }
+    };
 
     private String topic;
     private Class<? extends DataCollectionEvent> eventClass;
