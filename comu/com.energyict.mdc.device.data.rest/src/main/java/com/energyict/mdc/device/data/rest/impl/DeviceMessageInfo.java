@@ -21,9 +21,9 @@ public class DeviceMessageInfo {
     public String user;
     public String errorMessage;
     public Boolean willBePickedUpByComTask;
-    public Boolean willBePickedUpByScheduledComTask;
+    public Boolean willBePickedUpByPlannedComTask;
     public List<PropertyInfo> properties;
-    public IdWithNameInfo executingComTask;
+    public IdWithNameInfo preferredComTask;
 
     public DeviceMessageInfo() {
     }
