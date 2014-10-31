@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.cache;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -20,7 +19,6 @@ import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -35,14 +33,9 @@ import java.util.zip.GZIPOutputStream;
  */
 public class DeviceCacheImpl implements DeviceCache {
 
+    private static final int DEFLATION_BUFFER_SIZE = 4096;
     private final Logger logger = Logger.getLogger(DeviceCacheImpl.class.getName());
 
-    private static final String REGEX = ":-:-:";
-    private static final int NUMBER_OF_ELEMENTS_IN_JSON_CACHE = 2;
-    private static final int CLASS_NAME_INDEX = 0;
-    private static final int JSON_PAYLOAD_INDEX = 1;
-
-    private final Thesaurus thesaurus;
     private final DataModel dataModel;
     private final Clock clock;
     private final ProtocolPluggableService protocolPluggableService;
@@ -53,8 +46,7 @@ public class DeviceCacheImpl implements DeviceCache {
     private Instant modificationDate;
 
     @Inject
-    public DeviceCacheImpl(Thesaurus thesaurus, DataModel dataModel, Clock clock, ProtocolPluggableService protocolPluggableService) {
-        this.thesaurus = thesaurus;
+    public DeviceCacheImpl(DataModel dataModel, Clock clock, ProtocolPluggableService protocolPluggableService) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.protocolPluggableService = protocolPluggableService;
@@ -83,7 +75,6 @@ public class DeviceCacheImpl implements DeviceCache {
         this.dataModel.remove(this);
     }
 
-
     @Override
     public long getDeviceId() {
         return this.device.get().getId();
@@ -100,22 +91,20 @@ public class DeviceCacheImpl implements DeviceCache {
     }
 
     public DeviceProtocolCache unMarshal(byte[] bytes) {
-        DeviceProtocolCache deviceProtocolCache = null;
         if (bytes != null) {
             String completeCache = new String(bytes);
-            String[] cacheElements = completeCache.split(REGEX);
-            if (cacheElements.length == NUMBER_OF_ELEMENTS_IN_JSON_CACHE) {
-                deviceProtocolCache = this.protocolPluggableService.unMarshalDeviceProtocolCache(
-                        cacheElements[CLASS_NAME_INDEX],
-                        cacheElements[JSON_PAYLOAD_INDEX]);
-            }
+            return this.protocolPluggableService
+                        .unMarshallDeviceProtocolCache(completeCache)
+                        .map(DeviceProtocolCache.class::cast)
+                        .orElse(null);
         }
-        return deviceProtocolCache;
+        else {
+            return null;
+        }
     }
 
     public byte[] marshal(DeviceProtocolCache deviceProtocolCache) {
-        String jsonCache = this.protocolPluggableService.marshalDeviceProtocolCache(deviceProtocolCache);
-        return (deviceProtocolCache.getClass().getName() + REGEX + jsonCache).getBytes();
+        return this.protocolPluggableService.marshallDeviceProtocolCache(deviceProtocolCache).getBytes();
     }
 
     private byte[] getZippedContent(byte[] jsonCacheBytes) {
@@ -135,7 +124,7 @@ public class DeviceCacheImpl implements DeviceCache {
             try (GZIPInputStream gzi = new GZIPInputStream(byteArrayInputStream)) {
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     int len;
-                    byte[] tempBytes = new byte[4096];
+                    byte[] tempBytes = new byte[DEFLATION_BUFFER_SIZE];
                     while ((len = gzi.read(tempBytes, 0, tempBytes.length)) > 0) {
                         baos.write(tempBytes, 0, len);
                     }
@@ -147,4 +136,5 @@ public class DeviceCacheImpl implements DeviceCache {
         }
         return new byte[0];
     }
+
 }
