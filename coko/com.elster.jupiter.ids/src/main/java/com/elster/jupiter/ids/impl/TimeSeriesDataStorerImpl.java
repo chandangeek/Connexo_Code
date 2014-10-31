@@ -9,8 +9,8 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import java.time.Clock;
 
+import java.time.Clock;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,13 +19,13 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 @LiteralSql
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
@@ -81,14 +81,12 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
     }
 
     private void doExecute() throws SQLException {
-        // lock and refresh all timeseries objects, but make sure to do this in id order to avoid deadlocks between concurrent storers
-        Map<Long, TimeSeriesImpl> lockedTimeSeriesMap = storerMap.values().stream()
-                .flatMap(slaveStorer -> slaveStorer.getAllTimeSeries().stream())
-                .sorted((t1, t2) -> Long.signum(t2.getId() - t1.getId()))
-                .map(timeSeries -> timeSeries.refreshAndLock())
-                .collect(Collectors.toMap(timeSeries -> timeSeries.getId(), timeSeries -> timeSeries));
+        // lock all timeseries objects, but make sure to do this in id order to avoid deadlocks between concurrent storers
+        storerMap.values().stream()
+        	.flatMap(slaveStorer -> slaveStorer.getAllTimeSeries().stream())
+        	.sorted(Comparator.comparing(TimeSeriesImpl::getId))
+        	.forEach(timeSeries -> timeSeries.lock());                
         for (SlaveTimeSeriesDataStorer storer : storerMap.values()) {
-            storer.updateTimeSeries(lockedTimeSeriesMap);
             storer.execute(stats, overrules());
         }
     }
@@ -189,10 +187,6 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 
         String journalSql() {
             return vault.journalSql(recordSpec);
-        }
-
-        void updateTimeSeries(Map<Long, TimeSeriesImpl> timeSeriesMap) {
-            storerMap.values().forEach(storer -> storer.updateTimeSeries(timeSeriesMap.get(storer.getTimeSeries().getId())));
         }
 
         void setOldEntries(Connection connection) throws SQLException {
@@ -297,9 +291,6 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             newEntries.put(instant, entry);
         }
 
-        void updateTimeSeries(TimeSeriesImpl timeSeries) {
-            this.timeSeries = timeSeries;
-        }
 
         TimeSeriesImpl getTimeSeries() {
             return timeSeries;

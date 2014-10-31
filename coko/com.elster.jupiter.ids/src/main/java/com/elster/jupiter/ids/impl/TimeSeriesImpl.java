@@ -7,6 +7,7 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableList;
@@ -292,8 +293,9 @@ public final class TimeSeriesImpl implements TimeSeries {
     	return getVault().getEntry(this,when);
     }
     
-    TimeSeriesImpl refreshAndLock() {     
-        return dataModel.mapper(TimeSeriesImpl.class).lock(getId());
+    void lock() {     
+    	TimeSeriesImpl latest = dataModel.mapper(TimeSeriesImpl.class).lock(getId());
+    	if (latest.version != this.version) throw new OptimisticLockException();
     }
 	
 	@Override
