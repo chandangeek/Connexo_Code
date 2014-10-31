@@ -12,6 +12,7 @@ import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimplv2.MdcManager;
 
 /** Connection encapsulates all the protocol layers:
  *  - application layer (message)
@@ -168,8 +169,9 @@ class Connection implements ProtocolConnection {
             try { 
                 return doTry(request); 
             } catch(InterruptedException e){
-                throw new RuntimeException(e);
-            } catch(Exception e) {  
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            } catch(Exception e) {
                 e.printStackTrace(); // ignore & try again
             }
             failCount = failCount + 1;

@@ -9,6 +9,7 @@ import java.util.Date;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimplv2.MdcManager;
 
 class LinkLayer extends Connection {
 	
@@ -115,8 +116,8 @@ class LinkLayer extends Connection {
     	try {
             Thread.sleep(millisec);
         } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new IOException(e.getMessage());
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
     

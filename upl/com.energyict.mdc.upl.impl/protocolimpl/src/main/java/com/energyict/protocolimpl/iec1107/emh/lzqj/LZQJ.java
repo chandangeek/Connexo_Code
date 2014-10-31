@@ -33,6 +33,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -410,7 +411,8 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
-                    throw new NestedIOException(e);
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             }
 

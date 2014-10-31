@@ -12,6 +12,8 @@ import com.energyict.cbo.NestedIOException;
 
 import com.energyict.protocol.*;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocolimplv2.MdcManager;
+
 /**
  * @version  1.0
  * @author   Koenraad Vanderschaeve
@@ -635,7 +637,8 @@ public class SiemensSCTM {
             
         }
         catch(InterruptedException e){
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -652,7 +655,8 @@ public class SiemensSCTM {
             Thread.sleep(lDelay);             
         }
         catch(InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
     

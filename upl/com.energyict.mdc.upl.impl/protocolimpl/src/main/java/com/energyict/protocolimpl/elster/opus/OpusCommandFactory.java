@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.elster.opus;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 import java.util.*;
@@ -101,9 +102,9 @@ public class OpusCommandFactory {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+        }
 		// maybe good to catch some of the errors here
 		if     (command==3) {s=currentMonthCumulativeReadings(attempts, timeOut, numChan);}
 		else if(command==4) {s=previousMonthCumulativeReadings(attempts, timeOut, numChan);}

@@ -29,6 +29,8 @@ import com.energyict.protocolimpl.ge.kv2.tables.*;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.meteridentification.*;
 import com.energyict.cbo.*;
+import com.energyict.protocolimplv2.MdcManager;
+
 /**
  *
  * @author Koen
@@ -261,7 +263,8 @@ public class GEKV2LoadProfile {
                     Thread.sleep(5000);
                 }
                 catch(InterruptedException e) {
-                    // absorb
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             }
             else break;

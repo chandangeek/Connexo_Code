@@ -13,6 +13,8 @@ package com.energyict.protocolimpl.itron.fulcrum;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.itron.fulcrum.basepages.*;
+import com.energyict.protocolimplv2.MdcManager;
+
 import java.io.*;
 import java.math.*;
 import java.util.*;
@@ -240,7 +242,8 @@ public class FulcrumProfile {
                 try {
                     Thread.sleep(5000);
                 } catch(InterruptedException e) {
-                    // absorb
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             } else break;
         } // while(true)

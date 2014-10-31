@@ -42,6 +42,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -354,7 +355,8 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         try {
             Thread.sleep(pDelayBeforeConnect);
         } catch (InterruptedException e) {
-            throw new IOException(e.getMessage());
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         ;
 

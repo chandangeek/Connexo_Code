@@ -5,6 +5,7 @@ import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.CircularByteBuffer;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 import java.util.logging.Level;
@@ -153,7 +154,8 @@ public class MK10PushInputStream extends InputStream {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
 

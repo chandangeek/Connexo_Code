@@ -30,6 +30,7 @@ import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -397,7 +398,8 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
                 }
             }
             catch(InterruptedException e) {
-                throw new NestedIOException(e);
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             }
             catch(SiemensSCTMException e) {
                 throw new NestedIOException(e);

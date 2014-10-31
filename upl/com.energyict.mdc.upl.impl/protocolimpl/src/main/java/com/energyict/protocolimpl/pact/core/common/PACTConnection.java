@@ -13,6 +13,7 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -601,8 +602,9 @@ public class PACTConnection extends Connection {
 										Thread.sleep(TO1);
 										flushInputStream();
 									} catch (InterruptedException e) {
-										throw new NestedIOException(e);
-									}
+                                        Thread.currentThread().interrupt();
+                                        throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                                    }
 									return baos.toByteArray();
 								}
 							} // if (lastBlockCount > 0)

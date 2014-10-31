@@ -16,6 +16,7 @@ import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimplv2.MdcManager;
 
 public class CM32Connection extends Connection implements ProtocolConnection {
 	
@@ -80,7 +81,8 @@ public class CM32Connection extends Connection implements ProtocolConnection {
                 return response;
             }
             catch(InterruptedException e){
-                    throw new NestedIOException(e);
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             }
             catch(ConnectionException e) {
                 if (DEBUG>=1) e.printStackTrace();

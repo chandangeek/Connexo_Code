@@ -14,6 +14,8 @@ import com.energyict.cbo.*;
 import java.io.*;
 
 import com.energyict.protocol.*;
+import com.energyict.protocolimplv2.MdcManager;
+
 import java.util.*;
 
 /**
@@ -63,7 +65,8 @@ public class EnterTimeCommand extends AbstractCommand {
                 }
             }
             catch(InterruptedException e) {
-                throw new NestedIOException(e);
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             }
             catch(IOException e) {
                 throw new IOException("DukePower, buildFrameWriteClock, IOException, "+e.getMessage());   

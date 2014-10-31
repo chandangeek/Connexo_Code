@@ -18,6 +18,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -367,8 +368,8 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
         try {
             Thread.sleep(millisec);
         } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new IOException(e.getMessage());
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
 

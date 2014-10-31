@@ -22,6 +22,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCode;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -251,7 +252,8 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                                     Thread.sleep(interframeTimeout);
                                 }
                                 catch (InterruptedException e) {
-                                    // absorb
+                                    Thread.currentThread().interrupt();
+                                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                                 }
                                 byte[] data = allDataArrayOutputStream.toByteArray();
                                 if (data.length <= 2) {

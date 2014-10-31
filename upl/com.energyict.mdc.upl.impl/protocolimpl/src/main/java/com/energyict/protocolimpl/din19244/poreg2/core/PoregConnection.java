@@ -8,6 +8,7 @@ import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 import java.util.Arrays;
@@ -126,7 +127,8 @@ public class PoregConnection implements ProtocolConnection {
                     Thread.sleep(1);
                 }
             } catch (InterruptedException e) {
-                throw new NestedIOException(e);
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             } catch (IOException e) {
                 throw new ConnectionException("Connection, readBytes() error " + e.getMessage());
             }
@@ -185,7 +187,8 @@ public class PoregConnection implements ProtocolConnection {
             } catch (IOException e) {
                 break;
             } catch (InterruptedException e) {
-                //Ignore
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             }
             if (System.currentTimeMillis() > timeOutMillis) {
                 break;              //Stop when timeout occurs

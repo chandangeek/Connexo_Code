@@ -7,6 +7,7 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.protocolimplv2.MdcManager;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
@@ -78,6 +79,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
             Thread.sleep(milliSecondsToSleep);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
 

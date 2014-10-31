@@ -29,6 +29,8 @@ import com.energyict.protocolimpl.ge.kv.tables.*;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.meteridentification.*;
 import com.energyict.cbo.*;
+import com.energyict.protocolimplv2.MdcManager;
+
 /**
  *
  * @author Koen
@@ -279,7 +281,8 @@ if (DEBUG>=1) System.out.println("KV_DEBUG> interval "+i+", endtime "+cal.getTim
                     Thread.sleep(5000);
                 }
                 catch(InterruptedException e) {
-                    // absorb
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             }
             else break;

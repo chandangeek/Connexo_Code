@@ -6,6 +6,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.cpo.SqlBuilder;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdw.core.Device;
+import com.energyict.protocolimplv2.MdcManager;
 import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.ejb.EntityManagerImpl;
 
@@ -117,9 +118,9 @@ public class IpUpdater {
 				}
 
 			} catch (InterruptedException e) {
-				e.printStackTrace();
-				throw new InterruptedException("Interrupted while sleeping" + e.getMessage());
-			} catch (SQLException e) {
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            } catch (SQLException e) {
 				e.printStackTrace();
 				if(e.getMessage().indexOf("Connections could not be acquired from the underlying database!") > -1){
 					throw new BusinessException("Connections could not be acquired from the underlying database! It is possible that the radius properties are not correct.");
@@ -184,9 +185,9 @@ public class IpUpdater {
 			IpUpdater ipUpdater = new IpUpdater(900000,3000);
 			System.out.println(ipUpdater.poll("31610121147", new Date(System.currentTimeMillis())));
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BusinessException e) {
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+        } catch (BusinessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SQLException e) {

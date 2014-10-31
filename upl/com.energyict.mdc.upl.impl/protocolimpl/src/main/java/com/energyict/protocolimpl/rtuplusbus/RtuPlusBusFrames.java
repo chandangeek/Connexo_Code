@@ -12,6 +12,7 @@ import com.energyict.protocol.*;
 import java.util.logging.*;
 import com.energyict.cbo.*;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocolimplv2.MdcManager;
 
 
 /**
@@ -232,7 +233,8 @@ public class RtuPlusBusFrames {
                    Thread.sleep(forcedDelay);
                 }
                 catch(InterruptedException e) {
-                   e.printStackTrace();     
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
                 
                 if (halfDuplexController != null)
@@ -409,8 +411,8 @@ public class RtuPlusBusFrames {
             } // while(boolAbort==false)
         }
         catch(InterruptedException e) {
-            //System.out.println("InterruptedException thrown");
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         catch( IOException e) { 
             //System.out.println("IOException thrown");
@@ -539,7 +541,8 @@ public class RtuPlusBusFrames {
             } // while(boolAbort==false)
         }
         catch(InterruptedException e) {
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         catch( IOException e)
         {   
@@ -638,7 +641,8 @@ public class RtuPlusBusFrames {
         try {
             Thread.currentThread().sleep( 1000 );
         } catch( InterruptedException ie ) {
-            ie.printStackTrace();
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(ie);
         }
         
         long time = System.currentTimeMillis();
@@ -649,7 +653,8 @@ public class RtuPlusBusFrames {
             try {
                 Thread.currentThread().sleep( 1000 );
             } catch( InterruptedException ie ) {
-                ie.printStackTrace();
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(ie);
             }
             
             if( DEBUG >= 1 ) System.out.println( "aChar=" + aChar + " " + "waiting=" + ( System.currentTimeMillis() - time ) );

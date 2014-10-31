@@ -30,6 +30,8 @@ import com.energyict.protocolimpl.ansi.c12.tables.*;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.meteridentification.*;
 import com.energyict.cbo.*;
+import com.energyict.protocolimplv2.MdcManager;
+
 /**
  *
  * @author Koen
@@ -316,7 +318,8 @@ if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());
                     Thread.sleep(5000);
                 }
                 catch(InterruptedException e) {
-                    // absorb
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             }
             else break;

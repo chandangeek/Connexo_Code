@@ -5,6 +5,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -96,6 +97,7 @@ public class IF2HHUSignon implements HHUSignOn {
             Thread.sleep(DELAY_AFTER_SWITCH);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         return new MeterType(getReceivedIdent());
     }

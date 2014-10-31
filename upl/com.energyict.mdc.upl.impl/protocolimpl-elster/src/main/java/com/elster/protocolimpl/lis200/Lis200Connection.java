@@ -4,6 +4,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 
@@ -172,7 +173,8 @@ public class Lis200Connection extends FlagIEC1107Connection {
             try {
                 Thread.sleep(30);
             } catch (InterruptedException e) {
-                throw new InterruptedIOException();
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             }
         }
     }

@@ -3,6 +3,7 @@ package com.elster.protocolimpl.lis100.connection;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 
@@ -89,7 +90,8 @@ public class Lis100Connection extends Connection {
         } catch (IOException e) {
             throw new ConnectionException("receiveChar(): IOException " + e.getMessage());
         } catch (InterruptedException e) {
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         throw new ConnectionException("receiveChar() timeout error", TIMEOUT_ERROR);
     }

@@ -22,6 +22,8 @@ import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.elster.alpha.core.connection.*;
+import com.energyict.protocolimplv2.MdcManager;
+
 /**
  *
  * @author Koen
@@ -119,7 +121,8 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
             Thread.sleep(val+extra);
         }
         catch(InterruptedException e) {
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
     

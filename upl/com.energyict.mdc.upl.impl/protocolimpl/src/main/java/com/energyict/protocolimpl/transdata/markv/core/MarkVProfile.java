@@ -25,6 +25,8 @@ import com.energyict.protocolimpl.transdata.markv.core.commands.*;
 import com.energyict.protocolimpl.transdata.markv.MarkV;
 import com.energyict.protocol.*;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.MdcManager;
+
 /**
  *
  * @author Koen
@@ -164,7 +166,8 @@ public class MarkVProfile {
                     Thread.sleep(5000);
                 }
                 catch(InterruptedException e) {
-                    // absorb
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             }
             else break;

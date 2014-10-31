@@ -23,6 +23,7 @@ import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.MBus;
 import com.energyict.protocolimpl.mbus.core.discover.DiscoverProtocolInfo;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,8 +90,9 @@ public class Generic extends MBus {
 		        		Thread.sleep(1000);
 		        	}
 		        	catch(InterruptedException e) {
-		        		// absorb
-		        	}
+                        Thread.currentThread().interrupt();
+                        throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    }
 		        }
 		        catch(IOException e) {
 		        	// absorb
@@ -102,8 +104,9 @@ public class Generic extends MBus {
 		        		Thread.sleep(1000);
 		        	}
 		        	catch(InterruptedException e) {
-		        		// absorb
-		        	}
+                        Thread.currentThread().interrupt();
+                        throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    }
 		        }
 		        catch(IOException e) {
 		        	// absorb
@@ -253,8 +256,9 @@ public class Generic extends MBus {
     	    	// absorb
     	    }
     	    catch(InterruptedException e) {
-    	    	//absorb
-    	    }
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            }
     	}
         
     }

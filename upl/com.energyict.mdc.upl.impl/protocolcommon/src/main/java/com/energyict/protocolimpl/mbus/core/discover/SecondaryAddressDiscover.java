@@ -5,6 +5,7 @@ import com.energyict.protocolimpl.mbus.core.*;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870Frame;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.util.*;
@@ -246,8 +247,9 @@ public class SecondaryAddressDiscover {
 				Thread.sleep(2500);
 			}
 			catch(InterruptedException ex) {
-				// absorb
-			}
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(ex);
+            }
     		throw new MBusException("MBus, Framing error!");
     	}
     	CIField72h cIField72h = (CIField72h)frame.buildAbstractCIFieldObject(mBus.getTimeZone());
@@ -297,7 +299,8 @@ public class SecondaryAddressDiscover {
 							Thread.sleep(2500);
 						}
 						catch(InterruptedException ex) {
-							// absorb
+                            Thread.currentThread().interrupt();
+                            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
 						}
 			    		if (e.getReason() != mBus.getMBusConnection().getReasonTIMEOUT_ERROR()) {
 			    			throw new MBusException(e.toString());
@@ -329,8 +332,9 @@ public class SecondaryAddressDiscover {
 							Thread.sleep(2500);
 						}
 						catch(InterruptedException ex) {
-							// absorb
-						}
+                            Thread.currentThread().interrupt();
+                            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                        }
 		    			throw new MBusException(e.toString());
 		    		}
 		    		else {

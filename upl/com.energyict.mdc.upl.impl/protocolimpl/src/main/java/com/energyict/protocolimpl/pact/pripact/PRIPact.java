@@ -35,6 +35,7 @@ import com.energyict.protocolimpl.pact.core.common.PasswordValidator;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 import com.energyict.protocolimpl.pact.core.instant.InstantaneousFactory;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingIdentifier;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -422,7 +423,8 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         try {
             Thread.sleep(delay);
         } catch (InterruptedException e) {
-            e.printStackTrace(); // should never happen
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, roundtripCorrection);

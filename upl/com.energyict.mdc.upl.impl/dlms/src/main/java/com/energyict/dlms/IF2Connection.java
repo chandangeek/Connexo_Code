@@ -1,6 +1,7 @@
 package com.energyict.dlms;
 
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -238,6 +239,7 @@ public class IF2Connection implements DLMSConnection {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
 

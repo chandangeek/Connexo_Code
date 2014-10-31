@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimplv2.MdcManager;
 
 /**
  * @author jme
@@ -236,9 +237,14 @@ public class MK10InputStreamParser {
 		}
 
 		if (DEBUG >= 3) {
-			try {Thread.sleep(DEBUG_DELAY);}
-			catch (InterruptedException e) {e.printStackTrace();}
-		}
+			try {
+                Thread.sleep(DEBUG_DELAY);
+            }
+			catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            }
+        }
 
 
 		return returnBytes;

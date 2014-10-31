@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import com.energyict.protocolimpl.base.AbstractContactorController;
+import com.energyict.protocolimplv2.MdcManager;
 
 public class ABBA230ContactorController extends AbstractContactorController {
 
@@ -69,7 +70,9 @@ public class ABBA230ContactorController extends AbstractContactorController {
 			try {
 				Thread.sleep(CONTACTOR_DELAY);
 			} catch (InterruptedException e) {
-			}
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            }
 			state = readContactorState();
 		}
 		return state;

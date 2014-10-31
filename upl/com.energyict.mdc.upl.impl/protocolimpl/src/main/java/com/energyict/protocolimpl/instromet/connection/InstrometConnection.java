@@ -15,6 +15,7 @@ import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimplv2.MdcManager;
 
 public class InstrometConnection extends Connection implements ProtocolConnection {
 
@@ -69,8 +70,9 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 				Response response = receiveResponse(command);
 				return response;
 			} catch (InterruptedException e) {
-				throw new NestedIOException(e);
-			} catch (IOException e) {
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            } catch (IOException e) {
 				if (DEBUG >= 1) {
 					e.printStackTrace();
 				}

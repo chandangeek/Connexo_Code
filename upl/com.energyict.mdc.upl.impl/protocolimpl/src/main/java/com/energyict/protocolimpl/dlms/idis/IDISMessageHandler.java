@@ -15,6 +15,7 @@ import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.MdcManager;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -113,7 +114,8 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             idis.getLogger().log(Level.SEVERE, "Error executing message: " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         } catch (InterruptedException e) {
-            throw new IOException(e.getMessage());
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         idis.getLogger().log(Level.SEVERE, "Unexpected message: " + messageEntry.getContent());
         return MessageResult.createFailed(messageEntry);

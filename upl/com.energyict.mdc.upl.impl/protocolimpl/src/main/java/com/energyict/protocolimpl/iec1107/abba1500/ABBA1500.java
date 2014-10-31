@@ -34,6 +34,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -485,7 +486,8 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
-                    throw new NestedIOException(e);
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
                 dataReadout = flagIEC1107Connection.dataReadout(strID, nodeId);
                 try {

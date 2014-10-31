@@ -11,6 +11,7 @@ import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
@@ -140,6 +141,8 @@ public class AS300MessageExecutor extends MessageParser {
         } catch (InterruptedException e) {
             logMessage = e.getMessage();
             success = false;
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
 
         if (success) {

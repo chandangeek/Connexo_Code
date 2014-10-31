@@ -8,6 +8,7 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
@@ -71,6 +72,8 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
         } catch (InterruptedException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
 
         if (success) {

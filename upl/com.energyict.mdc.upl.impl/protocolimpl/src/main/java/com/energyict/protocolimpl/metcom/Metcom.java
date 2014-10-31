@@ -27,6 +27,7 @@ import com.energyict.protocolimpl.siemens7ED62.SCTMRegister;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -418,7 +419,8 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
                     }
                 }
             } catch (InterruptedException e) {
-                throw new NestedIOException(e);
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             } catch (SiemensSCTMException e) {
                 throw new NestedIOException(e);
             }

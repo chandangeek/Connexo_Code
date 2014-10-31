@@ -7,6 +7,7 @@ import com.energyict.protocolimpl.EMCO.frame.*;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 
@@ -119,7 +120,8 @@ public class FP93Connection implements ProtocolConnection {
                     Thread.sleep(1);
                 }
             } catch (InterruptedException e) {
-                throw new NestedIOException(e);
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             } catch (ProtocolConnectionException e) {
                 if (counter == retries) {
                     throw new ProtocolConnectionException(e.getMessage() + ", after " + retries + " retries", e.getProtocolErrorCode());

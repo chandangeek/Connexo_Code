@@ -2,6 +2,7 @@ package com.elster.genericprotocolimpl.dlms.ek280.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.protocolimpl.base.DebuggingObserver;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 import java.net.Socket;
@@ -80,7 +81,8 @@ public class Tcp2InboundTcp {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            // Absorb
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
 
@@ -139,7 +141,8 @@ public class Tcp2InboundTcp {
             try {
                 Thread.sleep(millis);
             } catch (InterruptedException e) {
-
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             }
         }
 

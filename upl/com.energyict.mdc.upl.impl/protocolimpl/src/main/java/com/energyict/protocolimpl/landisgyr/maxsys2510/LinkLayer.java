@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.landisgyr.maxsys2510;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 
@@ -109,8 +110,8 @@ class LinkLayer extends Connection {
     	try {
             Thread.sleep(millisec);
         } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new IOException(e.getMessage());
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
     

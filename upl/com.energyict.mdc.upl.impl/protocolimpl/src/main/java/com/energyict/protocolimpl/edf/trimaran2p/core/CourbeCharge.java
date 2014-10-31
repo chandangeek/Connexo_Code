@@ -18,6 +18,7 @@ import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -121,7 +122,8 @@ public class CourbeCharge {
                 }
             }
             catch(InterruptedException e) {
-                // absorb
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             }
         }
         throw new IOException("CourbeCharge, Error! Already waiting 20 sec for copy of the load profile data!");

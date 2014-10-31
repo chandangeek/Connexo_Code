@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 
 import java.io.IOException;
@@ -56,7 +57,8 @@ public class ZigBeeStatus {
                         throw new IOException("ZigBee backup probably failed, takes too long (30s) before 'HAN Backup Performed'-event is written.");
                     }
                 } catch (InterruptedException e) {
-                    throw new BusinessException(e);
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             }
 
@@ -85,8 +87,6 @@ public class ZigBeeStatus {
             }
 
         } catch (IOException e) {
-            sb.append("Unable to read ZigbeeHanManagement.backupData: ").append(e.getMessage()).append('\n');
-        } catch (BusinessException e) {
             sb.append("Unable to read ZigbeeHanManagement.backupData: ").append(e.getMessage()).append('\n');
         } finally {
             sb.append("\n\n");

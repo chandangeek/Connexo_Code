@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.hhusignon;
 
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.mdc.channels.serial.*;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -281,6 +283,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
             Thread.sleep(lDelay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
 

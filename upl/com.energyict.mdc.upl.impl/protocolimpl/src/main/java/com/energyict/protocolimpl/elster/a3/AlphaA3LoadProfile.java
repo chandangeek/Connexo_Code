@@ -18,6 +18,7 @@ import com.energyict.protocolimpl.ansi.c12.tables.*;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.elster.a3.tables.EventLogMfgCodeFactory;
 import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -581,7 +582,8 @@ public class AlphaA3LoadProfile {
                     Thread.sleep(5000);
                 }
                 catch (InterruptedException e) {
-                    // absorb
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             } else {
                 break;

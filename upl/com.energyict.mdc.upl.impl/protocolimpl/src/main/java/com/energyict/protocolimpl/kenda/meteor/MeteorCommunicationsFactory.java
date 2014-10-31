@@ -21,6 +21,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.kenda.medo.MedoReadDialReadings;
+import com.energyict.protocolimplv2.MdcManager;
 
 public class MeteorCommunicationsFactory{
 	/**
@@ -659,8 +660,9 @@ public class MeteorCommunicationsFactory{
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+        }
 		for(int ii=0; ii<b.length; ii++){
 			byte[] bp= b[ii];
 			outputStream.write(bp); // send all frames

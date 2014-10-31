@@ -14,6 +14,8 @@ import com.energyict.cbo.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.itron.datastar.basepages.*;
+import com.energyict.protocolimplv2.MdcManager;
+
 import java.io.*;
 import java.math.*;
 import java.util.*;
@@ -256,7 +258,8 @@ if (DEBUG>=1) System.out.println("read from "+lastReading);
                 try {
                     Thread.sleep(5000);
                 } catch(InterruptedException e) {
-                    // absorb
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             } else {
                 

@@ -1,5 +1,7 @@
 package com.energyict.dlms;
 
+import com.energyict.protocolimplv2.MdcManager;
+
 import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -244,6 +246,7 @@ public class IF2LinkLayer {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
 
     }
@@ -268,6 +271,7 @@ public class IF2LinkLayer {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         return -1;
     }

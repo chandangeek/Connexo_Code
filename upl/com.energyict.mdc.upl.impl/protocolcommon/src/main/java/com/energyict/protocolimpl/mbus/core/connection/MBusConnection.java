@@ -19,6 +19,7 @@ import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.mbus.core.ApplicationData;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870Connection;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870Frame;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 import java.util.TimeZone;
@@ -103,7 +104,8 @@ public class MBusConnection extends IEC870Connection implements ProtocolConnecti
 			Thread.sleep(300);
 		}
 		catch(InterruptedException e) {
-			// absorb
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
 		}
 		return o;
     }

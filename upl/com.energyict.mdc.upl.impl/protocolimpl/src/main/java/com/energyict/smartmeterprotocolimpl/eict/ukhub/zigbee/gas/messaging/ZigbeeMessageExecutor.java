@@ -13,6 +13,7 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
 import com.energyict.protocolimpl.generic.csvhandling.TestObject;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
@@ -144,6 +145,8 @@ public class ZigbeeMessageExecutor extends MessageParser {
         } catch (InterruptedException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
 
         if (success) {

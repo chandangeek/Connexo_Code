@@ -35,6 +35,7 @@ import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -468,7 +469,8 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                     iDelay -= 15000;
                 }
             } catch (InterruptedException e) {
-                throw new NestedIOException(e);
+                Thread.currentThread().interrupt();
+                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             } catch (IOException e) {
                 throw new IOException("DukePower, buildFrameWriteClock, IOException, " + e.getMessage());
             }
@@ -1096,7 +1098,8 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
             return 4;
         } catch (InterruptedException e) {
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IOException(e.getMessage());
         }
@@ -1263,7 +1266,8 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                         break;
                     }
                 } catch (InterruptedException e) {
-                    // absorb
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
                 }
             }
         }
