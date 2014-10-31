@@ -78,13 +78,29 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             ref: 'step2FormErrorMessage',
             selector: 'devicegroup-wizard-step2 uni-form-error-message'
         },
-        {
+        /*{
             ref: 'staticGrid',
             selector: 'mdc-search-results bulk-selection-mdc-search-results-grid'
         },
         {
             ref: 'dynamicGrid',
             selector: 'mdc-search-results mdc-search-results-grid'
+        },*/
+        {
+            ref: 'staticGrid',
+            selector: 'mdc-search-results #static-grid'
+        },
+        {
+            ref: 'dynamicGrid',
+            selector: 'mdc-search-results #dynamic-grid'
+        },
+        {
+            ref: 'staticGridContainer',
+            selector: 'mdc-search-results #static-grid-container'
+        },
+        {
+            ref: 'dynamicGridContainer',
+            selector: 'mdc-search-results #dynamic-grid-container'
         }
     ],
 
@@ -131,11 +147,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         } else {
             if (layout.getNext().name == 'deviceGroupWizardStep2') {
                 if (this.getDynamicRadioButton().checked) {
-                    this.getStaticGrid().setVisible(false);
-                    this.getDynamicGrid().setVisible(true);
+                    this.getStaticGridContainer().setVisible(false);
+                    this.getDynamicGridContainer().setVisible(true);
                 } else {
-                    this.getDynamicGrid().setVisible(false);
-                    this.getStaticGrid().setVisible(true);
+                    this.getDynamicGridContainer().setVisible(false);
+                    this.getStaticGridContainer().setVisible(true);
                 }
             }
             this.getStep1FormErrorMessage().setVisible(false);
