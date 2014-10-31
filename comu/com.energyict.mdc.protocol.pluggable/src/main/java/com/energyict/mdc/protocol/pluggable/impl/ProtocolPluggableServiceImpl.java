@@ -18,7 +18,6 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
@@ -26,12 +25,14 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExce
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
@@ -56,8 +57,6 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import java.time.Clock;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -69,17 +68,13 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import java.io.File;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -110,8 +105,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile List<DeviceProtocolMessageService> deviceProtocolMessageServices = new CopyOnWriteArrayList<>();
     private volatile List<DeviceProtocolSecurityService> deviceProtocolSecurityServices = new CopyOnWriteArrayList<>();
     private volatile List<LicensedProtocolService> licensedProtocolServices = new CopyOnWriteArrayList<>();
+    private volatile List<DeviceCacheMarshallingService> deviceCacheMarshallingServices = new CopyOnWriteArrayList<>();
     private volatile IssueService issueService;
-    private volatile DeviceCacheMarshallingService deviceCacheMarshallingService;
     private volatile LicenseService licenseService;
     private volatile TransactionService transactionService;
     private volatile UserService userService;
@@ -136,7 +131,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             DeviceProtocolMessageService deviceProtocolMessageService,
             DeviceProtocolSecurityService deviceProtocolSecurityService,
             InboundDeviceProtocolService inboundDeviceProtocolService,
-            ConnectionTypeService connectionTypeService, DeviceCacheMarshallingService deviceCacheMarshallingService, LicenseService licenseService, LicensedProtocolService licensedProtocolService, UserService userService) {
+            ConnectionTypeService connectionTypeService,
+            DeviceCacheMarshallingService deviceCacheMarshallingService,
+            LicenseService licenseService,
+            LicensedProtocolService licensedProtocolService,
+            UserService userService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -151,7 +150,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.addDeviceProtocolSecurityService(deviceProtocolSecurityService);
         this.addInboundDeviceProtocolService(inboundDeviceProtocolService);
         this.addConnectionTypeService(connectionTypeService);
-        this.setDeviceCacheMarshallingService(deviceCacheMarshallingService);
+        this.addDeviceCacheMarshallingService(deviceCacheMarshallingService);
         this.setLicenseService(licenseService);
         this.addLicensedProtocolService(licensedProtocolService);
         this.activate();
@@ -495,32 +494,44 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public DeviceProtocolCache unMarshalDeviceProtocolCache(String type, String jsonCache) {
-        DeviceProtocolCache deviceProtocolCache = null;
+    public Optional<Object> unMarshallDeviceProtocolCache(String jsonCache) {
         try {
-            JAXBContext jc = JAXBContext.newInstance(Class.forName(type));
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            deviceProtocolCache = (DeviceProtocolCache) unmarshaller.unmarshal(new StringReader(jsonCache));
-        } catch (JAXBException | ClassNotFoundException e) {
-            // if some unMarshalling exception occurs, then log it and shove it under the rug
-            LOGGER.log(Level.WARNING, "An error occurred during the UnMarshalling of the DeviceProtocolCache: " + e.getMessage(), e);
+            for (DeviceCacheMarshallingService service : this.deviceCacheMarshallingServices) {
+                try {
+                    return service.unMarshallCache(jsonCache);
+                }
+                catch (NotAppropriateDeviceCacheMarshallingTargetException e) {
+                    // Try the next service
+                }
+            }
         }
-        return deviceProtocolCache;
+        catch (DeviceCacheMarshallingException e) {
+            // A service accepted the
+            LOGGER.severe(e.getMessage());
+            LOGGER.log(Level.FINE, e.getMessage(), e);
+        }
+        return Optional.empty();
     }
 
     @Override
-    public String marshalDeviceProtocolCache(DeviceProtocolCache deviceProtocolCache) {
-        StringWriter stringWriter = new StringWriter();
-        try {
-            JAXBContext jc = JAXBContext.newInstance(deviceProtocolCache.getClass());
-            Marshaller marshaller = jc.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(deviceProtocolCache, stringWriter);
-        } catch (JAXBException e) {
-            // if some marshalling exception occurs, then log it and shove it under the rug
-            LOGGER.log(Level.WARNING, "An error occurred during the Marshalling of the DeviceProtocolCache: " + e.getMessage(), e);
+    public String marshallDeviceProtocolCache(Object legacyCache) {
+        if (legacyCache != null) {
+            for (DeviceCacheMarshallingService service : this.deviceCacheMarshallingServices) {
+                try {
+                    return service.marshall(legacyCache);
+                }
+                catch (NotAppropriateDeviceCacheMarshallingTargetException e) {
+                    // Try the next service
+                }
+                catch (DeviceCacheMarshallingException e) {
+                    /* Some services don't distinguish between DeviceCacheMarshallingException and NotAppropriateDeviceCacheMarshallingTargetException.
+                     * Log the failure and try the next service. */
+                    LOGGER.severe(e.getMessage());
+                    LOGGER.log(Level.FINE, e.getMessage(), e);
+                }
+            }
         }
-        return stringWriter.toString();
+        return "";
     }
 
     @Reference
@@ -665,14 +676,19 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.connectionTypeServices.remove(connectionTypeService);
     }
 
-    @Reference
-    public void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addDeviceCacheMarshallingService(DeviceCacheMarshallingService deviceCacheMarshallingService) {
+        this.deviceCacheMarshallingServices.add(deviceCacheMarshallingService);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeDeviceCacheMarshallingService(DeviceCacheMarshallingService deviceCacheMarshallingService) {
+        this.deviceCacheMarshallingServices.remove(deviceCacheMarshallingService);
     }
 
     @Reference
-    public void setDeviceCacheMarshallingService(DeviceCacheMarshallingService deviceCacheMarshallingService) {
-        this.deviceCacheMarshallingService = deviceCacheMarshallingService;
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
     }
 
     @Reference
@@ -758,7 +774,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(IssueService.class).toInstance(issueService);
                 bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
-                bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(UserService.class).toInstance(userService);
             }

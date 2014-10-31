@@ -29,7 +29,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AdapterDeviceProtocolDialect;
@@ -142,8 +141,8 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      */
     private PropertiesAdapter propertiesAdapter;
 
-    public SmartMeterProtocolAdapter(final SmartMeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService, DeviceCacheMarshallingService deviceCacheMarshallingService) {
-        super(protocolPluggableService, securitySupportAdapterMappingFactory, dataModel, deviceCacheMarshallingService);
+    public SmartMeterProtocolAdapter(final SmartMeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService) {
+        super(protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
         initializeAdapters();

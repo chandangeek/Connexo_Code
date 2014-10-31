@@ -53,11 +53,10 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private RelationService relationService;
     private DataModel dataModel;
     private IssueService issueService;
-    private DeviceCacheMarshallingService deviceCacheMarshallingService;
     private final LicenseService licenseService;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, IssueService issueService, DeviceCacheMarshallingService deviceCacheMarshallingService, LicenseService licenseService) {
+    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, IssueService issueService, LicenseService licenseService) {
         super(eventService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
@@ -65,7 +64,6 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.relationService = relationService;
         this.dataModel = dataModel;
         this.issueService = issueService;
-        this.deviceCacheMarshallingService = deviceCacheMarshallingService;
         this.licenseService = licenseService;
     }
 
@@ -120,10 +118,10 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
      */
     private DeviceProtocol checkForProtocolWrappers(Object protocol) {
         if (protocol instanceof SmartMeterProtocol) {
-            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService, deviceCacheMarshallingService);
+            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
         }
         else if (protocol instanceof MeterProtocol) {
-            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService, deviceCacheMarshallingService);
+            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
         }
         else {
             throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, protocol.getClass());
