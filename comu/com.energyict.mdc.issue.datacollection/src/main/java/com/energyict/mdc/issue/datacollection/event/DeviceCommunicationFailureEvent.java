@@ -41,7 +41,7 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
 
     @Override
     protected Condition getConditionForExistingIssue() {
-        return where("comTask").isEqualTo(getComTask()).and(super.getConditionForExistingIssue());
+        return where("comTask").isEqualTo(getComTask().get());
     }
 
     @Override

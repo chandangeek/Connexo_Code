@@ -36,4 +36,8 @@ public class DeviceCommunicationFailureResolvedEvent extends DeviceCommunication
     public void apply(Issue issue) {
         // do nothing, this event shouldn't produce any issues
     }
+    
+    public boolean isResolutionEvent() {
+        return true;
+    };
 }

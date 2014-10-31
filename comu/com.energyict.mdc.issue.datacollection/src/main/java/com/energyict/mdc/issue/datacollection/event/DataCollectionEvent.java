@@ -12,7 +12,6 @@ import com.energyict.mdc.issue.datacollection.impl.UnableToCreateEventException;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -125,22 +124,13 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     }
 
     protected void getEventDevice(Map<?, ?> rawEvent) {
-        String amrId = String.class.cast(rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER));
-        device = findDeviceByAmrId(amrId);
+        Integer amrId = Integer.class.cast(rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER));
+        device = getDeviceService().findDeviceById(amrId);
         if (device != null) {
             koreDevice = findKoreDeviceByDevice();
         } else {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId);
         }
-    }
-
-    private Device findDeviceByAmrId(String amrId) {
-        long id = 0;
-        try {
-            id = Long.parseLong(amrId);
-        } catch (NumberFormatException e) {
-        }
-        return getDeviceService().findDeviceById(id);
     }
 
     public EndDevice findKoreDeviceByDevice() {

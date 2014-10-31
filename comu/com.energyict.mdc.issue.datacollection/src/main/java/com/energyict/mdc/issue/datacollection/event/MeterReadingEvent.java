@@ -3,7 +3,6 @@ package com.energyict.mdc.issue.datacollection.event;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
@@ -28,14 +27,12 @@ public class MeterReadingEvent implements IssueEvent {
 
     private final Meter meter;
     private final ReadingType readingType;
-    private final IssueService issueService;
     private final Clock clock;
     private IssueStatus status;
 
-    public MeterReadingEvent(Meter meter, ReadingType readingType, IssueStatus status, IssueService issueService, Clock clock) {
+    public MeterReadingEvent(Meter meter, ReadingType readingType, IssueStatus status, Clock clock) {
         this.meter = meter;
         this.readingType = readingType;
-        this.issueService = issueService;
         this.status = status;
         this.clock = clock;
     }
@@ -125,5 +122,4 @@ public class MeterReadingEvent implements IssueEvent {
         }
         return false;
     }
-
 }

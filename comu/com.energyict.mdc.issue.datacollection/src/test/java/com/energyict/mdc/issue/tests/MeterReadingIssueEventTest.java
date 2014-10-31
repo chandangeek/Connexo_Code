@@ -65,7 +65,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
 
     @Test
     public void testNoReadings() {
-        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, null, clock);
+        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, clock);
         assertThat(event.computeMaxSlope(1, TrendPeriodUnit.HOURS.getId())).isEqualTo(0.0);
     }
 
@@ -81,7 +81,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
         meter.store(meterReading);
         readingType = getMeteringService().getReadingType(readingTypeCode).get();
 
-        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, null, clock);
+        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, clock);
         assertThat(event.computeMaxSlope(1, TrendPeriodUnit.HOURS.getId())).isEqualTo(0.0);
     }
 
@@ -107,7 +107,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
         meter.store(meterReading);
         readingType = getMeteringService().getReadingType(readingTypeCode).get();
 
-        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, null, clock);
+        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, clock);
         assertThat(event.computeMaxSlope(2, TrendPeriodUnit.HOURS.getId())).isEqualTo(4.0);
     }
 
@@ -138,9 +138,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
 
         meter.store(meterReading2);
 
-        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, null, clock);
+        MeterReadingEvent event = new MeterReadingEvent(meter, readingType, null, clock);
         assertThat(event.computeMaxSlope(2, TrendPeriodUnit.HOURS.getId())).isEqualTo(100.0);
     }
-
-
 }

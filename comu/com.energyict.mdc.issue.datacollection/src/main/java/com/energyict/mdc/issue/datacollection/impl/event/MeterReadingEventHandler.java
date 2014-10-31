@@ -1,7 +1,6 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.energyict.mdc.issue.datacollection.event.MeterReadingEvent;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -12,10 +11,10 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+
 import org.osgi.service.event.EventConstants;
 
 import java.time.Clock;
@@ -43,21 +42,18 @@ public class MeterReadingEventHandler implements MessageHandler {
     private final IssueService issueService;
     private final MeteringService meteringService;
     private final Clock clock;
-    private final Thesaurus thesaurus;
 
     public MeterReadingEventHandler(
             JsonService jsonService,
             IssueService issueService,
             IssueCreationService issueCreationService,
             MeteringService meteringService,
-            Clock clock,
-            Thesaurus thesaurus) {
+            Clock clock) {
         this.jsonService = jsonService;
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.clock = clock;
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -82,7 +78,7 @@ public class MeterReadingEventHandler implements MessageHandler {
             List<IssueEvent> events = new ArrayList<>(readingTypes.size());
             events.addAll(
                     readingTypes.stream()
-                        .map(readingType -> new MeterReadingEvent(meterRef.get(), readingType, status, issueService, clock))
+                        .map(readingType -> new MeterReadingEvent(meterRef.get(), readingType, status, clock))
                         .collect(Collectors.toList()));
             issueCreationService.dispatchCreationEvent(events);
         }
