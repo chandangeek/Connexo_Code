@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.api.services;
 
+import java.util.Optional;
+
 /**
  * Copyrights EnergyICT
  * Date: 6/3/14
@@ -8,13 +10,31 @@ package com.energyict.mdc.protocol.api.services;
 public interface DeviceCacheMarshallingService {
 
     /**
-     * Load the jsoned Cache object for the given string.
-     * The unmarshalling should happen in the bundle which 'knows' the cache objects.
+     * Marshalls a cache.
+     * The DeviceCacheMarshallingService should be prepared
+     * to receive caches that are not managed in the bundle and
+     * will throw a {@link DeviceCacheMarshallingException}
+     * when that is the case.
      *
-     * @param jsonCache the json representation of the cache
-     * @return the unmarshalled object
+     * @param cache The cache that needs marshalling
+     * @return The marshalled version of the cache
+     * @throws DeviceCacheMarshallingException Indicates failure to marshall the cache
+     * @throws NotAppropriateDeviceCacheMarshallingTargetException Indicates that this service does not recognize the cache and therefore cannot marshall it
      */
-    Object unMarshallCache(String jsonCache);
+    public String marshall(Object cache) throws DeviceCacheMarshallingException, NotAppropriateDeviceCacheMarshallingTargetException;
 
-    String marshall(Object legacyCache);
+    /**
+     * Unmarshalls a previously marshalled cache.
+     * The DeviceCacheMarshallingService should be prepared
+     * to receive marshalled results from other services and
+     * will throw a {@link DeviceCacheMarshallingException}
+     * when that is the case.
+     *
+     * @param marshalledCache the json representation of the cache
+     * @return the unmarshalled object
+     * @throws DeviceCacheMarshallingException Indicates failure to unmarshall the cache
+     * @throws NotAppropriateDeviceCacheMarshallingTargetException Indicates that this service does not recognize the marshalled cache and therefore cannot unmarshall it
+     */
+    public Optional<Object> unMarshallCache(String marshalledCache) throws DeviceCacheMarshallingException, NotAppropriateDeviceCacheMarshallingTargetException;
+
 }
