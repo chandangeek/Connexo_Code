@@ -38,11 +38,11 @@ public class DataCollectionIssueInfoFactory {
         
         if (device != null && comSession.isPresent() && connectionTask.isPresent()) {
             info.deviceMRID = device.getmRID();
-            Optional<ComTaskExecution> communicationTask = issue.getCommunicationTask();
-            if (communicationTask.isPresent()) {
+            Optional<ComTaskExecution> comTaskExecution = issue.getCommunicationTask();
+            if (comTaskExecution.isPresent()) {
                 //communication issue
-                info.comTaskId = communicationTask.get().getId();
-                info.comTaskSessionId = getComTaskExecutionSession(comSession.get(), issue.getConnectionTask().get(), communicationTask.get());
+                info.comTaskId = getComTask(comTaskExecution.get());
+                info.comTaskSessionId = getComTaskExecutionSession(comSession.get(), issue.getConnectionTask().get(), comTaskExecution.get());
             } else {
                 //connection issue
                 info.connectionTaskId = connectionTask.get().getId();
@@ -55,6 +55,13 @@ public class DataCollectionIssueInfoFactory {
     
     public List<DataCollectionIssueInfo<?>> asInfos(List<? extends IssueDataCollection> issues) {
         return issues.stream().map(issue -> this.asInfo(issue, DeviceShortInfo.class)).collect(Collectors.toList());
+    }
+    
+    private Long getComTask(ComTaskExecution comTaskExecution) {
+        if (!comTaskExecution.getComTasks().isEmpty()) {
+            return comTaskExecution.getComTasks().get(0).getId();//Get first com task: works ok for manually scheduled comtask execution, but scheduled comtask execution?
+        }
+        return null;
     }
     
     private Long getComTaskExecutionSession(ComSession comSession, ConnectionTask<?, ?> connectionTask, ComTaskExecution comTaskExecution) {
