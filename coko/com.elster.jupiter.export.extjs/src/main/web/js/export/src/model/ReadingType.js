@@ -2,15 +2,13 @@ Ext.define('Dxp.model.ReadingType', {
     extend: 'Ext.data.Model',
 
     fields: [
-        'mRID',
-        'aliasName',
-        'name'
+        'mRID'
     ],
 
     associations: [
         {
             type: 'belongsTo',
-            model: 'Dxp.model.DataExportTask',
+            model: 'Dxp.model.AddDataExportTask',
             name: 'readingTypes'
         }
     ],

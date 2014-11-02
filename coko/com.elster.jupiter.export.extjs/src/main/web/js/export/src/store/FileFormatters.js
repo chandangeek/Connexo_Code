@@ -1,8 +1,17 @@
 Ext.define('Dxp.store.FileFormatters', {
     extend: 'Ext.data.Store',
     model: 'Dxp.model.FileFormatter',
+    autoLoad: false,
 
-    data: [
-        {name: 'standardCsv', displayValue: 'Standard CSV Exporter'}
-    ]
+    proxy: {
+        type: 'rest',
+        url: '/api/export/dataexporttask/processors',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
+        reader: {
+            type: 'json',
+            root: 'processors'
+        }
+    }
 });

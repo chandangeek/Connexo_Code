@@ -4,7 +4,9 @@ Ext.define('Dxp.view.tasks.Add', {
     requires: [
         'Uni.form.field.DateTime',
         'Dxp.view.tasks.AddScheduleGrid',
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Dxp.view.tasks.PropertyForm',
+        'Uni.util.FormErrorMessage'
     ],
     initComponent: function () {
         var me = this;
@@ -19,6 +21,14 @@ Ext.define('Dxp.view.tasks.Add', {
                     labelWidth: 250
                 },
                 items: [
+                    {
+                        itemId: 'form-errors',
+                        xtype: 'uni-form-error-message',
+                        name: 'form-errors',
+                        margin: '0 0 10 0',
+                        hidden: true,
+                        width: 500
+                    },
                     {
                         xtype: 'textfield',
                         name: 'name',
@@ -66,7 +76,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 margin: '0 0 0 20',
                                 text: Uni.I18n.translate('general.addDeviceGroup', 'DXP', 'Add device group'),
                                 ui: 'link',
-                                href: '#/administration/dataexporttasks/'
+                                href: '#/devices/devicegroups/add'
                             }
                         ]
                     },
@@ -293,7 +303,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 store: 'Dxp.store.FileFormatters',
                                 editable: false,
                                 allowBlank: false,
-                                displayField: 'displayValue',
+                                displayField: 'displayName',
                                 valueField: 'name'
                             },
                             {
@@ -309,149 +319,8 @@ Ext.define('Dxp.view.tasks.Add', {
                         ]
                     },
                     {
-                        title: Uni.I18n.translate('general.fileFormat', 'DXP', 'File format'),
-                        ui: 'medium'
+                        xtype: 'tasks-property-form'
                     },
-                    {
-                        xtype: 'textfield',
-                        itemId: 'file-name-prefix',
-                        name: 'prefix',
-                        width: 500,
-                        required: true,
-                        maskRe: /[^:\\/*?"<>|\s]/,
-                        fieldLabel: Uni.I18n.translate('general.fileNamePrefix', 'DXP', 'File name prefix'),
-                        allowBlank: false
-                    },
-                    {
-                        xtype: 'textfield',
-                        itemId: 'extension',
-                        maskRe: /[^:\\/*?"<>|\s]/,
-                        name: 'extension',
-                        width: 500,
-                        fieldLabel: Uni.I18n.translate('general.fileExtension', 'DXP', 'File extension'),
-                        value: 'csv'
-                    },
-                    {
-                        xtype: 'displayfield',
-                        name: 'example',
-                        itemId: 'example',
-                        hidden: true,
-                        width: 500,
-                        fieldLabel: Uni.I18n.translate('general.example', 'DXP', 'Example')
-                    },
-                    {
-                        title: Uni.I18n.translate('general.formatterProperties', 'DXP', 'Formatter properties'),
-                        ui: 'medium'
-                    },
-                    {
-                        itemId: 'separator-group',
-                        xtype: 'radiogroup',
-                        name: 'separatorGroup',
-                        required: true,
-                        columns: 1,
-                        fieldLabel: Uni.I18n.translate('general.separator', 'DXP', 'Separator'),
-                        vertical: true,
-                        width: 400,
-                        defaults: {
-                            name: 'separator',
-                            submitValue: false
-                        },
-                        items: [
-                            {
-                                itemId: 'comma',
-                                boxLabel: Uni.I18n.translate('general.comma', 'DXP', 'Comma (,)'),
-                                checked: true
-                            },
-                            {
-                                itemId: 'semicolon',
-                                boxLabel: Uni.I18n.translate('general.semicolon', 'DXP', 'Semicolon (;)')
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'property-form',
-                        padding: '5 10 0 10',
-                        width: '100%'
-                    },
-                  /*  {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.anotherString', 'DXP', 'Another string'),
-                        required: true,
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'textfield',
-                                name: 'another-string',
-                                itemId: 'another-string',
-                                width: 235,
-                                allowBlank: false
-                            },
-                            {
-                                xtype: 'button',
-                                itemId: 'another-string-reset',
-                                width: 28,
-                                style: {
-                                    'background-color': '#71adc7'
-                                },
-                                margin: '0 0 0 10',
-                                text: '&nbsp',
-                                icon: '/apps/sky/resources/images/form/restore.png'
-                            }
-                        ]
-                    },
-                    {
-                        itemId: 'example-boolean-group',
-                        xtype: 'radiogroup',
-                        name: 'example-boolean-group',
-                        required: true,
-                        columns: 1,
-                        fieldLabel: Uni.I18n.translate('general.exampleBoolean', 'DXP', 'Example boolean'),
-                        vertical: true,
-                        width: 100,
-                        defaults: {
-                            name: 'example-boolean',
-                            submitValue: false
-                        },
-                        items: [
-                            {
-                                itemId: 'example-yes',
-                                boxLabel: Uni.I18n.translate('general.yes', 'DXP', 'Yes'),
-                                checked: true
-                            },
-                            {
-                                itemId: 'example-no',
-                                boxLabel: Uni.I18n.translate('general.no', 'DXP', 'No')
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.exampleDropdown', 'DXP', 'Example dropdown'),
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'combobox',
-                                itemId: 'example-dropdown-combo',
-                                name: 'example-dropdown',
-                                width: 235,
-                                queryMode: 'local',
-                                editable: false,
-                                displayField: 'displayValue',
-                                valueField: 'name'
-                            },
-                            {
-                                xtype: 'button',
-                                itemId: 'example-dropdown-reset',
-                                width: 28,
-                                style: {
-                                    'background-color': '#71adc7'
-                                },
-                                margin: '0 0 0 10',
-                                text: '&nbsp',
-                                icon: '/apps/sky/resources/images/form/restore.png'
-                            }
-                        ]
-                    },*/
                     {
                         xtype: 'fieldcontainer',
                         ui: 'actions',

@@ -13,13 +13,26 @@ Ext.define('Dxp.controller.history.Export', {
                     title: Uni.I18n.translate('general.dataexporttasks', 'DXP', 'Data export tasks'),
                     route: 'dataexporttasks',
                     controller: 'Dxp.controller.Tasks',
-                    action: 'showOverview',
+                    action: 'showDataExportTasks',
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.add', 'UNI', 'Add'),
                             route: 'add',
                             controller: 'Dxp.controller.Tasks',
                             action: 'showAddExportTask'
+                        },
+                        dataexporttask: {
+                            title: Uni.I18n.translate('general.dataexporttasks', 'DXP', 'Data export task'),
+                            route: '{taskId}',
+                            controller: 'Dxp.controller.Tasks',
+                            action: 'showTaskDetailsView',
+                            callback: function (route) {
+                                this.getApplication().on('dataexporttaskload', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
                     }
                 }
