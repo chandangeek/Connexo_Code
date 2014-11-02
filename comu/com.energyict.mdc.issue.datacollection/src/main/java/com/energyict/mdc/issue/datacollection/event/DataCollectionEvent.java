@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
@@ -31,8 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     protected static final Logger LOG = Logger.getLogger(DataCollectionEvent.class.getName());
@@ -208,7 +207,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     @Override
     public Optional<? extends Issue> findExistingIssue() {
         if (existingIssue == null) {
-            Query<OpenIssueDataCollection> query = getIssueDataCollectionService().query(OpenIssueDataCollection.class);
+            Query<OpenIssueDataCollection> query = getIssueDataCollectionService().query(OpenIssueDataCollection.class, ComSession.class);
             List<OpenIssueDataCollection> theSameIssues = query.select(getConditionForExistingIssue());
             if (!theSameIssues.isEmpty()) {
                 existingIssue = Optional.of(theSameIssues.get(0));

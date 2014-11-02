@@ -1,6 +1,5 @@
 package com.energyict.mdc.issue.tests;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -9,13 +8,13 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
-import com.energyict.mdc.issue.datacollection.event.ConnectionResolvedEvent;
+import com.energyict.mdc.issue.datacollection.event.ConnectionLostResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
+import com.energyict.mdc.issue.datacollection.event.UnableToConnectResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
@@ -77,7 +76,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
         messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
-        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(ConnectionLostEvent.class, ConnectionResolvedEvent.class); // really?
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(ConnectionLostEvent.class, UnableToConnectResolvedEvent.class);
         getDataCollectionEventHandler(mock).process(message);
         assertThat(mock.isSuccessfull()).isTrue();
     }
@@ -105,7 +104,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, 1);
         messageMap.put(ModuleConstants.CONNECTION_TASK_ID, 1);
         Message message = getMockMessage(getJsonService().serialize(messageMap));
-        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(DeviceCommunicationFailureEvent.class, ConnectionResolvedEvent.class);
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(DeviceCommunicationFailureEvent.class, ConnectionLostResolvedEvent.class, UnableToConnectResolvedEvent.class);
         getDataCollectionEventHandler(mock).process(message);
         assertThat(mock.isSuccessfull()).isTrue();
     }

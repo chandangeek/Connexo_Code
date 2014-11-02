@@ -1,11 +1,13 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.issue.datacollection.event.ConnectionResolvedEvent;
+import com.energyict.mdc.issue.datacollection.event.ConnectionLostResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureResolvedEvent;
+import com.energyict.mdc.issue.datacollection.event.UnableToConnectResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownDeviceResolvedEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+
 import org.osgi.service.event.EventConstants;
 
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ import static com.elster.jupiter.util.Checks.is;
 public enum DataCollectionResolveEventDescription implements EventDescription {
     CONNECTION_LOST_AUTO_RESOLVE(
             "com/energyict/mdc/connectiontask/COMPLETION",
-            ConnectionResolvedEvent.class) {
+            ConnectionLostResolvedEvent.class) {
         public boolean validateEvent(Map<?, ?> map) {
             if (super.validateEvent(map)) {
                 return isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS)
@@ -57,7 +59,7 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
 
     UNABLE_TO_CONNECT_AUTO_RESOLVE(
             "com/energyict/mdc/connectiontask/COMPLETION",
-            ConnectionResolvedEvent.class){
+            UnableToConnectResolvedEvent.class){
 
         @Override
         public String getUniqueKey() {

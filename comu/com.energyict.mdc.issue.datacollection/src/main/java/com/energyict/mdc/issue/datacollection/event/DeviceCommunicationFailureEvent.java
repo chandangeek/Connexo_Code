@@ -46,10 +46,10 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
 
     @Override
     public void apply(Issue issue) {
+        super.apply(issue);
         if (issue instanceof OpenIssueDataCollection) {
             OpenIssueDataCollection dcIssue = (OpenIssueDataCollection) issue;
             dcIssue.setCommunicationTask(getComTask().get());
-            dcIssue.setConnectionTask(getConnectionTask().get());
         }
     }
 
