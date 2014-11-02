@@ -53,7 +53,7 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                     itemId: 'group-fieldcontainer'
                 };
             if (namesArray.length > 1) {
-                fieldContainer.fieldLabel = namesArray[1];
+                fieldContainer.fieldLabel = Uni.I18n.translate(namesArray[1], 'DXP', namesArray[1]);
                 fieldContainer.items = groupItems;
                 Ext.Array.each(groupItems, function (groupItem) {
                     groupItem.setWidth(600);
