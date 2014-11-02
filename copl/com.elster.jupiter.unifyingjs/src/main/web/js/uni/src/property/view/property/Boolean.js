@@ -11,7 +11,8 @@ Ext.define('Uni.property.view.property.Boolean', {
             width: me.width,
             cls: 'check',
             msgTarget: 'under',
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            boxLabel: me.boxLabel ? me.boxLabel : ''
         };
     },
 
