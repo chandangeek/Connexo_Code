@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
@@ -242,7 +243,7 @@ public enum TableSpecs {
             Column bulkQuantityReadingTypeMRIDColumn = table.column("BULKQUANTITYREADINGTYPEMRID").varChar(NAME_LENGTH).add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
-            table.foreignKey("MTR_FK_CHANNELACTIVATION").references(MTR_METERACTIVATION.name()).onDelete(RESTRICT).map("meterActivation").reverseMap("channels").on(meterActivationIdColumn).composition().add();
+            table.foreignKey("MTR_FK_CHANNELACTIVATION").references(MTR_METERACTIVATION.name()).onDelete(RESTRICT).map("meterActivation").reverseMap("channels", TimeSeries.class , ReadingTypeInChannel.class).on(meterActivationIdColumn).composition().add();
             table.foreignKey("MTR_FK_CHANNELMAINTYPE").references(MTR_READINGTYPE.name()).onDelete(RESTRICT).map("mainReadingType").on(mainReadingTypeMRIDColumn).add();
             table.foreignKey("MTR_FK_CHANNELBULQUANTITYTYPE").references(MTR_READINGTYPE.name()).onDelete(RESTRICT).map("bulkQuantityReadingType").on(bulkQuantityReadingTypeMRIDColumn).add();
             table.foreignKey("MTR_FK_CHANNELTIMESERIES").on(timeSeriesIdColumn).references("IDS", "IDS_TIMESERIES").onDelete(RESTRICT).map("timeSeries").add();

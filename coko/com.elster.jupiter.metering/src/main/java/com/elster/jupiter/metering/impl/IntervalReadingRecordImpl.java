@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 
 public class IntervalReadingRecordImpl extends BaseReadingRecordImpl implements IntervalReadingRecord {
@@ -18,6 +20,11 @@ public class IntervalReadingRecordImpl extends BaseReadingRecordImpl implements 
 	@Override
 	int getReadingTypeOffset() {
 		return 2;
+	}
+	
+	@Override
+	public IntervalReadingRecord filter(ReadingType readingType) {
+		return new FilteredIntervalReadingRecord(this, getIndex(readingType));
 	}
 
 }

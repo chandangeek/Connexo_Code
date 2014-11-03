@@ -68,8 +68,7 @@ public class MeterReadingStorer {
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         if (meterActivations.isEmpty()) {
             createDefaultMeterActivation();
-        }
-        removeOldReadingQualities();
+        }        
         storeReadings(facade.getMeterReading().getReadings());
         storeIntervalBlocks(facade.getMeterReading().getIntervalBlocks());
         removeOldReadingQualities();

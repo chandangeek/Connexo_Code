@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 
 /**
@@ -18,5 +20,10 @@ public class FilteredIntervalReadingRecord extends FilteredBaseReadingRecord imp
     @Override
     public ProfileStatus getProfileStatus() {
         return source.getProfileStatus();
+    }
+    
+    @Override
+    public IntervalReadingRecord filter(ReadingType readingType) {
+    	return source.filter(readingType);
     }
 }

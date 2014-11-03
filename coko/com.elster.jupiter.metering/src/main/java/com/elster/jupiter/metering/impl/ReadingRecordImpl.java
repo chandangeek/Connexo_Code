@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 
 public class ReadingRecordImpl extends BaseReadingRecordImpl implements ReadingRecord {
 	
@@ -25,5 +26,10 @@ public class ReadingRecordImpl extends BaseReadingRecordImpl implements ReadingR
 	@Override
 	public String getText() {
 		return getEntry().getString(getReadingTypeOffset()+1);
+	}
+
+	@Override
+	public ReadingRecord filter(ReadingType readingType) {
+		return new FilteredReadingRecord(this, getIndex(readingType));
 	}
 }

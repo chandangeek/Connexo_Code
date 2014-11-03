@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -235,7 +236,7 @@ public final class ChannelImpl implements ChannelContract {
         ImmutableList.Builder<IntervalReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             IntervalReadingRecordImpl reading = new IntervalReadingRecordImpl(this, entry);
-            builder.add(new FilteredIntervalReadingRecord(reading, getReadingTypes().indexOf(readingType)));
+            builder.add(reading.filter(readingType));
         }
         return builder.build();
     }
@@ -249,7 +250,7 @@ public final class ChannelImpl implements ChannelContract {
         ImmutableList.Builder<ReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             ReadingRecordImpl reading = new ReadingRecordImpl(this, entry);
-            builder.add(new FilteredReadingRecord(reading, getReadingTypes().indexOf(readingType)));
+            builder.add(reading.filter(readingType));
         }
         return builder.build();
     }
@@ -257,14 +258,13 @@ public final class ChannelImpl implements ChannelContract {
     @Override
     public List<BaseReadingRecord> getReadings(ReadingType readingType, Range<Instant> interval) {
         boolean isRegular = isRegular();
-        int index = getReadingTypes().indexOf(readingType);
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
         ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
-            builder.add(
-                    isRegular ?
-                            new FilteredIntervalReadingRecord(new IntervalReadingRecordImpl(this, entry), index) :
-                            new FilteredReadingRecord(new ReadingRecordImpl(this, entry), index));
+        	BaseReadingRecord reading = isRegular ?
+                    new IntervalReadingRecordImpl(this, entry) :
+                    new ReadingRecordImpl(this, entry);
+            builder.add(reading.filter(readingType));
         }
         return builder.build();
     }

@@ -23,6 +23,8 @@ public interface BaseReadingRecord extends BaseReading {
 
     void setProcessingFlags(ProcessStatus.Flag... flags);
     
+    BaseReadingRecord filter(ReadingType readingType);
+    
     @Override
     List<? extends ReadingQualityRecord> getReadingQualities();
     

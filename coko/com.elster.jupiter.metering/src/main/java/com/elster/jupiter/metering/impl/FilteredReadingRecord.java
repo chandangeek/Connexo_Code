@@ -28,5 +28,10 @@ public class FilteredReadingRecord extends FilteredBaseReadingRecord implements 
 	public String getText() {
 		return filtered.getText();
 	}
+	
+	 @Override
+	public ReadingRecord filter(ReadingType readingType) {
+	    return filtered.filter(readingType);
+	}
 
 }

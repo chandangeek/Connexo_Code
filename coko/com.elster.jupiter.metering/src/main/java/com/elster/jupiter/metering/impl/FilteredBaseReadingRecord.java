@@ -100,4 +100,9 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
     public List<? extends ReadingQualityRecord> getReadingQualities() {
     	return filtered.getReadingQualities();
     }
+    
+    @Override
+    public BaseReadingRecord filter(ReadingType readingType) {
+    	return filtered.filter(readingType);
+    }
 }

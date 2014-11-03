@@ -76,13 +76,16 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
         return entry.getBigDecimal(getReadingTypeOffset() + offset);
     }
 
+    int getIndex(ReadingType readingType) {
+    	int result = channel.getReadingTypes().indexOf(readingType);
+    	if (result < 0) {
+    		throw new IllegalArgumentException(MessageFormat.format("ReadingType {0} does not occur on this channel", readingType.getMRID()));
+    	}
+    	return result;
+    }
     @Override
     public Quantity getQuantity(ReadingType readingType) {
-        int i = channel.getReadingTypes().indexOf(readingType);
-        if (i >= 0) {
-        	return getQuantity(i,readingType);
-        } 
-        throw new IllegalArgumentException(MessageFormat.format("ReadingType {0} does not occur on this channel", readingType.getMRID()));
+        return getQuantity(getIndex(readingType),readingType);
     }
 
     @Override
