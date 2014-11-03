@@ -140,16 +140,34 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.scheduleType = thesaurus.getString("onRequest","On request");
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.ON_REQUEST.name();
         deviceComTasksInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
-        if(comTaskEnablement.getPartialConnectionTask().isPresent()){
-            PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
-            deviceComTasksInfo.connectionMethod = partialConnectionTask.getName();
-            if(partialConnectionTask instanceof PartialScheduledConnectionTask){
-                ConnectionStrategy connectionStrategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
-                ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
-                String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
-                deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
+        deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(TaskStatus.OnHold),taskStatusAdapter.marshal(TaskStatus.OnHold));
+        if(comTaskEnablement.usesDefaultConnectionTask()){
+            if(comTaskEnablement.getPartialConnectionTask().isPresent()){
+                PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
+                deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
+                        " (" + partialConnectionTask.getName() + ")";
+                if(partialConnectionTask instanceof PartialScheduledConnectionTask){
+                    ConnectionStrategy connectionStrategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
+                    ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
+                    String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
+                    deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
+                }
+            } else {
+                deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT_NOT_DEFINED.getKey(),MessageSeeds.DEFAULT_NOT_DEFINED.getKey());
+            }
+        } else {
+            if(comTaskEnablement.getPartialConnectionTask().isPresent()){
+                PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
+                deviceComTasksInfo.connectionMethod = partialConnectionTask.getName();
+                if(partialConnectionTask instanceof PartialScheduledConnectionTask){
+                    ConnectionStrategy connectionStrategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
+                    ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
+                    String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
+                    deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
+                }
             }
         }
+
         deviceComTasksInfo.urgency = comTaskEnablement.getPriority();
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
         if(comTaskEnablement.getProtocolDialectConfigurationProperties().isPresent()){

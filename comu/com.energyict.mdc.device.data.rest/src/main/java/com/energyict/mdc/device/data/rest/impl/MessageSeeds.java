@@ -54,7 +54,7 @@ public enum MessageSeeds implements MessageSeed {
     PENDING(63, "Pending", "Pending"),
     FAILED(64, "Failed", "Failed"),
     BUSY(65, "Busy", "Busy"),
-    ON_HOLD(66, "OnHold", "On hold"),
+    ON_HOLD(66, "OnHold", "Inactive"),
     RETRYING(67, "Retrying", "Retrying"),
     NEVER_COMPLETED(68, "NeverCompleted", "Never completed"),
     WAITING(69, "Waiting", "Waiting"),
