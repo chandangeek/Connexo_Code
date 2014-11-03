@@ -219,7 +219,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             if (!isDynamic) {
                 var grid = this.getStaticGrid();
                 var devicesList = [];
-                if (grid.allChosenByDefault) {
+                if (grid.isAllSelected()) {
                     devicesList = null;
                 } else {
                     var selection = this.getStaticGrid().getSelectionModel().getSelection();
