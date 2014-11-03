@@ -1,12 +1,17 @@
 package com.elster.jupiter.export.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -15,6 +20,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 
 public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
 
@@ -28,6 +34,10 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
     private MeteringGroupsService meteringGroupsService;
     @Mock
     private TimeService timeService;
+    @Mock
+    private Query<? extends ReadingTypeDataExportTask> query;
+    @Mock
+    private RestQuery<? extends ReadingTypeDataExportTask> restQuery;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -46,6 +56,17 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         application.setTimeService(timeService);
 
         return application;
+    }
+
+    @Before
+    public void setUp() {
+        doReturn(query).when(dataExportService).getReadingTypeDataExportTaskQuery();
+        doReturn(restQuery).when(restQueryService).wrap(query);
+    }
+
+    @After
+    public void tearDown() {
+
     }
 
     @Test
