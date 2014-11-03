@@ -10,6 +10,7 @@ Ext.define('Uni.form.field.OnPeriod', {
     vertical: true,
 
     baseRadioName: undefined,
+    selectedValue: undefined,
 
     initComponent: function () {
         var me = this;
@@ -24,6 +25,7 @@ Ext.define('Uni.form.field.OnPeriod', {
         var me = this;
 
         me.baseRadioName = me.getId() + 'onperiod';
+        me.selectedValue = 'currentday';
 
         me.items = [
             {
@@ -148,13 +150,15 @@ Ext.define('Uni.form.field.OnPeriod', {
 
         me.getOptionCurrentRadio().on('change', function (scope, newValue, oldValue) {
             if (newValue) {
-                me.fireEvent('periodchange', me.getValue());
+                me.selectedValue = 'currentday';
+                me.fireEvent('periodchange', me.getOnValue());
             }
         }, me);
 
         me.getOptionDayOfMonthRadio().on('change', function (scope, newValue, oldValue) {
             if (newValue) {
-                me.fireEvent('periodchange', me.getValue());
+                me.selectedValue = 'dayofmonth';
+                me.fireEvent('periodchange', me.getOnValue());
             }
         }, me);
 
@@ -164,7 +168,8 @@ Ext.define('Uni.form.field.OnPeriod', {
 
         me.getOptionDayOfWeekRadio().on('change', function (scope, newValue, oldValue) {
             if (newValue) {
-                me.fireEvent('periodchange', me.getValue());
+                me.selectedValue = 'dayofweek';
+                me.fireEvent('periodchange', me.getOnValue());
             }
         }, me);
 
@@ -184,6 +189,8 @@ Ext.define('Uni.form.field.OnPeriod', {
     },
 
     selectOptionDayOfMonth: function (suspendEvent) {
+        this.selectedValue = 'dayofmonth';
+
         this.getOptionDayOfMonthRadio().suspendEvents();
         this.getOptionDayOfMonthRadio().setValue(true);
         this.getOptionDayOfMonthRadio().resumeEvents();
@@ -194,6 +201,8 @@ Ext.define('Uni.form.field.OnPeriod', {
     },
 
     selectOptionDayOfWeek: function (suspendEvent) {
+        this.selectedValue = 'dayofweek';
+
         this.getOptionDayOfWeekRadio().suspendEvents();
         this.getOptionDayOfWeekRadio().setValue(true);
         this.getOptionDayOfWeekRadio().resumeEvents();
@@ -284,16 +293,16 @@ Ext.define('Uni.form.field.OnPeriod', {
         }
     },
 
-    getValue: function () {
+    getOnValue: function () {
         var me = this,
-            selectedRadio = me.callParent(arguments),
-            selectedValue = selectedRadio[me.baseRadioName],
+            selectedValue = me.selectedValue,
             dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').getValue(),
             dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').getValue();
 
         var result = {
             onCurrentDay: selectedValue === 'currentday'
         };
+
         if (selectedValue === 'dayofmonth') {
             Ext.apply(result, {
                 onDayOfMonth: dayOfMonthValue
@@ -303,11 +312,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                 onDayOfWeek: dayOfWeekValue
             });
         }
-        /*return {
-         onCurrentDay: selectedValue === 'currentday',
-         onDayOfMonth: dayOfMonthValue,
-         onDayOfWeek: dayOfWeekValue
-         };*/
+
         return result;
     }
 });

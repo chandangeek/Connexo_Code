@@ -181,8 +181,8 @@ Ext.define('Uni.form.RelativePeriod', {
     getValue: function () {
         var me = this,
             result = {},
-            startValue = me.getStartPeriodField().getValue(),
-            onValue = me.getOnPeriodField().getValue(),
+            startValue = me.getStartPeriodField().getStartValue(),
+            onValue = me.getOnPeriodField().getOnValue(),
             atValue = me.getAtPeriodField().getValue();
 
         Ext.apply(result, startValue);
