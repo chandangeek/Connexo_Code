@@ -45,16 +45,5 @@
         </profile>
     </profiles>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/web/js/time/build</directory>
-                <targetPath>js/time/build</targetPath>
-                <includes>
-                    <include>resources/**/*</include>
-                    <include>*.js</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
+
 </project>
