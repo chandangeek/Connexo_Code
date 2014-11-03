@@ -125,10 +125,19 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         } catch (Exception e) {
             e.printStackTrace();
         }
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-        destinationSpec.save();
-        destinationSpec.activate();
+        try {
+            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
+            destinationSpec.save();
+            destinationSpec.activate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            timeService.createRelativePeriodCategory("DataExport");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
