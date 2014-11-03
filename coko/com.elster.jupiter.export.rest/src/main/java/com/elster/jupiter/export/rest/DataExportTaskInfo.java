@@ -5,14 +5,15 @@ import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class DataExportTaskInfo {
 
@@ -28,22 +29,41 @@ public class DataExportTaskInfo {
     public boolean exportUpdate;
     public boolean exportContinuousData;
     public ValidatedDataOption validatedDataOption = ValidatedDataOption.INCLUDE_ALL;
-    public long lastRun = Instant.now().toEpochMilli();
-    public long endDeviceGroupId;
+    public DeviceGroupInfo deviceGroup;
+    public LastExportOccurenceInfo lastExportOccurence;
+    public long nextRun;
 
 
     public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask) {
         id = dataExportTask.getId();
-        active = dataExportTask.isActive();
-        dataProcessor = dataExportTask.getDataFormatter();
         name = dataExportTask.getName();
-        dataExportTask.getExportPeriod();
 
-
-        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
+        deviceGroup = new DeviceGroupInfo(dataExportTask.getEndDeviceGroup());
         for (ReadingType readingType : dataExportTask.getReadingTypes()) {
             readingTypes.add(new ReadingTypeInfo(readingType));
         }
+
+        active = dataExportTask.isActive();
+        //TODO schedule !!
+        //schedule = dataExportTask.getSchedule() ?
+
+        exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod());
+        exportContinuousData = dataExportTask.getStrategy().isExportContinuousData();
+        exportUpdate = dataExportTask.getStrategy().isExportUpdate();
+        Optional<RelativePeriod> dataExportTaskUpdatePeriod = dataExportTask.getUpdatePeriod();
+        if (dataExportTaskUpdatePeriod.isPresent()) {
+            updatePeriod = new RelativePeriodInfo(dataExportTaskUpdatePeriod.get());
+        }
+        validatedDataOption = dataExportTask.getStrategy().getValidatedDataOption();
+
+        dataProcessor = dataExportTask.getDataFormatter();
+        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
+
+        //todo last occurence
+        // lastExportOccurence = new LastExportOccurenceInfo(dataExportTask.getLastOccurence());
+        nextRun = dataExportTask.getNextExecution().toEpochMilli();
+
+
     }
 
     public DataExportTaskInfo() {

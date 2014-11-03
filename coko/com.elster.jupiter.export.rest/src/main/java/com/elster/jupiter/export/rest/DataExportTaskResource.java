@@ -2,12 +2,15 @@ package com.elster.jupiter.export.rest;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -37,6 +40,7 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,19 +55,21 @@ public class DataExportTaskResource {
     private final TimeService timeService;
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringService meteringService, MeteringGroupsService meteringGroupsService) {
+    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus) {
         this.queryService = queryService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public DataExportTaskInfos getValidationRuleSets(@Context UriInfo uriInfo) {
+    public DataExportTaskInfos getDataExportTasks(@Context UriInfo uriInfo) {
         RelativeDate startOfTheYearBeforeLastYear = new RelativeDate(
                 YEAR.minus(2),
                 MONTH.equalTo(1),
@@ -90,10 +96,12 @@ public class DataExportTaskResource {
 
         DataExportTaskInfos infos = new DataExportTaskInfos(/*params.clipToLimit(list)*/);
         infos.dataExportTasks = new ArrayList<>();
+
         DataExportTaskInfo dataExportTaskInfo = new DataExportTaskInfo();
         ReadingTypeInfo readingTypeInfo = new ReadingTypeInfo();
         readingTypeInfo.mRID = "1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18";
         dataExportTaskInfo.readingTypes.add(readingTypeInfo);
+
         PropertyInfo prop = new PropertyInfo();
         prop.key = "fileformat.prefix";
         prop.required = true;
@@ -179,12 +187,38 @@ public class DataExportTaskResource {
             }
         });
         dataExportTaskInfo.updatePeriod = dataExportTaskInfo.exportperiod;
+        dataExportTaskInfo.deviceGroup = new DeviceGroupInfo();
+        dataExportTaskInfo.deviceGroup.name = "My Device Group";
+        dataExportTaskInfo.deviceGroup.id = 35;
+
+        dataExportTaskInfo.lastExportOccurence = new LastExportOccurenceInfo();
+        dataExportTaskInfo.lastExportOccurence.status = DataExportStatus.SUCCESS;
+        dataExportTaskInfo.lastExportOccurence.lastRun = Instant.now().minus(25, ChronoUnit.MINUTES).toEpochMilli();
+        dataExportTaskInfo.lastExportOccurence.startedOn = Instant.now().minus(50, ChronoUnit.MINUTES).toEpochMilli();
+        dataExportTaskInfo.lastExportOccurence.finishedOn = dataExportTaskInfo.lastExportOccurence.lastRun;
+        dataExportTaskInfo.lastExportOccurence.duration = dataExportTaskInfo.lastExportOccurence.finishedOn - dataExportTaskInfo.lastExportOccurence.startedOn;
+        dataExportTaskInfo.lastExportOccurence.status = DataExportStatus.SUCCESS;
+
+        dataExportTaskInfo.nextRun = Instant.now().plus(3, ChronoUnit.HOURS).toEpochMilli();
 
         infos.dataExportTasks.add(dataExportTaskInfo);
         infos.total = params.determineTotal(/*list.size()*/ 1);
 
         return infos;
     }
+
+    /*@GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public DataExportTaskInfos getDataExportTasks(@Context UriInfo uriInfo) {
+        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
+        List<? extends ReadingTypeDataExportTask> list = queryTasks(params);
+
+        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list));
+        infos.total = params.determineTotal(list.size());
+
+        return infos;
+    }*/
+
 
     private List<? extends ReadingTypeDataExportTask> queryTasks(QueryParameters queryParameters) {
         Query<? extends ReadingTypeDataExportTask> query = dataExportService.getReadingTypeDataExportTaskQuery();
@@ -196,7 +230,7 @@ public class DataExportTaskResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public DataExportTaskInfo getValidationRuleSet(@PathParam("id") long id, @Context SecurityContext securityContext) {
+    public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new DataExportTaskInfo(fetchDataExportTask(id, securityContext));
     }
 
@@ -210,7 +244,7 @@ public class DataExportTaskResource {
                 .setExportPeriod(getRelativePeriod(info.exportperiod))
                 .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
                 .setValidatedDataOption(info.validatedDataOption)
-                .setEndDeviceGroup(endDeviceGroup(info.endDeviceGroupId))
+                .setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id))
                 .exportContinuousData(info.exportContinuousData)
                 .exportUpdate(info.exportUpdate);
 
@@ -230,6 +264,23 @@ public class DataExportTaskResource {
 
         ReadingTypeDataExportTask dataExportTask = builder.build();
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask)).build();
+    }
+
+    @GET
+    @Path("/processors")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ProcessorInfos getAvailableProcessors(@Context UriInfo uriInfo) {
+        ProcessorInfos infos = new ProcessorInfos();
+        List<DataProcessorFactory> processors = dataExportService.getAvailableProcessors();
+        PropertyUtils propertyUtils = new PropertyUtils();
+        for (DataProcessorFactory processor : processors) {
+            infos.add(
+                processor.getName(),
+                thesaurus.getString(processor.getName(), processor.getName()),
+                propertyUtils.convertPropertySpecsToPropertyInfos(processor.getProperties()));
+        }
+        infos.total = processors.size();
+        return infos;
     }
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
