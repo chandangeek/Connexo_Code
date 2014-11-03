@@ -142,7 +142,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest{
         assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
         assertThat(deviceMessage1.getAttributes()).hasSize(1);
-        List<DeviceMessageAttribute<?>> attributes = deviceMessage1.getAttributes();
+        List<DeviceMessageAttribute> attributes = deviceMessage1.getAttributes();
         assertThat(attributes.get(0).getName()).isEqualTo(DeviceMessageConstants.digitalOutputAttributeName);
         assertThat(attributes.get(0).getValue()).isEqualTo(value);
     }
@@ -171,24 +171,82 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest{
         assertThat(messages).hasSize(1);
         DeviceMessage<Device> deviceMessage1 = messages.get(0);
         assertThat(deviceMessage1.getAttributes()).hasSize(3);
-        List<DeviceMessageAttribute<?>> attributes = deviceMessage1.getAttributes();
+        List<DeviceMessageAttribute> attributes = deviceMessage1.getAttributes();
 
-        Optional<DeviceMessageAttribute<?>> deviceMessageAttributeOptional1 =
+        Optional<DeviceMessageAttribute> deviceMessageAttributeOptional1 =
                 attributes.stream()
                         .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageAttributeName))
                         .findFirst();
         assertThat(deviceMessageAttributeOptional1.isPresent()).isTrue();
         assertThat(deviceMessageAttributeOptional1.get().getValue()).isEqualTo(displayMessageAttributeName);
 
-        Optional<DeviceMessageAttribute<?>> deviceMessageAttributeOptional2 =
+        Optional<DeviceMessageAttribute> deviceMessageAttributeOptional2 =
                 attributes.stream()
                         .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName))
                         .findFirst();
         assertThat(deviceMessageAttributeOptional2.isPresent()).isTrue();
         assertThat(deviceMessageAttributeOptional2.get().getValue()).isEqualTo(displayMessageTimeDurationAttributeName);
 
-
-        //todo validate the other attributes
-
+        Optional<DeviceMessageAttribute> deviceMessageAttributeOptional3 =
+                attributes.stream()
+                        .filter(attribute -> attribute.getName().equals(DeviceMessageConstants.DisplayMessageActivationDate))
+                        .findFirst();
+        assertThat(deviceMessageAttributeOptional3.isPresent()).isTrue();
+        assertThat(deviceMessageAttributeOptional3.get().getValue()).isEqualTo(displayMessageActivationDate);
     }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED + "}")
+    public void emptyDeviceMessageAttributeTest() {
+        Instant myReleaseInstant = initializeClockWithCurrentAndReleaseInstant();
+
+        Device device = createSimpleDeviceWithName("emptyDeviceMessageAttributeTest", "emptyDeviceMessageAttributeTest");
+        DeviceMessageId contactorOpenWithOutput = DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT;
+
+        device.newDeviceMessage(contactorOpenWithOutput)
+                .setReleaseDate(myReleaseInstant)
+                .add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC + "}")
+    public void deviceMessageAttributeNotDefinedInSpecTest() {
+        Instant myReleaseInstant = initializeClockWithCurrentAndReleaseInstant();
+
+        Device device = createSimpleDeviceWithName("deviceMessageAttributeNotDefinedInSpecTest", "deviceMessageAttributeNotDefinedInSpecTest");
+        DeviceMessageId contactorOpenWithOutput = DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT;
+        BigDecimal value = BigDecimal.valueOf(1);
+
+        device.newDeviceMessage(contactorOpenWithOutput)
+                .setReleaseDate(myReleaseInstant)
+                .addProperty("NameOfAttributeWhichIsNotDefinedInSpec", "Blablabla")
+                .addProperty(DeviceMessageConstants.digitalOutputAttributeName, value)
+                .add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE + "}")
+    public void invalidDeviceMessageAttributeTest() {
+        Instant myReleaseInstant = initializeClockWithCurrentAndReleaseInstant();
+
+        Device device = createSimpleDeviceWithName("invalidDeviceMessageAttributeTest", "invalidDeviceMessageAttributeTest");
+        DeviceMessageId contactorOpenWithOutput = DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT;
+        String value = "This should have been a BigDecimal";
+
+        device.newDeviceMessage(contactorOpenWithOutput)
+                .setReleaseDate(myReleaseInstant)
+                .addProperty(DeviceMessageConstants.digitalOutputAttributeName, value)
+                .add();
+    }
+
+    /*
+    *
+    * - Test with empty attributes
+    * - Test with unknown attributes
+    * - Test with attributes of wrong type
+    *
+    * */
 }

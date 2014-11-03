@@ -84,6 +84,9 @@ public enum MessageSeeds implements MessageSeed {
     RELEASE_DATE_IS_REQUIRED(2053, Keys.RELEASE_DATE_IS_REQUIRED, "The release date is required for a device message", Level.SEVERE),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(2054, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The device message is not supported for the device", Level.SEVERE),
     DEVICE_MESSAGE_IS_REQUIRED(2055, Keys.DEVICE_MESSAGE_IS_REQUIRED, "The device message is required for a device message attribute", Level.SEVERE),
+    DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC(2056, Keys.DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC, "The device message attribute is not defined in the specification", Level.SEVERE),
+    DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED(2057, Keys.DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED, "The device message attribute is required", Level.SEVERE),
+    DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE(2058, Keys.DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE, "This is an invalid value", Level.SEVERE),
     ;
 
     private final int number;
@@ -199,6 +202,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String RELEASE_DATE_IS_REQUIRED = "releaseDateIsRequired.deviceMessage";
         public static final String DEVICE_MESSAGE_ID_NOT_SUPPORTED = "deviceMessageId.deviceMessage.device.notSupported";
         public static final String DEVICE_MESSAGE_IS_REQUIRED = "deviceMessage.required.deviceMessageAttribute";
+        public static final String DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC = "deviceMessageAttribute.not.defined";
+        public static final String DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED = "deviceMessageAttribute.required";
+        public static final String DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE = "deviceMessageAttribute.invalid.value";
     }
 
 }

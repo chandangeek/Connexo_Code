@@ -12,7 +12,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.exceptions.UnknownDeviceMessageId;
+import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMessageAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidDeviceMessageId;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -30,7 +30,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
 
 /**
  * Copyrights EnergyICT
@@ -38,6 +37,7 @@ import javax.inject.Inject;
  * Time: 1:06 PM
  */
 @ValidDeviceMessageId(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
+@HasValidDeviceMessageAttributes(groups = {Save.Create.class, Save.Update.class})
 public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> implements DeviceMessage<Device>{
 
     public enum Fields {
@@ -81,8 +81,8 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     private String trackingId;
     private String protocolInfo;
     private Optional<DeviceMessageSpec> messageSpec;
-    @Valid //TODO need to validate if all attributes are properly filled in ...
-    private List<DeviceMessageAttribute<?>> deviceMessageAttributes = new ArrayList<>();
+    @Valid
+    private List<DeviceMessageAttribute> deviceMessageAttributes = new ArrayList<>();
 
     @Inject
     public DeviceMessageImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceMessageService deviceMessageService, Clock clock) {
@@ -129,7 +129,7 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
 
     @Override
     public DeviceMessageSpec getSpecification() {
-        return this.deviceMessageService.findMessageSpecById(this.deviceMessageId.dbValue()).orElseThrow(() -> new UnknownDeviceMessageId(getThesaurus(), this.device.get(), this.deviceMessageId));
+        return this.deviceMessageService.findMessageSpecById(this.deviceMessageId.dbValue()).orElse(null);
     }
 
     @Override
@@ -138,7 +138,7 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     }
 
     @Override
-    public List<DeviceMessageAttribute<?>> getAttributes() {
+    public List<DeviceMessageAttribute> getAttributes() {
         return this.deviceMessageAttributes;
     }
 
@@ -222,13 +222,8 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     }
 
     public <T> void addProperty(String key, T value) {
-        if(messageSpec.isPresent()){
-            PropertySpec<T> propertySpec = messageSpec.get().getPropertySpec(key);
-            if(propertySpec != null){
-                DeviceMessageAttributeImpl<T> deviceMessageAttribute = this.getDataModel().getInstance(DeviceMessageAttributeImpl.class).initialize(this, key);
-                deviceMessageAttribute.setValue(value);
-                deviceMessageAttributes.add(deviceMessageAttribute);
-            } // what do we do when we don't find it???
-        }
+        DeviceMessageAttributeImpl<T> deviceMessageAttribute = this.getDataModel().getInstance(DeviceMessageAttributeImpl.class).initialize(this, key);
+        deviceMessageAttribute.setValue(value);
+        deviceMessageAttributes.add(deviceMessageAttribute);
     }
 }

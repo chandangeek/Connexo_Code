@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -68,7 +69,13 @@ public class DeviceMessageAttributeImpl<T> extends PersistentIdObject<DeviceMess
 
     public void setValue(T value) {
         this.value = value;
-        stringValue = getSpecification().getValueFactory().toStringValue(this.value);
+        try {
+            if(getSpecification() != null && getSpecification().validateValue(value)){  // we do the validation later on ...
+                stringValue = getSpecification().getValueFactory().toStringValue(this.value);
+            }
+        } catch (InvalidValueException e) {
+            // absorb ...
+        }
     }
 
     @Override
