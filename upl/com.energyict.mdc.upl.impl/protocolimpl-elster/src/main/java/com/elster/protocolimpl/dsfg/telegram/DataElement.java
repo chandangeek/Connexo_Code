@@ -57,20 +57,27 @@ public class DataElement {
 			setAddress(de[0]);
 		}
 
-		if ((de.length > 1) && (de[1].length() > 0)) {
-			try {
-				Long l = new Long(Long.parseLong(de[1]));
-				setValue(l);
-			} catch (Exception e1) {
-				try {
-					Double d = new Double(Double.parseDouble(de[1]));
-                    d = Math.round(d * 1000000.) / 1000000.;
-					setValue(d);
-				} catch (Exception e2) {
-					setValue(de[1]);
-				}
-			}
-		}
+        if ((de.length > 1) && (de[1].length() > 0)) {
+            if (isInteger(de[1])) {
+                Long l = Long.parseLong(de[1]);
+                setValue(l);
+            } else if (isHex(de[1])) {
+                setValue(de[1]);
+            } else {
+                try {
+                    Long l = new Long(Long.parseLong(de[1]));
+                    setValue(l);
+                } catch (Exception e1) {
+                    try {
+                        Double d = new Double(Double.parseDouble(de[1]));
+                        d = Math.round(d * 1000000.) / 1000000.;
+                        setValue(d);
+                    } catch (Exception e2) {
+                        setValue(de[1]);
+                    }
+                }
+            }
+        }
 
 		if ((de.length > 2) && (de[2].length() > 0)) {
 			Long l = new Long(Long.parseLong(de[2], 16));
@@ -93,7 +100,30 @@ public class DataElement {
 //		System.out.println("");
 	}
 
-	public DataElement(String address, Object value, Date date, Long ono,
+    private boolean isInteger(String s) {
+        for (char ch : s.toUpperCase().toCharArray()) {
+            if (Character.isDigit(ch)) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isHex(String s) {
+        for (char ch : s.toUpperCase().toCharArray()) {
+            if (Character.isDigit(ch)) {
+                continue;
+            }
+            if ("ABCDEF".indexOf(ch) >= 0) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public DataElement(String address, Object value, Date date, Long ono,
 			Integer state) {
 		this.address = address;
 		this.value = value;

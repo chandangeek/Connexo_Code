@@ -3,7 +3,9 @@ package com.elster.protocolimpl.dsfg.objects;
 import com.elster.protocolimpl.dsfg.ProtocolLink;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 /**
@@ -12,12 +14,13 @@ import java.util.*;
  * @author gh
  * @since 5/25/2010
  */
+@SuppressWarnings("unused")
 public class ClockObject extends SimpleObject {
 
     /**
      * Constructor of ClockObject
      *
-     * @param link
+     * @param link - link to protocol
      * @param address of ClockObject
      */
     public ClockObject(ProtocolLink link, String address) {
@@ -31,7 +34,7 @@ public class ClockObject extends SimpleObject {
      * @throws IOException
      */
     public Date getDateTime() throws IOException {
-        return parseClockValue(getValue(), link.getTimeZone());
+        return localDateToUTC(getValue(), link.getTimeZone());
     }
 
     /**
@@ -43,7 +46,6 @@ public class ClockObject extends SimpleObject {
         throw new IOException("writeClock not possible on DSfG clock object");
     }
 
-
     /**
      * Construct a {@link Calendar} based on the raw input data and the given {@link TimeZone}
      *
@@ -51,17 +53,12 @@ public class ClockObject extends SimpleObject {
      * @param timeZone    - the timeZone the rawDateTime is written in
      * @return a calendar with the meter time
      */
-    public static Date parseClockValue(String rawDateTime, TimeZone timeZone) {
+    @SuppressWarnings("MagicConstant")
+    public static Date localDateToUTC(String rawDateTime, TimeZone timeZone) {
 
         Calendar meterCal = Calendar.getInstance(TimeZone.getTimeZone("GMT0"));
-        //System.out.println("parseClockValue: curr. time millis = " + meterCal.getTimeInMillis());
-        //System.out.println("parseClockValue: cur = " + meterCal.getTime());
-        //System.out.println("parseClockValue: meterCal . TimeZone = " + meterCal.getTimeZone().getID());
-        //System.out.println("parseClockValue: givenTimeZone = " + timeZone.getID());
-        
-        long dt = Long.parseLong(rawDateTime, 16) * 1000;
 
-        //System.out.println("parseClockValue: dt = " + rawDateTime);
+        long dt = Long.parseLong(rawDateTime, 16) * 1000;
 
         meterCal.setTimeInMillis(dt);
 
@@ -72,18 +69,36 @@ public class ClockObject extends SimpleObject {
                 meterCal.get(Calendar.HOUR_OF_DAY),
                 meterCal.get(Calendar.MINUTE),
                 meterCal.get(Calendar.SECOND));
+        result.set(Calendar.MILLISECOND, 0);
 
-        //System.out.println("parseClockValue: cal = " + meterCal.getTime());
-        //System.out.println("parseClockValue: res = " + result.getTime());
-		
 		return result.getTime();
 	}
-    
-    public static long calculateClockValue(Date date) {
-    	long d = date.getTime() / 1000;
-    	return d;
+
+    @SuppressWarnings("MagicConstant")
+    public static Date localDateToUTC(long date, TimeZone timeZone) {
+
+        Calendar meterCal = Calendar.getInstance(TimeZone.getTimeZone("GMT0"));
+
+        meterCal.setTimeInMillis(date * 1000);
+
+        Calendar result = Calendar.getInstance(timeZone);
+        result.set(meterCal.get(Calendar.YEAR),
+                meterCal.get(Calendar.MONTH),
+                meterCal.get(Calendar.DAY_OF_MONTH),
+                meterCal.get(Calendar.HOUR_OF_DAY),
+                meterCal.get(Calendar.MINUTE),
+                meterCal.get(Calendar.SECOND));
+        result.set(Calendar.MILLISECOND, 0);
+
+        return result.getTime();
     }
-    
+
+    public static long calculateClockValue(Date date)
+    {
+    	return date.getTime() / 1000;
+    }
+
+    @SuppressWarnings("MagicConstant")
     public static long calendarToRaw(Date date, TimeZone timeZone) {
         Calendar result = Calendar.getInstance(TimeZone.getTimeZone("GMT0"));
 
@@ -97,5 +112,23 @@ public class ClockObject extends SimpleObject {
                 cal.get(Calendar.SECOND));
         
         return result.getTimeInMillis() / 1000;
+    }
+
+    public static Date checkDate(Date currDate, Date prevDate, TimeZone timeZone)
+    {
+        if ((prevDate != null) && (prevDate.getTime() != 0))
+        {
+            boolean b1 = timeZone.inDaylightTime(currDate);
+            boolean b2 = timeZone.inDaylightTime(prevDate);
+            if (!b1 && b2)
+            {
+                if (((currDate.getTime() - prevDate.getTime()) > timeZone.getDSTSavings()) &&
+                        ((currDate.getTime() - prevDate.getTime()) <= (timeZone.getDSTSavings() + 3600000)))
+                {
+                    currDate.setTime(currDate.getTime() - timeZone.getDSTSavings());
+                }
+            }
+        }
+        return currDate;
     }
 }

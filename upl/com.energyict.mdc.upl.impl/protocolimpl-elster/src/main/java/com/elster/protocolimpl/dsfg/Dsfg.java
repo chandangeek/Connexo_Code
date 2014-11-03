@@ -115,14 +115,7 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     }
 
     public String getProtocolVersion() {
-        String rev = "$Revision: 99 $" + " - "
-                + "$Date: 2010-07-22 09:25:00 +0200 (do, 22 jul 2010) $";
-        return "Revision "
-                + rev.substring(rev.indexOf("$Revision: ")
-                + "$Revision: ".length(), rev.indexOf("$ -"))
-                + "at "
-                + rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(),
-                rev.indexOf("$Date: ") + "$Date: ".length() + 19);
+        return "$Date: 2014-10-30 12:00:00 +0100$";
     }
 
     @Override

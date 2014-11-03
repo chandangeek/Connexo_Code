@@ -2,7 +2,9 @@ package com.elster.protocolimpl.dsfg.objects;
 
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import static junit.framework.Assert.fail;
 
@@ -30,7 +32,7 @@ public class ClockObjectTest {
         Calendar currentCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         currentCalendar.setTimeInMillis(readTimeInMillis);  // this sets the time in milliseconds since 1th Jan 1970 according to GMT
 
-        Date calculatedDate = ClockObject.parseClockValue(rawDateTime, timeZone);
+        Date calculatedDate = ClockObject.localDateToUTC(rawDateTime, timeZone);
         System.out.println("ReadTime : " + currentCalendar.getTime());
         System.out.println("MeterTime : " + calculatedDate);
         
@@ -58,7 +60,7 @@ public class ClockObjectTest {
         Calendar currentCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         currentCalendar.setTimeInMillis(readTimeInMillis);  // this sets the time in milliseconds since 1th Jan 1970 according to GMT
 
-        Date calculatedDate = ClockObject.parseClockValue(rawDateTime, timeZone);
+        Date calculatedDate = ClockObject.localDateToUTC(rawDateTime, timeZone);
         System.out.println("ReadTime : " + currentCalendar.getTime());
         System.out.println("MeterTime : " + calculatedDate);
 
