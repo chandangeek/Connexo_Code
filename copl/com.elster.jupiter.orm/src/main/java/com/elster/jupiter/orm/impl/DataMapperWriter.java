@@ -202,12 +202,17 @@ public class DataMapperWriter<T> {
 	}
 	
 	
-	void update(List<T> objects,List<ColumnImpl> columns) throws SQLException {	
+	void update(List<T> objects,List<ColumnImpl> columns) throws SQLException {
+		if (getTable().getVersionColumns().length > 0) {
+			for (T t: objects) {
+				update(t,columns);
+			}
+			return;
+		}
 		Instant now = getTable().getDataModel().getClock().instant();
 		if (getTable().hasJournal()) {
 			journal(objects,now);
 		}
-		ColumnImpl[] versionCountColumns = getTable().getVersionColumns();
 		try (Connection connection = getConnection(true)) {							
 			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().updateSql(columns))) {
 				for (T tuple : objects) {
@@ -220,13 +225,9 @@ public class DataMapperWriter<T> {
 						column.setObject(statement, index++, tuple);
 					}
 					index = bindPrimaryKey(statement, index, tuple);
-					for (ColumnImpl column : versionCountColumns) {
-						Long value = (Long) column.domainValue(tuple);					
-						statement.setObject(index++, value);
-					}
 					statement.addBatch();
 				}
-				statement.executeBatch();				
+				statement.executeBatch();
 			}							
 		} 	
 	}
