@@ -1152,7 +1152,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: 'Edit security setting',
                                     route: '{securitySettingId}/edit',
                                     controller: 'Mdc.controller.setup.DeviceSecuritySettings',
-                                    action: 'showDeviceSecuritySettingEditView'
+                                    action: 'showDeviceSecuritySettingEditView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadDeviceSecuritySetting', function (record) {
+                                            route.setTitle('Edit \'' + record.get('name') + '\'');
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         }

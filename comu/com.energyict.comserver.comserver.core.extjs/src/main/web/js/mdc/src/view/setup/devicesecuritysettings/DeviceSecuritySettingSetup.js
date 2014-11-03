@@ -62,13 +62,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                 title: Uni.I18n.translate('devicesecuritysetting.empty.title', 'MDC', 'No security settings found'),
                 reasons: [
                     Uni.I18n.translate('devicesecuritysetting.empty.list.item1', 'MDC', 'No security settings have been defined yet.')
-                ],
-                stepItems: [
-                    {
-                        text: Uni.I18n.translate('devicesecuritysetting.addSecuritySetting', 'MDC', 'Add security setting'),
-                        itemId: 'createDeviceSecuritySettingButton',
-                        action: 'createDeviceSecuritySetting'
-                    }
                 ]
             };
 
