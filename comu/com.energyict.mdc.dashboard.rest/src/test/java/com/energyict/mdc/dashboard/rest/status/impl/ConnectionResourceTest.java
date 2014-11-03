@@ -27,7 +27,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.jayway.jsonpath.JsonModel;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
