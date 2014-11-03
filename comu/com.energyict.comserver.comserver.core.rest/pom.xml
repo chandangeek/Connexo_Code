@@ -37,6 +37,11 @@
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.io</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.engine.config</artifactId>
             <version>${project.version}</version>
         </dependency>

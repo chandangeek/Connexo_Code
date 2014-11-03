@@ -5,22 +5,19 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
-import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
-import com.energyict.mdc.protocol.api.channels.serial.Parities;
+import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.io.FlowControl;
+import com.energyict.mdc.io.NrOfDataBits;
+import com.energyict.mdc.io.NrOfStopBits;
+import com.energyict.mdc.io.Parities;
 
 import java.time.Instant;
 import java.util.Optional;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.map.annotate.JsonTypeIdResolver;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 

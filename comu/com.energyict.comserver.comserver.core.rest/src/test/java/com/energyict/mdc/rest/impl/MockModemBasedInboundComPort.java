@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.io.SerialPortConfiguration;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -273,5 +273,5 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
     @Override
     public Date getObsoleteDate() {
         return new Date();
-    }   
+    }
 }

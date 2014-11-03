@@ -4,9 +4,14 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.io.FlowControl;
+import com.energyict.mdc.io.NrOfDataBits;
+import com.energyict.mdc.io.NrOfStopBits;
+import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.channels.serial.*;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+
+import com.energyict.mdc.io.SerialPortConfiguration;
 import java.util.Optional;
 
 import java.math.BigDecimal;
