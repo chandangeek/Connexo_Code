@@ -89,7 +89,7 @@ public class TimeServiceImpl implements TimeService, InstallService {
 
     @Override
     public RelativePeriodCategory createRelativePeriodCategory(String name) {
-        if(findRelativePeriodCategoryByName(name) != null) {
+        if(findRelativePeriodCategoryByName(name).isPresent()) {
             // probably IllegalArgumentException is enough because categories are not created by user but be other bundles at the init time
             // throw new IllegalArgumentException("Name is not unique");
             throw new LocalizedFieldValidationException(MessageSeeds.NAME_MUST_BE_UNIQUE, "name");
