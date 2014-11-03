@@ -9,7 +9,6 @@ import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -120,24 +119,9 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public void install() {
-        try {
-            dataModel.install(true, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-            destinationSpec.save();
-            destinationSpec.activate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            timeService.createRelativePeriodCategory("DataExport");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Installer installer = new Installer(dataModel, messageService, timeService, thesaurus);
+        installer.install();
+        destinationSpec = installer.getDestinationSpec();
     }
 
     @Override
