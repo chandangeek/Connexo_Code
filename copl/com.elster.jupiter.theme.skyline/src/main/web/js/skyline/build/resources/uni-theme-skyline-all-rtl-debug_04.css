@@ -1,8 +1,3 @@
-/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-notification-success-collapsed-bottom-ml {
-  background-position: 0 top;
-}
-
 /* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-notification-success-collapsed-bottom-mr {
   background-position: right top;
@@ -2221,33 +2216,37 @@ a.x-datepicker-date:hover {
   -o-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
 }
-/* line 30, ../../sass/src/panel/Table.scss */
+/* line 29, ../../sass/src/panel/Table.scss */
+.x-grid-body.x-panel-body-wrong-data {
+  border-color: #eb5642 !important;
+}
+/* line 34, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-view {
   margin: -1px !important;
   margin-top: 0 !important;
 }
-/* line 44, ../../sass/src/panel/Table.scss */
+/* line 48, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a {
   color: #686868;
   text-decoration: none;
 }
-/* line 51, ../../sass/src/panel/Table.scss */
+/* line 55, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-/* line 56, ../../sass/src/panel/Table.scss */
+/* line 60, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row .x-form-display-field-body {
   height: auto;
 }
-/* line 58, ../../sass/src/panel/Table.scss */
+/* line 62, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row .x-form-display-field-body .x-form-display-field {
   margin: 0;
 }
-/* line 64, ../../sass/src/panel/Table.scss */
+/* line 68, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
   color: white;
 }
-/* line 67, ../../sass/src/panel/Table.scss */
+/* line 71, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected .x-form-display-field, .x-grid-body .x-grid-row-over .x-form-display-field {
   color: white;
 }
