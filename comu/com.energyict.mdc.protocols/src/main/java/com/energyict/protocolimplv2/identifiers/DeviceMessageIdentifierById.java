@@ -4,7 +4,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.BaseDeviceMessageFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 

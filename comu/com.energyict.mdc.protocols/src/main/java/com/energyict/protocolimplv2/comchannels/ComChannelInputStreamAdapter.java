@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.comchannels;
 
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 

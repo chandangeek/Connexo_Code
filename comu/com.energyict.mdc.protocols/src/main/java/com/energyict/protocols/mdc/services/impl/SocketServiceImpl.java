@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.protocols.mdc.channels.ip.socket.SocketComChannel;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.protocols.impl.channels.ip.socket.SocketComChannel;
 import com.energyict.protocols.mdc.services.SocketService;
 import org.osgi.service.component.annotations.Component;
 

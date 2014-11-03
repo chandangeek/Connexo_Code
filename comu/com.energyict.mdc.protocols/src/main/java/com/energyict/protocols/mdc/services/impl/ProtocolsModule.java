@@ -14,6 +14,8 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+
+import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.mdc.services.SocketService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

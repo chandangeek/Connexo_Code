@@ -5,13 +5,13 @@ import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
-import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
 import com.energyict.protocols.util.LittleEndianOutputStream;

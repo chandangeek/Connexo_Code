@@ -57,7 +57,6 @@ public class Installer {
         return new SimpleTranslation(nlsKey, locale, translation);
     }
 
-
     private static class SimpleTranslation implements Translation {
 
         private final SimpleNlsKey nlsKey;
@@ -85,4 +84,5 @@ public class Installer {
             return translation;
         }
     }
+
 }

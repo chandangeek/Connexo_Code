@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.services;
 
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 
 import java.io.IOException;
 import java.net.DatagramSocket;

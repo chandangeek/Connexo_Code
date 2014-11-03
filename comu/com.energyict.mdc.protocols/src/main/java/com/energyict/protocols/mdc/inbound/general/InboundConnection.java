@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.exceptions.ComServerExecutionException;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;

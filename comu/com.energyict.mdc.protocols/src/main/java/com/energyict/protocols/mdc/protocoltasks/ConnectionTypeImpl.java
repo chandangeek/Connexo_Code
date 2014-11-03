@@ -3,16 +3,18 @@ package com.energyict.protocols.mdc.protocoltasks;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.impl.SerialComChannelImpl;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.protocols.mdc.channels.ip.datagrams.DatagramComChannel;
-import com.energyict.protocols.mdc.channels.ip.datagrams.OutboundUdpSession;
-import com.energyict.protocols.mdc.channels.ip.socket.SocketComChannel;
-import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.protocols.mdc.channels.serial.SioSerialPort;
-import com.energyict.protocols.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
+import com.energyict.protocols.impl.channels.ip.datagrams.DatagramComChannel;
+import com.energyict.protocols.impl.channels.ip.datagrams.OutboundUdpSession;
+import com.energyict.protocols.impl.channels.ip.socket.SocketComChannel;
+
+import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.io.impl.SioSerialPort;
+import com.energyict.mdc.io.impl.RxTxSerialPort;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -32,10 +34,6 @@ public abstract class ConnectionTypeImpl implements ServerConnectionType {
 
     private TypedProperties properties = TypedProperties.empty();
     private PropertySpecService propertySpecService;
-
-    public ConnectionTypeImpl() {
-        super();
-    }
 
     protected TypedProperties getAllProperties() {
         return this.properties;
@@ -71,12 +69,6 @@ public abstract class ConnectionTypeImpl implements ServerConnectionType {
         this.properties.setProperty(propertyName, value);
     }
 
-    @Override
-    public void disconnect(ComChannel comChannel) throws ConnectionException {
-        // For most connectionTypes disconnect is not needed, so do nothing.
-        // Should be overridden in those connectionTypes requiring a disconnect.
-    }
-
     /**
      * Creates a new {@link ComChannel}
      * that uses Sockets as the actual connection mechanism.
@@ -105,10 +97,10 @@ public abstract class ConnectionTypeImpl implements ServerConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected ComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    protected SerialComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         RxTxSerialPort serialPort = new RxTxSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
-        return new SerialComChannel(serialPort);
+        return new SerialComChannelImpl(serialPort);
     }
 
     /**
@@ -119,10 +111,10 @@ public abstract class ConnectionTypeImpl implements ServerConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected ComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    protected SerialComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         SioSerialPort serialPort = new SioSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
-        return new SerialComChannel(serialPort);
+        return new SerialComChannelImpl(serialPort);
     }
 
     /**

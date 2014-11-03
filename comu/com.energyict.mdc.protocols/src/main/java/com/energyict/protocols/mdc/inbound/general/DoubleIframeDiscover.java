@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 

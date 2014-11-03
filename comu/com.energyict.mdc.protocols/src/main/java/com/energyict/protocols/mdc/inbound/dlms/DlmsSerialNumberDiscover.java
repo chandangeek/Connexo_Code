@@ -3,8 +3,8 @@ package com.energyict.protocols.mdc.inbound.dlms;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 import com.elster.jupiter.properties.BigDecimalFactory;

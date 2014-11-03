@@ -7,6 +7,7 @@
 package com.energyict.dialer.core.impl;
 
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.io.PEMPModemConfiguration;
 import com.energyict.mdc.protocol.api.dialer.core.DialerException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 

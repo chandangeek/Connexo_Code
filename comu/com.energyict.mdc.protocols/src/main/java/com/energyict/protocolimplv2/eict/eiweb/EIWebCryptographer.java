@@ -3,12 +3,12 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.List;
