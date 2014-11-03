@@ -26,12 +26,23 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.commTask', 'DSH', 'Name'),
+                    fieldLabel: Uni.I18n.translate('communication.widget.details.commTaskName', 'DSH', 'Name'),
                     name: 'name'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.commTask', 'DSH', 'Communication task(s)'),
-                    name: 'title'
+                    fieldLabel: Uni.I18n.translate('communication.widget.details.commTasks', 'DSH', 'Communication task(s)'),
+                    name: 'comTasks',
+                        renderer: function(value){
+                            if(value!==''){
+                                var result = '';
+                                Ext.each(value, function(item){
+                                    result = result + '<li>'+ item.name+'</li>'
+                                });
+                                return result;
+                            } else {
+                                return '';
+                            }
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.device', 'DSH', 'Device'),
@@ -63,10 +74,6 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.frequency', 'DSH', 'Frequency'),
-                    name: 'comScheduleName'
-                },
-                {
-                    fieldLabel: ' ',
                     name: 'comScheduleFrequency',
                     renderer: function (val) {
                         var res = '';
