@@ -65,6 +65,8 @@ public class ChannelValidationImplTest extends EqualsContractTest {
         });
         when(channel.getMeterActivation()).thenReturn(meterActivation);
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
+        when(channel.getId()).thenReturn(1L);
+        when(channel1.getId()).thenReturn(2L);
         when(meterActivationValidation.getMeterActivation()).thenReturn(meterActivation);
         when(meterActivationValidation1.getMeterActivation()).thenReturn(meterActivation);
         when(meterActivation.getStart()).thenReturn(Year.of(2013).atMonth(Month.JANUARY).atDay(1).atTime(14,0).atZone(ZoneId.systemDefault()).toInstant());

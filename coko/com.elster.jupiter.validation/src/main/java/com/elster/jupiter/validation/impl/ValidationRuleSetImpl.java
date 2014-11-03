@@ -11,6 +11,7 @@ import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +56,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private Instant modTime;
     private String userName;
 
-    private List<IValidationRule> rules;
+    private List<IValidationRule> rules = new ArrayList<>();
 
     private final EventService eventService;
     private final DataModel dataModel;
@@ -174,46 +176,29 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
 
-        DiffList<IValidationRule> entryDiff = ArrayDiffList.fromOriginal(loadRules());
-        entryDiff.clear();
-        entryDiff.addAll(doGetRules());
-
-        for (IValidationRule rule : entryDiff.getRemovals()) {
-            rule.delete();
-        }
-
-        for (IValidationRule rule : entryDiff.getRemaining()) {
+        for (IValidationRule rule : rules) {
             Save.UPDATE.save(dataModel, rule);
         }
-
-        for (IValidationRule rule : entryDiff.getAdditions()) {
-            Save.CREATE.save(dataModel, rule);
-        }
+        
         eventService.postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
     }
 
     private void doPersist() {
         Save.CREATE.save(dataModel, this);
-        for (IValidationRule rule : doGetRules()) {
-            ((ValidationRuleImpl) rule).setRuleSetId(getId());
-            Save.CREATE.save(dataModel, rule);
-        }
         eventService.postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
     }
 
     @Override
     public void delete() {
         this.setObsoleteTime(Instant.now()); // mark obsolete
-        for (IValidationRule validationRule : doGetRules()) {
-            validationRule.delete();
-        }
+        rules.clear();        
         validationRuleSetFactory().update(this);
         eventService.postEvent(EventType.VALIDATIONRULESET_DELETED.topic(), this);
     }
 
     @Override
     public List<IValidationRule> getRules() {
-        return Collections.unmodifiableList(doGetRules());
+        return Collections.unmodifiableList(rules);
     }
 
     public List<IValidationRule> getRules(int start, int limit) {
@@ -222,15 +207,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
                         Operator.EQUAL.compare("ruleSetId", this.id), new Order[]{Order.ascending("upper(name)")}, false, new String[]{}, start + 1, start + limit));
     }
 
-    private List<IValidationRule> doGetRules() {
-        if (rules == null) {
-            rules = loadRules();
-        }
-        return rules;
-    }
 
     private IValidationRule doGetRule(long id) {
-        doGetRules();
         for (IValidationRule singleRule : rules) {
             if (singleRule.getId() == id) {
                 return singleRule;
@@ -240,19 +218,19 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private List<IValidationRule> loadRules() {
-        return getRuleQuery().select(Operator.EQUAL.compare("ruleSetId", this.id), Order.ascending("name").toUpperCase());
+        return getRuleQuery().select(Where.where("ruleSet").isEqualTo(this), Order.ascending("name").toUpperCase());
     }
 
     private QueryExecutor<IValidationRule> getRuleQuery() {
-        QueryExecutor<IValidationRule> ruleQuery = dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class);
+        QueryExecutor<IValidationRule> ruleQuery = dataModel.query(IValidationRule.class, ValidationRuleProperties.class);
         ruleQuery.setRestriction(where("obsoleteTime").isNull());
         return ruleQuery;
     }
 
     @Override
     public IValidationRule addRule(ValidationAction action, String implementation, String name) {
-        ValidationRuleImpl newRule = ValidationRuleImpl.from(dataModel, this, action, implementation, doGetRules().size() + 1, name);
-        doGetRules().add(newRule);
+        ValidationRuleImpl newRule = ValidationRuleImpl.from(dataModel, this, action, implementation, rules.size() + 1, name);
+        rules.add(newRule);
         return newRule;
     }
 
@@ -292,24 +270,18 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public void deleteRule(ValidationRule rule) {
         IValidationRule iRule = (IValidationRule) rule;
-        if (doGetRules().contains(iRule)) {
+        if (rules.contains(iRule)) {
             iRule.delete();
         } else {
             throw new IllegalArgumentException("The rulset " + this.getId() + " doesn't contain provided ruleId: " + rule.getId());
-        }
-        rules.remove(rule);
-        int position = 1;
-        for (IValidationRule validationRule : rules) {
-            validationRule.setPosition(position++);
-            validationRule.save();
-        }
+        }      
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder(getName());
         builder.append('\n');
-        for (IValidationRule validationRule : doGetRules()) {
+        for (IValidationRule validationRule : rules) {
             builder.append(validationRule.toString()).append('\n');
         }
         return builder.toString();

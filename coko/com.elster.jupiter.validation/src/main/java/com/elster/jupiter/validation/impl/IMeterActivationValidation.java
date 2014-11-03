@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import java.time.Instant;
+import java.util.List;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.validation.ChannelValidation;
@@ -28,4 +29,6 @@ public interface IMeterActivationValidation extends MeterActivationValidation {
     Instant getMinLastChecked();
 
     Instant getMaxLastChecked();
+    
+    List<? extends Channel> getChannels();
 }

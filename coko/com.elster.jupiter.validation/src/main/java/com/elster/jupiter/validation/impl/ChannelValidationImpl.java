@@ -23,10 +23,11 @@ import com.google.common.collect.Range;
 final class ChannelValidationImpl implements IChannelValidation {
 
     private long id;
-    private Reference<Channel> channel = ValueReference.absent();
+    private long channelId;
     private Reference<IMeterActivationValidation> meterActivationValidation = ValueReference.absent();
     private Instant lastChecked;
     private boolean activeRules;
+    private Channel channel;
 
     @Inject
     ChannelValidationImpl() {
@@ -37,7 +38,8 @@ final class ChannelValidationImpl implements IChannelValidation {
             throw new IllegalArgumentException();
         }
         this.meterActivationValidation.set(meterActivationValidation);
-        this.channel.set(channel);
+        this.channelId = channel.getId();
+        this.channel = channel;
         this.lastChecked = minLastChecked();
         this.activeRules = true;
         return this;
@@ -64,7 +66,13 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
 
     public Channel getChannel() {
-        return channel.get();
+    	if (channel == null) {
+    		channel = meterActivationValidation.get().getChannels().stream()
+        		.filter(channel -> channel.getId() == channelId)
+        		.findFirst()
+        		.get();
+    	}
+    	return channel;
     }
 
     @Override
@@ -80,7 +88,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
     
     private boolean isApplicable(ValidationRule rule) {
-    	return rule.isActive() && rule.getReadingTypes().stream().anyMatch(readingType -> channel.get().getReadingTypes().contains(readingType));
+    	return rule.isActive() && rule.getReadingTypes().stream().anyMatch(readingType -> getChannel().getReadingTypes().contains(readingType));
     }
     
     void setActiveRules(boolean activeRules) {
@@ -95,13 +103,13 @@ final class ChannelValidationImpl implements IChannelValidation {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return channel.equals(((ChannelValidationImpl) o).channel) && meterActivationValidation.equals(((ChannelValidationImpl) o).meterActivationValidation);
+        return channelId == ((ChannelValidationImpl) o).channelId && meterActivationValidation.equals(((ChannelValidationImpl) o).meterActivationValidation);
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(channel, meterActivationValidation);
+        return Objects.hash(channelId, meterActivationValidation);
     }
     
     private final Instant minLastChecked() {
@@ -115,7 +123,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     	}
     	Instant newValue = Objects.requireNonNull(instant).isBefore(minLastChecked()) ? minLastChecked() : instant;
     	if (lastChecked.isAfter(newValue)) {
-    		channel.get().findReadingQuality(Range.greaterThan(newValue)).stream()
+    		getChannel().findReadingQuality(Range.greaterThan(newValue)).stream()
     			.filter(this::isRelevant)
     			.forEach(ReadingQualityRecord::delete);
     	}
@@ -128,7 +136,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     	if (!lastChecked.isAfter(instant)) {
     		return false;
     	}
-    	Optional<BaseReadingRecord> reading = channel.get().getReadingsBefore(instant, 1).stream().findFirst();
+    	Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
     	return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));    	
     }
     
@@ -138,13 +146,14 @@ final class ChannelValidationImpl implements IChannelValidation {
     
     @Override
     public void validate() {
-    	Instant end = channel.get().getLastDateTime();
+    	Instant end = getChannel().getLastDateTime();
     	if (end == null || !lastChecked.isBefore(end)) {
     		return;
     	}
     	Range<Instant> range = Range.openClosed(lastChecked, end);
-    	Instant newLastChecked = activeRules().stream()    			
-    			.map(validationRule -> validationRule.validateChannel(channel.get(), range))    			
+    	ChannelValidator validator = new ChannelValidator(getChannel(), range) ;
+    	Instant newLastChecked = activeRules().stream()    	    	
+    			.map(validator::validateRule)  			
     			.min(Comparator.naturalOrder())
     			.orElse(end);
     	updateLastChecked(newLastChecked);

@@ -141,7 +141,7 @@ public class ValidationAddRemoveIT {
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new TransactionModule(),
+                new TransactionModule(true),
                 new ValidationModule(),
                 new NlsModule(),
                 new EventsModule(),

@@ -276,4 +276,8 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     	}
     }
     		
+    @Override
+    public List<? extends Channel> getChannels() {
+    	return meterActivation.get().getChannels();
+    }
 }

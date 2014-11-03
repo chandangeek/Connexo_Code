@@ -2,12 +2,17 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.Validator;
 import com.google.common.collect.Range;
 
 import org.junit.After;
@@ -35,6 +40,7 @@ import static com.elster.jupiter.util.Ranges.copy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterActivationValidationImplTest {
@@ -67,17 +73,25 @@ public class MeterActivationValidationImplTest {
     @Mock
     private DataMapper<ChannelValidation> channelValidationFactory;
     @Mock
+    private QueryExecutor<ChannelValidation> channelValidationQuery;
+    @Mock
     private ReadingType readingType1, readingType2;
+    @Mock
+    private Validator validator;
+    @Mock
+    private IntervalReadingRecord intervalReadingRecord;
 
     @Before
     public void setUp() {
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
+        when(dataModel.query(ChannelValidation.class, IMeterActivationValidation.class)).thenReturn(channelValidationQuery);
         when((Object) dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return new ChannelValidationImpl();
             }
         });
+        when(channelValidationQuery.select(any())).thenReturn(Collections.emptyList());
         when(clock.instant()).thenReturn(DATE3);
         when(meteringService.findChannel(FIRST_CHANNEL_ID)).thenReturn(Optional.of(channel1));
         when(meteringService.findChannel(SECOND_CHANNEL_ID)).thenReturn(Optional.of(channel2));
@@ -91,6 +105,9 @@ public class MeterActivationValidationImplTest {
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
         when(rule1.isActive()).thenReturn(true);
         when(rule2.isActive()).thenReturn(true);
+        when(rule1.createNewValidator()).thenReturn(validator);
+        when(rule2.createNewValidator()).thenReturn(validator);
+        
         when(channel1.getMainReadingType()).thenReturn(readingType1);
         when(channel2.getMainReadingType()).thenReturn(readingType2);
         when(readingType1.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
@@ -126,8 +143,12 @@ public class MeterActivationValidationImplTest {
     @Test
     public void testValidateOneRuleAppliesToOneChannel() throws Exception {
         doReturn(Collections.singleton(readingType1)).when(rule1).getReadingTypes();
-        when(rule1.validateChannel(channel1, Range.openClosed(DATE1, DATE4))).thenReturn(DATE4);
         when(channel1.getLastDateTime()).thenReturn(DATE4);
+        when(channel1.isRegular()).thenReturn(true);
+        when(channel1.getIntervalReadings(Range.openClosed(DATE1, DATE4))).thenReturn(Arrays.asList(intervalReadingRecord));
+        when(intervalReadingRecord.filter(any())).thenReturn(intervalReadingRecord);
+        when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE4);
+        when(validator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.VALID);
 
         meterActivationValidation.validate();
 
@@ -143,10 +164,6 @@ public class MeterActivationValidationImplTest {
     public void testValidateBothRulesApplyToBothChannels() throws Exception {
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule1).getReadingTypes();
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule2).getReadingTypes();
-        when(rule1.validateChannel(channel1, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE4);
-        when(rule1.validateChannel(channel2, copy(INTERVAL).withClosedLowerBound(DATE1))).thenReturn(DATE2);
-        when(rule2.validateChannel(channel1, copy(INTERVAL).withClosedLowerBound(DATE1AND15))).thenReturn(DATE2);
-        when(rule2.validateChannel(channel2, copy(INTERVAL).withClosedLowerBound(DATE1))).thenReturn(DATE4);
         when(channel1.getLastDateTime()).thenReturn(DATE4);
         when(channel2.getLastDateTime()).thenReturn(DATE4);
 

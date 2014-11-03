@@ -140,6 +140,8 @@ public class ValidationServiceImplTest {
     private IChannelValidation channelValidation1, channelValidation2;
     @Mock
     private ReadingQualityRecord readingQuality1, readingQuality2, readingQuality3;
+    @Mock
+    private QueryExecutor<ChannelValidation> channelValidationQuery;
 
     @Before
     public void setUp() {
@@ -149,6 +151,8 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);        
         when(dataModel.mapper(IChannelValidation.class)).thenReturn(channelValidationFactory);
         when(dataModel.mapper(MeterValidationImpl.class)).thenReturn(meterValidationFactory);
+        when(dataModel.query(ChannelValidation.class, IMeterActivationValidation.class)).thenReturn(channelValidationQuery);
+        when(channelValidationQuery.select(any())).thenReturn(Collections.emptyList());
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(validationRuleQueryExecutor);
         when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
@@ -246,7 +250,7 @@ public class ValidationServiceImplTest {
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
-        validationService.validate(meterActivation, Range.atLeast(Instant.EPOCH));
+        validationService.validate(meterActivation);
 
         ArgumentCaptor<IMeterActivationValidation> meterActivationValidationCapture = ArgumentCaptor.forClass(IMeterActivationValidation.class);
         verify(dataModel).persist(meterActivationValidationCapture.capture());

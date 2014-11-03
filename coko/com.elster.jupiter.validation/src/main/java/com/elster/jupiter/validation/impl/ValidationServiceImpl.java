@@ -337,8 +337,8 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     List<IMeterActivationValidation> getIMeterActivationValidations(MeterActivation meterActivation) {
-        Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull());
-        return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class).select(condition);
+        Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where("obsoleteTime").isNull());
+        return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class, ValidationRuleSet.class).select(condition);
     }
 
     private List<IMeterActivationValidation> getActiveIMeterActivationValidations(MeterActivation meterActivation) {

@@ -22,6 +22,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
         	Table<ValidationRuleSet> table = dataModel.addTable(name(), ValidationRuleSet.class);
             table.map(ValidationRuleSetImpl.class);
+            table.cache();
             table.setJournalTableName("VAL_VALIDATIONRULESETJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
@@ -44,13 +45,14 @@ public enum TableSpecs {
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.column("ACTION").number().notNull().conversion(NUMBER2ENUM).map("action").add();
             table.column("IMPLEMENTATION").varChar(NAME_LENGTH).map("implementation").add();
-            Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).map("ruleSetId").add();
+            Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
-            table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
+            table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT)
+            	.map("ruleSet").reverseMap("rules").composition().reverseMapOrder("position").on(ruleSetIdColumn).add();
         }
     },
     VAL_VALIDATIONRULEPROPS {
@@ -89,12 +91,12 @@ public enum TableSpecs {
         	Table<ChannelValidation> table = dataModel.addTable(name(), ChannelValidation.class);
             table.map(ChannelValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).add();
+            Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).map("channelId").add();
             Column meterActivationValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
             table.column("LASTCHECKED").number().conversion(NUMBER2INSTANT).map("lastChecked").add();
             table.column("ACTIVERULES").bool().map("activeRules").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
-            table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(MeteringService.COMPONENTNAME, "MTR_CHANNEL").onDelete(RESTRICT).map("channel").on(channelRef).add();
+            table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(MeteringService.COMPONENTNAME, "MTR_CHANNEL").onDelete(RESTRICT).on(channelRef).map("channel").add();
             table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL").references(VAL_MA_VALIDATION.name()).onDelete(DeleteRule.CASCADE).map("meterActivationValidation").reverseMap("channelValidations")
                     .composition().on(meterActivationValidationColumn).add();
         }

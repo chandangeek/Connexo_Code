@@ -10,6 +10,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
@@ -29,6 +31,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,7 +45,7 @@ import static com.elster.jupiter.validation.MessageSeeds.Constants;
 @XmlRootElement
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
-public final class ValidationRuleImpl implements ValidationRule, IValidationRule {
+public final class ValidationRuleImpl implements IValidationRule {
     private long id;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
@@ -64,15 +67,14 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     @Valid
     private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
-    private long ruleSetId;
+    private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();
 
     @SuppressWarnings("unused")
     private int position;
-    private transient ValidationRuleSet ruleSet;
     private transient Validator templateValidator;
-    private transient ChannelRuleValidator channelRuleValidator;
 
     private List<ValidationRuleProperties> properties = new ArrayList<>();
+    
     private final DataModel dataModel;
     private final ValidatorCreator validatorCreator;
     private final Thesaurus thesaurus;
@@ -89,11 +91,10 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position, String name) {
-        this.ruleSet = ruleSet;
+        this.ruleSet.set(ruleSet);
         this.action = action;
         this.implementation = implementation;
-        this.position = position;
-        this.ruleSetId = ruleSet.getId();
+        this.position = position; 
         this.name = name.trim();
         this.active = false;
         return this;
@@ -268,11 +269,8 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public ValidationRuleSet getRuleSet() {
-        if (ruleSet == null) {
-            ruleSet = dataModel.mapper(ValidationRuleSet.class).getOptional(ruleSetId).get();
-        }
-        return ruleSet;
+    public ValidationRuleSet getRuleSet() {       
+        return ruleSet.get();
     }
 
     @Override
@@ -331,21 +329,6 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public Instant validateChannel(Channel channel, Range<Instant> interval) {
-        if (!active) {
-            return interval.upperEndpoint();
-        }
-        return getChannelRuleValidator().validateReadings(channel, interval);
-    }
-
-    private ChannelRuleValidator getChannelRuleValidator() {
-        if (channelRuleValidator == null) {
-            channelRuleValidator = new ChannelRuleValidator(this);
-        }
-        return channelRuleValidator;
-    }
-
-    @Override
     public void toggleActivation() {
         if (active) {
             deactivate();
@@ -389,11 +372,8 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         return userName;
     }
 
-    void setRuleSetId(long ruleSetId) {
-        this.ruleSetId = ruleSetId;
-    }
-
-    Validator createNewValidator() {
+    @Override
+    public Validator createNewValidator() {
         Validator createdValidator = validatorCreator.getValidator(this.implementation, getProps());
         if (createdValidator == null) {
             throw new ValidatorNotFoundException(thesaurus, implementation);
