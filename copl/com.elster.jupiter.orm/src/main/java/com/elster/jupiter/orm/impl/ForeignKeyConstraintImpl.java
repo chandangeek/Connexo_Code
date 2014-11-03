@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Index;
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalAspect;
@@ -28,6 +29,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     private DeleteRule deleteRule;
     private String fieldName;
     private String reverseFieldName;
+    private Class<?>[] reverseEagers;
     private String reverseOrderFieldName;
     private String reverseCurrentFieldName;
     private boolean composition;
@@ -304,6 +306,10 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     	int referencedIndex = getTable().getDataModel().getTables().indexOf(getReferencedTable());
     	return referencedIndex > getTable().getDataModel().getTables().indexOf(getTable());
     }
+    
+    public Class<?>[] reverseEagers() {
+    	return reverseEagers;
+    }
 
     static class BuilderImpl implements ForeignKeyConstraint.Builder {
         private final ForeignKeyConstraintImpl constraint;
@@ -354,11 +360,12 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         }
 
         @Override
-        public Builder reverseMap(String field) {
+        public Builder reverseMap(String field, Class<?> ... eagers) {
             if (constraint.getReferencedTable().getField(field) == null) {
                 throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable().getName() + " the referenced object does not have a field named " + field + ".");
             }
             constraint.reverseFieldName = field;
+            constraint.reverseEagers = eagers;
             return this;
         }
 

@@ -356,6 +356,9 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Override
 	public void remove(List<T> objects )  {
 		preventIfChild();
+		if (objects.isEmpty()) {
+			return;
+		}
 		try {
 			writer.remove(objects);
 			for (T each : objects) {
@@ -379,6 +382,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 		result.setRestriction(getMapperType().condition(getApi()));
 		return result;
+	}
+	
+	public QueryExecutorImpl<T> query(Class<?>... eagers) {		
+		return getDataModel().query(this, eagers);
 	}
 	
 	public Object convert(ColumnImpl column , String value) {
@@ -495,5 +502,9 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Override
 	public SqlBuilder builder(String alias, String... hints) {
 		return new SqlBuilder(getSqlGenerator().getSelectFromClause(alias, hints));
+	}
+	
+	public DataModelImpl getDataModel() {
+		return getTable().getDataModel();
 	}
 }

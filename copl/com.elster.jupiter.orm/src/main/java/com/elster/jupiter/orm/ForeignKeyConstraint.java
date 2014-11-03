@@ -16,7 +16,7 @@ public interface ForeignKeyConstraint extends TableConstraint {
 		Builder onDelete(DeleteRule rule);
 		Builder references(String tableName);
 		Builder references(String componentName , String tableName);
-		Builder reverseMap(String field);
+		Builder reverseMap(String field, Class<?> ... eagers);
 		Builder reverseMapOrder(String field);
 		Builder reverseMapCurrent(String field);
 		Builder composition();

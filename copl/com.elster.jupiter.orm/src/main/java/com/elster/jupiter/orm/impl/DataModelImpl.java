@@ -11,7 +11,10 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
+import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+
 import java.time.Clock;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.ConfigurationException;
@@ -368,8 +371,11 @@ public class DataModelImpl implements DataModel {
     @Override
     public <T> QueryExecutor<T> query(Class<T> api, Class<?>... eagers) {
         checkRegistered();
-        DataMapperImpl<T> root = mapper(api);
-        DataMapperImpl<?>[] mappers = new DataMapperImpl[eagers.length];
+        return query(mapper(api), eagers);        
+    }
+    
+    public<T> QueryExecutorImpl<T> query(DataMapperImpl<T> root, Class<?> ... eagers) {
+    	DataMapperImpl<?>[] mappers = new DataMapperImpl[eagers.length];
         for (int i = 0; i < eagers.length; i++) {
             Optional<?> mapper = optionalMapper(eagers[i]);
             if (!mapper.isPresent()) {

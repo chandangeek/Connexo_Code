@@ -3,9 +3,12 @@ package com.elster.jupiter.orm.associations.impl;
 import java.util.AbstractList;
 import java.util.List;
 
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 
 public abstract class PersistentList<T> extends AbstractList<T> {
 	
@@ -27,10 +30,12 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 	
 	final List<T> getTarget() {
 		if (target == null) {
+			QueryExecutor<T> query = dataMapper.query(constraint.reverseEagers());
+			Condition condition = Where.where(constraint.getFieldName()).isEqualTo(owner);
 			if (constraint.getReverseOrderFieldName() == null) {
-				target = dataMapper.find(constraint.getFieldName(),owner);
+				target = query.select(condition);
 			} else {
-				target = dataMapper.find(constraint.getFieldName(),owner,Order.ascending(constraint.getReverseOrderFieldName()));
+				target = query.select(condition, Order.ascending(constraint.getReverseOrderFieldName()));
             }
 		}
 		return target;
