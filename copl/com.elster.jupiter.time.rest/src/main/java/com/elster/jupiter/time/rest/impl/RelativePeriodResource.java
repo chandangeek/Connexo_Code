@@ -102,11 +102,7 @@ public class RelativePeriodResource {
     }
 
     private RelativePeriod getRelativePeriodOrThrowException(long id) {
-        Optional<RelativePeriod> relativePeriodRef = timeService.findRelativePeriod(id);
-        if(!relativePeriodRef.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return relativePeriodRef.get();
+        return timeService.findRelativePeriod(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @Path("/{id}/preview")
