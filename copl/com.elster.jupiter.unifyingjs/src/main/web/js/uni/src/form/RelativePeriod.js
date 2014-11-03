@@ -31,7 +31,7 @@ Ext.define('Uni.form.RelativePeriod', {
         return Uni.I18n.translate(
             'form.relativePeriod.previewText',
             'UNI',
-            'The datetime of the relative period is {0}.',
+            'The date and time of the relative period is {0}.',
             [dateString]
         );
     },
@@ -139,7 +139,7 @@ Ext.define('Uni.form.RelativePeriod', {
                 if (typeof dateLong !== 'undefined') {
                     var startDate = new Date(dateLong);
                     var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
-                    var zonedDate = new Date(startDateUtc - (60000*zoneOffset));
+                    var zonedDate = new Date(startDateUtc - (60000 * zoneOffset));
                     dateString = Uni.I18n.formatDate('datetime.longdate', new Date(zonedDate), 'UNI', 'l F j, Y \\a\\t H:i a');
                     dateString = me.formatPreviewTextFn(dateString);
                 }
