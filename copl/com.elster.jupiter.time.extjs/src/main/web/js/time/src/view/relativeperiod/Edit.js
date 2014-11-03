@@ -109,6 +109,14 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 },
                                 defaults: {
                                     labelWidth: 160
+                                },
+                                formatPreviewTextFn: function (dateString) {
+                                    return Uni.I18n.translate(
+                                        'relativePeriod.form.start.previewText',
+                                        'UNI',
+                                        'The start date of the relative period is {0}.',
+                                        [dateString]
+                                    );
                                 }
                             },
                             {
@@ -125,6 +133,14 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 },
                                 defaults: {
                                     labelWidth: 160
+                                },
+                                formatPreviewTextFn: function (dateString) {
+                                    return Uni.I18n.translate(
+                                        'relativePeriod.form.end.previewText',
+                                        'UNI',
+                                        'The end date of the relative period is {0}.',
+                                        [dateString]
+                                    );
                                 }
                             },
                             {
