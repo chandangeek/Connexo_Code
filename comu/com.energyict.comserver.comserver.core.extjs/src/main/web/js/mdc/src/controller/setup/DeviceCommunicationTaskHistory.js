@@ -133,7 +133,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
                 var comTaskModel = Ext.ModelManager.getModel('Mdc.model.CommunicationTask');
                 comTaskModel.load(comTaskId, {
                     success: function (comTask) {
-                        var widget = Ext.widget('deviceCommunicationTaskHistoryLogMain');
+                        var widget = Ext.widget('deviceCommunicationTaskHistoryLogMain',{mRID: deviceMrId});
                         me.getApplication().fireEvent('changecontentevent', widget);
 
                         me.getDeviceCommunicationTaskLogOverviewForm().loadRecord(comTaskHistory);

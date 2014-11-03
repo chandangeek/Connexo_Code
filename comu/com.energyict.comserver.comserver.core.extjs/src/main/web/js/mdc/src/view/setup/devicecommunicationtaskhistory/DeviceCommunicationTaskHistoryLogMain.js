@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        mRID: this.mrid,
+                        mRID: this.mRID,
                         toggle: 6
                     },
                     {
