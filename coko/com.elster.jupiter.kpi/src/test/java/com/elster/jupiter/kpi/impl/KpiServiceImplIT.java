@@ -31,7 +31,6 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +56,7 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -145,24 +144,24 @@ public class KpiServiceImplIT {
         }
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found.isPresent()).isTrue();
+        assertThat(found).isPresent();
 
         Kpi kpi = found.get();
 
-        Assertions.assertThat(kpi.getName()).isEqualTo(KPI_NAME);
-        Assertions.assertThat(kpi.getMembers()).hasSize(2);
+        assertThat(kpi.getName()).isEqualTo(KPI_NAME);
+        assertThat(kpi.getMembers()).hasSize(2);
         KpiMember first = kpi.getMembers().get(0);
-        Assertions.assertThat(first.getName()).isEqualTo(READ_METERS);
-        Assertions.assertThat(first.hasDynamicTarget()).isTrue();
-        Assertions.assertThat(first.targetIsMinimum()).isTrue();
-        Assertions.assertThat(first.targetIsMaximum()).isFalse();
+        assertThat(first.getName()).isEqualTo(READ_METERS);
+        assertThat(first.hasDynamicTarget()).isTrue();
+        assertThat(first.targetIsMinimum()).isTrue();
+        assertThat(first.targetIsMaximum()).isFalse();
 
         KpiMember second = kpi.getMembers().get(1);
-        Assertions.assertThat(second.getName()).isEqualTo(NON_COMMUNICATING_METERS);
-        Assertions.assertThat(second.hasDynamicTarget()).isFalse();
-        Assertions.assertThat(second.getTarget(date)).isEqualTo(BigDecimal.valueOf(1, 2));
-        Assertions.assertThat(second.targetIsMinimum()).isFalse();
-        Assertions.assertThat(second.targetIsMaximum()).isTrue();
+        assertThat(second.getName()).isEqualTo(NON_COMMUNICATING_METERS);
+        assertThat(second.hasDynamicTarget()).isFalse();
+        assertThat(second.getTarget(date)).isEqualTo(BigDecimal.valueOf(1, 2));
+        assertThat(second.targetIsMinimum()).isFalse();
+        assertThat(second.targetIsMaximum()).isTrue();
 
     }
 
@@ -187,7 +186,7 @@ public class KpiServiceImplIT {
 
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found.isPresent()).isTrue();
+        assertThat(found).isPresent();
 
         Kpi kpi = found.get();
 
@@ -230,7 +229,7 @@ public class KpiServiceImplIT {
 
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found.isPresent()).isTrue();
+        assertThat(found).isPresent();
 
         Kpi kpi = found.get();
 
@@ -258,7 +257,7 @@ public class KpiServiceImplIT {
 
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found.isPresent()).isTrue();
+        assertThat(found).isPresent();
 
         Kpi kpi = found.get();
 
@@ -285,7 +284,7 @@ public class KpiServiceImplIT {
         }
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found.isPresent()).isTrue();
+        assertThat(found).isPresent();
 
         Kpi kpi = found.get();
 
@@ -312,7 +311,7 @@ public class KpiServiceImplIT {
         }
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found.isPresent()).isTrue();
+        assertThat(found).isPresent();
 
         Kpi kpi = found.get();
 
@@ -322,7 +321,7 @@ public class KpiServiceImplIT {
         }
 
         found = kpiService.getKpi(id);
-        assertThat(found.isPresent()).isTrue();
+        assertThat(found).isPresent();
 
         kpi = found.get();
         assertThat(kpi.getMembers().get(1).getTarget(Instant.EPOCH)).isEqualTo(BigDecimal.valueOf(7, 5));
@@ -388,7 +387,7 @@ public class KpiServiceImplIT {
 
 
         Optional<Kpi> found = kpiService.getKpi(id);
-        assertThat(found.isPresent()).isTrue();
+        assertThat(found).isPresent();
 
         Kpi kpi = found.get();
 
