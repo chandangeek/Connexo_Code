@@ -10,6 +10,7 @@ Ext.define('Uni.form.field.OnPeriod', {
     vertical: true,
 
     baseRadioName: undefined,
+    previousValue: undefined,
 
     initComponent: function () {
         var me = this;
@@ -287,13 +288,29 @@ Ext.define('Uni.form.field.OnPeriod', {
     getValue: function () {
         var me = this,
             selectedRadio = me.callParent(arguments),
-            selectedValue = selectedRadio[me.baseRadioName],
+            selectedValues = selectedRadio[me.baseRadioName],
+            selectedValue = undefined,
             dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').getValue(),
             dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').getValue();
+
+        if (Ext.isArray(selectedValues)) {
+            for (var i = 0; i < selectedValues.length; i++) {
+                var value = selectedValues[i];
+
+                if (value !== me.previousValue) {
+                    me.previousValue = value;
+                    selectedValue = value;
+                    break;
+                }
+            }
+        } else {
+            selectedValue = selectedValues;
+        }
 
         var result = {
             onCurrentDay: selectedValue === 'currentday'
         };
+
         if (selectedValue === 'dayofmonth') {
             Ext.apply(result, {
                 onDayOfMonth: dayOfMonthValue
@@ -303,11 +320,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                 onDayOfWeek: dayOfWeekValue
             });
         }
-        /*return {
-         onCurrentDay: selectedValue === 'currentday',
-         onDayOfMonth: dayOfMonthValue,
-         onDayOfWeek: dayOfWeekValue
-         };*/
+
         return result;
     }
 });
