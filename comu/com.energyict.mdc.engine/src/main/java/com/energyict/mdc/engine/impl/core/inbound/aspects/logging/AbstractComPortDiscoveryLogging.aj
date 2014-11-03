@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 import java.util.logging.Logger;

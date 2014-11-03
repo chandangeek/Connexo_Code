@@ -8,14 +8,14 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.io.impl.SerialComChannelImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
-import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
-import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
+import com.energyict.mdc.io.CommunicationException;
+
+import com.energyict.mdc.io.SerialComChannel;
 
 /**
  * Command to enable the HandHeldUnit controller for legacy protocols
@@ -35,7 +35,7 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
 
     @Override
     public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        if (this.comChannelPlaceHolder.getComPortRelatedComChannel().getActualComChannel() instanceof SerialComChannel) {
+        if (this.comChannelPlaceHolder.getComPortRelatedComChannel().getActualComChannel() instanceof SerialComChannelImpl) {
             SerialComChannel comChannel = (SerialComChannel) this.comChannelPlaceHolder.getComPortRelatedComChannel().getActualComChannel();
             SerialCommunicationChannelAdapter serialCommunicationChannel = new SerialCommunicationChannelAdapter(comChannel);
             try {

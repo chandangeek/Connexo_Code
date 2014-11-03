@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
+import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;

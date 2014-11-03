@@ -5,7 +5,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 
 import java.util.ArrayList;
 import java.util.Collection;

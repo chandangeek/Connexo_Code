@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.protocols.mdc.channels.ip.datagrams.InboundUdpSession;
+import com.energyict.protocols.impl.channels.ip.datagrams.InboundUdpSession;
 import com.energyict.protocols.mdc.services.SocketService;
 
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;

@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactor
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.engine.model.InboundComPort;
 
-import com.energyict.protocols.mdc.channels.VoidComChannel;
+import com.energyict.protocols.impl.channels.VoidComChannel;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,7 +47,7 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
                 threadFactory,
                 inboundComPortExecutorFactory,
                 new InboundComPortConnectorFactoryImpl(
-                        serviceProvider.serialComponentService(),
+                        serviceProvider.serialAtComponentService(),
                         serviceProvider.socketService(),
                         serviceProvider.hexService()),
                 serviceProvider);

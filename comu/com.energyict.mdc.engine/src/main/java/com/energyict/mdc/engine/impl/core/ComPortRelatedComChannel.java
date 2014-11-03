@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 
 import java.time.Duration;
 

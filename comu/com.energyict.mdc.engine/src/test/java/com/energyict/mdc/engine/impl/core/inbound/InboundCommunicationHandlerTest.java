@@ -20,7 +20,6 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilde
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -40,7 +39,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;

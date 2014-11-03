@@ -3,9 +3,9 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SerialComponentService;
 
-import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.SocketService;
 
 import java.util.concurrent.ThreadFactory;
@@ -22,7 +22,7 @@ public abstract class ComChannelBasedComPortListenerImpl extends ComPortListener
 
     public interface ServiceProvider extends InboundComPortExecutorImpl.ServiceProvider {
 
-        public SerialComponentService serialComponentService();
+        public SerialComponentService serialAtComponentService();
 
         public SocketService socketService();
 

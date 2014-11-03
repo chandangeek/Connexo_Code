@@ -54,7 +54,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.protocols.mdc.channels.VoidComChannel;
+import com.energyict.protocols.impl.channels.VoidComChannel;
 import org.joda.time.DateTime;
 
 import java.time.Clock;

@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.io.SerialPortConfiguration;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

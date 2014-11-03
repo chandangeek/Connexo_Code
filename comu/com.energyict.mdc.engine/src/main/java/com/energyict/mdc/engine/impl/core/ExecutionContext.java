@@ -40,7 +40,7 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
+import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import java.text.MessageFormat;

@@ -41,7 +41,7 @@ import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;

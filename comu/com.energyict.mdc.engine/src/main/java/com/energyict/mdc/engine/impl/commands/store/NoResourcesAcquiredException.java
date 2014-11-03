@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
+import com.energyict.mdc.common.ComServerRuntimeException;
 
 /**
  * Models the exceptional situation that occurs when client code

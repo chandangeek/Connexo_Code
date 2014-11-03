@@ -2,22 +2,23 @@ package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
-import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
-import com.energyict.mdc.protocol.api.channels.serial.Parities;
+import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.io.FlowControl;
+import com.energyict.mdc.io.NrOfDataBits;
+import com.energyict.mdc.io.NrOfStopBits;
+import com.energyict.mdc.io.Parities;
+import com.energyict.mdc.io.impl.SerialComChannelImpl;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.impl.MessageSeeds;
+import com.energyict.mdc.io.impl.SerialIOAtModemComponentServiceImpl;
 import com.energyict.mdc.protocol.api.dialer.core.DialerException;
-import com.energyict.mdc.protocol.api.exceptions.ModemException;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
-import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
-import com.energyict.protocols.mdc.channels.serial.SerialComponentServiceImpl;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
-import com.energyict.protocols.mdc.channels.serial.modem.AtModemComponent;
+
+import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.io.ServerSerialPort;
+import com.energyict.mdc.io.impl.AtModemComponent;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import org.joda.time.DateTimeConstants;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +76,7 @@ public class SerialPortConnectorTest {
         when(comPort.getAddressSelector()).thenReturn("");
         when(comPort.getPostDialCommands()).thenReturn("");
 
-        this.serialComponentService = new SerialComponentServiceImpl();
+        this.serialComponentService = new SerialIOAtModemComponentServiceImpl();
         this.hexService = new HexServiceImpl();
     }
 
@@ -434,7 +435,7 @@ public class SerialPortConnectorTest {
         return (int) (expectedTime / 1000);
     }
 
-    protected class TestableSerialComChannel extends SerialComChannel {
+    protected class TestableSerialComChannel extends SerialComChannelImpl {
 
         private int counter = 0;
         private int index = 0;

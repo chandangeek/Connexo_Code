@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core.inbound;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
 import com.energyict.mdc.protocol.api.services.HexService;
 

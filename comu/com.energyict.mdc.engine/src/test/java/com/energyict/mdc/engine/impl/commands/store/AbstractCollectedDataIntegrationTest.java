@@ -7,6 +7,7 @@ import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -53,7 +54,6 @@ import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import java.time.Clock;
 
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

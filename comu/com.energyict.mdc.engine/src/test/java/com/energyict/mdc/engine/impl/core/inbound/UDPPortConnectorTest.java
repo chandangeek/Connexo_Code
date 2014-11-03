@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.protocols.mdc.services.SocketService;

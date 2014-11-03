@@ -21,11 +21,11 @@ import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactor
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactoryImpl;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.SocketService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

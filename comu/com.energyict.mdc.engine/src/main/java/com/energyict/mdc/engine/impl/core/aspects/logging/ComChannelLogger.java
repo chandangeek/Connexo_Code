@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.aspects.logging;
 
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 
 /**
  * Defines all log messages for the {@link ComChannel} component.

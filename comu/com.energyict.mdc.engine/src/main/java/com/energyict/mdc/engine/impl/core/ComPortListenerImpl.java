@@ -4,7 +4,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;

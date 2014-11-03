@@ -18,7 +18,7 @@ import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;

@@ -13,7 +13,7 @@ import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.protocols.mdc.channels.VoidComChannel;
+import com.energyict.protocols.impl.channels.VoidComChannel;
 import com.energyict.protocols.mdc.services.SocketService;
 
 import org.junit.After;

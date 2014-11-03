@@ -26,12 +26,13 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.io.impl.SerialComChannelImpl;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
-import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.ServerSerialPort;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,7 +123,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider));
 
-        SerialComChannel serialComChannel = mock(SerialComChannel.class);
+        SerialComChannel serialComChannel = mock(SerialComChannelImpl.class);
         ServerSerialPort serverSerialPort = mock(ServerSerialPort.class);
         when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);

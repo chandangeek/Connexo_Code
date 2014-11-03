@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.exceptions;
 
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
+import com.energyict.mdc.common.ComServerRuntimeException;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 

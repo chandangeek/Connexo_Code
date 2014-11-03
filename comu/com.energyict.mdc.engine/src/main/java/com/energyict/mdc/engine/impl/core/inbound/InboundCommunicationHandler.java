@@ -36,7 +36,7 @@ import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;

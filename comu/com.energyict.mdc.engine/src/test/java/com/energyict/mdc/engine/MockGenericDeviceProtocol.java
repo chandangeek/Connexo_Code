@@ -5,7 +5,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;

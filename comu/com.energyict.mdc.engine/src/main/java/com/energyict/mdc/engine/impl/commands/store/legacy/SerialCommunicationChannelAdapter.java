@@ -2,13 +2,13 @@ package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
-import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
-import com.energyict.mdc.protocol.api.channels.serial.Parities;
-import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.io.NrOfDataBits;
+import com.energyict.mdc.io.NrOfStopBits;
+import com.energyict.mdc.io.Parities;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.io.ServerSerialPort;
 
 import java.io.IOException;
 import java.io.InputStream;

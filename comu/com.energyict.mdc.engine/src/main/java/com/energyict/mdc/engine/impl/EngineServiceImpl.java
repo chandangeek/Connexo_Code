@@ -27,12 +27,14 @@ import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.io.LibraryType;
+import com.energyict.mdc.io.ModemType;
+import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.SocketService;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
@@ -256,7 +258,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
         this.socketService = socketService;
     }
 
-    @Reference
+    @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.AT + "))")
     public void setSerialComponentService(SerialComponentService serialComponentService) {
         this.serialComponentService = serialComponentService;
     }
@@ -315,7 +317,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "NLS", "DDC");
+        return Arrays.asList("ORM", "EVT", "NLS", "DDC", "MIO");
     }
 
     private class ServiceProviderImpl implements ServiceProvider {
@@ -411,7 +413,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
         }
 
         @Override
-        public SerialComponentService serialComponentService() {
+        public SerialComponentService serialAtComponentService() {
             return serialComponentService;
         }
 

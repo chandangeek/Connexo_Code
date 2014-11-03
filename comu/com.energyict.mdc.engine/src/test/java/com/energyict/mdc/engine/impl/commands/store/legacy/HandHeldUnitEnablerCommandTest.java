@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -20,13 +20,13 @@ import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
-import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.ServerSerialPort;
 
 import java.io.InputStream;
 import java.util.Collections;

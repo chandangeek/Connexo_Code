@@ -23,11 +23,11 @@ import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.SocketService;
 
 /**
@@ -63,7 +63,7 @@ public class FakeServiceProvider
     private DeviceConfigurationService deviceConfigurationService;
     private ProtocolPluggableService protocolPluggableService;
     private SocketService socketService;
-    private SerialComponentService serialComponentService;
+    private SerialComponentService serialAtComponentService;
     private ManagementBeanFactory managementBeanFactory;
     private WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory;
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
@@ -231,12 +231,12 @@ public class FakeServiceProvider
     }
 
     @Override
-    public SerialComponentService serialComponentService() {
-        return serialComponentService;
+    public SerialComponentService serialAtComponentService() {
+        return serialAtComponentService;
     }
 
-    public void setSerialComponentService(SerialComponentService serialComponentService) {
-        this.serialComponentService = serialComponentService;
+    public void setSerialAtComponentService(SerialComponentService serialAtComponentService) {
+        this.serialAtComponentService = serialAtComponentService;
     }
 
     @Override

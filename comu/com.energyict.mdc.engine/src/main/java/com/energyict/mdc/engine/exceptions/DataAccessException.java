@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.exceptions;
 
-import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
+import com.energyict.mdc.common.ComServerRuntimeException;
 
 import org.json.JSONException;
 
