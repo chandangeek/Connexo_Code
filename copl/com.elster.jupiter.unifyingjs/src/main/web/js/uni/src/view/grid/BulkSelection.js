@@ -271,11 +271,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
     },
 
     onChangeSelectionGroupType: function (radiogroup, value) {
-        var me = this,
-            selection = me.view.getSelectionModel().getSelection();
+        var me = this;
+        if (me.view) {
+            var selection = me.view.getSelectionModel().getSelection();
 
-        me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
-        me.setGridVisible(!me.isAllSelected());
+            me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
+            me.setGridVisible(!me.isAllSelected());
+        }
     },
 
     setGridVisible: function (visible) {
