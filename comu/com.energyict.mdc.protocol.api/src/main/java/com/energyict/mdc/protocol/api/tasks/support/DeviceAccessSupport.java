@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.tasks.support;
 
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 
 /**
  * Provides functionality to do LogOn/LogOff with a device.

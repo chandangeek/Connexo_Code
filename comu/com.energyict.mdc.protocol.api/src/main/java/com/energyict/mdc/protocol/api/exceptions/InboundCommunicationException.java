@@ -1,5 +1,8 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
+import com.energyict.mdc.common.ComServerRuntimeException;
+import com.energyict.mdc.io.CommunicationException;
+
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.io.IOException;

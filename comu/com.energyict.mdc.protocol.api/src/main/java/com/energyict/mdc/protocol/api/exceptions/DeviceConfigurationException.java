@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
+import com.energyict.mdc.common.ComServerRuntimeException;
+
 import com.elster.jupiter.util.exception.MessageSeed;
 
 /**

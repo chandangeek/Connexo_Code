@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.legacy.DeviceCachingSupport;

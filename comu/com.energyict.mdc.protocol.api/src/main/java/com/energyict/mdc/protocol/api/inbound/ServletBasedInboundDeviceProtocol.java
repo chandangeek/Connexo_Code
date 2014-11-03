@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.inbound;
 
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
