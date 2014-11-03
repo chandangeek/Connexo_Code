@@ -249,6 +249,9 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     @Override
     public Optional<PartialConnectionTask> getPartialConnectionTask() {
+        if(this.usesDefaultConnectionTask){
+            return getDeviceConfiguration().getPartialConnectionTasks().stream().filter(PartialConnectionTask::isDefault).findFirst();
+        }
         return this.partialConnectionTask.getOptional();
     }
 
