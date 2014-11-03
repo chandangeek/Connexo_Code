@@ -25,6 +25,9 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
 import java.time.Instant;
+import java.time.Month;
+import java.time.Year;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import com.google.common.collect.Range;
@@ -32,7 +35,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -131,7 +133,7 @@ public class EnumeratedUsagePointGroupImplIT {
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(EnumeratedUsagePointGroup.class);
         EnumeratedUsagePointGroup group = (EnumeratedUsagePointGroup) found.get();
-        List<UsagePoint> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate().toInstant());
+        List<UsagePoint> members = group.getMembers(Year.of(2014).atMonth(Month.JANUARY).atDay(23).atTime(14, 54).atZone(ZoneId.systemDefault()).toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(usagePoint.getId());
     }
