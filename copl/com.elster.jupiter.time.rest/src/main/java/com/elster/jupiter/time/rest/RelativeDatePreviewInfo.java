@@ -3,17 +3,18 @@ package com.elster.jupiter.time.rest;
 import java.time.ZonedDateTime;
 
 public class RelativeDatePreviewInfo {
-    public Long referenceDate;
+    public Long date;
     public RelativeDateInfo relativeDateInfo;
     public Integer zoneOffset;
 
     public RelativeDatePreviewInfo() {}
 
     public RelativeDatePreviewInfo(ZonedDateTime dateTime) {
-        referenceDate = dateTime.toInstant().toEpochMilli();
+        date = dateTime.toInstant().toEpochMilli();
+        zoneOffset = -dateTime.getOffset().getTotalSeconds()/60;
     }
 
-    public int getOffsetHours() {
+    public int parseOffsetHours() {
         int hours = 0;
         if (zoneOffset != null) {
             hours = -(zoneOffset/60);
@@ -21,7 +22,7 @@ public class RelativeDatePreviewInfo {
         return hours;
     }
 
-    public int getOffsetMinutes() {
+    public int parseOffsetMinutes() {
         int minutes = 0;
         if (zoneOffset != null) {
             minutes = Math.abs(zoneOffset%60);
