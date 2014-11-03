@@ -641,6 +641,7 @@
         <module>../com.energyict.mdc.metering</module>
         <module>../com.energyict.mdc.tasks</module>
         <module>../com.energyict.mdc.tasks.rest</module>
+        <module>../com.energyict.mdc.io</module>
         <module>../com.energyict.mdc.protocol.api</module>
         <module>../com.energyict.mdc.protocol.pluggable</module>
         <module>../com.energyict.mdc.masterdata</module>
