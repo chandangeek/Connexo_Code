@@ -13,7 +13,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
+import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 
 import java.util.Arrays;
 import java.util.Collections;
