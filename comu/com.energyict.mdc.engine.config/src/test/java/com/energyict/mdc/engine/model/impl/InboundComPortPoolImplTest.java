@@ -13,12 +13,12 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
-import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
-import com.energyict.mdc.protocol.api.channels.serial.Parities;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.io.FlowControl;
+import com.energyict.mdc.io.NrOfDataBits;
+import com.energyict.mdc.io.NrOfStopBits;
+import com.energyict.mdc.io.Parities;
+import com.energyict.mdc.io.SerialPortConfiguration;
 import java.math.BigDecimal;
 import org.junit.Test;
 

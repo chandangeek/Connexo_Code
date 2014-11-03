@@ -17,7 +17,7 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.io.SerialPortConfiguration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
