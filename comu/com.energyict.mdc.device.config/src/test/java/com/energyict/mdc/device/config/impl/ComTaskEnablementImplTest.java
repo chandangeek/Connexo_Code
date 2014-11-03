@@ -12,7 +12,6 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -50,8 +49,6 @@ import static org.mockito.Mockito.when;
  */
 public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPluggableServiceTest {
 
-    private static final TemporalExpression EVERY_HOUR = new TemporalExpression(TimeDuration.hours(1));
-    private static final TemporalExpression EVERY_DAY_AT_3AM = new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(3));
     private static final String DEVICE_TYPE_NAME = ComTaskEnablementImplTest.class.getSimpleName() + "Type";
 
     private TopicHandler topicHandler;
