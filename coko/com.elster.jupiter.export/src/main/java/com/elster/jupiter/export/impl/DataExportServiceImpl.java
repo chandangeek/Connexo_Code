@@ -128,11 +128,12 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
         destinationSpec.save();
+        destinationSpec.activate();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME);
+        return Arrays.asList(OrmService.COMPONENTNAME, TimeService.COMPONENT_NAME, MeteringService.COMPONENTNAME, TaskService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, NlsService.COMPONENTNAME);
     }
 
     @Reference
