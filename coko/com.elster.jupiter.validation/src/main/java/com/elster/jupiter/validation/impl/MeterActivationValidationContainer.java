@@ -29,23 +29,13 @@ public class MeterActivationValidationContainer {
 	}
 	
 	void moveLastCheckedBefore(Instant instant) {
-		meterActivationValidations.forEach( meterActivationValidation -> {
-			meterActivationValidation.moveLastCheckedBefore(instant);
-			meterActivationValidation.save();
-		});
+		meterActivationValidations.forEach( meterActivationValidation -> meterActivationValidation.moveLastCheckedBefore(instant));		
 	}
 	
 	void updateLastChecked(Instant instant) {
 		meterActivationValidations.stream()
 			.filter(IMeterActivationValidation::isActive)
-			.forEach(meterActivationValidation -> updateLastChecked(meterActivationValidation, instant));
-	}
-	
-	private void updateLastChecked(IMeterActivationValidation meterActivationValidation, Instant instant) {
-		meterActivationValidation.getChannelValidations().stream()
-        	.map(IChannelValidation.class::cast)
-            .forEach(c -> c.updateLastChecked(instant));
-		meterActivationValidation.save();
+			.forEach(meterActivationValidation -> meterActivationValidation.updateLastChecked(instant));
 	}
 	
 	void activate() {

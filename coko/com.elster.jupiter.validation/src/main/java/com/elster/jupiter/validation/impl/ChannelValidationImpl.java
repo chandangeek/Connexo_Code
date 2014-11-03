@@ -109,7 +109,10 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
     
     @Override
-    public void updateLastChecked(Instant instant) {
+    public boolean updateLastChecked(Instant instant) {
+    	if (lastChecked.equals(Objects.requireNonNull(instant))) {
+    		return false;
+    	}
     	Instant newValue = Objects.requireNonNull(instant).isBefore(minLastChecked()) ? minLastChecked() : instant;
     	if (lastChecked.isAfter(newValue)) {
     		channel.get().findReadingQuality(Range.greaterThan(newValue)).stream()
@@ -117,15 +120,16 @@ final class ChannelValidationImpl implements IChannelValidation {
     			.forEach(ReadingQualityRecord::delete);
     	}
     	this.lastChecked = newValue;
+    	return true;
     }
     
     @Override
-    public void moveLastCheckedBefore(Instant instant) {
+    public boolean moveLastCheckedBefore(Instant instant) {
     	if (!lastChecked.isAfter(instant)) {
-    		return;
+    		return false;
     	}
     	Optional<BaseReadingRecord> reading = channel.get().getReadingsBefore(instant, 1).stream().findFirst();
-    	updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));
+    	return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));    	
     }
     
     private boolean isRelevant(ReadingQualityRecord readingQuality) {

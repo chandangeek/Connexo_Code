@@ -24,7 +24,10 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
@@ -79,6 +82,12 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     @Override
     public ChannelValidationImpl addChannelValidation(Channel channel) {
         ChannelValidationImpl channelValidation = ChannelValidationImpl.from(dataModel, this, channel);
+        Condition condition = Where.where("channel").isEqualTo(channel).and(Where.where("meterActivationValidation.obsoleteTime").isNull());
+        dataModel.query(ChannelValidation.class,  IMeterActivationValidation.class).select(condition).stream()
+        	.map(ChannelValidation::getLastChecked)
+        	.min(Comparator.naturalOrder())
+        	.filter(lastChecked -> lastChecked.isAfter(channelValidation.getLastChecked()))
+        	.ifPresent(lastChecked -> channelValidation.updateLastChecked(lastChecked));        
         channelValidations.add(channelValidation);
         return channelValidation;
     }
@@ -187,8 +196,12 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public void updateLastChecked(Instant lastChecked) {
-        for (ChannelValidation channelValidation : channelValidations) {
-            ((IChannelValidation) channelValidation).updateLastChecked(lastChecked);
+        long updateCount = channelValidations.stream()
+            .map(IChannelValidation.class::cast)
+            .filter(channelValidation -> channelValidation.updateLastChecked(lastChecked))            
+            .count();
+        if (updateCount > 0) {
+        	save();
         }
     }
 
@@ -255,6 +268,12 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     
     @Override
     public void moveLastCheckedBefore(Instant instant) {
-    	channelValidations.forEach(channelValidation -> channelValidation.moveLastCheckedBefore(instant));
+    	long updateCount = channelValidations.stream()
+    		.filter(channelValidation -> channelValidation.moveLastCheckedBefore(instant))
+    		.count();
+    	if (updateCount > 0) {
+    		save();
+    	}
     }
+    		
 }
