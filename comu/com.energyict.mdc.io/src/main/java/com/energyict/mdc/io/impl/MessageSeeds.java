@@ -2,6 +2,7 @@ package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.SerialComponentService;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -12,7 +13,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-31 (14:14)
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     UNEXPECTED_IO_EXCEPTION(1, "unexpectedIOException", "Exception occurred while communication with a device", Level.SEVERE),
     SERIAL_PORT_LIBRARY_EXCEPTION(2, "underlyingSerialLibraryException", "Exception occurred in underlying serial library", Level.SEVERE),
