@@ -27,12 +27,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import java.util.Optional;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -50,12 +48,14 @@ import org.osgi.service.event.EventAdmin;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -361,6 +361,52 @@ public class KpiServiceImplIT {
         assertThat(event.getMember().getName()).isEqualTo(NON_COMMUNICATING_METERS);
         assertThat(event.getEntry().getScore()).isEqualTo(BigDecimal.valueOf(2, 2));
         assertThat(event.getEntry().getTarget()).isEqualTo(BigDecimal.valueOf(1, 2));
+
+    }
+
+    @Test
+    public void testQueryKpiValue() {
+        long id = 0;
+        LocalDateTime localDateTime = LocalDate.of(2013, 7, 31).atStartOfDay();
+        Instant date = localDateTime.toInstant(ZoneOffset.UTC);
+        Instant date2 = localDateTime.plusDays(1).toInstant(ZoneOffset.UTC);
+        try (TransactionContext context = transactionService.getContext()) {
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
+                    .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
+                    .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
+                    .build();
+            kpi.save();
+
+            kpi.getMembers().get(0).score(date, BigDecimal.valueOf(8, 0));
+            kpi.getMembers().get(1).score(date, BigDecimal.valueOf(2, 2));
+            kpi.getMembers().get(0).score(date2, BigDecimal.valueOf(8, 0));
+            kpi.getMembers().get(1).score(date2, BigDecimal.valueOf(2, 2));
+
+            id = kpi.getId();
+            context.commit();
+        }
+
+
+        Optional<Kpi> found = kpiService.getKpi(id);
+        assertThat(found.isPresent()).isTrue();
+
+        Kpi kpi = found.get();
+
+        {
+            List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Range.closed(date, date2));
+            assertThat(entries).hasSize(2);
+            assertThat(entries.get(0).getScore()).isEqualTo(BigDecimal.valueOf(8, 0));
+            assertThat(entries.get(0).meetsTarget()).isTrue();
+        }
+
+        {
+            List<? extends KpiEntry> entries =  kpi.getMembers().get(1).getScores(Range.closed(date, date2));
+            assertThat(entries).hasSize(2);
+            KpiEntry entry = entries.get(0);
+            assertThat(entry.getScore()).isEqualTo(BigDecimal.valueOf(2, 2));
+            assertThat(entry.getTarget()).isEqualTo(BigDecimal.valueOf(1, 2));
+            assertThat(entry.meetsTarget()).isFalse();
+        }
 
     }
 
