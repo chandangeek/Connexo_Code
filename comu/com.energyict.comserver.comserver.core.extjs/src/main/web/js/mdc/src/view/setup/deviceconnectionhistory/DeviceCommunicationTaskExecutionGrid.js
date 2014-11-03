@@ -7,7 +7,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
         'Uni.view.toolbar.PagingBottom'
     ],
     store: 'DeviceCommunicationTaskExecutions',
-//    selModel: Ext.create('Ext.selection.Model', { preventFocus: true }),
     columns: {
         defaults: {
             sortable: false,
@@ -28,12 +27,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 renderer: function(value){
                    return value.name;
                 }
-            },
-            {
-                itemId: 'currentState',
-                text: Uni.I18n.translate('deviceconnectionhistory.currentState', 'MDC', 'Current state'),
-                dataIndex: 'currentState',
-                flex: 0.5
             },
             {
                 itemId: 'result',

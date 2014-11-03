@@ -18,41 +18,37 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.SideFilter', {
                 columns: 1,
                 vertical: true,
                 defaultType: 'checkboxfield',
+                itemId: 'logLevelField',
                 items: [
                     {
                         itemId: 'error',
                         inputValue: 'Error',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.error', 'MDC', 'Error'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.error', 'MDC', 'Error')
                     },
                     {
                         itemId: 'warning',
                         inputValue: 'Warning',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.warning', 'MDC', 'Warning'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.warning', 'MDC', 'Warning')
                     },
                     {
                         itemId: 'information',
                         inputValue: 'Information',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.information', 'MDC', 'Information'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.information', 'MDC', 'Information')
                     },
                     {
                         itemId: 'debug',
                         inputValue: 'Debug',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.debug', 'MDC', 'Debug'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.debug', 'MDC', 'Debug')
                     },
                     {
                         itemId: 'trace',
                         inputValue: 'Trace',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.trace', 'MDC', 'Trace'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('devicecommunicationtaskhistory.trace', 'MDC', 'Trace')
                     }
                 ]
             }
@@ -71,7 +67,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.SideFilter', {
                     },
                     {
                         itemId: 'deviceLoadProfileDataFilterResetBtn',
-                        text: Uni.I18n.translate('general.reset', 'MDC', 'Reset'),
+                        text: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
                         action: 'resetfilter'
                     }
                 ]

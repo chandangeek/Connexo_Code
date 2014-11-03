@@ -27,7 +27,15 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                     iconCls: 'x-uni-action-iconD',
                     menu: {
-                        xtype: 'device-communication-task-history-action-menu'
+                      //  xtype: 'device-communication-task-history-action-menu'
+                        items: [
+                            {
+                                text: Uni.I18n.translate('devicecommunicationtaskhistory.viewCommunicationLog', 'MDC', 'View communication log'),
+                                itemId: 'viewCommunicationLog',
+                                action: 'viewCommunicationLog'
+
+                            }
+                        ]
                     }
                 }
             ],
@@ -156,6 +164,22 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             xtype: 'panel',
             title: 'Details',
             itemId: 'deviceConnectionHistoryPreviewPanel',
+            tools: [
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    iconCls: 'x-uni-action-iconD',
+                    menu: {
+                        items: [
+                            {
+                                text: Uni.I18n.translate('devicecommunicationtaskhistory.viewConnectionLog', 'MDC', 'View connection log'),
+                                itemId: 'viewConnectionLog',
+                                action: 'viewConnectionLog'
+                            }
+                        ]
+                    }
+                }
+            ],
             style: {
                 'margin-top': '32px'
             },
@@ -235,15 +259,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'comServer',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.communicationServer', 'MDC', 'Communication server'),
-                                    renderer: function (value) {
-                                        return value.name;
-                                    }
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'comPort',
+                                    itemId: 'comPort',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.communicationPort', 'MDC', 'Communication port')
                                 }
                             ]
@@ -277,9 +293,10 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.communicationTasks', 'DSH', 'Communication tasks'),
                                     name: 'comTaskCount',
                                     renderer: function (val) {
-                                        return '<tpl><span class="fa fa-check fa-lg" style="color: green; width: 24px; vertical-align: 0% !important;"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '') + '</span><br></tpl>' +
-                                            '<tpl><span class="fa fa-times fa-lg" style="color: red; width: 24px; vertical-align: 0% !important;"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '') + '<br></tpl>' +
-                                            '<tpl><span class="fa fa-ban fa-lg" style="color: #333333; width: 24px; vertical-align: 0% !important"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '') + '</tpl>'
+                                        return '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '') + '</span><br></tpl>' +
+                                            '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '')  + '</span><br></tpl>' +
+                                            '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '') + '</span></tpl>'
+                                            ;
                                     }
                                 },
                                 {

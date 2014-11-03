@@ -81,7 +81,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     {mRID: me.mRID},
                     {comTaskId:me.comTaskId}
                 ],
-                itemsPerPageMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbarbottom.itemsPerPage', 'MDC', 'communications per page'),
+                itemsPerPageMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communications per page'),
                 dock: 'bottom'
             }
         ];

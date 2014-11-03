@@ -106,20 +106,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.direction', 'MDC', 'Direction'),
                                     itemId: 'direction'
                                 },
-//                                {
-//                                    xtype: 'displayfield',
-//                                    name: 'comServer',
-//                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comServer', 'MDC', 'Communication server'),
-//                                    itemId: 'comServer',
-//                                    renderer: function (value) {
-//                                        if (value !== null) {
-//                                            return '<a href="#/administration/comservers/'+value.id+'/overview">' + value.name + '</a>';
-//                                        }
-//                                    }
-//                                },
                                 {
                                     xtype: 'displayfield',
-//                                    name: 'comPort',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comPort', 'MDC', 'Communication port'),
                                     itemId: 'comPort'
                                 }
@@ -142,7 +130,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     xtype: 'displayfield',
                                     name: 'status',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.status', 'MDC', 'Status'),
-                                    itemId: 'status'
+                                    itemId: 'statusLink'
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -160,9 +148,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.communicationTasks', 'DSH', 'Communication tasks'),
                                     name: 'comTaskCount',
                                     renderer: function (val) {
-                                        return '<tpl><span class="fa fa-check fa-lg" style="color: green; width: 24px; vertical-align: 0% !important;"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '') + '</span><br></tpl>' +
-                                            '<tpl><span class="fa fa-times fa-lg" style="color: red; width: 24px; vertical-align: 0% !important;"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '') + '<br></tpl>' +
-                                            '<tpl><span class="fa fa-ban fa-lg" style="color: #333333; width: 24px; vertical-align: 0% !important"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '') + '</tpl>'
+                                        return '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '') + '</span><br></tpl>' +
+                                            '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '') + '</span><br></tpl>' +
+                                            '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '') + '</span></tpl>'
+                                            ;
                                     }
                                 }
                             ]
