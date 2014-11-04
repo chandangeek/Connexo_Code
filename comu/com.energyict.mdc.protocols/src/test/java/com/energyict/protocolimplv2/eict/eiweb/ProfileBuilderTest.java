@@ -6,7 +6,7 @@ import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.MdwInterface;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.api.device.BaseDevice;

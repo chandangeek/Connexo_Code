@@ -6,7 +6,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;

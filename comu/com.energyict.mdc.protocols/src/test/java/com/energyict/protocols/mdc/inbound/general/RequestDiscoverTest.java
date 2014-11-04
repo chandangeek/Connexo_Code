@@ -10,7 +10,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;

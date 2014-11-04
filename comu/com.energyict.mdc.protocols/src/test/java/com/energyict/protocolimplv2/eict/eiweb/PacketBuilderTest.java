@@ -5,7 +5,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.data.CollectedAddressProperties;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
