@@ -48,17 +48,6 @@ Ext.define('Uni.form.field.StartPeriod', {
 
         me.items = [];
 
-        if (me.showOptionNow) {
-            me.items.push({
-                boxLabel: Uni.I18n.translate('form.field.startPeriod.optionNow.label', 'UNI', 'Now'),
-                itemId: 'option-now',
-                name: me.baseRadioName,
-                inputValue: me.inputValueNow,
-                margin: '0 0 6 0',
-                value: true
-            });
-        }
-
         me.items.push({
             xtype: 'container',
             itemId: 'option-ago',
@@ -118,6 +107,17 @@ Ext.define('Uni.form.field.StartPeriod', {
                 }
             ]
         });
+
+        if (me.showOptionNow) {
+            me.items.push({
+                boxLabel: Uni.I18n.translate('form.field.startPeriod.optionNow.label', 'UNI', 'Now'),
+                itemId: 'option-now',
+                name: me.baseRadioName,
+                inputValue: me.inputValueNow,
+                margin: '0 0 6 0',
+                value: true
+            });
+        }
 
         if (me.showOptionDate) {
             me.items.push({
