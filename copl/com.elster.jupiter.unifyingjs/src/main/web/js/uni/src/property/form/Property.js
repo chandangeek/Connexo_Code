@@ -52,10 +52,10 @@ Ext.define('Uni.property.form.Property', {
         this.callParent(arguments);
     },
 
-    loadRecordAsNotRequired: function(record){
+    loadRecordAsNotRequired: function (record) {
         var properties = record.properties();
-        _.each(properties.data.items,function(item){
-            item.set('required',false)
+        _.each(properties.data.items, function (item) {
+            item.set('required', false)
         });
         this.loadRecord(record);
     },
@@ -66,7 +66,7 @@ Ext.define('Uni.property.form.Property', {
      *
      * @param {MixedCollection} properties
      */
-    initProperties: function(properties) {
+    initProperties: function (properties) {
         var me = this;
         var registry = Uni.property.controller.Registry;
 
@@ -98,23 +98,24 @@ Ext.define('Uni.property.form.Property', {
         this.initialised = true;
     },
 
-    useInheritedValues: function() {
-        this.items.each(function(item){
+    useInheritedValues: function () {
+        this.items.each(function (item) {
             item.useInheritedValue();
         });
         this.inheritedValues = true;
     },
 
-    getFieldValues: function(dirtyOnly) {
+    getFieldValues: function (dirtyOnly) {
         var data = this.getValues(false, dirtyOnly, false, true);
         return this.unFlattenObj(data);
     },
 
-    updateRecord: function() {
+    updateRecord: function () {
         var me = this;
         var raw = me.getFieldValues();
         var values = {};
-        _.each(raw.properties || [], function(rawValue, key){
+        _.each(raw.properties || [], function (rawValue, key) {
+
             var field = me.getPropertyField(key);
             values[key] = field.getValue(rawValue);
         });
@@ -122,13 +123,13 @@ Ext.define('Uni.property.form.Property', {
         this.getForm().hydrator.hydrate(values, me.getRecord());
     },
 
-    unFlattenObj: function(object) {
-        return _(object).inject(function(result, value, keys) {
+    unFlattenObj: function (object) {
+        return _(object).inject(function (result, value, keys) {
             var current = result,
                 partitions = keys.split('.'),
                 limit = partitions.length - 1;
 
-            _(partitions).each(function(key, index) {
+            _(partitions).each(function (key, index) {
                 current = current[key] = (index == limit ? value : (current[key] || {}));
             });
 
@@ -141,7 +142,7 @@ Ext.define('Uni.property.form.Property', {
      *
      * @param {MixedCollection} properties
      */
-    setProperties: function(properties) {
+    setProperties: function (properties) {
         var me = this;
 
         properties.each(function (property) {
@@ -156,8 +157,8 @@ Ext.define('Uni.property.form.Property', {
         });
     },
 
-    restoreAll: function() {
-        this.items.each(function(item){
+    restoreAll: function () {
+        this.items.each(function (item) {
             item.restoreDefault();
         })
     },
@@ -167,7 +168,7 @@ Ext.define('Uni.property.form.Property', {
      * @param {string} key
      * @returns {Uni.property.view.property.Base}
      */
-    getPropertyField: function(key) {
+    getPropertyField: function (key) {
         return this.getComponent(key);
     }
 });

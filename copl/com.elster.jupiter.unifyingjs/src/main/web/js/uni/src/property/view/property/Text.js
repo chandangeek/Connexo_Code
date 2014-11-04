@@ -6,7 +6,7 @@ Ext.define('Uni.property.view.property.Text', {
         return {
             xtype: 'textfield',
             name: this.getName(),
-            itemId: me.key + 'textfield',
+            itemId: me.key,
             width: me.width,
             msgTarget: 'under',
             readOnly: me.isReadOnly
