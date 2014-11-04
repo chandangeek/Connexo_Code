@@ -83,14 +83,15 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     previewDeviceSecuritySetting: function () {
         var me = this;
         var deviceSecuritySetting = me.getDeviceSecuritySettingGrid().getSelectionModel().getSelection();
+        me.getDeviceSecuritySettingPreview().down('property-form').remove();
         if (deviceSecuritySetting.length == 1) {
             var deviceSecuritySettingName = deviceSecuritySetting[0].get('name');
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(1);
             me.getDeviceSecuritySettingPreview().setTitle(deviceSecuritySettingName);
             me.getDeviceSecuritySettingPreviewForm().loadRecord(deviceSecuritySetting[0]);
             if (deviceSecuritySetting[0].propertiesStore.data.items.length > 0) {
+                me.getDeviceSecuritySettingPreview().down('property-form').loadRecord(deviceSecuritySetting[0]);
                 if (deviceSecuritySetting[0].get('userHasViewPrivilege') || deviceSecuritySetting[0].get('userHasEditPrivilege')) {
-                    me.getDeviceSecuritySettingPreview().down('property-form').loadRecord(deviceSecuritySetting[0]);
                     me.getDeviceSecuritySettingPreviewTitle().setVisible(true);
                 } else {
                     me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
