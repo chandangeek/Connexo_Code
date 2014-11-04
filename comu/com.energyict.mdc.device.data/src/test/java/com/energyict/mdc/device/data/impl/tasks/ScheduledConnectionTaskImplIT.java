@@ -45,6 +45,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import org.assertj.core.api.Condition;
+import org.fest.assertions.Assertions;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 import org.junit.After;
@@ -738,6 +739,37 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         for (ComTaskExecution taskExecution : reloadedDevice.getComTaskExecutions()) {
             assertThat(taskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
         }
+    }
+
+    @Test
+    @Transactional
+    public void setDefaultConnectionWithObsoleteComTaskExecutionsTest() {
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+        comTaskExecution.makeObsolete();
+
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("setDefaultConnectionWithObsoleteComTaskExecutionsTest");
+        connectionTask.save();
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+
+        ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId());
+        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void clearDefaultConnectionWithObsoleteComTaskExecutionsTest() {
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("clearDefaultConnectionWithObsoleteComTaskExecutionsTest");
+        connectionTask.save();
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+        comTaskExecution.makeObsolete();
+        inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(connectionTask.getDevice());
+
+        ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId());
+        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId()); // should not be updated
     }
 
     @Test
@@ -1913,6 +1945,17 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(connectionTask.isDefault()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void defaultPartialShouldCreateDefaultTest() {
+        this.partialScheduledConnectionTask.setDefault(true);
+        this.partialScheduledConnectionTask.save();
+
+        ScheduledConnectionTaskImpl myDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("MyDefaultConnectionTask", this.partialScheduledConnectionTask);
+
+        assertThat(myDefaultConnectionTask.isDefault()).isTrue();
     }
 
     private void assertConnectionTask(List<ConnectionTask> outboundConnectionTasks, ScheduledConnectionTaskImpl... tasks) {
