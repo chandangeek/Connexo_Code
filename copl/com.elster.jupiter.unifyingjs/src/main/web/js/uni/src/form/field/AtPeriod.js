@@ -35,6 +35,7 @@ Ext.define('Uni.form.field.AtPeriod', {
                 value: 0,
                 minValue: 0,
                 maxValue: 23,
+                editable: false,
                 allowBlank: false,
                 width: 64,
                 margin: '0 6 0 0'
@@ -55,6 +56,7 @@ Ext.define('Uni.form.field.AtPeriod', {
                 value: 0,
                 minValue: 0,
                 maxValue: 59,
+                editable: false,
                 allowBlank: false,
                 width: 64,
                 margin: '0 6 0 6'

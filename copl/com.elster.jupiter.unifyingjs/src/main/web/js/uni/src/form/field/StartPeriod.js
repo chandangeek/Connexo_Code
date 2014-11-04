@@ -64,7 +64,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                 xtype: 'container',
                 itemId: 'option-date',
                 layout: 'hbox',
-                margin: '6 0 0 0',
+                margin: '0 0 6 0',
                 name: 'rb',
                 items: [
                     {
@@ -105,6 +105,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                     hideLabel: true,
                     value: 1,
                     minValue: 1,
+                    editable: false,
                     allowBlank: false,
                     width: 64,
                     margin: '0 6 0 6'
