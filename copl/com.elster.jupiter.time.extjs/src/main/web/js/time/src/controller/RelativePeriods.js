@@ -40,7 +40,7 @@ Ext.define('Tme.controller.RelativePeriods', {
             nameFieldValue = form.down('#edit-relative-period-name').getValue(),
             formErrorsPanel = form.down('#form-errors');
 
-        if(!formErrorsPanel.isHidden()) {
+        if (!formErrorsPanel.isHidden()) {
             formErrorsPanel.hide();
         }
 
@@ -106,7 +106,7 @@ Ext.define('Tme.controller.RelativePeriods', {
                     } else {
                         messageText = Uni.I18n.translate('relativeperiod.addSuccess.msg', 'TME', 'Relative period added');
                     }
-                    location.href = '#/administration/communicationtasks/create';
+                    location.href = '#/administration/dataexporttasks/add';
 
                     me.getApplication().fireEvent('acknowledge', messageText);
                 },
