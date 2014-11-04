@@ -10,7 +10,7 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;

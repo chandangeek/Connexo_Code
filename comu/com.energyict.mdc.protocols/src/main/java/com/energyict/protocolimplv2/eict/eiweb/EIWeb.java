@@ -34,7 +34,7 @@ import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.mdc.services.impl.Bus;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 
 import java.util.Arrays;
 import java.util.Collections;

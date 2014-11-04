@@ -25,7 +25,7 @@ import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifie
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.protocols.util.LittleEndianInputStream;
 
 import javax.servlet.http.HttpServletRequest;

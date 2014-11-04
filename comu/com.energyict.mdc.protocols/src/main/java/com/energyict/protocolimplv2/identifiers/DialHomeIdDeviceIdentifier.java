@@ -3,7 +3,12 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdw.cpo.PropertySpecFactory;
+
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import com.energyict.mdc.common.Environment;
@@ -13,7 +18,6 @@ import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +33,6 @@ import java.util.List;
 public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipleDevices<BaseDevice<BaseChannel,BaseLoadProfile<BaseChannel>,BaseRegister>> {
 
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
-    public static final PropertySpec<?> CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
 
     private final String callHomeID;
     private BaseDevice<?,?,?> device;
@@ -61,7 +64,7 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipl
         List<BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister>> allDevices = new ArrayList<>();
         List<DeviceFactory> deviceFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
         for (DeviceFactory deviceFactory : deviceFactories) {
-            allDevices.addAll(deviceFactory.findDevicesByNotInheritedProtocolProperty(CALL_HOME_ID_PROPERTY_SPEC, this.getIdentifier()));
+            allDevices.addAll(deviceFactory.findDevicesByNotInheritedProtocolProperty(new CallHomeIdPropertySpec(), this.getIdentifier()));
         }
         this.allDevices = allDevices;
     }
@@ -82,6 +85,43 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipl
             return Collections.emptyList();
         }
         return this.allDevices;
+    }
+
+    private class CallHomeIdPropertySpec implements PropertySpec<String> {
+        @Override
+        public String getName() {
+            return CALL_HOME_ID_PROPERTY_NAME;
+        }
+
+        @Override
+        public ValueFactory<String> getValueFactory() {
+            return new StringFactory();
+        }
+
+        @Override
+        public boolean isRequired() {
+            return false;
+        }
+
+        @Override
+        public boolean isReference() {
+            return false;
+        }
+
+        @Override
+        public boolean validateValue(String value) throws InvalidValueException {
+            return true;
+        }
+
+        @Override
+        public boolean validateValueIgnoreRequired(String value) throws InvalidValueException {
+            return true;
+        }
+
+        @Override
+        public PropertySpecPossibleValues<String> getPossibleValues() {
+            return null;
+        }
     }
 
 }
