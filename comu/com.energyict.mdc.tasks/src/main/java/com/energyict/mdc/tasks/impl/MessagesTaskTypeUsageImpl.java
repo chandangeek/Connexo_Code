@@ -1,7 +1,7 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.ProtocolTask;
 
 import com.elster.jupiter.orm.associations.Reference;
@@ -34,7 +34,7 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
 
     }
 
-    private final DeviceMessageService deviceMessageService;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private long id;
     private Reference<ProtocolTask> protocolTask = ValueReference.absent();
@@ -42,8 +42,8 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
     private DeviceMessageCategory deviceMessageCategory;
 
     @Inject
-    public MessagesTaskTypeUsageImpl(DeviceMessageService deviceMessageService) {
-        this.deviceMessageService = deviceMessageService;
+    public MessagesTaskTypeUsageImpl(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     MessagesTaskTypeUsageImpl initialize(ProtocolTask protocolTask, DeviceMessageCategory category) {
@@ -61,7 +61,7 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
     @Override
     public DeviceMessageCategory getDeviceMessageCategory() {
         if (this.deviceMessageCategory == null) {
-            this.deviceMessageCategory = this.deviceMessageService.findCategoryById(this.deviceMessageCategoryId).orElse(null);
+            this.deviceMessageCategory = this.deviceMessageSpecificationService.findCategoryById(this.deviceMessageCategoryId).orElse(null);
         }
         return this.deviceMessageCategory;
     }

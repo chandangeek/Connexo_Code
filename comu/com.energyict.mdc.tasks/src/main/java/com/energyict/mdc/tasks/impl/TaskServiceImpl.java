@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
@@ -43,19 +43,19 @@ public class TaskServiceImpl implements TaskService, InstallService {
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile MasterDataService masterDataService;
-    private volatile DeviceMessageService deviceMessageService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     public TaskServiceImpl() {
         super();
     }
 
     @Inject
-    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService, DeviceMessageService deviceMessageService) {
+    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setEventService(eventService);
-        this.setDeviceMessageService(deviceMessageService);
+        this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.activate();
         this.install();
     }
@@ -72,8 +72,8 @@ public class TaskServiceImpl implements TaskService, InstallService {
     }
 
     @Reference
-    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
-        this.deviceMessageService = deviceMessageService;
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Reference
@@ -120,7 +120,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(EventService.class).toInstance(eventService);
-                bind(DeviceMessageService.class).toInstance(deviceMessageService);
+                bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(TaskService.class).toInstance(TaskServiceImpl.this);
                 bind(ComTask.class).to(ComTaskImpl.class);
                 bind(BasicCheckTask.class).to(BasicCheckTaskImpl.class);

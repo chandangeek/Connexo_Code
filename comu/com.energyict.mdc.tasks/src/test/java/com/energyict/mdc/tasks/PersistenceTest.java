@@ -8,7 +8,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.mock;
 public class PersistenceTest {
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private static DeviceMessageService deviceMessageService;
+    private static DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -92,7 +92,7 @@ public class PersistenceTest {
             injector.getInstance(EventService.class); // fake call to make sure component is initialized
             injector.getInstance(MasterDataService.class); // fake call to make sure component is initialized
             injector.getInstance(TaskService.class); // fake call to make sure component is initialized
-            deviceMessageService = injector.getInstance(DeviceMessageService.class);
+            deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
             ctx.commit();
         }
     }
@@ -114,8 +114,8 @@ public class PersistenceTest {
         return injector.getInstance(MasterDataService.class);
     }
 
-    public final DeviceMessageService getDeviceMessageService() {
-        return deviceMessageService;
+    public final DeviceMessageSpecificationService getDeviceMessageService() {
+        return deviceMessageSpecificationService;
     }
 
     public final DataModel getDataModel(){
