@@ -70,6 +70,30 @@ class ThesaurusImpl implements Thesaurus {
     }
 
     @Override
+    public String getStringBeyondComponent(String key, String defaultMessage) {
+        if (translations.containsKey(key)) {
+            return translations.get(key).translate(getLocale()).orElse(defaultMessage);
+        }
+        Condition condition = Operator.EQUAL.compare("key", key);
+        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition).stream()
+                .findFirst()
+                .flatMap(k -> k.translate(getLocale()))
+                .orElse(defaultMessage);
+    }
+
+    @Override
+    public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
+        if (translations.containsKey(key)) {
+            return translations.get(key).translate(locale).orElse(defaultMessage);
+        }
+        Condition condition = Operator.EQUAL.compare("key", key);
+        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition).stream()
+                .findFirst()
+                .flatMap(k -> k.translate(locale))
+                .orElse(defaultMessage);
+    }
+
+    @Override
     public String getString(String key, String defaultMessage) {
         if (!translations.containsKey(key)) {
             initTranslations(component, layer);

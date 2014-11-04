@@ -19,7 +19,11 @@ public interface Thesaurus extends MessageInterpolator {
 	// It needs to honor the Locale (or LanguageTag) hierarchy.
 	//
 
-	String getString(String key, String defaultMessage);
+    String getStringBeyondComponent(String key, String defaultMessage);
+
+    String getStringBeyondComponent(Locale locale, String key, String defaultMessage);
+
+    String getString(String key, String defaultMessage);
 
     String getString(Locale locale, String key, String defaultMessage);
 
