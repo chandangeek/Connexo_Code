@@ -2,7 +2,6 @@ package com.elster.protocolimpl.dsfg.profile;
 
 import com.elster.protocolimpl.dsfg.telegram.DataElement;
 import com.energyict.protocol.IntervalData;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -114,7 +113,6 @@ public class IntervalDataMapTest {
 	}
 
     @Test
-    @Ignore("Test seems not to work, will be skipped until fixed by Elster Mainz")
     public void testBuildMap5() throws ParseException
     {
 
@@ -154,9 +152,9 @@ public class IntervalDataMapTest {
         String c = "Sat Oct 25 22:00:00 CEST 2014 0 0 Values: 10.0 0 0\n\r" +
         "Sat Oct 25 23:00:00 CEST 2014 0 0 Values: 20.0 0 021.0 0 0\n\r" +
         "Sun Oct 26 00:00:00 CEST 2014 0 0 Values: 30.0 0 031.0 0 0\n\r" +
-        "Sun Oct 26 01:00:00 CEST 2014 0 0 Values: null 0 041.0 0 0\n\r" +
-        "Sun Oct 26 02:00:00 CEST 2014 0 0 Values: null 0 051.0 0 0\n\r" +
-        "Sun Oct 26 02:00:00 CET 2014 0 0 Values: null 0 061.0 0 0\n\r";
+        "Sun Oct 26 01:00:00 CEST 2014 0 0 Values: 0.0 0 25641.0 0 0\n\r" +
+        "Sun Oct 26 02:00:00 CEST 2014 0 0 Values: 0.0 0 25651.0 0 0\n\r" +
+        "Sun Oct 26 02:00:00 CET 2014 0 0 Values: 0.0 0 25661.0 0 0\n\r";
 
         assertEquals(c, s);
     }
