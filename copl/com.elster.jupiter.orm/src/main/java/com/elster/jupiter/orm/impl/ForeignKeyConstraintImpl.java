@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Index;
 import com.elster.jupiter.orm.MappingException;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalAspect;
@@ -29,7 +28,8 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     private DeleteRule deleteRule;
     private String fieldName;
     private String reverseFieldName;
-    private Class<?>[] reverseEagers;
+    private Class<?>[] forwardEagers = new Class<?>[0];
+    private Class<?>[] reverseEagers = new Class<?>[0];
     private String reverseOrderFieldName;
     private String reverseCurrentFieldName;
     private boolean composition;
@@ -158,7 +158,10 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         Objects.requireNonNull(deleteRule);
         Objects.requireNonNull(fieldName);
         if (!deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
-            throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");
+            throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");        
+        }
+        if (getReferencedTable().isCached() && forwardEagers.length > 0) {
+         	throw new IllegalStateException("Table: " + getTable().getName() + " Do not specify eager mapping when referencing cached table " + getReferencedTable().getName());
         }
     }
 
@@ -243,7 +246,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         if (field != null && Reference.class.isAssignableFrom(field.getType())) {
             Class<?> api = DomainMapper.extractDomainClass(field);
             DataMapperImpl<?> dataMapper = getReferencedTable().getDataMapper(api);
-            Reference<?> reference = new PersistentReference<>(keyValue, dataMapper);
+            Reference<?> reference = new PersistentReference<>(keyValue, dataMapper, forwardEagers);
             try {
                 field.set(target, reference);
             } catch (ReflectiveOperationException ex) {
@@ -343,6 +346,16 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         }
 
         @Override
+        public Builder map(String field, Class<?> eager, Class<?> ...eagers) {
+            map(field);
+            Class<?>[] forwardEagers = new Class<?>[eagers.length + 1];
+            forwardEagers[0] = eager;
+            System.arraycopy(eagers, 0, forwardEagers, 1, eagers.length);
+            constraint.forwardEagers = forwardEagers;
+            return this;
+        }
+        
+        @Override
         public Builder references(String name) {
             TableImpl<?> referencedTable = constraint.getTable().getDataModel().getTable(name);
             if (referencedTable == null) {
@@ -359,13 +372,23 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
             return this;
         }
 
+
         @Override
-        public Builder reverseMap(String field, Class<?> ... eagers) {
+        public Builder reverseMap(String field) {
             if (constraint.getReferencedTable().getField(field) == null) {
                 throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable().getName() + " the referenced object does not have a field named " + field + ".");
             }
             constraint.reverseFieldName = field;
-            constraint.reverseEagers = eagers;
+            return this;
+        }
+        
+        @Override
+        public Builder reverseMap(String field, Class<?> eager, Class<?> ... eagers) {
+            reverseMap(field);
+            Class<?>[] reverseEagers = new Class<?>[eagers.length + 1];
+            reverseEagers[0] = eager;
+            System.arraycopy(eagers, 0, reverseEagers, 1, eagers.length);
+            constraint.reverseEagers = reverseEagers;
             return this;
         }
 

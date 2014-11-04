@@ -13,14 +13,16 @@ public interface ForeignKeyConstraint extends TableConstraint {
 	interface Builder {
 		Builder on(Column ... columns);
 		Builder map(String field);
+		Builder map(String field, Class<?> eager, Class<?>... eagers);
 		Builder onDelete(DeleteRule rule);
 		Builder references(String tableName);
 		Builder references(String componentName , String tableName);
-		Builder reverseMap(String field, Class<?> ... eagers);
+		Builder reverseMap(String field);
+		Builder reverseMap(String field, Class<?> eager, Class<?> ... eagers);
 		Builder reverseMapOrder(String field);
 		Builder reverseMapCurrent(String field);
 		Builder composition();
-		ForeignKeyConstraint add();
+		ForeignKeyConstraint add();		
 	}
 
 }

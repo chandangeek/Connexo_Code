@@ -11,12 +11,14 @@ import com.elster.jupiter.orm.impl.KeyValue;
 public class PersistentReference<T> implements Reference<T> {
 	
 	private final DataMapperImpl<T> dataMapper;
+	private final Class<?>[] eagers;
 	private KeyValue primaryKey;
 	private Optional<T> value;
 	
-	public PersistentReference(KeyValue primaryKey , DataMapperImpl<T> dataMapper) {
+	public PersistentReference(KeyValue primaryKey , DataMapperImpl<T> dataMapper, Class<?>[] eagers) {
 		this.primaryKey = primaryKey;
 		this.dataMapper = dataMapper;
+		this.eagers = eagers;
 	}
 	
 	@Override
@@ -32,7 +34,11 @@ public class PersistentReference<T> implements Reference<T> {
 	public Optional<T> getOptional() {
 		if (value == null) {
 			if (isPresent()) {
-				value = dataMapper.getOptional(primaryKey.getKey());
+				if (eagers.length == 0 || dataMapper.getTable().isCached()) {
+					value = dataMapper.getOptional(primaryKey.getKey());
+				} else {
+					value = dataMapper.query(eagers).getOptional(primaryKey.getKey());
+				}
 			} else {
 				value = Optional.empty();
 			} 
