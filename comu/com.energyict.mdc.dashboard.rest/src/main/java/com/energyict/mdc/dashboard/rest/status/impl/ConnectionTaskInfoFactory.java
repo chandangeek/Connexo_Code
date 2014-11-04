@@ -12,7 +12,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.protocols.mdc.ConnectionTypeRule;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import java.sql.Date;
 import java.time.Duration;
 import java.time.temporal.ChronoField;
@@ -27,10 +28,12 @@ public class ConnectionTaskInfoFactory {
     private static final ConnectionStrategyAdapter CONNECTION_STRATEGY_ADAPTER = new ConnectionStrategyAdapter();
 
     private final Thesaurus thesaurus;
+    private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public ConnectionTaskInfoFactory(Thesaurus thesaurus) {
+    public ConnectionTaskInfoFactory(Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService) {
         this.thesaurus = thesaurus;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     public ConnectionTaskInfo from(ConnectionTask<?, ?> connectionTask, Optional<ComSession> lastComSessionOptional) throws Exception {
@@ -65,7 +68,7 @@ public class ConnectionTaskInfoFactory {
         }
 
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),connectionTask.getConnectionType().getDirection().name());
-        info.connectionType = ConnectionTypeRule.getConnectionTypeName(connectionTask.getConnectionType().getClass()).orElse(null);
+        info.connectionType = connectionTask.getPluggableClass().getName();
         info.connectionMethod = new IdWithNameInfo();
         info.connectionMethod.id = connectionTask.getPartialConnectionTask().getId();
         info.connectionMethod.name = connectionTask.getPartialConnectionTask().getName();
