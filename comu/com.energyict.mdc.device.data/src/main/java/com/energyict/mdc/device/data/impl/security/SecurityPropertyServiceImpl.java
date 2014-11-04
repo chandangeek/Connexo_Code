@@ -61,6 +61,16 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         return defaultResult;
     }
 
+    @Override
+    public List<SecurityProperty> getSecurityPropertiesStatus(Device device, Instant when, SecurityPropertySet securityPropertySet) {
+        List<SecurityProperty> defaultResult = new ArrayList<>(0);
+        Optional<Relation> relation = this.findActiveProperties(device, securityPropertySet, when);
+        if (relation.isPresent()) {
+            return this.toSecurityProperties(relation.get(), device, securityPropertySet);
+        }
+        return defaultResult;
+    }
+
     public Optional<Relation> findActiveProperties(Device device, SecurityPropertySet securityPropertySet, Instant activeDate) {
         RelationType relationType = this.findSecurityPropertyRelationType(device);
         if (relationType != null) {
@@ -75,8 +85,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
             List<Relation> relations = relationType.findByFilter(searchFilter);
             if (relations.isEmpty()) {
                 return Optional.empty();
-            }
-            else {
+            } else {
                 for (Relation relation : relations) {
                     if (relation.getPeriod().contains(activeDate, Interval.EndpointBehavior.OPEN_CLOSED)) {
                         return Optional.of(relation);
@@ -84,8 +93,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
                 }
                 return null;
             }
-        }
-        else {
+        } else {
             // No RelationType means there are not security properties
             return Optional.empty();
         }
@@ -101,7 +109,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         List<SecurityProperty> properties = new ArrayList<>(propertySpecs.size());  // The maximum number of properties is defined by the number of specs
         for (PropertySpec propertySpec : propertySpecs) {
             Object propertyValue = relation.get(propertySpec.getName());
-            Boolean status = (Boolean)relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME);
+            Boolean status = (Boolean) relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME);
             if (propertyValue != null) {
                 properties.add(new SecurityPropertyImpl(device, securityPropertySet, propertySpec, propertyValue, relation.getPeriod(), status));
             }

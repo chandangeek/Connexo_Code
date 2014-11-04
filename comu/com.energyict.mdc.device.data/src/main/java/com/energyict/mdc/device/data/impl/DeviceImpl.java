@@ -1742,12 +1742,21 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public List<SecurityProperty> getSecurityPropertiesStatus(SecurityPropertySet securityPropertySet) {
+        return this.getSecurityPropertiesStatus(clock.instant(), securityPropertySet);
+    }
+
+    @Override
     public List<ProtocolDialectConfigurationProperties> getProtocolDialects() {
         return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
     }
 
     private List<SecurityProperty> getSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
         return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
+    }
+
+    private List<SecurityProperty> getSecurityPropertiesStatus(Instant when, SecurityPropertySet securityPropertySet) {
+        return this.securityPropertyService.getSecurityPropertiesStatus(this, when, securityPropertySet);
     }
 
     @Override

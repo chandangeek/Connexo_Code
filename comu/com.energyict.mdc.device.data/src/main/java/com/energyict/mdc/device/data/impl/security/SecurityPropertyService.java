@@ -28,6 +28,18 @@ public interface SecurityPropertyService {
     public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet);
 
     /**
+     * Gets the List of {@link SecurityProperty SecurityProperties}
+     * that have been created for the specified {@link Device}
+     * and that were active on the specified Date
+     * but without testing the userprivileges (to get the rigth status)
+     *
+     * @param device The Device
+     * @param securityPropertySet The SecurityPropertySet
+     * @return The List of SecurityProperties
+     */
+    public List<SecurityProperty> getSecurityPropertiesStatus(Device device, Instant when, SecurityPropertySet securityPropertySet);
+
+    /**
      * Tests if the {@link Device} has properties for the specified {@link SecurityPropertySet}
      * on the specified Date.
      *
