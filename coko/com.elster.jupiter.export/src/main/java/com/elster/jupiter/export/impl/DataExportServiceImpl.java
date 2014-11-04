@@ -170,7 +170,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     public final void deactivate() {
     }
 
-
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.DOMAIN);
     }
