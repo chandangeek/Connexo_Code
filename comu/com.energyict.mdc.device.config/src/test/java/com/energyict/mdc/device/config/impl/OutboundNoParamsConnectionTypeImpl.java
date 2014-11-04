@@ -11,4 +11,5 @@ public class OutboundNoParamsConnectionTypeImpl extends NoParamsConnectionType {
     public Direction getDirection() {
         return Direction.OUTBOUND;
     }
+
 }

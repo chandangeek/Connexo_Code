@@ -30,14 +30,10 @@ public class IpConnectionType implements ServerConnectionType {
     public static final String PORT_PROPERTY_NAME = "port";
     private static final int HASH_CODE = 35809; // Random prime number
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    public IpConnectionType() {
+    public IpConnectionType(PropertySpecService propertySpecService) {
         super();
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

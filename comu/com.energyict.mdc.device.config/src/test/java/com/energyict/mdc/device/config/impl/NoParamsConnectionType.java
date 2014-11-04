@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import java.util.Collections;
@@ -78,7 +78,4 @@ public abstract class NoParamsConnectionType implements ServerConnectionType {
         return obj instanceof NoParamsConnectionType || super.equals(obj);
     }
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-    }
 }

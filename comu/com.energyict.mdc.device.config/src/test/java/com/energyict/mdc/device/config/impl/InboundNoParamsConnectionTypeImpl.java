@@ -12,5 +12,4 @@ public class InboundNoParamsConnectionTypeImpl extends NoParamsConnectionType {
         return Direction.INBOUND;
     }
 
-
 }
