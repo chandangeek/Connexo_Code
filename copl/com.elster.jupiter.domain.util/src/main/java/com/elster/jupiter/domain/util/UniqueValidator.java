@@ -2,11 +2,12 @@ package com.elster.jupiter.domain.util;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.HashMap;
+import java.util.Map;
  
 class UniqueValidator implements ConstraintValidator<Unique, Object> {
 	@Inject
@@ -25,7 +26,13 @@ class UniqueValidator implements ConstraintValidator<Unique, Object> {
 		for (String field : fields) {
 			queryMap.put(field, mapper.getAttribute(in, field));
 		}
-		return mapper.find(queryMap).isEmpty();
-	}
+        boolean empty = mapper.find(queryMap).isEmpty();
+        if (!empty && fields.length == 1) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode(fields[0]).addConstraintViolation();
+        }
+        return empty;
+    }
 
 }
