@@ -7815,68 +7815,73 @@
 *[class*='x-panel-header-body-'] .x-box-inner .x-panel-header-text-container-large {
   line-height: 75px;
 }
+/* line 60, ../../sass/src/panel/Panel.scss */
+*[class*='x-panel-header-body-'] .x-box-inner .x-panel-header-text-container-medium {
+  line-height: 36px;
+}
 
-/* line 62, ../../sass/src/panel/Panel.scss */
-.x-panel-header-large-horizontal {
+/* line 67, ../../sass/src/panel/Panel.scss */
+.x-panel-header-large-horizontal,
+.x-panel-header-medium-horizontal {
   padding-bottom: 8px !important;
 }
 
-/* line 68, ../../sass/src/panel/Panel.scss */
+/* line 73, ../../sass/src/panel/Panel.scss */
 .x-panel-large {
   padding: 16px 0 0 0;
 }
 
-/* line 74, ../../sass/src/panel/Panel.scss */
+/* line 79, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed {
   overflow: visible;
 }
-/* line 77, ../../sass/src/panel/Panel.scss */
+/* line 82, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header {
   border-color: #71adc7;
   background: #71adc7;
 }
-/* line 80, ../../sass/src/panel/Panel.scss */
+/* line 85, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-panel-header-text-container {
   color: white;
 }
-/* line 84, ../../sass/src/panel/Panel.scss */
+/* line 89, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-btn-default-small {
   background-color: transparent;
 }
-/* line 90, ../../sass/src/panel/Panel.scss */
+/* line 95, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-btn-default-small-menu-active,
 .x-panel-default-framed .x-panel-header .x-btn-default-small-focus,
 .x-panel-default-framed .x-panel-header .x-btn-default-small-over {
   background-color: #1e7d9e;
 }
-/* line 94, ../../sass/src/panel/Panel.scss */
+/* line 99, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header-top {
   padding: 4px 4px 4px 16px;
 }
-/* line 97, ../../sass/src/panel/Panel.scss */
+/* line 102, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel {
   padding: 0;
 }
 
-/* line 103, ../../sass/src/panel/Panel.scss */
+/* line 108, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text {
   float: none;
   color: #686868;
   clear: both;
   display: block;
 }
-/* line 109, ../../sass/src/panel/Panel.scss */
+/* line 114, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-medium {
   font-size: 20px;
   line-height: 20px;
 }
-/* line 113, ../../sass/src/panel/Panel.scss */
+/* line 118, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-large {
   font-size: 30px;
   line-height: 20px;
 }
 
-/* line 119, ../../sass/src/panel/Panel.scss */
+/* line 124, ../../sass/src/panel/Panel.scss */
 .x-panel-filter {
   background-color: #ebebeb;
   -webkit-border-radius: 10px;
@@ -7885,26 +7890,26 @@
   -o-border-radius: 10px;
   border-radius: 10px;
 }
-/* line 123, ../../sass/src/panel/Panel.scss */
+/* line 128, ../../sass/src/panel/Panel.scss */
 .x-panel-filter .x-panel-body {
   background: transparent;
 }
 
-/* line 128, ../../sass/src/panel/Panel.scss */
+/* line 133, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar {
   padding: 8px 0;
 }
-/* line 130, ../../sass/src/panel/Panel.scss */
+/* line 135, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-header-text-container {
   width: 64px;
   color: #686868;
   font-weight: bold;
 }
-/* line 135, ../../sass/src/panel/Panel.scss */
+/* line 140, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-box-item {
   margin-right: 8px;
 }
-/* line 138, ../../sass/src/panel/Panel.scss */
+/* line 143, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
@@ -10023,12 +10028,12 @@
   border-width: 1px !important;
 }
 
-/* line 161, ../../sass/src/panel/Panel.scss */
+/* line 166, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
 
-/* line 165, ../../sass/src/panel/Panel.scss */
+/* line 170, ../../sass/src/panel/Panel.scss */
 *[class*='x-panel-'].no-side-padding {
   padding-right: 0;
   padding-left: 0;
@@ -17343,14 +17348,4 @@ div.x-form-spinner-down {
 /* line 315, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-notification-success-collapsed-bottom-tl {
   background-position: 0 -16px;
-}
-
-/* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-notification-success-collapsed-bottom-tr {
-  background-position: right -24px;
-}
-
-/* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-notification-success-collapsed-bottom-bl {
-  background-position: 0 -32px;
 }
