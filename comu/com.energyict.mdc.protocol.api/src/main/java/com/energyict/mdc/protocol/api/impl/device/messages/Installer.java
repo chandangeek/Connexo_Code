@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleNlsKey;
@@ -13,7 +13,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
- * Executes the required installation steps on behalf of the {@link DeviceMessageServiceImpl}.
+ * Executes the required installation steps on behalf of the {@link DeviceMessageSpecificationServiceImpl}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (14:40)
@@ -73,7 +73,7 @@ public class Installer {
 
     private Translation toTranslation(DeviceMessageCategories deviceMessageCategory) {
         return this.toTranslation(
-                SimpleNlsKey.key(DeviceMessageService.COMPONENT_NAME, Layer.DOMAIN, deviceMessageCategory.getNameResourceKey()),
+                SimpleNlsKey.key(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN, deviceMessageCategory.getNameResourceKey()),
                 Locale.ENGLISH,
                 deviceMessageCategory.defaultTranslation());
     }
@@ -87,7 +87,7 @@ public class Installer {
 
     private Translation toTranslation(DeviceMessageSpecEnum deviceMessageSpecEnum) {
         return this.toTranslation(
-                SimpleNlsKey.key(DeviceMessageService.COMPONENT_NAME, Layer.DOMAIN, deviceMessageSpecEnum.getNameResourceKey()),
+                SimpleNlsKey.key(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN, deviceMessageSpecEnum.getNameResourceKey()),
                 Locale.ENGLISH,
                 deviceMessageSpecEnum.defaultTranslation());
     }

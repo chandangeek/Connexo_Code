@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import com.elster.jupiter.nls.Layer;
@@ -20,26 +20,26 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link DeviceMessageService} interface.
+ * Provides an implementation for the {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (13:33)
  */
-@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageService.class, InstallService.class}, property = "name=" + DeviceMessageService.COMPONENT_NAME, immediate = true)
-public class DeviceMessageServiceImpl implements DeviceMessageService, InstallService {
+@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageSpecificationService.class, InstallService.class}, property = "name=" + DeviceMessageSpecificationService.COMPONENT_NAME, immediate = true)
+public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpecificationService, InstallService {
 
     private volatile PropertySpecService propertySpecService;
     private Thesaurus thesaurus;
 
     // For OSGi
     @SuppressWarnings("unused")
-    public DeviceMessageServiceImpl() {
+    public DeviceMessageSpecificationServiceImpl() {
         super();
     }
 
     // For unit testing purposes
     @Inject
-    public DeviceMessageServiceImpl(PropertySpecService propertySpecService, NlsService nlsService) {
+    public DeviceMessageSpecificationServiceImpl(PropertySpecService propertySpecService, NlsService nlsService) {
         super();
         this.setPropertySpecService(propertySpecService);
         this.setNlsService(nlsService);
@@ -55,7 +55,7 @@ public class DeviceMessageServiceImpl implements DeviceMessageService, InstallSe
     @Reference
     @SuppressWarnings("unused")
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DeviceMessageService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Override

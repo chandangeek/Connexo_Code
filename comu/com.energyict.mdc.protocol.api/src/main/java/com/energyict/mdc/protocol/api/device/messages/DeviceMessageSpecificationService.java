@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Provides services for {@link DeviceMessageCategory DeviceMessageCategories}.
+ * Provides functionality for DeviceMessage
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (13:30)
  */
-public interface DeviceMessageService {
+public interface DeviceMessageSpecificationService {
 
     public static final String COMPONENT_NAME = "DMC";
 
