@@ -5,25 +5,31 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.impl.i18n.TranslationInstaller;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-@Component(name = "com.jupiter.time.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/tmr", "name=" + TimeApplication.COMPONENT_NAME})
+@Component(name = "com.jupiter.time.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/tmr", "name=" + TimeApplication.COMPONENT_NAME})
 public class TimeApplication extends Application implements InstallService {
     public static final String COMPONENT_NAME = "TMR";
 
@@ -37,8 +43,6 @@ public class TimeApplication extends Application implements InstallService {
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
-                ExceptionLogger.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
@@ -72,6 +76,7 @@ public class TimeApplication extends Application implements InstallService {
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
@@ -108,6 +113,7 @@ public class TimeApplication extends Application implements InstallService {
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(restQueryService).to(RestQueryService.class);
         }
     }
 }
