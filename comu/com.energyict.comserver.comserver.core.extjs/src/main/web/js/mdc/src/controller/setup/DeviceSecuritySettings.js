@@ -69,9 +69,6 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getDeviceSecuritySettingGrid().getSelectionModel().doSelect(0);
-                        if (!securitySettingsOfDeviceStore.first().get('userHasEditPrivilege')) {
-                            widget.down('uni-actioncolumn').hide();
-                        }
                     }
                 });
             }
