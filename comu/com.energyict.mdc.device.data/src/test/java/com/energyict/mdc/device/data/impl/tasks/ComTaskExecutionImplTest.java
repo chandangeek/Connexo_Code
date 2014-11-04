@@ -369,6 +369,31 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
+    public void clearingDefaultFlagOnConnectionTaskClearsTheConnectionTaskOnTheComTaskExecutionTest() {
+        boolean useDefaultTrue = true;
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "dcf", "dcf");
+        device.save();
+        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
+        comTaskExecutionBuilder.useDefaultConnectionTask(useDefaultTrue);
+        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        ComTaskExecution reloadedComTaskExecution = reloadedDevice.getComTaskExecutions().get(0);
+        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+
+        inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(device);
+        Device finalReloadedDevice = getReloadedDevice(device);
+        ComTaskExecution comTaskExecutionWithoutAConnectionTask = finalReloadedDevice.getComTaskExecutions().get(0);
+
+        assertThat(comTaskExecutionWithoutAConnectionTask.getConnectionTask()).isNull();
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
     public void setNotToUseDefaultAndNoConnectionTaskSetTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);

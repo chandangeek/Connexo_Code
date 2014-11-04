@@ -26,11 +26,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
@@ -44,6 +40,7 @@ import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -1033,6 +1030,51 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "MySimpleName", "BlaBla");
         device.save();
+    }
+
+    @Test
+    @Transactional
+    public void testGatewayTypeMethodsForHAN() {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.HOME_AREA_NETWORK);
+        DeviceConfiguration deviceConfiguration = config.add();
+        deviceConfiguration.activate();
+        deviceType.save();
+
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "name", "description");
+        device.save();
+
+        assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.HOME_AREA_NETWORK);
+    }
+
+    @Test
+    @Transactional
+    public void testGatewayTypeMethodsForLAN() {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.LOCAL_AREA_NETWORK);
+        DeviceConfiguration deviceConfiguration = config.add();
+        deviceConfiguration.activate();
+        deviceType.save();
+
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "name", "description");
+        device.save();
+
+        assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
+    }
+
+    @Test
+    @Transactional
+    public void testGatewayTypeMethodsForNonConcentrator() {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config");
+        DeviceConfiguration deviceConfiguration = config.add();
+        deviceConfiguration.activate();
+        deviceType.save();
+
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "name", "description");
+        device.save();
+
+        assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.NONE);
     }
 
     private ComSchedule createComSchedule(String mRIDAndName) {

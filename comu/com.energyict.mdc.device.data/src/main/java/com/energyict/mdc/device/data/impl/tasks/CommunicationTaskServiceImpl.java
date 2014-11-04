@@ -49,17 +49,6 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Interval;
 import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
 
@@ -358,7 +347,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask) {
-        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(device, defaultConnectionTask);
+        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopology(device);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTask);
@@ -372,24 +361,22 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
      * but are not linked yet to the given Default connectionTask
      *
      * @param device         the Device for which we need to search the ComTaskExecution
-     * @param connectionTask the 'new' default ConnectionTask
      * @return The List of ComTaskExecution
      */
-    private List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopologyButNotLinkedYet(Device device, ConnectionTask connectionTask) {
+    private List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopology(Device device) {
         List<ComTaskExecution> scheduledComTasks = new ArrayList<>();
-        this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks, connectionTask);
+        this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks);
         return scheduledComTasks;
     }
 
-    private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionTask connectionTask) {
+    private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks) {
         Condition query = where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
-                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
-                        .and((where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNull())
-                                .or(where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isNotEqual(connectionTask))));
+                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         List<ComTaskExecution> comTaskExecutions = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(query);
         scheduledComTasks.addAll(comTaskExecutions);
         for (Device slave : device.getPhysicalConnectedDevices()) {
-            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks, connectionTask);
+            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks);
         }
     }
 
