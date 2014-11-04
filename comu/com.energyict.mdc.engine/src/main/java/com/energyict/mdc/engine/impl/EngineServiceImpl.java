@@ -35,7 +35,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.mdc.io.SocketService;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;

@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 
-import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.mdc.io.SocketService;
 
 import java.util.concurrent.ThreadFactory;
 

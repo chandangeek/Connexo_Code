@@ -14,7 +14,7 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.protocols.impl.channels.VoidComChannel;
-import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.mdc.io.SocketService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -71,7 +71,7 @@ public class SingleThreadedComPortListenerTest {
         this.serviceProvider.setSocketService(this.socketService);
         this.serviceProvider.setClock(Clock.systemDefaultZone());
         ServiceProvider.instance.set(this.serviceProvider);
-        when(this.socketService.newTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
+        when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
     }
 

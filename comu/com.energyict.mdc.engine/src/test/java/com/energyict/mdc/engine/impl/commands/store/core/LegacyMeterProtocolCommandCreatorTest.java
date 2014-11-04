@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import java.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -26,29 +25,30 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.io.impl.SerialComChannelImpl;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.ServerSerialPort;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.logging.Logger;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.logging.Logger;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva
@@ -123,7 +123,7 @@ public class LegacyMeterProtocolCommandCreatorTest {
         CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider));
 
         ServerSerialPort serverSerialPort = mock(ServerSerialPort.class);
-        SerialComChannel serialComChannel = mock(SerialComChannelImpl.class);
+        SerialComChannel serialComChannel = mock(SerialComChannel.class);
         when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);

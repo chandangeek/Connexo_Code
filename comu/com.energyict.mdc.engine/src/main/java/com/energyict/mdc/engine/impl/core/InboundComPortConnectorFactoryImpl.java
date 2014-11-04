@@ -11,7 +11,7 @@ import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.services.HexService;
 
-import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.mdc.io.SocketService;
 
 /**
  * Provides an implementation for the {@link InboundComPortConnectorFactory} interface.

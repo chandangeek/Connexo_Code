@@ -3,11 +3,10 @@ package com.energyict.mdc.engine.impl.core.inbound;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.protocols.impl.channels.ip.datagrams.InboundUdpSession;
-import com.energyict.protocols.mdc.services.SocketService;
-
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
+import com.energyict.mdc.io.InboundUdpSession;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 /**
@@ -28,7 +27,7 @@ public class UDPPortConnector implements InboundComPortConnector {
         super();
         this.comPort = comPort;
         this.hexService = hexService;
-        this.inboundUdpSession = new InboundUdpSession(comPort.getBufferSize(), comPort.getPortNumber(), socketService);
+        this.inboundUdpSession = socketService.newInboundUdpSession(comPort.getBufferSize(), comPort.getPortNumber());
     }
 
     @Override

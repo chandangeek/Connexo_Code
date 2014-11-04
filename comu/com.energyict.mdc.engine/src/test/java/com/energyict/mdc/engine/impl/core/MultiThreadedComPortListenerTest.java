@@ -15,7 +15,7 @@ import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.protocols.impl.channels.VoidComChannel;
-import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.mdc.io.SocketService;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -71,7 +71,7 @@ public class MultiThreadedComPortListenerTest {
         this.serviceProvider.setSocketService(this.socketService);
         this.serviceProvider.setClock(Clock.systemDefaultZone());
         ServiceProvider.instance.set(this.serviceProvider);
-        when(this.socketService.newTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
+        when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
     }
 
@@ -169,8 +169,8 @@ public class MultiThreadedComPortListenerTest {
                     this.deviceCommandExecutor,
                     threadFactory,
                     inboundComPortExecutorFactory,
-                    inboundComPortConnectorFactory,
-                    this.serviceProvider));
+                    inboundComPortConnectorFactory
+            ));
             // business method
             multiThreadedComPortListener.start();
 
@@ -218,8 +218,8 @@ public class MultiThreadedComPortListenerTest {
                     this.deviceCommandExecutor,
                     threadFactory,
                     inboundComPortExecutorFactory,
-                    inboundComPortConnectorFactory,
-                    this.serviceProvider));
+                    inboundComPortConnectorFactory
+            ));
             // business method
             multiThreadedComPortListener.start();
 
@@ -496,7 +496,7 @@ public class MultiThreadedComPortListenerTest {
         private CountDownLatch counter;
 
         protected LatchDrivenMultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, InboundComPortConnectorFactory inboundComPortConnectorFactory, ServiceProvider serviceProvider) {
-            super(comPort, comServerDAO, deviceCommandExecutor, threadFactory, inboundComPortExecutorFactory, inboundComPortConnectorFactory, serviceProvider);
+            super(comPort, comServerDAO, deviceCommandExecutor, threadFactory, inboundComPortExecutorFactory, inboundComPortConnectorFactory);
         }
 
         public void setCounter(CountDownLatch counter) {

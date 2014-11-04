@@ -1,26 +1,16 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import java.time.Clock;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
+import com.energyict.mdc.io.InboundCommunicationException;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.io.impl.MessageSeeds;
+import com.energyict.mdc.io.impl.SocketServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.protocols.mdc.services.SocketService;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.mdc.services.impl.SocketServiceImpl;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -28,15 +18,28 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link UDPPortConnector} component
@@ -95,7 +98,7 @@ public class UDPPortConnectorTest {
 
     @Before
     public void initializeMocksAndFactories() throws IOException {
-        when(this.socketService.newUDPSocket(anyInt())).thenReturn(this.datagramSocket);
+        when(this.socketService.newInboundUDPSocket(anyInt())).thenReturn(this.datagramSocket);
         ArgumentCaptor<DatagramPacket> datagramPacketArgumentCaptor = ArgumentCaptor.forClass(DatagramPacket.class);
         doAnswer(new Answer() {
             @Override
@@ -142,7 +145,7 @@ public class UDPPortConnectorTest {
 
     @Test(timeout = 1000, expected = InboundCommunicationException.class)
     public void testConstructorFailure() throws InboundCommunicationException, SocketException {
-        doThrow(new SocketException("Something fishy happened for testing purposes")).when(this.socketService).newUDPSocket(anyInt());
+        doThrow(new SocketException("Something fishy happened for testing purposes")).when(this.socketService).newInboundUDPSocket(anyInt());
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
 

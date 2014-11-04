@@ -7,10 +7,10 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
+import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.protocol.api.services.HexService;
 
-import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.mdc.io.SocketService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -39,7 +39,7 @@ public class TCPPortConnector implements InboundComPortConnector {
         this.hexService = hexService;
         this.socketService = socketService;
         try {
-            this.serverSocket = socketService.newTCPSocket(comPort.getPortNumber());
+            this.serverSocket = socketService.newInboundTCPSocket(comPort.getPortNumber());
         }
         catch (IOException e) {
             throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);

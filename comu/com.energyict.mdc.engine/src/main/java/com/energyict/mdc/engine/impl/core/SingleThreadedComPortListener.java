@@ -5,8 +5,6 @@ import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactor
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.engine.model.InboundComPort;
 
-import com.energyict.protocols.impl.channels.VoidComChannel;
-
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -63,9 +61,7 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
     @Override
     protected void doRun() {
         ComPortRelatedComChannel comChannel = listen();
-        if (!(comChannel.getActualComChannel() instanceof VoidComChannel)) {
-            handleInboundDeviceProtocol(comChannel);
-        }
+        handleInboundDeviceProtocol(comChannel);
         /*
        Else no accept within the configured TimeOut, but this allows us to check for any changes
         */

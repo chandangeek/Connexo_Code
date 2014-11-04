@@ -1,10 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
-
-import com.energyict.mdc.io.impl.AbstractComChannel;
-
-import java.io.IOException;
 
 /**
  * Provides an implementation for the {@link ComChannel} interface
@@ -13,27 +10,9 @@ import java.io.IOException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-19 (10:42)
  */
-public class SystemOutComChannel extends AbstractComChannel {
+public class SystemOutComChannel implements ComChannel {
 
-    @Override
-    public boolean doStartReading () {
-        return true;
-    }
-
-    @Override
-    public int doRead () {
-        return 0;
-    }
-
-    @Override
-    public int doRead (byte[] buffer) {
-        return 0;
-    }
-
-    @Override
-    public int doRead (byte[] buffer, int offset, int length) {
-        return 0;
-    }
+    private TypedProperties connectionTaskProperties = TypedProperties.empty();
 
     @Override
     public int available () {
@@ -41,30 +20,60 @@ public class SystemOutComChannel extends AbstractComChannel {
     }
 
     @Override
-    public boolean doStartWriting () {
+    public final void close () {
+        // nothing to do
+    }
+
+    @Override
+    public final void flush () {
+        // nothing to do
+    }
+
+    @Override
+    public final boolean startReading () {
         return true;
     }
 
     @Override
-    public int doWrite (int b) {
+    public final int read () {
+        return 0;
+    }
+
+    @Override
+    public final int read (byte[] buffer) {
+        return 0;
+    }
+
+    @Override
+    public final int read (byte[] buffer, int offset, int length) {
+        return 0;
+    }
+
+    @Override
+    public final boolean startWriting () {
+        return true;
+    }
+
+    @Override
+    public final int write (int b) {
         System.out.println(b);
         return 1;
     }
 
     @Override
-    public int doWrite (byte[] bytes) {
+    public final int write (byte[] bytes) {
         System.out.println(new String(bytes));
         return bytes.length;
     }
 
     @Override
-    public void doClose () {
-        // nothing to do
+    public TypedProperties getProperties() {
+        return this.connectionTaskProperties;
     }
 
     @Override
-    public void doFlush() throws IOException {
-        // nothing to do
+    public void addProperties(TypedProperties typedProperties) {
+        this.connectionTaskProperties.setAllProperties(typedProperties);
     }
 
 }

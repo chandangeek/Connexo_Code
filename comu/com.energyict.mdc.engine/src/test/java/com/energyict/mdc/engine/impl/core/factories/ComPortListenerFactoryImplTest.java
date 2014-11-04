@@ -16,7 +16,7 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.issues.IssueService;
 
-import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.mdc.io.SocketService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -54,7 +54,7 @@ public class ComPortListenerFactoryImplTest {
     @Before
     public void setUpServiceProvider () throws IOException {
         this.serviceProvider.setIssueService(mock(IssueService.class));
-        when(this.socketService.newTCPSocket(anyInt())).thenReturn(this.serverSocket);
+        when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(this.serverSocket);
         this.serviceProvider.setSocketService(this.socketService);
         this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
     }

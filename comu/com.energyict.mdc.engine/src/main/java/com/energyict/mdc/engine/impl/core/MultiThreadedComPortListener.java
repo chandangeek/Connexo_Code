@@ -7,8 +7,6 @@ import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactor
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.engine.model.InboundComPort;
 
-import com.energyict.protocols.impl.channels.VoidComChannel;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -25,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 public class MultiThreadedComPortListener extends ComChannelBasedComPortListenerImpl {
 
     private static final TimeDuration RESOURCE_FREE_TIMEOUT = new TimeDuration(5, TimeDuration.TimeUnit.SECONDS);
-    private final com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider;
 
     private ResourceManager resourceManager;
     private ExecutorService executorService;
@@ -49,17 +46,16 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
                 new InboundComPortConnectorFactoryImpl(
                         serviceProvider.serialAtComponentService(),
                         serviceProvider.socketService(),
-                        serviceProvider.hexService()),
-                serviceProvider);
+                        serviceProvider.hexService())
+        );
     }
 
-    protected MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, InboundComPortConnectorFactory inboundComPortConnectorFactory, ServiceProvider serviceProvider) {
+    protected MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, InboundComPortConnectorFactory inboundComPortConnectorFactory) {
         super(comPort,
                 comServerDAO,
                 inboundComPortConnectorFactory,
                 threadFactory,
                 deviceCommandExecutor);
-        this.serviceProvider = serviceProvider;
         this.setThreadName("MultiThreaded listener for inbound ComPort " + comPort.getName());
         this.numberOfThreads = getComPort().getNumberOfSimultaneousConnections();
         this.resourceManager = new ResourceManager(getComPort().getNumberOfSimultaneousConnections());
@@ -104,12 +100,9 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
 
     @Override
     protected void doRun() {
-
         if (prepareExecution()) {
             ComPortRelatedComChannel comChannel = listen();
-            if (!(comChannel instanceof VoidComChannel)) {
-                this.executorService.execute(new Worker(this.inboundComPortExecutorFactory.create(getComPort(), getComServerDAO(), getDeviceCommandExecutor()), comChannel));
-            }
+            this.executorService.execute(new Worker(this.inboundComPortExecutorFactory.create(getComPort(), getComServerDAO(), getDeviceCommandExecutor()), comChannel));
         } else {
             waitForFreeResources();
         }

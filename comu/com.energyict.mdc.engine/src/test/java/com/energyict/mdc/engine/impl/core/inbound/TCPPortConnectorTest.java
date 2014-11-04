@@ -4,10 +4,10 @@ import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
+import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.protocol.api.services.HexService;
 
-import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.mdc.io.SocketService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -51,7 +51,7 @@ public class TCPPortConnectorTest {
     @Before
     public void initializeMocksAndFactories() throws IOException {
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(this.comChannel);
-        when(this.socketService.newTCPSocket(anyInt())).thenReturn(this.serverSocket);
+        when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(this.serverSocket);
     }
 
     private TCPBasedInboundComPort createTCPBasedInboundComPort() {
@@ -83,7 +83,7 @@ public class TCPPortConnectorTest {
     public void testConstructorFailure() throws IOException, InboundCommunicationException {
         doThrow(new IOException("Something fishy happened for testing purposes")).
                 when(this.socketService).
-                newTCPSocket(anyInt());
+                newInboundTCPSocket(anyInt());
 
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 

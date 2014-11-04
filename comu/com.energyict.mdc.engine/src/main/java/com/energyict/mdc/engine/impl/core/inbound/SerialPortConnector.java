@@ -14,7 +14,6 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.SerialPortException;
 import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.io.impl.SioSerialPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.services.HexService;
 
@@ -116,7 +115,7 @@ public class SerialPortConnector implements InboundComPortConnector {
 
     /**
      * Creates a new {@link ComChannel}
-     * that uses a {@link SioSerialPort} as the interface with the physical ComPort
+     * that uses a {@link ServerSerialPort} as the interface with the physical ComPort
      *
      * @param serialPortConfiguration the configuration of the serialPort
      * @return the ComChannel
