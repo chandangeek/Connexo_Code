@@ -119,9 +119,7 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
         try {
             // Attempt to load the class to verify that this class is managed by this bundle
             Class<?> connectionTypeClass = getClass().getClassLoader().loadClass(javaClassName);
-            ServerConnectionType connectionType = (ServerConnectionType) this.injector.getInstance(connectionTypeClass);
-            connectionType.setPropertySpecService(this.propertySpecService);
-            return connectionType;
+            return (ServerConnectionType) this.injector.getInstance(connectionTypeClass);
         }
         catch (ClassNotFoundException | ConfigurationException | ProvisionException e) {
             throw new UnableToCreateConnectionType(e, javaClassName);

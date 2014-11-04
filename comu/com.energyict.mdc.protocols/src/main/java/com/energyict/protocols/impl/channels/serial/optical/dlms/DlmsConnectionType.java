@@ -43,12 +43,6 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
         return actualConnectionType;
     }
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        super.setPropertySpecService(propertySpecService);
-        this.actualConnectionType.setPropertySpecService(propertySpecService);
-    }
-
     abstract PropertySpec getAddressingModePropertySpec();
 
     final PropertySpec getAddressingModePropertySpec(boolean required) {
