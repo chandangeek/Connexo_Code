@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.devicesearch.BulkSelectionDevicesGrid', {
     initComponent: function () {
         var me = this;
 
-        me.store = Ext.getStore(me.store) || Ext.create(me.store);
+        //me.store = Ext.getStore(me.store) || Ext.create(me.store);
 
         me.columns = [
             {
