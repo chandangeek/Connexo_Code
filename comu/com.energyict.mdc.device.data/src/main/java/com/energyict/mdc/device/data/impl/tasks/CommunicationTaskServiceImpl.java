@@ -347,7 +347,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask) {
-        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopology(device, defaultConnectionTask);
+        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopology(device);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTask);
@@ -361,22 +361,22 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
      * but are not linked yet to the given Default connectionTask
      *
      * @param device         the Device for which we need to search the ComTaskExecution
-     * @param connectionTask the 'new' default ConnectionTask
      * @return The List of ComTaskExecution
      */
-    private List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopology(Device device, ConnectionTask connectionTask) {
+    private List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopology(Device device) {
         List<ComTaskExecution> scheduledComTasks = new ArrayList<>();
-        this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks, connectionTask);
+        this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks);
         return scheduledComTasks;
     }
 
-    private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionTask connectionTask) {
+    private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks) {
         Condition query = where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
-                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device));
+                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         List<ComTaskExecution> comTaskExecutions = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(query);
         scheduledComTasks.addAll(comTaskExecutions);
         for (Device slave : device.getPhysicalConnectedDevices()) {
-            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks, connectionTask);
+            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks);
         }
     }
 
