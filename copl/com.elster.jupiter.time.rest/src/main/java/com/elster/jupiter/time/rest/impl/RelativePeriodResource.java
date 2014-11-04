@@ -68,7 +68,7 @@ public class RelativePeriodResource {
         RestQuery<? extends RelativePeriod> restQuery = restQueryService.wrap(query);
         List<? extends RelativePeriod> relativePeriods = restQuery.select(queryParameters, Order.ascending("upper(name)"));
         relativePeriods.sort((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()));
-        RelativePeriodInfos relativePeriodInfos = new RelativePeriodInfos(relativePeriods);
+        RelativePeriodInfos relativePeriodInfos = new RelativePeriodInfos(relativePeriods, thesaurus);
         relativePeriodInfos.total = queryParameters.determineTotal(relativePeriods.size());
 
         return relativePeriodInfos;

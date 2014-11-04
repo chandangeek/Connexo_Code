@@ -1,5 +1,6 @@
 package com.elster.jupiter.time.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriod;
 
 import java.util.ArrayList;
@@ -18,8 +19,8 @@ public class RelativePeriodInfos {
     public RelativePeriodInfos() {
     }
 
-    public RelativePeriodInfos(List<? extends RelativePeriod> periods) {
-        periods.stream().forEach(rp -> data.add(new RelativePeriodInfo(rp)));
+    public RelativePeriodInfos(List<? extends RelativePeriod> periods, Thesaurus thesaurus) {
+        periods.stream().forEach(rp -> data.add(new RelativePeriodInfo(rp, thesaurus)));
     }
 }
 
