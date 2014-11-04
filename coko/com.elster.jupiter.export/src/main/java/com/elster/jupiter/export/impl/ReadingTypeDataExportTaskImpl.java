@@ -22,7 +22,6 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -120,7 +119,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public Map<String, Object> getProperties() {
         return properties.stream()
-            .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
+                .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
     }
 
     @Override
@@ -130,7 +129,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public List<? extends DataExportOccurrence> getOccurrences(Range<Instant> interval) {
-        return Collections.emptyList(); // TODO
+        return dataModel.mapper(DataExportOccurrenceImpl.class).find("readingTask", this);
+    }
+
+    RecurrentTask getRecurrentTask() {
+        return recurrentTask.get();
     }
 
     @Override

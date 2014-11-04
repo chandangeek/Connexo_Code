@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -74,6 +75,25 @@ enum TableSpecs {
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
             table.foreignKey("DES_FK_PRPINET_RTEXPORTTASK").on(taskColumn).references(DES_RTDATAEXPORTTASK.name()).map("task").reverseMap("properties").onDelete(DeleteRule.CASCADE).composition().add();
             table.primaryKey("DES_PK_RTETPROPERTY").on(taskColumn, nameColumn).add();
+        }
+    },
+    DES_OCCURRENCE(DataExportOccurrence.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(DataExportOccurrenceImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
+            Column task = table.column("RTEXPORTTASK").number().notNull().add();
+            table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
+            table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
+            table.addIntervalColumns("exportedDataInterval");
+            table.column("INTERVALENDPTBEHAVIOUR").number().conversion(ColumnConversion.NUMBER2ENUM).map("exportedDataBoundaryType").add();
+            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
+
+            table.primaryKey("DES_PK_EXPOCC").on(idColumn).add();
+            table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE").map("taskOccurrence").onDelete(DeleteRule.RESTRICT).add();
+            table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_RTDATAEXPORTTASK.name()).map("readingTask").onDelete(DeleteRule.RESTRICT).add();
+
         }
     };
 

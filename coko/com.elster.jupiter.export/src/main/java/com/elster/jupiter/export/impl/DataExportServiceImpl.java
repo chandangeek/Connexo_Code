@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataProcessor;
@@ -19,6 +20,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.google.inject.AbstractModule;
@@ -204,5 +207,15 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Override
+    public DataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
+        IReadingTypeDataExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
+        return DataExportOccurrenceImpl.from(dataModel, taskOccurrence, task);
+    }
+
+    private Optional<IReadingTypeDataExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
+        return dataModel.mapper(IReadingTypeDataExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
 }
