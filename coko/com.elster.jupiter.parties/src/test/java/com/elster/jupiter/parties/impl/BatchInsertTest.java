@@ -108,6 +108,11 @@ public class BatchInsertTest {
         	assertThat(person.getId()).isEqualTo(2);
         	assertThat(organization.getVersion()).isEqualTo(1);
         	assertThat(person.getVersion()).isEqualTo(1);
+        	organization.setDescription("xyz");
+        	person.setDescription("abc");
+        	dataModel.mapper(Party.class).update(parties);
+        	assertThat(organization.getVersion()).isEqualTo(2);
+        	assertThat(person.getVersion()).isEqualTo(2);
         	context.commit();
         }
     }
