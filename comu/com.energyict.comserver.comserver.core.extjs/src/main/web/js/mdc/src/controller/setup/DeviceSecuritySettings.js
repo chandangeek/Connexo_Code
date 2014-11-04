@@ -69,7 +69,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getDeviceSecuritySettingGrid().getSelectionModel().doSelect(0);
-                        if (!securitySettingsOfDeviceStore.first().get('userHasEditPrivilege')){
+                        if (!securitySettingsOfDeviceStore.first().get('userHasEditPrivilege')) {
                             widget.down('uni-actioncolumn').hide();
                         }
                     }
@@ -96,8 +96,10 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                 } else {
                     me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
                 }
-                if (!deviceSecuritySetting[0].get('userHasEditPrivilege')){
+                if (!deviceSecuritySetting[0].get('userHasEditPrivilege')) {
                     me.getDeviceSecuritySettingPreview().getHeader().down('button').hide();
+                } else {
+                    me.getDeviceSecuritySettingPreview().getHeader().down('button').setVisible(true);
                 }
             } else {
                 me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
@@ -160,7 +162,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         });
                     } else {
                         me.getDeviceSecuritySettingEditForm().getForm().markInvalid(json.errors);
-           //             me.getPropertiesController().showErrors(json.errors);
+                        //             me.getPropertiesController().showErrors(json.errors);
                     }
                 }
             }
