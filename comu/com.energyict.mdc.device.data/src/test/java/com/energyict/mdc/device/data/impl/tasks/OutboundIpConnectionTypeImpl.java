@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 /**
  * Copyrights EnergyICT
  * Date: 6/19/14
@@ -8,8 +10,13 @@ package com.energyict.mdc.device.data.impl.tasks;
  */
 public class OutboundIpConnectionTypeImpl extends IpConnectionType {
 
+    public OutboundIpConnectionTypeImpl(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public Direction getDirection() {
         return Direction.OUTBOUND;
     }
+
 }

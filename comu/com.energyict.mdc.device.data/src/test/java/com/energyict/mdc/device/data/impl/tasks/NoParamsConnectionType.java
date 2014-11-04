@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import java.util.Collections;
@@ -23,11 +23,6 @@ import java.util.Set;
 public abstract class NoParamsConnectionType implements ServerConnectionType {
 
     private static final int HASH_CODE = 13469; // Random prime number
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-
-    }
 
     @Override
     public boolean allowsSimultaneousConnections () {

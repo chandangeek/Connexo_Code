@@ -1,14 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import java.util.Arrays;
@@ -28,13 +29,11 @@ public class ModemConnectionType implements ServerConnectionType {
     public static final String PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
     private static final int HASH_CODE = 91153; // Random prime number
 
-    public ModemConnectionType () {
+    private final PropertySpecService propertySpecService;
+
+    public ModemConnectionType(PropertySpecService propertySpecService) {
         super();
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -68,7 +67,7 @@ public class ModemConnectionType implements ServerConnectionType {
     }
 
     private PropertySpec phoneNumberPropertySpec () {
-        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(PHONE_NUMBER_PROPERTY_NAME);
+        return this.propertySpecService.basicPropertySpec(PHONE_NUMBER_PROPERTY_NAME, true, new StringFactory());
     }
 
     @Override
