@@ -108,7 +108,7 @@ public class FieldResource {
         List<Map<String, Object>> list = new ArrayList<>();
         map.put(fieldName, list);
         for (final T value: values) {
-            HashMap<String, Object> subMap = new HashMap<>();
+            Map<String, Object> subMap = new HashMap<>();
             subMap.put(valueName, value);
             subMap.put("localizedValue", thesaurus.getString(value.toString(), value.toString()));
             list.add(subMap);
@@ -161,7 +161,7 @@ public class FieldResource {
         List<Map<String, Object>> list = new ArrayList<>();
         map.put(fieldName, list);
         for (final T value: values) {
-            HashMap<String, Object> subMap = new HashMap<>();
+            Map<String, Object> subMap = new HashMap<>();
             subMap.put(valueName, value);
             list.add(subMap);
         }
@@ -220,7 +220,7 @@ public class FieldResource {
         map.put(fieldName, list);
         Iterator<String> translationKeyIterator = translationKeys.iterator();
         for (final T value: values) {
-            HashMap<String, Object> subMap = new HashMap<>();
+            Map<String, Object> subMap = new HashMap<>();
             subMap.put(valueName, value);
             String translationKey = translationKeyIterator.next();
             subMap.put("localizedValue", thesaurus.getString(translationKey, translationKey));
@@ -271,15 +271,6 @@ public class FieldResource {
             return messageTemplate;
         }
 
-        @Override
-        public String getStringBeyondComponent(String key, String defaultMessage) {
-            return key;
-        }
-
-        @Override
-        public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
-            return key;
-        }
     }
 
 }
