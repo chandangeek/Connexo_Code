@@ -69,9 +69,6 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getDeviceSecuritySettingGrid().getSelectionModel().doSelect(0);
-                        if (!securitySettingsOfDeviceStore.first().get('userHasEditPrivilege')){
-                            widget.down('uni-actioncolumn').hide();
-                        }
                     }
                 });
             }
@@ -83,20 +80,23 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     previewDeviceSecuritySetting: function () {
         var me = this;
         var deviceSecuritySetting = me.getDeviceSecuritySettingGrid().getSelectionModel().getSelection();
+        me.getDeviceSecuritySettingPreview().down('property-form').remove();
         if (deviceSecuritySetting.length == 1) {
             var deviceSecuritySettingName = deviceSecuritySetting[0].get('name');
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(1);
             me.getDeviceSecuritySettingPreview().setTitle(deviceSecuritySettingName);
             me.getDeviceSecuritySettingPreviewForm().loadRecord(deviceSecuritySetting[0]);
             if (deviceSecuritySetting[0].propertiesStore.data.items.length > 0) {
+                me.getDeviceSecuritySettingPreview().down('property-form').loadRecord(deviceSecuritySetting[0]);
                 if (deviceSecuritySetting[0].get('userHasViewPrivilege') || deviceSecuritySetting[0].get('userHasEditPrivilege')) {
-                    me.getDeviceSecuritySettingPreview().down('property-form').loadRecord(deviceSecuritySetting[0]);
                     me.getDeviceSecuritySettingPreviewTitle().setVisible(true);
                 } else {
                     me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
                 }
-                if (!deviceSecuritySetting[0].get('userHasEditPrivilege')){
+                if (!deviceSecuritySetting[0].get('userHasEditPrivilege')) {
                     me.getDeviceSecuritySettingPreview().getHeader().down('button').hide();
+                } else {
+                    me.getDeviceSecuritySettingPreview().getHeader().down('button').setVisible(true);
                 }
             } else {
                 me.getDeviceSecuritySettingPreviewTitle().setVisible(false);
@@ -159,7 +159,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         });
                     } else {
                         me.getDeviceSecuritySettingEditForm().getForm().markInvalid(json.errors);
-           //             me.getPropertiesController().showErrors(json.errors);
+                        //             me.getPropertiesController().showErrors(json.errors);
                     }
                 }
             }
