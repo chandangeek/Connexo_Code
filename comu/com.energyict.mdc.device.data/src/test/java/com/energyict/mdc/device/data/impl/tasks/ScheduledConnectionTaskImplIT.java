@@ -1947,6 +1947,17 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.isDefault()).isTrue();
     }
 
+    @Test
+    @Transactional
+    public void defaultPartialShouldCreateDefaultTest() {
+        this.partialScheduledConnectionTask.setDefault(true);
+        this.partialScheduledConnectionTask.save();
+
+        ScheduledConnectionTaskImpl myDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("MyDefaultConnectionTask", this.partialScheduledConnectionTask);
+
+        assertThat(myDefaultConnectionTask.isDefault()).isTrue();
+    }
+
     private void assertConnectionTask(List<ConnectionTask> outboundConnectionTasks, ScheduledConnectionTaskImpl... tasks) {
         assertThat(outboundConnectionTasks).isNotNull();
         assertThat(outboundConnectionTasks).hasSize(tasks.length);

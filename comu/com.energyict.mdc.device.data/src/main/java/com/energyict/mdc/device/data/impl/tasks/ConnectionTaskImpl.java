@@ -152,6 +152,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.pluggableClass = partialConnectionTask.getPluggableClass();
         this.pluggableClassId = this.pluggableClass.getId();
         this.comPortPool.set(comPortPool);
+        this.isDefault = partialConnectionTask.isDefault();
     }
 
     @Override
