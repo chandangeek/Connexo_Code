@@ -16,7 +16,7 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -59,7 +59,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     RestQueryService restQueryService;
     @Mock
-    DeviceMessageService deviceMessageService;
+    DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     TaskService taskService;
     @Mock
@@ -95,7 +95,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setRestQueryService(restQueryService);
         application.setTaskService(taskService);
         application.setCommunicationTaskService(communicationTaskService);
-        application.setDeviceMessageService(deviceMessageService);
+        application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         return application;
     }
 }

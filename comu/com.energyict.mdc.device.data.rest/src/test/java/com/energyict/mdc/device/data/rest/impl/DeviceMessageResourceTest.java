@@ -183,7 +183,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
         // there is a total of 34 device messages supported by the protocol
-        when(deviceMessageService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
+        when(deviceMessageSpecificationService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
 
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
 
@@ -238,7 +238,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
         // there is a total of 34 device messages supported by the protocol
-        when(deviceMessageService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
+        when(deviceMessageSpecificationService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
 
         doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], (ValueFactory)invocationOnMock.getArguments()[2])).
                 when(propertySpecService).basicPropertySpec(any(String.class), any(Boolean.class), any(ValueFactory.class));
@@ -383,7 +383,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
         when(deviceMessageCategory.getName()).thenReturn("category");
         when(deviceMessageSpec.getCategory()).thenReturn(deviceMessageCategory);
-        when(deviceMessageService.findMessageSpecById(DeviceMessageId.CONTACTOR_OPEN.dbValue())).thenReturn(Optional.of(deviceMessageSpec));
+        when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.CONTACTOR_OPEN.dbValue())).thenReturn(Optional.of(deviceMessageSpec));
         DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getSpecification()).thenReturn(deviceMessageSpec);
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);

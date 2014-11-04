@@ -35,7 +35,7 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -81,7 +81,7 @@ public class DeviceApplication extends Application implements InstallService {
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
     private volatile TaskService taskService;
-    private volatile DeviceMessageService deviceMessageService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile Clock clock;
     private volatile CommunicationTaskService communicationTaskService;
 
@@ -219,8 +219,8 @@ public class DeviceApplication extends Application implements InstallService {
     }
 
     @Reference
-    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
-        this.deviceMessageService = deviceMessageService;
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Override
@@ -298,7 +298,7 @@ public class DeviceApplication extends Application implements InstallService {
             bind(ComTaskExecutionSessionInfoFactory.class).to(ComTaskExecutionSessionInfoFactory.class);
             bind(JournalEntryInfoFactory.class).to(JournalEntryInfoFactory.class);
             bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class);
-            bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class);
             bind(DeviceMessageSpecInfoFactory.class).to(DeviceMessageSpecInfoFactory.class);
             bind(taskService).to(TaskService.class);
