@@ -1,6 +1,9 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -18,6 +21,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -27,6 +32,10 @@ import static org.mockito.Mockito.when;
 
 public class DeviceCommunicationProtocolsResourceTest extends PluggableRestApplicationJerseyTest {
 
+    @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
+    private SocketService socketService;
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private DeviceProtocol deviceProtocol;
     private ConnectionType outboundConnectionType1;
@@ -52,11 +61,11 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class, RETURNS_DEEP_STUBS);
         deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        outboundConnectionType1 = new OutboundTcpIpConnectionType();//mockOutboundConnectionType(OutboundTcpIpConnectionType.class);
+        outboundConnectionType1 = new OutboundTcpIpConnectionType(this.propertySpecService, this.socketService);//mockOutboundConnectionType(OutboundTcpIpConnectionType.class);
         connectionTypePluggableCass1 = createMockedConnectionTypePluggableCass(outboundConnectionType1);
-        outboundConnectionType2 = new OutboundUdpConnectionType();// mockOutboundConnectionType(OutboundUdpConnectionType.class);
+        outboundConnectionType2 = new OutboundUdpConnectionType(this.propertySpecService, this.socketService);// mockOutboundConnectionType(OutboundUdpConnectionType.class);
         connectionTypePluggableCass2 = createMockedConnectionTypePluggableCass(outboundConnectionType2);
-        outboundConnectionType3 = new TcpIpPostDialConnectionType();//mockOutboundConnectionType(TcpIpPostDialConnectionType.class);
+        outboundConnectionType3 = new TcpIpPostDialConnectionType(this.propertySpecService, this.socketService);//mockOutboundConnectionType(TcpIpPostDialConnectionType.class);
         connectionTypePluggableCass3 = createMockedConnectionTypePluggableCass(outboundConnectionType3);
         inConnectionType1 = new InboundIpConnectionType();//mockInboundConnectionType(InboundIpConnectionType.class);
         connectionTypePluggableCass4 = createMockedConnectionTypePluggableCass(inConnectionType1);
