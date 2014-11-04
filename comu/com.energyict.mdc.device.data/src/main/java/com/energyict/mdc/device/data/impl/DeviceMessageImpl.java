@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
@@ -16,7 +15,7 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMes
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidDeviceMessageId;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -63,7 +62,7 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     }
 
     private ThreadPrincipalService threadPrincipalService;
-    private DeviceMessageService deviceMessageService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private Clock clock;
 
     private long id;
@@ -85,10 +84,10 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     private List<DeviceMessageAttribute> deviceMessageAttributes = new ArrayList<>();
 
     @Inject
-    public DeviceMessageImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceMessageService deviceMessageService, Clock clock) {
+    public DeviceMessageImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceMessageSpecificationService deviceMessageSpecificationService, Clock clock) {
         super(DeviceMessage.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
-        this.deviceMessageService = deviceMessageService;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.clock = clock;
     }
 
@@ -98,7 +97,7 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
         this.user.set((User) this.threadPrincipalService.getPrincipal());
         this.creationDate = Instant.now();
         this.deviceMessageStatus = DeviceMessageStatus.WAITING;
-        this.messageSpec = this.deviceMessageService.findMessageSpecById(this.deviceMessageId.dbValue());
+        this.messageSpec = this.deviceMessageSpecificationService.findMessageSpecById(this.deviceMessageId.dbValue());
         return this;
     }
 
@@ -129,7 +128,7 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
 
     @Override
     public DeviceMessageSpec getSpecification() {
-        return this.deviceMessageService.findMessageSpecById(this.deviceMessageId.dbValue()).orElse(null);
+        return this.deviceMessageSpecificationService.findMessageSpecById(this.deviceMessageId.dbValue()).orElse(null);
     }
 
     @Override

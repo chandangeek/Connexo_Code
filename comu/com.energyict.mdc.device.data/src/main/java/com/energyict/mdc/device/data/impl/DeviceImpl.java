@@ -1783,7 +1783,7 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void removeDeviceMessage(DeviceMessage<?> deviceMessage) {
-        // TODO implement
+
         throw new NoSuchMethodError("Method removeDeviceMessage is not yet implemented on DeviceImpl");
     }
 

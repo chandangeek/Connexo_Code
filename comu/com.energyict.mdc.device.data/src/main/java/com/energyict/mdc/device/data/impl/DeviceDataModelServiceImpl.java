@@ -23,7 +23,7 @@ import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -101,7 +101,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private ServerLoadProfileService loadProfileService;
     private ServerLogBookService logBookService;
     private DataCollectionKpiService dataCollectionKpiService;
-    private DeviceMessageService deviceMessageService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     public DeviceDataModelServiceImpl() {}
@@ -113,7 +113,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
                                       SchedulingService schedulingService, MessageService messageService,
-                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageService deviceMessageService) {
+                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -130,7 +130,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setMessagingService(messageService);
         this.setSecurityPropertyService(securityPropertyService);
         this.setUserService(userService);
-        this.setDeviceMessageService(deviceMessageService);
+        this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.activate(bundleContext);
         this.install(true);
     }
@@ -143,7 +143,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 NlsService.COMPONENTNAME,
                 MessageService.COMPONENTNAME,
                 UserService.COMPONENTNAME,
-                DeviceMessageService.COMPONENT_NAME,
+                DeviceMessageSpecificationService.COMPONENT_NAME,
                 DeviceConfigurationService.COMPONENTNAME,
                 PluggableService.COMPONENTNAME,
                 EngineModelService.COMPONENT_NAME,
@@ -151,7 +151,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 com.energyict.mdc.tasks.TaskService.COMPONENT_NAME,
                 KpiService.COMPONENT_NAME,
                 TaskService.COMPONENTNAME,
-                DeviceMessageService.COMPONENT_NAME);
+                DeviceMessageSpecificationService.COMPONENT_NAME);
     }
 
     @Override
@@ -211,8 +211,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Reference
-    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
-        this.deviceMessageService = deviceMessageService;
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Override
@@ -344,7 +344,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(ServerDeviceService.class).toInstance(deviceService);
                 bind(LoadProfileService.class).toInstance(loadProfileService);
                 bind(LogBookService.class).toInstance(logBookService);
-                bind(DeviceMessageService.class).toInstance(deviceMessageService);
+                bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             }
         };
     }
