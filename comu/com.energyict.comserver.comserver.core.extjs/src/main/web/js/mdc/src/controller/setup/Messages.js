@@ -96,12 +96,10 @@ Ext.define('Mdc.controller.setup.Messages', {
 
         var record = records[0],
             grid = this.getMessagesGrid(),
-            countContainer = grid.down('#deviceMessagesCount'),
             gridContainer = grid.ownerCt,
             noItemsFoundPanel = grid.down('no-items-found-panel'),
             menu = this.getMessagesCategoriesActionMenu();
         if (noItemsFoundPanel) noItemsFoundPanel.destroy();
-        countContainer.removeAll();
         grid.setVisible(false);
         menu.removeAll(true);
         grid.getStore().removeAll();
@@ -114,13 +112,11 @@ Ext.define('Mdc.controller.setup.Messages', {
                 record['deviceMessageEnablementsStore'].each(function (rec) {
                     store.add(rec);
                 });
-                var messagesCount = store.getCount();
-                countContainer.add({
-                    xtype: 'container',
-                    html: (messagesCount > 1) ?
-                        Uni.I18n.translatePlural('messages.messages', messagesCount, 'MDC', ' {0} messages'):
-                        Uni.I18n.translatePlural('messages.message', messagesCount, 'MDC', ' {0} message')
-                });
+
+                grid.down('pagingtoolbartop').store = store;
+                grid.down('pagingtoolbartop').store.totalCount = store.getCount();
+                grid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('messages.messages', store.getCount(), 'MDC', '{2} messages'),
+                grid.down('pagingtoolbartop').updateInfo();
 
                 Ext.defer(function () {
                     grid.doLayout();
