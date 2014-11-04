@@ -17,11 +17,11 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
     ],  */
     layout: {
         type: 'vbox'
-    },
+    },/*,
     defaults: {
         xtype: 'displayfield',
         labelWidth: 250
-    },
+    },*/
     items: {
         xtype: 'form',
         border: false,
@@ -77,7 +77,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
                             align: 'stretch'
                         },
                         defaults: {
-                            labelWidth: 250
+                            labelWidth: 640
                         },
                         items: [
                             {
