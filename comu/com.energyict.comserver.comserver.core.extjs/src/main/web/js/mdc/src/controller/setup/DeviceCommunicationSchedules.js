@@ -106,7 +106,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 } else {
                     var msg = {
                         xtype: 'displayfield',
-                        value: Uni.I18n.translate('deviceCommunicationSchedule.noSharedCommunicationSchedules', 'MDC', 'The device does not use shared communication schedules.')
+                        value: Uni.I18n.translate('deviceCommunicationSchedule.noSharedCommunicationSchedules', 'MDC', 'The device doesn\'t use shared communication schedules.')
                     };
                     widget.down('#sharedDeviceCommunicationScheduleSetupPanel').add(msg);
                 }
@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 } else {
                     var msg = {
                         xtype: 'displayfield',
-                        value: Uni.I18n.translate('deviceCommunicationSchedule.noIndividualCommunicationSchedules', 'MDC', 'The device does not use individual shared communication schedules.')
+                        value: Uni.I18n.translate('deviceCommunicationSchedule.noIndividualCommunicationSchedules', 'MDC', 'The device doesn\'t use individual shared communication schedules.')
                     };
                     widget.down('#individualDeviceCommunicationScheduleSetupPanel').add(msg);
                 }

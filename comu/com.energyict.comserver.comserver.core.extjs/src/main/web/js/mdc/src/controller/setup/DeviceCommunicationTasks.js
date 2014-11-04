@@ -124,6 +124,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             changeItems[3].show();
             changeItems[5].show();
         }
+        if(selection.data.defaultDefined===false){
+            changeItems[3].hide();
+            changeItems[4].hide();
+        }
 
     },
 
