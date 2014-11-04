@@ -59,9 +59,9 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 dataIndex: 'comTaskCount',
                 itemId: 'comTaskCount',
                 renderer: function (val) {
-                    var success = val.numberOfSuccessfulTasks ? '<tpl><span class="fa fa-check fa-lg" style="color: green; position: relative; vertical-align: 0% !important;"></span><span style="position: relative; left: 4px">' + val.numberOfSuccessfulTasks + '</span></tpl>' : '',
-                        failed = val.numberOfFailedTasks ? '<tpl><span class="fa fa-times fa-lg" style="color: red; position: relative; left: 26px; vertical-align: 0% !important;"></span><span style="position: relative; left: 30px">' + val.numberOfFailedTasks + '</span></tpl>' : '',
-                        notCompleted = val.numberOfIncompleteTasks ? '<tpl><span class="fa fa-ban fa-lg" style="color: #333333; position: relative; left: 52px; vertical-align: 0% !important"></span><span  style="position: relative; left: 56px">' + val.numberOfIncompleteTasks + '</span></tpl>' : ''
+                    var success = val.numberOfSuccessfulTasks ? '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + val.numberOfSuccessfulTasks + '</span></tpl>' : '',
+                        failed = val.numberOfFailedTasks ? '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + val.numberOfFailedTasks + '</span></tpl>' : '',
+                        notCompleted = val.numberOfIncompleteTasks ? '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + val.numberOfIncompleteTasks + '</span></tpl>' : ''
                         ;
                     return success + failed + notCompleted
                 },

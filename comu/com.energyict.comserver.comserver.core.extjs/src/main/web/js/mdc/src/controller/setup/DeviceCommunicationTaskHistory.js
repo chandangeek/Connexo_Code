@@ -31,7 +31,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         {ref: 'DeviceCommunicationTaskHistoryLogPreviewForm', selector: '#DeviceCommunicationTaskHistoryLogPreviewForm'},
         {ref: 'deviceCommunicationTaskHistoryLogGrid', selector: '#deviceCommunicationTaskHistoryLogGrid'},
         {ref: 'deviceCommunicationTaskHistoryLogPreview', selector: '#deviceCommunicationTaskHistoryLogPreview'},
-        {ref: 'deviceCommunicationTaskLogOverviewForm', selector: '#deviceCommunicationTaskLogOverviewForm'}
+        {ref: 'deviceCommunicationTaskLogOverviewForm', selector: '#deviceCommunicationTaskLogOverviewForm'},
+        {ref: 'comPortField', selector: '#comPort'}
     ],
 
     init: function () {
@@ -85,6 +86,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         var me = this;
         var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
         this.getDeviceCommunicationTaskHistoryPreviewForm().loadRecord(communicationTaskHistory);
+        this.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communicationTaskHistory.get('comSession').comPort, '<a href="#/administration/comservers/' + communicationTaskHistory.get('comSession').comServer.id + '/overview">' + communicationTaskHistory.get('comSession').comServer.name + '</a>'));
         this.getDeviceConnectionHistoryPreviewForm().loadRecord(communicationTaskHistory.getComSession());
         me.getDeviceConnectionHistoryPreviewPanel().setTitle(Ext.String.format(Uni.I18n.translate('devicecommunicationtaskhistory.connectionPreviewTitle', 'MDC', '{0} on {1}'), communicationTaskHistory.getComSession().get('connectionMethod').name, communicationTaskHistory.getComSession().get('device').name));
     },
@@ -150,7 +152,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
                         store.setFilterModel(filter);
                         for (prop in filter.data) {
                             if (filter.data.hasOwnProperty(prop) && prop.toString() !== 'id' && filter.data[prop]) {
-                                me.getDeviceCommunicationTaskLogFilterTopPanel().setFilter(prop.toString(), prop.toString(), filter.data[prop]);
+                                if(prop.toString() === 'logLevels'){
+                                    me.getDeviceCommunicationTaskLogFilterTopPanel().setFilter(prop.toString(), me.getDevicecommunicationtaskhistorySideFilterForm().down('#logLevelField').getFieldLabel(), filter.data[prop]);
+                                }
                             }
                         }
                         store.load();

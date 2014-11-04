@@ -3,6 +3,7 @@ Ext.define('Mdc.model.DeviceCommunicationTask', {
     fields: [
         {name: 'comTask'},
         {name: 'connectionMethod', type: 'string'},
+        {name: 'defaultDefined', type: 'boolean'},
         {name: 'connectionStrategy', type: 'string'},
         {name: 'nextCommunication', dateFormat: 'time', type: 'date'},
         {name: 'lastCommunication', dateFormat: 'time', type: 'date'},

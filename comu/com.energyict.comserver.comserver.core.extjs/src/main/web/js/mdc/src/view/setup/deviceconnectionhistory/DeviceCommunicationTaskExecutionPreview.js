@@ -152,7 +152,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     xtype: 'displayfield',
                                     name: 'result',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.result', 'MDC', 'Result'),
-                                    itemId: 'result'
+                                    itemId: 'resultLink'
                                 },
                                 {
                                     xtype: 'displayfield',

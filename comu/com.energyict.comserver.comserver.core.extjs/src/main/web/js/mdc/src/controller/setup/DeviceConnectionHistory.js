@@ -43,7 +43,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         {ref: 'deviceconnectionhistorySideFilterForm', selector: '#deviceconnectionhistorySideFilterForm'},
         {ref: 'deviceConnectionLogGrid', selector: '#deviceConnectionLogGrid'},
         {ref: 'deviceConnectionLogPreviewForm', selector: '#deviceConnectionLogPreviewForm'},
-        {ref: 'deviceConnectionLogFilterPanel', selector: '#deviceConnectionLogMain #deviceConnectionLogFilterTopPanel'}
+        {ref: 'deviceConnectionLogFilterPanel', selector: '#deviceConnectionLogMain #deviceConnectionLogFilterTopPanel'},
+        {ref: 'statusLink', selector: '#statusLink'}
     ],
 
     init: function () {
@@ -106,6 +107,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         var me = this;
         var connectionHistory = this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0];
         this.getDeviceConnectionHistoryPreviewForm().loadRecord(connectionHistory);
+
+
+        this.getStatusLink().setValue('<a href="#/devices/' + this.deviceMrId + '/connectionmethods/' + this.connectionMethodId + '/history/' + this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog' +'?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22connections%22%2C%22communications%22%5D%7D">' +
+            connectionHistory.get('status')+'</a>');
+
+
+
         this.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('comPort'), '<a href="#/administration/comservers/' + connectionHistory.get('comServer').id + '/overview">' + connectionHistory.get('comServer').name + '</a>'));
         this.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('connectionMethod').name, me.device.get('mRID')));
         this.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.comtasksTitle', 'MDC', 'Communications of {0} connection on {1}'), connectionHistory.get('connectionMethod').name, this.device.get('mRID')));
@@ -211,7 +219,11 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                                 store.setFilterModel(filter);
                                 for (prop in filter.data) {
                                     if (filter.data.hasOwnProperty(prop) && prop.toString() !== 'id' && filter.data[prop]) {
-                                        me.getDeviceConnectionLogFilterPanel().setFilter(prop.toString(), prop.toString(), filter.data[prop]);
+                                        if(prop.toString()==='logLevels'){
+                                            me.getDeviceConnectionLogFilterPanel().setFilter(prop.toString(), me.getDeviceconnectionhistorySideFilterForm().down('#logLevelField').getFieldLabel(), filter.data[prop]);
+                                        } else if (prop.toString()==='logTypes'){
+                                            me.getDeviceConnectionLogFilterPanel().setFilter(prop.toString(), me.getDeviceconnectionhistorySideFilterForm().down('#logTypeField').getFieldLabel(), filter.data[prop]);
+                                        }
                                     }
                                 }
                                 store.load();

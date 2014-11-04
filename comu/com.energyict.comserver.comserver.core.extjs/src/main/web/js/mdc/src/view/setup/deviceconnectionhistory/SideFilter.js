@@ -18,41 +18,37 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.SideFilter', {
                 columns: 1,
                 vertical: true,
                 defaultType: 'checkboxfield',
+                itemId: 'logLevelField',
                 items: [
                     {
                         itemId: 'error',
                         inputValue: 'Error',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.error', 'MDC', 'Error'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.error', 'MDC', 'Error')
                     },
                     {
                         itemId: 'warning',
                         inputValue: 'Warning',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.warning', 'MDC', 'Warning'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.warning', 'MDC', 'Warning')
                     },
                     {
                         itemId: 'information',
                         inputValue: 'Information',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.information', 'MDC', 'Information'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.information', 'MDC', 'Information')
                     },
                     {
                         itemId: 'debug',
                         inputValue: 'Debug',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.debug', 'MDC', 'Debug'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.debug', 'MDC', 'Debug')
                     },
                     {
                         itemId: 'trace',
                         inputValue: 'Trace',
                         name: 'logLevels',
-                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.trace', 'MDC', 'Trace'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.trace', 'MDC', 'Trace')
                     }
                 ]
             },
@@ -63,20 +59,19 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.SideFilter', {
                 defaultType: 'checkboxfield',
                 columns: 1,
                 vertical: true,
+                itemId: 'logTypeField',
                 items: [
                     {
                         itemId: 'connection',
                         inputValue: 'connections',
                         name: 'logTypes',
-                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.connection', 'MDC', 'Connection'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.connection', 'MDC', 'Connection')
                     },
                     {
                         itemId: 'communications',
                         inputValue: 'communications',
                         name: 'logTypes',
-                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.communicationTask', 'MDC', 'Communication task'),
-                        afterBoxLabelTpl: '&nbsp;<span class="icon-validation icon-validation-red"></span>'
+                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.communicationTask', 'MDC', 'Communication task')
                     }
                 ]
             }
@@ -95,7 +90,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.SideFilter', {
                     },
                     {
                         itemId: 'deviceLoadProfileDataFilterResetBtn',
-                        text: Uni.I18n.translate('general.reset', 'MDC', 'Reset'),
+                        text: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
                         action: 'resetfilter'
                     }
                 ]
