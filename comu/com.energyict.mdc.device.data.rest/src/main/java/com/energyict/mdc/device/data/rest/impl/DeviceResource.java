@@ -93,8 +93,13 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
-        Condition condition = resourceHelper.getQueryConditionForDevice(uriInfo.getQueryParameters());
+        Condition condition = null;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
+        if (uriParams.containsKey("filter")) {
+            condition = resourceHelper.getQueryConditionForDevice(uriInfo.getQueryParameters());
+        } else {
+            condition = resourceHelper.getQueryConditionForDevice(params);
+        }
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
         List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
