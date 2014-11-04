@@ -9,6 +9,13 @@ package com.energyict.mdc.io;
 * @since 2014-11-03 (10:09)
 */
 public enum ModemType {
+    None {
+        @Override
+        public String atReferenceTarget() {
+            return Target.NONE;
+        }
+    },
+
     At {
         @Override
         public String atReferenceTarget() {
@@ -40,6 +47,7 @@ public enum ModemType {
     public abstract String atReferenceTarget();
 
     public static class Target {
+        public static final String NONE = "none";
         public static final String AT = "at";
         public static final String PAKNET = "paknet";
         public static final String PEMP = "pemp";

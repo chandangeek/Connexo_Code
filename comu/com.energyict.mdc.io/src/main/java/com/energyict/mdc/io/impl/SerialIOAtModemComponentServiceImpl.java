@@ -47,8 +47,8 @@ public class SerialIOAtModemComponentServiceImpl extends SerialIOComponentServic
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return new TypedAtModemProperties(this.getPropertySpecService()).getPropertySpecs();
+    protected void addModemComponentProperties(List<PropertySpec> propertySpecs) {
+        propertySpecs.addAll(new TypedAtModemProperties(this.getPropertySpecService()).getPropertySpecs());
     }
 
 }

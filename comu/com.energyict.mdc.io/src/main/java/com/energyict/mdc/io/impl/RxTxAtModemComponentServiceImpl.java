@@ -1,16 +1,20 @@
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemType;
 import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SerialPortConfiguration;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
 import org.osgi.service.component.annotations.Component;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,7 +52,13 @@ public class RxTxAtModemComponentServiceImpl extends RxTxSerialComponentServiceI
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return new TypedAtModemProperties(this.getPropertySpecService()).getPropertySpecs();
+        List<PropertySpec> propertySpecs = new ArrayList<>(new TypedAtModemProperties(this.getPropertySpecService()).getPropertySpecs());
+        propertySpecs.add(this.baudRatePropertySpec(true));
+        propertySpecs.add(this.parityPropertySpec(true));
+        propertySpecs.add(this.nrOfStopBitsPropertySpec(true));
+        propertySpecs.add(this.nrOfDataBitsPropertySpec(true));
+        propertySpecs.add(this.flowControlPropertySpec());
+        return propertySpecs;
     }
 
 }

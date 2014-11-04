@@ -33,6 +33,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     AT_MODEM_NO_CARRIER(16, "atModemNoCarrier", "Receiver was not reachable, modem on COM port {0} returned NO_CARRIER command, last command send [{1}]", Level.SEVERE),
     AT_MODEM_NO_DIALTONE(17, "atModemNoDialtone", "Could not dial with modem on COM port {0}, a NO_DIALTONE command was returned, last command send [{1}]", Level.SEVERE),
     MODEM_CALL_ABORTED(18, "modemCallAborted", "Most likely an invalid command has been sent, modem on COM port {0} returned CALL ABORTED command, last command send [{1}]", Level.SEVERE),
+    UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION(19, "unexpectedInboundCommException", "Unexpected inbound communication exception, see stacktrace for more details", Level.SEVERE),
     ;
 
     private final int number;

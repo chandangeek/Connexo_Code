@@ -47,8 +47,8 @@ public class SerialIOPEMPModemComponentServiceImpl extends SerialIOComponentServ
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return new TypedPEMPModemProperties(this.getPropertySpecService()).getPropertySpecs();
+    protected void addModemComponentProperties(List<PropertySpec> propertySpecs) {
+        propertySpecs.addAll(new TypedPEMPModemProperties(this.getPropertySpecService()).getPropertySpecs());
     }
 
 }
