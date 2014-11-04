@@ -1,7 +1,13 @@
 package com.elster.jupiter.time.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.time.*;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.Privileges;
+import com.elster.jupiter.time.RelativeDate;
+import com.elster.jupiter.time.RelativeOperation;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativeDatePreviewInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.time.rest.RelativePeriodPreviewInfo;
@@ -12,7 +18,16 @@ import com.energyict.mdc.common.services.ListPager;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -26,10 +41,12 @@ import java.util.Optional;
 @Path("/relativeperiods")
 public class RelativePeriodResource {
     private final TimeService timeService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public RelativePeriodResource(TimeService timeService) {
+    public RelativePeriodResource(TimeService timeService, Thesaurus thesaurus) {
         this.timeService = timeService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -39,7 +56,7 @@ public class RelativePeriodResource {
         List<RelativePeriod> relativePeriods = ListPager.of(timeService.getRelativePeriods(),
                 (r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName())).from(queryParameters).find();
         List<RelativePeriodInfo> relativePeriodInfos = new ArrayList<>();
-        relativePeriods.stream().forEach(rp -> relativePeriodInfos.add(new RelativePeriodInfo(rp)));
+        relativePeriods.stream().forEach(rp -> relativePeriodInfos.add(new RelativePeriodInfo(rp, thesaurus)));
         return PagedInfoList.asJson("data", relativePeriodInfos, queryParameters);
     }
 
@@ -48,7 +65,7 @@ public class RelativePeriodResource {
     @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodInfo getRelativePeriod(@PathParam("id") long id) {
-        return new RelativePeriodInfo(getRelativePeriodOrThrowException(id));
+        return new RelativePeriodInfo(getRelativePeriodOrThrowException(id), thesaurus);
     }
 
     @POST
@@ -61,7 +78,7 @@ public class RelativePeriodResource {
         verifyDateRangeOrThrowException(relativeDateFrom, relativeDateTo);
         List<RelativePeriodCategory> categories = getRelativePeriodCategoriesList(relativePeriodInfo);
         RelativePeriod period = timeService.createRelativePeriod(relativePeriodInfo.name, relativeDateFrom, relativeDateTo, categories);
-        return Response.status(Response.Status.CREATED).entity(new RelativePeriodInfo(period)).build();
+        return Response.status(Response.Status.CREATED).entity(new RelativePeriodInfo(period, thesaurus)).build();
     }
 
     @PUT
@@ -80,7 +97,7 @@ public class RelativePeriodResource {
         } catch (Exception ex) {
             throw new WebApplicationException(ex.getMessage());
         }
-        return new RelativePeriodInfo(period);
+        return new RelativePeriodInfo(period, thesaurus);
     }
 
     @Path("/{id}")
@@ -141,7 +158,7 @@ public class RelativePeriodResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCategories(@BeanParam QueryParameters queryParameters) {
         List<RelativePeriodCategoryInfo> categoryInfos = new ArrayList<>();
-        categoryInfos.addAll(RelativePeriodCategoryInfo.from(timeService.getRelativePeriodCategories()));
+        categoryInfos.addAll(RelativePeriodCategoryInfo.from(timeService.getRelativePeriodCategories(), thesaurus));
         return Response.ok(PagedInfoList.asJson("data", categoryInfos, queryParameters)).build();
     }
 

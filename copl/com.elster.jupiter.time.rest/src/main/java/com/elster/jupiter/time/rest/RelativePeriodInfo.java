@@ -1,5 +1,6 @@
 package com.elster.jupiter.time.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.rest.impl.RelativePeriodCategoryInfo;
 
@@ -17,12 +18,12 @@ public class RelativePeriodInfo {
 
     }
 
-    public RelativePeriodInfo(RelativePeriod relativePeriod) {
+    public RelativePeriodInfo(RelativePeriod relativePeriod, Thesaurus thesaurus) {
         this.id = relativePeriod.getId();
         this.name = relativePeriod.getName();
         this.from = new RelativeDateInfo(relativePeriod.getRelativeDateFrom());
         this.to = new RelativeDateInfo(relativePeriod.getRelativeDateTo());
-        this.categories = RelativePeriodCategoryInfo.from(relativePeriod.getRelativePeriodCategories());
+        this.categories = RelativePeriodCategoryInfo.from(relativePeriod.getRelativePeriodCategories(), thesaurus);
     }
 
     public RelativePeriodInfo(Long id, String name, RelativeDateInfo from, RelativeDateInfo to, List<RelativePeriodCategoryInfo> categories) {

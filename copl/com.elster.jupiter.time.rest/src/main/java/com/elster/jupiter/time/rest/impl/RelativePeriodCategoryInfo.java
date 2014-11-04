@@ -1,5 +1,6 @@
 package com.elster.jupiter.time.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriodCategory;
 
 import java.util.ArrayList;
@@ -16,9 +17,13 @@ public class RelativePeriodCategoryInfo {
         this.name = name;
     }
 
-    static public List<RelativePeriodCategoryInfo> from (List<RelativePeriodCategory> categories) {
+    static public List<RelativePeriodCategoryInfo> from (List<RelativePeriodCategory> categories, Thesaurus thesaurus) {
         List<RelativePeriodCategoryInfo> categoryInfos = new ArrayList<>();
-        categories.stream().forEach(c -> categoryInfos.add(new RelativePeriodCategoryInfo(c.getId(), c.getName())));
+        categories.stream().forEach(c -> categoryInfos.add(new RelativePeriodCategoryInfo(c.getId(), getName(c, thesaurus))));
         return categoryInfos;
+    }
+
+    private static String getName(RelativePeriodCategory category, Thesaurus thesaurus) {
+        return thesaurus.getStringBeyondComponent(category.getName(), category.getName());
     }
 }
