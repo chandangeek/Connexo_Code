@@ -1,5 +1,7 @@
 package com.elster.jupiter.time;
 
+import com.elster.jupiter.domain.util.Query;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -15,4 +17,6 @@ public interface TimeService {
     Optional<RelativePeriodCategory> findRelativePeriodCategory(long relativePeriodCategoryId);
     Optional<RelativePeriodCategory> findRelativePeriodCategoryByName(String name);
     List<RelativePeriodCategory> getRelativePeriodCategories();
+
+    Query<? extends RelativePeriod> getRelativePeriodQuery();
 }

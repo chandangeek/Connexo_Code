@@ -1,5 +1,6 @@
 package com.elster.jupiter.time.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
@@ -114,6 +115,10 @@ public class TimeServiceImpl implements TimeService, InstallService {
         return this.getDataModel().mapper((RelativePeriodCategory.class)).find();
     }
 
+    @Override
+    public Query<? extends RelativePeriod> getRelativePeriodQuery() {
+        return queryService.wrap(dataModel.query(RelativePeriod.class));
+    }
 
     Module getModule() {
         return new AbstractModule() {
