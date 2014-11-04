@@ -14,11 +14,11 @@ Ext.define('Uni.grid.column.Icon', {
                 cmp = view.getCell(record, me).down('.x-grid-cell-inner'),
                 field = new Uni.form.field.IconDisplay({
                     fieldLabel: false,
-                    iconCls: 'swfwse',
-                    tipString: Uni.I18n.formatDate('editedDate.format', value, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+                    iconCls: value.iconCls,
+                    tipString: value.tipString
                 });
             cmp.setHTML('');
-            field.setValue(value);
+            field.setValue(value.value);
             field.render(cmp);
         } catch (e) {
         }
@@ -26,8 +26,18 @@ Ext.define('Uni.grid.column.Icon', {
 
     renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
         var me = metaData.column;
-        if (value instanceof Object && value.value) {
-            Ext.defer(me.deferredRenderer, 1, me, [value.value, record, view]);
+        var res = {};
+        if (Ext.isDefined(value.editedTime)) {
+            var time = Ext.isDate(value.editedTime) ? value.editedTime : new Date(value.editedTime);
+            res.value = time;
+            res.iconCls = 'icon-edit';
+            res.tipString = Uni.I18n.formatDate('editedDate.format', time, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
         }
+        if (Ext.isDefined(value.deletedTime)) {
+            res.value = value.deletedTime;
+            res.iconCls = 'icon-delete';
+            res.tipString = Uni.I18n.formatDate('deletedDate.format', value.deletedTime, 'MDC', '\\D\\e\\l\\e\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+        }
+        Ext.defer(me.deferredRenderer, 1, me, [res, record, view]);
     }
 });

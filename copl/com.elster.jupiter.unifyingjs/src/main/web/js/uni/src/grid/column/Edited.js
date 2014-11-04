@@ -13,11 +13,9 @@ Ext.define('Uni.grid.column.Edited', {
         try {
             var me = this,
                 cmp = view.getCell(record, me).down('.x-grid-cell-inner'),
-                icon = document.createElement('span');
-            icon.className = 'icon-edit';
-            var field = new Uni.form.field.EditedDisplay({
-                fieldLabel: false
-            });
+                field = new Uni.form.field.EditedDisplay({
+                    fieldLabel: false
+                });
             cmp.setHTML('');
             field.setValue(value);
             field.render(cmp);
