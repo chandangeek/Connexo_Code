@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc;
+package com.energyict.protocols.impl.channels;
 
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -21,8 +21,6 @@ import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConn
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.protocols.impl.channels.sms.OutboundProximusSmsConnectionType;
-
-import java.util.Optional;
 
 /**
  * List all existing ConnectionType pluggable classes
@@ -61,15 +59,5 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
     public Class<? extends ConnectionType> getProtocolTypeClass() {
         return connectionTypeClass;
     }
-
-    public static Optional<String> getConnectionTypeName(Class<? extends ConnectionType> connectionTypeClass) {
-        for (ConnectionTypeRule connectionTypeRule : ConnectionTypeRule.values()) {
-            if (connectionTypeRule.connectionTypeClass.equals(connectionTypeClass)) {
-                return Optional.of(connectionTypeRule.name());
-            }
-        }
-        return Optional.empty();
-    }
-
 
 }

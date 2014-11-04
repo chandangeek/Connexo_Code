@@ -47,7 +47,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
-import com.energyict.protocols.mdc.ConnectionTypeRule;
+import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;

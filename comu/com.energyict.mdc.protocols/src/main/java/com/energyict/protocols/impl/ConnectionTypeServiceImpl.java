@@ -10,7 +10,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 
-import com.energyict.protocols.mdc.ConnectionTypeRule;
+import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
