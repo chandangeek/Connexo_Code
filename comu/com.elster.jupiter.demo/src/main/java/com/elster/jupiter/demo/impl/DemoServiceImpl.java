@@ -472,6 +472,7 @@ public class DemoServiceImpl implements DemoService {
         DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration("Extended Config");
         configBuilder.description("A complex configuration that is closely matched to the DSMR 2.3 Devices");
         configBuilder.canActAsGateway(true);
+        configBuilder.gatewayType(GatewayType.HOME_AREA_NETWORK);
         configBuilder.isDirectlyAddressable(true);
 
         addRegisterSpecsToDeviceConfiguration(configBuilder, store,
@@ -541,6 +542,7 @@ public class DemoServiceImpl implements DemoService {
         DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration("Default");
         configBuilder.description("A simple device configuration which contains one LoadProfile and a minimal set of Registers.");
         configBuilder.canActAsGateway(true);
+        configBuilder.gatewayType(GatewayType.HOME_AREA_NETWORK);
         configBuilder.isDirectlyAddressable(true);
         addRegisterSpecsToDeviceConfiguration(configBuilder, store,
                 ACTIVE_ENERGY_IMPORT_TOTAL_WH, ACTIVE_ENERGY_EXPORT_TOTAL_WH,
