@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.rest.impl.ExceptionEventLogger;
 import com.elster.jupiter.time.rest.impl.RelativePeriodResource;
 import com.elster.jupiter.time.rest.impl.i18n.TranslationInstaller;
 import com.elster.jupiter.transaction.TransactionService;
@@ -44,6 +45,7 @@ public class TimeApplication extends Application implements InstallService {
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
+                ExceptionEventLogger.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,

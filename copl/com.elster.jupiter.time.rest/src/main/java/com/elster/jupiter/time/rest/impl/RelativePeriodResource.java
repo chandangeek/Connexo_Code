@@ -92,8 +92,6 @@ public class RelativePeriodResource {
         try (TransactionContext context = transactionService.getContext()) {
             period = timeService.createRelativePeriod(relativePeriodInfo.name, relativeDateFrom, relativeDateTo, categories);
             context.commit();
-        } catch (Exception ex) {
-            throw new WebApplicationException(ex.getMessage());
         }
         return Response.status(Response.Status.CREATED).entity(new RelativePeriodInfo(period)).build();
     }
@@ -112,8 +110,6 @@ public class RelativePeriodResource {
         try (TransactionContext context = transactionService.getContext()) {
             period = timeService.updateRelativePeriod(relativePeriod.getId(), relativePeriodInfo.name, relativeDateFrom, relativeDateTo, categories);
             context.commit();
-        } catch (Exception ex) {
-            throw new WebApplicationException(ex.getMessage());
         }
         return new RelativePeriodInfo(period);
     }
