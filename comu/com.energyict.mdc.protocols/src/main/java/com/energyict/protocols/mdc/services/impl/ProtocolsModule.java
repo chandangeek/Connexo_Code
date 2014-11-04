@@ -6,6 +6,7 @@ import java.time.Clock;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;

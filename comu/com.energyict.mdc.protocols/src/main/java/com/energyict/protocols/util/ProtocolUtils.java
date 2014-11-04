@@ -9,6 +9,7 @@ package com.energyict.protocols.util;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -152,7 +153,7 @@ public class ProtocolUtils {
     }
 
     /**
-     * Build a String with the data representation using $ before each byte
+     * Build a String with the data converted to hex.
      *
      * @param byteBuffer data to build string from
      * @return String with representation of the data
@@ -184,14 +185,13 @@ public class ProtocolUtils {
 
     /**
      * Convert int to byte and build String.
-     * E.g. val: 10, String output: "$0A"
+     * E.g. val: 10, String output: "0A"
      *
      * @param bKar int value to convert
      * @return String result
      */
     public static String outputHexString(int bKar) {
         String str = new String();
-        str += '$';
         str += String.valueOf((char) convertHexLSB(bKar));
         str += String.valueOf((char) convertHexMSB(bKar));
         return str;
@@ -199,17 +199,13 @@ public class ProtocolUtils {
 
     /**
      * Convert given byteArray to hexString.
-     * E.g. val: {10, 0, 9}, String output: "$0A$00$09"
+     * E.g. val: {10, 0, 9}, String output: "0A0009"
      *
      * @param data byteArray to convert
      * @return String result
      */
     public static String outputHexString(byte[] data) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < data.length; i++) {
-            builder.append(outputHexString(data[i] & 0xFF));
-        }
-        return builder.toString();
+        return DatatypeConverter.printHexBinary(data);
     }
 
     /**
@@ -220,10 +216,7 @@ public class ProtocolUtils {
      * @return result String
      */
     public static String hex2String(int bKar) {
-        StringBuilder builder = new StringBuilder();
-        builder.append((char) convertHexLSB(bKar));
-        builder.append((char) convertHexMSB(bKar));
-        return builder.toString();
+        return String.valueOf((char) convertHexLSB(bKar)) + (char) convertHexMSB(bKar);
     }
 
     /**
