@@ -48,7 +48,7 @@ Ext.define('Tme.controller.RelativePeriods', {
         var categories = this.getCategoriesTextFields();
 
         if (form.isValid()) {
-
+            formErrorsPanel.hide();
             record.set('name', nameFieldValue);
             Ext.Array.each(categories.getValue(), function (item) {
                 record.categories().add(Ext.create(Tme.model.Categories, {id: item}));
@@ -112,10 +112,10 @@ Ext.define('Tme.controller.RelativePeriods', {
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
-                    var title = 'Attention please:',
-                        message = json.errors[0].msg;
-
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
+                    }
                 }
             });
         } else {

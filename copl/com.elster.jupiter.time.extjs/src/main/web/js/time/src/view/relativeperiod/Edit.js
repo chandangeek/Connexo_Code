@@ -70,6 +70,10 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 itemId: 'edit-relative-period-name',
                                 name: 'name',
                                 required: true,
+                                msgTarget: 'under',
+                                maxLength: 80,
+                                enforceMaxLength: true,
+                                allowBlank: false,
                                 width: 600,
                                 fieldLabel: Uni.I18n.translate('relativeperiod.name', 'TME', 'Name')
                             },
