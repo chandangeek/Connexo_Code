@@ -78,8 +78,10 @@ public class DeviceComTaskInfoFactory {
             if(comTaskExecution.getConnectionTask()!=null){
                 deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
                         " (" + comTaskExecution.getConnectionTask().getName() + ")";
+                deviceComTasksInfo.defaultDefined = true;
             } else {
                 deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT_NOT_DEFINED.getKey(),MessageSeeds.DEFAULT_NOT_DEFINED.getKey());
+                deviceComTasksInfo.defaultDefined = false;
             }
         }
         else {
@@ -111,8 +113,10 @@ public class DeviceComTaskInfoFactory {
             if(comTaskExecution.getConnectionTask()!=null){
                 deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
                         " (" + comTaskExecution.getConnectionTask().getName() + ")";
+                deviceComTasksInfo.defaultDefined = true;
             } else {
                 deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT_NOT_DEFINED.getKey(),MessageSeeds.DEFAULT_NOT_DEFINED.getKey());
+                deviceComTasksInfo.defaultDefined = false;
             }
             setConnectionStrategy(deviceComTasksInfo,comTaskExecution);
         }
@@ -152,8 +156,10 @@ public class DeviceComTaskInfoFactory {
                     String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
                     deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
                 }
+                deviceComTasksInfo.defaultDefined = true;
             } else {
                 deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT_NOT_DEFINED.getKey(),MessageSeeds.DEFAULT_NOT_DEFINED.getKey());
+                deviceComTasksInfo.defaultDefined = false;
             }
         } else {
             if(comTaskEnablement.getPartialConnectionTask().isPresent()){
