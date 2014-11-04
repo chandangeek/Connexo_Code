@@ -52,7 +52,15 @@ $ui-body-background-color: $panel-filter-background-color
 
     .#{$prefix}box-inner {
         overflow: visible;
+
+        .#{$prefix}panel-header-text-container-large {
+            line-height: 75px;
+        }
     }
+}
+
+.#{$prefix}panel-header-large-horizontal {
+    padding-bottom: 8px !important;
 }
 
 // Large
@@ -154,11 +162,11 @@ $ui-body-color: $form-error-msg-color
     background-image: $panel-form-error-msg-icon;
 }
 
-*[class*='#{$prefix}panel-'].no-side-padding{
-  padding: {
-    right: 0;
-    left: 0;
-  }
+*[class*='#{$prefix}panel-'].no-side-padding {
+    padding: {
+        right: 0;
+        left: 0;
+    }
 }
 
 @import "StepPanel";
