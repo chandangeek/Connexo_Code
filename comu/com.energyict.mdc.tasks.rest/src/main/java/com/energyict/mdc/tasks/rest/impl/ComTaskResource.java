@@ -6,7 +6,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -28,13 +28,13 @@ import java.util.stream.Stream;
 public class ComTaskResource {
     private TaskService taskService;
     private MasterDataService masterDataService;
-    private DeviceMessageService deviceMessageService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Inject
-    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageService deviceMessageService) {
+    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.taskService = taskService;
         this.masterDataService = masterDataService;
-        this.deviceMessageService = deviceMessageService;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @GET
@@ -79,7 +79,7 @@ public class ComTaskResource {
     private List<DeviceMessageCategory> getMessageCategories(ComTaskInfo comTaskInfo) {
         return comTaskInfo.messages.stream()
                 .map(category -> {
-                    java.util.Optional<DeviceMessageCategory> categoryRef = deviceMessageService.findCategoryById(category.id);
+                    java.util.Optional<DeviceMessageCategory> categoryRef = deviceMessageSpecificationService.findCategoryById(category.id);
                     return categoryRef.isPresent() ? categoryRef.get() : null;
                 })
                 .collect(Collectors.toList());
@@ -163,7 +163,7 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Response getMessageCategories(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
-        Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageService.allCategories().stream();
+        Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageSpecificationService.allCategories().stream();
         String availableFor = uriInfo.getQueryParameters().getFirst("availableFor");
         if (availableFor != null){
             ComTask comTask = taskService.findComTask(Long.parseLong(availableFor));

@@ -7,15 +7,13 @@ import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.rest.impl.ComTaskResource;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
@@ -28,7 +26,7 @@ public class ComTasksApplication extends Application implements BinderProvider {
     private volatile MasterDataService masterDataService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
-    private volatile DeviceMessageService deviceMessageService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -53,7 +51,7 @@ public class ComTasksApplication extends Application implements BinderProvider {
                 bind(masterDataService).to(MasterDataService.class);
                 bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
-                bind(deviceMessageService).to(DeviceMessageService.class);
+                bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             }
         };
     }
@@ -80,7 +78,7 @@ public class ComTasksApplication extends Application implements BinderProvider {
     }
 
     @Reference
-    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
-        this.deviceMessageService = deviceMessageService;
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 }
