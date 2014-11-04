@@ -237,9 +237,12 @@ Ext.define('Uni.controller.Navigation', {
         if (token) {
             token = token.indexOf(Uni.controller.history.Settings.tokenDelimiter) === 0 ? token.substring(1) : token;
             token = token.replace(/#\/|#/g, ''); // Regex to replace all '#' or '#/'.
+
+            // Strip the query parameters if necessary.
             if (token.indexOf('?') >= 0) {
                 token = token.slice(0, token.indexOf('?'));
             }
+
             return token.split(Uni.controller.history.Settings.tokenDelimiter);
         } else {
             return [];
