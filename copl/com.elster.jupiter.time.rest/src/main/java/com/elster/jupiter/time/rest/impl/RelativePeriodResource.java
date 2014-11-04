@@ -2,6 +2,7 @@ package com.elster.jupiter.time.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -48,12 +49,14 @@ public class RelativePeriodResource {
     private final TimeService timeService;
     private final RestQueryService restQueryService;
     private final TransactionService transactionService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public RelativePeriodResource(TimeService timeService, RestQueryService restQueryService, TransactionService transactionService) {
+    public RelativePeriodResource(TimeService timeService, RestQueryService restQueryService, TransactionService transactionService, Thesaurus thesaurus) {
         this.timeService = timeService;
         this.restQueryService = restQueryService;
         this.transactionService = transactionService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -76,7 +79,7 @@ public class RelativePeriodResource {
     @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodInfo getRelativePeriod(@PathParam("id") long id) {
-        return new RelativePeriodInfo(getRelativePeriodOrThrowException(id));
+        return new RelativePeriodInfo(getRelativePeriodOrThrowException(id), thesaurus);
     }
 
     @POST
@@ -93,7 +96,7 @@ public class RelativePeriodResource {
             period = timeService.createRelativePeriod(relativePeriodInfo.name, relativeDateFrom, relativeDateTo, categories);
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new RelativePeriodInfo(period)).build();
+        return Response.status(Response.Status.CREATED).entity(new RelativePeriodInfo(period, thesaurus)).build();
     }
 
     @PUT
@@ -111,7 +114,7 @@ public class RelativePeriodResource {
             period = timeService.updateRelativePeriod(relativePeriod.getId(), relativePeriodInfo.name, relativeDateFrom, relativeDateTo, categories);
             context.commit();
         }
-        return new RelativePeriodInfo(period);
+        return new RelativePeriodInfo(period, thesaurus);
     }
 
     @Path("/{id}")
