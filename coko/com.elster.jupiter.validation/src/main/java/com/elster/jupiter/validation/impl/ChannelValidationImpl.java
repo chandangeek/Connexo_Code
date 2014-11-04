@@ -45,11 +45,6 @@ final class ChannelValidationImpl implements IChannelValidation {
         return this;
     }
 
-    static ChannelValidationImpl from(DataModel dataModel, IMeterActivationValidation meterActivationValidation, Channel channel) {
-        return dataModel.getInstance(ChannelValidationImpl.class).init(meterActivationValidation, channel);
-    }
-
-
     @Override
     public long getId() {
         return id;
@@ -82,13 +77,9 @@ final class ChannelValidationImpl implements IChannelValidation {
 
     private List<IValidationRule> activeRules() {
     	return getMeterActivationValidation().getRuleSet().getRules().stream()
-    			.filter(this::isApplicable)
     			.map(IValidationRule.class::cast)
+    			.filter(rule -> rule.appliesTo(channel))    			
                 .collect(Collectors.toList());
-    }
-    
-    private boolean isApplicable(ValidationRule rule) {
-    	return rule.isActive() && rule.getReadingTypes().stream().anyMatch(readingType -> getChannel().getReadingTypes().contains(readingType));
     }
     
     void setActiveRules(boolean activeRules) {

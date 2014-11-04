@@ -34,4 +34,6 @@ public interface IValidationRule extends ValidationRule {
     ReadingQualityType getReadingQualityType();
 
 	Validator createNewValidator();
+	
+	boolean appliesTo(Channel channel);
 }

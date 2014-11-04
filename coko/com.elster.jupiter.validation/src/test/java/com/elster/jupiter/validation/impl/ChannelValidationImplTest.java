@@ -51,7 +51,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     protected Object getInstanceA() {
         if (a == null) {
             setUp();
-            a = ChannelValidationImpl.from(dataModel, meterActivationValidation, channel);
+            a = new ChannelValidationImpl().init(meterActivationValidation, channel);
         }
         return a;
     }
@@ -74,16 +74,16 @@ public class ChannelValidationImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ChannelValidationImpl channelValidation = ChannelValidationImpl.from(dataModel, meterActivationValidation, channel);
+        ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(meterActivationValidation, channel);
         return channelValidation;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return Arrays.asList(
-                ChannelValidationImpl.from(dataModel, meterActivationValidation1, channel),
-                ChannelValidationImpl.from(dataModel, meterActivationValidation, channel1),
-                ChannelValidationImpl.from(dataModel, meterActivationValidation1, channel1)
+                new ChannelValidationImpl().init(meterActivationValidation1, channel),
+                new ChannelValidationImpl().init(meterActivationValidation, channel1),
+                new ChannelValidationImpl().init(meterActivationValidation1, channel1)
                 );
     }
 
@@ -101,7 +101,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     public void lastCheckedTest() {
     	when(channel.findReadingQuality(any(Range.class))).thenReturn(ImmutableList.of(readingQuality));
     	when(readingQuality.hasReasonabilityCategory()).thenReturn(true);
-    	ChannelValidationImpl channelValidation = ChannelValidationImpl.from(dataModel, meterActivationValidation, channel);
+    	ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(meterActivationValidation, channel);
     	assertThat(channelValidation.getLastChecked()).isNotNull();
     	assertThat(channelValidation.getLastChecked()).isEqualTo(meterActivation.getStart());
     	ZonedDateTime dateTime = Year.of(2014).atMonth(Month.JANUARY).atDay(1).atStartOfDay(ZoneId.systemDefault());

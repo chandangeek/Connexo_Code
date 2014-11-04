@@ -26,6 +26,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +43,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.inject.Provider;
 
 import static com.elster.jupiter.util.Ranges.copy;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -107,26 +110,15 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     private PropertySpec properySpec;
     @Mock
     private ValueFactory valueFactory;
+    private Provider<ReadingTypeInValidationRuleImpl> provider = () -> new ReadingTypeInValidationRuleImpl(meteringService);
 
     @Before
     public void setUp() {
-        when(channel.findReadingQuality(new ReadingQualityType("3.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>empty(), Optional.of(readingQuality));
-        when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService);
-            }
-        });
+        when(channel.findReadingQuality(new ReadingQualityType("3.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>empty(), Optional.of(readingQuality));        
         when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return new ValidationRulePropertiesImpl();
-            }
-        });
-        when(dataModel.getInstance(ReadingTypeInValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeInValidationRuleImpl(meteringService);
             }
         });
         when(dataModel.mapper(IValidationRule.class)).thenReturn(ruleFactory);
@@ -139,20 +131,17 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(properySpec.getValueFactory()).thenReturn(valueFactory);
         doReturn(Optional.<ReadingQualityType>empty()).when(validator).getReadingQualityTypeCode();
         when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(intervalReadingRecord));
-        when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));
+        when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));        
     }
 
+    private ValidationRuleImpl newRule() {
+    	return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, provider);
+    }
+    
     @Override
     protected Object getInstanceA() {
         if (validationRule == null) {
-            when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
-                @Override
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService);
-                }
-            });
-            validationRule = ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename");
-            setId(validationRule, ID);
+        	validationRule = setId(newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),ID);            
         }
         return validationRule;
     }
@@ -163,27 +152,13 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceEqualToA() {
-        final DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService);
-            }
-        });
-        return setId(ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION + 1, "rulename"), ID);
+    protected Object getInstanceEqualToA() {        
+        return setId(newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),ID);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        final DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService);
-            }
-        });
-        return ImmutableList.of(setId(ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename"), OTHER_ID));
+        return ImmutableList.of(setId(newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),OTHER_ID));
     }
 
     @Override
@@ -198,14 +173,14 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testPersist() {
-        ValidationRuleImpl testPersistValidationRule = ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename");
+        ValidationRuleImpl testPersistValidationRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         testPersistValidationRule.save();
         verify(ruleFactory).persist(testPersistValidationRule);
     }
 
     @Test
     public void testUpdate() {
-        ValidationRuleImpl testUpdateValidationRule = ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename");
+        ValidationRuleImpl testUpdateValidationRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         field("id").ofType(Long.TYPE).in(testUpdateValidationRule).set(ID);
         testUpdateValidationRule.save();
         verify(ruleFactory).update(testUpdateValidationRule);
@@ -213,8 +188,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testPersistWithProperties() {
-        ValidationRuleImpl testPersistValidationRule =
-                ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename");
+        ValidationRuleImpl testPersistValidationRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         ValidationRuleProperties property1 = testPersistValidationRule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
 
         testPersistValidationRule.save();
@@ -224,7 +198,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testDeleteWithProperties() {
-        ValidationRuleImpl rule = ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename");
+        ValidationRuleImpl rule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         ValidationRuleProperties property1 = rule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
         field("id").ofType(Long.TYPE).in(rule).set(ID);
         rule.save();
@@ -255,7 +229,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testPersistWithReadingTypes() {
-        ValidationRuleImpl newRule = ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename");
+        ValidationRuleImpl newRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         ReadingTypeInValidationRule readingTypeInValidationRule = newRule.addReadingType(readingType1);
 
         newRule.save();
@@ -265,7 +239,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testDeleteWithReadingTypes() {
-        ValidationRuleImpl newRule = ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION, "rulename");
+        ValidationRuleImpl newRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         ReadingTypeInValidationRule readingTypeInValidationRule = newRule.addReadingType(readingType1);
         field("id").ofType(Long.TYPE).in(newRule).set(ID);
         newRule.save();

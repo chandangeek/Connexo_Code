@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
@@ -12,7 +11,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-final class ValidationRulePropertiesImpl implements ValidationRuleProperties, PersistenceAware {
+final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private String name;
     private String stringValue;
@@ -22,7 +21,10 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties, Pe
 
     @Inject
     ValidationRulePropertiesImpl() {
-        //for persistence
+    }
+
+    ValidationRulePropertiesImpl init(ValidationRuleImpl rule, String name, Object value) {
+        return init(rule, rule.getPropertySpec(name), value);
     }
 
     ValidationRulePropertiesImpl init(ValidationRule rule, PropertySpec propertySpec, Object value) {
@@ -32,14 +34,12 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties, Pe
         setValue(value);
         return this;
     }
-
-    static ValidationRulePropertiesImpl from(DataModel dataModel, ValidationRuleImpl rule, String name, Object value) {
-        return dataModel.getInstance(ValidationRulePropertiesImpl.class).init(rule, rule.getPropertySpec(name), value);
-    }
-
-    @Override
-    public void postLoad() {
-        propertySpec = ((IValidationRule) rule.get()).getPropertySpec(name);
+    
+    PropertySpec getPropertySpec() {
+    	if (propertySpec == null) {
+    		propertySpec = ((IValidationRule) rule.get()).getPropertySpec(name);
+    	}
+    	return propertySpec;
     }
 
     @Override
@@ -59,12 +59,12 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties, Pe
 
     @Override
     public Object getValue() {
-        return propertySpec.getValueFactory().fromStringValue(stringValue);
+        return getPropertySpec().getValueFactory().fromStringValue(stringValue);
     }
 
     @Override
     public void setValue(Object value) {
-        if (BigDecimal.class.equals(propertySpec.getValueFactory().getValueType())) {
+        if (BigDecimal.class.equals(getPropertySpec().getValueFactory().getValueType())) {
             this.stringValue = toStringValue(new BigDecimal(value.toString()));
             return;
         }
@@ -73,7 +73,7 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties, Pe
 
     @SuppressWarnings("unchecked")
     private String toStringValue(Object object) {
-        return propertySpec.getValueFactory().toStringValue(object);
+        return getPropertySpec().getValueFactory().toStringValue(object);
     }
 
     @Override

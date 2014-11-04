@@ -54,11 +54,6 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         return this;
     }
 
-    static MeterActivationValidationImpl from(DataModel dataModel, MeterActivation meterActivation) {
-        MeterActivationValidationImpl meterActivationValidation = dataModel.getInstance(MeterActivationValidationImpl.class);
-        return meterActivationValidation.init(meterActivation);
-    }
-
     @Override
     public MeterActivation getMeterActivation() {
         return meterActivation.get();
@@ -81,7 +76,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public ChannelValidationImpl addChannelValidation(Channel channel) {
-        ChannelValidationImpl channelValidation = ChannelValidationImpl.from(dataModel, this, channel);
+        ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(this, channel);
         Condition condition = Where.where("channel").isEqualTo(channel).and(Where.where("meterActivationValidation.obsoleteTime").isNull());
         dataModel.query(ChannelValidation.class,  IMeterActivationValidation.class).select(condition).stream()
         	.map(ChannelValidation::getLastChecked)

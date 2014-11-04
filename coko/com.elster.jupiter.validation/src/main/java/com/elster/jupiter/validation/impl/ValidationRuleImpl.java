@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -80,28 +81,25 @@ public final class ValidationRuleImpl implements IValidationRule {
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
     private final EventService eventService;
+    private final Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider;
 
     @Inject
-    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus, MeteringService meteringService, EventService eventService) {
+    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus, MeteringService meteringService, EventService eventService, Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider) {
         this.dataModel = dataModel;
         this.validatorCreator = validatorCreator;
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.eventService = eventService;
+        this.readingTypeInRuleProvider = readingTypeInRuleProvider;
     }
 
-    ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position, String name) {
+    ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, String name) {
         this.ruleSet.set(ruleSet);
         this.action = action;
-        this.implementation = implementation;
-        this.position = position; 
+        this.implementation = implementation;        
         this.name = name.trim();
         this.active = false;
         return this;
-    }
-
-    static ValidationRuleImpl from(DataModel dataModel, ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position, String name) {
-        return dataModel.getInstance(ValidationRuleImpl.class).init(ruleSet, action, implementation, position, name);
     }
 
     @Override
@@ -111,7 +109,7 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public ValidationRuleProperties addProperty(String name, Object value) {
-        ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, name, value);
+        ValidationRulePropertiesImpl newProperty = new ValidationRulePropertiesImpl().init(this, name, value);
         properties.add(newProperty);
         return newProperty;
     }
@@ -121,7 +119,7 @@ public final class ValidationRuleImpl implements IValidationRule {
         entryDiff.clear();
         List<ValidationRuleProperties> newProperties = new ArrayList<>();
         for (Map.Entry<String, Object> property : propertyMap.entrySet()) {
-            ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, property.getKey(), property.getValue());
+            ValidationRulePropertiesImpl newProperty = new ValidationRulePropertiesImpl().init(this, property.getKey(), property.getValue());
             newProperties.add(newProperty);
         }
 
@@ -141,7 +139,7 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public ReadingTypeInValidationRule addReadingType(ReadingType readingType) {
-        ReadingTypeInValidationRuleImpl readingTypeInValidationRule = ReadingTypeInValidationRuleImpl.from(dataModel, this, readingType);
+        ReadingTypeInValidationRuleImpl readingTypeInValidationRule = readingTypeInRuleProvider.get().init(this, readingType);
         readingTypesInRule.add(readingTypeInValidationRule);
         return readingTypeInValidationRule;
     }
@@ -154,7 +152,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     private ReadingTypeInValidationRule readingTypeInValidationRuleFor(String mRID) {
-        ReadingTypeInValidationRuleImpl empty = ReadingTypeInValidationRuleImpl.from(dataModel, this, mRID);
+        ReadingTypeInValidationRuleImpl empty = readingTypeInRuleProvider.get().init(this, mRID);
         if (getId() != 0) {
             Save.UPDATE.validate(dataModel, empty);
         }
@@ -414,4 +412,10 @@ public final class ValidationRuleImpl implements IValidationRule {
     public ReadingQualityType getReadingQualityType() {
         return createNewValidator().getReadingQualityTypeCode().orElse(ReadingQualityType.defaultCodeForRuleId(getId()));
     }
+    
+    @Override
+    public boolean appliesTo(Channel channel) {
+    	return isActive() && getReadingTypes().stream().anyMatch(readingType -> channel.hasReadingType(readingType));
+    }
+    
 }

@@ -23,13 +23,8 @@ public class MeterValidationImpl {
 
     MeterValidationImpl init(Meter meter) {
         this.meter.set(meter);
+        saved = false;
         return this;
-    }
-
-    static MeterValidationImpl from(DataModel dataModel, Meter meter) {
-        MeterValidationImpl meterValidation = dataModel.getInstance(MeterValidationImpl.class);
-        meterValidation.saved = false;
-        return meterValidation.init(meter);
     }
 
     public boolean getActivationStatus() {

@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.inject.Provider;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -59,6 +61,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -142,6 +146,8 @@ public class ValidationServiceImplTest {
     private ReadingQualityRecord readingQuality1, readingQuality2, readingQuality3;
     @Mock
     private QueryExecutor<ChannelValidation> channelValidationQuery;
+    @Mock
+    private ValidatorCreator validatorCreator;
 
     @Before
     public void setUp() {
@@ -158,17 +164,13 @@ public class ValidationServiceImplTest {
         when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
         when(queryService.wrap(eq(validationRuleQueryExecutor))).thenReturn(allValidationRuleQuery);
 
-        validationService = new ValidationServiceImpl();
-        validationService.setOrmService(ormService);
-        validationService.setNlsService(nlsService);
-        validationService.setQueryService(queryService);
+        validationService = new ValidationServiceImpl(clock, eventService, meteringService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class)); 
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
-        when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService));
-        when(dataModel.getInstance(MeterActivationValidationImpl.class)).thenAnswer(invocationOnMock -> new MeterActivationValidationImpl(dataModel, clock));
-        when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(invocationOnMock -> new ChannelValidationImpl());
+        Provider<ValidationRuleImpl> provider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, () -> new ReadingTypeInValidationRuleImpl(meteringService));
+        when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, provider));
         when(dataModel.query(IMeterActivationValidation.class, ChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
         when(thesaurus.getFormat(any())).thenReturn(nlsMessageFormat);
@@ -575,19 +577,14 @@ public class ValidationServiceImplTest {
         when(meter.getId()).thenReturn(ID);
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterValidationImpl>empty());
-        when(dataModel.getInstance(MeterValidationImpl.class)).thenReturn(meterValidation);
-        when(meterValidation.init(any(Meter.class))).thenReturn(meterValidation);
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Collections.<ValidationRuleSet>emptyList());
 
 
         validationService.activateValidation(meter);
 
-        //Check that a MeterValidation object is made
-        verify(dataModel).getInstance(MeterValidationImpl.class);
-        verify(meterValidation).init(eq(meter));
-        verify(meterValidation).setActivationStatus(true);
-        verify(meterValidation).save();
-
+        //Check that a MeterValidation object is made        
+        verify(dataModel).persist(any(MeterValidationImpl.class));
+        
         // verify that the MeterActivationValidations are managed for the current MeterActivation
         verify(meter).getCurrentMeterActivation();
         verify(validationRuleSetResolver).resolve(meterActivation);

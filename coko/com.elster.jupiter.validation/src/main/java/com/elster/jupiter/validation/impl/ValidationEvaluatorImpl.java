@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.MeterActivationValidation;
@@ -155,10 +156,8 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         Query<IValidationRule> ruleQuery = validationService.getAllValidationRuleQuery();
         Set<IValidationRule> rules = channelValidations.stream()
                 .map(ChannelValidation::getMeterActivationValidation)
-                .map(MeterActivationValidation::getRuleSet)
-                .map(ValidationRuleSet::getId)
-                .map(id -> ruleQuery.select(Operator.EQUAL.compare("ruleSetId", id)))
-                .flatMap(l -> l.stream())
+                .map(MeterActivationValidation::getRuleSet)                
+                .flatMap(ruleSet -> ruleQuery.select(Where.where("ruleSet").isEqualTo(ruleSet)).stream())
                 .collect(Collectors.toSet());
         return Multimaps.index(rules, i -> i.getReadingQualityType().getCode());
     }

@@ -12,6 +12,7 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.google.common.collect.ImmutableList;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +22,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
+
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +63,9 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Mock
     private javax.validation.Validator validator;
     @Mock
-    private QueryExecutor queryExecutor;
+    private QueryExecutor<IValidationRule> queryExecutor;
+    private Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider = () -> new ReadingTypeInValidationRuleImpl(meteringService);
+    private Provider<ValidationRuleImpl> provider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, readingTypeInRuleProvider);
 
     @Before
     public void setUp() {
@@ -68,17 +73,10 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(setFactory);
         when(dataModel.mapper(ValidationRuleProperties.class)).thenReturn(rulePropertiesSet);
         when(dataModel.mapper(ReadingTypeInValidationRule.class)).thenReturn(readingTypeInValidationFactory);
-        when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService);
-            }
-        });
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
-
-        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService).init(NAME, null);
+        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, provider).init(NAME, null);
     }
     @After
     public void tearDown() {
@@ -87,7 +85,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationRuleSet == null) {
-            validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService).init(NAME, null);
+            validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, provider).init(NAME, null);
             setId(validationRuleSet, ID);
         }
         return validationRuleSet;
@@ -99,14 +97,14 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService).init(NAME, null);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, provider).init(NAME, null);
         setId(set, ID);
         return set;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService).init(NAME, null);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, provider).init(NAME, null);
         setId(set, OTHER_ID);
         return ImmutableList.of(set);
     }
@@ -149,8 +147,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
         validationRuleSet.save();
 
-        verify(dataModel).persist(validationRuleSet);
-        verify(dataModel).persist(rule1);
+        verify(dataModel).persist(validationRuleSet);        
     }
 
     @Test
@@ -185,25 +182,5 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         assertThat(validationRuleSet.getRules()).hasSize(2).contains(rule2, rule3);
 
     }
-
-    @Test
-    public void testUpdateWithRulesProperlyUpdatesPositions() {
-        setId(validationRuleSet, ID);
-        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
-        setId(rule1, 1001L);
-        IValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B", "rulename");
-        setId(rule2, 1002L);
-        when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
-
-        validationRuleSet.deleteRule(rule1);
-        IValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C", "rulename");
-
-        validationRuleSet.save();
-
-        assertThat(field("position").ofType(Integer.TYPE).in(rule2).get()).isEqualTo(1);
-        assertThat(field("position").ofType(Integer.TYPE).in(rule3).get()).isEqualTo(2);
-
-    }
-
 
 }

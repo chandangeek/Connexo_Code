@@ -21,8 +21,7 @@ public enum TableSpecs {
     	@Override
         void addTo(DataModel dataModel) {
         	Table<ValidationRuleSet> table = dataModel.addTable(name(), ValidationRuleSet.class);
-            table.map(ValidationRuleSetImpl.class);
-            table.cache();
+            table.map(ValidationRuleSetImpl.class);          
             table.setJournalTableName("VAL_VALIDATIONRULESETJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
@@ -51,8 +50,8 @@ public enum TableSpecs {
             table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
-            table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").onDelete(RESTRICT)
-            	.map("ruleSet").reverseMap("rules").composition().reverseMapOrder("position").on(ruleSetIdColumn).add();
+            table.foreignKey("VAL_FK_RULE").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
+            	.map("ruleSet").reverseMap("rules").composition().reverseMapOrder("position").add();
         }
     },
     VAL_VALIDATIONRULEPROPS {
@@ -82,7 +81,8 @@ public enum TableSpecs {
             table.column("OBSOLETETIME").number().conversion(NUMBER2INSTANT).map("obsoleteTime").add();
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(MeteringService.COMPONENTNAME, "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
-            table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).onDelete(DeleteRule.RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
+            table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).on(ruleSetIdColumn).onDelete(DeleteRule.RESTRICT)
+            	.map("ruleSet", ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
         }
     },
     VAL_CH_VALIDATION {

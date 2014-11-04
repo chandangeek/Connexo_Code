@@ -160,12 +160,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public ValidationRuleSet createValidationRuleSet(String name) {
-        return ValidationRuleSetImpl.from(dataModel, name);
+        return dataModel.getInstance(ValidationRuleSetImpl.class).init(name); 
     }
 
     @Override
     public ValidationRuleSet createValidationRuleSet(String name, String description) {
-        ValidationRuleSet set = ValidationRuleSetImpl.from(dataModel, name, description);
+        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, description);
         set.save();
         return set;
     }
@@ -207,7 +207,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     private void createMeterValidation(Meter meter, boolean active) {
-        MeterValidationImpl meterValidation = MeterValidationImpl.from(dataModel, meter);
+        MeterValidationImpl meterValidation = new MeterValidationImpl(dataModel).init(meter);
         meterValidation.setActivationStatus(active);
         meterValidation.save();
     }
@@ -338,7 +338,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     List<IMeterActivationValidation> getIMeterActivationValidations(MeterActivation meterActivation) {
         Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where("obsoleteTime").isNull());
-        return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class, ValidationRuleSet.class).select(condition);
+        return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class).select(condition);
     }
 
     private List<IMeterActivationValidation> getActiveIMeterActivationValidations(MeterActivation meterActivation) {
@@ -347,7 +347,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     private IMeterActivationValidation applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
-        IMeterActivationValidation meterActivationValidation = MeterActivationValidationImpl.from(dataModel, meterActivation);
+        IMeterActivationValidation meterActivationValidation = new MeterActivationValidationImpl(dataModel, clock).init(meterActivation);
         meterActivationValidation.setRuleSet(ruleSet);
         meterActivation.getChannels().stream()
                 .filter(c -> !ruleSet.getRules(c.getReadingTypes()).isEmpty())
