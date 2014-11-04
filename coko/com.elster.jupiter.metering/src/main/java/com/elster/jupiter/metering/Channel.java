@@ -38,6 +38,9 @@ public interface Channel {
 	void removeReadings(List<? extends BaseReadingRecord> readings);
 	Instant getLastDateTime();
 	List<Instant> toList(Range<Instant> range);
+	default boolean hasReadingType(ReadingType readingType) {
+		return getReadingTypes().contains(readingType);
+	}
 	
 	interface ReadingsDeletedEvent {
 		Channel getChannel();
