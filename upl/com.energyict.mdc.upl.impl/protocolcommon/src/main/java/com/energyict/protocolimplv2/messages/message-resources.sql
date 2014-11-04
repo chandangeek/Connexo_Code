@@ -18,6 +18,7 @@
 -- insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('your key', 'english translation', 'L', 'Y', 'N', 'MDW', sysdate);
 
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('noUserCredentialsAvailable', 'Cannot login, no user information is available. Make sure this application has access to the websocket of the online comserver first.', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('protocolTaskType.manualMeterReadings', 'Manual meter readings', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AlarmConfigurationMessage.RESET_ALL_ERROR_BITS', 'Reset all error bits', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('userHasNoComServerMobileRights', 'User has no rights to user the ComServer Mobile', 'M', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('CSC-COM-151', 'Communication was interrupted: {0}', 'M', 'Y', 'N', 'MDW', sysdate);
