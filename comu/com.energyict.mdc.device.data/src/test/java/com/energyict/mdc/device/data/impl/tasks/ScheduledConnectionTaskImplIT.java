@@ -283,7 +283,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
                 .add();
-        device.save();
         return scheduledConnectionTask;
     }
 
@@ -1958,6 +1957,42 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(myDefaultConnectionTask.isDefault()).isTrue();
     }
 
+    @Test
+    @Transactional
+    public void defaultPartialShouldNotCreateDefaultWhenDeviceHasAlreadyADefaultConnectionTaskTest() {
+        String myDefaultConnectionTaskName = "MyDefaultConnectionTask";
+        ScheduledConnectionTaskImpl myDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations(myDefaultConnectionTaskName, this.partialScheduledConnectionTask2);
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(myDefaultConnectionTask);
+
+        this.partialScheduledConnectionTask.setDefault(true);
+        this.partialScheduledConnectionTask.save();
+
+        String myNotDefaultConnectionTaskName = "ThisShouldNotBeDefault";
+        ScheduledConnectionTaskImpl thisShouldNotBeDefault = this.createAsapWithNoPropertiesWithoutViolations(myNotDefaultConnectionTaskName, this.partialScheduledConnectionTask);
+        Device device = inMemoryPersistence.getDeviceDataService().findDeviceById(myDefaultConnectionTask.getDevice().getId());
+
+        assertThat(device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(myDefaultConnectionTaskName)).findFirst().get().isDefault()).isTrue();
+        assertThat(device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(myNotDefaultConnectionTaskName)).findFirst().get().isDefault()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void creatingDefaultFromPartialShouldAlsoUpdateComTaskExecutionsWhichUseTheDefaultTest() {
+        this.partialScheduledConnectionTask.setDefault(true);
+        this.partialScheduledConnectionTask.save();
+
+
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+        assertThat(comTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(comTaskExecution.getConnectionTask()).isNull();
+
+        ScheduledConnectionTaskImpl myDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("MyDefaultConnectionTask", this.partialScheduledConnectionTask);
+
+        ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId());
+        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(myDefaultConnectionTask.getId());
+    }
+
     private void assertConnectionTask(List<ConnectionTask> outboundConnectionTasks, ScheduledConnectionTaskImpl... tasks) {
         assertThat(outboundConnectionTasks).isNotNull();
         assertThat(outboundConnectionTasks).hasSize(tasks.length);
@@ -1993,7 +2028,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .add();
-        device.save();
         return scheduledConnectionTask;
     }
 
@@ -2003,7 +2037,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                 .setNextExecutionSpecsFrom(temporalExpression)
                 .add();
-        device.save();
         return scheduledConnectionTask;
     }
 
@@ -2021,7 +2054,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
                 .setComPortPool(outboundTcpipComPortPool);
-        device.save();
 
         scheduledConnectionTaskBuilder.setConnectionStrategy(connectionStrategy);
         return (ScheduledConnectionTaskImpl) scheduledConnectionTaskBuilder.add();
@@ -2039,7 +2071,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         InboundConnectionTaskImpl inboundConnectionTask = (InboundConnectionTaskImpl) this.device.getInboundConnectionTaskBuilder(partialConnectionTask)
                 .setComPortPool(inboundComPortPool)
                 .add();
-        device.save();
 
         inboundConnectionTask.save();
         return inboundConnectionTask;
