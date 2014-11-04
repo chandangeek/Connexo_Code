@@ -114,6 +114,7 @@ public class TimeApplication extends Application implements InstallService {
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(restQueryService).to(RestQueryService.class);
         }
     }
 }
