@@ -1625,7 +1625,7 @@ public class DeviceImpl implements Device, CanLock {
         while (connectionTaskIterator.hasNext() && removedNone) {
             ConnectionTaskImpl<?, ?> connectionTaskToRemove = connectionTaskIterator.next();
             if (connectionTaskToRemove.getId() == connectionTask.getId()) {
-                connectionTask.makeObsolete();
+                connectionTaskToRemove.delete();
                 connectionTaskIterator.remove();
                 removedNone = false;
             }
