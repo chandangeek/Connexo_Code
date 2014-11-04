@@ -66,7 +66,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         DeviceMessageCategory displayCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec displayMessage = mock(DeviceMessageSpec.class);
 
-        when(deviceMessageService.allCategories()).thenReturn(Arrays.asList(clockCategory, displayCategory));
+        when(deviceMessageSpecificationService.allCategories()).thenReturn(Arrays.asList(clockCategory, displayCategory));
         when(clockCategory.getName()).thenReturn("Clock");
         when(displayCategory.getName()).thenReturn("Display");
         when(clockCategory.getMessageSpecifications()).thenReturn(Arrays.asList(clockSetTimeMessage, clockSetDSTMessage));
@@ -122,7 +122,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
     @Test
     public void testActivateDeviceMessagesIncorrectMessage() {
         mockDeviceConfiguration();
-        when(deviceMessageService.findMessageSpecById(1L)).thenReturn(Optional.empty());
+        when(deviceMessageSpecificationService.findMessageSpecById(1L)).thenReturn(Optional.empty());
 
         DeviceMessageEnablementInfo requestBody = new DeviceMessageEnablementInfo();
         requestBody.messageIds = Arrays.asList(1L);
@@ -138,7 +138,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration();
         DeviceMessageSpec message = mock(DeviceMessageSpec.class);
         DeviceMessageEnablementBuilder enablementBuilder = mock(DeviceMessageEnablementBuilder.class);
-        when(deviceMessageService.findMessageSpecById(1L)).thenReturn(Optional.of(message));
+        when(deviceMessageSpecificationService.findMessageSpecById(1L)).thenReturn(Optional.of(message));
         when(message.getId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME);
         when(deviceConfiguration.createDeviceMessageEnablement(DeviceMessageId.CLOCK_SET_TIME)).thenReturn(enablementBuilder);
 
@@ -157,8 +157,8 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
     @Test
     public void testDeactivateDeviceMessagesIncorrectMessage() {
         mockDeviceConfiguration();
-        when(deviceMessageService.findMessageSpecById(1L)).thenReturn(Optional.empty());
-        when(deviceMessageService.findMessageSpecById(13L)).thenReturn(Optional.empty());
+        when(deviceMessageSpecificationService.findMessageSpecById(1L)).thenReturn(Optional.empty());
+        when(deviceMessageSpecificationService.findMessageSpecById(13L)).thenReturn(Optional.empty());
 
         DeviceMessageEnablementInfo requestBody = new DeviceMessageEnablementInfo();
         requestBody.messageIds = Arrays.asList(1L);
@@ -175,8 +175,8 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration();
         DeviceMessageSpec message1 = mock(DeviceMessageSpec.class);
         DeviceMessageSpec message2 = mock(DeviceMessageSpec.class);
-        when(deviceMessageService.findMessageSpecById(1)).thenReturn(Optional.of(message1));
-        when(deviceMessageService.findMessageSpecById(13)).thenReturn(Optional.of(message2));
+        when(deviceMessageSpecificationService.findMessageSpecById(1)).thenReturn(Optional.of(message1));
+        when(deviceMessageSpecificationService.findMessageSpecById(13)).thenReturn(Optional.of(message2));
         when(message1.getId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME);
         when(message2.getId()).thenReturn(DeviceMessageId.CLOCK_SET_DST);
 

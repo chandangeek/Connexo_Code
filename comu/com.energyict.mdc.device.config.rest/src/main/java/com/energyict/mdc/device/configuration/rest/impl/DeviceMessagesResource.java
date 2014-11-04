@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,7 @@ import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -41,14 +40,14 @@ public class DeviceMessagesResource {
 
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
-    private final DeviceMessageService deviceMessageService;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceMessagesResource(ResourceHelper resourceHelper, Thesaurus thesaurus, DeviceMessageService deviceMessageService, ExceptionFactory exceptionFactory) {
+    public DeviceMessagesResource(ResourceHelper resourceHelper, Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
-        this.deviceMessageService = deviceMessageService;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -71,7 +70,7 @@ public class DeviceMessagesResource {
         List<DeviceMessageEnablement> deviceMessageEnablements = deviceConfiguration.getDeviceMessageEnablements();
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
 
-        for (DeviceMessageCategory category : deviceMessageService.allCategories()) {
+        for (DeviceMessageCategory category : deviceMessageSpecificationService.allCategories()) {
             List<DeviceMessageSpec> messages = category.getMessageSpecifications().stream()
                     .filter(m -> supportedMessages.contains(m.getId()))
                     .sorted((m1, m2) -> m1.getName().compareTo(m2.getName()))
@@ -99,7 +98,7 @@ public class DeviceMessagesResource {
         Set<DeviceMessageId> existingEnablements = deviceConfiguration.getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toSet());
 
         for (Long messageId : enablementInfo.messageIds) {
-            DeviceMessageSpec messageSpec = deviceMessageService.findMessageSpecById(messageId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, messageId));
+            DeviceMessageSpec messageSpec = deviceMessageSpecificationService.findMessageSpecById(messageId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, messageId));
             if (!existingEnablements.contains(messageSpec.getId())) {
                 DeviceMessageEnablementBuilder enablementBuilder = deviceConfiguration.createDeviceMessageEnablement(messageSpec.getId());
                 enablementInfo.privileges.stream().map(p -> p.privilege).forEach(enablementBuilder::addUserAction);
@@ -123,7 +122,7 @@ public class DeviceMessagesResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
 
         for (Long messageId: messageIds) {
-            DeviceMessageSpec messageSpec = deviceMessageService.findMessageSpecById(messageId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, messageId));
+            DeviceMessageSpec messageSpec = deviceMessageSpecificationService.findMessageSpecById(messageId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, messageId));
             deviceConfiguration.removeDeviceMessageEnablement(messageSpec.getId());
         }
 

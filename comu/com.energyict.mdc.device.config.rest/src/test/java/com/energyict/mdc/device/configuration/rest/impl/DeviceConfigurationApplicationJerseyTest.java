@@ -11,7 +11,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -46,7 +46,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     @Mock
     TaskService taskService;
     @Mock
-    DeviceMessageService deviceMessageService;
+    DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -69,7 +69,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setJsonService(jsonService);
         application.setTaskService(taskService);
         application.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
-        application.setDeviceMessageService(deviceMessageService);
+        application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         return application;
     }
 }
