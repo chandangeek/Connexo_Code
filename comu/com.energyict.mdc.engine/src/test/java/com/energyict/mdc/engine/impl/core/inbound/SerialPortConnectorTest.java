@@ -18,7 +18,7 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.io.impl.AtModemComponent;
-import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
+import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import org.joda.time.DateTimeConstants;
 import org.junit.Before;
 import org.junit.Test;

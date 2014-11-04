@@ -19,7 +19,7 @@ import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
-import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
+import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

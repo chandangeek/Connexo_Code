@@ -28,7 +28,7 @@ import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
-import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
+import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
